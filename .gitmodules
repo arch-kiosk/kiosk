@@ -1,0 +1,6 @@
+[submodule "kiosk/plugins/logviewerplugin"]
+	path = kiosk/plugins/logviewerplugin
+	url = https://github.com/arch-kiosk/logviewerplugin.git
+[submodule "kiosk/plugins/pwastresstestplugin"]
+	path = kiosk/plugins/pwastresstestplugin
+	url = https://github.com/arch-kiosk/pwastresstestplugin.git
