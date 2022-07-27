@@ -1,9 +1,0 @@
-autopep8
-flake8
-pep8
-pipdeptree
-pydocstyle
-pylint
-rope
-yapf
-jupyter
