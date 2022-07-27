@@ -30,6 +30,7 @@ old_*/
 /*.ps1
 requirements*.txt
 *.tmp
+/.gitmodules
 !/dev_requirements.txt
 !/apply-kiosk-acl.ps1
 !/requirements.txt
