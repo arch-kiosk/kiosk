@@ -1,0 +1,29 @@
+config:
+  format_version: 3
+  imports:
+    - dsd3_external_test_base.yml
+    - dsd3_sync_subsystem.yml
+
+test:
+  structure:
+    3:
+      name: [datatype("VARCHAR")]
+      description: [datatype("VARCHAR")]
+      dontsync: [datatype("TIMESTAMP"), nosync()]  #don't inculde this field in any synchronizaiton
+      uid: [datatype("REPLFIELD_UUID")]
+      created: [datatype("REPLFIELD_CREATED")]
+      modified: [datatype("REPLFIELD_MODIFIED")]
+      modified_by: [datatype("REPLFIELD_MODIFIED_BY"), default("sys")]
+    2:
+      name: [datatype("VARCHAR")]
+      test_description: [datatype("VARCHAR")]
+      uid: [datatype("REPLFIELD_UUID")]
+      created: [datatype("REPLFIELD_CREATED")]
+      modified: [datatype("REPLFIELD_MODIFIED")]
+      modified_by: [datatype("REPLFIELD_MODIFIED_BY"), default("sys")]
+    1:
+      name: [datatype("VARCHAR")]
+      uid: [datatype("REPLFIELD_UUID")]
+      created: [datatype("REPLFIELD_CREATED")]
+      modified: [datatype("REPLFIELD_MODIFIED")]
+      modified_by: [datatype("REPLFIELD_MODIFIED_BY"), default("sys")]

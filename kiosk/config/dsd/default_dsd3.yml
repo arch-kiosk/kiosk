@@ -1,0 +1,1697 @@
+config:
+  format_version: 3
+  imports:
+    - dsd3_sync_subsystem.yml
+    - dsd3_kiosk_tables.yml
+#    - wc_pottery_dsd3.yml
+    - contexts.yml
+    - default_migration_scripts.yml
+#    - su_ceramics_dsd3.yml
+
+migration_catalog:
+  meta:
+    flags: [system_table]
+  structure:
+    1:
+      "uid": [datatype('UUID'), uuid_key()]
+      "table": [datatype('TEXT'), not_null(), unique()]
+      "table_definition": [datatype('TEXT'), not_null()]
+      "namespace": [datatype('TEXT'), default("''")]
+      "version": [datatype('INT'), not_null()]
+
+migration_flags:
+  meta:
+    flags: [system_table]
+  structure:
+    1:
+      "uid": [datatype('UUID'), uuid_key()]
+      "flag": [datatype('TEXT'), not_null(), unique()]
+      "value": [datatype('TEXT'), not_null()]
+
+collected_material:
+  structure:
+    6:
+      uid_locus: [datatype(UUID), join("locus")]
+      external_id: [datatype(VARCHAR), identifier("additional")]
+      uid_lot: [datatype(UUID)]
+      type: [datatype(VARCHAR)]
+      cm_type: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR), record_description()]
+      isobject: [datatype(NUMBER)]
+      date: [datatype(TIMESTAMP)]
+      storage: [datatype(VARCHAR)]
+      pottery_remarks: [datatype(VARCHAR)]
+      number_of_bags: [datatype(int)]
+      coord_x: [datatype(FLOAT)]
+      coord_y: [datatype(FLOAT)]
+      coord_z: [datatype(FLOAT)]
+      status_done: [datatype(VARCHAR)]
+      status_todo: [datatype(VARCHAR)]
+      dearregistrar: [datatype(VARCHAR)]
+      weight: [datatype(DECIMAL), default(0)]
+      volume: [datatype(DECIMAL), default(0)]
+      period: [datatype(VARCHAR)]
+      quantity: [datatype(DECIMAL), default(0)]
+      is_grave_good: [datatype(NUMBER)]
+      collection_method: [datatype(VARCHAR)]
+      analysis_method: [datatype(VARCHAR)]
+      id: [datatype(NUMBER), local_id("arch_context")]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    5:
+      uid_locus: [datatype(UUID), join("locus")]
+      external_id: [datatype(VARCHAR), identifier("additional")]
+      uid_lot: [datatype(UUID)]
+      type: [datatype(VARCHAR)]
+      cm_type: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR), record_description()]
+      isobject: [datatype(NUMBER)]
+      date: [datatype(TIMESTAMP)]
+      storage: [datatype(VARCHAR)]
+      pottery_remarks: [datatype(VARCHAR)]
+      status_done: [datatype(VARCHAR)]
+      status_todo: [datatype(VARCHAR)]
+      dearregistrar: [datatype(VARCHAR)]
+      weight: [datatype(DECIMAL), default(0)]
+      volume: [datatype(DECIMAL), default(0)]
+      period: [datatype(VARCHAR)]
+      quantity: [datatype(DECIMAL), default(0)]
+      is_grave_good: [datatype(NUMBER)]
+      collection_method: [datatype(VARCHAR)]
+      analysis_method: [datatype(VARCHAR)]
+      id: [datatype(NUMBER), local_id("arch_context")]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    4:
+      uid_locus: [datatype(UUID), join("locus")]
+      external_id: [datatype(VARCHAR), identifier("additional")]
+      uid_lot: [datatype(UUID)]
+      type: [datatype(VARCHAR)]
+      cm_type: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR), record_description()]
+      isobject: [datatype(NUMBER)]
+      date: [datatype(TIMESTAMP)]
+      storage: [datatype(VARCHAR)]
+      pottery_remarks: [datatype(VARCHAR)]
+      status_done: [datatype(VARCHAR)]
+      status_todo: [datatype(VARCHAR)]
+      dearregistrar: [datatype(VARCHAR)]
+      weight: [datatype(DECIMAL)]
+      period: [datatype(VARCHAR)]
+      quantity: [datatype(DECIMAL)]
+      is_grave_good: [datatype(NUMBER)]
+      collection_method: [datatype(VARCHAR)]
+      id: [datatype(NUMBER), local_id("arch_context")]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    3:
+      uid_locus: [datatype(UUID), join("locus")]
+      external_id: [datatype(VARCHAR), identifier("additional")]
+      uid_lot: [datatype(UUID)]
+      type: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR), record_description()]
+      isobject: [datatype(NUMBER)]
+      date: [datatype(TIMESTAMP)]
+      storage: [datatype(VARCHAR)]
+      pottery_remarks: [datatype(VARCHAR)]
+      status_done: [datatype(VARCHAR)]
+      status_todo: [datatype(VARCHAR)]
+      dearregistrar: [datatype(VARCHAR)]
+      weight: [datatype(DECIMAL)]
+      period: [datatype(VARCHAR)]
+      quantity: [datatype(DECIMAL)]
+      is_grave_good: [datatype(NUMBER)]
+      collection_method: [datatype(VARCHAR)]
+      id: [datatype(NUMBER), local_id("arch_context")]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    2:
+      uid_locus: [datatype(UUID), join("locus")]
+      external_id: [datatype(VARCHAR), identifier("additional")]
+      uid_lot: [datatype(UUID)]
+      type: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR), record_description()]
+      isobject: [datatype(NUMBER)]
+      date: [datatype(TIMESTAMP)]
+      storage: [datatype(VARCHAR)]
+      pottery_remarks: [datatype(VARCHAR)]
+      status_done: [datatype(VARCHAR)]
+      status_todo: [datatype(VARCHAR)]
+      dearregistrar: [datatype(VARCHAR)]
+      weight: [datatype(DECIMAL)]
+      period: [datatype(VARCHAR)]
+      quantity: [datatype(DECIMAL)]
+      is_grave_good: [datatype(NUMBER)]
+      collection_method: [datatype(VARCHAR)]
+      id: [datatype(NUMBER), local_id("arch_context")]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+    1:
+      uid_locus: [datatype(UUID)]
+      id: [datatype(NUMBER)]
+      external_id: [datatype(VARCHAR)]
+      uid_lot: [datatype(UUID)]
+      type: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      isobject: [datatype(NUMBER)]
+      date: [datatype(TIMESTAMP)]
+      storage: [datatype(VARCHAR)]
+      pottery_remarks: [datatype(VARCHAR)]
+      status_done: [datatype(VARCHAR)]
+      status_todo: [datatype(VARCHAR)]
+      dearregistrar: [datatype(VARCHAR)]
+      weight: [datatype(DECIMAL)]
+      period: [datatype(VARCHAR)]
+      quantity: [datatype(DECIMAL)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    6:
+      upgrade:
+        - add("number_of_bags")
+        - add("coord_x")
+        - add("coord_y")
+        - add("coord_z")
+    5:
+      upgrade:
+        - add("analysis_method")
+        - add("volume")
+        - alter("weight")
+        - alter("quantity")
+    4:
+      upgrade:
+        - add("cm_type")
+    3:
+      upgrade:
+        - alter("modified_by")
+    2:
+      upgrade:
+        - add("is_grave_good")
+        - add("collection_method")
+        - add("arch_domain")
+        - add("arch_context")
+collected_material_photo:
+  structure:
+    2:
+      uid_cm: [datatype(UUID), join("collected_material")]
+      uid_photo: [datatype(UUID), uid_file(), file_location_for("collected_material")]
+      description: [datatype(VARCHAR), describes_file(uid_photo)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    1:
+      uid_cm: [datatype(UUID), join("collected_material")]
+      uid_photo: [datatype(UUID), uid_file(), file_location_for("collected_material")]
+      description: [datatype(VARCHAR), describes_file(uid_photo)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    2:
+      upgrade:
+        - alter("modified_by")
+
+collected_material_types:
+  structure:
+    1:
+      id: [datatype(VARCHAR), unique(), not_null()]
+      name: [datatype(VARCHAR)]
+      detail_record_type: [datatype(VARCHAR)]
+      identification_method: [datatype(VARCHAR)]
+      identification_method_su: [datatype(VARCHAR)]
+      identification_method_fu: [datatype(VARCHAR)]
+      layout_name: [datatype(VARCHAR)]
+      collected_material_type_image_uid: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+
+dayplan:
+  structure:
+    4:
+      uid_unit: [datatype(UUID), join("unit")]
+      image_description: [datatype(VARCHAR), describes_file(uid_image)]
+      uid_image: [datatype(UUID), uid_file(), 'file_assigned_to("site")', 'file_location_for("unit")']
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    3:
+      uid_unit: [datatype(UUID), join("unit")]
+      image_description: [datatype(VARCHAR), describes_file(uid_image)]
+      uid_image: [datatype(UUID), uid_file(), 'file_assigned_to("site")', 'file_location_for("unit")']
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+    2:
+      id_unit: [datatype(VARCHAR)]
+      uid_unit: [datatype(UUID), join("unit")]
+      image_description: [datatype(VARCHAR), describes_file(uid_image)]
+      uid_image: [datatype(UUID), uid_file(), file_location_for("unit")]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+    1:
+      id_unit: [datatype(VARCHAR)]
+      image_description: [datatype(VARCHAR), describes_file(uid_image)]
+      uid_image: [datatype(UUID), uid_file()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    4:
+      upgrade:
+        - alter("modified_by")
+    3:
+      upgrade:
+        - drop("id_unit")
+    2:
+      upgrade:
+        - add("uid_unit")
+
+excavator:
+  structure:
+    3:
+      id: [datatype(VARCHAR)]
+      name: [datatype(VARCHAR)]
+      properties: [datatype(VARCHAR)]
+      password_hash: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid(), default(gen_random_uuid())]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    2:
+      id: [datatype(VARCHAR)]
+      name: [datatype(VARCHAR)]
+      properties: [datatype(VARCHAR)]
+      password_hash: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid(), default(gen_random_uuid())]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+    1:
+      id: [datatype(VARCHAR)]
+      name: [datatype(VARCHAR)]
+      properties: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid(), default(gen_random_uuid())]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    3:
+      upgrade:
+        - alter("modified_by")
+    2:
+      upgrade:
+        - add("password_hash")
+
+feature_unit:
+  structure:
+    3:
+      uid_unit: [datatype(UUID), join("unit")]
+      feature_type: [datatype(VARCHAR)]
+      materials: [datatype(VARCHAR)]
+      width: [datatype(NUMBER)]
+      length: [datatype(NUMBER)]
+      elevation: [datatype(NUMBER)]
+      height: [datatype(NUMBER)]
+      revisit: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    2:
+      uid_unit: [datatype(UUID), join("unit")]
+      feature_type: [datatype(VARCHAR)]
+      materials: [datatype(VARCHAR)]
+      width: [datatype(NUMBER)]
+      length: [datatype(NUMBER)]
+      elevation: [datatype(NUMBER)]
+      height: [datatype(NUMBER)]
+      revisit: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+    1:
+      uid_unit: [datatype(UUID), join("unit")]
+      feature_type: [datatype(VARCHAR)]
+      materials: [datatype(VARCHAR)]
+      width: [datatype(NUMBER)]
+      length: [datatype(NUMBER)]
+      elevation: [datatype(NUMBER)]
+      revisit: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    3:
+      upgrade:
+        - alter("modified_by")
+    2:
+      upgrade:
+        - add("height")
+
+images:
+  structure:
+    4:
+      description: [datatype(VARCHAR), describes_file(uid)]
+      img_proxy : [datatype(TIMESTAMP), proxy_for(uid)]
+      ref_uid: [datatype(UUID)]
+      file_datetime: [datatype(TIMESTAMP)]
+      filename: [datatype(VARCHAR), no_sync(), filename()]
+      export_filename: [datatype(VARCHAR), unique()]
+      image_attributes: [datatype(JSON), no_sync()]
+      md5_hash: [datatype(VARCHAR), no_sync()]
+      original_md5: [datatype(VARCHAR)]
+      tags: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid(), file_for(img_proxy)]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    3:
+      description: [datatype(VARCHAR), describes_file(uid)]
+      img_proxy : [datatype(TIMESTAMP), proxy_for(uid)]
+      ref_uid: [datatype(UUID)]
+      file_datetime: [datatype(TIMESTAMP)]
+      filename: [datatype(VARCHAR), no_sync(), filename()]
+      image_attributes: [datatype(JSON), no_sync()]
+      md5_hash: [datatype(VARCHAR), no_sync()]
+      original_md5: [datatype(VARCHAR)]
+      tags: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid(), file_for(img_proxy)]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    2:
+      description: [datatype(VARCHAR), describes_file(uid)]
+      img_proxy : [datatype(TIMESTAMP), proxy_for(uid)]
+      ref_uid: [datatype(UUID)]
+      file_datetime: [datatype(TIMESTAMP)]
+      filename: [datatype(VARCHAR), no_sync()]
+      image_attributes: [datatype(JSON), no_sync()]
+      md5_hash: [datatype(VARCHAR), no_sync()]
+      original_md5: [datatype(VARCHAR)]
+      tags: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid(), file_for(img_proxy)]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+    1:
+      table_context: [datatype(VARCHAR)]
+      excavation_context: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR), describes_file(uid)]
+      img_proxy : [datatype(TIMESTAMP), proxy_for(uid)]
+      ref_uid: [datatype(UUID)]
+      id_locus: [datatype(NUMBER)]
+      id_unit: [datatype(VARCHAR)]
+      id_cm: [datatype(NUMBER)]
+      id_site: [datatype(VARCHAR)]
+      file_datetime: [datatype(TIMESTAMP)]
+      filename: [datatype(VARCHAR), no_sync()]
+      image_attributes: [datatype(JSON), no_sync()]
+      md5_hash: [datatype(VARCHAR), no_sync()]
+      original_md5: [datatype(VARCHAR)]
+      tags: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid(), file_for(img_proxy)]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    4:
+      upgrade:
+        - add("export_filename")
+    3:
+      upgrade:
+        - alter("modified_by")
+    2:
+      upgrade:
+        - drop("table_context")
+        - drop("excavation_context")
+        - drop("id_locus")
+        - drop("id_unit")
+        - drop("id_cm")
+        - drop("id_site")
+locus:
+  structure:
+    7:
+      uid_unit: [datatype(UUID), join("unit")]
+      type: [datatype(VARCHAR)]
+      opening elevations: [datatype(VARCHAR)]
+      closing elevations: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR), record_description()]
+      date_defined: [datatype(DATE)]
+      date_closed: [datatype(DATE)]
+      interpretation: [datatype(VARCHAR)]
+      colour: [datatype(VARCHAR)]
+      formation_process: [datatype(VARCHAR)]
+      elevation_opening_nw: [datatype(FLOAT)]
+      elevation_opening_ne: [datatype(FLOAT)]
+      elevation_opening_se: [datatype(FLOAT)]
+      elevation_opening_sw: [datatype(FLOAT)]
+      elevation_opening_ct: [datatype(FLOAT)]
+      elevation_closing_nw: [datatype(FLOAT)]
+      elevation_closing_ne: [datatype(FLOAT)]
+      elevation_closing_se: [datatype(FLOAT)]
+      elevation_closing_sw: [datatype(FLOAT)]
+      elevation_closing_ct: [datatype(FLOAT)]
+      datum_point_elevation: [datatype(FLOAT)]
+      width: [datatype(FLOAT)]
+      length: [datatype(FLOAT)]
+      depth: [datatype(FLOAT)]
+      volume: [datatype(FLOAT)]
+      id: [datatype(NUMBER), local_id("arch_context")]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier(), skip_index_on("hidden")]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      recorded_by: [datatype(VARCHAR), default(null)]
+    6:
+      uid_unit: [datatype(UUID), join("unit")]
+      type: [datatype(VARCHAR)]
+      opening elevations: [datatype(VARCHAR)]
+      closing elevations: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR), record_description()]
+      date_defined: [datatype(DATE)]
+      date_closed: [datatype(DATE)]
+      interpretation: [datatype(VARCHAR)]
+      colour: [datatype(VARCHAR)]
+      formation_process: [datatype(VARCHAR)]
+      elevation_opening_nw: [datatype(NUMBER)]
+      elevation_opening_ne: [datatype(NUMBER)]
+      elevation_opening_se: [datatype(NUMBER)]
+      elevation_opening_sw: [datatype(NUMBER)]
+      elevation_opening_ct: [datatype(NUMBER)]
+      elevation_closing_nw: [datatype(NUMBER)]
+      elevation_closing_ne: [datatype(NUMBER)]
+      elevation_closing_se: [datatype(NUMBER)]
+      elevation_closing_sw: [datatype(NUMBER)]
+      elevation_closing_ct: [datatype(NUMBER)]
+      width: [datatype(NUMBER)]
+      length: [datatype(NUMBER)]
+      depth: [datatype(NUMBER)]
+      volume: [datatype(NUMBER)]
+      id: [datatype(NUMBER), local_id("arch_context")]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier(), skip_index_on("hidden")]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      recorded_by: [datatype(VARCHAR), default(null)]
+    5:
+      uid_unit: [datatype(UUID), join("unit")]
+      type: [datatype(VARCHAR)]
+      opening elevations: [datatype(VARCHAR)]
+      closing elevations: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR), record_description()]
+      date_defined: [datatype(DATE)]
+      date_closed: [datatype(DATE)]
+      interpretation: [datatype(VARCHAR)]
+      colour: [datatype(VARCHAR)]
+      formation_process: [datatype(VARCHAR)]
+      elevation_opening_nw: [datatype(NUMBER)]
+      elevation_opening_ne: [datatype(NUMBER)]
+      elevation_opening_se: [datatype(NUMBER)]
+      elevation_opening_sw: [datatype(NUMBER)]
+      elevation_closing_nw: [datatype(NUMBER)]
+      elevation_closing_ne: [datatype(NUMBER)]
+      elevation_closing_se: [datatype(NUMBER)]
+      elevation_closing_sw: [datatype(NUMBER)]
+      id: [datatype(NUMBER), local_id("arch_context")]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier(), skip_index_on("hidden")]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      recorded_by: [datatype(VARCHAR), default(null)]
+    4:
+      uid_unit: [datatype(UUID), join("unit")]
+      type: [datatype(VARCHAR)]
+      opening elevations: [datatype(VARCHAR)]
+      closing elevations: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR), record_description()]
+      date_defined: [datatype(DATE)]
+      date_closed: [datatype(DATE)]
+      interpretation: [datatype(VARCHAR)]
+      colour: [datatype(VARCHAR)]
+      formation_process: [datatype(VARCHAR)]
+      id: [datatype(NUMBER), local_id("arch_context")]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier(), skip_index_on("hidden")]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      recorded_by: [datatype(VARCHAR), default(null)]
+    3:
+      uid_unit: [datatype(UUID), join("unit")]
+      type: [datatype(VARCHAR)]
+      opening elevations: [datatype(VARCHAR)]
+      closing elevations: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR), record_description()]
+      date_defined: [datatype(DATE)]
+      date_closed: [datatype(DATE)]
+      interpretation: [datatype(VARCHAR)]
+      colour: [datatype(VARCHAR)]
+      formation_process: [datatype(VARCHAR)]
+      id: [datatype(NUMBER), local_id("arch_context")]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+#      arch_context: [datatype(VARCHAR), identifier()]
+      arch_context: [datatype(VARCHAR), identifier(), skip_index_on("hidden")]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+      recorded_by: [datatype(VARCHAR), default('Null')]
+    2:
+      uid_unit: [datatype(UUID), join("unit")]
+      type: [datatype(VARCHAR)]
+      opening elevations: [datatype(VARCHAR)]
+      closing elevations: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      date_defined: [datatype(DATE)]
+      date_closed: [datatype(DATE)]
+      interpretation: [datatype(VARCHAR)]
+      colour: [datatype(VARCHAR)]
+      formation_process: [datatype(VARCHAR)]
+      id: [datatype(NUMBER), local_id("arch_context")]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+    1:
+      uid_unit: [datatype(UUID)]
+      id: [datatype(NUMBER)]
+      type: [datatype(VARCHAR)]
+      opening elevations: [datatype(VARCHAR)]
+      closing elevations: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      date_defined: [datatype(DATE)]
+      date_closed: [datatype(DATE)]
+      interpretation: [datatype(VARCHAR)]
+      colour: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    7:
+      upgrade:
+        - add("datum_point_elevation")
+        - alter("elevation_opening_ct")
+        - alter("elevation_closing_ct")
+        - alter("width")
+        - alter("length")
+        - alter("depth")
+        - alter("volume")
+        - alter("elevation_opening_nw")
+        - alter("elevation_opening_ne")
+        - alter("elevation_opening_sw")
+        - alter("elevation_opening_se")
+        - alter("elevation_closing_nw")
+        - alter("elevation_closing_ne")
+        - alter("elevation_closing_sw")
+        - alter("elevation_closing_se")
+    6:
+      upgrade:
+        - add("elevation_opening_ct")
+        - add("elevation_closing_ct")
+        - add("width")
+        - add("length")
+        - add("depth")
+        - add("volume")
+    5:
+      upgrade:
+        - add("elevation_opening_nw")
+        - add("elevation_opening_ne")
+        - add("elevation_opening_sw")
+        - add("elevation_opening_se")
+        - add("elevation_closing_nw")
+        - add("elevation_closing_ne")
+        - add("elevation_closing_sw")
+        - add("elevation_closing_se")
+    4:
+      upgrade:
+        - alter("recorded_by")
+        - alter("modified_by")
+    3:
+      upgrade:
+        - add("recorded_by")
+    2:
+      upgrade:
+        - add("formation_process")
+        - add("arch_domain")
+        - add("arch_context")
+locus_architecture:
+  structure:
+    2:
+      uid_locus: [datatype(UUID), join("locus")]
+      material: [datatype(VARCHAR)]
+      wall_thickness: [datatype(DECIMAL)]
+      preserved_height: [datatype(DECIMAL)]
+      features: [datatype(VARCHAR)]
+      brick_size: [datatype(VARCHAR)]
+      stone_size: [datatype(VARCHAR)]
+      mortar_desc: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    1:
+      uid_locus: [datatype(UUID), join("locus")]
+      material: [datatype(VARCHAR)]
+      wall_thickness: [datatype(DECIMAL)]
+      preserved_height: [datatype(DECIMAL)]
+      features: [datatype(VARCHAR)]
+      brick_size: [datatype(VARCHAR)]
+      stone_size: [datatype(VARCHAR)]
+      mortar_desc: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    2:
+      upgrade:
+        - alter("modified_by")
+
+locus_burial:
+  structure:
+    2:
+      uid_locus: [datatype(UUID), join("locus")]
+      min_number_individuals: [datatype(NUMBER)]
+      burial_type: [datatype(TEXT)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      created_by: [datatype(VARCHAR), replfield_created_by(), default(null)]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    1:
+      uid_locus: [datatype(UUID), join("locus")]
+      min_number_individuals: [datatype(NUMBER)]
+      burial_type: [datatype(TEXT)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      created_by: [datatype(VARCHAR), replfield_created_by(), default('Null')]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    2:
+      upgrade:
+        - alter("created_by")
+        - alter("modified_by")
+locus_deposit:
+  structure:
+    2:
+      uid_locus: [datatype(UUID), join("locus")]
+      material: [datatype(VARCHAR)]
+      compositions: [datatype(VARCHAR)]
+      gravel_prc: [datatype(DECIMAL)]
+      sand_prc: [datatype(DECIMAL)]
+      silt_prc: [datatype(DECIMAL)]
+      clay_prc: [datatype(DECIMAL)]
+      inclusions: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    1:
+      uid_locus: [datatype(UUID), join("locus")]
+      material: [datatype(VARCHAR)]
+      compositions: [datatype(VARCHAR)]
+      gravel_prc: [datatype(DECIMAL)]
+      sand_prc: [datatype(DECIMAL)]
+      silt_prc: [datatype(DECIMAL)]
+      clay_prc: [datatype(DECIMAL)]
+      inclusions: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    2:
+      upgrade:
+        - alter("modified_by")
+
+locus_othertype:
+  structure:
+    2:
+      uid_locus: [datatype(UUID), join("locus")]
+      type: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    1:
+      uid_locus: [datatype(UUID), join("locus")]
+      type: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    2:
+      upgrade:
+        - alter("modified_by")
+
+locus_photo:
+  structure:
+    2:
+      uid_locus: [datatype(UUID), join("locus")]
+      description: [datatype(VARCHAR), describes_file(uid_image)]
+      uid_image: [datatype(UUID), uid_file(), file_location_for("locus")]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    1:
+      uid_locus: [datatype(UUID), join("locus")]
+      description: [datatype(VARCHAR), describes_file(uid_image)]
+      uid_image: [datatype(UUID), uid_file(), file_location_for("locus")]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    2:
+      upgrade:
+        - alter("modified_by")
+locus_relations:
+  structure:
+    3:
+      uid_locus: [datatype(UUID), join("locus")]
+      uid_locus_2_related: [datatype(UUID)]
+      type: [datatype(VARCHAR)]
+      chronology: [datatype(VARCHAR)]
+      uid_sketch: [datatype(UUID), uid_file(), file_assigned_to("locus")]
+      sketch_description: [datatype(VARCHAR), describes_file(uid_sketch)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    2:
+      uid_locus: [datatype(UUID), join("locus")]
+      uid_locus_2_related: [datatype(UUID)]
+      type: [datatype(VARCHAR)]
+      uid_sketch: [datatype(UUID), uid_file(), file_assigned_to("locus")]
+      sketch_description: [datatype(VARCHAR), describes_file(uid_sketch)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    1:
+      uid_locus: [datatype(UUID), join("locus")]
+      uid_locus_2_related: [datatype(UUID)]
+      type: [datatype(VARCHAR)]
+      uid_sketch: [datatype(UUID), uid_file(), file_assigned_to("locus")]
+      sketch_description: [datatype(VARCHAR), describes_file(uid_sketch)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    3:
+      upgrade:
+        - add("chronology")
+    2:
+      upgrade:
+        - alter("modified_by")
+locus_types:
+  meta:
+    flags: [export_dont_truncate]
+  structure:
+    5:
+      id: [datatype(VARCHAR)]
+      type_name: [datatype(VARCHAR)]
+      field_set: [datatype(VARCHAR)]
+      detail_layout: [datatype(VARCHAR)]
+      ask_formation_process: [datatype(NUMBER)]
+      formation_process_default: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    4:
+      id: [datatype(VARCHAR)]
+      type_name: [datatype(VARCHAR)]
+      field_set: [datatype(VARCHAR)]
+      detail_layout: [datatype(VARCHAR)]
+      ask_formation_process: [datatype(NUMBER)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    3:
+      id: [datatype(VARCHAR)]
+      type_name: [datatype(VARCHAR)]
+      field_set: [datatype(VARCHAR)]
+      ask_formation_process: [datatype(NUMBER)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    2:
+      id: [datatype(VARCHAR)]
+      type_name: [datatype(VARCHAR)]
+      field_set: [datatype(VARCHAR)]
+      ask_formation_process: [datatype(NUMBER)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+    1:
+      id: [datatype(VARCHAR)]
+      type_name: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    5:
+      upgrade:
+        - add("formation_process_default")
+    4:
+      upgrade:
+        - add("detail_layout")
+    3:
+      upgrade:
+        - alter("modified_by")
+    2:
+      upgrade:
+        - add("field_set")
+        - add("ask_formation_process")
+lot:
+  structure:
+    2:
+      uid_locus: [datatype(UUID), join("locus")]
+      id: [datatype(NUMBER)]
+      purpose: [datatype(VARCHAR)]
+      date: [datatype(TIMESTAMP)]
+      opening_elevations: [datatype(VARCHAR)]
+      closing_elevations: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    1:
+      uid_locus: [datatype(UUID), join("locus")]
+      id: [datatype(NUMBER)]
+      purpose: [datatype(VARCHAR)]
+      date: [datatype(TIMESTAMP)]
+      opening_elevations: [datatype(VARCHAR)]
+      closing_elevations: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    2:
+      upgrade:
+        - alter("modified_by")
+
+identification_methods:
+#  meta:
+#    flags: [export_dont_truncate]
+  structure:
+    2:
+      id: [datatype(VARCHAR)]
+      display_name: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      restricted_to_project_ids: [datatype(VARCHAR)]
+      generation_function: [datatype(VARCHAR)]
+      generation_parameters: [datatype(VARCHAR)]
+      formatting_function: [datatype(VARCHAR)]
+      formatting_parameters: [datatype(VARCHAR)]
+      validation_function: [datatype(VARCHAR)]
+      validation_parameters: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    1:
+      id: [datatype(VARCHAR)]
+      display_name: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      restricted_to_project_ids: [datatype(VARCHAR)]
+      generation_function: [datatype(VARCHAR)]
+      generation_parameters: [datatype(VARCHAR)]
+      formatting_function: [datatype(VARCHAR)]
+      formatting_parameters: [datatype(VARCHAR)]
+      validation_function: [datatype(VARCHAR)]
+      validation_parameters: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    2:
+      upgrade:
+        - alter("modified_by")
+
+identifier_lists:
+  meta:
+    flags: [export_dont_truncate]
+  structure:
+    2:
+      list_name: [datatype(VARCHAR)]
+      partition_name: [datatype(VARCHAR)]
+      range_from: [datatype(INTEGER)]
+      range_to: [datatype(INTEGER)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    1:
+      list_name: [datatype(VARCHAR)]
+      partition_name: [datatype(VARCHAR)]
+      range_from: [datatype(INTEGER)]
+      range_to: [datatype(INTEGER)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    2:
+      upgrade:
+        - alter("modified_by")
+
+site:
+  structure:
+    3:
+      id: [datatype(VARCHAR)]
+      purpose: [datatype(VARCHAR)]
+      id_short: [datatype(VARCHAR), local_id("arch_context")]
+      uid_site_map: [datatype(UUID), uid_file()]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    2:
+      id: [datatype(VARCHAR)]
+      purpose: [datatype(VARCHAR)]
+      id_short: [datatype(VARCHAR), local_id("arch_context")]
+      uid_site_map: [datatype(UUID), uid_file()]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+    1:
+      id: [datatype(VARCHAR)]
+      purpose: [datatype(VARCHAR)]
+      id_short: [datatype(VARCHAR)]
+      uid_site_map: [datatype(UUID), uid_file()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    3:
+      upgrade:
+        - alter("modified_by")
+    2:
+      upgrade:
+        - add("arch_domain")
+        - add("arch_context")
+site_notes:
+  structure:
+    3:
+      uid_site: [datatype(UUID), join("site")]
+      date: [datatype(TIMESTAMP)]
+      id_excavator: [datatype(VARCHAR)]
+      note: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    2:
+      uid_site: [datatype(UUID), join("site")]
+      date: [datatype(TIMESTAMP)]
+      id_excavator: [datatype(VARCHAR)]
+      note: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+    1:
+      uid_site: [datatype(VARCHAR)]
+      date: [datatype(TIMESTAMP)]
+      id_excavator: [datatype(VARCHAR)]
+      note: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    3:
+      upgrade:
+        - alter("modified_by")
+    2:
+      upgrade:
+        - alter("uid_site")
+
+site_note_photo:
+  structure:
+    3:
+      uid_site_note: [datatype(UUID), join("site_notes")]
+      uid_image: [datatype(UUID), uid_file(), file_assigned_to("site")]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    2:
+      uid_site_note: [datatype(UUID), join("site_notes")]
+      uid_image: [datatype(UUID), uid_file(), file_assigned_to("site")]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+    1:
+      uid_site_note: [datatype(VARCHAR)]
+      uid_image: [datatype(UUID), uid_file()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    3:
+      upgrade:
+        - alter("modified_by")
+    2:
+      upgrade:
+        - alter("uid_site_note")
+
+small_find:
+  structure:
+    2:
+      smallfindsnr: [datatype(NUMBER)]
+      uid_cm: [datatype(UUID), join("collected_material")]
+      external_id: [datatype(VARCHAR)]
+      material: [datatype(VARCHAR)]
+      condition: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      length: [datatype(VARCHAR)]
+      width: [datatype(VARCHAR)]
+      thickness: [datatype(VARCHAR)]
+      height: [datatype(VARCHAR)]
+      diameter: [datatype(VARCHAR)]
+      weight: [datatype(VARCHAR)]
+      id_registrar: [datatype(VARCHAR)]
+      measured_in_situ: [datatype(NUMBER)]
+      colour: [datatype(VARCHAR)]
+      period: [datatype(VARCHAR)]
+      cost: [datatype(DECIMAL)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    1:
+      smallfindsnr: [datatype(NUMBER)]
+      uid_cm: [datatype(UUID), join("collected_material")]
+      external_id: [datatype(VARCHAR)]
+      material: [datatype(VARCHAR)]
+      condition: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      length: [datatype(VARCHAR)]
+      width: [datatype(VARCHAR)]
+      thickness: [datatype(VARCHAR)]
+      height: [datatype(VARCHAR)]
+      diameter: [datatype(VARCHAR)]
+      weight: [datatype(VARCHAR)]
+      id_registrar: [datatype(VARCHAR)]
+      measured_in_situ: [datatype(NUMBER)]
+      colour: [datatype(VARCHAR)]
+      period: [datatype(VARCHAR)]
+      cost: [datatype(DECIMAL)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    2:
+      upgrade:
+        - alter("modified_by")
+survey_unit:
+  structure:
+    2:
+      uid_unit: [datatype(UUID), join("unit")]
+      start_datetime: [datatype(TIMESTAMP)]
+      team_members: [datatype(VARCHAR)]
+      bearing: [datatype(NUMBER)]
+      visibility: [datatype(NUMBER)]
+      spacing: [datatype(NUMBER)]
+      conditions: [datatype(VARCHAR)]
+      data_field1_name: [datatype(VARCHAR)]
+      data_field2_name: [datatype(VARCHAR)]
+      data_field3_name: [datatype(VARCHAR)]
+      data_field4_name: [datatype(VARCHAR)]
+      data_field5_name: [datatype(VARCHAR)]
+      data_field6_name: [datatype(VARCHAR)]
+      data_field7_name: [datatype(VARCHAR)]
+      data_field8_name: [datatype(VARCHAR)]
+      data_field9_name: [datatype(VARCHAR)]
+      data_field10_name: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    1:
+      uid_unit: [datatype(UUID), join("unit")]
+      start_datetime: [datatype(TIMESTAMP)]
+      team_members: [datatype(VARCHAR)]
+      bearing: [datatype(NUMBER)]
+      visibility: [datatype(NUMBER)]
+      spacing: [datatype(NUMBER)]
+      conditions: [datatype(VARCHAR)]
+      data_field1_name: [datatype(VARCHAR)]
+      data_field2_name: [datatype(VARCHAR)]
+      data_field3_name: [datatype(VARCHAR)]
+      data_field4_name: [datatype(VARCHAR)]
+      data_field5_name: [datatype(VARCHAR)]
+      data_field6_name: [datatype(VARCHAR)]
+      data_field7_name: [datatype(VARCHAR)]
+      data_field8_name: [datatype(VARCHAR)]
+      data_field9_name: [datatype(VARCHAR)]
+      data_field10_name: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    2:
+      upgrade:
+        - alter("modified_by")
+
+survey_unit_data:
+  structure:
+    2:
+      uid_survey_unit: [datatype(UUID), join("survey_unit")]
+      team_member_id: [datatype(VARCHAR)]
+      data_field1_value: [datatype(NUMBER)]
+      data_field2_value: [datatype(NUMBER)]
+      data_field3_value: [datatype(NUMBER)]
+      data_field4_value: [datatype(NUMBER)]
+      data_field5_value: [datatype(NUMBER)]
+      data_field6_value: [datatype(NUMBER)]
+      data_field7_value: [datatype(NUMBER)]
+      data_field8_value: [datatype(NUMBER)]
+      data_field9_value: [datatype(NUMBER)]
+      data_field10_value: [datatype(NUMBER)]
+      uid_lot: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(Null)]
+    1:
+      uid_survey_unit: [datatype(UUID), join("survey_unit")]
+      team_member_id: [datatype(VARCHAR)]
+      data_field1_value: [datatype(NUMBER)]
+      data_field2_value: [datatype(NUMBER)]
+      data_field3_value: [datatype(NUMBER)]
+      data_field4_value: [datatype(NUMBER)]
+      data_field5_value: [datatype(NUMBER)]
+      data_field6_value: [datatype(NUMBER)]
+      data_field7_value: [datatype(NUMBER)]
+      data_field8_value: [datatype(NUMBER)]
+      data_field9_value: [datatype(NUMBER)]
+      data_field10_value: [datatype(NUMBER)]
+      uid_lot: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    2:
+      upgrade:
+        - alter("modified_by")
+tags:
+  structure:
+    3:
+      tag: [datatype(VARCHAR), not_null(), identifier()]
+      description: [datatype(VARCHAR)]
+      category: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    2:
+      tag: [datatype(VARCHAR), not_null(), identifier()]
+      description: [datatype(VARCHAR)]
+      category: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+    1:
+      tag: [datatype(VARCHAR), not_null(), identifier()]
+      description: [datatype(VARCHAR)]
+      category: [datatype(VARCHAR)]
+      table_contexts: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    3:
+      upgrade:
+        - alter("modified_by")
+    2:
+      upgrade:
+        - drop("table_contexts")
+
+tagging:
+  structure:
+    3:
+      tag: [datatype(VARCHAR), not_null(), join("tags")]
+      description: [datatype(VARCHAR)]
+      source_uid: [datatype(UUID), not_null()]
+      source_table: [datatype(VARCHAR), not_null()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    2:
+      tag: [datatype(VARCHAR), not_null(), join("tags")]
+      description: [datatype(VARCHAR)]
+      source_uid: [datatype(UUID), not_null()]
+      source_table: [datatype(VARCHAR), not_null()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+    1:
+      tag: [datatype(VARCHAR), not_null()]
+      description: [datatype(VARCHAR)]
+      source_uid: [datatype(VARCHAR), not_null()]
+      source_table: [datatype(VARCHAR), not_null()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    3:
+      upgrade:
+        - alter("modified_by")
+    2:
+      upgrade:
+        - alter("source_uid")
+
+tickets:
+  structure:
+    2:
+      account: [datatype(VARCHAR)]
+      nr: [datatype(NUMBER)]
+      ts: [datatype(TIMESTAMP)]
+      description: [datatype(VARCHAR)]
+      priority: [datatype(VARCHAR)]
+      state: [datatype(VARCHAR)]
+      where: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      uid_image: [datatype(uuid), uid_file()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    1:
+      account: [datatype(VARCHAR)]
+      nr: [datatype(NUMBER)]
+      ts: [datatype(TIMESTAMP)]
+      description: [datatype(VARCHAR)]
+      priority: [datatype(VARCHAR)]
+      state: [datatype(VARCHAR)]
+      where: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      uid_image: [datatype(uuid), uid_file()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    2:
+      upgrade:
+        - alter("modified_by")
+
+unit:
+  structure:
+    5:
+      id: [datatype(NUMBER), local_id("arch_context")]
+      name: [datatype(VARCHAR)]
+      purpose: [datatype(VARCHAR)]
+      type: [datatype(VARCHAR)]
+      method: [datatype(VARCHAR)]
+      id_excavator: [datatype(VARCHAR)]
+      unit_creation_date: [datatype(DATE)]
+      id_site: [datatype(VARCHAR), 'join("site","id")']
+      excavator_full_name: [datatype(VARCHAR)]
+      spider_counter: [datatype(NUMBER)]
+      coordinates: [datatype(VARCHAR)]
+      legacy_unit_id: [datatype(VARCHAR)]
+      term_for_unit: [datatype(VARCHAR)]
+      term_for_locus: [datatype(VARCHAR)]
+      identification_method_loci: [datatype(VARCHAR)]
+      identification_method_cm: [datatype(VARCHAR)]
+      identification_method_analysis: [datatype(VARCHAR)]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    4:
+      id: [datatype(NUMBER), local_id("arch_context")]
+      name: [datatype(VARCHAR)]
+      purpose: [datatype(VARCHAR)]
+      type: [datatype(VARCHAR)]
+      method: [datatype(VARCHAR)]
+      id_excavator: [datatype(VARCHAR)]
+      unit_creation_date: [datatype(DATE)]
+      id_site: [datatype(VARCHAR), 'join("site","id")']
+      excavator_full_name: [datatype(VARCHAR)]
+      spider_counter: [datatype(NUMBER)]
+      coordinates: [datatype(VARCHAR)]
+      legacy_unit_id: [datatype(VARCHAR)]
+      term_for_unit: [datatype(VARCHAR)]
+      term_for_locus: [datatype(VARCHAR)]
+      identification_method_loci: [datatype(VARCHAR)]
+      identification_method_cm: [datatype(VARCHAR)]
+      identification_method_analysis: [datatype(VARCHAR)]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+    3:
+      id: [datatype(VARCHAR), local_id("arch_context")]
+      name: [datatype(VARCHAR)]
+      purpose: [datatype(VARCHAR)]
+      type: [datatype(VARCHAR)]
+      method: [datatype(VARCHAR)]
+      id_excavator: [datatype(VARCHAR)]
+      unit_creation_date: [datatype(DATE)]
+      id_site: [datatype(VARCHAR), 'join("site","id")']
+      excavator_full_name: [datatype(VARCHAR)]
+      spider_counter: [datatype(NUMBER)]
+      coordinates: [datatype(VARCHAR)]
+      legacy_unit_id: [datatype(VARCHAR)]
+      term_for_unit: [datatype(VARCHAR)]
+      term_for_locus: [datatype(VARCHAR)]
+      identification_method_loci: [datatype(VARCHAR)]
+      identification_method_cm: [datatype(VARCHAR)]
+      identification_method_analysis: [datatype(VARCHAR)]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+    2:
+      id: [datatype(VARCHAR)]
+      name: [datatype(VARCHAR)]
+      purpose: [datatype(VARCHAR)]
+      type: [datatype(VARCHAR)]
+      method: [datatype(VARCHAR)]
+      id_excavator: [datatype(VARCHAR)]
+      unit_creation_date: [datatype(DATE)]
+      id_site: [datatype(VARCHAR)]
+      excavator_full_name: [datatype(VARCHAR)]
+      spider_counter: [datatype(NUMBER)]
+      coordinates: [datatype(VARCHAR)]
+      legacy_unit_id: [datatype(VARCHAR)]
+      term_for_unit: [datatype(VARCHAR)]
+      term_for_locus: [datatype(VARCHAR)]
+      numbering_method_loci: [datatype(VARCHAR)]
+      numbering_method_cm: [datatype(VARCHAR)]
+      numbering_method_analysis: [datatype(VARCHAR)]
+      arch_domain: [datatype(VARCHAR)]
+      arch_context: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+    1:
+      id: [datatype(VARCHAR)]
+      name: [datatype(VARCHAR)]
+      purpose: [datatype(VARCHAR)]
+      type: [datatype(VARCHAR)]
+      method: [datatype(VARCHAR)]
+      id_excavator: [datatype(VARCHAR)]
+      unit_creation_date: [datatype(DATE)]
+      id_site: [datatype(VARCHAR)]
+      excavator_full_name: [datatype(VARCHAR)]
+      spider_counter: [datatype(NUMBER)]
+      coordinates: [datatype(VARCHAR)]
+      legacy_unit_id: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    5:
+      upgrade:
+        - alter("modified_by")
+    4:
+      upgrade:
+        - alter("id")
+    3:
+      upgrade:
+        - rename("numbering_method_loci", "identification_method_loci")
+        - rename("numbering_method_cm", "identification_method_cm")
+        - rename("numbering_method_analysis", "identification_method_analysis")
+    2:
+      upgrade:
+        - add("term_for_unit")
+        - add("term_for_locus")
+        - add("numbering_method_loci")
+        - add("numbering_method_cm")
+        - add("numbering_method_analysis")
+        - add("arch_domain")
+        - add("arch_context")
+
+unit_narrative:
+  structure:
+    3:
+      id_unit: [datatype(TEXT)]
+      uid_unit: [datatype(UUID), join("unit")]
+      id_excavator: [datatype(TEXT)]
+      narrative: [datatype(TEXT), record_description()]
+      date: [datatype(TIMESTAMP)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(TEXT), replfield_modified_by(), default(null)]
+    2:
+      id_unit: [datatype(TEXT)]
+      uid_unit: [datatype(UUID), join("unit")]
+      id_excavator: [datatype(TEXT)]
+      narrative: [datatype(TEXT), record_description()]
+      date: [datatype(TIMESTAMP)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(TEXT), replfield_modified_by(), default("'sys'")]
+    1:
+      id_unit: [datatype(TEXT)]
+      id_excavator: [datatype(TEXT)]
+      narrative: [datatype(TEXT)]
+      date: [datatype(TIMESTAMP)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(TEXT), replfield_modified_by(), default("'sys'")]
+  migration:
+    3:
+      upgrade:
+        - alter("modified_by")
+    2:
+      upgrade:
+        - add("uid_unit")
+
+unit_shop:
+  structure:
+    2:
+      team_member: [datatype(VARCHAR), not_null()]
+      unit_id: [datatype(VARCHAR), not_null()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    1:
+      team_member: [datatype(VARCHAR), not_null()]
+      unit_id: [datatype(VARCHAR), not_null()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    2:
+      upgrade:
+        - alter("modified_by")
+unit_unit_relation:
+  structure:
+    2:
+      uid_src_unit: [datatype(UUID)]
+      uid_dst_unit: [datatype(UUID)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(Null)]
+    1:
+      uid_src_unit: [datatype(UUID)]
+      uid_dst_unit: [datatype(UUID)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    2:
+      upgrade:
+        - alter("modified_by")
+workflow_requests:
+  structure:
+    2:
+      locus_uid: [datatype(UUID)]
+      unit_uid: [datatype(UUID)]
+      request: [datatype(VARCHAR), not_null()]
+      request_data: [datatype(VARCHAR)]
+      request_details: [datatype(VARCHAR)]
+      request_group: [datatype(VARCHAR)]
+      request_status: [datatype(VARCHAR)]
+      request_type: [datatype(VARCHAR)]
+      requesting_team_member: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    1:
+      locus_uid: [datatype(UUID)]
+      unit_uid: [datatype(UUID)]
+      request: [datatype(VARCHAR), not_null()]
+      request_data: [datatype(VARCHAR)]
+      request_details: [datatype(VARCHAR)]
+      request_group: [datatype(VARCHAR)]
+      request_status: [datatype(VARCHAR)]
+      request_type: [datatype(VARCHAR)]
+      requesting_team_member: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    2:
+      upgrade:
+        - alter("modified_by")
+inventory:
+  structure:
+    2:
+      item_name: [datatype(VARCHAR)]
+      count_available: [datatype(NUMBER)]
+      count_needed: [datatype(NUMBER)]
+      state: [datatype(VARCHAR)]
+      storage: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR), describes_file(uid_photo)]
+      category: [datatype(VARCHAR)]
+      uid_photo: [datatype(UUID), uid_file()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    1:
+      item_name: [datatype(VARCHAR)]
+      count_available: [datatype(NUMBER)]
+      count_needed: [datatype(NUMBER)]
+      state: [datatype(VARCHAR)]
+      storage: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      category: [datatype(VARCHAR)]
+      uid_photo: [datatype(UUID)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    2:
+      upgrade:
+        - alter("modified_by")
+
+replication:
+  structure:
+    1:
+      id: [datatype(VARCHAR), primary(), unique(), not_null()]
+      value: [datatype(VARCHAR)]
+      ts: [datatype(TIMESTAMP), default('now()')]
+
+constants:
+  meta:
+    flags: [export_dont_truncate, sync_ignore_unique_key_violation]
+    import_filter:
+      fm12: "(\"sync\" is null) or (\"sync\"=1)"
+  structure:
+    2:
+      id: [datatype(VARCHAR)]
+      value: [datatype(VARCHAR)]
+      value_ts: [datatype(TIMESTAMP)]
+      category: [datatype(VARCHAR)]
+      comment: [datatype(VARCHAR)]
+      field_type: [datatype(VARCHAR)]
+      sync: [datatype(NUMBER), default(1)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    1:
+      id: [datatype(VARCHAR)]
+      value: [datatype(VARCHAR)]
+      value_ts: [datatype(TIMESTAMP)]
+      category: [datatype(VARCHAR)]
+      comment: [datatype(VARCHAR)]
+      field_type: [datatype(VARCHAR)]
+      sync: [datatype(NUMBER), default(1)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    2:
+      upgrade:
+        - alter("modified_by")

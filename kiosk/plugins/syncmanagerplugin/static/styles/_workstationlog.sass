@@ -1,0 +1,46 @@
+.nolog
+  margin-left: auto
+  margin-right: auto
+  padding: 1em
+  display: flex
+  flex-direction: row
+  align-items: center
+  max-width: 400px
+  background: $col-bg-att
+  color: $col-primary-bg-att
+  span:first-child
+    display: inline-block
+    font-weight: bold
+    margin-bottom: .5em
+  i
+    color: $col-accent-bg-att
+    font-size: 2em
+    margin-right: 1em
+  a
+    display: inline-block
+    margin-top: .5em
+    font-weight: bold
+.wslog-line
+  background-color: $col-bg-1-lighter
+  color: $col-primary-bg-1
+  margin-bottom: 1px
+.wslog-info
+  display: none
+.wslog-warning
+  background-color: $col-bg-att
+  color: $col-primary-bg-att
+.wslog-error
+  background-color: $col-bg-alert
+  color: $col-primary-bg-alert
+.status-message
+  width: 100%
+  background-color: $col-bg-att
+  color: $col-primary-bg-att
+  padding: .5em 0 .5em 0
+  text-align: center
+  font-weight: bold
+  font-size: 1.5em
+  margin-bottom: .5em
+  &.error
+    background-color: $col-bg-alert
+    color: $col-primary-bg-alert

@@ -1,0 +1,101 @@
+@import "../../../../static/styles/_constants"
+@import icons
+//@import "./pattern.css-master/pattern"
+@import reset
+
+//.pattern-diagonal-stripes-sm
+//  // borrowed from https://github.com/bansal-io/pattern.css
+//  background: repeating-linear-gradient(45deg, transparent, transparent 10px, currentColor 10px, currentColor calc(2 * 10px))
+
+.kiosk-btn
+  display: grid
+  place-content: center
+  border-radius: 5px
+  border-style: solid
+  border-width: 2px
+  background: $col-bg-btn
+  color: $col-primary-bg-btn
+  border-color: $col-bg-btn-darker
+  cursor: pointer
+  white-space: nowrap
+  &:hover, &:focus
+    outline: none
+    background-color: $col-bg-btn-lighter
+  &:active
+    margin-bottom: 0px
+    margin-top: 2px
+    //padding-top: 2px
+    padding-left: 2px
+    color: $col-primary-bg-btn
+    background-color: $col-bg-ack
+    border-color: $col-bg-ack-darker
+  *
+    user-select: none
+    -moz-user-select: none
+    -webkit-user-select: none
+
+
+.recording-group
+  display: block
+  flex-direction: column
+  margin: 1em .5em 2em 0em
+.recording-group-header
+  width: 20ch
+  border-top-right-radius: 15px
+  background: $col-bg-1-gradient
+  background-color: rgba(255,255,255,.9)
+  background-blend-mode: color
+  padding: 5px
+  font-weight: bold
+.recording-group-body
+  position: relative
+  //border: solid 2px $col-bg-3
+
+  display: grid
+  grid-template-columns: 1fr 1fr
+  column-gap: 1em
+  row-gap: 1em
+  padding: 1em
+  @media #{$screen-max-700}
+    grid-template-columns: 1fr
+.recording-group-background
+  position: absolute
+  width: 100%
+  height: 100%
+  border-radius: 15px
+  color: $col-bg-1
+  @extend .pattern-diagonal-stripes-sm
+  opacity: 10%
+  z-index: -1
+
+
+.one-recording-group
+  display: grid
+  grid-template-columns: 1fr 1fr
+  column-gap: 1em
+  row-gap: 1em
+  padding: 1em
+  @media #{$screen-max-700}
+    grid-template-columns: 1fr
+
+.synchronization-running
+  height: 80vh
+  width: 100%
+  display: grid
+  place-items: center
+  position: fixed
+  background: $col-bg-body
+  .synchronization-reminder
+    padding: 1.5em
+
+.synchronization-reminder
+  background-color: $col-bg-att
+  border: 1px solid $col-bg-att-darker
+  padding: .5em
+  margin: .5em 0px
+  display: flex
+  p
+    padding-left: 1em
+  i
+    font-size: 1.2em
+

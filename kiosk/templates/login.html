@@ -1,0 +1,54 @@
+{% extends "kioskbasic.html" %}
+{% block title %}
+  <div id="subtitle-shadow">Kiosk</div>
+  <div id="subtitle">Login</div>
+{% endblock %}
+{% block body %}
+  <div class="content-section" id="login-screen">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            <div id="login-message">
+            {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    {% if not change_password %}
+      <div class="login-form">
+        <form method="post" autocomplete="on">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+          <div id="userid-image"><img src="{{ url_for('static', filename='assets/images/pharaoh.svg') }}"/></div>
+          <input class="login-edits" id="user-id" name="user-id" autocomplete="off"/>
+          <div id="userpwd-image"><img src="{{ url_for('static', filename='assets/images/crook-and-fail.svg') }}"/></div>
+          <input class="login-edits" id="user-pwd" name="user-pwd" type="password" autocomplete="current-password"/>
+          <button id="login-btn" class="modal-ok" type="submit" value="Login"/>
+        </form>
+      </div>
+    {% else %}
+      <div id="wait-for-profile">
+      Please wait...
+      </div>
+    {% endif %}
+  </div>
+  <script type="text/javascript">
+    $("#user-id").focus();
+    {% if change_password %}
+        kioskStartWhenReady( () => {
+          $("#wait-for-profile").hide();
+          triggerUserProfile("{{ url_for('login_controller.user_profile',uuid=current_user.id) }}", true);
+        },
+        () => {
+          $("#wait-for-profile").hide();
+
+          try {
+            kioskErrorToast("The process to change your password would not start. Please try again later.");
+          } catch {
+            alert("The process to change your password would not start. Please try again later.");
+          }
+        });
+    {% endif %}
+  //# sourceURL=login_html.js
+  </script>
+{% endblock %}
+

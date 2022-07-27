@@ -1,0 +1,281 @@
+header:
+  version: 1.0
+  output_driver: "ReportingExcelDriver"
+
+variables:
+  context_identifier: [ datatype(VARCHAR) ]
+  unit: [datatype(VARCHAR)]
+settings:
+  material_types_ceramic: ["ceramic-diag","ceramic-nondiag"]
+  material_types_bone: ["bone"]
+  material_types_shell: ["shell"]
+  material_types_metal: ["metal"]
+  material_types_plaster: ["plaster"]
+  material_types_lithics: ["stone"]
+  material_types_other: ["carbone","other"]
+  ceramics_f_category_1: "transport & storage"
+  ceramics_f_category_2: "kitchen & cooking"
+  ceramics_f_category_3: "table & fine wares"
+  ceramics_f_category_4: "other"
+  ceramics_p_category_1: "rims"
+  ceramics_p_category_2: "handles"
+  ceramics_p_category_3: "bases"
+  ceramics_p_category_4: "other"
+  material_type_ceramic_diag: "ceramic-diag"
+  material_type_ceramic_nondiag: "ceramic-nondiag"
+base_queries:
+  "unit":
+    description: "creates reports for all loci/contexts of a unit/area."
+    required_variables: ['unit']
+    type: 'SQL'
+    query: "
+      select distinct u.arch_context from {{unit}} as u 
+      where u.arch_context = {{#unit}}
+      "
+queries:
+  'context_data':
+    type: 'SQL'
+    query: "
+    select unit.arch_context area_id, extract(year from unit.created)::varchar \"year\" from {{unit}} as unit where 
+    unit.arch_context={{#context_identifier}}
+    "
+    output_type: 'key-value'
+  'sheet_1_loci':
+    type: 'SQL'
+    query: "
+    select l.arch_context context_id, l.type context_type,
+           sum(ceramics.quantity) ceramics_count, coalesce(sum(ceramics.weight),0) ceramics_weight,
+           coalesce(sum(bones.weight),0) bone_weight,
+           coalesce(sum(shells.weight),0) shell_weight,
+           sum(lithics.quantity) lithics_count, coalesce(sum(lithics.weight),0) lithics_weight,
+           sum(metal.quantity) metal_count, coalesce(sum(metal.weight),0) metal_weight,
+           coalesce(sum(plaster.weight),0) plaster_weight,
+           sum(other.quantity) other_count, coalesce(sum(other.weight),0) other_weight
+    from {{locus}} as l
+    left outer join (select uid_locus, quantity, weight from {{collected_material}} where type in ({{#material_types_ceramic}}) and cm_type='bulk') ceramics on l.uid = ceramics.uid_locus
+    left outer join (select uid_locus, weight from {{collected_material}} where type in ({{#material_types_bone}})) bones on l.uid = bones.uid_locus
+    left outer join (select uid_locus, weight from {{collected_material}} where type in ({{#material_types_shell}})) shells on l.uid = shells.uid_locus
+    left outer join (select uid_locus, quantity, weight from {{collected_material}} where type in ({{#material_types_lithics}})) lithics on l.uid = lithics.uid_locus
+    left outer join (select uid_locus, quantity, weight from {{collected_material}} where type in ({{#material_types_metal}})) metal on l.uid = metal.uid_locus
+    left outer join (select uid_locus, quantity, weight from {{collected_material}} where type in ({{#material_types_plaster}})) plaster on l.uid = plaster.uid_locus
+    left outer join (select uid_locus, quantity, weight from {{collected_material}} where type in ({{#material_types_other}})) other on l.uid = other.uid_locus
+    inner join {{unit}} as u on l.uid_unit = u.uid
+    where u.arch_context={{#context_identifier}}
+    group by l.arch_context, l.type
+    "
+    output_type: 'list'
+    output_table: 'sheet_1_loci'
+  'sheet_1_loci_summary':
+    type: 'SQL'
+    query: "
+      select sum(ceramics_count) ceramics_c_total, sum(ceramics_weight) ceramics_w_total,
+       sum(bone_weight) bone_w_total,
+       sum(shell_weight) shell_w_total,
+       sum(lithics_count) lithics_c_total, sum(lithics_weight) lithics_w_total,
+       sum(metal_count) metal_c_total, sum(metal_weight) metal_w_total,
+       sum(plaster_weight) plaster_w_total,
+       sum(other_count) other_c_total, sum(other_weight) other_w_total
+       from (
+           select 
+           sum(ceramics.quantity) ceramics_count, coalesce(sum(ceramics.weight),0) ceramics_weight,
+           coalesce(sum(bones.weight),0) bone_weight,
+           coalesce(sum(shells.weight),0) shell_weight,
+           sum(lithics.quantity) lithics_count, coalesce(sum(lithics.weight),0) lithics_weight,
+           sum(metal.quantity) metal_count, coalesce(sum(metal.weight),0) metal_weight,
+           coalesce(sum(plaster.weight),0) plaster_weight,
+           sum(other.quantity) other_count, coalesce(sum(other.weight),0) other_weight
+                from locus as l
+                left outer join (select uid_locus, quantity, weight from {{collected_material}} where type in ({{#material_types_ceramic}}) and cm_type='bulk') ceramics on l.uid = ceramics.uid_locus
+                left outer join (select uid_locus, weight from {{collected_material}} where type in ({{#material_types_bone}})) bones on l.uid = bones.uid_locus
+                left outer join (select uid_locus, weight from {{collected_material}} where type in ({{#material_types_shell}})) shells on l.uid = shells.uid_locus
+                left outer join (select uid_locus, quantity, weight from {{collected_material}} where type in ({{#material_types_lithics}})) lithics on l.uid = lithics.uid_locus
+                left outer join (select uid_locus, quantity, weight from {{collected_material}} where type in ({{#material_types_metal}})) metal on l.uid = metal.uid_locus
+                left outer join (select uid_locus, quantity, weight from {{collected_material}} where type in ({{#material_types_plaster}})) plaster on l.uid = plaster.uid_locus
+                left outer join (select uid_locus, quantity, weight from {{collected_material}} where type in ({{#material_types_other}})) other on l.uid = other.uid_locus
+                inner join unit as u on l.uid_unit = u.uid
+                where u.arch_context = {{#context_identifier}}
+                group by l.arch_context, l.type
+            ) details"
+    output_type: 'list'
+    output_table: 'sheet_1_loci_summary'
+  'sheet2_ceramics_detail':
+    type: 'SQL'
+    query: "
+    with material as (
+        select entry.cm_uid, entry.category_1 c1, entry.category_2 c2,
+               sum(entry.\"count\") c, sum(entry.weight) w from {{su_ceramics_preprocessing_entry}} entry
+        group by cm_uid, category_1, category_2
+    )
+    select l.arch_context context_id, 
+        (coalesce(diag.c,0) + coalesce(nondiag.c,0)) total_c, (coalesce(diag.w,0) + coalesce(nondiag.w,0)) total_w,
+        coalesce(diag.c,0) diag_c, coalesce(diag.w,0) diag_w, coalesce(nondiag.c,0) nondiag_c, coalesce(nondiag.w,0) nondiag_w, 
+        (coalesce(t_1_1.c,0) + coalesce(t_1_2.c,0) + coalesce(t_1_3.c,0) + coalesce(t_1_4.c,0)) t_1_c, 
+        (coalesce(t_1_1.w,0) + coalesce(t_1_2.w,0) + coalesce(t_1_3.w,0) + coalesce(t_1_4.w,0)) t_1_w, 
+        coalesce(t_1_1.c,0) t_1_1_c, coalesce(t_1_1.w,0) t_1_1_w, coalesce(t_1_2.c,0) t_1_2_c, coalesce(t_1_2.w,0) t_1_2_w, coalesce(t_1_3.c,0) t_1_3_c, coalesce(t_1_3.w,0) t_1_3_w, coalesce(t_1_4.c,0) t_1_4_c, coalesce(t_1_4.w,0) t_1_4_w, 
+        (coalesce(t_2_1.c,0) + coalesce(t_2_2.c,0) + coalesce(t_2_3.c,0) + coalesce(t_2_4.c,0)) t_2_c, (coalesce(t_2_1.w,0) + coalesce(t_2_2.w,0) + coalesce(t_2_3.w,0) + coalesce(t_2_4.w,0)) t_2_w, 
+        coalesce(t_2_1.c,0) t_2_1_c, coalesce(t_2_1.w,0) t_2_1_w, coalesce(t_2_2.c,0) t_2_2_c, coalesce(t_2_2.w,0) t_2_2_w, coalesce(t_2_3.c,0) t_2_3_c, coalesce(t_2_3.w,0) t_2_3_w, coalesce(t_2_4.c,0) t_2_4_c, coalesce(t_2_4.w,0) t_2_4_w, 
+        (coalesce(t_3_1.c,0) + coalesce(t_3_2.c,0) + coalesce(t_3_3.c,0) + coalesce(t_3_4.c,0)) t_3_c, (coalesce(t_3_1.w,0) + coalesce(t_3_2.w,0) + coalesce(t_3_3.w,0) + coalesce(t_3_4.w,0)) t_3_w, 
+        coalesce(t_3_1.c,0) t_3_1_c, coalesce(t_3_1.w,0) t_3_1_w, coalesce(t_3_2.c,0) t_3_2_c, coalesce(t_3_2.w,0) t_3_2_w, coalesce(t_3_3.c,0) t_3_3_c, coalesce(t_3_3.w,0) t_3_3_w, coalesce(t_3_4.c,0) t_3_4_c, coalesce(t_3_4.w,0) t_3_4_w, 
+        (coalesce(t_4_1.c,0) + coalesce(t_4_2.c,0) + coalesce(t_4_3.c,0) + coalesce(t_4_4.c,0)) t_4_c, (coalesce(t_4_1.w,0) + coalesce(t_4_2.w,0) + coalesce(t_4_3.w,0) + coalesce(t_4_4.w,0)) t_4_w, 
+        coalesce(t_4_1.c,0) t_4_1_c, coalesce(t_4_1.w,0) t_4_1_w, coalesce(t_4_2.c,0) t_4_2_c, coalesce(t_4_2.w,0) t_4_2_w, coalesce(t_4_3.c,0) t_4_3_c, coalesce(t_4_3.w,0) t_4_3_w, coalesce(t_4_4.c,0) t_4_4_c, coalesce(t_4_4.w,0) t_4_4_w 
+    from {{unit}} u 
+        inner join {{locus}} l on u.uid = l.uid_unit
+        inner join (select * from {{collected_material}} where type={{#material_type_ceramic_diag}}) cm on l.uid = cm.uid_locus
+        left outer join material t_1_1 on cm.uid = t_1_1.cm_uid and t_1_1.c1 = {{#ceramics_f_category_1}} and t_1_1.c2={{#ceramics_p_category_1}}
+        left outer join material t_1_2 on cm.uid = t_1_2.cm_uid and t_1_2.c1 = {{#ceramics_f_category_1}} and t_1_2.c2={{#ceramics_p_category_2}}
+        left outer join material t_1_3 on cm.uid = t_1_3.cm_uid and t_1_3.c1 = {{#ceramics_f_category_1}} and t_1_3.c2={{#ceramics_p_category_3}}
+        left outer join material t_1_4 on cm.uid = t_1_4.cm_uid and t_1_4.c1 = {{#ceramics_f_category_1}} and t_1_4.c2={{#ceramics_p_category_4}}
+        left outer join material t_2_1 on cm.uid = t_2_1.cm_uid and t_2_1.c1 = {{#ceramics_f_category_2}} and t_2_1.c2={{#ceramics_p_category_1}}
+        left outer join material t_2_2 on cm.uid = t_2_2.cm_uid and t_2_2.c1 = {{#ceramics_f_category_2}} and t_2_2.c2={{#ceramics_p_category_2}}
+        left outer join material t_2_3 on cm.uid = t_2_3.cm_uid and t_2_3.c1 = {{#ceramics_f_category_2}} and t_2_3.c2={{#ceramics_p_category_3}}
+        left outer join material t_2_4 on cm.uid = t_2_4.cm_uid and t_2_4.c1 = {{#ceramics_f_category_2}} and t_2_4.c2={{#ceramics_p_category_4}}
+        left outer join material t_3_1 on cm.uid = t_3_1.cm_uid and t_3_1.c1 = {{#ceramics_f_category_3}} and t_3_1.c2={{#ceramics_p_category_1}}
+        left outer join material t_3_2 on cm.uid = t_3_2.cm_uid and t_3_2.c1 = {{#ceramics_f_category_3}} and t_3_2.c2={{#ceramics_p_category_2}}
+        left outer join material t_3_3 on cm.uid = t_3_3.cm_uid and t_3_3.c1 = {{#ceramics_f_category_3}} and t_3_3.c2={{#ceramics_p_category_3}}
+        left outer join material t_3_4 on cm.uid = t_3_4.cm_uid and t_3_4.c1 = {{#ceramics_f_category_3}} and t_3_4.c2={{#ceramics_p_category_4}}
+        left outer join material t_4_1 on cm.uid = t_4_1.cm_uid and t_4_1.c1 = {{#ceramics_f_category_4}} and t_4_1.c2={{#ceramics_p_category_1}}
+        left outer join material t_4_2 on cm.uid = t_4_2.cm_uid and t_4_2.c1 = {{#ceramics_f_category_4}} and t_4_2.c2={{#ceramics_p_category_2}}
+        left outer join material t_4_3 on cm.uid = t_4_3.cm_uid and t_4_3.c1 = {{#ceramics_f_category_4}} and t_4_3.c2={{#ceramics_p_category_3}}
+        left outer join material t_4_4 on cm.uid = t_4_4.cm_uid and t_4_4.c1 = {{#ceramics_f_category_4}} and t_4_4.c2={{#ceramics_p_category_4}}
+        left outer join(select cm.uid_locus uid_locus, sum(cm.quantity) c, sum(cm.weight) w 
+                   from {{collected_material}} cm where type={{#material_type_ceramic_diag}} and cm_type='bulk' group by cm.uid_locus) diag on l.uid = diag.uid_locus 
+        left outer join(select cm.uid_locus uid_locus, sum(cm.quantity) c, sum(cm.weight) w 
+                   from {{collected_material}} cm where type={{#material_type_ceramic_nondiag}} and cm_type='bulk' group by cm.uid_locus) nondiag on l.uid = nondiag.uid_locus 
+    where u.arch_context = {{#context_identifier}}
+    "
+    output_type: 'list'
+    output_table: 'sheet2_ceramics_detail'
+  'sheet2_ceramics_total':
+    type: 'SQL'
+    query: "
+    select sum(total_c) t_total_c, sum(total_w) t_total_w,
+           sum(diag_c) t_diag_c, sum(diag_w) t_diag_w,  
+           sum(nondiag_c) t_nondiag_c, sum(nondiag_w) t_nondiag_w from
+    (  
+      select l.arch_context context_id, 
+          (coalesce(diag.c,0) + coalesce(nondiag.c,0)) total_c, (coalesce(diag.w,0) + coalesce(nondiag.w,0)) total_w,
+          coalesce(diag.c,0) diag_c, coalesce(diag.w,0) diag_w, coalesce(nondiag.c,0) nondiag_c, coalesce(nondiag.w,0) nondiag_w 
+      from {{unit}} u 
+          inner join {{locus}} l on u.uid = l.uid_unit
+          inner join {{collected_material}} cm on l.uid = cm.uid_locus
+          left outer join(select cm.uid_locus uid_locus, sum(cm.quantity) c, sum(cm.weight) w 
+                     from {{collected_material}} cm where type={{#material_type_ceramic_diag}}  and cm_type='bulk' group by cm.uid_locus) diag on l.uid = diag.uid_locus 
+          left outer join(select cm.uid_locus uid_locus, sum(cm.quantity) c, sum(cm.weight) w 
+                     from {{collected_material}} cm where type={{#material_type_ceramic_nondiag}}  and cm_type='bulk' group by cm.uid_locus) nondiag on l.uid = nondiag.uid_locus 
+      where u.arch_context = {{#context_identifier}}
+    ) totals
+    "
+    output_type: 'list'
+    output_table: 'sheet2_ceramics_total'
+
+
+mapping:
+  'area!A2': '#area_id'
+  'area!A5': '#sheet_1_loci'
+  'ceramics!A3': '#area_id'
+  'ceramics!A7': '#sheet2_ceramics_detail'
+
+tables:
+  sheet_1_loci:
+    append_table: "sheet_1_loci_summary"
+    cells: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O"]
+    templated: True
+    mapping:
+      'A': '#context_id'
+      'B': '#positive_negative_type'
+      'C': '#context_type'
+      'D': '#ceramics_count'
+      'E': '#ceramics_weight'
+      'F': '#bone_weight'
+      'G': '#shell_weight'
+      'H': '#lithics_count'
+      'I': '#lithics_weight'
+      'J': '#metal_count'
+      'K': '#metal_weight'
+      'L': '#plaster_weight'
+      'M': '#other_count'
+      'N': '#other_weight'
+      'O': '#context_id'
+
+  sheet_1_loci_summary:
+    cells: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O"]
+    mapping:
+      "D": "#ceramics_c_total"
+      "E": "#ceramics_w_total"
+      "F": "#bone_w_total"
+      "G": "#shell_w_total"
+      "H": "#lithics_c_total"
+      "I": "#lithics_w_total"
+      "J": "#metal_c_total"
+      "K": "#metal_w_total"
+      "L": "#plaster_w_total"
+      "M": "#other_c_total"
+      "N": "#other_w_total"
+
+  sheet2_ceramics_detail:
+    cells: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T",
+            "U", "V", "W", "X", "Y", "Z", "AA", "AB", "AC", "AD", "AE", "AF", "AG", "AH", "AI", "AJ", "AK", "AL",
+            "AM", "AN", "AO", "AP", "AQ", "AR", "AS", "AT", "AU", "AV", "AW"]
+    append_table: "sheet2_ceramics_total"
+    templated: True
+    mapping:
+      "A": "#total_c"
+      "B": "#total_w"
+      "C": "#nondiag_c"
+      "D": "#nondiag_w"
+      "E": "#diag_c"
+      "F": "#diag_w"
+      "G": "#context_id"
+      "H": "#t_1_c"
+      "I": "#t_1_w"
+      "J": "#t_1_1_c"
+      "K": "#t_1_1_w"
+      "L": "#t_1_2_c"
+      "M": "#t_1_2_w"
+      "N": "#t_1_3_c"
+      "O": "#t_1_3_w"
+      "P": "#t_1_4_c"
+      "Q": "#t_1_4_w"
+      "R": "#t_2_c"
+      "S": "#t_2_w"
+      "T": "#t_2_1_c"
+      "U": "#t_2_1_w"
+      "V": "#t_2_2_c"
+      "W": "#t_2_2_w"
+      "X": "#t_2_3_c"
+      "Y": "#t_2_3_w"
+      "Z": "#t_2_4_c"
+      "AA": "#t_2_4_w"
+      "AB": "#t_3_c"
+      "AC": "#t_3_w"
+      "AD": "#t_3_1_c"
+      "AE": "#t_3_1_w"
+      "AF": "#t_3_2_c"
+      "AG": "#t_3_2_w"
+      "AH": "#t_3_3_c"
+      "AI": "#t_3_3_w"
+      "AJ": "#t_3_4_c"
+      "AK": "#t_3_4_w"
+      "AL": "#t_4_c"
+      "AM": "#t_4_w"
+      "AN": "#t_4_1_c"
+      "AO": "#t_4_1_w"
+      "AP": "#t_4_2_c"
+      "AQ": "#t_4_2_w"
+      "AR": "#t_4_3_c"
+      "AS": "#t_4_3_w"
+      "AT": "#t_4_4_c"
+      "AU": "#t_4_4_w"
+      "AV": ""
+      "AW": "#context_id"
+
+  sheet2_ceramics_total:
+    cells: ["A", "B", "C", "D", "E", "F"]
+    row_offset: 2
+    mapping:
+      "A": "#t_total_c"
+      "B": "#t_total_w"
+      "C": "#t_nondiag_c"
+      "D": "#t_nondiag_w"
+      "E": "#t_diag_c"
+      "F": "#t_diag_w"

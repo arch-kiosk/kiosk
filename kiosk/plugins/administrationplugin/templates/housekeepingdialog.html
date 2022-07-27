@@ -1,0 +1,66 @@
+<style>
+  .kiosk-modal-dialog-image {
+    background: url("/static/assets/images/brush_plunger.svg") no-repeat
+  }
+
+</style>
+{% from 'dialogmacros.html' import kiosk_error_div, kiosk_error_span, kiosk_general_form_errors %}
+{% extends "basicmodaldialog.html" %}
+{% block kiosk_modal_dialog_id %}id="housekeeping-dialog"{% endblock %}
+{% block kiosk_modal_dialog_classes %}.kiosk-modal-dialog-medium{% endblock %}
+{% block kiosk_modal_dialog_name %}housekeeping{% endblock %}
+{% block kiosk_modal_dialog_content %}
+  <div id="dialog-ajax-part" class="pagecontrol-content kiosk-modal-dialog-griddy">
+    {{ kiosk_general_form_errors(general_errors) }}
+    {% if job_uid %}
+      <div id="mcp-job-info" jobid="{{ job_uid }}"></div>
+    {% endif %}
+    <form id="housekeeping-form" onsubmit="starthousekeeping(event)">
+
+      {{ housekeeping_form.csrf_token }}
+
+      {{ housekeeping_form.hk_mark_broken_images(class="kiosk-dialog-checkbox",
+                      errclass="kiosk-error-border",
+                      labelclass="kiosk-dialog-label") }}
+      {{ housekeeping_form.hk_create_representations(class="kiosk-dialog-checkbox",
+                      errclass="kiosk-error-border",
+                      labelclass="kiosk-dialog-label") }}
+      {{ housekeeping_form.hk_complete_file_meta_data(class="kiosk-dialog-checkbox",
+                      errclass="kiosk-error-border",
+                      labelclass="kiosk-dialog-label") }}
+      {{ housekeeping_form.hk_rewrite_images_record(class="kiosk-dialog-checkbox",
+                      errclass="kiosk-error-border",
+                      labelclass="kiosk-dialog-label") }}
+      {{ housekeeping_form.hk_lowercase_filenames(class="kiosk-dialog-checkbox",
+                      errclass="kiosk-error-border",
+                      labelclass="kiosk-dialog-label") }}
+      {{ housekeeping_form.hk_quality_check(class="kiosk-dialog-checkbox",
+                      errclass="kiosk-error-border",
+                      labelclass="kiosk-dialog-label") }}
+    </form>
+  </div>
+{% endblock %}
+{% block kiosk_modal_dialog_after %}
+  <script>
+    initHkDialog();
+
+  function initHkDialog() {
+    kioskShowFooter(true);
+    kioskActivateButton($("#bt-next"), null);
+    kioskActivateButton($("#bt-back"), null);
+    //kioskActivateButton($("#bt-ok"), null);
+    //kioskDisableButton($("#bt-ok"), true);
+    kioskActivateButton($("#bt-close"), null);
+    kioskActivateButton($("#bt-delete"), null);
+
+    kioskActivateButton($("#bt-cancel"), () => {
+      $.magnificPopup.close();
+    });
+    kioskActivateButton($("#bt-ok"), startHousekeeping);
+  }
+
+    //# sourceURL=housekeepingdialog.js
+  </script>
+{% endblock %}
+
+//# sourceURL=administration/housekeepingdialog.js

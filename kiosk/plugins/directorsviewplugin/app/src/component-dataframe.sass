@@ -1,0 +1,29 @@
+@import "../../../../static/styles/_constants"
+@import reset
+
+div, p
+  font-family: $standard-text
+
+\:host
+  display: flex
+  flex-direction: row
+  flex-wrap: wrap
+  justify-content: space-between
+  padding-top: 1em
+  //padding-top: 180px
+  padding-left: 1em
+  padding-right: 1em
+  width: 100%
+  box-sizing: border-box
+  @media #{$screen-max-800}
+    justify-content: left
+    &>*
+      margin-right: 1em
+
+
+locus-widget, file-widget, narrative-widget, cm-widget, feature-widget
+  margin-bottom: 1em
+
+unit-info-widget
+  width: 100%
+  margin-bottom: 2em

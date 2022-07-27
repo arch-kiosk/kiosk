@@ -1,0 +1,9 @@
+header:
+  version: 1.0
+mapping:
+  'director': 'n/a'
+  'context#': '#context_identifier'
+  'context#2': '#context_identifier'
+  'observation':
+   - '#description'
+   - append(' ','#interpretation')

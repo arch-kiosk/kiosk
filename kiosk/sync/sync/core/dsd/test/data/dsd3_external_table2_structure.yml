@@ -1,0 +1,9 @@
+config:
+  format_version: 3
+table2: 
+  structure:
+    1:
+        uid: [datatype("REPLFIELD_UUID"), excavation_context(excavation_context), table_context(table_context)]
+        created: [datatype("REPLFIELD_CREATED")]
+        modified: [datatype("REPLFIELD_MODIFIED")]
+        modified_by: [datatype("REPLFIELD_MODIFIED_BY"), default("sys")]

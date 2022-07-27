@@ -1,0 +1,19 @@
+{% extends "kioskbasic.html" %}
+{% block title %}
+  <div id="subtitle-shadow">Kiosk</div>
+  <div id="subtitle">Kiosk</div>
+{% endblock %}
+{% block body %}
+<div>
+  <div>
+    <h3>
+      Your session has timed out. <a href="{{ url_for('login_controller.login', next=request.url) }}">Please try a fresh login.</a>
+    </h3>
+  </div>
+  <div>
+  {% if reason %}
+    <br/>(CSRF protection failed: {{reason}}.)
+  {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,3 @@
+function kioskScriptsLoaded() {
+  return True;
+}

@@ -1,0 +1,122 @@
+{% from 'dialogmacros.html' import kiosk_error_div, kiosk_error_span, kiosk_general_form_errors %}
+<div id="local-import-form-1-div">
+    {{ kiosk_general_form_errors(general_errors) }}
+<form id="local-import-form-1">
+        {{ localimportform1.csrf_token }}
+        {{ localimportform1.page_initialized() }}
+        <div class="grid-12">
+            <div class="col-12">
+                Please configure your import:
+            </div>
+            <div class="col-12">
+                <label class="kiosk-dialog-label" for="mif-local-path">local path on master machine</label>
+                {{ localimportform1.mif_local_path(class="kiosk-dialog-textfield",
+                        data_list="#mif-volumes", errclass="kiosk-error-border") }}
+                {{ kiosk_error_div(localimportform1.mif_local_path, class="col-12" ) }}
+                <datalist id="mif-volumes">
+                    {% for p in path_list %}
+                        <option value="{{ p }}"/>
+                    {% endfor %}
+                </datalist>
+            </div>
+            <div class="col-12">
+                <label class="kiosk-dialog-label" for="file-extensions">file-extensions (comma separated)</label>
+                {{ localimportform1.file_extensions(class="kiosk-dialog-textfield",
+                        placeholder="leave empty to allow for all extensions",
+                        errclass="kiosk-error-border") }}
+                {{ kiosk_error_div(localimportform1.file_extensions, class="col-12" ) }}
+            </div>
+            <div class="col-12">
+                {{ localimportform1.tags(class="kiosk-dialog-textfield",
+                        placeholder="separate tags by comma",
+                        errclass="kiosk-error-border",
+                        labelclass="kiosk-dialog-label") }}
+                {{ kiosk_error_div(localimportform1.tags, class="col-12" ) }}
+            </div>
+            <div class="col-12">
+                <div class="grid-2">
+                    {% for checkbox in ["recursive", "add_needs_context"] %}
+                        <div class="col">
+                            {{ localimportform1.__getitem__(checkbox)(class="kiosk-dialog-checkbox",
+                                labelclass="kiosk-dialog-label kiosk-dialog-checkbox-label",
+                                errclass="kiosk-error-checkbox") }}
+                            {{ kiosk_error_span(localimportform1.__getitem__(checkbox) ) }}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+    </form>
+    <script>
+
+      //Initialization code
+
+      kioskShowFooter(true);
+      kioskActivateButton($("#bt-next"), localImportNextPage);
+      kioskActivateButton($("#bt-back"), null);
+      kioskActivateButton($("#bt-ok"), null);
+      kioskActivateButton($("#bt-close"), null);
+      kioskActivateButton($("#bt-cancel"), () => {
+        $.magnificPopup.close();
+      });
+
+      initCollapsibles();
+      initLocalDialog();
+
+      //methods
+
+      function initLocalDialog() {
+        let input = document.getElementById("mif-local-path");
+        let awesomplete_local_path = new Awesomplete(input, {list: "mif-volumes", minChars: 0,
+          filter: ()=>true});
+        $('#mif-local-path').focus(function () {
+          // var awesomplete_local_path = Awesomplete.$('mif-local-path');
+          awesomplete_local_path.minChars = 0;
+          awesomplete_local_path.evaluate();
+          awesomplete_local_path.open();
+        });
+        if (!modalDialogInitialized($("form").first())) {
+          $('#mif-local-path').focus();
+        }
+      }
+
+      function localImportNextPage() {
+        kioskSendAjaxForm($("#bt-next").first(),
+          $("#local-import-form-1-div"),
+          "fileimport/dialoglocalimport1",
+          onLocalImportFormEvaluated, onLocalImportFormFailure)
+      }
+
+      function onLocalImportFormFailure(xhr, status, errorThrown, state_data) {
+        kioskErrorToast(`<div>Sorry, There was an error: ${ errorThrown } </div>`,
+          {
+            onClosing: () => {
+              $.magnificPopup.close();
+            }
+          });
+        return
+      }
+
+      function onLocalImportFormEvaluated(jq_form, state_data) {
+        if (!kioskElementHasErrors($("#local-import-form-1-div"))) {
+          kioskGetAjaxElement($("#pagecontrol"),
+            "fileimport/dialoglocalimport2",
+            $("#bt-next"),
+            null,
+            (response, status, xhr) => {
+              if (status == "error") {
+                kioskErrorToast("<div>Error loading page magnificent_widget/local_import_2: " + response + "</div>",
+                  {
+                    onClosing: () => {
+                      $.magnificPopup.close();
+                    }
+                  });
+              }
+            });
+        }
+      }
+
+      //# sourceURL=fileimportdialoglocalimport1.js
+    </script>
+</div>

@@ -1,0 +1,11 @@
+{% extends "kioskbasic.html" %}
+{% block title %}
+  <div id="subtitle-shadow">Kiosk</div>
+  <div id="subtitle">Kiosk</div>
+{% endblock %}
+{% block body %}
+<div>
+  The server responded with an error {{ error }}.
+  Oops. This Page could not be found: {{reason.description}}
+</div>
+{% endblock %}

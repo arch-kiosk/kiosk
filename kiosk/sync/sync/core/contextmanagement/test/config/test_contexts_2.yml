@@ -1,0 +1,18 @@
+#this is just an attempt! Not used or implemented!
+config:
+  format_version: 3
+  contexts:
+    all_images:
+      type: full_file_search
+      scope:
+        site:
+          site_notes:
+            site_note_photo: {}
+        unit:
+          locus:
+            locus_photo: {}
+            collected_material:
+              collected_material_photo: {}
+            locus_relations: {}
+          dayplan: {}
+

@@ -1,0 +1,33 @@
+{% extends "kioskbasic.html" %}
+{% block links %}
+  <link rel=stylesheet type=text/css href="{{ url_for('syncmanager.static', filename='syncmanager_cs.css') }}?v=1"/>
+{% endblock %}
+{% block title %}
+  <div id="subtitle-shadow">Kiosk</div>
+  <div id="subtitle">Hubbub - new dock</div>
+{% endblock %}
+{% block body %}
+  <div class="full-background-bg-1">
+    <form id="new-workstation-form">
+      {{ new_workstation_default_form.workstation_type(class="kiosk-dialog-selectfield",
+                        data_list="#kiosk-workstation-types",
+                        labelclass="kiosk-dialog-label",
+                        errclass="kiosk-error-border") }}
+      <datalist id="kiosk-workstation-types">
+        <option>KioskFilemakerWorkstation</option>
+        <option>KioskExportWorkstation</option>
+{#                    {% for p in path_list %}#}
+{#                        <option value="{{ p }}"/>#}
+{#                    {% endfor %}#}
+      </datalist>
+      {{ new_workstation_default_form.workstation_id(class="kiosk-dialog-textfield",
+                        labelclass="kiosk-dialog-label",
+                        errclass="kiosk-error-border") }}
+      {{ new_workstation_default_form.description(class="kiosk-dialog-textfield",
+                        labelclass="kiosk-dialog-label",
+                        errclass="kiosk-error-border") }}
+    </form>
+  </div>
+{#  <script src="{{ url_for('syncmanager.static', filename='app/syncmanager-app.js') }}"></script>#}
+{% endblock %}
+{#<script src="../static/app/syncmanager-app.js"></script>#}

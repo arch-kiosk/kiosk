@@ -1,0 +1,100 @@
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}?v=1"/>
+  {% if not is_emergency_state %}
+    <link rel=stylesheet type=text/css href="{{ url_for('custom_file', filename="css/" + project_id + '.css') }}"/>
+  {% endif %}
+
+
+  <link rel="apple-touch-icon" sizes="180x180"
+        href="{{ url_for('static', filename='assets/images/favicon/apple-touch-icon.png') }}">
+  <link rel="icon" type="image/png" sizes="32x32"
+        href="{{ url_for('static', filename='assets/images/favicon/favicon-32x32.png') }}">
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/images/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/static/assets/images/favicon/site.webmanifest">
+  <link rel="shortcut icon" href="/static/assets/images/favicon/favicon.ico">
+  <meta name="msapplication-TileColor" content="#2b5797">
+  <meta name="msapplication-config" content="/static/assets/images/favicon/browserconfig.xml">
+  <meta name="theme-color" content="#ffffff">
+
+  {% block links %}
+  {% endblock %}
+  <script src="{{ url_for('static', filename='scripts/jquery.js') }}"></script>
+  <script src="{{ url_for('static', filename='scripts/urap_lib.js') }}"></script>
+
+  <!--<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro:600,700|Roboto|Ceviche+One|Cutive+Mono|Dosis|Noto+Sans|Ubuntu"
+        rel="stylesheet"/>
+  -->
+  <!-- <link href="static/purecss/fonts.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="static/purecss/awesomplete.css" />
+  <script src="{{ url_for('static', filename='scripts/awesomplete.js') }}" async></script> -->
+
+  <title>{{ global_constants["project_short"] }} Kiosk</title>
+
+</head>
+<body>
+<div id="outer-wrapper">
+  <div id="header">
+    <div id="logogroup">
+        <div id="logo">
+          <div id="img"></div>
+          <!-- <svg id="img" xmlns="http://www.w3.org/2000/svg" width="120" height="80" viewBox="10 9 103 58">
+          <path d="M76.124 2.754l-2.86-.234-3.148.7-3.147 1.167-3.434 4.898-.86 3.5-2.288 6.532-.572 7.932-.858 41.058v.933-.232l2.003 3.033 1.43.934 2.862.933h1.43l2.576-1.633 1.716-2.1 1.144-2.333 1.145-2.33 3.147-9.1.858-3.5.858-3.032 2.003-2.333.858-.933 1.43-1.633-.286-6.3v-2.8l-2.29-9.564-.285-2.566-.572-2.1-.86-3.966v-4.2L77.84 9.52V5.085z" fill="#8a0"/><g fill="#a05a2c">
+          <path d="M90 0h30v79.858H90z"/><path d="M90 79.858l-9.146.14c6.098.08 9.29-2.973 9.375-9.374z"/></g><g fill="#fea"><path d="M0 0h50v79.856H0z"/><path d="M50 79.856l9.146.142c-6.098.082-9.29-3.026-9.375-9.54z"/></g></svg>
+          -->
+        </div>
+      <div id="logotext">
+        <div id="maintitlegroup">
+          {% if global_constants["project_logo_top"] %}
+            <div id="logo-top">{{ global_constants["project_logo_top"] }}</div>
+          {% endif %}
+          <div id="maintitle">{{ global_constants["project_logo_main"] }}</div>
+          {% if global_constants["project_logo_bottom"] %}
+            <div id="logo-bottom">{{ global_constants["project_logo_bottom"] }}</div>
+          {% else %}
+            <div id="smalltitle">{{ global_constants["project_name"] }}</div>
+          {% endif %}
+        </div>
+        <div id="subtitle-shadow">Kiosk</div>
+        <div id="subtitle">Kiosk</div>
+      </div>
+    </div>
+    <div id="menus">
+      <div class="kiosk-version">
+        kiosk <span>{{global_constants["kiosk_version"]}} ({{global_constants["kiosk_nickname"]}})</span>
+      </div>
+{#      {% include "_menus.html" %}#}
+    </div>
+  </div>
+
+  <div id="content-wrapper" class="content">
+    <div>
+      {% if is_emergency_state %}
+      <h1>Kiosk is in emergency state</h1>
+      <p style="font-weight: bold">Once the error is fixed the server or application pool
+        will need a restart to get out of emergency state!</p>
+      {% else %}
+      <h1>Sorry, but Kiosk is unwell.</h1>
+      <p style="font-weight: bold">You can try <a href="/logout">a fresh login by clicking here.</a></p>
+      {%  endif %}
+      <h2>reason:</h2>
+      <div class="emergency-system-message"><p>{{ reason }}</p></div>
+      <h2>messages:</h2>
+      {% if not system_messages %}
+        <div>The system had nothing to say</div>
+      {% endif  %}
+      {% for m in system_messages %}
+        <div class="emergency-system-message">
+          <p>{{ m.headline }}</p>
+          <p>{{ m.body }}</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{#  <div class="footer">#}
+{#    {% if current_plugin_controller %}#}
+{#      current plugin controller is: {{ current_plugin_controller.name }}#}
+{#    {% endif %}#}
+{#  </div>#}
+</div>

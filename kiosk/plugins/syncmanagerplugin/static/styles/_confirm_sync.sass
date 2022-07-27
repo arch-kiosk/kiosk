@@ -1,0 +1,72 @@
+#modal-confirm-sync
+  background: $col-bg-1
+  color: $col-primary-bg-1
+  font-family: $standard-text
+  //font-size: 24px
+  //line-height: 1.5em
+  position: relative
+  margin-left: auto
+  margin-right: auto
+  max-width: 600px
+.header-icon
+  font-size: 2em
+  margin-right: .5em
+
+
+#modal-confirm-sync-inner
+  display: flex
+  padding: 20px
+  flex-direction: column
+  p
+    margin-bottom: 1em
+
+.mfp-with-anim
+  &.mfp-bg
+    opacity: 0
+    transition: all 0.2s ease-in
+    &.mfp-ready
+      opacity: 0.8
+    &.mfp-removing
+      opacity: 0
+  &.mfp-wrap
+    opacity: 0
+    //perspective: 2000px
+    transition: all 0.2s ease-in
+    transform-style: preserve-3d
+    transform: rotateX(-20deg) rotateY(-20deg)
+    &.mfp-ready
+      opacity: 1
+      transform: rotateX(0deg) rotateY(0deg)
+    &.mfp-removing
+      opacity: 0
+      transform: rotateX(-20deg) rotateY(-20deg)
+
+#sync-msg
+  margin-top: .5em
+
+//.sync-options
+//  h4
+//    text-decoration: underline
+
+#sync-options-form
+  //height: 4em
+  margin-top: .5em
+  margin-bottom: 1em
+  display: flex
+  flex-direction: column
+  //height: 6em
+  align-content: space-between
+  //line-height: 1em
+  //justify-content: space-around
+  div.pretty
+    margin-bottom: .4em
+
+//#so-safe-mode+div
+//    opacity: .6
+
+.sync-msg-error
+  background-color: $col-bg-alert
+  color: $col-primary-bg-alert
+  span
+    color: $col-accent-bg-alert
+

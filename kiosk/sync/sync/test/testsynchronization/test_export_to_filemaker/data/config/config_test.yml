@@ -1,0 +1,66 @@
+'Flask':
+  SOME_OPERATION: 'Something'
+  SECRET_KEY: "A normal Key"
+  EXPLAIN_TEMPLATE_LOADING: True
+
+config:
+  project_id: 'urap'
+  sync: '%base_path%\sync\sync\test\testsynchronization\test_export_to_filemaker\data'
+  sync_plugin_directory: '%base_path%\sync\sync\sync_plugins'
+  custom_sync_modules: '%base_path%\sync\sync\custom'
+  logfile: '%sync%\urap_dev.log'
+  log_to_screen: False
+  autoload_plugins: ["filemakerrecording"]
+  dataset_definition: '%base_path%\config\dsd\default_dsd3.yml'
+  filemaker_export_dir: '%sync%\filemaker\to_work_station'
+  filemaker_import_dir: '%sync%\filemaker\from_work_station'
+  filemaker_template: '%sync%\test\testsynchronization\test_export_to_filemaker\data\filemaker\recording_v12_template.fmp12'
+  expected_filemaker_template_version: "12.4"
+  filemaker_db_filename: recording_v12.fmp12
+  filemaker_encoding: UTF-8
+  odbc_ini_dsn: filemaker_odbc
+  database_name: urap_test
+  file_repository: '%sync%\file_repository'
+  default_recording_group: default
+  file_handling_definition: '%base_path%\config\file_handling.yml'
+  fork_ignore_missing_files: True
+  log_level: 'DEBUG'
+  static_image_path: '%base_path%\static\assets\images'
+
+file_repository:
+  auto_representations: ['medium', 'small']
+  thumbnails: ['small', 'medium']
+  standard_format_requests:
+    default:
+        "*": "JPEG"
+        "PNG": "!"
+        "NEF": "JPEG"
+        "HEIC": "JPEG"
+  representations:
+    small:
+      label: "small thumbnail"
+      inherits: "master"
+      dimensions: "128,128"
+      format_request: "default"
+    medium:
+      label: "medium thumbnail"
+      inherits: "master"
+      dimensions: "256,256"
+      format_request: "default"
+    master:
+      format_request: "default"
+      dimensions: "4000,2000"
+      requested_manipulations: ["FIX_ROTATION", "DROP_EXIF_DATA"]
+    1024x768:
+      inherits: "master"
+      requested_manipulations: ["DROP_EXIF_DATA"]
+      format_request: "default"
+      dimensions: "1024,768"
+    RAW2400x2500:
+      requested_manipulations: ["DROP_EXIF_DATA"]
+      format_request: "NEFTIF"
+      dimensions: "2400,2500"
+
+file_handlers:
+  plugins: ["defaultfilehandling", "heicfilehandling"]
+

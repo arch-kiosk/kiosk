@@ -1,0 +1,5 @@
+import_configurations:
+  - base_config.yml
+config:
+  custom_path: '%base_path%\custom'
+  some_value: "custom"

@@ -1,0 +1,109 @@
+{% from 'dialogmacros.html' import kiosk_error_div, kiosk_error_span, kiosk_general_form_errors %}
+{% extends "basicmodaldialog.html" %}
+{% block dialog_css %}
+{#  <link rel="stylesheet" href="{{ url_for('kioskfilemakerworkstation.static', filename='kioskfilemakerworkstation.css') }}">#}
+{% endblock %}
+{% block kiosk_modal_dialog_id %}id="install-patch-dialog"{% endblock %}
+{% block kiosk_modal_dialog_classes %}.kiosk-modal-dialog-medium{% endblock %}
+{% block kiosk_modal_dialog_name %}Install Patch{% endblock %}
+{% block kiosk_modal_dialog_content %}
+  <div id="dialog-ajax-part" class="pagecontrol-content kiosk-modal-dialog-griddy">
+    {{ kiosk_general_form_errors(general_errors, "display: block; margin-top: 1em") }}
+  </div>
+  {% if not general_errors %}
+    <div id="dialog-workzone">
+      <div>This feature allows you to install a patch file to upgrade your kiosk server.
+        All you need to do is upload the .zip file you got from the Kiosk team.
+      </div>
+      <div id="drop-area-div" class="upload-zone installer">
+        <input id="file-upload" type="file" name="files[]">
+        <h3>Please click here <br> or drop the patch file here.</h3>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}
+{% block kiosk_modal_dialog_after %}
+  <script>
+      ensureLibrariesAndinitDialog();
+
+      function ensureLibrariesAndinitDialog() {
+        kioskStartWhenReady(() => {
+          initCollapsibles();
+          kioskActivateButton($("#bt-next"), null);
+          kioskActivateButton($("#bt-back"), null);
+          kioskActivateButton($("#bt-ok"), null);
+          kioskActivateButton($("#bt-close"), () => {
+            $.magnificPopup.close()
+          });
+          kioskActivateButton($("#bt-delete"), null);
+          kioskActivateButton($("#bt-cancel"), null);
+          uploadPatchInitUploader();
+        })
+      }
+
+
+      function uploadPatchInitUploader() {
+        const MAX_INSTALL_FILE_SIZE = 250 // 250 Megabyte
+
+        const route = getRoutefor("administration.trigger_patch")
+        console.log(`trigger_patch route: ${route}`)
+
+        $('#drop-area-div').dmUploader({
+          url: route,
+          auto: true,
+          queue: false,
+          extFilter: ["zip"],
+          dataType: 'json',
+          maxFileSize: MAX_INSTALL_FILE_SIZE * 1024 * 1024,
+          onBeforeUpload: function (id) {
+            installSpinner($("#drop-area-div"),"hold on ...")
+            setPatchInstallUploadProgress(id, 0);
+          },
+          onUploadProgress: function (id, percent) {
+            setPatchInstallUploadProgress(id, percent);
+
+          },
+          onUploadSuccess: function (id, data) {
+            $.magnificPopup.close()
+            if (data.success) {
+              kioskSuccessToast(data.message,{timeout: 0})
+            }
+            else {
+              kioskErrorToast(`The upload failed (${data.message}). Please try again.`)
+            }
+          },
+          onUploadError: function (id, xhr, status, errorThrown) {
+            console.log(xhr)
+            console.log(status)
+            console.log(errorThrown)
+            $.magnificPopup.close()
+            if (errorThrown) {
+              kioskErrorToast(`The upload failed (${errorThrown}). Please try again.`)
+            }
+            else
+              kioskErrorToast(`The upload failed. Please try again.`)
+          },
+          onFallbackMode: function (message) {
+            kioskErrorToast('The upload failed because your Browser does not support it: ' + message);
+          },
+          onFileExtError: function (file) {
+            kioskErrorToast('Only files with the extension .zip can be uploaded here. Please select a proper file.')
+          },
+          onFileSizeError: function (file) {
+            kioskErrorToast(`The selected file exceeds the file size limit of ${MAX_INSTALL_FILE_SIZE} MBytes`)
+          }
+
+        });
+      }
+
+      function setPatchInstallUploadProgress(id, percent) {
+          if (percent != 100)
+            $("#ws-message-div").html(`${percent} % done`)
+          else
+            $("#ws-message-div").html(`Patch installation. That'll need some patience ...`);
+      }
+
+  </script>
+{% endblock %}
+
+

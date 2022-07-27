@@ -1,0 +1,4 @@
+config:
+  some_path: '%base_path%\subpath'
+  some_other_path: '%custom_path%\subpath'
+  some_default_value: "default"

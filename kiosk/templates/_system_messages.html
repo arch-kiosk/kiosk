@@ -1,0 +1,23 @@
+{% if system_messages %}
+<div id="system-messages" change_mark="{{ sys_msgs_change_mark }}"
+      {% if system_messages.relevant_messages == 0 %}
+     style="display:none"
+      {% endif %}>
+      {% for msg in system_messages.messages() %}
+        {% if system_messages.get_relevance(msg=msg) == 2 %}
+          <div id="{{ msg.uid }}" class="system-message {{ msg.severity_class }}">
+            <p class="message-headline">
+              <i class="fa system-message-icon {{ msg.severity_class }}"></i>
+              {{ msg.headline }}
+              <i id="{{ msg.uid }}" class="fa system-message-close"></i>
+            </p>
+            <p class="message-body">{{ msg.format_time }}: {{ msg.body }}</p>
+          </div>
+        {% endif %}
+      {% endfor %}
+</div>
+{% else %}
+  <div id="system-messages" change_mark="{{ sys_msgs_change_mark }}" style="display:none">
+  </div>
+{% endif %}
+

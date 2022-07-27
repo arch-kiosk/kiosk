@@ -1,0 +1,35 @@
+header:
+  version: 1.0
+variables:
+  context_identifier: [datatype(VARCHAR)]
+  material_type: [datatype(VARCHAR)]
+base_queries:
+  "This year's loci":
+    description: "creates a report of this year's loci/contexts"
+    type: 'SQL'
+    query: "
+    select arch_context from {{locus}} locus
+    where extract(year from locus.created) = extract(year from now())
+    "
+queries:
+  'context_data':
+    type: 'SQL'
+    query: "
+    select * from {{locus}} as locus where 
+    locus.arch_context={{#context_identifier}}
+    "
+    output_type: 'key-value'
+  'locus_relations':
+    type: 'SQL'
+    query: "
+    select r.type relation_type, l2.arch_context to_locus from {{locus}} as l 
+    inner join {{locus_relations}} as r 
+    on l.uid = r.uid_locus
+    inner join {{locus}} as l2
+    on r.uid_locus_2_related = l2.uid
+    where
+    l.arch_context={{#context_identifier}}
+    order by r.type, l2.arch_context
+    "
+    output_type: 'list'
+    output_table: 'locus_relations'

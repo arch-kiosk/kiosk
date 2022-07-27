@@ -1,0 +1,96 @@
+config:
+  project_id: urap
+  log_to_screen: True
+  log_level: 'DEBUG'
+  sync: '%base_path%\sync\sync'
+  custom_sync_modules: '%sync%\custom'
+  sync_plugin_directory: '%sync%\sync_plugins'
+  logfile: '%base_path%\sync\sync\sync_plugins\fileimportqrcodefilter\test\urap_dev.log'
+  dataset_definition: '%sync%\config\dsd.yml'
+  filemaker_export_dir: '%sync%\filemaker\to_work_station'
+  filemaker_import_dir: '%sync%\filemaker\from_work_station'
+  filemaker_template: '%sync%\filemaker\urap2018_template.fmp12'
+  expected_filemaker_template_version: "V5"
+  filemaker_db_filename: URAP2018.fmp12
+  filemaker_encoding: UTF-8
+  odbc_ini_dsn: urap
+  database_name: urap_test
+  file_repository: '%sync%\file_repository'
+  thumbnail_dir: '%file_repository%\thumbnails'
+  default_resolution: high
+  file_handling_definition: '%base_path%\config\file_handling.yml'
+  default_file_handling: ipad
+  static_image_path: '%base_path%\static\assets\images'
+  image_manipulation_config: '%sync%\sync_plugins\fileimportqrcodefilter\test\config\image_manipulation_config.yml'
+
+file_handlers:
+  plugins: ["defaultfilehandling", "heicfilehandling", "pdffilehandling", "svgfilehandling"]
+
+file_import:
+  file_extensions: ["*"]
+  recursive: True
+  use_uuid: True,
+  log_import: True,
+  tags: []
+  add_only_with_context: False,
+  folder_encodings: []
+  filename_encodings: []
+  load_plugins: ["fileimportstandardfilters", "fileimportexiffilter", "fileimportqrcodefilter"]
+  file_import_filters:
+    local_import:
+      FileImportStandardValuesFilter:
+        priority: 0
+      FileImportStandardFolderFilter:
+        priority: 1
+      FileImportQRCodeFilter:
+        active: True
+#        get_excavation_context: True
+#        get_date: True
+        priority: 4
+        recognition_strategy: qr_code_sahara
+        image_manipulation_sets:
+          - qr_code_sahara
+          - qr_code_black_velvet
+    upload:
+      FileImportStandardValuesFilter:
+        priority: 0
+      FileImportExifFilter:
+        priority: 3
+      FileImportStandardFileFilter:
+        priority: 2
+      FileImportQRCodeFilter:
+        active: True
+        get_excavation_context: True
+        get_date: True
+        priority: 4
+        recognition_strategy: qr_code_sahara
+        image_manipulation_sets:
+          - qr_code_sahara
+          - qr_code_black_velvet
+
+file_repository:
+  cache: '%file_repository%\cache'
+  representations:
+    small:
+      label: "small thumbnail"
+      inherits: "master"
+      dimensions: 128,128
+      format_request: default
+    medium:
+      label: "medium thumbnail"
+      inherits: "master"
+      dimensions: 256,256
+      format_request: default
+    master:
+      format_request: default
+      dimensions: 4000,2000
+      requested_manipulations: ["FIX_ROTATION", "DROP_EXIF_DATA"]
+    1024x768:
+      inherits: "master"
+      requested_manipulations: ["DROP_EXIF_DATA"]
+      format_request: default
+      dimensions: 1024,768
+    RAW2400x2500:
+      requested_manipulations: ["DROP_EXIF_DATA"]
+      format_request: NEFTIF
+      dimensions: 2400,2500

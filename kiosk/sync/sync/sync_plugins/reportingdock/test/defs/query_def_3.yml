@@ -1,0 +1,60 @@
+header:
+  version: 1.0
+variables:
+  context_identifier: [ datatype(VARCHAR) ]
+  material_type: [ datatype(VARCHAR) ]
+  unit: [datatype(VARCHAR)]
+settings:
+  relation_types: ["is abutted by","bonds with"]
+
+base_queries:
+  "This year's loci":
+    description: "creates a report of this year's loci/contexts"
+    type: 'SQL'
+    query: "
+    select arch_context from {{locus}} locus
+    where extract(year from locus.date_defined) = extract(year from now())
+    "
+  "loci of certain unit":
+    description: "creates reports for all loci/contexts of a unit/area."
+    required_variables: [ 'unit' ]
+    type: 'SQL'
+    query: "
+      select distinct l.arch_context from {{locus}} as l 
+      inner join {{unit}} as u on l.uid_unit = u.uid
+      where u.arch_context = {{#unit}}
+      "
+queries:
+  'context_data':
+    type: 'SQL'
+    query: "
+    select * from {{locus}} as locus where 
+    locus.arch_context={{#context_identifier}}
+    "
+    output_type: 'key-value'
+  'locus_relations':
+    type: 'SQL'
+    query: "
+    select r.type relation_type, l2.arch_context to_locus from {{locus}} as l 
+    inner join {{locus_relations}} as r 
+    on l.uid = r.uid_locus
+    inner join {{locus}} as l2
+    on r.uid_locus_2_related = l2.uid
+    where
+    l.arch_context={{#context_identifier}}
+    order by r.type, l2.arch_context
+    "
+    output_type: 'list'
+    output_table: 'locus_relations'
+
+  'locus_relation_types':
+    type: 'SQL'
+    query: "
+    select l.arch_context from {{locus}} as l 
+    inner join {{locus_relations}} as r 
+    on l.uid = r.uid_locus
+    where
+    r.type in ({{#relation_types}})
+    "
+    output_type: 'list'
+    output_table: 'locus_relation_types'

@@ -1,0 +1,13 @@
+{% extends "kioskbasic.html" %} {% block links %}
+  <link rel="stylesheet"
+        href="{{ url_for('syncmanager.static', filename='syncmanagerplugin.css') }}?v=1"/>{% endblock %}
+{% block title %}
+  <div id="subtitle-shadow">Kiosk</div>
+  <div id="subtitle">Hubbub</div>
+{% endblock %}
+{% block body %}
+  <syncmanager-app id="kiosk-app" showprogress="true"></syncmanager-app>
+  <script type="module" crossorigin src="{{ url_for('syncmanager.static', filename='/app/syncmanager.es.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='scripts/kioskapplib/kioskprodstarter.js') }}"></script>
+{% endblock %}
+{#<script src="../static/app/syncmanager.es.js"></script>#}

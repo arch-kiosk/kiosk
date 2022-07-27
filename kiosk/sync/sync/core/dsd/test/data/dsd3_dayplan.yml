@@ -1,0 +1,12 @@
+config:
+  format_version: 3
+dayplan:
+  structure:
+    1:
+      id_unit: [datatype(VARCHAR)]
+      image_description: [datatype(VARCHAR), describes_file(uid_image)]
+      uid_image: [datatype(UUID), uid_file()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]

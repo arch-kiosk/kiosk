@@ -1,0 +1,4 @@
+class FileExportError(Exception):
+    pass
+
+

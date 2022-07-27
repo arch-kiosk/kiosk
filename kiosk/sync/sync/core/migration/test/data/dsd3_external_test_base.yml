@@ -1,0 +1,7 @@
+config:
+  format_version: 3
+
+table1: external("dsd3_external_test_sub1.yml")
+table2:
+  structure: external("dsd3_external_table2_structure.yml")
+  

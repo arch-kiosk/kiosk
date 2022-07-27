@@ -1,0 +1,122 @@
+{% from 'dialogmacros.html' import kiosk_error_div, kiosk_error_span, kiosk_general_form_errors %}
+<div id="local-import-form-2-div">
+    {{ kiosk_general_form_errors(general_errors) }}
+    <form id="local-import-form-2">
+        {{ localimportform2.csrf_token }}
+        <div class="grid-12">
+            <div class="col-12">
+                <div>Context filters try to determine contextual information of an image.<br>
+                    Please select and configure the context filters you want to use:
+                </div>
+            </div>
+            <div class="col-12">
+                {% for filter in context_filters %}
+                    <div class="col-12 kiosk-collapsible-v2 collapsible-options">
+                        <div class="col-12 kiosk-collapsible-header">
+                            {{ filter.get_form().get_use_filter_field()(class="kiosk-dialog-checkbox",
+                                    labelclass="kiosk-dialog-label kiosk-dialog-checkbox-label") }}
+                            <div class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></div>
+                        </div>
+                        <div class="col-12 filter-description">{{ filter.get_description() }}</div>
+                        <div class="col-12 kiosk-collapsible-content"><div class="grid-2">
+                                {% for field in filter.get_form() %}
+                                    {% if field.name != filter.get_form().get_use_filter_field().name
+                                     and field.name != "csrf_token" %}
+                                      {% if field.css_class != "kiosk-dialog-selectfield" %}
+                                        <div class="col">{{ field }}{{ kiosk_error_div(field, class="col-12" ) }}</div>
+                                      {% else %}
+                                        <div class="col-12">{{ field }}{{ kiosk_error_div(field, class="col-12" ) }}</div>
+                                      {% endif %}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </form>
+    <script>
+      var gotoPage = "";
+      //Initialization code
+
+      kioskShowFooter(true);
+      kioskActivateButton($("#bt-next"), null);
+      kioskActivateButton($("#bt-back"), localImportPrevPage);
+      kioskActivateButton($("#bt-ok"), localImportStart);
+      kioskActivateButton($("#bt-close"), null);
+      kioskActivateButton($("#bt-cancel"), null);
+
+      initCollapsibles();
+      InitLocalDialog();
+
+      //methods
+
+      function InitLocalDialog() {
+        /* if (!modalDialogInitialized($("form").first())) {
+          $('#mif-local-path').focus();
+        } */
+      }
+
+      function localImportStart() {
+        let gotoPage = "fileimport/dialoglocalimport3";
+        kioskSendAjaxForm($("#bt-ok").first(),
+          $("#local-import-form-2-div"),
+          "fileimport/dialoglocalimport2",
+          onLocalImportFormEvaluated, onLocalImportFormFailure,
+          {gotoPage: gotoPage})
+      }
+
+      function localImportPrevPage() {
+        let gotoPage = "fileimport/dialoglocalimport1";
+        kioskSendAjaxForm($("#bt-back").first(),
+          $("#local-import-form-2-div"),
+          "fileimport/dialoglocalimport2",
+          onLocalImportFormEvaluated, onLocalImportFormFailure,
+          {gotoPage: gotoPage})
+      }
+
+      function onLocalImportFormFailure(xhr, status, errorThrown, state_data) {
+        kioskErrorToast(`<div>double trouble: ${ errorThrown } </div>`,
+          {
+            onClosing: () => {
+              $.magnificPopup.close();
+            }
+          });
+        return
+      }
+
+      function onLocalImportFormEvaluated(jq_form, state_data) {
+        if (!kioskElementHasErrors(jq_form)) {
+          if (!("gotoPage" in state_data)) {
+            kioskErrorToast(`<div>Sorry, I don't know where to go from here.</div>`,
+              {
+                onClosing: () => {
+                  $.magnificPopup.close();
+                }
+              });
+            return
+          }
+
+          kioskGetAjaxElement($("#pagecontrol"),
+            state_data.gotoPage,
+            null,
+            $("#pagecontrol"),
+            (response, status, xhr) => {
+              if (status == "error") {
+                kioskErrorToast(`<div>Error loading page ${gotoPage}: ${response} </div>`,
+                  {
+                    onClosing: () => {
+                      $.magnificPopup.close();
+                    }
+                  });
+              }
+            }
+          );
+        }
+      }
+
+      //# sourceURL=fileimportdialoglocalimport2.js
+    </script>
+</div>

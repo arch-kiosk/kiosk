@@ -1,0 +1,87 @@
+<div class="col modal-dialog-flexcol">
+  {% if current_plugin_controller.is_any_operation_allowed() and repl_user_id %}
+    <p class="kiosk-margin-bottom">Please choose which type of import you want to use:</p>
+    {% if current_plugin_controller.is_operation_allowed("upload") %}
+
+      <div id="bt-upload" class="filter-selection">
+        <h3>Bunch</h3>
+        <p>
+          Use this option if you don't have more than {{ max_file_uploads }} images. The images will be sent via network to the master-
+          system. It is the right option if you are accessing a server on the internet.
+        </p>
+      </div>
+    {% endif %}
+    {% if current_plugin_controller.is_operation_allowed("local filesystem") %}
+      <div id="bt-local-import" class="filter-selection">
+        <h3>Ton</h3>
+        <p>
+          Use this option if you have a ton of images. It works only from devices and folders that are
+          locally accessible by the server machine. That would be a USB-stick or ssd-drive plugged into
+          the computer running the master system. If you are accessing an internet server this is not your option.
+        </p>
+      </div>
+    {% endif %}
+  {% else %}
+    <div id="no-import-option">
+      <h3>No options available</h3>
+      {% if repl_user_id %}
+        <p>
+          You either do not have the necessary permission or there are no file import options
+          configured for this system. Please talk to your administrator.
+        </p>
+      {% else %}
+        <p>
+          The current user is not connected to a user id in the recording system. <br>
+          Please have your admin assign a recording user before you start any file imports.
+
+        </p>
+      {% endif %}
+    </div>
+  {% endif %}
+
+</div>
+<script>
+
+  function goto_next_page(pressed_name) {
+    let pc = $("#magnificent-pagecontrol");
+    let next_page = "";
+    switch (pressed_name) {
+      case "bt-local-import":
+        next_page = "fileimport/dialoglocalimport1";
+        break;
+      case "bt-upload":
+        next_page = "fileimport/dialogupload1";
+        break;
+    }
+    if (next_page) {
+
+      kioskGetAjaxElement($("#pagecontrol"),
+        next_page,
+        null,
+        $("#pagecontrol"),
+        (response, status, xhr) => {
+          if (status == "error") {
+            $.magnificPopup.close();
+            kioskErrorToast("Dialog could not be initialized. Please try again.");
+          }
+        })
+    }
+  }
+
+  $(".filter-selection").click((This) => {
+    let pressed_name = $(This.currentTarget).attr("id");
+    goto_next_page(pressed_name);
+  });
+
+  if (!(elementExists("#bt-upload") && elementExists("#bt-local-import"))) {
+    if (elementExists("#bt-local-import")) {
+      goto_next_page("bt-local-import");
+    } else {
+      if (elementExists("#bt-upload")) {
+        goto_next_page("bt-upload");
+      }
+    }
+  }
+
+  //# sourceURL=fileimportdialogmethodselection.js
+</script>

@@ -1,0 +1,2 @@
+urap_repl: "just a test key"
+local_importpaths: ['d:\', 'd:\import', 'd:\aalles', 'f:\', 'f:\urap_vm\shared', 'f:\URAP_backup']

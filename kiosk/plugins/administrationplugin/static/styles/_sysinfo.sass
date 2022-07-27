@@ -1,0 +1,145 @@
+.admin-wrapper
+  .kiosk-collapsible-header, .kiosk-collapsible-content
+    background-color: $color-white
+
+.admin-actions
+  display: flex
+  flex-direction: row
+  flex-wrap: wrap
+  margin-top: 1em
+  list-style: none
+  padding: 20px 0
+  //padding-bottom: 1em
+
+.admin-action
+  height: 64px
+  width: 128px
+  margin-right: 1em
+  display: flex
+  margin-bottom: 1em
+  align-items: center
+  justify-content: center
+  text-align: center
+  border-radius: 5px
+  line-height: 1.2em
+
+.admin-sysinfo-wrapper
+  display: flex
+  flex-flow: column
+  margin-top: 1.5em
+
+.kiosk-collapsible-content
+  font-family: $monospace
+  font-weight: bold
+  user-select: text
+
+.admin-gridded-info
+  display: flex
+  flex-direction: row
+  flex-wrap: wrap
+  justify-content: space-between
+  margin-left: -2rem
+
+  div
+    margin-left: 2rem
+
+.admin-one-column
+  flex-direction: column
+
+.admin-sysinfo-entry
+  -webkit-user-select: text
+  -moz-user-select: text
+  -ms-user-select: text
+  user-select: text
+
+  label
+    font-weight: normal
+    font-family: $monospace
+    margin-left: -2px
+
+.admin-g-with-header
+  grid-template-rows: 1.5em auto
+
+.admin-grid4
+  display: grid
+  grid-template-columns: auto auto auto auto
+  justify-content: left
+  grid-column-gap: 2em
+
+  .admin-sysinfo-entry
+    font-family: $standard-text
+
+
+.admin-grid5
+  @extend .admin-grid4
+  grid-template-columns: auto auto auto auto auto
+  .kiosk-btn-32
+    justify-self: center
+  .btn-spinner-div
+    justify-self: center
+
+.admin-grid6
+  @extend .admin-grid4
+  grid-template-columns: auto auto auto auto auto auto
+  .kiosk-btn-32
+    justify-self: center
+  .btn-spinner-div
+    justify-self: center
+
+.admin-plugins>.admin-sysinfo-entry
+  font-weight: normal
+
+.admin-sysinfo-entry-center
+  @extend .admin-sysinfo-entry
+  justify-self: center
+
+
+.admin-actions-grid li
+  display: inline-block
+  margin: 10px 5px 5px 5px
+  vertical-align: top
+  height: auto
+
+#backup_modal
+  background-color: $color-background
+  overflow: hidden
+  max-height: 100vh
+  @media #{$screen-max-500}
+    width: 100vw
+  .modal-footer
+    background-color: $color-background
+    border-top: solid $color-black 1px
+    height: 78px
+    display: flex
+    justify-content: flex-end
+    align-items: center
+    padding-right: 8px
+  label
+    color: $color-black
+    font-family: $monospace
+    left: 0px
+
+  input
+    border-bottom-color: $color-white
+
+.kiosk-modal-dialog-image
+  background: url("/static/assets/images/backup.svg") no-repeat
+
+.modal-header
+  display: flex
+  align-items: center
+  margin-bottom: 1em
+
+
+.input-field
+  padding-left: 0px
+
+  label.active
+    left: 0px
+
+
+#logs-list
+  .admin-sysinfo-entry
+    font-family: $monospace
+  .row-wrapper
+    display: contents

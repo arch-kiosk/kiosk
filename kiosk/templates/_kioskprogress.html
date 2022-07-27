@@ -1,0 +1,43 @@
+<div id="_kiosk-progress-view" class="kiosk-progress-view"
+     {% if job %} job-uid="{{ job.uid }}" {% endif %}>
+     {% if job_uid %}
+        <div id="mcp-job-info" jobid="{{ job_uid }}"></div>
+     {% endif %}
+  <div id="_progress-spinner-div">
+    <div></div>
+  </div>
+  <div class="kiosk-progresses-div">
+    <div class="kiosk-progress-heading" style="display: none">
+      <span></span>
+    </div>
+  </div>
+  <div id="templates" style="display: none">
+    <div class="kiosk-progress">
+      <div class="kiosk-progress-bar-frame">
+        <div class="kiosk-progress-inner">
+          <div class="kiosk-progress-bar" style="width: 0%"></div>
+          <span class="kiosk-progress-text"></span>
+        </div>
+        <div class="kiosk-progress-msg"></div>
+      </div>
+    </div>
+    <div class="kiosk-log-view">
+      <div class="kiosk-log-heading">
+
+      </div>
+      <div class="kiosk-log-line-controls">
+        <div class="pretty p-icon p-curve p-thick p-plain p-smooth">
+            <input id="log-show-details" type="checkbox" />
+            <div class="state kiosk-dialog-label">
+                <i class="icon mdi mdi-check"></i>
+                <label>show details</label>
+            </div>
+        </div>
+      </div>
+
+      <div class="kiosk-log-line">
+
+      </div>
+    </div>
+  </div>
+</div>

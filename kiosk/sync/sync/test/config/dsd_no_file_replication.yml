@@ -1,0 +1,33 @@
+# yaml: dataset definition file for urap_repl
+config:
+  format_version: 1
+  dataset_version: 0.2
+  database: postgres
+site:
+  current_structure:
+    id: [VARCHAR, NOT NULL, UNIQUE]
+    purpose: [VARCHAR]
+    created: [REPLFIELD_CREATED]
+    modified: [REPLFIELD_MODIFIED]
+    uid: [REPLFIELD_UUID]
+    modified_by: [REPLFIELD_MODIFIED_BY]
+  1:
+    id: [VARCHAR, NOT NULL, UNIQUE]
+    purpose: [VARCHAR]
+    created: [REPLFIELD_CREATED]
+    modified: [REPLFIELD_MODIFIED]
+    uid: [REPLFIELD_UUID]
+unit:
+  current_structure:
+    id: [VARCHAR, NOT NULL, UNIQUE]
+    name: [VARCHAR]
+    purpose: [VARCHAR]
+    id_excavator: [VARCHAR]
+    id_site: [VARCHAR]
+    unit_creation_date: [DATE]
+    excavator_full_name: [VARCHAR]
+    spider_counter: [NUMBER]
+    created: [REPLFIELD_CREATED]
+    modified: [REPLFIELD_MODIFIED]
+    uid: [REPLFIELD_UUID]
+    modified_by: [REPLFIELD_MODIFIED_BY]

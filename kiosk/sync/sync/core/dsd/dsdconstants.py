@@ -1,0 +1,28 @@
+KEY_TABLE_STRUCTURE = "structure"
+KEY_TABLE_MIGRATION = "migration"
+KEY_CONFIG = "config"
+KEY_FORMAT_VERSION = "format_version"
+KEY_CONFIG_IMPORTS = "imports"
+KEY_CONFIG_MIGRATION_SCRIPTS = "migration_scripts"
+KEY_CONFIG_CONTEXTS = "contexts"
+KEY_TABLE_META_DATA = "meta"
+
+# system tables are invisible in almost all dsd operations. e.G. list_tables.
+KEY_TABLE_FLAG_SYSTEM_TABLE = "system_table"
+# not_in_master tables are not regularly created or migrated in the master database
+# Such tables only exist for workstations and are migrated and created only in their context
+KEY_TABLE_FLAG_NOT_IN_MASTER = "not_in_master"
+KEY_TABLE_FLAG_EXPORT_DONT_TRUNCATE = "export_dont_truncate"
+KEY_TABLE_META_IMPORT_FILTER = "import_filter"
+KEY_TABLE_FLAG_SYNC_IGNORE_UNIQUE_KEY_VIOLATION = "sync_ignore_unique_key_violation"
+KEY_INSTRUCTION_IDENTIFIER = "identifier"
+KEY_INSTRUCTION_REPLFIELD_UUID = "replfield_uuid"
+KEY_INSTRUCTION_REPLFIELD_CREATED = "replfield_created"
+KEY_INSTRUCTION_REPLFIELD_MODIFIED = "replfield_modified"
+KEY_INSTRUCTION_REPLFIELD_CREATED_BY = "replfield_created_by"
+KEY_INSTRUCTION_REPLFIELD_MODIFIED_BY = "replfield_modified_by"
+KEY_INSTRUCTION_UID_FILE = "uid_file"
+KEY_INSTRUCTION_DESCRIBES_FILE = "describes_file"
+KEY_INSTRUCTION_FILE_LOCATION_FOR = "file_location_for"
+KEY_INSTRUCTION_FILE_ASSIGNED_TO = "file_assigned_to"
+KEY_INSTRUCTION_SKIP_INDEX_ON = "skip_index_on"

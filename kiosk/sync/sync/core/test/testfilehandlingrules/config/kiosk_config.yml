@@ -1,0 +1,64 @@
+# *********************************************
+# URAP Kiosk Config
+# *********************************************
+
+import_configurations:
+  - kiosk_default_config.yml
+
+config:
+  project_id: 'urap'
+  filemaker_template: '%sync%\filemaker\urap2020_template.fmp12'
+  expected_filemaker_template_version: '9.2.1'
+  filemaker_db_filename: URAP2020.fmp12
+  filemaker_encoding: UTF-8
+  odbc_ini_dsn: filemaker_odbc
+  database_name: urap_test
+  database_timeout_sec: 5
+  file_repository: '%sync%\file_repository'
+
+file_repository:
+  cache: '%file_repository%\cache'
+  recording_context_aliases:
+    locus: 'context'
+    unit: 'trench/area'
+    locus_photo: 'context'
+    dayplan: 'trench/area'
+    locus_relations: 'context relations'
+    collected_material_photo: 'collected material & small finds'
+    collected_material: 'collected material & small finds'
+    unit_narrative: 'trench/area narrative'
+    site_note_photo: 'site note'
+    site: 'site map'
+    pottery_images: 'pottery'
+    tags: 'context tags'
+
+kiosk:
+  SECRET_KEY: fd82303c-6852-48c1-8165-9e60d4b25b94
+  security_token_timeout_seconds: 3600
+  local_importpaths: ['c:\', 'Z:\']
+  global_constants:
+    project_name: 'Uronarti Regional Archaeological Project'
+    project_short: 'URAP'
+    project_logo_top: ''
+    project_logo_main: 'Uronarti'
+    project_logo_bottom: 'Regional Archaeological Project'
+
+  dailyreviewplugin:
+    active: true
+    is_main_index: false
+    menu:
+      "daily review": ["-dailyreviewplugin"]
+
+  directorsviewplugin:
+    active: true
+    is_main_index: false
+    menu:
+      "director's view": ["-directorsviewplugin"]
+
+
+  playgroundplugin:
+    active: true
+    is_main_index: false
+
+  messagingmanagerplugin:
+    active: true

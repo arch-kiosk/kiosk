@@ -1,0 +1,35 @@
+config:
+  format_version: 3
+  contexts:
+    unit_images:
+      type: file_search
+      scope:
+        unit:
+          relates_to:
+            locus:
+              join: inner(uid, uid_unit)
+              relates_to:
+                collected_material:
+                  join: inner(uid, uid_locus)
+                  relates_to:
+                    collected_material_photo:
+                      join: inner(uid, uid_cm)
+                locus_relations:
+                  join: inner(uid, uid_locus)
+                locus_photo:
+                  join: inner(uid, uid_locus)
+            dayplan:
+              join: inner(uid, uid_unit)
+
+    site_images:
+      type: file_search
+      scope:
+        site:
+          relates_to:
+            site_notes:
+              join: inner(uid, uid_site)
+              relates_to:
+                site_note_photo:
+                  join: inner(uid, uid_site_note)
+
+

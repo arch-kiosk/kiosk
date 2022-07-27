@@ -1,0 +1,74 @@
+config:
+  project_id: 'kiosk'
+  log_to_screen: True
+  log_level: 'DEBUG'
+  sync: '%base_path%\sync\sync'
+  sync_plugin_directory: '%sync%\sync_plugins'
+  dataset_definition: '%base_path%\config\dsd\default_dsd3.yml'
+  filemaker_export_dir: '%sync%\filemaker\to_work_station'
+  filemaker_import_dir: '%sync%\filemaker\from_work_station'
+  filemaker_template: '%sync%\filemaker\recording_template.fmp12'
+  expected_filemaker_template_version: "V5"
+  filemaker_db_filename: recording.fmp12
+  filemaker_encoding: UTF-8
+  odbc_ini_dsn: kiosk
+  database_name: urap_test
+  file_repository: '%sync%\file_repository'
+  thumbnail_dir: '%file_repository%\thumbnails'
+  default_resolution: high
+  file_handling_definition: '%base_path%\config\file_handling.yml'
+  default_file_handling: ipad
+  static_image_path: '%base_path%\static\assets\images'
+  redis_address: "127.0.0.1"
+  redis_port: 6379
+  general_store_class: RedisGeneralStore
+  thumbnail_sets:
+    'small': 128,128
+    'medium': 256,256
+
+file_import:
+  file_extensions: ["*"]
+  recursive: True
+  use_uuid: True,
+  log_import: True,
+  tags: []
+  add_only_with_context: False,
+  folder_encodings: []
+  filename_encodings: []
+  load_plugins: ["fileimportstandardfilters", "fileimportqrcodefilter", "fileimportexiffilter"]
+  file_import_filters:
+    local_import:
+      FileImportStandardValuesFilter:
+        priority: 0
+      FileImportStandardFolderFilter:
+        priority: 1
+      FileImportStandardFileFilter:
+        priority: 2
+
+
+file_repository:
+  cache: '%file_repository%\cache'
+  representations:
+    small:
+      label: "small thumbnail"
+      inherits: "master"
+      dimensions: 128,128
+      format_request: default
+    medium:
+      label: "medium thumbnail"
+      inherits: "master"
+      dimensions: 256,256
+      format_request: default
+    master:
+      format_request: default
+      dimensions: 4000,2000
+      requested_manipulations: ["FIX_ROTATION", "DROP_EXIF_DATA"]
+    1024x768:
+      inherits: "master"
+      requested_manipulations: ["DROP_EXIF_DATA"]
+      format_request: default
+      dimensions: 1024,768
+    RAW2400x2500:
+      requested_manipulations: ["DROP_EXIF_DATA"]
+      format_request: NEFTIF
+      dimensions: 2400,2500

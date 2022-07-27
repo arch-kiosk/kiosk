@@ -1,0 +1,23 @@
+config:
+  format_version: 3
+  some_config: 2
+images: 
+  # fork_options:
+  #   where: 'coalesce("images"."table_context",'''') <> '''''
+  structure: 
+    1:
+      table_context: [datatype("VARCHAR")]
+      excavation_context: [datatype("VARCHAR")]
+      description: [datatype("VARCHAR"), describes_file(uid)]
+      img_proxy : [datatype("TIMESTAMP"), proxy_for(uid)]
+      ref_uid: [datatype("UUID")]
+      id_locus: [datatype("NUMBER")]
+      id_unit: [datatype("VARCHAR")]
+      id_cm: [datatype("NUMBER")]
+      file_datetime: [datatype("TIMESTAMP")]
+      original_md5: [datatype("VARCHAR")]
+      tags: [datatype("VARCHAR")]
+      uid: [datatype("REPLFIELD_UUID"), file_for(img_proxy), excavation_context(excavation_context), table_context(table_context)]
+      created: [datatype("REPLFIELD_CREATED")]
+      modified: [datatype("REPLFIELD_MODIFIED")]
+      modified_by: [datatype("REPLFIELD_MODIFIED_BY"), default("sys")]

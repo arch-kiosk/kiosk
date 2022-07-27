@@ -1,0 +1,172 @@
+[
+  {
+    "context_identifier": "LA-001",
+    "key": "uid_unit",
+    "value": "42f01bcc-8086-4334-9078-fa5531b1f8aa"
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "id",
+    "value": "1"
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "type",
+    "value": "ac"
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "opening elevations",
+    "value": null
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "closing elevations",
+    "value": null
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "description",
+    "value": "SE wall of trench LA. Plastered over and painted with detailing halfway up and on the bottom (see images)."
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "date_defined",
+    "value": "2020-07-08"
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "date_closed",
+    "value": null
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "interpretation",
+    "value": "Wall built to separate LOGS’ room from others."
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "colour",
+    "value": "Beige"
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "uid",
+    "value": "6ee8b69c-dc8f-4923-9e6c-0c01f2c5a961"
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "created",
+    "value": "2020-07-08 09:04:17"
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "modified",
+    "value": "2020-08-01 15:56:10"
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "modified_by",
+    "value": "ldb"
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "repl_deleted",
+    "value": "false"
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "repl_tag",
+    "value": null
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "formation_process",
+    "value": null
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "arch_domain",
+    "value": "LA"
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "arch_context",
+    "value": "LA-001"
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "recorded_by",
+    "value": "LOGS"
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "elevation_opening_nw",
+    "value": null
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "elevation_opening_ne",
+    "value": null
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "elevation_opening_sw",
+    "value": null
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "elevation_opening_se",
+    "value": null
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "elevation_closing_nw",
+    "value": null
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "elevation_closing_ne",
+    "value": null
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "elevation_closing_sw",
+    "value": null
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "elevation_closing_se",
+    "value": null
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "elevation_opening_ct",
+    "value": null
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "elevation_closing_ct",
+    "value": null
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "width",
+    "value": null
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "length",
+    "value": null
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "depth",
+    "value": null
+  },
+  {
+    "context_identifier": "LA-001",
+    "key": "volume",
+    "value": null
+  }
+]

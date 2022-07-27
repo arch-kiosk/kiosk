@@ -1,0 +1,10 @@
+tables:
+  - include(*|"table", exclude_fields)
+  - exclude(table)
+
+exclude_fields:
+  - exclude("repl_deleted")
+  - exclude("repl_tag")
+
+  
+

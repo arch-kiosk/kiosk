@@ -1,0 +1,89 @@
+
+#drop-area-div
+  position: relative
+
+#file-upload
+  opacity: 0
+  background-color: red
+  width: 100%
+  height: 100%
+  top: -2px
+  left: -2px
+  position: absolute
+
+#workstation-options
+  display: flex
+  flex-direction: column
+  flex-wrap: nowrap
+  //max-width: 660px
+  //margin-left: auto
+  //margin-right: auto
+  margin-top: 20px
+  //justify-content: flex-start
+
+.workstation-option-frame
+  display: flex
+  flex-direction: row
+
+.workstation-option-marker[disabled]
+  opacity: 70%
+.workstation-option-marker-green
+  width: 25px
+  margin: 5px 5px 5px 0px
+  background-color: $col-bg-ack
+
+.workstation-option-marker-neutral
+  width: 25px
+  margin: 5px 5px 5px 0px
+  background-color: $col-bg-btn
+
+.workstation-option-marker-red
+  width: 25px
+  margin: 5px 5px 5px 0px
+  background-color: $col-bg-alert
+
+.workstation-option
+  margin: 5px 0px 5px 0px
+  padding: 5px 5px 5px 5px
+  box-sizing: border-box
+  background-color: $col-bg-btn
+  //box-shadow: 3px 3px 4px -2px $col-bg-2-darker
+  border: 3px solid $col-bg-btn-lighter
+  min-height: 5em
+  width: 100%
+
+  h3
+    width: 100%
+    text-align: center
+    margin-bottom: 1em
+    margin-top: 5px
+    cursor: default
+    color: $col-primary-bg-btn
+  p
+    width: 100%
+    line-height: 1.5em
+    font-size: $font-size-h4
+    color: $col-primary-bg-btn
+    cursor: default
+    text-align: center
+
+.workstation-option[disabled]
+     opacity: 70%
+
+.workstation-option:hover
+  //border: 2px solid $color-white
+  background-color: $col-bg-btn-lighter
+.workstation-option:active
+  //border: 2px solid $color-white
+  margin: 10px 0px 0px 0px
+  padding: 5px 5px 5px 5px
+  background-position-y: 2px
+  background-position-x: 2px
+  background-color: $col-bg-btn-lighter
+
+#more-options
+  margin-top: .5em
+
+#filemaker-workstation-actions-dialog
+  max-width: 700px
+

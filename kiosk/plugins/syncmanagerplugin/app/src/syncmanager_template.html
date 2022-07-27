@@ -1,0 +1,13 @@
+{% extends "kioskbasic.html" %}
+{% block links %}
+<link rel=stylesheet type=text/css href="{{ url_for('syncmanager.static', filename='syncmanagerplugin.css') }}?v=1"/>
+{% endblock %}
+{% block title %}
+  <div id="subtitle-shadow">Kiosk</div>
+  <div id="subtitle">Hubbub</div>
+{% endblock %}
+{% block body %}
+  <syncmanager-app>
+  </syncmanager-app>
+  <script src="{{ url_for('syncmanager.static', filename='app/syncmanager-app.js') }}"></script>
+{% endblock %}

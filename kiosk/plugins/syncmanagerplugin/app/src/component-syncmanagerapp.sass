@@ -1,0 +1,68 @@
+@import "../../../../static/styles/_constants"
+@import reset
+@import icons
+
+\:host
+  display: block
+  width: 100%
+div, p
+  font-family: $standard-text
+.center-div
+  display: flex
+  flex-direction: column
+  align-items: center
+  background: $col-bg-body
+
+.wait-for-login
+  display: grid
+  place-items: center
+  height: 100vh
+  background-color: $col-bg-body
+
+  p
+    font-family: $headline-text
+    font-size: $font-size-h2
+
+.logged-in-message
+  background-color: $col-bg-ack
+  color: $col-primary-bg-ack
+  display: grid
+  place-items: center
+  font-family: $standard-text
+
+.development
+  background-color: darkred
+  color: white
+  font-family: "Courier New", sans-serif
+  font-size: 18px
+  text-align: center
+
+.toolbar
+  height: 3em
+  background: $col-bg-3
+  display: flex
+  flex-direction: row
+  padding: 0px 1em 0px 1em
+  justify-content: space-between
+#toolbar-filters
+  flex-grow: 1
+#toolbar-buttons
+  background-color: $col-bg-3-darker
+  height: 100%
+  display: flex
+  flex-direction: row
+  align-items: center
+  padding: 0px 1em 0px 1em
+  //border-left: 2px solid $col-bg-body
+.toolbar-button
+  color: $col-primary-bg-3
+  height: 28px
+  i
+    font-size: 28px
+    line-height: 100%
+  &:hover
+    color: $col-accent-bg-3
+  &:active
+    color: $col-bg-ack
+  &.disabled
+    opacity: 0.3

@@ -1,0 +1,108 @@
+config:
+  format_version: 3
+
+repl_deleted_uids:
+  structure:
+    1:
+      uid: [datatype(UUID), primary(), unique(), default('gen_random_uuid()')]
+      deleted_uid: [datatype(UUID), not_null()]
+      table: [datatype(VARCHAR)]
+      repl_workstation_id: [datatype(VARCHAR)]
+      modified: [datatype(TIMESTAMP)]
+
+repl_image_resolution:
+  structure:
+    3: dropped
+    2:
+      id: [datatype(SERIAL), primary()]
+      workstation_id: [datatype(VARCHAR)]
+      recording_context: [datatype(VARCHAR)]
+      context: [datatype(VARCHAR)]
+      uid_file: [datatype(VARCHAR)]
+      file_resolution: [datatype(VARCHAR), not_null()]
+    1:
+      id: [datatype(SERIAL), primary()]
+      workstation_id: [datatype(VARCHAR)]
+      table_context: [datatype(VARCHAR)]
+      excavation_context: [datatype(VARCHAR)]
+      uid_file: [datatype(VARCHAR)]
+      file_resolution: [datatype(VARCHAR), not_null()]
+  migration:
+    3:
+      upgrade:
+        - drop(*)
+    2:
+      upgrade:
+        - rename("table_context","recording_context")
+        - rename("excavation_context","context")
+
+repl_file_picking_rules:
+  structure:
+    1:
+      workstation_type: [datatype(varchar), not_null()]
+      recording_group: [datatype(varchar), not_null(), default("'default'")]
+      order: [datatype(number), not_null()]
+      rule_type: [datatype(varchar), not_null()]
+      operator: [datatype(varchar)]
+      value: [datatype(varchar)]
+      resolution: [datatype(varchar), not_null()]
+      disable_changes: [datatype(boolean), default(false)]
+      misc: [datatype(varchar)]
+      uid: [datatype(UUID), uuid_key()] # not using replfield_xxx types to avoid synchronization
+      created: [datatype(TIMESTAMP), not_null(), default("now()")]
+      modified: [datatype(TIMESTAMP), not_null(),default("now()")]
+      modified_by: [datatype(VARCHAR), default(null)]
+
+
+repl_workstation:
+  structure:
+    2:
+      id: ["datatype(VARCHAR, 20)", primary()]
+      description: [datatype(VARCHAR)]
+      state: [datatype(SMALLINT), default(0), not_null()]
+      uid: [datatype(UUID), default('gen_random_uuid()'), not_null()]
+      fork_time: [datatype(TIMESTAMP)]
+      fork_sync_time: [datatype(TIMESTAMP)]
+      dsd_version: [datatype(VARCHAR)]
+      recording_group: [datatype(VARCHAR)]
+    1:
+      id: ["datatype(VARCHAR, 20)", primary()]
+      description: [datatype(VARCHAR)]
+      state: [datatype(SMALLINT), default(0), not_null()]
+      uid: [datatype(UUID), default('gen_random_uuid()'), not_null()]
+      fork_time: [datatype(TIMESTAMP)]
+      fork_sync_time: [datatype(TIMESTAMP)]
+      dsd_version: [datatype(VARCHAR)]
+      file_handling: [datatype(VARCHAR)]
+  migration:
+    2:
+      upgrade:
+        - drop("file_handling")
+        - add("recording_group")
+
+repl_workstation_events:
+  structure:
+    2: dropped
+    1:
+      uid: [datatype(VARCHAR), uuid_key()]
+      ts: [datatype(TIMESTAMP), default("now()"), not_null()]
+      event: [datatype(VARCHAR)]
+      message: [datatype(VARCHAR)]
+      workstation: [datatype(VARCHAR), not_null()]
+  migration:
+    2:
+      upgrade:
+        - drop(*)
+
+repl_workstation_filemaker:
+  structure:
+    2:
+      id: [datatype(VARCHAR), primary()]
+    1:
+      id: [datatype(VARCHAR), primary()]
+      export_group: [datatype(VARCHAR)]
+  migration:
+    2:
+      upgrade:
+        - drop("export_group")
+

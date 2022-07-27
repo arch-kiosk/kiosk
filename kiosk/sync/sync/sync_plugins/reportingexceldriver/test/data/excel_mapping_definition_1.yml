@@ -1,0 +1,33 @@
+header:
+  version: 1.0
+  output_driver: "ReportingExcelDriver"
+mapping:
+  'area': '#unit'
+  'title':
+   - '#year'
+   - "prepend(\"S'Urachi (San Vero Milis): elenco US e reperti 2018\")"
+  'locus_relations': '#locus_relations'
+  'A5:O5': '#locus_records'
+
+lists:
+  'locus_relations':
+    columns: ["type", "to_locus"]
+    heading: ["relation type", "to locus"]
+    column_formats: ["format1", "format2"]
+    column_divider: "\t"
+    row_divider: "\n"
+    list_format: "list_format_1"
+tables:
+  locus_records:
+    cells: ["1", "2", "3", "3a", "4", "5", "6", "7", "8"]
+    templated: True
+    table_orientation: row
+    mapping:
+      '1': '#locus_identifier'
+      '2': 'US - positiva'
+      '3': 'strato di riempimento'
+      '4': '#ceramics_count'
+      '5': '#ceramics_grams'
+      '6': '#bones_grams'
+      '7': '#shell_grams'
+      '8': '#locus_identifier'

@@ -1,0 +1,166 @@
+@import "../../../../static/styles/_constants"
+@import reset
+@import icons
+
+p, div
+  user-select: none
+
+.workstation-card
+  background: $col-bg-1-gradient
+  font-family: $standard-text
+  padding: .5em
+  border: 2px solid $col-bg-1-darker
+  border-radius: 5px
+  box-shadow: 3px 3px 4px -2px $col-bg-1-darker
+  cursor: pointer
+  &:hover, &focus
+    background: $col-bg-1-lighter
+    border: 2px solid $col-bg-btn
+    box-shadow: 0px 0px 6px 1px $col-bg-btn
+  &:active
+    background: $col-bg-1-darker
+    border: 2px solid $col-bg-body
+    box-shadow: 0px 0px 6px 1px $col-bg-body
+
+.workstation-card.workstation-disabled
+  opacity: .75
+
+.card-header
+  display: flex
+  flex-direction: row
+  align-items: center
+  //border-bottom: 1px solid $col-primary-bg-1
+  padding: .25em
+  margin-bottom: .25em
+  background-color: $col-bg-1-darker
+
+.card-icon
+  font-size: 32px
+  line-height: 36px
+  color: $col-primary-bg-1
+  width: 36px
+  height: 36px
+
+//.card-icon.isimg
+//  width: 36px
+//  height: 36px
+
+.title
+  margin-left: 1em
+  font-weight: bold
+  color: $col-primary-bg-1
+  display: flex
+  flex-direction: row
+  justify-content: space-between
+  width: 100%
+  span
+    display: block
+  span:nth-child(1)
+    color: $col-accent-bg-1
+  span:nth-child(2)
+    padding-right: .5em
+
+.title-state
+  background-color: $col-bg-ack
+  color: $col-primary-bg-ack
+  text-align: center
+  padding: .25em 0px .25em 0px
+  &.processing
+    background-color: $col-bg-att
+    color: $col-primary-bg-att
+  &.error
+    background-color: $col-bg-alert
+    color: $col-primary-bg-alert
+    //text-align: center
+    //padding: .25em 0px .25em 0px
+
+.kiosk-btn
+  border-radius: 5px
+  border-style: solid
+  border-width: 2px
+  background-color: $col-bg-btn
+  color: $col-primary-bg-btn
+  border-color: $col-bg-btn-darker
+  cursor: pointer
+  white-space: nowrap
+  &:hover, &:focus
+    outline: none
+    background-color: $col-bg-btn-lighter
+  &:active
+    margin-bottom: 0px
+    margin-top: 2px
+    //padding-top: 2px
+    padding-left: 2px
+    color: $col-primary-bg-btn
+    background-color: $col-bg-ack
+    border-color: $col-bg-ack-darker
+  *
+    user-select: none
+    -moz-user-select: none
+    -webkit-user-select: none
+
+
+
+.card-body
+  display: flex
+  flex-direction: row
+  margin-top: .5em
+  @media #{$screen-max-900}
+    flex-direction: column
+  .ws-info
+    display: flex
+    flex-direction: column
+    justify-content: center
+    height: 100%
+    &>div
+      text-align: center
+
+  .job-info
+    display: flex
+    flex-direction: row
+    align-items: center
+    margin-left: .25em
+    @media #{$screen-max-900}
+      margin-top: .25em
+      margin-left: 0px
+    &.error
+      font-size: 1em
+    i
+      margin-right: .5em
+      margin-left: .2em
+      font-size: 1.5em
+      color: $col-accent-bg-btn
+
+sl-progress-ring
+  min-width: 48px
+  height: 48px
+  align-self: center
+  margin-left: .5em
+  margin-right: .5em
+
+.card-body>div
+  background-color: $col-bg-2
+  padding: .25em
+  min-height: 3em
+  flex-basis: 100%
+.job-warnings
+  display: flex
+  flex-direction: row
+  align-items: center
+  justify-content: space-between
+  color: $col-accent-bg-2
+  text-align: left
+  p
+    width: 100%
+    text-align: center
+  button
+    width: auto
+    padding-right: .5em
+  //background: $col-bg-att
+.spacer
+  width: 100%
+  height: 2px
+  background-color: $col-bg-1
+  margin: .5em 0px
+.job-cancelled-label
+  color: $col-error-bg-2

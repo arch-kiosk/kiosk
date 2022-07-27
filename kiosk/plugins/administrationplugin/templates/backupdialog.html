@@ -1,0 +1,65 @@
+{% from 'dialogmacros.html' import kiosk_error_div, kiosk_error_span, kiosk_general_form_errors %}
+{% extends "basicmodaldialog.html" %}
+{% block kiosk_modal_dialog_id %}id="backup-dialog"{% endblock %}
+{% block kiosk_modal_dialog_classes %}.kiosk-modal-dialog-medium{% endblock %}
+{% block kiosk_modal_dialog_name %}backup options{% endblock %}
+{% block kiosk_modal_dialog_content %}
+  <div id="dialog-ajax-part" class="pagecontrol-content kiosk-modal-dialog-griddy">
+    {{ kiosk_general_form_errors(general_errors) }}
+    {% if job_uid %}
+      <div id="mcp-job-info" jobid="{{ job_uid }}"></div>
+    {% endif %}
+
+    <form id="backup-form" onsubmit="startBackupOrRestore">
+
+      {{ backup_form.csrf_token }}
+
+      <div>{{ backup_form.backup_dir(class="kiosk-dialog-textfield",
+                      placeholder="local path where the backup will be stored",
+                      errclass="kiosk-error-border",
+                      labelclass="kiosk-dialog-label") }}
+      </div>
+      <div> {{ backup_form.backup_file_repository(class="kiosk-dialog-checkbox",
+                      errclass="kiosk-error-border",
+                      labelclass="kiosk-dialog-label") }}
+      </div>
+
+{#      <div style="visibility: hidden; height: 0px">{{ backup_form.backup_workstation_files(class="kiosk-dialog-checkbox",#}
+{#                      errclass="kiosk-error-border",#}
+{#                      labelclass="kiosk-dialog-label") }}#}
+{#      </div>#}
+      {#          {{ backup_form.page_initialized() }}#}
+{#      <div class="input-field">#}
+{#        <input id="backup-path" type="text" class="validate">#}
+{#        <label for="backup-path">backup to directory</label>#}
+{#      </div>#}
+{#      <label>#}
+{#        <input type="checkbox"/>#}
+{#        <span>backup workstation files, too</span>#}
+{#      </label>#}
+    </form>
+  </div>
+{% endblock %}
+{% block kiosk_modal_dialog_after %}
+  <script>
+    initBafDialog();
+
+  function initBafDialog() {
+    kioskShowFooter(true);
+    bindReturnKeyToButtons("backup-dialog", "bt-ok", ["bt-cancel"]);
+    kioskActivateButton($("#bt-next"), null);
+    kioskActivateButton($("#bt-back"), null);
+    //kioskActivateButton($("#bt-ok"), null);
+    //kioskDisableButton($("#bt-ok"), true);
+    kioskActivateButton($("#bt-close"), null);
+    kioskActivateButton($("#bt-delete"), null);
+
+    kioskActivateButton($("#bt-cancel"), () => {
+      $.magnificPopup.close();
+    });
+    kioskActivateButton($("#bt-ok"), startBackupOrRestore);
+  }
+
+    //# sourceURL=backupdialog.js
+  </script>
+{% endblock %}

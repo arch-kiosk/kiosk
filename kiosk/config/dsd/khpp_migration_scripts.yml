@@ -1,0 +1,13 @@
+config:
+  format_version: 3
+
+  # imports:
+  #     - dsd3_migration_scripts.yml
+  migration_scripts:
+    khpp_fix_lost_unit:
+#     inserts a unit "lost unit" and rewires dayplans without a unit to the new one,
+      migration: "sql\\khpp_fix_lost_unit.sql"
+      preconditions:
+        unit: 4
+      flags:
+        khpp_fix_lost_unit: 1

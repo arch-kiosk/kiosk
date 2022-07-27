@@ -1,0 +1,319 @@
+
+body
+  .mfp-container
+    @media #{$screen-phone}
+      padding: 0px
+  .mfp-inline-holder .mfp-content,
+  .mfp-ajax-holder .mfp-content
+    width: auto
+    @media #{$screen-phone}
+      width: 100%
+
+  .mfp-with-anim
+    &.mfp-bg
+      opacity: 0
+      transition: all 0.2s ease-in
+      //&.mfp-ready
+      //  opacity: 0.8
+      &.mfp-removing
+        opacity: 0
+    &.mfp-wrap
+      opacity: 0
+      //perspective: 2000px
+      transition: all 0.2s ease-in
+      @media #{$screen-bigger-than-phone}
+        transform-style: preserve-3d
+        transform: rotateX(-20deg) rotateY(-20deg)
+      &.mfp-ready
+        opacity: 1
+        @media #{$screen-bigger-than-phone}
+          transform: rotateX(0deg) rotateY(0deg)
+      &.mfp-removing
+        opacity: 0
+        @media #{$screen-bigger-than-phone}
+          transform: rotateX(-20deg) rotateY(-20deg)
+
+.kiosk-modal-dialog
+  background-color: $color-background
+  font-family: $standard-text
+  font-size: 18px
+  position: relative
+  margin-left: auto
+  margin-right: auto
+
+  .awesomplete
+    display: block
+
+  .dlg-spinner
+    //background-color: pink
+    display: flex
+    flex-direction: row
+    //width: 500px
+    align-items: center
+    padding: 0px
+    line-height: 1.5em
+
+  .dlg-cssload-loader
+    left: 0px
+    float: left
+    margin-right: 20px
+
+  .dlg-spinner-msgdiv
+    //height: 24px
+    font-size: 20px
+
+
+.kiosk-modal-dialog-small
+  min-height: 40vh
+  min-width: 60vh
+  max-width: 400px
+
+  @media #{$screen-phone}
+    max-width: 100vw
+    min-width: 100vw
+    //min-height: 100vh
+
+  @media #{$screen-phone-portrait}
+    .col
+      min-width: 100%
+
+.kiosk-modal-dialog-medium, .kiosk-modal-dialog-fullscreen
+  min-height: 400px
+  min-width: 60vw
+  max-width: 700px
+
+  @media #{$screen-phone}
+    max-width: 100vw
+    min-width: 100vw
+    //min-height: 100vh
+
+  @media #{$screen-phone-portrait}
+    .col
+      min-width: 100%
+
+.kiosk-modal-dialog-fullscreen
+  max-width: 95vw
+  min-width: 95vw
+
+.kiosk-modal-dialog-inner
+  display: flex
+  padding: 20px 20px 10px
+  flex-direction: column
+  justify-content: space-between
+
+.kiosk-modal-dialog-griddy
+  .kiosk-dialog-textfield, .kiosk-dialog-disabled-textfield
+    width: 100%
+
+.kiosk-modal-dialog-header
+  height: auto
+  min-height: 65px
+  display: flex
+  width: 100%
+  flex-direction: row
+  flex-wrap: nowrap
+  align-items: center
+  padding-bottom: 5px
+  border: 0px solid black
+  border-bottom-width: 1px
+  margin-bottom: 1em
+  margin-top: 0px
+
+.kiosk-modal-dialog-image
+  box-sizing: border-box
+  min-width: 74px
+  height: 64px
+  padding-right: 10px
+  background-repeat: no-repeat
+  background-size: 64px 64px
+  //background-size: cover
+  z-index: 0
+
+.kiosk-modal-dialog-name
+  font-size: 24px
+  z-index: 1
+  h3
+    display: inline-block
+    font-family: $monospace
+
+.kiosk-dialog-label
+  display: block
+  font-family: $monospace
+  //font-size: 0.8em
+  padding-left: 4px
+  line-height: 100%
+  margin-top: .5em
+  margin-bottom: 2px
+
+.kiosk-dialog-textfield, .kiosk-dialog-disabled-textfield, .kiosk-dialog-selectfield,
+.kiosk-dialog-disabled-multiline-textfield
+  box-sizing: border-box
+  border-radius: 0px
+  font-family: $standard-text
+  font-size: 1em
+  padding: 4px
+  border: none
+  //If you change this you need to change the kiosk-combobox-container button as well:
+  margin-bottom: 5px
+  margin-top: 2px
+  width: 100%
+  &:focus
+    margin-bottom: 3px
+    border-bottom: 2px solid rgba(0, 0, 0, 1)
+
+.kiosk-dialog-disabled-textfield
+  height: 2rem
+  background: $color-background-light
+
+
+.kiosk-dialog-disabled-multiline-textfield
+  height: auto
+  background: $color-background-light
+
+.kiosk-modal-dialog-footer
+  border-top: 1px solid black
+  padding-top: 10px
+  margin-bottom: 0px
+  margin-top: 1em
+  background-color: $color-background
+
+.dialog-modal-buttons
+  display: flex
+  width: 100%
+  justify-content: space-between
+
+.dialog-modal-left-buttons
+  display: flex
+  .modal-delete
+    display: none
+
+.dialog-modal-right-buttons
+  display: flex
+  flex-direction: row-reverse
+
+
+.modal-dialog-flexcol
+  display: flex
+  flex-direction: column
+
+.kiosk-dialog-checkbox
+  display: inline-block
+  margin-right: 0.5em
+  width: 14px
+  height: 14px
+
+.kiosk-dialog-checkbox-label
+  //font-size: 0.8em
+  display: inline-flex
+
+
+.kiosk-collapsible-v2
+  .kiosk-collapsible-header
+    background-color: $col-bg-btn
+    color: $col-primary-bg-btn
+    display: flex
+    flex-direction: row
+    justify-content: space-between
+    align-items: center
+    padding: 5px .5em 5px .5em
+    border-bottom: 1px $col-bg-btn-lighter solid
+
+  .kiosk-collapsible-content
+    display: none
+
+  .kiosk-collapsible-clicker
+    @extend .fas
+    display: inline-block
+    transform: rotate(180deg)
+    transition: transform 0.2s ease-out
+    transform-origin: center
+    font-family: $fontawesome-font-family
+    &:after
+      content: var(--icon-bt-down)
+    &:hover, &:focus
+      color: $col-accent-bg-btn
+    &:active
+      transform: rotate(90deg)
+      color: $col-accent-bg-btn
+
+  .kiosk-collapsible-clicker-collapsed
+    transform: rotate(0deg)
+    transition: all 0.2s ease
+
+  .kiosk-collapsible-content
+    background-color: $col-bg-2
+    border: 1px solid $col-bg-2-darker
+    color: $col-primary-bg-2
+
+/* the old one cannot obey the color scheme */
+.kiosk-collapsible
+  .kiosk-collapsible-header
+    background-color: lightgray
+    display: flex
+    flex-direction: row
+    justify-content: space-between
+    align-items: center
+    padding: 5px 5px 5px 0px
+    border-bottom: 1px $color-light-grey solid
+
+  .kiosk-collapsible-content
+    padding-top: 0.5em
+    display: none
+    background-color: rgba(255,255,255,.3)
+    padding: 2px
+
+  .kiosk-collapsible-clicker
+    display: inline-block
+    background-image: url("/static/assets/images/font-awesome-005-down.svg")
+    background-repeat: no-repeat
+    background-size: 22px 22px
+    transform: rotate(180deg)
+    min-width: 22px
+    min-height: 22px
+    margin-left: 0.5em
+    transition: transform 0.2s ease-out
+
+  .kiosk-collapsible-clicker-collapsed
+    transform: rotate(0deg)
+    transition: all 0.2s ease
+
+
+.kiosk-error-line,
+.kiosk-error-div
+  font-family: $standard-text
+  font-size: 12px
+  background-color: $reddish
+  color: white
+  font-weight: bold
+  padding-bottom: 0px
+
+  ul
+    list-style-position: inside
+
+.kiosk-error-line
+  padding-left: 2px
+  padding-right: 2px
+
+.kiosk-error-border
+  border: 2px dashed $reddish
+
+#kiosk-modal-dialog-toasts
+  position: absolute
+  right: 12px
+  width: 50%
+  z-index: 100
+
+.kiosk-dialog-invisible
+  display: none
+
+.kiosk-combobox-container
+  display: flex
+  flex-direction: row
+  align-items: flex-end
+  width: 100%
+  div:first-child
+    flex-basis: 100%
+  button
+    flex-basis: auto
+    //this is tied to the kiosk-dialog-selectfield:
+    margin-bottom: 3px

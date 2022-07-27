@@ -1,0 +1,73 @@
+config:
+  format_version: 3
+
+kiosk_file_cache:
+  structure:
+    1:
+      uid: [datatype(UUID), uuid_key())]
+      uid_file: [datatype(UUID), not_null()]
+      representation_type: [datatype(VARCHAR)]
+      invalid: [datatype(BOOL), not_null(), default(true)]
+      created: [datatype(TIMESTAMP), not_null(), default("now()")]
+      modified: [datatype(TIMESTAMP), not_null(), default("now()")]
+      image_attributes: [datatype(JSON)]
+      path_and_filename: [datatype(VARCHAR)]
+
+kiosk_privilege:
+  structure:
+    1:
+      uid: [datatype(UUID), uuid_key()]
+      addressee: [datatype(VARCHAR), not_null()]
+      privilege: [datatype(VARCHAR), not_null()]
+
+kiosk_user:
+  structure:
+    2:
+      uid: [datatype(UUID), uuid_key())]
+      user_id: ["datatype(VARCHAR,20)", not_null(), unique()]
+      user_name: [datatype(VARCHAR), not_null()]
+      pwd_hash: [datatype(VARCHAR), not_null()]
+      repl_user_id: ["datatype(VARCHAR,20)"]
+      groups: [datatype(VARCHAR)]
+      must_change_pwd: [datatype(BOOL)]
+    1:
+      uid: [datatype(UUID), uuid_key())]
+      user_id: ["datatype(VARCHAR,20)", not_null()]
+      user_name: [datatype(VARCHAR), not_null()]
+      pwd_hash: [datatype(VARCHAR), not_null()]
+      repl_user_id: ["datatype(VARCHAR,20)"]
+      groups: [datatype(VARCHAR)]
+      must_change_pwd: [datatype(BOOL)]
+  migration:
+    2:
+      upgrade:
+        - alter(user_id)
+
+kiosk_workstation:
+  structure:
+    1:
+      id: [datatype(VARCHAR), not_null()]
+      download_upload_status: ["datatype(NUMBER)", not_null(), default(0)]
+      ts_status: [datatype(TIMESTAMP)]
+
+file_identifier_cache:
+  structure:
+    2: dropped
+    1:
+      uid: [datatype(UUID), uuid_key())]
+      identifier: [datatype(VARCHAR)]
+      primary: [datatype(INT), default(0)]
+      uid_file: [datatype(UUID)]
+      file_text: [datatype(VARCHAR)]
+      recording_context: [datatype(VARCHAR)]
+  migration:
+    2:
+      upgrade:
+      - drop(*)
+
+kiosk_system_message:
+  structure:
+    1:
+      nid: [datatype(varchar), not_null(), primary(), unique()]
+      deleted: [datatype(boolean)]
+      message: [datatype(json)]

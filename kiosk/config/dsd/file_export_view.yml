@@ -1,0 +1,7 @@
+config:
+  format_version: 3
+
+tables:
+  - include_tables_with_instruction("replfield_uuid")
+  - include_tables_with_flag("file_export")
+  - exclude_tables_with_flag("no_file_export")

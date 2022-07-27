@@ -1,0 +1,56 @@
+[
+  {
+    "id": 1,
+    "uid_file": "31c70ca0-6cb9-4907-8c22-c158485ed23b",
+    "filepath_and_name": "C:\\Users\\Lutz\\AppData\\Local\\Temp\\pytest-of-Lutz\\pytest-339\\test_fork0\\data\\file_repository\\cache\\1024x786jpg\\31c70ca0-6cb9-4907-8c22-c158485ed23b.jpg",
+    "location": "internal",
+    "resolution": "low",
+    "tablename": "images",
+    "fieldname": "uid"
+  },
+  {
+    "id": 2,
+    "uid_file": "9cab65cb-1368-4659-be5a-e2eaf132aa43",
+    "filepath_and_name": "C:\\Users\\Lutz\\AppData\\Local\\Temp\\pytest-of-Lutz\\pytest-339\\test_fork0\\data\\file_repository\\cache\\1024x786png\\9cab65cb-1368-4659-be5a-e2eaf132aa43.png",
+    "location": "internal",
+    "resolution": "low",
+    "tablename": "images",
+    "fieldname": "uid"
+  },
+  {
+    "id": 3,
+    "uid_file": "0d09f3c4-0f67-403d-80e0-bab677bbc0b7",
+    "filepath_and_name": "C:\\Users\\Lutz\\AppData\\Local\\Temp\\pytest-of-Lutz\\pytest-339\\test_fork0\\data\\file_repository\\cache\\1024x786jpg\\0d09f3c4-0f67-403d-80e0-bab677bbc0b7.jpg",
+    "location": "internal",
+    "resolution": "low",
+    "tablename": "images",
+    "fieldname": "uid"
+  },
+  {
+    "id": 4,
+    "uid_file": "e72c73dc-abf5-4168-b290-c8f2ff2aaf29",
+    "filepath_and_name": "C:\\Users\\Lutz\\AppData\\Local\\Temp\\pytest-of-Lutz\\pytest-339\\test_fork0\\data\\file_repository\\cache\\1024x786jpg\\e72c73dc-abf5-4168-b290-c8f2ff2aaf29.jpg",
+    "location": "internal",
+    "resolution": "low",
+    "tablename": "images",
+    "fieldname": "uid"
+  },
+  {
+    "id": 5,
+    "uid_file": "458f0838-305b-48ac-b68f-935fa0e4f09f",
+    "filepath_and_name": "C:\\Users\\Lutz\\AppData\\Local\\Temp\\pytest-of-Lutz\\pytest-339\\test_fork0\\data\\file_repository\\458f0838-305b-48ac-b68f-935fa0e4f09f.png",
+    "location": "internal",
+    "resolution": "low",
+    "tablename": "images",
+    "fieldname": "uid"
+  },
+  {
+    "id": 6,
+    "uid_file": "fa886c46-12e7-41f1-84eb-ed02929f4cd8",
+    "filepath_and_name": "C:\\Users\\Lutz\\AppData\\Local\\Temp\\pytest-of-Lutz\\pytest-339\\test_fork0\\data\\file_repository\\fa886c46-12e7-41f1-84eb-ed02929f4cd8.svg",
+    "location": "internal",
+    "resolution": "low",
+    "tablename": "images",
+    "fieldname": "uid"
+  }
+]

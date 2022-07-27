@@ -1,0 +1,88 @@
+{% from 'dialogmacros.html' import kiosk_error_div, kiosk_error_span, kiosk_general_form_errors %}
+{% extends "kioskbasic.html" %} {% block links %}
+
+  <link rel="stylesheet" href="{{ url_for('kioskreportingdock.static',
+  filename='kioskreportingdock.css') }}?v=1"/>
+{% endblock %}
+{% block title %}
+  <div id="subtitle-shadow">Kiosk</div>
+  <div id="subtitle">Reporting</div>
+{% endblock %}
+{% block body %}
+  <div class="full-background-bg-1">
+    <div class="one-column">
+      <div class="icon-header">
+        <div class="icon-header-icon">
+        </div>
+        <div class="icon-header-header">
+          {% if mode != "edit" %}
+            <h3>new report</h3>
+          {% else %}
+            <h3>{{ new_fm_ws_form.workstation_id.data }}</h3>
+          {% endif %}
+        </div>
+      </div>
+      {{ kiosk_general_form_errors(general_errors, "visible: True") }}
+      <div id="drop-area-div" class="workstation-option reporting-dock-uploader">
+        <input id="file-upload" type="file" name="files[]">
+        <h3>Please click here or drop a file<br>to upload templates or definition files.</h3>
+      </div>
+      <form id="new-workstation-form" method="POST">
+        {{ new_fm_ws_form.csrf_token }}
+        {{ new_fm_ws_form.workstation_id(class="kiosk-dialog-textfield",
+                          labelclass="kiosk-dialog-label",
+                          errclass="kiosk-error-border",
+                          placeholder="keep it short, unique and without spaces and strange characters") }}
+        {{ new_fm_ws_form.description(class="kiosk-dialog-textfield",
+                          labelclass="kiosk-dialog-label",
+                          errclass="kiosk-error-border",
+                          placeholder="for humans but keep it short, too") }}
+        {{ new_fm_ws_form.query_definition_filename(class="kiosk-dialog-selectfield",
+                          labelclass="kiosk-dialog-label",
+                          errclass="kiosk-error-border",
+                          placeholder="") }}
+        {{ new_fm_ws_form.mapping_definition_filename(class="kiosk-dialog-selectfield",
+                          labelclass="kiosk-dialog-label",
+                          errclass="kiosk-error-border",
+                          placeholder="") }}
+        {{ new_fm_ws_form.template_file(class="kiosk-dialog-selectfield",
+                          labelclass="kiosk-dialog-label",
+                          errclass="kiosk-error-border",
+                          placeholder="") }}
+        {{ new_fm_ws_form.output_file_prefix(class="kiosk-dialog-textfield",
+                          labelclass="kiosk-dialog-label",
+                          errclass="kiosk-error-border",
+                          placeholder="You may enter a prefix without special characters and spaces") }}
+      </form>
+      <div class="dialog-modal-right-buttons">
+        <button id="bt-ok" class="modal-ok" type="submit"></button>
+        <button id="bt-cancel" class="modal-cancel"></button>
+      </div>
+    </div>
+  </div>
+  <script src="{{ url_for('kioskreportingdock.static', filename='scripts/kioskreportingdock.js') }}"></script>
+  <script>
+    ensureLibrariesAndinitPage();
+
+    function ensureLibrariesAndinitPage() {
+      if (typeof Awesomplete == 'undefined') {
+        setTimeout(ensureLibrariesAndinitPage, 500);
+      } else {
+        initPage();
+      }
+    }
+
+    function initPage() {
+      {#kioskInitAwesompleteComboBox("recording-group", "recording-groups","","100%", false)#}
+      $("#bt-ok").on("click", reportingDockConfirmPage);
+      $("#bt-cancel").on("click", reportingDockCancelPage);
+      if (!$("#workstation-id").attr("disabled"))
+        $("#workstation-id").focus();
+      else
+        $("#description").focus();
+      reportingDocInitUploader()
+      kioskToastGeneralErrors();
+    }
+    //# sourceURL=kioskreportingdock-dialog.js
+  </script>
+{% endblock %}

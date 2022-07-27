@@ -1,0 +1,7 @@
+dist/
+node_modules/
+.*/
+/src/app/store/credentials.ts
+/src/*.css
+/*.map
+secure.js

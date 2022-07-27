@@ -1,0 +1,39 @@
+{% extends 'admin/model/edit.html' %}
+{% block head_css %}
+  {{ super() }}
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}?v=1"/>
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='kioskflaskadmin.css') }}?v=1"/>
+  <link rel=stylesheet type=text/css href="{{ url_for('custom_file', filename="css/" + project_id + '.css') }}"/>
+
+{% endblock %}
+{% block page_body %}
+    <div id="header">
+      <div id="logogroup">
+        <a href="{{url_for("administration.administration_index")}}">
+          <div id="logo">
+          <div id="img"></div>
+            <!-- <svg id="img" xmlns="http://www.w3.org/2000/svg" width="120" height="80" viewBox="10 9 103 58">
+            <path d="M76.124 2.754l-2.86-.234-3.148.7-3.147 1.167-3.434 4.898-.86 3.5-2.288 6.532-.572 7.932-.858 41.058v.933-.232l2.003 3.033 1.43.934 2.862.933h1.43l2.576-1.633 1.716-2.1 1.144-2.333 1.145-2.33 3.147-9.1.858-3.5.858-3.032 2.003-2.333.858-.933 1.43-1.633-.286-6.3v-2.8l-2.29-9.564-.285-2.566-.572-2.1-.86-3.966v-4.2L77.84 9.52V5.085z" fill="#8a0"/><g fill="#a05a2c">
+            <path d="M90 0h30v79.858H90z"/><path d="M90 79.858l-9.146.14c6.098.08 9.29-2.973 9.375-9.374z"/></g><g fill="#fea"><path d="M0 0h50v79.856H0z"/><path d="M50 79.856l9.146.142c-6.098.082-9.29-3.026-9.375-9.54z"/></g></svg>
+            -->
+          </div>
+        </a>
+        <div id="logotext">
+          <div id="maintitlegroup">
+            {% if global_constants["project_logo_top"] %}
+              <div id="logo-top">{{ global_constants["project_logo_top"] }}</div>
+            {% endif %}
+            <div id="maintitle">{{ global_constants["project_logo_main"] }}</div>
+            {% if global_constants["project_logo_bottom"] %}
+              <div id="logo-bottom">{{ global_constants["project_logo_bottom"] }}</div>
+            {% else %}
+              <div id="smalltitle">{{ global_constants["project_name"] }}</div>
+            {% endif %}
+          </div>
+          <div id="subtitle-shadow">Kiosk</div>
+          <div id="subtitle">database administration</div>
+        </div>
+      </div>
+    </div>
+    {{ super() }}
+{% endblock %}

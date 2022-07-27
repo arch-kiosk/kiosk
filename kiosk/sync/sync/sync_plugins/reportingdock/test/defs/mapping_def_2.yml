@@ -1,0 +1,14 @@
+header:
+  version: 1.0
+mapping:
+  'director': 'n/a'
+  'context#': '#context_identifier'
+  'context#2': '#context_identifier'
+  'observation':
+   - '#description'
+   - append(' ','#interpretation')
+  'locus_relations': '#locus_relations'
+lists:
+  'locus_relations':
+    columns: ["relation_type", "to_locus"]
+    heading: ["relation type", "to locus"]

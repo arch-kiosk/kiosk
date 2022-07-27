@@ -1,0 +1,12 @@
+[
+  {
+    "context_identifier": "LA-002",
+    "relation_type": "is abutted by",
+    "to_locus": "LA-001"
+  },
+  {
+    "context_identifier": "LA-002",
+    "relation_type": "is abutted by",
+    "to_locus": "LA-003"
+  }
+]

@@ -1,0 +1,12 @@
+{% extends "kioskbasic.html" %}
+{% block links %}
+  {#  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles/materialize/materialize.css') }}?v=1"/>#}
+  <link rel=stylesheet type=text/css href="{{ url_for('administration.static', filename='administration.css') }}?v=1"/>
+{% endblock %}
+{% block title %}
+  <div id="subtitle-shadow">Kiosk</div>
+  <div id="subtitle">consolidated data set definition</div>
+{% endblock %}
+{% block body %}
+<pre style="font-family: monospace; user-select: text">{{ dsd_lines|safe}}</pre>
+{% endblock %}

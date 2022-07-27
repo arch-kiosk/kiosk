@@ -1,0 +1,14 @@
+{% extends "kioskbasic.html" %}
+{% block title %}
+  <div id="subtitle-shadow">Kiosk</div>
+  <div id="subtitle">Kiosk</div>
+{% endblock %}
+{% block body %}
+<div>
+  oops. Something isn't where it should be.
+  If it wasn't you trying something fishy, please report this to your admin or developer.
+  {% if reason %}
+  <br/>Details: {{ reason }}
+  {% endif %}
+</div>
+{% endblock %}

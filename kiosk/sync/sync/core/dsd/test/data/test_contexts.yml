@@ -1,0 +1,31 @@
+#this is just an attempt! Not used or implemented!
+config:
+  format_version: 3
+  contexts:
+    unit_images:
+      type: file_search
+      scope:
+        unit:
+          relates_to:
+            locus:
+              join: inner(uid, uid_unit)
+              relates_to:
+                collected_material_photo:
+                  join: inner(uid, locus_uid)
+                locus_relations:
+                  join: inner(uid, locus_uid)
+            dayplan:
+              join: inner(uid, uid_unit)
+
+    site_images:
+      type: file_search
+      scope:
+        site:
+          relates_to:
+            site_notes:
+              join: inner(uid, uid_site)
+              relates_to:
+                site_note_photos:
+                  join: inner(uid, uid_site_note)
+
+

@@ -1,0 +1,8 @@
+TYPE_WORKSTATION = "Workstation"
+TYPE_FILEIMPORTFILTER = "FileImportFilter"
+TYPE_FILEEXPORTDRIVER = "FileExportDriver"
+TYPE_PHYSICALFILEHANDLER = "KioskPhysicalFile"
+TYPE_GENERALSTORE = "GeneralStore"
+TYPE_AUTOSTART_THREAD = "AutoStartThread"
+TYPE_QC_ENGINE = "QCEngine"
+TYPE_REPORTING_OUTPUT_DRIVER = "ReportingOutputDriver"

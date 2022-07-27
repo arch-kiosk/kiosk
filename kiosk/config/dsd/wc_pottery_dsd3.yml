@@ -1,0 +1,121 @@
+config:
+  format_version: 3
+  contexts:
+      cm_images:
+        type: file_search
+        scope:
+          collected_material:
+            collected_material_photo: {}
+            pottery:
+              pottery_images: {}
+      pottery_images:
+        type: file_search
+        scope:
+          pottery:
+            pottery_images: {}
+pottery:
+  structure:
+    3:
+      cm_uid: [datatype(UUID), join("collected_material")]
+      fabric: [datatype(VARCHAR)]
+      warecode: [datatype(VARCHAR)]
+      sherdcount: [datatype(NUMBER)]
+      weight: [datatype(DECIMAL)]
+      pottery_number: [datatype(NUMBER), local_id("arch_context")]
+      type: [datatype(VARCHAR)]
+      vessel_type: [datatype(VARCHAR)]
+      diameter: [datatype(DECIMAL)]
+      prc_preserved: [datatype(DECIMAL)]
+      notes: [datatype(VARCHAR)]
+      pottery_number_prefix: [datatype(VARCHAR)]
+      sortid_this: [datatype(DECIMAL)]
+      sortid_next: [datatype(DECIMAL)]
+      uid_prev: [datatype(UUID)]
+      uid_next: [datatype(UUID)]
+      uid_sketch: [datatype(UUID)]
+      sketch_description: [datatype(VARCHAR)]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    2:
+      cm_uid: [datatype(UUID), join("collected_material")]
+      fabric: [datatype(VARCHAR)]
+      warecode: [datatype(VARCHAR)]
+      sherdcount: [datatype(NUMBER)]
+      weight: [datatype(DECIMAL)]
+      pottery_number: [datatype(NUMBER), local_id("arch_context")]
+      type: [datatype(VARCHAR)]
+      vessel_type: [datatype(VARCHAR)]
+      diameter: [datatype(DECIMAL)]
+      prc_preserved: [datatype(DECIMAL)]
+      notes: [datatype(VARCHAR)]
+      pottery_number_prefix: [datatype(VARCHAR)]
+      sortid_this: [datatype(DECIMAL)]
+      sortid_next: [datatype(DECIMAL)]
+      uid_prev: [datatype(UUID)]
+      uid_next: [datatype(UUID)]
+      uid_sketch: [datatype(UUID)]
+      sketch_description: [datatype(VARCHAR)]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+    1:
+      cm_uid: [datatype(UUID)]
+      fabric: [datatype(VARCHAR)]
+      warecode: [datatype(VARCHAR)]
+      sherdcount: [datatype(NUMBER)]
+      weight: [datatype(DECIMAL)]
+      pottery_number: [datatype(NUMBER)]
+      type: [datatype(VARCHAR)]
+      vessel_type: [datatype(VARCHAR)]
+      diameter: [datatype(DECIMAL)]
+      prc_preserved: [datatype(DECIMAL)]
+      notes: [datatype(VARCHAR)]
+      pottery_number_prefix: [datatype(VARCHAR)]
+      sortid_this: [datatype(DECIMAL)]
+      sortid_next: [datatype(DECIMAL)]
+      uid_prev: [datatype(UUID)]
+      uid_next: [datatype(UUID)]
+      uid_sketch: [datatype(UUID), uid_file()]
+      sketch_description: [datatype(VARCHAR), describes_file(uid_sketch)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    3:
+      upgrade:
+        - alter("modified_by")
+    2:
+      upgrade:
+        - add("arch_domain")
+        - add("arch_context")
+
+pottery_images:
+  structure:
+    2:
+      uid_pottery: [datatype(UUID), join("pottery")]
+      description: [datatype(VARCHAR), describes_file(uid_image)]
+      uid_image: [datatype(UUID), uid_file(), file_location_for("pottery")]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    1:
+      uid_pottery: [datatype(UUID), join("pottery")]
+      description: [datatype(VARCHAR), describes_file(uid_image)]
+      uid_image: [datatype(UUID), uid_file(), file_location_for("pottery")]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    2:
+      upgrade:
+        - alter("modified_by")

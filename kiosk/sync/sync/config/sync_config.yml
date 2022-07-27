@@ -1,0 +1,7 @@
+import_configurations: ['%base_path%\kiosk_config.yml']
+
+config:
+  log_to_screen: True
+  log_level: 'DEBUG'
+  logfile: '%sync%\log\urap_dev.log'
+  autoload_plugins: ["filemakerrecording"]

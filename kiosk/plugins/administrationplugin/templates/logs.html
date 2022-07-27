@@ -1,0 +1,63 @@
+{% extends "kioskbasic.html" %}
+{% block links %}
+  {#  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles/materialize/materialize.css') }}?v=1"/>#}
+  <link rel=stylesheet type=text/css href="{{ url_for('administration.static', filename='administration.css') }}?v=1"/>
+{% endblock %}
+{% block title %}
+  <div id="subtitle-shadow">Kiosk</div>
+  <div id="subtitle">Logs</div>
+{% endblock %}
+{% block body %}
+  <div class="process-wrapper">
+    <a href="{{ url_for('administration.administration_show') }}">
+      <i class='mdi mdi-arrow-left-bold' style='justify-self: center'></i> back to admin
+    </a>
+    {% if general_error %}
+      <div id="processes-general-error">
+        <h4>Process information is not available.</h4>
+        <p>
+          An Error occurred: <span id="general-error-text">{{ general_error }}</span>
+        </p>
+      </div>
+    {% else %}
+      <div id="logs-list">
+        <h4>logs for {{ cfg.get_project_id() }}</h4>
+        <div class="admin-grid5 admin-g-with-header">
+          <div class="admin-sysinfo-entry"><label>log-file</label></div>
+          <div class="admin-sysinfo-entry"><label>created</label></div>
+          <div class="admin-sysinfo-entry"><label>last modified</label></div>
+          <div class="admin-sysinfo-entry entry-right-align"><label>size</label></div>
+          <div class="admin-sysinfo-entry"><label>operation</label></div>
+          {% for i in range(0, [logs|length, MAX_FILES]|min ) %}
+            <div class="row-wrapper">
+              <div class="admin-sysinfo-entry log-item">{{ logs[i].name }}</div>
+              <div class="admin-sysinfo-entry log-item">{{ logs[i].created }}</div>
+              <div class="admin-sysinfo-entry log-item">{{ logs[i].modified }}</div>
+              <div class="admin-sysinfo-entry entry-right-align log-item">{{ logs[i].size }}</div>
+              <div class="admin-sysinfo-entry log-item">
+                <a href={{ url_for('administration.log_action', action="download",
+                  log_id=logs[i].name) }}><i class="fa fa-file-download"></i></a>
+                {% if logs[i].url %}<a href={{ logs[i].url }}><i class="fa fa-glasses"></i></a>{% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+  {% if not general_error %}
+    <script>
+        ensureLibrariesAndinitProcesses();
+
+        function ensureLibrariesAndinitProcesses() {
+            if (typeof initCollapsibles == 'undefined') {
+                setTimeout(ensureLibrariesAndinitProcesses, 100);
+            } else {
+                initLogs("{{ url_for('administration.show_logs') }}");
+            }
+        }
+
+        //# sourceURL=administration.js
+    </script>
+  {% endif %}
+{% endblock %}

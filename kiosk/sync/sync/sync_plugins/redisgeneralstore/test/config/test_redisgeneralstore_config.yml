@@ -1,0 +1,60 @@
+config:
+  test_mode: true
+  sync: '%base_path%\sync\sync'
+  logfile: '%sync%\sync_plugins\pdffilehandling\test\config\test.log'
+  log_to_screen: True
+  dataset_definition: '%sync%\config\test_dsd.yml'
+  master_view: '%sync%\config\urap_master_view.yml'
+  filemaker_export_dir: '%sync%\filemaker\to_work_station'
+  filemaker_import_dir: '%sync%\filemaker\from_work_station'
+  filemaker_template: '%sync%\filemaker\test_urap_lab_template.fmp12'
+  expected_filemaker_template_version: "Lab.5"
+  filemaker_db_filename: test_urap2018.fmp12
+  filemaker_encoding: UTF-8
+  odbc_ini_dsn: urap
+  database_name: urap_test
+  file_repository: '%sync%\sync_plugins\pdffilehandling\test\data'
+  thumbnail_dir: '%file_repository%\thumbnails'
+  default_resolution: low
+  file_handling_definition: '.\config\file_handling.yml'
+  default_file_handling: local_computer
+  log_level: 'DEBUG'
+  static_image_path: '%base_path%\static\assets\images'
+  thumbnail_sets:
+    'small': 128,128
+    'medium': 256,256
+  sync_plugin_directory: '%sync%\sync_plugins'
+  redis_address: "127.0.0.1"
+  redis_port: 6379
+  general_store_class: RedisGeneralStore
+
+file_repository:
+  cache: '%file_repository%\cache'
+  representations:
+    small:
+      label: "small thumbnail"
+      inherits: "master"
+      dimensions: 128,128
+      format_request: default
+    medium:
+      label: "medium thumbnail"
+      inherits: "master"
+      dimensions: 256,256
+      format_request: default
+    master:
+      format_request: default
+      dimensions: 4000,2000
+      requested_manipulations: ["FIX_ROTATION", "DROP_EXIF_DATA"]
+    1024x768:
+      inherits: "master"
+      requested_manipulations: ["DROP_EXIF_DATA"]
+      format_request: default
+      dimensions: 1024,768
+    RAW2400x2500:
+      requested_manipulations: ["DROP_EXIF_DATA"]
+      format_request: NEFTIF
+      dimensions: 2400,2500
+
+  auto_representations: ['medium', 'small']
+  thumbnails: ['small', 'medium']
+  fullscreen_representation: master

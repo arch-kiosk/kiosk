@@ -1,0 +1,244 @@
+# *********************************************
+# *********************************************
+# URAP Kiosk Config
+# *********************************************
+
+'Flask':
+  SOME_OPERATION: 'Something'
+  SECRET_KEY: "fd82303c-6852-48c1-8165-9e60d4b25b94"
+  EXPLAIN_TEMPLATE_LOADING: False
+  THREADED: False
+
+config:
+  sync: '%base_path%\sync\sync'
+  sync_plugin_directory: '%sync%\sync_plugins'
+  custom_sync_modules: '%sync%\custom'
+  logfile: '%base_path%\log\urap_#a_#d#m#y-#H#M.log'
+  log_level: 'DEBUG'
+  werkzeug_log_level: 'WARNING'
+  log_to_screen: False
+  autoload_plugins: ["filemakerrecording", "redisgeneralstore", "locusrelationshook"]
+  dataset_definition: '%base_path%\config\dsd\urap_dsd3.yml'
+  master_view: '%base_path%\config\dsd\master_view.yml'
+  filemaker_export_dir: '%sync%\filemaker\to_work_station'
+  filemaker_import_dir: '%sync%\filemaker\from_work_station'
+  filemaker_encoding: "UTF-8"
+  file_handling_definition: '%base_path%\config\file_handling.yml'
+  default_resolution: "low"
+  default_recording_gropu: "default"
+  fork_ignore_missing_files: True
+  static_image_path: '%base_path%\static\assets\images'
+  image_manipulation_config: '%base_path%\config\image_manipulation_config.yml'
+  general_store_plugin: 'redisgeneralstore'
+  general_store_class: 'RedisGeneralStore'
+  redis_address: '127.0.0.1'
+  redis_port: 6379
+  job_garbage_collector_sleeps: 120
+  test_mode: False
+  use_double_commit: False
+  file_repository: '%sync%\file_repository'
+
+file_repository:
+  cache: '%file_repository%\cache'
+  recording_context_aliases:
+    locus_photo: "context"
+    dayplan: "trench/area"
+    locus_relations: "context relations"
+    collected_material_photo: "collected material & small finds"
+    site_note_photo: "site note"
+    site: "site map"
+    pottery_images: "pottery"
+
+  representations:
+    small:
+      label: "small thumbnail"
+      inherits: "master"
+      dimensions: "128,128"
+      format_request: "default"
+    medium:
+      label: "medium thumbnail"
+      inherits: "master"
+      dimensions: "256,256"
+      format_request: "default"
+    master:
+      format_request: "default"
+      dimensions: "4000,2000"
+      requested_manipulations: ["FIX_ROTATION", "DROP_EXIF_DATA"]
+    1024x768:
+      inherits: "master"
+      requested_manipulations: ["DROP_EXIF_DATA"]
+      format_request: "default"
+      dimensions: "1024,768"
+    RAW2400x2500:
+      requested_manipulations: ["DROP_EXIF_DATA"]
+      format_request: "NEFTIF"
+      dimensions: "2400,2500"
+
+  auto_representations: ['medium', 'small']
+  thumbnails: ['small', 'medium']
+  fullscreen_representation: 'master'
+
+  standard_format_requests:
+    default:
+        "*": "JPEG"
+        "PNG": "!"
+        "SVG": "!"
+    NEFTIF:
+        "NEF": "JPEG"
+        "TIFF": "JPEG"
+
+file_handlers:
+  plugins: ["defaultfilehandling", "heicfilehandling", "pdffilehandling", "svgfilehandling"]
+
+file_import:
+  file_extensions: ["jpg"]
+  recursive: True
+  use_uuid: True
+  log_import: True
+  tags: []
+  add_only_with_excavation_context: True
+  folder_encodings: []
+  filename_encodings: []
+  max_file_uploads: 10
+  load_plugins:
+    - "fileimportstandardfilters"
+    - "fileimportqrcodefilter"
+    - "fileimportexiffilter"
+#    - "fileimporturaphook"
+
+  file_import_filters:
+    local_import:
+      FileImportStandardValuesFilter:
+        active: False
+        priority: 0
+      FileImportStandardFolderFilter:
+        priority: 10
+        active: True
+        get_context_from_folder: True
+        get_date_from_folder: True
+      FileImportStandardFileFilter:
+        active: True
+        get_context_from_file: True
+        get_date_from_file: False
+        priority: 20
+      FileImportQRCodeFilter:
+        active: True
+        get_excavation_context: True
+        get_date: True
+        priority: 30
+        recognition_strategy: qr_code_sahara
+        image_manipulation_sets:
+          - qr_code_sahara
+          - qr_code_black_velvet
+      FileImportExifFilter:
+        active: False
+        get_context_from_exif: False
+        get_date_from_exif: False
+        get_description_from_exif: True
+        priority: 25
+    upload:
+      FileImportStandardValuesFilter:
+        active: False
+        priority: 0
+      FileImportStandardFileFilter:
+        active: False
+        get_context_from_file: True
+        get_date_from_file: False
+        priority: 20
+      FileImportQRCodeFilter:
+        active: True
+        get_excavation_context: True
+        get_date: True
+        priority: 30
+        recognition_strategy: qr_code_sahara
+        image_manipulation_sets:
+          - qr_code_sahara
+          - qr_code_black_velvet
+
+      FileImportExifFilter:
+        active: False
+        get_context_from_exif: False
+        get_date_from_exif: False
+        get_description_from_exif: True
+        priority: 15
+
+kiosk:
+  SECRET_KEY: "fd82303c-6852-48c1-8165-9e60d4b25b94"
+  template_path: '%base_path%\templates'
+  static_image_path: '%base_path%\static\assets\images'
+  temporary_upload_path: '%file_repository%\temp'
+  plugin_path: '%base_path%\plugins'
+  custom_kiosk_modules: '%base_path%\custom'
+  temp_file_max_age_days: 30
+  startup_threads: []
+
+  login_plugin:
+    active: true
+
+  filerepositoryplugin:
+    active: true
+    is_main_index: false
+    menu:
+      "file repository": ["-filerepositoryplugin"]
+
+    file_icons:
+      general: 'dummyfile.svg'
+      nef: 'raw.svg'
+      pdf: 'pdf.svg'
+      svg: 'svg.svg'
+      mov: 'mov.svg'
+
+    file_descriptions:
+      set1:
+       name: "full description"
+       primary: [["pottery", "collected_material_photo", "locus_photo"], ["dayplan"], ["locus_relations"], ["images"]]
+       secondary: [["images"]]
+      set2:
+       name: "single description"
+       primary: [["pottery","collected_material_photo", "locus_photo", "dayplan", "locus_relations"]]
+
+  workstationmanagerplugin:
+    active: true
+    is_main_index: true
+    menu:
+      "synchronize": ["+workstationmanagerplugin"]
+      "workstations": ["-workstationmanagerplugin"]
+    allow_operations: []
+
+  fileimportplugin:
+    active: true
+    is_main_index: false
+    allow_operations: ["local filesystem", "upload"]
+    menu:
+      "import files": ["+filerepositoryplugin"]
+
+  bugsandfeaturesplugin:
+    active: true
+    is_main_index: false
+    menu:
+      "import files": ["-bugsandfeaturesplugin"]
+
+  dailyreviewplugin:
+    active: true
+    is_main_index: false
+    # menu:
+    #   "daily review": ["-dailyreviewplugin"]
+
+  administrationplugin:
+    active: true
+    is_main_index: false
+    backup_filename_template: "urap_#a_#d#m#y-#H#M#S.dmp"
+
+    menu:
+      "administration": ["-administrationplugin"]
+      "process management": ["+administrationplugin"]
+      "backup": ["+administrationplugin"]
+      "privileges": ["+administrationplugin"]
+      "users": ["+administrationplugin"]
+      "logs": ["+administrationplugin"]
+
+  playgroundplugin:
+    active: false
+    is_main_index: false
+    menu:
+      "developer's playground": ["-playgroundplugin"]

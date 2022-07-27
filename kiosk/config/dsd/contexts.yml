@@ -1,0 +1,63 @@
+config:
+  format_version: 3
+  contexts:
+    unit_images:
+      type: file_search
+      scope:
+        unit:
+          locus:
+            locus_photo: {}
+            collected_material:
+              collected_material_photo: {}
+            locus_relations: {}
+          dayplan: {}
+    locus_images:
+      type: file_search
+      scope:
+        locus:
+          locus_photo: {}
+          collected_material:
+            collected_material_photo: {}
+          locus_relations: {}
+    locus_relations_reverse:
+      type: file_search
+      scope:
+        locus:
+          locus_relations:
+            join: inner("uid", "uid_locus_2_related")
+    site_images:
+      type: file_search
+      scope:
+        site:
+          site_notes:
+            site_note_photo: {}
+#          unit:
+#            dayplan: {}
+
+    locus_tags_images:
+      type: file_search
+      scope:
+        tags:
+          tagging:
+            join: inner("tag", "tag")
+            relates_to:
+              locus:
+                join: inner("source_uid", "uid")
+                relates_to:
+                  locus_photo: {}
+                  collected_material:
+                    collected_material_photo: {}
+                  locus_relations: {}
+
+    locus_tags_relations_reverse:
+      type: file_search
+      scope:
+        tags:
+          tagging:
+            join: inner("tag", "tag")
+            relates_to:
+              locus:
+                join: inner("source_uid", "uid")
+                relates_to:
+                  locus_relations:
+                    join: inner("uid", "uid_locus_2_related")

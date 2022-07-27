@@ -1,0 +1,2 @@
+class CqlError(Exception):
+    pass

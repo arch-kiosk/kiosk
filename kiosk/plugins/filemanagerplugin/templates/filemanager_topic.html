@@ -1,0 +1,86 @@
+{% extends "kioskbasic.html" %}
+{% block links %}
+{#  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles/materialize/materialize.css') }}?v=1"/>#}
+  <link rel=stylesheet type=text/css href="{{ url_for('filemanager.static', filename='filemanager.css') }}?v=1"/>
+{% endblock %}
+{% block title %}
+  <div id="subtitle-shadow">Kiosk</div>
+  <div id="subtitle">File Manager: {{ headline }}</div>
+{% endblock %}
+{% block body %}
+
+  <div class="filemanager-topic">
+    <div id="max-upload-size-mb" style="display:None" max-upload-size-mb={{ max_upload_size_mb }}></div>
+    <a href="{{ url_for('filemanager.filemanager_show') }}">
+      <div class="small-list-button"><i class='fas fa-arrow-circle-left' style='justify-self: center'></i></div>
+    </a>
+    <p>{{ headline }}</p>
+  </div>
+  {% if modify_privilege %}
+    {% if topic == headline %}
+      <div id="fm-drop-area-div" class="upload-area">
+        <input id="fm-file-upload" type="file" name="files[]">
+        <div class="upload-area-top">
+          <div></div>
+          <div></div>
+        </div>
+        <div id="fm-upload-progress" class="upload-area-center">Please drag a file here or click to upload</div>
+        <div class="upload-area-bottom">
+          <div></div>
+          <div></div>
+        </div>
+      </div>
+    {% endif %}
+  {% endif %}
+  <form id="sort-form" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <input id="sort-by" name="sort-by" type="hidden" value="{{ sort_by }}"/>
+    <input id="sort-order" name="sort-order" type="hidden" value="{{ sort_order }}"/>
+  </form>
+  <div class="fm-file-list">
+      {% for h in headers %}
+        <div class="fm-file-header {% if h.caption == 'actions' or h.caption=='filename'%} left {% else %} right {% endif %}"
+             sort-field="{{ h.caption }}">
+          <div>
+            {{ h.caption }}{{ h.extra_caption }}
+          </div>
+          {% if h.sort %}
+            <i class="fas {{ h.sort }}"></i>
+          {% endif %}
+
+        </div>
+      {% endfor %}
+      {% for f in files %}
+        <div class="fm-actions">
+        {% for action in f.actions %}
+          <div class="small-list-button fm-action" onclick="{{ action.trigger }}"><i class="fas {{ action.icon }}"></i></div>
+        {% endfor %}
+        </div>
+        <div {% if f.historical %}class="fm-historical"{% endif %}>{{ f.filename }}</div>
+        <div class="right-align {% if f.historical %}fm-historical{% endif %}">{{ f.latin_date }}</div>
+        <div class="right-align {% if f.historical %}fm-historical{% endif %}"> {{ f.size }}</div>
+      {% endfor %}
+  </div>
+  <script src="{{ url_for('filemanager.static', filename='scripts/filemanager.js') }}?v=1"></script>
+  <script>
+    function ensureLibrariesAndinitfilemanager(attempts=0) {
+      if (typeof initFileManagerTopic == 'undefined') {
+        if (attempts < 20) {
+          setTimeout(ensureLibrariesAndinitfilemanager, 300, attempts + 1);
+        } else {
+          fm_init_failed()
+        }
+      } else {
+        initFileManagerTopic('{{ topic }}');
+      }
+    }
+
+    function fm_init_failed() {
+      kioskErrorToast("The filemanager cann not be initialized. " +
+            "Either your session has timed out or a page refresh might help. ")
+    }
+
+    kioskStartWhenReady(ensureLibrariesAndinitfilemanager, fm_init_failed);
+    //# sourceURL=filemanagertopic.js
+  </script>
+{% endblock %}

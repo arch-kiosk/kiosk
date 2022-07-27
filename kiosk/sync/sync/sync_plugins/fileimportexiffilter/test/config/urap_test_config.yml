@@ -1,0 +1,74 @@
+config:
+  project_id: 'urap'
+  custom_sync_modules: '%sync%\custom'
+  log_to_screen: True
+  log_level: 'DEBUG'
+  sync: '%base_path%\sync\sync'
+  sync_plugin_directory: '%sync%\sync_plugins'
+  logfile: '%base_path%\sync\sync\sync_plugins\fileimportexiffilter\test\urap_dev.log'
+  dataset_definition: '%sync%\config\dsd.yml'
+  filemaker_export_dir: '%sync%\filemaker\to_work_station'
+  filemaker_import_dir: '%sync%\filemaker\from_work_station'
+  filemaker_template: '%sync%\filemaker\urap2018_template.fmp12'
+  expected_filemaker_template_version: "8"
+  filemaker_db_filename: URAP2018.fmp12
+  filemaker_encoding: UTF-8
+  odbc_ini_dsn: urap
+  database_name: urap_rep
+  file_repository: '%sync%\file_repository'
+  thumbnail_dir: '%file_repository%\thumbnails'
+  default_resolution: high
+  file_handling_definition: '%base_path%\config\file_handling.yml'
+  default_file_handling: ipad
+  static_image_path: '%base_path%\static\assets\images'
+  thumbnail_sets:
+    'small': 128,128
+    'medium': 256,256
+
+file_import:
+  file_extensions: ["*"]
+  recursive: True
+  use_uuid: True,
+  log_import: True,
+  tags: []
+  add_only_with_context: False,
+  folder_encodings: []
+  filename_encodings: []
+  load_plugins: ["fileimportexiffilter"]
+  file_import_filters:
+    local_import:
+      FileImportStandardValuesFilter:
+        priority: 0
+      FileImportStandardFolderFilter:
+        priority: 1
+      FileImportStandardFileFilter:
+        priority: 2
+      FileImportExifFilter:
+        priority: 3
+
+file_repository:
+  cache: '%file_repository%\cache'
+  representations:
+    small:
+      label: "small thumbnail"
+      inherits: "master"
+      dimensions: 128,128
+      format_request: default
+    medium:
+      label: "medium thumbnail"
+      inherits: "master"
+      dimensions: 256,256
+      format_request: default
+    master:
+      format_request: default
+      dimensions: 4000,2000
+      requested_manipulations: ["FIX_ROTATION", "DROP_EXIF_DATA"]
+    1024x768:
+      inherits: "master"
+      requested_manipulations: ["DROP_EXIF_DATA"]
+      format_request: default
+      dimensions: 1024,768
+    RAW2400x2500:
+      requested_manipulations: ["DROP_EXIF_DATA"]
+      format_request: NEFTIF
+      dimensions: 2400,2500

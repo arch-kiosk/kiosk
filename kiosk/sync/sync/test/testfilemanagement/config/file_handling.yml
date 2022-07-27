@@ -1,0 +1,147 @@
+header:
+  version: 1.0
+  supported_extensions: nef, tiff, tif, jpg, jpeg, gif, png, bmp, raw, pcx, wmf
+file_handling:
+  ipad:
+    low:
+      default:
+        storage:
+          location: internal
+      1024x768:
+        filter:
+          max_scale: 1024,768
+          extensions: all
+        storage:
+          location: internal
+          conversion: jpg
+          downscale: BICUBIC
+      png_1024:
+        filter:
+          max_scale: 1024,768
+          extensions: png
+        storage:
+          location: internal
+          conversion: png
+          downscale: BICUBIC
+      NEF_TIFF:
+        filter:
+          extensions: NEF,TIFF,TIF
+        storage:
+          location: internal
+          conversion: jpg
+      NEF_TIFF_Shrink:
+        filter:
+          max_scale: 1024, 768
+          extensions: NEF,TIFF,TIF
+        storage:
+          location: internal
+          conversion: jpg
+          downscale: BICUBIC
+        representation:
+          id: small
+    high:
+      default:
+        storage:
+          location: internal
+      JPG_PNG:
+        filter:
+          extensions: JPG, PNG
+        storage:
+          location: internal
+      NEF_TIFF:
+        filter:
+          max_scale: 2400,1500
+          extensions: NEF, TIFF
+        storage:
+          location: internal
+          conversion: jpg
+          downscale: BICUBIC
+  local_computer:
+    low:
+      default:
+        filter:
+          extensions: all
+        storage:
+          location: internal
+      1024x768:
+        filter:
+          max_scale: 1024,768
+          extensions: all
+        storage:
+          location: internal
+          conversion: jpg
+          downscale: BICUBIC
+      NEF_TIFF:
+        filter:
+          extensions: NEF,TIFF,TIF
+        storage:
+          location: internal
+          conversion: jpg
+      NEF_TIFF_Shrink:
+        filter:
+          max_scale: 1024, 768
+          extensions: NEF,TIFF,TIF
+        storage:
+          location: internal
+          conversion: jpg
+          downscale: BICUBIC
+    high:
+      default:
+        filter:
+          extensions: all
+        storage:
+          location: external
+      JPG_PNG:
+        filter:
+          extensions: JPG, PNG
+        storage:
+          location: external
+      NEF,TIFF:
+        filter:
+          extensions: NEF, TIF, TIFF
+        storage:
+          location: external
+          conversion: PNG
+      NEF_SHRINK:
+        filter:
+          max_scale: 5000, 4000
+          extensions: NEF
+        storage:
+          location: external
+          conversion: JPEG
+          downscale: BICUBIC
+
+auto_representation:
+  master:
+    default:
+      filter:
+        extensions: all
+      storage:
+        representation: 2048x1920
+    NEF_TIFF:
+      filter:
+        extensions: NEF, TIF, TIFF
+      storage:
+        representation: png2048x1920
+  medium:
+    default:
+      filter:
+        extensions: all
+      storage:
+        representation: 256x256
+    NEF_TIFF:
+      filter:
+        extensions: NEF, TIF, TIFF
+      storage:
+        representation: png256x256
+  small:
+    default:
+      filter:
+        extensions: all
+      storage:
+        representation: 128x128
+    NEF_TIFF:
+      filter:
+        extensions: NEF, TIF, TIFF
+      storage:
+        representation: png128x128

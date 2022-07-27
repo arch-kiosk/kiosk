@@ -1,0 +1,101 @@
+Licenses and copyrights for images and icons:
+
+CAMERA.SVG:
+\kiosk\static\assets\images\file_icon_nef.svg<div>
+Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a>
+from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by
+<a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>
+</div>
+
+broken file:
+<div>Icons made by <a href="http://www.freepik.com" title="Freepik">
+Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by
+<a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY
+</a></div>
+
+pdf-icon:
+<div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/"
+title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/"
+title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+
+trash-icon:
+<div>Icons made by <a href="https://www.flaticon.com/authors/egor-rumyantsev" title="Egor Rumyantsev">Egor Rumyantsev</a>
+from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by
+<a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+
+download.svg:
+<div>Icons made by <a href="https://www.flaticon.com/authors/vaadin" title="Vaadin">Vaadin</a> from <a href="https://www.flaticon.com/"
+title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/"
+title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+
+door.svg:
+<div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik
+</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
+is licensed by <a href="http://creativecommons.org/licenses/by/3.0/"
+title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+
+Pottery free icon (pottery.svg):
+<div>Icons made by <a href="http://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+
+Published by Dave Gandy on FlatIcon.com in the FontAwesome Pack under the CC 3.0 icense: http://creativecommons.org/licenses/by/3.0/
+<div>Icons made by <a href="https://www.flaticon.com/authors/dave-gandy"
+title="Dave Gandy">Dave Gandy</a> from <a href="https://www.flaticon.com/"
+title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/"
+title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+Cross mark on a black circle background free icon (font-awesome-004-close.svg)
+Plus sign in a black circle free icon (font-awesome-003-plus.svg)
+Minus sign inside a black circle free icon (font-awesome-006-minus)
+Cross mark on a black circle background free icon (font-awesome-005-down.svg)
+
+Malware Icon (bug icon):
+<div>Icons made by <a href="https://www.freepik.com/" title="Freepik">Freepik</a>
+from <a href="https://www.flaticon.com/"
+title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/"
+title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+
+Back to top button:
+<div>Icons made by <a href="https://www.flaticon.com/authors/designerz-base"
+title="Designerz Base">Designerz Base</a> from <a href="https://www.flaticon.com/"
+title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/"
+title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+
+cloud backup icon:
+<div>Icons made by <a href="https://www.flaticon.com/authors/phatplus"
+title="phatplus">phatplus</a> from <a href="https://www.flaticon.com/"
+title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/"
+title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+
+toilet brush:
+<div>Icons made by <a href="https://www.freepik.com/"
+title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/"
+title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/"
+			    title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+
+Toilet brush with plunger
+<div>Icons made by <a href="https://www.freepik.com/" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/"
+title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/"
+title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+
+Standard File Icons
+<div>Icons made by <a href="https://www.flaticon.com/authors/dimitry-miroliubov"
+title="Dimitry Miroliubov">Dimitry Miroliubov</a> from <a href="https://www.flaticon.com/"
+title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/"
+title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+
+chain - icon (filemaker)
+Icons made by <a href="http://www.freepik.com/" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
+
+backspace icon (filemaker)
+Icons made by <a href="https://www.flaticon.com/authors/smashicons" title="Smashicons">Smashicons</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
+
+Pin Icon (filemaker)
+Icons made by <a href="https://www.flaticon.com/free-icon/push-pin_899817" title="srip">srip</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>
+
+add.svg (kiosk)
+<div>Icons made by <a href="https://www.flaticon.com/authors/becris" title="Becris">Becris</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+
+process qc rules png (filemaker)
+<div>Icons made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+
+overflowing.svg (kiosk)
+<div>Icons made by <a href="https://icon54.com/" title="Pixel perfect">Pixel perfect</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>

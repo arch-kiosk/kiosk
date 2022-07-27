@@ -1,0 +1,13 @@
+/*This is to eliminate the yellow background of
+autocomplete fields in webkit browsers. As found here: */
+@-webkit-keyframes autofill {
+    to {
+        color: #666;
+        background: transparent;
+    }
+}
+
+input:-webkit-autofill {
+    -webkit-animation-name: autofill;
+    -webkit-animation-fill-mode: both;
+}

@@ -1,0 +1,63 @@
+.syncmanager-sync-wrapper
+  position: relative
+  display: flex
+  flex-direction: column
+
+  .kiosk-progress-inner
+    span
+      font-size: 1em
+      line-height: 1em
+      font-weight: bold
+
+  .kiosk-progress-bar-frame
+    border: solid 1px black
+    height: 2em
+    background: $col-bg-body
+    padding: 2px
+
+  .kiosk-progress-bar
+    height: 100%
+    position: absolute
+    background: $col-bg-1
+    z-index: 10
+
+  .kiosk-log-heading
+    padding: .5em
+
+  .log-success-heading
+    background-color: $col-bg-ack
+    color: $col-primary-bg-ack
+    font-size: $font-size-h3
+  .log-error-heading
+    background-color: $col-bg-alert
+    color: $col-accent-bg-alert
+    font-size: $font-size-h3
+    i
+      color: $col-primary-bg-alert
+      margin-right: 1em
+
+  .kiosk-log-line
+    background: $col-bg-1
+    margin: 1px 0px 1px 0px
+    border: none
+    user-select: text
+    -moz-user-select: text
+
+  .kiosk-log-line-warning
+    color: $col-primary-bg-att
+    background: $col-bg-att
+    font-weight: bold
+  .kiosk-log-line-error
+    color: $col-primary-bg-alert
+    background: $col-bg-alert
+    font-weight: bold
+  .kiosk-log-line-success
+    color: $col-primary-bg-ack
+    background: $col-bg-ack
+    font-weight: bold
+  .kiosk-log-line-separator
+    background: $col-bg-body
+    color: $col-bg-1
+    height: 1em
+    border-bottom: 2px solid $col-bg-1
+    margin-bottom: 1em

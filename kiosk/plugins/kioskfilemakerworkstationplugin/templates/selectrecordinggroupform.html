@@ -1,0 +1,47 @@
+{% from 'dialogmacros.html' import kiosk_error_div, kiosk_error_span, kiosk_general_form_errors %}
+{% extends "basicmodaldialog.html" %}
+{% block dialog_css %}
+  <link rel="stylesheet" href="{{ url_for('kioskfilemakerworkstation.static',
+  filename='kioskfilemakerworkstation.css') }}?v=1"/>
+{% endblock %}
+{% block kiosk_modal_dialog_id %}id="select-recording-group-dialog"{% endblock %}
+{% block kiosk_modal_dialog_classes %}.kiosk-modal-dialog-medium{% endblock %}
+{% block kiosk_modal_dialog_name %}{{ dialog_title }}{% endblock %}
+{% block kiosk_modal_dialog_content %}
+  <div class="">{{ dialog_text }}</div>
+  <div id="dialog-ajax-part" class="pagecontrol-content kiosk-modal-dialog-griddy">
+    {{ kiosk_general_form_errors(general_errors) }}
+
+    <form id="select-recording-group-form" action="{{ action }}" route="{{ route }}" onsubmit="startRecordingGroupAction()">
+      {{ select_recording_group_form.csrf_token }}
+
+      <div>      {{ select_recording_group_form.recording_group(class="kiosk-dialog-selectfield",
+                        data_list="#select-recording-groups",
+                        labelclass="kiosk-dialog-label",
+                        errclass="kiosk-error-border") }}
+      </div>
+    </form>
+  </div>
+{% endblock %}
+{% block kiosk_modal_dialog_after %}
+  <script>
+    initSelectRecordingGroupDialog();
+
+  function initSelectRecordingGroupDialog() {
+    kioskShowFooter(true);
+    kioskActivateButton($("#bt-next"), null);
+    kioskActivateButton($("#bt-back"), null);
+    //kioskActivateButton($("#bt-ok"), null);
+    //kioskDisableButton($("#bt-ok"), true);
+    kioskActivateButton($("#bt-close"), null);
+    kioskActivateButton($("#bt-delete"), null);
+
+    kioskActivateButton($("#bt-cancel"), () => {
+      $.magnificPopup.close();
+    });
+    kioskActivateButton($("#bt-ok"), startRecordingGroupAction);
+  }
+
+    //# sourceURL=create-workstationdialog.js
+  </script>
+{% endblock %}

@@ -1,0 +1,5 @@
+config:
+  format_version: 3
+
+tables:
+  - include(*)

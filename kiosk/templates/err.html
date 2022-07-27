@@ -1,0 +1,19 @@
+<!doctype html>
+<head>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<title>URAP Kiosk - Error</title>
+</head>
+
+<body>
+<h1>Uronarti Regional Project</h1>
+<h2>{% block title %}{% endblock %}</h2>
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+</body>

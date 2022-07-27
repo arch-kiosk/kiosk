@@ -1,0 +1,172 @@
+
+#modal-edit-file
+  background-color: $color-background
+  font-family: $standard-text
+  font-size: 18px
+  position: relative
+  margin-left: auto
+  margin-right: auto
+  width: 80%
+  max-width: 80%
+  .dlg-spinner
+    //background-color: pink
+    display: flex
+    flex-direction: row
+    width: 500px
+    align-items: center
+    padding: 0px
+
+  .dlg-cssload-loader
+    left: 0px
+    float: left
+    margin-right: 20px
+
+  .dlg-spinner-msgdiv
+    height: 24px
+    font-size: 24px
+
+  //#mef-image
+  //  &:hover, &:active
+  //    img
+  //      box-shadow: 2px 2px 2px 2px black
+
+  .modal-download, .modal-upload
+    background-size: 50%
+    background-position: center
+    background-repeat: no-repeat
+    background-color: transparent
+    border-color: rgba(0,0,0,0)
+    position: absolute
+    top: -7px
+    z-index: 100
+    &:hover, &:active
+      border-color: white
+
+  .modal-download
+    background-image: url("/static/assets/images/download.svg")
+    left: -7px
+
+  .modal-upload
+    background-image: url("/static/assets/images/upload.svg")
+    left: 60px
+
+  #mef-upload-input
+    opacity: 0
+    height: 64px
+    position: absolute
+    top: 0
+    right: 0
+    margin: 0
+    border: solid transparent
+    //width: 100%
+    cursor: pointer
+
+  img
+    max-width: 60vw
+    max-height: 60vh
+    min-width: 30vh
+    background-color: white
+    background-size: contain
+    image-orientation: from-image
+  label
+    color: white
+    margin-bottom: 5px
+    display: block
+
+  input, select, textarea
+    font-family: $standard-text
+    font-size: 18px
+    border-style: none
+    box-shadow: 2px 2px black
+    padding: 10px 10px 10px 10px
+    margin-bottom: 1em
+    box-sizing: border-box
+    display: block
+    width: 98%
+
+#modal-edit-file-inner
+  display: flex
+  padding-left: 20px
+  padding-right: 20px
+  padding-top: 40px
+  display: flex
+  flex-direction: column
+
+#modal-edit-file-header
+  height: 65px
+  display: flex
+  width: 100%
+  flex-direction: row
+  justify-content: space-between
+  flex-wrap: nowrap
+  border: 0px
+  padding-bottom: 5px
+  border-bottom: 1px
+  border-color: black
+  border-style: solid
+  margin-bottom: 1em
+
+#modal-edit-file-header-right
+  position: absolute
+  right: 20px
+  padding-right: 10px
+  padding-left: 10px
+  left: auto
+  font-family: $standard-text
+  font-size: 14px
+  background-color: $color-background
+
+#modal-edit-file-header-left
+  height: 65px
+  display: flex
+  flex-direction: row
+  flex-wrap: nowrap
+  .dialog-image
+    width: 64px
+    height: 64px
+    margin-right: 15px
+    margin-top: -10px
+    background-repeat: no-repeat
+    background-size: contain
+    position: absolute
+    border: 0px
+    z-index: 0
+  .dialog-name
+    font-size: 24px
+    margin-top: .5em
+    margin-left: 2em
+    z-index: 1
+  h3
+    font-family: monospace
+.img-import
+  background-image: url("/static/assets/images/camera.svg")
+
+
+#mef-outer-wrapper
+  display: flex
+  flex-direction: row
+  flex-wrap: nowrap
+  position: relative
+
+#mef-image-information
+  height: 40px
+#mef-image-data
+  box-sizing: border-box
+  width: 100%
+  margin-top: 0px
+  margin-left: 20px
+  margin-bottom: 5px
+
+  form
+    display: flex
+    flex-direction: column
+    flex-wrap: nowrap
+
+#mef-button-bar
+  width: 100%
+  display: flex
+  flex-direction: row
+  justify-content: space-between
+#mef-dialog-buttons
+  width: 150px
+

@@ -1,0 +1,13 @@
+config:
+  format_version: 3
+  imports:
+    - dsd3_sync_subsystem_2.yml
+
+repl_deleted_uids:
+  structure:
+    1:
+      uid: [datatype(UUID), primary(), unique(), default('gen_random_uuid()')]
+      deleted_uid: [datatype(UUID)]
+      table: [datatype(VARCHAR)]
+      repl_workstations_id: [datatype(VARCHAR)]
+      modified: [datatype(TIMESTAMP)]

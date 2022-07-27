@@ -1,0 +1,24 @@
+.iziToast.iziToast-color-red
+  background: $color-error-bg
+  border-color: $color-error-bg
+
+.iziToast.iziToast-color-green
+  background: $color-background-light
+  border-color: $color-background
+
+.iziToast.iziToast-color-yellow
+  background: $color-sand-light
+  border-color: $sand
+
+
+//selects the iziToast-message div that has
+// class iziToast AND iziToast-color-red as a parent of a iziToast-body class
+.iziToast.iziToast-color-red
+  >.iziToast-body
+    .iziToast-message
+      color: white
+
+.iziToast
+  >.iziToast.iziToast-color-green
+    .iziToast-message
+      color: black

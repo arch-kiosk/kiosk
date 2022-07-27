@@ -1,0 +1,85 @@
+{% from 'dialogmacros.html' import kiosk_error_div, kiosk_error_span, kiosk_general_form_errors %}
+{% extends "basicmodaldialog.html" %}
+{% block dialog_css %}
+  <link rel="stylesheet" href="{{ url_for('kioskexportworkstation.static', filename='kioskfileexportworkstation.css') }}">
+{% endblock %}
+{% block kiosk_modal_dialog_id %}id="actions-dialog"{% endblock %}
+{% block kiosk_modal_dialog_classes %}.kiosk-modal-dialog-medium{% endblock %}
+{% block kiosk_modal_dialog_name %}Your options{% endblock %}
+{% block kiosk_modal_dialog_header %}
+    <div class="workstation-actions-header">
+      {% if ws.icon_code %}
+        <div class="workstation-actions-icon">
+          <i class="fas">{{ ws.icon_code }}</i>
+        </div>
+      {% elif ws.icon_url %}
+        <div class="workstation-actions-image" style="background: url('{{ url_for(ws.icon_url) }}')"></div>
+      {% else %}
+        <div class="workstation-actions-icon">
+          <i class="fas fa-tablet-alt"></i>
+        </div>
+      {% endif %}
+
+      <div class="workstation-name workstation-title-color">
+        <p>{{ ws.description }} <span class="workstation-id">[ {{ ws.id }} ]</span></p>
+        <h3 id="dialog-subtitle">File Export</h3>
+      </div>
+    </div>
+{% endblock %}
+{% block kiosk_modal_dialog_content %}
+  <div id="dialog-ajax-part" class="pagecontrol-content kiosk-modal-dialog-griddy">
+    {{ kiosk_general_form_errors(general_errors) }}
+  </div>
+    <div id="dialog-workzone">
+      <div id="workstation-options">
+        {% if ws.has_no_options_msg(current_plugin_controller) %}
+          <div class="workstation-option-frame">
+            <p class="nothing-todo-option">{{ ws.has_no_options_msg(current_plugin_controller) }} </p>
+          </div>
+        {% else %}
+          {% for o in options %}
+            {% if o.caption == "-" %}
+              <div class="workstation-option-separator"></div>
+            {% else %}
+              <div class="workstation-option-frame">
+                <div class="workstation-option-marker {% if o.warning %}
+                                   workstation-option-marker-red
+                                {% else %}
+                                  workstation-option-marker-green
+                                {% endif %}"
+                    {% if o.disabled %} disabled{% endif %}></div>
+                <div id="{{ o.css_id }}" class="workstation-option"
+                     {% if o.disabled %} disabled{% else %} onclick="{{ o.onclick }}"{% endif %}>
+                  <h3>{{ o.caption }}</h3>
+                  <p>{{ o.description }}</p>
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+      </div>
+    </div>
+
+{% endblock %}
+{% block kiosk_modal_dialog_after %}
+  <script src="{{ url_for('kioskexportworkstation.static',
+                  filename='scripts/kioskfileexportactions.js') }}"></script>
+  <script>
+      ensureLibrariesAndinitDialog();
+
+      function ensureLibrariesAndinitDialog() {
+          kioskStartWhenReady(() => {
+            kioskActivateButton($("#bt-next"), null);
+            kioskActivateButton($("#bt-back"), null);
+            kioskActivateButton($("#bt-ok"), null);
+            kioskActivateButton($("#bt-close"), () => {
+              $.magnificPopup.close()
+            });
+            kioskActivateButton($("#bt-delete"), null);
+            kioskActivateButton($("#bt-cancel"), null);
+          })
+      }
+  </script>
+{% endblock %}
+
+

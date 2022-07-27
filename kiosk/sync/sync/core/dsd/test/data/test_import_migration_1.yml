@@ -1,0 +1,11 @@
+config:
+  format_version: 3
+  imports:
+    - test_import_migration_2.yml
+  migration_scripts:
+    test_1:
+      migration: "sql\\tag_legacy_inventory_images.sql"
+      preconditions:
+        inventory: 1
+      flags:
+        tag_legacy_inventory_images: 1

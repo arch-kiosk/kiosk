@@ -1,0 +1,114 @@
+{% from 'dialogmacros.html' import kiosk_error_div, kiosk_error_span, kiosk_general_form_errors %}
+{% extends "basicmodaldialog.html" %}
+{% block dialog_css %}
+  <link rel="stylesheet" href="{{ url_for('kioskfilemakerworkstation.static', filename='kioskfilemakerworkstation.css') }}">
+  <link rel="stylesheet" href="{{ url_for('kioskreportingdock.static', filename='kioskreportingdock.css') }}?v=1"/>
+{% endblock %}
+{% block kiosk_modal_dialog_id %}id="filemaker-workstation-actions-dialog"{% endblock %}
+{% block kiosk_modal_dialog_classes %}.kiosk-modal-dialog-medium{% endblock %}
+{% block kiosk_modal_dialog_name %}Your options{% endblock %}
+{% block kiosk_modal_dialog_header %}
+    <div class="kfw-workstation-header">
+      {% if ws.icon_code %}
+        <div class="kfw-workstation-icon">
+          <i class="fas">{{ ws.icon_code }}</i>
+        </div>
+      {% elif ws.icon_url %}
+        <div class="kfw-workstation-image" style="background: url('{{ url_for(ws.icon_url) }}')"></div>
+      {% else %}
+        <div class="kfw-workstation-icon">
+          <i class="fas fa-tablet-alt"></i>
+        </div>
+      {% endif %}
+
+      <div class="workstation-name workstation-title-color">
+        <p>{{ ws.description }} <span class="workstation-id">[ {{ ws.id }} ]</span></p>
+        <h3 id="dialog-subtitle">Your next options</h3>
+      </div>
+    </div>
+{% endblock %}
+{% block kiosk_modal_dialog_content %}
+  <div id="dialog-ajax-part" class="pagecontrol-content kiosk-modal-dialog-griddy">
+    {{ kiosk_general_form_errors(general_errors) }}
+  </div>
+    <div id="dialog-workzone">
+      <div id="workstation-options">
+        <h4>That's next:</h4>
+        {% for o in ws.get_priority_options( current_plugin_controller ) %}
+          <div class="workstation-option-frame">
+            <div class="workstation-option-marker workstation-option-marker-green"
+                {% if o.disabled %} disabled{% endif %}></div>
+            <div id="{{ o.css_id }}" class="workstation-option {% if o.low %} workstation-option-low{% endif %}"
+                 {% if o.disabled %} disabled{% else %} onclick="{{ o.onclick }}"{% endif %}>
+              <h3>{{ o.caption }}</h3>
+              <p>{{ o.description }}</p>
+            </div>
+          </div>
+        {% endfor %}
+        {% if ws.get_low_options( current_plugin_controller ) %}
+          <div id="more-options" class="kiosk-collapsible-v2">
+            <div class="kiosk-collapsible-header">
+              <h4>more options</h4>
+              <div id="workstation-options-clicker">
+                <i class="fas kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></i>
+              </div>
+            </div>
+            <div class="kiosk-collapsible-content">
+              {% for o in ws.get_low_options( current_plugin_controller ) %}
+                <div class="workstation-option-frame">
+                  <div class="workstation-option-marker {% if o.warning %}
+                                 workstation-option-marker-red
+                              {% else %}
+                                workstation-option-marker-neutral
+                              {% endif %}" {% if o.disabled %} disabled{% endif %}>
+                  </div>
+                  <div id="{{ o.css_id }}" class="workstation-option{% if o.low %} workstation-option-low{% endif %}"
+                       {% if o.disabled %} disabled{% else %} onclick="{{ o.onclick }}"{% endif %}>
+                    <h3>{{ o.caption }}</h3>
+                    {% if o.disabled %}
+                    <p>This option is not available in the workstation's current state</p>
+                    {% else %}
+                    <p>{{ o.description }}</p>
+                    {%  endif %}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+      {% endif %}
+      </div>
+    </div>
+
+{% endblock %}
+{% block kiosk_modal_dialog_after %}
+  <script src="{{ url_for('kioskreportingdock.static',
+                  filename='scripts/kioskreportingdockactions.js') }}"></script>
+  <script>
+      ensureLibrariesAndinitDialog();
+
+      function ensureLibrariesAndinitDialog() {
+        if (typeof initCollapsibles == 'undefined') {
+          setTimeout(ensureLibrariesAndinitDialog, 100);
+        } else {
+          kioskStartWhenReady(() => {
+            initCollapsibles();
+            kioskActivateButton($("#bt-next"), null);
+            kioskActivateButton($("#bt-back"), null);
+            kioskActivateButton($("#bt-ok"), null);
+            kioskActivateButton($("#bt-close"), () => {
+              $.magnificPopup.close()
+            });
+            kioskActivateButton($("#bt-delete"), null);
+            kioskActivateButton($("#bt-cancel"), null);
+            $.magnificPopup.instance.ev.on("mfpBeforeClose", mfpActionsOnClose);
+          })
+        }
+      }
+
+      function mfpActionsOnClose() {
+          $.magnificPopup.instance.ev.off("mfpBeforeClose", mfpActionsOnClose);
+      }
+  </script>
+{% endblock %}
+
+

@@ -1,0 +1,23 @@
+{% extends "kioskbasic.html" %}
+{% block headtitle %}Upload new File{% endblock %}
+{% block title %}Upload new File{% endblock %}
+{% block body %}
+<form method=post enctype=multipart/form-data>
+  <p><input type=file name=file>
+     <input type=submit value=Upload>
+</form>
+<div class="filelist">
+  <p>currently uploaded files</p>
+  {% for srv_file in uploadedfiles %}
+    <div class="uploadedfile">
+      <a href="{{url_for('delete_file',file=srv_file.get('name'))}}">
+        <div class="imgbt"><img src="{{ url_for('static', filename='recycle.png') }}"/></div>
+      </a>
+      <a href="{{url_for('process_file',file=srv_file.get('name'))}}">
+        <div class="imgbt"><img src="{{ url_for('static', filename='rocket.png') }}"/></div>
+      </a>
+      <div class="uploadedfilename">{{srv_file.get('name')}}</div>
+    </div>
+  {% endfor%}
+</div>
+{% endblock %}

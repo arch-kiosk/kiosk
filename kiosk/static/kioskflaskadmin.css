@@ -1,0 +1,285 @@
+.col-bg-body-lighter {
+  background-color: var(--col-bg-body-lighter);
+}
+
+.col-bg-body {
+  background-color: var(--col-bg-body);
+}
+
+.col-bg-body-darker {
+  background-color: var(--col-bg-body-darker);
+}
+
+.col-bg-1-lighter {
+  background-color: var(--col-bg-1-lighter);
+}
+
+.col-bg-1 {
+  background-color: var(--col-bg-1);
+}
+
+.col-bg-1-darker {
+  background-color: var(--col-bg-1-darker);
+}
+
+.col-bg-1-input {
+  background-color: var(--col-bg-1-input);
+}
+
+.col-primary-bg-1 {
+  background-color: var(--col-primary-bg-1);
+}
+
+.col-accent-bg-1 {
+  background-color: var(--col-accent-bg-1);
+}
+
+.col-success-bg-1 {
+  background-color: var(--col-success-bg-1);
+}
+
+.col-warning-bg-1 {
+  background-color: var(--col-warning-bg-1);
+}
+
+.col-error-bg-1 {
+  background-color: var(--col-error-bg-1);
+}
+
+.col-bg-2-lighter {
+  background-color: var(--col-bg-2-lighter);
+}
+
+.col-bg-2 {
+  background-color: var(--col-bg-2);
+}
+
+.col-bg-2-darker {
+  background-color: var(--col-bg-2-darker);
+}
+
+.col-bg-2-button {
+  background-color: var(--col-bg-2-button);
+}
+
+.col-bg-2-input {
+  background-color: var(--col-bg-2-input);
+}
+
+.col-primary-bg-2 {
+  background-color: var(--col-primary-bg-2);
+}
+
+.col-accent-bg-2 {
+  background-color: var(--col-accent-bg-2);
+}
+
+.col-success-bg-2 {
+  background-color: var(--col-success-bg-2);
+}
+
+.col-warning-bg-2 {
+  background-color: var(--col-warning-bg-2);
+}
+
+.col-error-bg-2 {
+  background-color: var(--col-error-bg-2);
+}
+
+.col-bg-3-lighter {
+  background-color: var(--col-bg-3-lighter);
+}
+
+.col-bg-3 {
+  background-color: var(--col-bg-3);
+}
+
+.col-bg-3-darker {
+  background-color: var(--col-bg-3-darker);
+}
+
+.col-bg-3-button {
+  background-color: var(--col-bg-3-button);
+}
+
+.col-bg-3-input {
+  background-color: var(--col-bg-3-input);
+}
+
+.col-primary-bg-3 {
+  background-color: var(--col-primary-bg-3);
+}
+
+.col-accent-bg-3 {
+  background-color: var(--col-accent-bg-3);
+}
+
+.col-success-bg-3 {
+  background-color: var(--col-success-bg-3);
+}
+
+.col-warning-bg-3 {
+  background-color: var(--col-warning-bg-3);
+}
+
+.col-error-bg-3 {
+  background-color: var(--col-error-bg-3);
+}
+
+.col-bg-ack-lighter {
+  background-color: var(--col-bg-ack-lighter);
+}
+
+.col-bg-ack {
+  background-color: var(--col-bg-ack);
+}
+
+.col-bg-ack-darker {
+  background-color: var(--col-bg-ack-darker);
+}
+
+.col-primary-bg-ack {
+  background-color: var(--col-primary-bg-ack);
+}
+
+.col-accent-bg-ack {
+  background-color: var(--col-accent-bg-ack);
+}
+
+.col-bg-att-lighter {
+  background-color: var(--col-bg-att-lighter);
+}
+
+.col-bg-att {
+  background-color: var(--col-bg-att);
+}
+
+.col-bg-att-darker {
+  background-color: var(--col-bg-att-darker);
+}
+
+.col-primary-bg-att {
+  background-color: var(--col-primary-bg-att);
+}
+
+.col-accent-bg-att {
+  background-color: var(--col-accent-bg-att);
+}
+
+.col-bg-alert-lighter {
+  background-color: var(--col-bg-alert-lighter);
+}
+
+.col-bg-alert {
+  background-color: var(--col-bg-alert);
+}
+
+.col-bg-alert-darker {
+  background-color: var(--col-bg-alert-darker);
+}
+
+.col-primary-bg-alert {
+  background-color: var(--col-primary-bg-alert);
+}
+
+.col-accent-bg-alert {
+  background-color: var(--col-accent-bg-alert);
+}
+
+.col-bg-btn-lighter {
+  background-color: var(--col-bg-btn-lighter);
+}
+
+.col-bg-btn {
+  background-color: var(--col-bg-btn);
+}
+
+.col-bg-btn-darker {
+  background-color: var(--col-bg-btn-darker);
+}
+
+.col-primary-bg-btn {
+  background-color: var(--col-primary-bg-btn);
+}
+
+.col-accent-bg-btn {
+  background-color: var(--col-accent-bg-btn);
+}
+
+/* patterns */
+.pattern-diagonal-stripes-sm {
+  background: repeating-linear-gradient(45deg, transparent, transparent 10px, currentColor 10px, currentColor calc(2 * 10px));
+}
+
+.pattern-dots-lg {
+  background-image: radial-gradient(currentColor 1.5px, transparent 1.5px);
+  background-size: calc(10 * 1.5px) calc(10 * 1.5px);
+}
+
+.pattern-dots-md {
+  background-image: radial-gradient(currentColor 1px, transparent 1px);
+  background-size: calc(8 * 1px) calc(8 * 1px);
+}
+
+.pattern-dots-medium-dense {
+  background-image: radial-gradient(currentColor 0.5px, transparent 0.5px);
+  background-size: calc(6 * .5px) calc(6 * .5px);
+}
+
+.pattern-dots-sm {
+  background-image: radial-gradient(currentColor 0.5px, transparent 0.5px);
+  background-size: calc(10 * 0.5px) calc(10 * 0.5px);
+}
+
+.pattern-cross-dots-md, .imagelist-background {
+  background-image: radial-gradient(currentColor 0.7px, transparent 1px), radial-gradient(currentColor 0.7px, transparent 1px);
+  background-size: calc(13 * .5px) calc(13 * .5px);
+  background-position: 0 0, calc(7 * .5px) calc(7 * .5px);
+}
+
+.imagelist-background {
+  background-color: rgba(255, 255, 255, 0.6);
+  background-blend-mode: overlay;
+}
+
+.dropdown {
+  height: auto;
+  width: auto;
+  background-color: white;
+  padding-top: 0px;
+}
+
+button {
+  width: auto;
+  height: auto;
+  color: black;
+  margin-left: 1em;
+}
+
+.container {
+  margin-right: 0px;
+  margin-left: 0px;
+  padding-left: 20px;
+  padding-right: 20px;
+  width: 100%;
+}
+
+.navbar-default {
+  background: var(--col-bg-1);
+  width: 100%;
+  color: black;
+}
+.navbar-default .navbar-nav > li > a {
+  color: black !important;
+  text-shadow: none;
+  font-weight: bold;
+}
+.navbar-default .navbar-nav > .active > a {
+  background: var(--col-bg-1-lighter);
+}
+
+.navbar-brand {
+  display: none;
+}
+
+/*# sourceMappingURL=kioskflaskadmin.css.map */

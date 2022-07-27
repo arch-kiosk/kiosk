@@ -1,0 +1,74 @@
+header:
+  version: 1.0
+  output_driver: "ReportingExcelDriver"
+
+variables:
+  context_identifier: [ datatype(VARCHAR) ]
+  unit: [datatype(VARCHAR)]
+base_queries:
+  "unit":
+    description: "creates reports for all loci/contexts of a unit/area."
+    required_variables: [ 'unit' ]
+    type: 'SQL'
+    query: "
+      select distinct u.arch_context from {{unit}} as u 
+      where u.arch_context = {{#unit}}
+      "
+queries:
+  'context_data':
+    type: 'SQL'
+    query: "
+    select unit.arch_context unit_id, extract(year from unit.created)::varchar unit_creation_year from {{unit}} as unit where 
+    unit.arch_context={{#context_identifier}}
+    "
+    output_type: 'key-value'
+  'loci':
+    type: 'SQL'
+    query: "
+    select l.arch_context, l.type relation_type, l.description, l.date_defined, l.date_closed, l.interpretation from {{locus}} as l 
+    inner join {{unit}} as u on l.uid_unit = u.uid 
+    where
+    u.arch_context={{#context_identifier}}
+    "
+    output_type: 'list'
+    output_table: 'loci'
+  'loci_summary':
+    type: 'SQL'
+    query: "
+    select count(l.arch_context) count_loci, count(distinct l.type) count_types from {{locus}} as l 
+    inner join {{unit}} as u on l.uid_unit = u.uid 
+    where
+    u.arch_context={{#context_identifier}}
+    "
+    output_type: 'list'
+    output_table: 'loci_summary'
+
+mapping:
+  'area': '#unit_id'
+  'AREA_SHEET!':
+    - "#unit_id"
+    - "prepend('area ')"
+  'title':
+   - '#unit_creation_year'
+   - "prepend(\"S'Urachi \\&(San Vero Milis\\&)\\&: elenco US e reperti \")"
+  'A5': '#loci'
+
+tables:
+  loci:
+    append_table: "loci_summary"
+    cells: ["1", "2", "3", "4", "5", "6", "7"]
+    templated: True
+    mapping:
+      '1': '#arch_context'
+      '2': '#type'
+      '4': '#description'
+      '5': '#interpretation'
+      '6': '#date_defined'
+      '7': '#date_closed'
+
+  loci_summary:
+    cells: ["1", "2"]
+    row_offset: 1
+    mapping:
+      '1': '#count_loci'
+      '2': '#count_type'

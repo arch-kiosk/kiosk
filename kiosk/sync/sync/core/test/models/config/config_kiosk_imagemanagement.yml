@@ -1,0 +1,92 @@
+'Flask':
+  SOME_OPERATION: 'Something'
+  SECRET_KEY: "A normal Key"
+  EXPLAIN_TEMPLATE_LOADING: True
+
+config:
+  project_id: 'urap'
+  sync: '%base_path%\sync\sync'
+  sync_plugin_directory: '%sync%\sync_plugins'
+  # custom_sync_modules: '%sync%\custom'
+  log_to_screen: False
+  autoload_plugins: ["filemakerrecording"]
+  dataset_definition: '%sync%\config\dsd.yml'
+  filemaker_export_dir: '%sync%\filemaker\to_work_station'
+  filemaker_import_dir: '%sync%\filemaker\from_work_station'
+  filemaker_template: '%sync%\filemaker\urap2019_template.fmp12'
+  expected_filemaker_template_version: "D.6"
+  filemaker_db_filename: URAP2019.fmp12
+  filemaker_encoding: UTF-8
+  odbc_ini_dsn: urap
+  database_name: urap_test
+  thumbnail_dir: '%file_repository%\thumbnails'
+  file_handling_definition: '%sync%\test\testfilemanagement\config\file_handling.yml'
+  default_resolution: high
+  default_file_handling: local_computer
+  fork_ignore_missing_files: True
+  file_repository: '%base_path\sync\sync\file_repos'
+  log_level: 'DEBUG'
+  static_image_path: '%base_path%\static\assets\images'
+  thumbnail_sets:
+    'small': 128,128
+    'medium': 256,256
+file_repository:
+  representations:
+    small:
+      label: "small thumbnail"
+      inherits: "master"
+      dimensions: 128,128
+      format_request:
+        "*": "!"
+        "NEF": "JPEG"
+        "HEIC": "JPEG"
+      extension: jpg
+    medium:
+      label: "medium thumbnail"
+      inherits: "master"
+      dimensions: 256,256
+      format_request: default_png
+      extension: jpg
+    master:
+      format_request: default
+      extension: jpg
+      dimensions: 4000,2000
+    fix_rotation:
+      format_request: default
+      required_manipulations:
+        - fix_rotation
+      requested_manipulations:
+        - drop_exif_data
+    master_1:
+      inherits: fix_rotation
+      format_request: default
+      required_manipulations: ["dosomethingelse"]
+    master_2:
+      inherits: master_1
+      requested_manipulations: ["dosomething"]
+      format_request: default
+    many_masters:
+      inherits: master_2
+      format_request: default
+      requested_manipulations: ["MYOWNMANIPULATION"]
+      required_manipulations: ["MYOWNMANIPULATION2"]
+
+  auto_representations: ['medium', 'small']
+  thumbnails: ['small', 'medium']
+  standard_format_requests:
+    default:
+        "*": "JPEG"
+        "PNG": "!"
+        "NEF": "JPEG"
+        "HEIC": "JPEG"
+    default_png:
+        "*": "PNG"
+        "PNG": "!"
+        "JPEG": "!"
+        "NEF": "JPEG"
+        "HEIC": "JPEG"
+
+
+file_handlers:
+  plugins: ["defaultfilehandling", "heicfilehandling"]
+

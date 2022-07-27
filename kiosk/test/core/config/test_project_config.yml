@@ -1,0 +1,9 @@
+import_configurations:
+  - "test_base_config.yml"
+
+config:
+  sync: '%base_path%\test\core\sync'
+kiosk:
+  SECRET_KEY: fd82303c-6852-48c1-8165-9e60d4b25b94
+  base_path: '%base_path%\test\core'
+

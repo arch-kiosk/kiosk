@@ -1,0 +1,23 @@
+config:
+  format_version: 3
+  some_other_config: 3
+
+unit:
+  structure:
+    1:
+      id: [VARCHAR]
+      name: [VARCHAR]
+      purpose: [VARCHAR]
+      type: [VARCHAR]
+      method: [VARCHAR]
+      id_excavator: [VARCHAR]
+      unit_creation_date: [DATE]
+      id_site: [VARCHAR]
+      excavator_full_name: [VARCHAR]
+      spider_counter: [NUMBER]
+      coordinates: [VARCHAR]
+      legacy_unit_id: [VARCHAR]
+      uid: [REPLFIELD_UUID]
+      created: [REPLFIELD_CREATED]
+      modified: [REPLFIELD_MODIFIED]
+      modified_by: [REPLFIELD_MODIFIED_BY, default("sys")]

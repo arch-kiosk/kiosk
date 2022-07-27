@@ -1,0 +1,59 @@
+{% from 'dialogmacros.html' import kiosk_error_div, kiosk_error_span, kiosk_general_form_errors %}
+{% extends "basicmodaldialog.html" %}
+{% block dialog_css %}
+  <link rel="stylesheet" href="{{ url_for('kioskfilemakerworkstation.static', filename='kioskfilemakerworkstation.css') }}">
+{% endblock %}
+{% block kiosk_modal_dialog_id %}id="filemaker-workstation-actions-dialog"{% endblock %}
+{% block kiosk_modal_dialog_classes %}.kiosk-modal-dialog-medium{% endblock %}
+{% block kiosk_modal_dialog_name %}Your options{% endblock %}
+{% block kiosk_modal_dialog_header %}
+    <div class="kfw-workstation-header">
+      <div class="kfw-workstation-icon">
+        <i class="fas fa-tools"></i>
+      </div>
+      <div class="workstation-name workstation-title-color">
+        <p>Kiosk FileMaker Recording</p>
+        <h3 id="dialog-subtitle">Installer</h3>
+      </div>
+    </div>
+{% endblock %}
+{% block kiosk_modal_dialog_content %}
+  <div id="dialog-ajax-part" class="pagecontrol-content kiosk-modal-dialog-griddy">
+    {{ kiosk_general_form_errors(general_errors, "display: block; margin-top: 1em") }}
+  </div>
+  {% if not general_errors %}
+  <div id="dialog-workzone">
+    <div>This feature allows you to install a new version of the filemaker recording software.
+      All you need to do is upload the .fmp12 file.
+    </div>
+    <div id="drop-area-div" class="workstation-option installer">
+      <input id="file-upload" type="file" name="files[]">
+      <h3>Please click here <br> or drop the new filemaker template here.</h3>
+    </div>
+  </div>
+  {% endif %}
+{% endblock %}
+{% block kiosk_modal_dialog_after %}
+  <script src="{{ url_for('kioskfilemakerworkstation.static',
+                  filename='scripts/kioskfilemakerworkstationinstaller.js') }}"></script>
+  <script>
+      ensureLibrariesAndinitDialog();
+
+      function ensureLibrariesAndinitDialog() {
+        kioskStartWhenReady(() => {
+          initCollapsibles();
+          kioskActivateButton($("#bt-next"), null);
+          kioskActivateButton($("#bt-back"), null);
+          kioskActivateButton($("#bt-ok"), null);
+          kioskActivateButton($("#bt-close"), () => {
+            $.magnificPopup.close()
+          });
+          kioskActivateButton($("#bt-delete"), null);
+          kioskActivateButton($("#bt-cancel"), null);
+          kfw_InitInstallerUploader();
+        })
+      }
+  </script>
+{% endblock %}
+
+

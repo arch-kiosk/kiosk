@@ -1,0 +1,44 @@
+config:
+  format_version: 3
+  some_other_config: 3
+  migration_scripts:
+    urap_arch_context:
+      migration: "sql\\urap_migrate_to_arch_context.sql"
+      disable_projects: ["ustp"]
+      preconditions:
+        unit: 2
+    something_else:
+      projects: ["urap", "ustp"]
+      migration: "sql\\urap_migrate_to_arch_context.sql"
+      preconditions:
+        unit: 2
+    something_khpp_thing:
+      projects: ["khpp"]
+      migration: "sql\\urap_migrate_to_arch_context.sql"
+      preconditions:
+        unit: 2
+    something_for_pvd:
+      projects: ["pvd"]
+      migration: "sql\\urap_migrate_to_arch_context.sql"
+      preconditions:
+        unit: 2
+
+unit:
+  structure:
+    1:
+      id: [datatype(VARCHAR)]
+      name: [datatype(VARCHAR)]
+      purpose: [datatype(VARCHAR)]
+      type: [datatype(VARCHAR)]
+      method: [datatype(VARCHAR)]
+      id_excavator: [datatype(VARCHAR)]
+      unit_creation_date: [datatype(DATE)]
+      id_site: [datatype(VARCHAR)]
+      excavator_full_name: [datatype(VARCHAR)]
+      spider_counter: [datatype(NUMBER)]
+      coordinates: [datatype(VARCHAR)]
+      legacy_unit_id: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]

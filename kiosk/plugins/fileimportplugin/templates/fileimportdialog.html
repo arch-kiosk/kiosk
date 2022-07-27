@@ -1,0 +1,41 @@
+{% extends "basicmodaldialog.html" %}
+{% block dialog_css %}
+    <link rel=stylesheet href="/fileimport/static/fileimport.css" type="text/css">
+{% endblock %}
+
+{% block kiosk_modal_dialog_id %}id="file-import-dialog"{% endblock %}
+{% block kiosk_modal_dialog_classes %}kiosk-modal-dialog-medium{% endblock %}
+{% block kiosk_modal_dialog_name %}File Import{% endblock %}
+{% block kiosk_modal_dialog_content %}
+    <div class="pagecontrol-content grid-12 kiosk-modal-dialog-griddy">
+        <div class="col-12">
+            <div id="pagecontrol">
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block kiosk_modal_dialog_after %}
+    <script>
+      initDialog();
+
+      function initDialog() {
+        // inject_loader_div($("#pagecontrol"));
+        kioskGetAjaxElement($("#pagecontrol"),
+                          "/fileimport/dialogmethodselection",
+                          null,
+                          $("#pagecontrol"),
+                          (response, status, xhr) => {
+                            if (status == "error") {
+                              kioskErrorToast("Dialog could not be initialized. Please try again.", {
+                                timeout: 5000,
+                                transitionIn: 'fadeIn',
+                                transitionOut: 'fadeOut'
+                                // onClosed: function(instance, toast, closedBy){
+                                //};
+                              });
+                              $.magnificPopup.close();
+                            }
+                          });
+      }
+    </script>
+{% endblock %}

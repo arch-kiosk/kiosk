@@ -1,0 +1,115 @@
+#_progress-spinner-div
+  width: 90px
+  display: flex
+  justify-content: center
+  flex-direction: column
+
+.kiosk-progress-view
+  display: flex
+  flex-direction: row
+
+  .kiosk-progress-heading
+    font-size: $font-size-h3
+
+  .kiosk-progresses-div
+    width: 100%
+    margin: 2px
+    display: flex
+    flex-direction: column
+    justify-content: center
+    align-content: space-between
+
+  .kiosk-progress
+    margin-bottom: 1em
+    padding-top: .5em
+    //&:last-child
+    //  margin-bottom: 0em
+
+  .kiosk-progress-bar-frame
+    border: solid 1px black
+    height: 1.5em
+    background: $color-background-light
+    padding: 2px
+
+  .kiosk-progress-inner
+    height: 100%
+    position: relative
+    display: flex
+    justify-content: center
+    flex-direction: column
+    span
+      display: inline-block
+      text-align: right
+      width: 100%
+      font-size: 0.8em
+      line-height: 1em
+
+  .kiosk-progress-bar
+    width: 50%
+    height: 100%
+    position: absolute
+    background: $sand
+    z-index: 10
+
+  .kiosk-progress-text
+    z-index: 11
+
+  .kiosk-progress-msg
+    height: 1.5em
+    font-size: .8em
+    width: 100%
+    text-align: center
+
+  .kiosk-progress-msg
+    padding-top: 5px
+
+  .kiosk-log-view
+    padding-top: 1em
+    padding-bottom: 0.5em
+    max-height: 80vh
+    overflow-y: auto
+    width: 100%
+
+  .kiosk-log-heading
+    margin-bottom: 1em
+    color: $color-black
+
+    span
+      color: $color-black
+      font-size: .8em
+
+  .log-success-heading
+    color: $sand
+
+  .log-error-heading
+    color: $reddish
+
+  .kiosk-log-line
+    font-size: $font-small
+    font-color: $color-black
+    padding-top: 2px
+    padding-bottom: 2px
+    width: 100%
+    background: $color-background-light
+    border: 1px solid $color-background
+    user-select: text
+    -moz-user-select: text
+
+  .kiosk-log-line-warning
+    color: $reddish
+
+  .kiosk-log-line-error
+    color: $reddish
+    font-weight: bold
+
+  .kiosk-log-line-controls
+    font-size: $font-size-h4
+    margin-bottom: 1em
+    display: none
+    label
+      vertical-align: text-bottom
+
+  .kiosk-log-line-info
+    display: none
+
+

@@ -1,0 +1,4 @@
+*.css
+/logviewerplugin_backup
+/logviewerplugin/
+/pwastresstestplugin/

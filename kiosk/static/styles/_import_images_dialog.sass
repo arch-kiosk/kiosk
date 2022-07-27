@@ -1,0 +1,345 @@
+#modal-import-files
+  background-color: $color-background
+  font-family: $standard-text
+  font-size: 18px
+  position: relative
+  margin-left: auto
+  margin-right: auto
+  width: 610px
+
+#modal-import-files-inner
+  display: flex
+  padding-left: 20px
+  padding-right: 20px
+  padding-top: 40px
+  display: flex
+  flex-direction: column
+
+#modal-import-files-header
+  height: 65px
+  display: flex
+  width: 100%
+  flex-direction: row
+  flex-wrap: wr
+  border: 0px
+  padding-bottom: 5px
+  border-bottom: 1px
+  border-color: black
+  border-style: solid
+  margin-bottom: 1em
+  .dialog-image
+    width: 64px
+    height: 64px
+    margin-right: 15px
+    margin-top: -10px
+    background-repeat: no-repeat
+    background-size: contain
+    position: absolute
+    border: 0px
+    z-index: 0
+  .dialog-name
+    font-size: 24px
+    margin-top: .5em
+    margin-left: 2em
+    z-index: 1
+  h3
+    font-family: monospace
+.img-import
+  background-image: url("/static/assets/images/photostrip.svg")
+
+#mif-shifter
+  position: relative
+  width: 570px
+  padding: 0px
+  margin: 0px
+  overflow: hidden
+  height: 530px
+
+#mif-shifter-plane
+  position: absolute
+  display: flex
+  flex-direction: row
+  width: 3990px
+  margin-left: 0px
+  left: 0px
+  transition: all 0.2s ease-out
+
+#ws-message-div
+  height: auto
+
+.mif-step
+  display: flex
+  flex-direction: column
+  justify-content: space-between
+  width: 570px
+  margin-bottom: 20px
+  padding-right: 2px
+
+#mif-first-step
+  flex-direction: row
+
+#mif-second-step
+  flex-direction: column
+  flex-wrap: wrap
+
+#mif-third-step
+  flex-direction: column
+  flex-wrap: wrap
+
+.mif-choice
+  padding: 15px
+  border-radius: 15px
+  box-shadow: 0px 0px 5px rgba(255,255,255,1)
+  border-style: solid
+  border-color: black
+  background-color: rgba(20, 21, 35, 1)
+  color: white
+  margin-right: 15px
+  margin-left: 15px
+  width: 50%
+  h2
+    margin-bottom: 1em
+  &:hover
+    background: linear-gradient(to right bottom, rgba(20, 21, 35, 1), rgba(30, 31, 45, 1),rgba(20, 21, 35, 1))
+    transition: all 100ms ease-in-out
+    border-style: solid
+    border-color: white
+  &:active
+    background: linear-gradient(to right bottom, rgba(20, 21, 35, 1), rgba(30, 31, 45, 1),rgba(20, 21, 35, 1))
+    transition: all 100ms ease-in-out
+    border-style: solid
+    border-color: white
+    margin-top: 5px
+    margin-bottom: 5px
+    margin-left: 20px
+    margin-right: 20px
+    padding: 10px
+
+
+.mfp-with-anim
+  &.mfp-bg
+    opacity: 0
+    transition: all 0.2s ease-in
+    &.mfp-ready
+      opacity: 0.8
+    &.mfp-removing
+      opacity: 0
+  &.mfp-wrap
+    opacity: 0
+    //perspective: 2000px
+    transition: all 0.2s ease-in
+    transform-style: preserve-3d
+    transform: rotateX(-20deg) rotateY(-20deg)
+    &.mfp-ready
+      opacity: 1
+      transform: rotateX(0deg) rotateY(0deg)
+    &.mfp-removing
+      opacity: 0
+      transform: rotateX(-20deg) rotateY(-20deg)
+
+.mif-form-local-files
+  display: flex
+  flex-wrap: wrap
+  flex-direction: column
+  margin-top: 1em
+  margin-bottom: 1em
+  label
+    color: white
+    margin-bottom: 5px
+    display: block
+
+  input
+    font-family: $standard-text
+    font-size: 18px
+    border-style: none
+    box-shadow: 2px 2px black
+    padding: 10px 10px 10px 10px
+    margin-bottom: 1em
+    box-sizing: border-box
+    display: block
+    width: 98%
+
+  .mif-option-group
+    margin-top: 1em
+    display: flex
+    flex-direction: row
+    flex-wrap: wrap
+    label
+      width: 250px
+      margin-right: 10px
+    .lbl-full-span
+      align-self: stretch
+      width: 400px
+  .option-group-180px
+    height: 180px
+    overflow-y: scroll
+  .option-group-380px
+    height: 380px
+    overflow-y: hidden
+  .input-checkbox
+    width: auto
+    display: inline-block
+    margin-right: 10px
+
+
+#import-files-id
+  width: 8em
+  height: 1.3em
+
+#import-files-name
+  width: 18em
+  height: 1.3em
+
+#import-files-image-storage
+  width: 18em
+
+.import-files-button
+  align-self: flex-end
+  background-position: center
+  background-repeat: no-repeat
+
+.import-files-next-button
+  background-size: 32px
+  background-image: url("/static/assets/images/next.svg")
+.import-files-ok-button
+  background-size: 64px
+  background-image: url("/static/assets/images/yes.svg")
+.import-files-close-button
+  background-size: 64px
+  background-image: url("/static/assets/images/door.svg")
+.import-files-back-button
+  background-size: 32px
+  background-image: url("/static/assets/images/back.svg?1")
+  align-self: flex-start
+  display: none
+
+
+
+
+#mif-file-upload
+  opacity: 0
+  width: 100%
+  height: 64px
+  position: absolute
+  top: 0
+  right: 0
+  margin: 0
+  border: solid transparent
+  width: 100%
+  cursor: pointer
+
+#mif-upload-area
+  flex-flow: column
+  align-items: flex-end
+  background-color: $sand
+  width: auto
+  left: 10px
+  right: 10px
+  height: 150px
+  padding: 20px
+  border: 0.25rem dashed #A5A5C7
+  span
+    box-sizing: border-box
+  h3
+    width: 100%
+    text-align: center
+    padding-top: 1em
+    margin-bottom: 1em
+
+
+.upload-btn
+  display: block
+  width: 100%
+  margin-bottom: 3rem
+  cursor: pointer
+  position: relative
+  overflow: hidden
+  padding: .375rem .75rem
+  text-align: center
+  white-space: nowrap
+  vertical-align: middle
+  user-select: none
+  border: 2px solid transparent
+  background-color: $color-background
+  line-height: 1.5
+  white-space: nowrap
+  border-radius: 25px
+  &:hover
+    transition: all 100ms ease-in-out
+    border-style: solid
+    border-color: black
+  &:active
+    background-color: black
+    color: white
+    transition: all 100ms ease-in-out
+    border-style: solid
+    border-color: black
+
+#mif-file-list
+  height: 250px
+  width: 100%
+  background-color: white
+  overflow-y: scroll
+  overflow-x: hidden
+
+
+.mif-file-to-upload
+  position: relative
+  box-sizing: border-box
+  margin-top: 2px
+  padding: 2px
+  border-left: 3px solid $reddish
+  width: 100%
+  background-color: $sand
+  height: auto
+  min-height: 44px
+  // display: flex
+  // flex-direction: column
+  // flex-wrap: nowrap
+
+  div
+    position: relative
+    overflow: hidden
+    margin-top: 0.4em
+    //top: 50%
+    //margin-top: -0.6em
+    float: left
+  .mif-upload-progress
+    float: right
+  .progress-bar
+    float: none
+    box-sizing: border-box
+    position: absolute
+    top: 0px
+    margin: 0px
+    height: 36px
+    margin-top: 4px
+    width: 0%
+    background-color: $color-background
+    opacity: 0.9
+
+  .progress-bar-animation
+    animation: pulse-green 0.5s infinite alternate
+.mif-upload-error
+  background-color: $reddish
+  user-select: text
+  -moz-user-select: text
+
+@keyframes pulse-green
+  100%
+    opacity: 0.7
+
+#mif-file-list-too-many
+  color: $reddish
+  font-weight: bold
+  box-sizing: border-box
+  max-height: 50px
+  margin-bottom: 10px
+  margin-top: 10px
+  display: none
+
+#import-upload-files-ok
+  display: none
+
+#import-upload-close
+  display: none

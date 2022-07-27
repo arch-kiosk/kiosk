@@ -1,0 +1,93 @@
+{% from 'dialogmacros.html' import kiosk_error_div, kiosk_error_span, kiosk_general_form_errors %}
+{% extends "kioskbasic.html" %} {% block links %}
+
+  <link rel="stylesheet" href="{{ url_for('kioskfilemakerworkstation.static',
+  filename='kioskfilemakerworkstation.css') }}?v=1"/>
+{% endblock %}
+{% block title %}
+  <div id="subtitle-shadow">Kiosk</div>
+  <div id="subtitle">Filemaker Recording</div>
+{% endblock %}
+{% block body %}
+  <div class="full-background-bg-1">
+    <div class="one-column">
+      <div class="icon-header">
+        <div class="icon-header-icon">
+        </div>
+        <div class="icon-header-header">
+          {% if mode != "edit" %}
+            <h3>new filemaker recording</h3>
+          {% else %}
+            <h3>{{ new_fm_ws_form.workstation_id.data }}</h3>
+          {% endif %}
+        </div>
+      </div>
+      {{ kiosk_general_form_errors(general_errors, "visible: True") }}
+      <form id="new-workstation-form" method="POST">
+        {{ new_fm_ws_form.csrf_token }}
+        {{ new_fm_ws_form.workstation_id(class="kiosk-dialog-textfield",
+                          labelclass="kiosk-dialog-label",
+                          errclass="kiosk-error-border",
+                          placeholder="keep it short, unique and without spaces and strange characters") }}
+        {{ new_fm_ws_form.description(class="kiosk-dialog-textfield",
+                          labelclass="kiosk-dialog-label",
+                          errclass="kiosk-error-border",
+                          placeholder="for humans but keep it short, too") }}
+        <div class="kiosk-combobox-container">
+          <div>{{ new_fm_ws_form.recording_group(class="kiosk-dialog-selectfield",
+                          labelclass="kiosk-dialog-label",
+                          errclass="kiosk-error-border",
+                          data_list="#recording-groups",
+                          placeholder="select a recording group or type in a new one") }}
+          </div>
+          <button id="recording-group-dropdown" class="kiosk-dropdown-btn" type="button"><span class="caret"></span></button>
+        </div>
+        <datalist id="recording-groups">
+          {% for group in recording_groups %}
+            <option value="{{ group }}"/>
+          {% endfor %}
+        </datalist>
+        {{ new_fm_ws_form.gmt_time_zone(class="kiosk-dialog-textfield",
+                          labelclass="kiosk-dialog-label",
+                          errclass="kiosk-error-border",
+                          placeholder="leave empty or enter something like 'GMT-4'") }}
+        {{ new_fm_ws_form.options(class="kiosk-dialog-textfield",
+                          labelclass="kiosk-dialog-label",
+                          errclass="kiosk-error-border",
+                          placeholder="special options separated by semicolon") }}
+        {{ new_fm_ws_form.grant_access_to(class="kiosk-dialog-textfield",
+                          labelclass="kiosk-dialog-label",
+                          errclass="kiosk-error-border",
+                          placeholder="enter a user-id to restrict the workstation to a user") }}
+      </form>
+      <div class="dialog-modal-right-buttons">
+        <button id="bt-ok" class="modal-ok" type="submit"></button>
+        <button id="bt-cancel" class="modal-cancel"></button>
+      </div>
+    </div>
+  </div>
+  <script src="{{ url_for('kioskfilemakerworkstation.static', filename='scripts/kioskfilemakerworkstation.js') }}"></script>
+  <script>
+    ensureLibrariesAndinitPage();
+
+    function ensureLibrariesAndinitPage() {
+      if (typeof Awesomplete == 'undefined') {
+        setTimeout(ensureLibrariesAndinitPage, 500);
+      } else {
+        initPage();
+      }
+    }
+
+    function initPage() {
+      kioskInitAwesompleteComboBox("recording-group", "recording-groups","","100%", false)
+      $("#bt-ok").on("click", confirmPage);
+      $("#bt-cancel").on("click", cancelPage);
+      if (!$("#workstation-id").attr("disabled"))
+        $("#workstation-id").focus();
+      else
+        $("#description").focus();
+      kioskToastGeneralErrors();
+    }
+    //# sourceURL=kioskfilemakerworkstation-dialog.js
+  </script>
+{% endblock %}

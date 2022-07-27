@@ -1,0 +1,89 @@
+{% from 'dialogmacros.html' import kiosk_error_div, kiosk_error_span, kiosk_general_form_errors %}
+{% extends "basicmodaldialog.html" %}
+{% block dialog_css %}
+  <link rel="stylesheet"
+        href="{{ url_for('kioskfilemakerworkstation.static', filename='kioskfilemakerworkstation.css') }}">
+{% endblock %}
+{% block kiosk_modal_dialog_id %}id="modal-confirm-sync"{% endblock %}
+{% block kiosk_modal_dialog_classes %}.kiosk-modal-dialog-medium{% endblock %}
+{% block kiosk_modal_dialog_name %}Synchronization{% endblock %}
+{% block kiosk_modal_dialog_image %}
+  <i class="fas fa-mortar-pestle header-icon"></i>
+{% endblock %}
+{#{% block kiosk_modal_dialog_header %}#}
+{#    <div class="kfw-workstation-header">#}
+{#      {% if ws.icon_code %}#}
+{#        <div class="kfw-workstation-icon">#}
+{#          <i class="fas">{{ ws.icon_code }}</i>#}
+{#        </div>#}
+{#      {% elif ws.icon_url %}#}
+{#        <div class="kfw-workstation-image" style="background: url('{{ url_for(ws.icon_url) }}')"></div>#}
+{#      {% else %}#}
+{#        <div class="kfw-workstation-icon">#}
+{#          <i class="fas fa-tablet-alt"></i>#}
+{#        </div>#}
+{#      {% endif %}#}
+{##}
+{#      <div class="workstation-name workstation-title-color">#}
+{#        <p>{{ ws.description }} <span class="workstation-id">[ {{ ws.id }} ]</span></p>#}
+{#        <h3 id="dialog-subtitle">Your next options</h3>#}
+{#      </div>#}
+{#    </div>#}
+{#{% endblock %}#}
+{% block kiosk_modal_dialog_content %}
+  <div id="modal-confirm-sync" class="mfp-with-anim">
+    <div id="modal-confirm-sync-inner">
+      <div>
+        <div>
+          <p id="sync-msg">{{ sync_msg }}</p>
+        </div>
+        {% if allow %}
+          <div class="sync-options">
+            <h4>synchronization options</h4>
+            <form id="sync-options-form">
+
+              {{ sync_options_form.csrf_token }}
+              {{ sync_options_form.so_rewire_duplicates(class="kiosk-dialog-checkbox",
+                            errclass="kiosk-error-border",
+                            labelclass="kiosk-dialog-label") }}
+              {{ sync_options_form.so_drop_duplicates(class="kiosk-dialog-checkbox",
+                            errclass="kiosk-error-border",
+                            labelclass="kiosk-dialog-label") }}
+              {{ sync_options_form.so_ignore_file_issues(class="kiosk-dialog-checkbox",
+                            errclass="kiosk-error-border",
+                            labelclass="kiosk-dialog-label") }}
+              {{ sync_options_form.so_safe_mode(class="kiosk-dialog-checkbox",
+                            errclass="kiosk-error-border",
+                            labelclass="kiosk-dialog-label") }}
+              {{ sync_options_form.so_housekeeping(class="kiosk-dialog-checkbox",
+                            errclass="kiosk-error-border",
+                            labelclass="kiosk-dialog-label") }}
+            </form>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock %}
+{% block kiosk_modal_dialog_after %}
+  <script>
+    ensureLibrariesAndinitDialog();
+
+    function ensureLibrariesAndinitDialog() {
+      kioskStartWhenReady(() => {
+        {#initCollapsibles();#}
+        kioskActivateButton($("#bt-next"), null);
+        kioskActivateButton($("#bt-back"), null);
+        {% if allow %}
+          kioskActivateButton($("#bt-ok"), syncManagerStartSynchronization);
+        {% else %}
+          kioskActivateButton($("#bt-ok"), null);
+        {% endif %}
+        kioskActivateButton($("#bt-close"), null);
+        kioskActivateButton($("#bt-delete"), null);
+        kioskActivateButton($("#bt-cancel"), syncManagerDontSynchronize);
+      })
+    }
+  </script>
+{% endblock %}
+

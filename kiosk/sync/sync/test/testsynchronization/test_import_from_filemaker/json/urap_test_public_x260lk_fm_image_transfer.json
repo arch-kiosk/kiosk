@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1,
+    "uid_file": "2f10c871-1a20-4b03-ba68-07ee857b8e2b",
+    "filepath_and_name": "C:\\Users\\Lutz\\AppData\\Local\\Temp\\pytest-of-Lutz\\pytest-749\\test_fork0\\data\\file_repository\\2f\\2f10c871-1a20-4b03-ba68-07ee857b8e2b.jpg",
+    "location": "internal",
+    "resolution": "low",
+    "disabled": false,
+    "file_type": "jpg",
+    "file_size": 177451
+  },
+  {
+    "id": 2,
+    "uid_file": "31c70ca0-6cb9-4907-8c22-c158485ed23b",
+    "filepath_and_name": "C:\\Users\\Lutz\\AppData\\Local\\Temp\\pytest-of-Lutz\\pytest-749\\test_fork0\\data\\file_repository\\cache\\1024x768\\31c70ca0-6cb9-4907-8c22-c158485ed23b.jpg",
+    "location": "internal",
+    "resolution": "low",
+    "disabled": false,
+    "file_type": "jpg",
+    "file_size": 123084
+  },
+  {
+    "id": 3,
+    "uid_file": "9cab65cb-1368-4659-be5a-e2eaf132aa43",
+    "filepath_and_name": "C:\\Users\\Lutz\\AppData\\Local\\Temp\\pytest-of-Lutz\\pytest-749\\test_fork0\\data\\file_repository\\cache\\1024x768\\9cab65cb-1368-4659-be5a-e2eaf132aa43.png",
+    "location": "internal",
+    "resolution": "low",
+    "disabled": false,
+    "file_type": "png",
+    "file_size": 1561190
+  },
+  {
+    "id": 4,
+    "uid_file": "0d09f3c4-0f67-403d-80e0-bab677bbc0b7",
+    "filepath_and_name": "C:\\Users\\Lutz\\AppData\\Local\\Temp\\pytest-of-Lutz\\pytest-749\\test_fork0\\data\\file_repository\\cache\\1024x768\\0d09f3c4-0f67-403d-80e0-bab677bbc0b7.jpg",
+    "location": "internal",
+    "resolution": "low",
+    "disabled": false,
+    "file_type": "jpg",
+    "file_size": 105165
+  },
+  {
+    "id": 5,
+    "uid_file": "e72c73dc-abf5-4168-b290-c8f2ff2aaf29",
+    "filepath_and_name": "C:\\Users\\Lutz\\AppData\\Local\\Temp\\pytest-of-Lutz\\pytest-749\\test_fork0\\data\\file_repository\\cache\\1024x768\\e72c73dc-abf5-4168-b290-c8f2ff2aaf29.jpg",
+    "location": "internal",
+    "resolution": "low",
+    "disabled": false,
+    "file_type": "NEF",
+    "file_size": 68005
+  },
+  {
+    "id": 6,
+    "uid_file": "458f0838-305b-48ac-b68f-935fa0e4f09f",
+    "filepath_and_name": "C:\\Users\\Lutz\\AppData\\Local\\Temp\\pytest-of-Lutz\\pytest-749\\test_fork0\\data\\file_repository\\45\\458f0838-305b-48ac-b68f-935fa0e4f09f.png",
+    "location": "internal",
+    "resolution": "low",
+    "disabled": false,
+    "file_type": "png",
+    "file_size": 4192
+  },
+  {
+    "id": 7,
+    "uid_file": "fa886c46-12e7-41f1-84eb-ed02929f4cd8",
+    "filepath_and_name": "C:\\Users\\Lutz\\AppData\\Local\\Temp\\pytest-of-Lutz\\pytest-749\\test_fork0\\data\\file_repository\\fa\\fa886c46-12e7-41f1-84eb-ed02929f4cd8.svg",
+    "location": "internal",
+    "resolution": "low",
+    "disabled": false,
+    "file_type": "svg",
+    "file_size": 3208
+  },
+  {
+    "id": 8,
+    "uid_file": "4e10c871-1a20-4b03-ba68-07ee857b8e2b",
+    "filepath_and_name": "dummy",
+    "location": "internal",
+    "resolution": "dummy",
+    "disabled": true,
+    "file_type": "avi",
+    "file_size": 0
+  }
+]

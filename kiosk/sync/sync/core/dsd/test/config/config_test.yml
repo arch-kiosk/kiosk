@@ -1,0 +1,84 @@
+'Flask':
+  SOME_OPERATION: 'Something'
+  SECRET_KEY: "A normal Key"
+  EXPLAIN_TEMPLATE_LOADING: True
+
+config:
+  project_id: 'urap'
+  sync: '%base_path%\sync\sync\core\dsd\test'
+  sync_plugin_directory: '%base_path%\sync\sync\sync_plugins'
+  custom_sync_modules: '%base_path%\sync\sync\custom'
+  logfile: '%sync%\urap_dev.log'
+  log_to_screen: False
+  autoload_plugins: ["filemakerrecording"]
+  dataset_definition: '%sync%\config\test_dsd3.yml'
+  filemaker_export_dir: '%sync%\data\filemaker\to_work_station'
+  filemaker_import_dir: '%sync%\data\filemaker\from_work_station'
+  filemaker_template: '%sync%\data\filemaker\urap2020_template.fmp12'
+  expected_filemaker_template_version: "8.9.6"
+  filemaker_db_filename: URAP2020.fmp12
+  filemaker_encoding: UTF-8
+  odbc_ini_dsn: filemaker_odbc
+  database_name: urap_test
+  file_repository: '%sync%\data\file_repository'
+  default_resolution: high
+  file_handling_definition: '%sync%\config\file_handling.yml'
+  default_file_handling: local_computer
+  fork_ignore_missing_files: True
+  log_level: 'DEBUG'
+  static_image_path: '%base_path%\static\assets\images'
+file_repository:
+  representations:
+    small:
+      label: "small thumbnail"
+      inherits: "master"
+      dimensions: 128,128
+      format_request: default
+    small_no_exif:
+      label: "small thumbnail"
+      inherits: "master"
+      dimensions: 128,128
+      format_request: default
+      required_manipulations: ["DROP_EXIF_DATA"]
+    medium:
+      label: "medium thumbnail"
+      inherits: "master"
+      dimensions: 256,256
+      format_request: default
+      extension: jpg
+    master:
+      format_request: default
+      extension: jpg
+      dimensions: 4000,2000
+    1024x786jpg:
+      inherits: "master"
+      format_request: default
+      extension: jpg
+      dimensions: 1024,768
+    1024x786png:
+      inherits: "master"
+      format_request: default
+      extension: png
+      dimensions: 1024,768
+    rotate_master:
+      format_request: default
+      required_manipulations: ["FIX_ROTATION"]
+    rotate_master_child:
+      inherits: rotate_master
+      format_request: default
+      required_manipulations: ["FIX_ROTATION", "DROP_EXIF_DATA"]
+
+
+  auto_representations: ['medium', 'small', 'small_no_exif']
+  thumbnails: ['small', 'medium']
+  standard_format_requests:
+    default:
+        "*": "JPEG"
+        "PNG": "!"
+        "NEF": "JPEG"
+        "HEIC": "JPEG"
+
+
+file_handlers:
+  plugins: ["defaultfilehandling", "heicfilehandling"]
+

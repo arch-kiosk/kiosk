@@ -1,0 +1,11 @@
+config:
+  format_version: 3
+
+repl_deleted_uids_2:
+  structure:
+    2:
+      uid: [datatype(UUID), primary(), unique(), default('gen_random_uuid()')]
+      deleted_uid: [datatype(UUID)]
+      table: [datatype(VARCHAR)]
+      repl_workstations_id: [datatype(VARCHAR)]
+      modified: [datatype(TIMESTAMP)]

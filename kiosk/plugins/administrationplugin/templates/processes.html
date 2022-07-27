@@ -1,0 +1,65 @@
+{% extends "kioskbasic.html" %}
+{% block links %}
+  {#  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles/materialize/materialize.css') }}?v=1"/>#}
+  <link rel=stylesheet type=text/css href="{{ url_for('administration.static', filename='administration.css') }}?v=1"/>
+{% endblock %}
+{% block title %}
+  <div id="subtitle-shadow">Kiosk</div>
+  <div id="subtitle">Processes</div>
+{% endblock %}
+{% block body %}
+  <div class="process-wrapper">
+    <a href="{{ url_for('administration.administration_show') }}">
+      <i class='mdi mdi-arrow-left-bold' style='justify-self: center'></i> back to admin
+    </a>
+    {% if general_error %}
+      <div id="processes-general-error">
+        <h4>Process information is not available.</h4>
+        <p>
+          An Error occurred: <span id="general-error-text">{{ general_error }}</span>
+        </p>
+      </div>
+    {% else %}
+      <div id="process-list">
+        <h4>processes</h4>
+        <div class="admin-grid6 admin-plugins">
+          <div class="admin-sysinfo-entry"><label>process</label></div>
+          <div class="admin-sysinfo-entry"><label>type</label></div>
+          <div class="admin-sysinfo-entry"><label>status</label></div>
+          <div class="admin-sysinfo-entry"><label>data<br>result</label></div>
+          <div class="admin-sysinfo-entry"><label>progress</label></div>
+          <div class="admin-sysinfo-entry"><label>operation</label></div>
+          {% for p in processes %}
+            <div class="admin-sysinfo-entry">{% if p.project_id %} ({{ p.project_id }})-{% endif %}{{ p.job_id }}</div>
+            <div class="admin-sysinfo-entry">{{ p.type }}</div>
+            <div class="admin-sysinfo-entry">{{ p.str_status }}</div>
+            <div class="admin-sysinfo-entry">{{ p.data }}<br>{{ p.result }}</div>
+            <div class="admin-sysinfo-entry">{{ p.progress }}</div>
+            {% if p.job_status > states.JOB_STATUS_REGISTERED and p.job_status < states.JOB_STATUS_CANCELLING %}
+              <button class="kiosk-btn-32 process-cancel" uid="{{ p.job_id }}" disabled><i class="mdi mdi-cancel"></i>
+              </button>
+            {% else %}
+              <button class="kiosk-btn-32 process-delete" uid="{{ p.job_id }}" disabled><i class="mdi mdi-delete"></i>
+              </button>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+  {% if not general_error %}
+    <script>
+      ensureLibrariesAndinitProcesses();
+
+      function ensureLibrariesAndinitProcesses() {
+        if (typeof initCollapsibles == 'undefined') {
+          setTimeout(ensureLibrariesAndinitProcesses, 100);
+        } else {
+          initProcesses("{{ url_for('administration.processes_show') }}", "{{ url_for('administration.process_action') }}");
+        }
+      }
+
+      //# sourceURL=administration.js
+    </script>
+  {% endif %}
+{% endblock %}

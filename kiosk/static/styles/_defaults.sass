@@ -1,0 +1,162 @@
+// _defaults.sass
+// basic sass constants for kiosk applications
+// Don't put anything else in here than css custom properties.
+// No styles, no sass, nothing that needs compiling.
+// Unlike _basics.sass this file will be included by several other files
+//
+// Last updated: LK, 13.XI.2018
+
+:root
+  // #########################################
+  // Legacy Color Variables
+  // #########################################
+
+  --color-background: #ff875a /*#2480B2*/
+  --color-background-light: rgba(36, 128, 178, 0.6)
+  --color-white: white
+  --color-black: #353535
+  --color-background-transparent: rgba(36, 128, 178, 0.6)
+  --color-headline: rgb(40, 60, 40)
+  --color-headline-shadow: rgba(73, 112, 73, 0.1)
+  --color-light-grey: rgb(229, 232, 245)
+  --color-sand: #fffdd5
+  --color-sand-light: rgba(255, 238, 170, 0.7)
+  --color-reddish: #CC3702
+  --color-error-bg: #FF875A
+  --color-warning-bg: #fffdd5
+  --color-info-bg: var(--color-light-grey)
+  --color-green: #70b77e
+  --color-warning-accent: #FABC02
+  --color-error-accent: #FABC02
+  --color-info-accent: #2a63ab
+
+  // #########################################
+  // NEW PALETTE
+  // #########################################
+
+  //neutral body background
+
+  --col-bg-body: #ffffff /*white*/
+  --col-bg-body-lighter: #ffffff /*white*/
+  --col-bg-body-darker: #ffffff /*white*/
+
+  //Primary Background
+
+  --col-bg-1-darker: #237aa9 /*Creladon Blue*/
+  --col-bg-1: #2686ba /*Blue NCS*/
+  --col-bg-1-lighter: #2a93cb /*Blue NCS*/
+  --col-bg-1-input: white
+
+  --col-primary-bg-1: #353535 /*jet black */
+  --col-accent-bg-1: white /*white*/
+  --col-success-bg-1: #85c191 /*Forest Green Crayole*/
+  --col-warning-bg-1: #FABC02 /*Mango*/
+  --col-error-bg-1: #81280e /*Rufous*/
+
+  /*Secondary Background*/
+
+  --col-bg-2-darker: #2b99d4 /*Carolina Blue*/
+  --col-bg-2: #41a3d8 /*Carolina Blue*/
+  --col-bg-2-lighter: #4DA9DB /*Carolina Blue*/
+  --col-bg-2-input: #ffffff /* white*/
+  --col-bg-2-button: #353535 /*Jet Black*/
+
+  --col-primary-bg-2: #353535 /*Jet Black*/
+  --col-accent-bg-2: #ffffff /*white*/
+  --col-success-bg-2: #70b77e /*Forest Green Crayole*/
+  --col-warning-bg-2: #FABC02 /*Mango*/
+  --col-error-bg-2: #A22C02 /*Rufous*/
+
+
+  /*Ternary Background*/
+
+  --col-bg-3-darker: #80C2E5 /*Light Cornflower Blue*/
+  --col-bg-3: #95CCE9 /*Light Cornflower Blue*/
+  --col-bg-3-lighter: #AAD6EE /*Uranian Blue*/
+  --col-bg-3-input: #ffffff /* white*/
+  --col-bg-3-button: #353535 /*Jet Black*/
+
+  --col-primary-bg-3: #353535 /*Jet Black*/
+  --col-accent-bg-3: #ffffff /*white*/
+  --col-success-bg-3: #70b77e /*Forest Green Crayole*/
+  --col-warning-bg-3: #FABC02 /*Mango*/
+  --col-error-bg-3: #A22C02 /*Rufous*/
+
+  /*Acknowledge Background*/
+
+  --col-bg-ack-darker: #5cad6c /*Medium Sea Green*/
+  --col-bg-ack: #70b77e /*Forest Green Crayole*/
+  --col-bg-ack-lighter: #85c191 /*dark sea green*/
+
+  --col-primary-bg-ack: #353535 /*Jet Black*/
+  --col-accent-bg-ack: #ffffff /*white*/
+
+  /*Attention Background*/
+
+  --col-bg-att-darker: #DEA702 /*Goldenrod*/
+  --col-bg-att: #FABC02 /*Mango*/
+  --col-bg-att-lighter: #FDC317 /*Mikado Yellow*/
+
+  --col-primary-bg-att: #353535 /*Jet Black*/
+  --col-accent-bg-att: #ffffff /*white*/
+
+  /*Alert Background*/
+
+  --col-bg-alert-darker: #882501 /*Kobe*/
+  --col-bg-alert: #A22C02 /*Rufous*/
+  --col-bg-alert-lighter: #BB3302 /*Rust*/
+
+  --col-primary-bg-alert: #FABC02 /*Mango*/
+  --col-accent-bg-alert: #ffffff /*white*/
+
+  /*Button Background*/
+
+  --col-bg-btn-darker: var(--col-bg-1-darker)
+  --col-bg-btn: #353535 /*Jet Black*/
+  --col-bg-btn-lighter: #424242
+  --col-primary-bg-btn: white
+  --col-accent-bg-btn: var(--col-bg-2-lighter)
+
+  // a white variation:
+  //--col-bg-btn: #F9F9F9
+  //--col-bg-btn-lighter: #FFFFFF
+  //--col-bg-btn-darker: #F0F0F0
+  //--col-primary-bg-btn: #353535
+
+  /* #########################################
+   fonts and font sizes
+   ######################################### */
+  --standard-text-font: "Noto Sans", sans-serif
+  --main-headline-text-font: "Ubuntu", monospace
+  --monospace-font: "Source Code Pro", monospace
+  --headline-text-font: "Noto Sans", sans-serif
+  --button-text-font: "Noto Sans", sans-serif
+
+  //created with http://type-scale.com/, perfect fourth
+  --font-size-standard: 1rem
+  --font-size-h1: 2.827rem /*is like 44,198px*/
+  --font-size-h2: 1.999rem /*is like 33.166px*/
+  --font-size-h3: 1.414rem /* is like 24.878px */
+  --font-size-h4: 1rem /* is like 18.662px */
+  --font-small: 0.8rem /*like 10.5px*/
+  --font-size-button: 1rem
+
+  /* #########################################
+   buttons and icons
+   ######################################### */
+
+  --icon-bt-ok: "\f00c"
+  --icon-bt-close: "\f52b"
+  --icon-bt-next: "\f054"
+  --icon-bt-back: "\f053"
+  --icon-bt-cancel: "\f00d"
+  --icon-bt-trash: "\f1f8"
+  --icon-bt-down: "\f13a"
+
+  /* ##########################################
+    images
+   ######################################### */
+  --header-logo-img: url('/static/assets/images/kiosk_logo.png')
+  --header-logo-width: 180px
+  --header-logo-height: 120px
+  --current-user-svg: url('/static/assets/images/pharaoh-white.svg')

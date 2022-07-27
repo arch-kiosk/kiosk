@@ -1,0 +1,15 @@
+header:
+  version: 1.0
+mapping:
+  'director': 'n/a'
+  'context#': '#context_identifier'
+  'context#2': '#context_identifier'
+  'observation':
+   - '#description'
+   - append(' ','#interpretation')
+  'locus_relations': '#locus_relations_with_image'
+lists:
+  'locus_relations_with_image':
+    columns: ["relation_type", "to_locus", "uid_sketch"]
+    heading: ["relation type", "to locus", "sketch file"]
+    render_filename: "uid_sketch"

@@ -1,0 +1,121 @@
+{% extends "basicmodaldialog.html" %}
+{% block dialog_css %}
+  <link rel=stylesheet href="/filerepository/static/bulk-tag-dialog.css" type="text/css">
+{% endblock %}
+{% block kiosk_modal_dialog_id %}id="fr-bulk-tag-dialog"{% endblock %}
+{% block kiosk_modal_dialog_classes %}kiosk-modal-dialog-fullscreen{% endblock %}
+{% block kiosk_modal_dialog_name %}tag files{% endblock %}
+{% block kiosk_modal_dialog_image %}
+  <i class="fas fa-tags header-icon"></i>
+{% endblock %}{% block kiosk_modal_dialog_content %}
+  <div id="btag-dialog" class="pagecontrol-content grid-12 kiosk-modal-dialog-griddy">
+    {%  if true_tags %}
+      <div class="col-12 kiosk-collapsible-v2 collapsible-options">
+        <div class="col-12 kiosk-collapsible-header">
+            <p>Tags found on all of the marked files</p>
+            <div class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></div>
+        </div>
+        <div class="col-12 kiosk-collapsible-content">
+          <div class="btag-tag-list">
+            <div class="btag-tag-list-tag btag-tag-list-header">tag</div>
+            <div class="btag-tag-list-action btag-tag-list-header">select an action</div>
+            {% for t in true_tags %}
+              <div class="btag-tag-list-tag">
+                {{ t }}
+              </div>
+              <div class="btag-tag-list-action">
+                <select tag="{{ t }}" class="btag-list-select">
+                  <option value="" selected></option>
+                  <option value="untag">untag marked files</option>
+                </select>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+    </div>
+    {% endif %}
+    {%  if false_tags %}
+      <div class="col-12 kiosk-collapsible-v2 collapsible-options">
+          <div class="col-12 kiosk-collapsible-header">
+              <p>Tags found on none of the marked files</p>
+              <div class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></div>
+          </div>
+          <div class="col-12 kiosk-collapsible-content">
+            <div class="btag-tag-list">
+              <div class="btag-tag-list-tag btag-tag-list-header">tag</div>
+              <div class="btag-tag-list-action btag-tag-list-header">select an action</div>
+              {% for t in false_tags %}
+                <div class="btag-tag-list-tag">
+                  {{ t }}
+                </div>
+                <div class="btag-tag-list-action">
+                  <select tag="{{ t }}" class="btag-list-select">
+                    <option value="" selected></option>
+                    <option value="tag">tag marked files</option>
+                  </select>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+      </div>
+    {% endif %}
+    {%  if undefined_tags %}
+      <div class="col-12 kiosk-collapsible-v2 collapsible-options">
+        <div class="col-12 kiosk-collapsible-header">
+            <p>Tags only found on some of the marked files</p>
+            <div class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></div>
+        </div>
+        <div class="col-12 kiosk-collapsible-content">
+          <div class="btag-tag-list">
+            <div class="btag-tag-list-tag btag-tag-list-header">tag</div>
+            <div class="btag-tag-list-action btag-tag-list-header">select an action</div>
+            {% for t in undefined_tags %}
+              <div class="btag-tag-list-tag">
+                {{ t }}
+              </div>
+              <div class="btag-tag-list-action">
+                <select tag="{{ t }}" class="btag-list-select">
+                  <option value="" selected></option>
+                  <option value="untag">untag marked files</option>
+                  <option value="tag">tag marked files</option>
+                </select>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+    </div>
+    {% endif %}
+  <div class="changed-tags-counter">
+    <p id="changed-tags-label"></p>
+  </div>
+  <div class="col-12 kiosk-collapsible-v2 collapsible-options new-tags-collapsible">
+        <div class="col-12 kiosk-collapsible-header">
+            <p>create new tags to tag all of the marked files</p>
+            <div class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></div>
+        </div>
+        <div class="col-12 kiosk-collapsible-content">
+          <label for="new-tags" class="kiosk-dialog-label">tags</label>
+          <input id="new-tags" class="kiosk-dialog-textfield" type="text" placeholder="Enter tags separated by comma">
+        </div>
+    </div>
+  </div>
+{% endblock %}
+{% block kiosk_modal_dialog_after %}
+  <script>
+      initCollapsibles();
+      openOnlyCollapsible("#btag-dialog");
+      kioskShowFooter(true);
+      kioskActivateButton($("#bt-next"), null);
+      kioskActivateButton($("#bt-back"), null);
+      //kioskActivateButton($("#bt-ok"), null);
+      //kioskDisableButton($("#bt-ok"), true);
+      kioskActivateButton($("#bt-close"), null);
+      kioskActivateButton($("#bt-delete"), null);
+
+      kioskActivateButton($("#bt-cancel"), () => {
+        $.magnificPopup.close();
+      });
+      kioskActivateButton($("#bt-ok"), startBulkTagging);
+      initBulkTaggingSelections()
+  </script>
+{% endblock %}

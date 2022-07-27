@@ -1,0 +1,87 @@
+{% from 'dialogmacros.html' import kiosk_error_div, kiosk_error_span, kiosk_general_form_errors %}
+<div id="run-options-form-div">
+  {{ kiosk_general_form_errors(general_errors) }}
+  <form id="run-options-form">
+    {{ rdv_form.csrf_token }}
+    {{ rdv_form.page_initialized() }}
+    <input id="dock_id" name="dock_id" type="hidden" value="{{ dock_id }}">
+    <input id="base_query" name="base_query" type="hidden" value="{{ base_query }}">
+    <div class="grid-12">
+      <div class="col-12">
+        {% if variables %}Please provide some additional information and then hit the Ok button to run your report.
+        {% else %}Your report is ready to start. Just hit the Ok button.
+        {% endif %}
+      </div>
+      {% for variable_name, variable in variables.items() %}
+        <div class="col-12">
+          <label class="kiosk-dialog-label" for="{{ variable_name }}">{{ variable_name }}</label>
+          <input type="text" class="kiosk-dialog-textfield" name="{{ variable_name }}" id="{{ variable_name }}"
+                 value="{{ variable }}">
+        </div>
+      {% endfor %}
+      <div class="col-12">
+        <div>{{ rdv_form.zip_output_files(class="kiosk-dialog-checkbox",
+                      errclass="kiosk-error-border",
+                      labelclass="kiosk-dialog-label") }}
+        </div>
+      </div>
+    </div>
+  </form>
+  <script>
+
+      //Initialization code
+
+      kioskShowFooter(true);
+      kioskActivateButton($("#bt-ok"), runReport);
+      kioskActivateButton($("#bt-back"), null);
+      kioskActivateButton($("#bt-next"), null);
+      kioskActivateButton($("#bt-close"), null);
+      kioskActivateButton($("#bt-cancel"), () => {
+          $.magnificPopup.close();
+      });
+
+      initLocalDialog();
+
+      //methods
+
+      function initLocalDialog() {
+          let base_queries = $(".base-query-selection")
+          if (base_queries.length === 1) {
+              goto_next_page(base_queries[0].find("h3").text());
+          } else {
+              base_queries.click((This) => {
+                  let pressed_name = $(This.currentTarget).find("h3").text();
+                  goto_next_page(pressed_name);
+              });
+          }
+      }
+
+      function runReport() {
+          let dock_id = $("#dock_id").val()
+          let base_query = $("#base_query").val()
+
+          kioskSendAjaxForm($("#bt-ok").first(),
+              $("#run-options-form-div"),
+              `kioskreportingdock/run/${dock_id}/${base_query}`,
+
+              onFormEvaluated, onFormFailure)
+      }
+
+      function onFormFailure(xhr, status, errorThrown, state_data) {
+          kioskErrorToast(`<div>Sorry, There was an error: ${errorThrown} </div>`,
+              {
+                  onClosing: () => {
+                      $.magnificPopup.close();
+                  }
+              });
+      }
+
+      function onFormEvaluated(jq_form, state_data) {
+          if (!kioskElementHasErrors($("#run-options-form-div"))) {
+              $.magnificPopup.close();
+          }
+      }
+
+      //# sourceURL=reportingdockrunvariables-form.js
+  </script>
+</div>

@@ -1,0 +1,159 @@
+{% from 'dialogmacros.html' import kiosk_error_div, kiosk_error_span, kiosk_general_form_errors %}
+{% extends "basicmodaldialog.html" %}
+{% block dialog_css %}
+  <link rel="stylesheet" href="{{ url_for('kioskfilemakerworkstation.static', filename='kioskfilemakerworkstation.css') }}">
+{% endblock %}
+{% block kiosk_modal_dialog_id %}id="filemaker-workstation-actions-dialog"{% endblock %}
+{% block kiosk_modal_dialog_classes %}.kiosk-modal-dialog-medium{% endblock %}
+{% block kiosk_modal_dialog_name %}Your options{% endblock %}
+{% block kiosk_modal_dialog_header %}
+    <div class="kfw-workstation-header">
+      {% if ws.icon_code %}
+        <div class="kfw-workstation-icon">
+          <i class="fas">{{ ws.icon_code }}</i>
+        </div>
+      {% elif ws.icon_url %}
+        <div class="kfw-workstation-image" style="background: url('{{ url_for(ws.icon_url) }}')"></div>
+      {% else %}
+        <div class="kfw-workstation-icon">
+          <i class="fas fa-tablet-alt"></i>
+        </div>
+      {% endif %}
+
+      <div class="workstation-name workstation-title-color">
+        <p>{{ ws.description }} <span class="workstation-id">[ {{ ws.id }} ]</span></p>
+        <h3 id="dialog-subtitle">Your next options</h3>
+      </div>
+    </div>
+{% endblock %}
+{% block kiosk_modal_dialog_content %}
+  <div id="dialog-ajax-part" class="pagecontrol-content kiosk-modal-dialog-griddy">
+    {{ kiosk_general_form_errors(general_errors) }}
+  </div>
+    <div id="dialog-workzone">
+      <div id="workstation-options">
+        {% if ws.has_no_next_option_msg(current_plugin_controller) %}
+          <div class="workstation-option-frame">
+            <p class="nothing-todo-option">{{ ws.has_no_next_option_msg(current_plugin_controller) }} </p>
+          </div>
+        {% else %}
+          <h4>That's next:</h4>
+          {% for o in ws.get_priority_options( current_plugin_controller ) %}
+            {% if o.upload %}
+              <div class="workstation-option-frame">
+                <div class="workstation-option-marker-green"></div>
+                <div id="drop-area-div" class="workstation-option {% if o.low %} workstation-option-low{% endif %}">
+                  <input id="file-upload" data="{{ ws.id }}" type="file" name="files[]">
+                  <h3>{{ o.caption }}</h3>
+                  <p>{{ o.description }}</p>
+                </div>
+              </div>
+            {% else %}
+              <div class="workstation-option-frame">
+                <div class="workstation-option-marker workstation-option-marker-green"
+                    {% if o.disabled %} disabled{% endif %}></div>
+                <div id="{{ o.css_id }}" class="workstation-option {% if o.low %} workstation-option-low{% endif %}"
+                     {% if o.disabled %} disabled{% else %} onclick="{{ o.onclick }}"{% endif %}>
+                  <h3>{{ o.caption }}</h3>
+                  <p>{{ o.description }}</p>
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+        {% if ws.get_low_options( current_plugin_controller ) %}
+          <div id="more-options" class="kiosk-collapsible-v2">
+            <div class="kiosk-collapsible-header">
+              <h4>more options</h4>
+              <div id="workstation-options-clicker">
+                <i class="fas kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></i>
+              </div>
+            </div>
+            <div class="kiosk-collapsible-content">
+              {% for o in ws.get_low_options( current_plugin_controller ) %}
+                {% if o.upload %}
+                  <div class="workstation-option-frame">
+                    <div class="workstation-option-marker-neutral"></div>
+                    <div id="drop-area-div" class="workstation-option {% if o.low %} workstation-option-low{% endif %}">
+                      <input id="file-upload" data="{{ ws.id }}" type="file" name="files[]">
+                      <h3>{{ o.caption }}</h3>
+                      {% if o.disabled %}
+                      <p>This option is not available in the workstation's current state</p>
+                      {% else %}
+                      <p>{{ o.description }}</p>
+                      {%  endif %}
+                    </div>
+                  </div>
+                {% else %}
+                  <div class="workstation-option-frame">
+                    <div class="workstation-option-marker {% if o.warning %}
+                                   workstation-option-marker-red
+                                {% else %}
+                                  workstation-option-marker-neutral
+                                {% endif %}" {% if o.disabled %} disabled{% endif %}>
+                    </div>
+                    <div id="{{ o.css_id }}" class="workstation-option{% if o.low %} workstation-option-low{% endif %}"
+                         {% if o.disabled %} disabled{% else %} onclick="{{ o.onclick }}"{% endif %}>
+                      <h3>{{ o.caption }}</h3>
+                      {% if o.disabled %}
+                      <p>This option is not available in the workstation's current state</p>
+                      {% else %}
+                      <p>{{ o.description }}</p>
+                      {%  endif %}
+                    </div>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+      {% endif %}
+      </div>
+    </div>
+
+{% endblock %}
+{% block kiosk_modal_dialog_after %}
+  <script src="{{ url_for('kioskfilemakerworkstation.static',
+                  filename='scripts/kioskfilemakerworkstationactions.js') }}"></script>
+  <script>
+      ensureLibrariesAndinitDialog();
+
+      function ensureLibrariesAndinitDialog() {
+        if (typeof initCollapsibles == 'undefined' || typeof kfw_initFileUpload == 'undefined') {
+          setTimeout(ensureLibrariesAndinitDialog, 100);
+        } else {
+          kioskStartWhenReady(() => {
+            initCollapsibles();
+            kioskActivateButton($("#bt-next"), null);
+            kioskActivateButton($("#bt-back"), null);
+            kioskActivateButton($("#bt-ok"), null);
+            kioskActivateButton($("#bt-close"), () => {
+              $.magnificPopup.close()
+            });
+            kioskActivateButton($("#bt-delete"), null);
+            kioskActivateButton($("#bt-cancel"), null);
+            kfw_initFileUpload();
+            $.magnificPopup.instance.ev.on("mfpBeforeClose", mfpActionsOnClose);
+          })
+        }
+      }
+
+      function mfpActionsOnClose() {
+        console.log("cancelling dmuploader");
+        try {
+          $("#drop-area-div").dmUploader("cancel")
+          console.log("dmUploader destroyed");
+          console.log("dmUploader destroyed again");
+        }
+        catch (e) {
+          console.log("dmUploader exception when cancelling:");
+          console.log(e.message)
+        }
+        finally {
+          $.magnificPopup.instance.ev.off("mfpBeforeClose", mfpActionsOnClose);
+        }
+
+      }
+  </script>
+{% endblock %}
+
+

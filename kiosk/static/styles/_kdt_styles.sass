@@ -1,0 +1,233 @@
+#kdt-headers
+  display: flex
+  flex-direction: column
+
+  margin-left: 20px
+  margin-right: 20px
+  margin-top: 10px
+#kdt-header
+  display: flex
+  flex-wrap: wrap
+  flex-shrink: 0
+  margin-bottom: 10px
+  background-color: white
+
+#kdt-logogroup
+  border: 0px
+
+#kdt-logo
+  float: left
+  background: white
+  //height: 125px
+  border-right: 10px solid white
+  overflow-y: hidden
+
+  #kdt-img
+    //background: $header-logo-img no-repeat
+    background: url("/custom/kiosk_logo.png") no-repeat
+    background-size: auto
+    background-position: left
+    width: 100px
+    height: 66px
+    //@media #{$screen-max-800}
+    //  width: 135px
+    //  height: 90px
+    //@media #{$screen-phone-portrait}
+    //  width: 90px
+    //  height: 65px
+
+#kdt-maintitlegroup
+  //margin-top: 5px
+  z-index: 10
+
+#kdt-logotext
+  position: relative
+  float: left
+  padding-left: 10px
+  display: flex
+  flex-direction: column
+  flex-wrap: nowrap
+  justify-content: space-between
+  //height: 120px
+  //background-color: $color-background
+  overflow: hidden
+  @media #{$screen-max-800}
+    height: 90px
+
+  @media #{$screen-phone-portrait}
+    height: 65px
+
+
+#kdt-maintitle
+  font-size: 48px
+  line-height: 1.5em
+  text-align: center
+  font-family: 'Roboto'
+  font-weight: bolder
+  color: #202020
+  //background: pink
+  letter-spacing: 2px
+  @media #{$screen-max-800}
+    font-size: $font-size-h2
+  @media #{$screen-phone-portrait}
+    font-size: $font-size-h3
+
+.outer-div
+  margin: 1em 20px 1em 20px
+
+.kdt-body
+  width: 100%
+  height: 100%
+  //background: grey
+
+h1
+  font-family: $monospace
+  font-size: 28px
+  font-weight: normal
+  margin-bottom: .5em
+
+.color-table
+  display: grid
+  justify-content: start
+  justify-items: left
+  row-gap: 5px
+  grid-template-columns: auto repeat(10, 50px)
+.color
+  display: flex
+  flex-direction: row
+
+.color-name
+  font-family: $monospace
+  font-size: 16px
+  line-height: 20px
+  text-align: center
+  font-weight: normal
+  display: inline-block
+  margin-right: 2em
+
+.swatch
+  width: 40px
+  height: 40px
+  border: solid #eeeeee 1px
+  padding: 4px
+  display: inline-block
+  margin-left: 2px
+.dummy
+  border: solid 1px #ffffff !important
+
+.label-90dg
+  transform: rotate(-90deg)
+  height: 90px
+  width: 2.5em
+  padding-top: 35px
+
+.sample
+  margin-top: 2em
+  background-color: $col-bg-body
+  border: solid black 2px
+  padding: 1em
+.sample-outer-div
+  background-color: $col-bg-1
+  padding: 1em
+.sample-header
+  display: flex
+  flex-direction: row
+  color: $col-primary-bg-1
+  border-bottom: solid 1px black
+  margin-bottom: 1em
+  h1
+    line-height: 28px
+    vertical-align: center
+.sample-icon
+  line-height: 28px
+  color: $col-accent-bg-1
+  font-size: 28px
+  margin-right: 1em
+
+.sample-text-field
+  width: 250px
+.kiosk-sample-label
+  font-size: 16px
+  font-family: $monospace
+  color: $col-primary-bg-1
+
+.error-text-field
+  width: 250px
+  border: 2px dashed $col-error-bg-1
+  color: $col-error-bg-1
+.error-label
+  background: $col-bg-alert
+  color: $col-primary-bg-alert
+  width: 250px
+.success-message
+  padding: .2em .5em .2em .5em
+  margin-bottom: 1em
+  background: $col-bg-ack
+  width: 100%
+  display: flex
+  flex-direction: row
+  align-items: center
+  border: 1px solid $col-bg-ack-darker
+  i
+    font-size: 18px
+    color: $col-primary-bg-ack
+.three-cols
+  display: flex
+  flex-direction: row
+.col-2
+  margin: 1em 3em 1em 3em
+  .warning-message
+    background-color: $col-bg-att
+    color: $col-accent-bg-att
+    //height: 80px
+    padding-bottom: .5em
+    width: 250px
+    text-align: center
+    p
+      border-top: solid $col-bg-att-darker 1px
+      color: $col-primary-bg-att
+      padding-top: .5em
+.col-3
+  margin: 1em 3em 1em 3em
+  .error-message
+    background-color: $col-bg-alert
+    color: $col-accent-bg-alert
+    //height: 80px
+    padding-bottom: .5em
+    width: 250px
+    text-align: center
+    p
+      border-top: solid $col-bg-alert-darker 1px
+      padding-top: .5em
+      color: $col-primary-bg-alert
+.text-on-bg
+  display: flex
+  flex-direction: row
+  width: 100%
+  justify-content: space-between
+  margin-bottom: 1em
+  p
+    &:first-child
+      color: $col-success-bg-1
+      font-weight: bold
+    &:nth-child(2)
+      color: $col-error-bg-1
+      font-weight: bold
+    &:nth-child(3)
+      color: $col-warning-bg-1
+      font-weight: bold
+
+.kiosk-header
+  margin-top: 1em
+  margin-bottom: 1em
+  padding: 1em
+  border: solid 2px black
+  background-color: $col-bg-body
+
+#file-selection
+  .awesomplete
+    width: calc(100% - 36px)
+    float: left
+
+#restore-drop-down .dropdown-btn
+  float: left

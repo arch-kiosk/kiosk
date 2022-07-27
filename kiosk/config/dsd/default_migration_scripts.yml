@@ -1,0 +1,162 @@
+config:
+  format_version: 3
+
+  migration_scripts:
+    urap_arch_context:
+#      This migration script runs as soon as the arch_contexts are added to all tables in the structure
+#      Its purpose is to transport the old archaeological context for urap to the new arch_context and
+#      arch_domain
+      projects: ["urap"]
+      migration: "sql\\urap_migrate_to_arch_context.sql"
+      preconditions:
+        unit: 2
+        locus: 2
+        site: 2
+        collected_material: 2
+        pottery: 2
+
+    urap_unit_v2:
+#     This migration script runs as soon as the unit table has been migrated to version 2
+#     it sets the new fields unit.term_for_unit and unit.term_for_locus to appropriate values
+#     Flag 3: sets the unit method "excavation" to "locus recording"
+      projects: ["urap"]
+      migration: "sql\\urap_migrate_unit_terms.sql"
+      preconditions:
+        unit: 2
+      flags:
+        migrate_unit_terms: 3
+
+    urap_prepare_unit_id_for_int:
+#     This migration script runs as soon as the unit table has been migrated to version 2
+#     it sets the new fields unit.term_for_unit and unit.term_for_locus to appropriate values
+      projects: ["urap"]
+      migration: "sql\\urap_migrate_unit_ids.sql"
+      preconditions:
+        unit: 3
+      flags:
+        unit_id_int: 1
+
+    site_notes_v2:
+#     This migration script runs as soon as the site_notes table has been migrated to version 2.
+#     All it does is it corrects the arch_context of the site (ja, has nothing to do with site_notes)
+#     to the short_id
+      migration: "sql\\kiosk_migrate_site_arch_context.sql"
+      preconditions:
+        site_notes: 2
+
+    dayplan_switch_to_unit_uid:
+#     This migration script runs as soon as the table dayplan is up to version 2
+      migration: "sql\\dayplan_switch_to_unit_uid.sql"
+      preconditions:
+        dayplan: 2
+
+    unit_narrative_switch_to_unit_uid:
+#     This migration script runs as soon as the table unit_narrative is up to version 2
+      migration: "sql\\unit_narrative_switch_to_unit_uid.sql"
+      preconditions:
+        unit_narrative: 2
+
+    default_gen_uuid:
+#     This migration script runs if the table identification_methods is up to version 1 and the flag is not set.
+#     It runs only after all tables are migrated.
+      migration: "sql\\default_gen_uuid.sql"
+      options: [after_table_migration]
+      preconditions:
+        identification_methods: 1
+      flags:
+        default_gen_uuid: 1
+
+    tag_legacy_inventory_images:
+#     This migration script runs as soon as the table inventory is up to version 1
+#     and the flag "tag_legacy_inventory_images" is set. It sets the image tag of inventory images to
+#     "inventory"
+      migration: "sql\\tag_legacy_inventory_images.sql"
+      preconditions:
+        inventory: 1
+      flags:
+        tag_legacy_inventory_images: 1
+
+    tag_delete_file_identifier_cache:
+#     This migration script resets the file_identifier_cache.
+      migration: "sql\\tag_delete_file_identifier_cache.sql"
+      flags:
+        delete_file_identifier_cache: 3
+
+    add_filemaker_admin:
+#     This migration script adds and admin excavator if there is none
+      migration: "sql\\add_filemaker_admin.sql"
+      preconditions:
+        excavator: 2
+      flags:
+        add_filemaker_admin: 2
+
+    set_default_recording_group:
+#     This migration script sets the new field recording_group to the default value "default"
+      migration: "sql\\default_recording_group.sql"
+      preconditions:
+        repl_workstation: 2
+
+    set_default_workstation_type:
+#     This migration script sets the new field recording_group to the default value "default"
+      migration: "sql\\default_workstation_type.sql"
+      preconditions:
+        repl_workstation: 3
+      flags:
+        set_default_workstation_type: 2
+
+    rectify_null_defaults:
+#     This migration script converts the field value from 'Null' to null for all those fields
+#     with a default attribute of 'Null'
+      migration: "sql\\rectify_null_defaults.sql"
+      preconditions:
+        locus: 3
+      options: [after_table_migration,run_on_forked_datasets]
+      flags:
+        rectify_null_defaults: 4
+
+    locus_legacy_recorded_by_default:
+#     This migration script converts the field value from 'Null' to null for all those fields
+#     with a default attribute of 'Null'
+      migration: "sql\\locus_legacy_recorded_by_default.sql"
+      preconditions:
+        locus: 4
+      options: [run_on_forked_datasets]
+      flags:
+        locus_legacy_recorded_by_default: 1
+
+    drop_empty_dayplans:
+#     This migration script drops all dayplans that have neither an image nor a description
+      migration: "sql\\drop_empty_dayplans.sql"
+      preconditions:
+        dayplan: 2
+      flags:
+        drop_empty_dayplans: 2
+
+    add_collected_material_types:
+#     This migration script adds collected material types if there are none
+      migration: "sql\\add_collected_material_types.sql"
+      options: [after_table_migration]
+      preconditions:
+        collected_material_types: 1
+      flags:
+        add_collected_material_types: 1
+
+    amend_collected_material_type:
+#     This migration script sets the cm type for a cm record if missing
+      migration: "sql\\amend_collected_material_type.sql"
+      options: [after_table_migration]
+      preconditions:
+        collected_material_types: 1
+        collected_material: 4
+      flags:
+        amend_collected_material_type: 1
+
+    move_small_find_descriptions:
+#     This migration script appends the small find description to the collected material description
+      migration: "sql\\move_small_find_description.sql"
+      options: [after_table_migration]
+      preconditions:
+        collected_material_types: 1
+        collected_material: 4
+      flags:
+        move_small_find_descriptions: 1

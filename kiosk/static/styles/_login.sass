@@ -1,0 +1,84 @@
+
+
+/* Change autocomplete styles in WebKit */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus
+  border: 1px solid green
+  -webkit-text-fill-color: green
+  -webkit-box-shadow: 0 0 0px 1000px #000 inset
+  transition: background-color 5000s ease-in-out 0s
+  background-color: white
+
+
+//-----------------------------------------
+// LOGIN
+//-----------------------------------------
+.content-section
+  font-family: $standard-text
+  position: absolute
+  --margin-left: -100px
+  width: 275px
+  height: 200px
+  top: 50%
+  margin-top: -100px
+  left: 50%
+  margin-left: -150px
+
+#login-screen
+  visibility: visible
+  left: 240
+
+#userid-image
+  position: absolute
+  left: 10px
+  top: 10px
+  width: 48px
+
+.login-form
+  position: relative
+
+.login-edits
+  position: absolute
+  left: 70px
+  width: 200px
+  height: 64px
+  background-color: rgba(0,0,0,0)
+  border: 0
+  border-bottom: solid 2px #000000
+  font-size: 2em
+  font-family: "Noto Sans"
+#userpwd-image
+  position: absolute
+  left: 10px
+  top: 100px
+  width: 48px
+  margin-right: 12px
+#user-pwd
+  top: 90px
+
+#login-btn
+  position: absolute
+  right: 0px
+  top: 180px
+  width: 48px
+  height: 48px
+
+#login-message
+  margin-bottom: 1em
+  background: $color-error-bg
+  color: $color-white
+  width: 100%
+  text-align: center
+
+#wait-for-profile
+  margin-left: auto
+  margin-right: auto
+  font-family: $monospace
+  font-size: 18px

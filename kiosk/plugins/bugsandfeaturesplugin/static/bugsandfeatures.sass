@@ -1,0 +1,43 @@
+@import "../../../static/styles/_constants"
+
+.baf-filter
+  background: $color-background
+  margin-bottom: 2px
+  width: 100%
+  padding-top: 0.5em
+  padding-left: 0.5em
+  padding-right: 2em
+
+.baf-table-header, .baf-record
+  div
+    min-width: 5.5em
+
+.baf-table-header
+  background: $color-light-grey
+  border-bottom: 2px $color-black solid
+  font-weight: bold
+  div
+    border-right: 1px $color-white solid
+
+.baf-record
+  &:nth-child(odd)
+    background: $color-white
+  &:nth-child(even)
+    background: $color-light-grey
+  &:hover
+    background: $sand
+    cursor: pointer
+  div
+    &:first-child
+      word-break: break-all
+    &:nth-child(2)
+      @media #{$screen-phone}
+        min-width: 72vw
+
+
+
+//edit dialog
+#baf-edit-dialog
+  .kiosk-modal-dialog-image
+    background-image: url("/bugsandfeatures/static/assets/images/malware.svg")
+

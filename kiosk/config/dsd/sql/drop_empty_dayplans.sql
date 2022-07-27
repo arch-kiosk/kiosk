@@ -1,0 +1,1 @@
+delete from {{dayplan}} where uid_image is null and image_description is null

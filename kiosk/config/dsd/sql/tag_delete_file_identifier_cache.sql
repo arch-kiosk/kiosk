@@ -1,0 +1,1 @@
+drop table if exists "context_cache"."file_identifier_cache";

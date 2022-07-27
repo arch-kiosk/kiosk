@@ -1,0 +1,35 @@
+config:
+  format_version: 3
+  imports:
+    - test_import_migration_1.yml
+#    - test_import_migration_2.yml
+
+migration_catalog:
+  meta:
+    flags: [system_table]
+  structure:
+    1:
+      "uid": [datatype('UUID'), uuid_key()]
+      "table": [datatype('TEXT'), not_null(), unique()]
+      "table_definition": [datatype('TEXT'), not_null()]
+      "namespace": [datatype('TEXT'), default("''")]
+      "version": [datatype('INT'), not_null()]
+
+migration_flags:
+  meta:
+    flags: [system_table]
+  structure:
+    1:
+      "uid": [datatype('UUID'), uuid_key()]
+      "flag": [datatype('TEXT'), not_null(), unique()]
+      "value": [datatype('TEXT'), not_null()]
+
+test:
+  structure:
+    1:
+      name: [datatype("VARCHAR")]
+      uid: [datatype("REPLFIELD_UUID")]
+      created: [datatype("REPLFIELD_CREATED")]
+      modified: [datatype("REPLFIELD_MODIFIED")]
+      modified_by: [datatype("REPLFIELD_MODIFIED_BY"), default("sys")]
+

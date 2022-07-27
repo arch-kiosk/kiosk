@@ -1,0 +1,42 @@
+header:
+  version: 2.0
+  supported_extensions: nef, tiff, tif, jpg, jpeg, gif, png, bmp, raw, pcx, cr2, svg
+file_handling:
+  default:
+    low:
+      default:
+        storage:
+          location: internal
+          representation: none
+      NEF_TIF:
+        filter:
+          extensions: NEF, TIF, TIFF, RAW, CR2
+        storage:
+          location: internal
+          representation: 1024x768
+      1024x768:
+        filter:
+          max_scale: 1024,768
+          extensions: all
+        storage:
+          location: internal
+          representation: 1024x768
+    high:
+      default:
+        storage:
+          location: internal
+          representation: none
+      NEF_TIF:
+        filter:
+          extensions: NEF, TIF, TIFF, RAW, CR2
+        storage:
+          location: internal
+          representation: RAW2400x2500
+  low_max_size:
+    low:
+      settings:
+        max_file_size_kbytes: 3500
+      default:
+        storage:
+          location: internal
+          representation: none

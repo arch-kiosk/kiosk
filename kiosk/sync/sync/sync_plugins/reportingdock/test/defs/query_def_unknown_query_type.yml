@@ -1,0 +1,21 @@
+header:
+  version: 1.0
+variables:
+  context_identifier: [datatype(VARCHAR)]
+  material_type: [datatype(VARCHAR)]
+base_queries:
+  "This year's loci":
+    description: "creates a report of this year's loci/contexts"
+    type: 'SQL'
+    query: "
+    select arch_context from {{locus}} locus
+    where extract(year from locus.created) = extract(year from now())
+    "
+queries:
+  'context_data':
+    type: 'sql2'
+    query: '''
+    select * from something where 
+    something else is something and so on
+    '''
+    output_type: 'key-value-pairs'

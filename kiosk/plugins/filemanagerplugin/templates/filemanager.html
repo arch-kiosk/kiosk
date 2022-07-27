@@ -1,0 +1,55 @@
+{% extends "kioskbasic.html" %}
+{% block links %}
+{#  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles/materialize/materialize.css') }}?v=1"/>#}
+  <link rel=stylesheet type=text/css href="{{ url_for('filemanager.static', filename='filemanager.css') }}?v=1"/>
+{% endblock %}
+{% block title %}
+  <div id="subtitle-shadow">Kiosk</div>
+  <div id="subtitle">File Manager</div>
+{% endblock %}
+{% block body %}
+  <div class="filemanager-instructions">
+    Please select a topic for your file up- and downloads:
+  </div>
+  <div class="filemanager-directories">
+      <div class="fm-header"></div>
+      <div class="fm-header">topic</div>
+      <div class="fm-header">description</div>
+      <div class="fm-bool-col fm-header">changes restart sever</div>
+
+      {% for dir in directories %}
+        {% if dir.enabled %}
+          <div class="fm-select small-list-button"><i class="fas fa-arrow-circle-right"></i></div>
+          <div>{{ dir.alias }}</div>
+          <div>{{ dir.description }}</div>
+          <div class="fm-bool-col">
+            {% if dir.server_restart %}
+              <i class="fas fa-check-circle"></i>
+            {% else %}
+              <i class="far"></i>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endfor %}
+  </div>
+
+  <script src="{{ url_for('filemanager.static', filename='scripts/filemanager.js') }}?v=1"></script>
+  <script>
+    ensureLibrariesAndinitfilemanager();
+
+    function ensureLibrariesAndinitfilemanager(attempts=0) {
+      if (typeof initFileManager == 'undefined') {
+        if (attempts < 20) {
+          setTimeout(ensureLibrariesAndinitfilemanager, 300, attempts + 1);
+        } else {
+          kioskErrorToast("The filemanager cann not be initialized. " +
+            "Either your session has timed out or a page refresh might help. ")
+        }
+      } else {
+        initFileManager();
+      }
+    }
+
+    //# sourceURL=filemanagerplugin.js
+  </script>
+{% endblock %}

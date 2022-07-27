@@ -1,0 +1,43 @@
+{# dialogmacros #}
+{# collection of macros for (mostly modal) kiosk dialogs #}
+{# Last Updated LK, 30.X.2018#}
+
+
+{# kiosk_error_div macro #}
+{# #}
+{# shows a div of class kiosk-error-div and #}
+{# lists all field.errors as a ul in it#}
+{% macro kiosk_error_div(field, class='') %}
+    {% if field.errors %}
+    <div class="kiosk-error-div {{ class }}">
+        <ul>
+            {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+{% endmacro %}
+
+{# kiosk_error_span macro #}
+{# #}
+{# shows a div, too, but unlike kiosk_error_div it uses #}
+{# style class = "kiosk-error-line" and shows #}
+{# all field.errors as one line with a comma as separator#}
+{% macro kiosk_error_span(field, class='') %}
+{% if field.errors %}
+<div class="kiosk-error-line {{ class }}">
+({% for error in field.errors %}{% if loop.index > 1 %},{% endif %}{{ error }}{% endfor %})
+</div>
+{% endif %}
+{% endmacro %}
+
+{# kiosk_general_form_errors macro #}
+{# #}
+{# lists all general_errors.error elements #}
+{# as hidden divs so that they can be picked up #}
+{# by the javascript function kioskToastGeneralErrors() and turned into #}
+{# toast messages #}
+{% macro kiosk_general_form_errors(general_errors, style="display: none") %}
+{% for error in general_errors %}
+<div class="kiosk-general-form-error" style="{{ style }}">{{ error|safe }}</div>
+{% endfor %}
+{%  endmacro %}

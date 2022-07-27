@@ -1,0 +1,48 @@
+<div>
+  {% block dialog_css %}
+  {% endblock %}
+
+  {#    <script src="{{ url_for('static', filename='scripts/basicmodaldialog.js') }}"></script>#}
+
+  {% block kiosk_modal_dialog_before %}
+  {% endblock %}
+
+  <div {% block kiosk_modal_dialog_id %}{% endblock %}
+      class="mfp-with-anim kiosk-modal-dialog {% block kiosk_modal_dialog_classes %}{% endblock %}">
+    <div class="kiosk-modal-dialog-inner">
+      {% block kiosk_modal_dialog_header %}
+        <div class="kiosk-modal-dialog-header">
+          {% block kiosk_modal_dialog_image %}
+            <div class="kiosk-modal-dialog-image"></div>
+          {% endblock %}
+          <div class="kiosk-modal-dialog-name">
+            <h3 id="kiosk-modal-dialog-title">{% block kiosk_modal_dialog_name %}{% endblock %}</h3>
+          </div>
+        </div>
+      {% endblock %}
+      <div>
+        <div id="kiosk-modal-dialog-toasts"></div>
+        {% block kiosk_modal_dialog_content %}{% endblock %}
+      </div>
+      <div class="kiosk-modal-dialog-footer">
+        {#                {% block kiosk_modal_dialog_footer %}{% endblock %}#}
+        {% block kiosk_modal_dialog_footer %}
+          <div class="dialog-modal-buttons">
+            <div class="dialog-modal-left-buttons">
+              <button id="bt-delete" class="modal-delete"></button>
+            </div>
+            <div class="dialog-modal-right-buttons">
+              <button id="bt-close" class="modal-close"></button>
+              <button id="bt-ok" class="modal-ok" type="submit"></button>
+              <button id="bt-next" class="modal-next"></button>
+              <button id="bt-back" class="modal-back"></button>
+              <button id="bt-cancel" class="modal-cancel"></button>
+            </div>
+          </div>
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+  {% block kiosk_modal_dialog_after %}
+  {% endblock %}
+</div>

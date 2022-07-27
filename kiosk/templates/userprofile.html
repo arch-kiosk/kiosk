@@ -1,0 +1,32 @@
+<div id="mfp-user-profile" class="dialog mfp-with-anim">
+  <div class="dialog-inner">
+    <div class="dialog-header">
+      <div class="dialog-image img-user-profile"></div>
+      <div class="dialog-name"><h3>User Profile</h3></div>
+    </div>
+    <div>
+      <div id="mup-outer-wrapper">
+        <div id="dialog-alert"></div>
+        <!-- <div id="mup-image-data"> -->
+          <form id="mup-form" autocomplete="off"
+                action="{{ url_for('login_controller.user_profile', uuid=form.user_uuid.data) }}"
+                logout="{{ url_for('login_controller.logout') }}">
+            {{  form.hidden_tag() }}
+            {{ form.user_id.label(class_="dialog-label") }} {{ form.user_id(class_="dialog-input-field") }}
+            {{ form.user_name.label(class_="dialog-label") }} {{ form.user_name(class_="dialog-input-field") }}
+            {{ form.set_password(class_="dialog-checkbox") }} {{ form.set_password.label(class_="dialog-checkbox-label") }}
+            <div id="change-password">
+              {{ form.user_password.label(class_="dialog-label") }} {{ form.user_password(class_="dialog-input-field") }}
+              {{ form.user_password_check.label(class_="dialog-label") }} {{ form.user_password_check(class_="dialog-input-field") }}
+            </div>
+            <div class="dialog-button-bar">
+              <div class="dialog-standard-buttons">
+                <button id="mup-cancel" class="modal-cancel"></button><button id="mup-ok" class="modal-ok"></button>
+              </div>
+            </div>
+          </form>
+        <!-- </div> -->
+      </div>
+    </div>
+  </div>
+</div>

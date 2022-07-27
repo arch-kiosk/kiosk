@@ -1,0 +1,37 @@
+header:
+  version: 1.1
+  supported_extensions: nef, tiff, tif, jpg, jpeg, gif, png, bmp, raw, pcx, wmf
+file_handling:
+  ipad:
+    low:
+      default:
+        storage:
+          location: internal
+          representation: None
+      1024x768:
+        filter:
+          max_scale: 1024,768
+          extensions: all
+        storage:
+          location: internal
+          representation: 1024x786jpg
+      png_1024:
+        filter:
+          max_scale: 1024,768
+          extensions: png
+        storage:
+          location: internal
+          representation: 1024x786png
+      NEF_TIFF:
+        filter:
+          extensions: NEF,TIFF,TIF
+        storage:
+          location: internal
+          representation: 1024x786jpg
+      NEF_TIFF_Shrink:
+        filter:
+          max_scale: 1024, 768
+          extensions: NEF,TIFF,TIF
+        storage:
+          location: internal
+          representation: 1024x786jpg

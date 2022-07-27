@@ -1,0 +1,24 @@
+config:
+  test_mode: true
+  sync: '%base_path%\sync\sync\test'
+  logfile: '%base_path%\sync\sync\test\log\dev.log'
+  log_to_screen: True
+  dataset_definition: '%sync%\config\test_dsd.yml'
+  filemaker_export_dir: '%sync%\filemaker\to_work_station'
+  filemaker_import_dir: '%sync%\filemaker\from_work_station'
+  filemaker_template: '%sync%\test\testworkstation\data\recording_v12_template.fmp12'
+  expected_filemaker_template_version: "12"
+  filemaker_db_filename: recording_v12.fmp12
+  filemaker_encoding: UTF-8
+  odbc_ini_dsn: urap
+  database_name: test_urap_rep
+  file_repository: '%sync%\file_repository'
+  thumbnail_dir: '%file_repository%\thumbnails'
+  default_resolution: low
+  file_handling_definition: '.\config\file_handling.yml'
+  default_file_handling: local_computer
+  log_level: 'DEBUG'
+  static_image_path: '%base_path%\static\assets\images'
+  thumbnail_sets:
+    'small': 128,128
+    'medium': 256,256

@@ -1,0 +1,55 @@
+@import "../../../../../static/styles/_constants"
+@import ../reset
+
+//@media only screen and (max-width: 600px)
+//  font-size: 1.2rem
+
+\:host
+  //width: 45vw
+  max-width: 45vw
+  max-height: 45vh
+  background-color: $col-bg-body
+  display: block
+  border: solid 2px $col-bg-1-darker
+
+div, p
+  font-family: $standard-text
+
+.narrative-list
+  overflow-y: scroll
+  height: 100%
+  width: 100%
+  max-height: 35vh
+
+.headline
+  background-color: $col-bg-1-lighter
+  color: $col-primary-bg-1
+  //width: 100%
+  padding: 2px
+  font-weight: bold
+
+.controls
+  display: flex
+  flex-direction: row
+  background-color: $col-bg-1-lighter
+  color: $col-primary-bg-1
+  //width: 100%
+  padding: 2px
+  font-weight: bold
+  justify-content: space-between
+
+.no-narratives
+  padding: 2px
+
+
+.narrative
+  font-family: $standard-text
+  padding: .2em
+  border-bottom: $col-bg-1-darker 2px solid
+
+.narrative-headline
+  display: flex
+  flex-direction: row
+  justify-content: space-between
+  //font-size: 1.2em
+  font-weight: bold

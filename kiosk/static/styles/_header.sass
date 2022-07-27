@@ -1,0 +1,326 @@
+#homebtn
+  display: none
+
+#headers
+  display: flex
+  flex-direction: column
+
+  margin-left: 20px
+  margin-right: 20px
+  margin-top: 10px
+  @media #{$screen-max-500}
+    margin-left: 0px
+    margin-right: 0px
+
+#system-messages
+  //background-color: $color-background-light
+  //padding: 10px
+
+.system-message
+  border-style: solid
+  border-width: 2px
+  padding: 2px 1em
+  position: relative
+  margin-bottom: 10px
+
+  .message-headline
+    font-family: $headline-text
+    font-weight: bold
+    line-height: 2em
+  .message-body
+    font-family: $standard-text
+
+.system-message-icon
+  font-size: 1.2em
+  margin-right: .2em
+
+.system-message-icon.severity-info:before
+  content: ""
+  color: $col-accent-bg-ack
+
+
+.system-message-icon.severity-error:before
+  content: ""
+  color: $col-accent-bg-alert
+
+.system-message-icon.severity-warning:before
+  content: ""
+  color: $col-accent-bg-att
+
+.system-message.severity-error
+  background: $col-bg-alert-gradient
+  border-color: $col-bg-alert-darker
+  color: $col-primary-bg-alert
+  .message-headline
+    color: $col-accent-bg-alert
+
+.system-message.severity-warning
+  background: $col-bg-att-gradient
+  border-color: $col-bg-att-darker
+  color: $col-primary-bg-att
+  .message-headline
+    color: $col-accent-bg-att
+
+.system-message.severity-info
+  background: $col-bg-ack-gradient
+  border-color: $col-bg-ack-darker
+  color: $col-primary-bg-ack
+  .message-headline
+    color: $col-accent-bg-ack
+
+.system-message-close
+  display: block
+  position: absolute
+  right: 10px
+  top: 5px
+  font-size: 1.2em
+  cursor: pointer
+
+#header
+  display: flex
+  flex-wrap: wrap
+  flex-shrink: 0
+  margin-bottom: 10px
+  background-color: $col-bg-1
+
+#logogroup
+  border: 0px
+
+#logo
+  float: left
+  background: white
+  //height: 125px
+  border-right: 10px solid white
+  overflow-y: hidden
+  @media #{$screen-max-700}
+    border-right: 5px solid white
+  @media #{$screen-phone-portrait}
+    border-right: 3px solid white
+
+  #img
+    background: $header-logo-img no-repeat
+    background-size: 100%
+    background-position: center
+    width: $header-logo-width
+    height: $header-logo-height
+    @media #{$screen-max-800}
+      max-width: 135px
+      max-height: 90px
+    @media #{$screen-phone-portrait}
+      max-width: 90px
+      max-height: 65px
+
+#maintitlegroup
+  margin-top: 5px
+  z-index: 10
+
+#logotext
+  position: relative
+  float: left
+  padding-left: 10px
+  display: flex
+  flex-direction: column
+  flex-wrap: nowrap
+  justify-content: space-between
+  height: 120px
+  //background-color: $color-background
+  overflow: hidden
+  @media #{$screen-max-800}
+    height: 90px
+
+  @media #{$screen-phone-portrait}
+    height: 65px
+
+
+#maintitle
+  font-size: $font-size-h1
+  line-height: 1em
+  font-family: $main-headline-text
+  color: $col-accent-bg-1
+  letter-spacing: 2px
+  @media #{$screen-max-800}
+    font-size: $font-size-h2
+  @media #{$screen-phone-portrait}
+    font-size: $font-size-h3
+
+#smalltitle, #logo-top, #logo-bottom
+  font-family: $monospace
+  font-size: 1rem
+  text-shadow: $col-bg-1-darker 1px -1px
+  color: $col-primary-bg-1
+  font-weight: bold
+  line-height: 1em
+  margin-top: -1.1em
+  margin-left: 1em
+  @media #{$screen-max-800}
+    font-size: $font-small
+  @media #{$screen-phone-portrait}
+    font-size: $font-small
+    letter-spacing: -1px
+
+#logo-top
+  margin-left: 0.2em
+  margin-bottom: -0.5em
+  z-index: 1
+
+#logo-bottom
+  margin-left: 0.2em
+  margin-top: -0.1em
+  z-index: 1
+
+#subtitle-shadow
+  line-height: 1em
+  position: absolute
+  left: -40px
+  margin-bottom: 5px
+  bottom: -20px
+  font-family: $headline-text
+  font-size: 7em
+  font-weight: bold
+  //color: $col-bg-1-darker
+  color: rgba(10,10,10,0.075)
+  @media #{$screen-max-500}
+    display: none
+#subtitle
+  position: relative
+  bottom: 0
+  line-height: 1em
+  margin-bottom: 5px
+  font-family: "Source Sans Pro"
+  font-size: $font-size-h2
+  font-weight: bold
+  color: $col-primary-bg-1
+
+  z-index: 0
+  @media #{$screen-max-800}
+    font-size: $font-size-h3
+  @media #{$screen-max-500}
+    font-size: $font-size-h4
+    margin-bottom: 1px
+
+#menus
+  display: flex
+  min-width: 200px
+  background-color: $col-bg-1
+  margin-left: auto
+  margin-right: 0px
+  justify-content: flex-end
+  flex-grow: 1
+
+  @media #{$screen-max-600}
+    border-top: 5px solid white
+  @media #{$screen-phone-portrait}
+    border-top: 3px solid white
+    justify-content: space-between
+
+.dropdown
+  position: relative
+  //align-self: flex-start
+  height: 120px
+  width: 100px
+  background-color: $col-bg-1
+  padding-top: 30px
+  display: inline-block
+  @media #{$screen-max-800}
+    height: 90px
+    padding-top: 15px
+  @media #{$screen-phone-portrait}
+    height: auto
+    width: 64px
+    padding-top: 5px
+
+  /* Change the background color of the dropdown button when the dropdown content is shown */
+  .dropbtn
+    background-color: #3e8e41
+
+.dropdown-content
+  display: none
+  flex-direction: column
+  position: absolute
+  background-color: $col-bg-1
+  min-width: 300px
+  margin-left: -230px
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2)
+  z-index: 10
+
+  a
+    color: $col-primary-bg-1
+    padding: 12px 16px
+    display: block
+    font-size: 1.2em
+    &:hover
+      background-color: $col-bg-1-lighter
+
+/* Change color of dropdown links on hover */
+
+#user-menu
+  margin-left: -80px
+
+  @media #{$screen-phone-portrait}
+    margin-top: 16px
+    margin-left: 5px
+
+#currentuser
+  //position: relative
+  font-family: $main-headline-text
+  max-height: 120px
+  height: 100%
+  width: 64px
+  //padding-right: 20px
+  @media #{$screen-phone-portrait}
+    font-size: $font-small
+  #current-user-image
+    position: absolute
+    background-image: $current-user-image
+    box-shadow: none
+    display: block
+    width: 42px
+    height: 42px
+    top: 50%
+    margin-top: -21px
+    left: 50%
+    margin-left: -21px
+    z-index: 1
+    @media #{$screen-phone-portrait}
+      width: 36px
+      height: 36px
+      margin-left: -18px
+  p
+    display: block
+    text-align: center
+    position: absolute
+    top: 50%
+    margin-top: 24px
+    font-weight: bold
+    width: 100%
+    font-size: 10pt
+    max-height: 3em
+    overflow: hidden
+    word-wrap: break-word
+    z-index: 1
+    transition: all 500ms ease
+    line-height: 1em
+    @media #{$screen-phone-portrait}
+      margin-top: 16px
+  &:hover
+    cursor: context-menu
+  &:active
+    cursor: context-menu
+    border-radius: 42px
+    p
+      background-color: $col-bg-att
+      color: $col-primary-bg-att
+
+#currentuser.is-open
+  p
+    background-color: $col-bg-att
+    color: $col-primary-bg-att
+
+.main-menu-separator
+  background-color: $col-accent-bg-1
+  height: 2px
+  //margin: 15px 1em
+
+.main-menu-sub-menus
+  background-color: $col-bg-2
+

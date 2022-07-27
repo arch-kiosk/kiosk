@@ -1,0 +1,55 @@
+image_manipulation_sets:
+  qr_code_sahara:
+      name: QR Coded Sahara
+      description: Use this strategy to make QR Codes recognizable in a typical desert surrounding
+      strategies:
+        - cv2_qrcode_thresholding_0.5_63_0
+        - cv2_qrcode_thresholding_0.5_33_0
+        - cv2_qrcode_thresholding_0.5_63_7
+        - cv2_qrcode_thresholding_0.5_33_7
+        - cv2_qrcode_thresholding_1.0_33_0
+  qr_code_black_velvet:
+      name: black velvet
+      description: Use this strategy to optimize QR Codes shot on black velvet
+      strategies:
+        - cv2_thresholding_0.3_63_0
+        - cv2_thresholding_0.3_33_7
+
+strategies:
+
+  cv2_qrcode_thresholding_0.5_63_0:
+    type: CV2QrCodeThresholding
+    scale_factor: 0.5
+    block_size: 63
+    blur: 0
+  cv2_qrcode_thresholding_0.5_33_0:
+    type: CV2QrCodeThresholding
+    scale_factor: 0.5
+    block_size: 33
+    blur: 0
+  cv2_qrcode_thresholding_0.5_63_7:
+    type: CV2QrCodeThresholding
+    scale_factor: 0.5
+    block_size: 63
+    blur: 7
+  cv2_qrcode_thresholding_0.5_33_7:
+    type: CV2QrCodeThresholding
+    scale_factor: 0.5
+    block_size: 33
+    blur: 7
+  cv2_qrcode_thresholding_1.0_33_0:
+    type: CV2QrCodeThresholding
+    scale_factor: 1.0
+    block_size: 33
+    blur: 0
+  cv2_qrcode_thresholding_0.3_63_0:
+    type: CV2QrCodeThresholding
+    scale_factor: 0.3
+    block_size: 63
+    blur: 0
+  cv2_qrcode_thresholding_0.3_33_7:
+    type: CV2QrCodeThresholding
+    scale_factor: 0.3
+    block_size: 33
+    blur: 7
+

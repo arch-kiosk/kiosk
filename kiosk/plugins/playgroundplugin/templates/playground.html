@@ -1,0 +1,229 @@
+{% extends "kioskbasic.html" %}
+{% block links %}
+  {#  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles/materialize/materialize.css') }}?v=1"/>#}
+  {#  <link rel=stylesheet type=text/css href="{{ url_for('administration.static', filename='administration.css') }}?v=1"/>#}
+  <style type="text/css">
+    #playground_wrapper {
+      display: flex;
+      flex-direction: row;
+    }
+  </style>
+
+{% endblock %}
+{% block title %}
+  <div id="subtitle-shadow">Kiosk</div>
+  <div id="subtitle">Developer's Playground</div>
+{% endblock %}
+{% block body %}
+
+  <div id="playground_wrapper">
+    <button id="bt-test"
+            class="kiosk-btn-128" disabled>
+      Test
+    </button>
+    <button id="bt-test-2"
+            class="kiosk-btn-128" disabled>
+      Test kioskAjax
+    </button>
+    <button id="bt-test-partial"
+            class="kiosk-btn-128" disabled>
+      Test kioskAjaxGetPartial
+    </button>
+    <button id="bt-test-3"
+            class="kiosk-btn-128" disabled>
+      reset x260lk to back_from_field.
+    </button>
+    <button id="bt-test-sqlalchemy"
+            class="kiosk-btn-128" disabled>
+      test sqlalchemy
+    </button>
+    <button id="bt-500-error"
+            class="kiosk-btn-128" disabled>
+      cause an internal server error (500)
+    </button>
+
+  </div>
+  <div id="get-partial-target">
+    {{ ajax_data }}
+  </div>
+  <div id="report">
+
+  </div>
+
+  {#  <script src="{{ url_for('static', filename='scripts/thirdparty/materialize/bin/materialize.js') }}?v=1"></script>#}
+  <script>
+    ensureLibrariesAndinitPlayground();
+
+    function ensureLibrariesAndinitPlayground() {
+      if (typeof initCollapsibles == 'undefined') {
+        setTimeout(ensureLibrariesAndinitPlayground, 100);
+      } else {
+        initPlayground();
+      }
+    }
+
+    function initPlayground() {
+      let bt = $("#bt-test");
+      bt.prop("disabled", false);
+      bt.on("click", () => {
+        test()
+      });
+
+      bt = $("#bt-test-2");
+      bt.prop("disabled", false);
+      bt.on("click", () => {
+        test_2()
+      });
+
+      bt = $("#bt-test-3");
+      bt.prop("disabled", false);
+      bt.on("click", () => {
+        test_x260lk()
+      });
+
+      bt = $("#bt-test-partial");
+      bt.prop("disabled", false);
+      bt.on("click", () => {
+        test_get_partial()
+      });
+
+      bt = $("#bt-test-sqlalchemy");
+      bt.prop("disabled", true);
+      bt.on("click", () => {
+        test_sqlalchemy()
+      });
+
+      bt = $("#bt-500-error");
+      console.log(bt)
+      bt.prop("disabled", false);
+      bt.on("click", () => {
+        test_err_500()
+      });
+
+      return true;
+    }
+
+    function test() {
+      const jsonData = {
+        data: "This is some Json data",
+      };
+
+      $.ajax({
+        method: "POST",
+        dataType: "json",  //type of data expected back
+        data: "<!DOCTYPE html><html><div>test</div></html>",
+        headers: {"X-kiosk-request": "ajax"},
+        url: "/playground/test",
+        beforeSend: function (xhr, settings) {
+          if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+            console.log("X-CSRFToken set");
+            xhr.setRequestHeader("X-CSRFToken", "Nonsense");
+          }
+        }
+      })
+        .done((msg, textStatus, jqXHR) => {
+          addDiv("result: " + msg.result);
+          addDiv("textStatus: " + textStatus);
+          addDiv("readyState: " + jqXHR.readyState);
+          addDiv("responseHeaders: " + jqXHR.getAllResponseHeaders());
+          if (jqXHR.getResponseHeader("X-kiosk-error") === "csrf error") {
+            kioskErrorToast(msg.html_error)
+          }
+        })
+        .fail((xhr, status, errorThrown) => {
+          kioskErrorToast(errorThrown, null);
+        });
+    }
+
+
+    function test_2() {
+      const jsonData = {
+        data: "This is some Json data",
+      };
+
+      kioskAjax("/playground/test", jsonData, "", {
+        beforeSend: function (xhr, settings) {
+          if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+            console.log("X-CSRFToken set");
+            xhr.setRequestHeader("X-CSRFToken", "Nonsense");
+          }
+        },
+        onSuccess: (msg, textStatus, jqXHR) => {
+          addDiv("result: " + msg.result);
+          addDiv("textStatus: " + textStatus);
+          addDiv("readyState: " + jqXHR.readyState);
+          addDiv("responseHeaders: " + jqXHR.getAllResponseHeaders());
+        },
+        onError: (html_error, msg, jqXHR) => {
+          kioskErrorToast(html_error);
+        }
+      });
+    }
+
+    function test_x260lk() {
+      const jsonData = {
+        data: "This is some Json data",
+      };
+
+      kioskAjax("/playground/x260lk", jsonData, "", {
+        onSuccess: (msg, textStatus, jqXHR) => {
+          addDiv("result: " + msg.result);
+          addDiv("ws_state: " + msg.ws_state);
+          addDiv("textStatus: " + textStatus);
+          addDiv("readyState: " + jqXHR.readyState);
+          addDiv("responseHeaders: " + jqXHR.getAllResponseHeaders());
+        },
+        onError: (html_error, msg, jqXHR) => {
+          kioskErrorToast(html_error);
+        }
+      });
+    }
+
+    function test_get_partial() {
+      let statusData = {status: '<p style="color:red">It worked!</p>'};
+      kioskAjaxGetPartial("/playground/test_get_partial", {data: "Yippee!"}, "get-partial-target",
+        (target_id, textStatus, jqXHR, statusData) => {
+          kioskSuccessToast(statusData.status)
+        },
+        (err_msg, textStatus, jqXHR, statusData) => {
+          kioskErrorToast(err_msg);
+        }, statusData, {
+          beforeSend: function (xhr, settings) {
+            if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+              console.log("X-CSRFToken set");
+              xhr.setRequestHeader("X-CSRFToken", "Nonsense");
+            }
+          }
+        });
+    }
+
+    function test_sqlalchemy() {
+      const jsonData = {
+        data: "",
+      };
+
+      kioskAjax("/playground/test_sqlalchemy", jsonData, "", {
+        dataType: "json",
+        onSuccess: (msg, textStatus, jqXHR) => {
+          console.log(msg)
+          kioskSuccessToast(String(msg.result));
+        },
+        onError: (html_error, msg, jqXHR) => {
+          kioskErrorToast(html_error);
+        }
+      });
+    }
+
+  function test_err_500() {
+      window.location.replace(getRoutefor("playground.playground_show") + '/test-err-500');
+  }
+
+  function addDiv(text) {
+    console.log(text);
+    $("#report").append("<div>" + String(text) + "</div>");
+  }
+
+
+    //# sourceURL=playground.js
+  </script>
+{% endblock %}

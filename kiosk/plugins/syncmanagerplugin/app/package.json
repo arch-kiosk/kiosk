@@ -1,0 +1,43 @@
+{
+  "name": "syncmanager",
+  "version": "1.1.0",
+  "description": "SyncManager App",
+  "main": "dist/syncmanagerapp.js",
+  "type": "module",
+  "exports": {
+    ".": "./dist/syncmanagerapp.js"
+  },
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build --emptyOutDir"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "AGPL-3.0",
+  "prettier": {
+    "semi": true,
+    "trailingComma": "all",
+    "singleQuote": false,
+    "printWidth": 120,
+    "tabWidth": 4
+  },
+  "devDependencies": {
+    "@types/jquery": "^3.5.5",
+    "prettier": "2.4.1",
+    "rollup-plugin-copy": "^3.4.0",
+    "sass": "^1.43.2",
+    "typescript": "^4.0.3",
+    "vite": "^2.6.10",
+    "vite-plugin-html": "^2.1.1"
+  },
+  "dependencies": {
+    "@material/mwc-checkbox": "^0.18.0",
+    "@shoelace-style/shoelace": "^2.0.0-beta.36",
+    "@vaadin/vaadin-date-picker": "^4.4.1",
+    "blob-util": "^2.0.2",
+    "deepfreeze": "^2.0.0",
+    "jquery": "^3.5.1",
+    "lit": "^2.0.0",
+    "nanoid": "^3.1.12"
+  }
+}

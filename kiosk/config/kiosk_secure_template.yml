@@ -1,0 +1,19 @@
+# Everything that reveals something about a local machine or user goes in a kiosk_secure.yml
+# The file is ignored by github. This here is just the template for it.
+
+config:
+  base_path: 'where is the root directory of kiosk?'
+  transfer_dir: 'D:\virtual_machines\urap\shared\transfer'
+  filemaker_db_usr_name: 'what user id is the admin for the filemaker database?'
+  filemaker_db_usr_pwd: 'what password does that user have?'
+  database_usr_name: 'user id for postgres with admin privileges'
+  database_usr_pwd: 'password fpr that user id'
+kiosk:
+  SECRET_KEY: 'Some random UID'
+  local_importpaths: # list of import paths for the file import. something like ['c:\', 'Z:\']
+
+  administrationplugin:
+    defaults:
+      backup_directory: # where is the backup directory?
+      restore_file: # from where to restore files
+
