@@ -2,7 +2,7 @@
 import logging
 from pprint import pprint
 
-from flask import url_for
+from flask import url_for, request
 from flask_allows import requires
 from authorization import get_local_authorization_strings, EDIT_WORKSTATION_PRIVILEGE, \
     SYNCHRONIZE, PREPARE_WORKSTATIONS, DOWNLOAD_WORKSTATION, UPLOAD_WORKSTATION, CREATE_WORKSTATION, \
@@ -33,6 +33,7 @@ def register_resources(api: KioskApi):
     api.spec.path(resource=V1SyncManagerApiInfo, api=api, app=api.flask_app)
 
     api.add_resource(V1SyncManagerWorkstations, '/syncmanager/v1/workstations', endpoint='syncmanager-v1-workstations')
+    api.spec.components.schema("SyncManagerWorkstationV1", schema=SyncManagerWorkstationV1)
     api.spec.components.schema("SyncManagerWorkstationsV1", schema=SyncManagerWorkstationsV1)
     api.spec.path(resource=V1SyncManagerWorkstations, api=api, app=api.flask_app)
 
@@ -40,6 +41,33 @@ def register_resources(api: KioskApi):
                      endpoint='syncmanager-v1-workstation-job')
     api.spec.components.schema("SyncManagerWorkstationActionResultV1", schema=SyncManagerWorkstationActionResultV1)
     api.spec.path(resource=V1SyncManagerWorkstationJob, api=api, app=api.flask_app)
+
+    V1SyncManagerDock.register(api)
+
+
+# ************************************************************************************
+# functions several resources share
+# ************************************************************************************
+def get_workstation_information(workstation_id, workstation):
+    ws_result = {"id": workstation_id,
+                 "type": workstation.get_readable_name(),
+                 "workstation_class": workstation.__class__.__name__,
+                 "description": workstation.description,
+                 'disabled': workstation.disabled if hasattr(workstation, 'disabled') else False,
+                 "state_text": workstation.state_text,
+                 "state_description": workstation.state_description,
+                 "recording_group": workstation.recording_group,
+                 }
+
+    if workstation.icon_code:
+        ws_result["icon_code"] = workstation.icon_code
+    elif workstation.icon_url:
+        ws_result["icon_url"] = workstation.icon_url
+    actions = {}
+    actions["log"] = url_for("syncmanager.workstation_log", ws_id=workstation_id)
+    ws_result["actions"] = actions
+
+    return ws_result
 
 
 # ************************************************************************************
@@ -168,7 +196,7 @@ class V1SyncManagerWorkstations(Resource):
         try:
             result = self.sort_by_port(result, cfg)
         except BaseException as e:
-            logging.error(f"{self.__class__.__name__}.get: Error when sorting ports: {repr(e)}")
+            logging.error(f"{self.__class__.__name__}.get: Error when sorting by port: {repr(e)}")
 
         return SyncManagerWorkstationsV1().dump({
             'result_msg': 'ok',
@@ -177,27 +205,12 @@ class V1SyncManagerWorkstations(Resource):
             'workstations': list(result.values())
         })
 
-    @staticmethod
-    def gather_workstation_information(sync_manager: KioskSyncManager):
+    @classmethod
+    def gather_workstation_information(cls, sync_manager: KioskSyncManager):
         result = {}
         workstations = sync_manager.list_workstations()
         for workstation_id, workstation in workstations.items():
-            result[workstation_id] = {"id": workstation_id,
-                                      "type": workstation.get_readable_name(),
-                                      "workstation_class": workstation.__class__.__name__,
-                                      "description": workstation.description,
-                                      'disabled': workstation.disabled if hasattr(workstation, 'disabled') else False,
-                                      "state_text": workstation.state_text,
-                                      "state_description": workstation.state_description,
-                                      "recording_group": workstation.recording_group,
-                                      }
-            if workstation.icon_code:
-                result[workstation_id]["icon_code"] = workstation.icon_code
-            elif workstation.icon_url:
-                result[workstation_id]["icon_url"] = workstation.icon_url
-            actions = {}
-            actions["log"] = url_for("syncmanager.workstation_log", ws_id=workstation_id)
-            result[workstation_id]["actions"] = actions
+            result[workstation_id] = get_workstation_information(workstation_id, workstation)
 
         return result
 
@@ -342,3 +355,81 @@ class V1SyncManagerWorkstationJob(Resource):
 
         return SyncManagerWorkstationActionResultV1().dump({
             'result_msg': result_msg})
+
+
+# ************************************************************************************
+# /workstation/<ws_id>
+# ************************************************************************************
+
+class ApiDockGetParameter(Schema):
+    class Meta:
+        fields = ("dock_id",)
+        ordered = True
+
+    dockid = fields.Str(required=True)
+
+
+class ApiDockGetError(Schema):
+    class Meta:
+        fields = ("result_msg",)
+
+    result_msg: fields.Str()
+
+
+class V1SyncManagerDock(Resource):
+    @classmethod
+    def register(cls, api):
+        api.add_resource(cls, '/syncmanager/v1/dock')
+        api.spec.components.schema("ApiDockGetError", schema=ApiDockGetError)
+        api.spec.path(resource=cls, api=api, app=api.flask_app)
+
+    @httpauth.login_required
+    # @requires(IsAuthorized(EDIT_WORKSTATION_PRIVILEGE))
+    def get(self):
+        ''' retrieves the information for a single dock
+            ---
+            summary: retrieves the information for a single dock
+            security:
+                - jwt: []
+            parameters:
+                - in: query
+                  name: dock_id
+                  schema:
+                    type: ApiDockGetParameter
+            responses:
+                '200':
+                    description: returns the information for a single dock
+                    content:
+                        application/json:
+                            schema: SyncManagerWorkstationV1
+                '401':
+                    description: authorization failed / unauthorized access
+                    content:
+                        application/json:
+                            schema: LoginError
+                '404':
+                    description: the requested resource does not exist
+                    content:
+                        application/json:
+                            schema: ApiDockGetError
+                '500':
+                    description: Something went wrong
+                    content:
+                        application/json:
+                            schema: ApiDockGetError
+        '''
+        try:
+            print("V1SyncManagerDock.get")
+            print(f"User is {httpauth.current_user().user_id}")
+            params = ApiDockGetParameter().load(request.args)
+            cfg = get_config()
+            sync_manager = KioskSyncManager(kioskglobals.type_repository)
+            ws = sync_manager.get_workstation(params["dock_id"])
+            if ws:
+                result = get_workstation_information(ws.id, ws)
+                return SyncManagerWorkstationV1().dump(result)
+            else:
+                return ApiDockGetError().dump({"result_msg": f"dock {params['dock_id']} does not exist."}), 404
+
+        except BaseException as e:
+            return ApiDockGetError().dump({"result_msg": repr(e)}), 500

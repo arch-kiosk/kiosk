@@ -21,9 +21,9 @@ config:
   filemaker_db_filename: pasu_recording.fmp12
   filemaker_encoding: utf-8
 #  database_name: ustp
-  #  database_name: urap_rep
-  #  database_name: urap_test
-  database_name: pacha
+  database_name: urap_rep
+#    database_name: urap_test
+#  database_name: pacha
   odbc_ini_dsn: filemaker_odbc
   database_timeout_sec: 5
   file_repository: '%sync%\file_repository'

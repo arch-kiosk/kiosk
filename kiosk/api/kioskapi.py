@@ -127,6 +127,7 @@ class ApiLogin(Resource):
         '''
         try:
             logging.debug("ApiLogin.login/GET")
+            print("ApiLogin.login/GET called")
             if current_user.is_authenticated:
                 return LoginSuccess().dump({"token": current_user.get_token(reload=True)}), 200
             else:
@@ -169,6 +170,7 @@ class ApiLogin(Resource):
         '''
         try:
             logging.debug("ApiLogin.login/POST")
+            print("ApiLogin.login/POST called")
             try:
                 parameters = LoginArgs().load(request.json)
             except ValidationError as err:

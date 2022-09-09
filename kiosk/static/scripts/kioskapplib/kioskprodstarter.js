@@ -6,6 +6,7 @@ window.addEventListener("load", () => {
 
 function connectToApi() {
     setTimeout(() => {
+        // check if the main kiosk scripts are present
         if (window.getRoutefor !== undefined) {
             let api = new ProdKioskApi();
             api.initApi()

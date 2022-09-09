@@ -119,9 +119,11 @@ class ApiFile(Resource):
                         logging.error(f"ApiFile.get: file_repository_download_file: {repr(e)}")
                         result = {'result_msg': repr(e)}
             except ThumbnailNotFoundError:
+                logging.error(f"{self.__class__.__name__}.get: Thumbnail {params['resolution']} "
+                              f"for file {uuid} not found.")
                 pass
             except BaseException as e:
-                logging.error(f"{self.__class__.__name__}. : {repr(e)}")
+                logging.error(f"{self.__class__.__name__}.get : {repr(e)}")
 
         result = {'result_msg': "File not found"}
 
