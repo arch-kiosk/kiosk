@@ -65,7 +65,7 @@ if "mcpcore.mcpworker" not in sys.modules:
             #               is_active=lambda: current_user.fulfills_requirement(
             #                   PREPARE_WORKSTATIONS) if hasattr(current_user,
             #                                                    "fulfills_requirement") else True,
-            #               parent_menu="Hubbub",
+            #               parent_menu="Hub",
             #               order="2010"),
         ]
 

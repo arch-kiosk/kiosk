@@ -70,7 +70,7 @@ if "mcpcore.mcpworker" not in sys.modules:
 
     def register_menus():
         global plugin
-        return [KioskMenuItem(name="Hubbub",
+        return [KioskMenuItem(name="Hub",
                               onclick="triggerSyncManager('syncmanager.sync_manager_show')",
                               endpoint="syncmanager.sync_manager_show",
                               # is_active=lambda: current_user.fulfills_requirement(
