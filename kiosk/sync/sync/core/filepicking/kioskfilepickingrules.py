@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 import kioskstdlib
@@ -103,12 +104,14 @@ class KioskFilePickingRules:
               order by {KioskSQLDb.sql_safe_ident('order')}"""
 
         cur = KioskSQLDb.execute_return_cursor(sql=sql, parameters=[self.workstation_type, self.recording_group])
+        logging.debug(f"{self.__class__.__name__}.get_rules: sql is {cur.query}")
 
         r = cur.fetchone()
         while r:
             result.append(KioskFilePickingRule(r))
             r = cur.fetchone()
-
+        logging.info(f"{self.__class__.__name__}.get_rules: {len(result)} file picking rules found "
+                     f"for workstation type {self.workstation_type} and recording group {self.recording_group}")
         return result
 
     @staticmethod

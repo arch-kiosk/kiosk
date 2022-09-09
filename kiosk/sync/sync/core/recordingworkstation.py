@@ -666,12 +666,16 @@ class RecordingWorkstation(Dock):
                 cache_file = "dummy"
 
             if cache_file:
-                logging.debug(f"using representation {cache_file}")
+                if cache_file != "dummy":
+                    logging.debug(f"using "
+                                  f"{'raw' if not file_handling_results['representation'] else file_handling_results['representation'].unique_name}"
+                                  f" representation {cache_file}")
                 ok = self._register_fm_image_transfer_file(uid_file, cache_file,
                                                            file_handling_results["location"],
                                                            file_handling_results["resolution"],
                                                            file_handling_results["disable"],
-                                                           file_type)
+                                                           file_type,
+                                                           file_handling_results["representation"])
                 return ok
             else:
                 logging.error(f"{self.__class__.__name__}._prepare_file_for_export_v2: "
@@ -786,13 +790,17 @@ class RecordingWorkstation(Dock):
                 raise Exception(f"contextual file {uid_file} is broken.")
         return f, filename
 
-    def _register_fm_image_transfer_file(self, file_id, dst_file, location, resolution, disabled, file_type):
+    def _register_fm_image_transfer_file(self, file_id, dst_file, location, resolution, disabled, file_type,
+                                         representation):
         """ Writes the details of a prepared image to the workstation's table _fm_image_transfer.
             sub-routine of _prepare_file_for_export_v2
             :returns True or False,
             :raises: suppresses Exceptions.
         """
         try:
+            representation_name = representation.unique_name if representation else ""
+            combined_resolution = "dummy" if resolution == "dummy" else representation_name
+
             self.c_file_registered = self.c_file_registered + 1
             if dst_file != "dummy":
                 file_size = kioskstdlib.get_file_size(dst_file)
@@ -804,7 +812,7 @@ class RecordingWorkstation(Dock):
             sql = f"INSERT INTO {san_fm_image_transfer}"
             sql += "(uid_file, filepath_and_name, location, resolution, disabled, file_type, file_size) "
             sql += "VALUES(%s,%s,%s,%s,%s,%s, %s); "
-            cur.execute(sql, [file_id, dst_file, location, resolution, disabled, file_type, file_size])
+            cur.execute(sql, [file_id, dst_file, location, combined_resolution, disabled, file_type, file_size])
             cur.close()
             return True
 
