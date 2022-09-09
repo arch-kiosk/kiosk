@@ -67,7 +67,7 @@ if "mcpcore.mcpworker" not in sys.modules:
                               is_active=lambda: current_user.fulfills_requirement(
                                   PREPARE_WORKSTATIONS) if hasattr(current_user,
                                                                    "fulfills_requirement") else True,
-                              parent_menu="Hubbub",
+                              parent_menu="Hub",
                               order="2010"),
                 KioskMenuItem(name="import filemaker workstations",
                               onclick="kfwGroupAction('kioskfilemakerworkstation.import_all')",
@@ -76,7 +76,7 @@ if "mcpcore.mcpworker" not in sys.modules:
                               is_active=lambda: current_user.fulfills_requirement(
                                   PREPARE_WORKSTATIONS) if hasattr(current_user,
                                                                    "fulfills_requirement") else True,
-                              parent_menu="Hubbub",
+                              parent_menu="Hub",
                               order="2020"),
                 KioskMenuItem(name="reset all filemaker workstations",
                               onclick="kfwGroupAction('kioskfilemakerworkstation.reset_all')",
@@ -85,7 +85,7 @@ if "mcpcore.mcpworker" not in sys.modules:
                               is_active=lambda: current_user.fulfills_requirement(
                                   EDIT_WORKSTATION_PRIVILEGE) if hasattr(current_user,
                                                                          "fulfills_requirement") else True,
-                              parent_menu="Hubbub",
+                              parent_menu="Hub",
                               order="2005"),
                 KioskMenuItem(name="update recording software",
                               onclick="kfwInstallUpdate('kioskfilemakerworkstation.install_update')",
@@ -94,7 +94,7 @@ if "mcpcore.mcpworker" not in sys.modules:
                               is_active=lambda: current_user.fulfills_requirement(
                                   INSTALL_PLUGIN) if hasattr(current_user,
                                                                          "fulfills_requirement") else True,
-                              parent_menu="Hubbub",
+                              parent_menu="Hub",
                               order="2009")
 
                 ]
