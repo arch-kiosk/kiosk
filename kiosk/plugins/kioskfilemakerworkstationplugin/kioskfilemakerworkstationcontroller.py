@@ -532,7 +532,6 @@ def upload_file(ws_id):
     """
         todo: document
     """
-    print(f"kioskfilemakerworkstation/workstation/{ws_id}/upload")
     api_call = False
     if not current_user.is_authenticated:
         # this just activates login_required (usually a wrapper) so that we have a httpauth.current_user.
@@ -548,8 +547,12 @@ def upload_file(ws_id):
 
     try:
         if api_call:
+            print(f"kioskfilemakerworkstation/workstation/{ws_id}/upload via api call")
             logging.debug(f"kioskfilemakerworkstationcontroller.ws_download: "
                           f"download of workstation {ws_id} via api call.")
+        else:
+            print(f"kioskfilemakerworkstation/workstation/{ws_id}/upload via Kiosk UI")
+
 
         authorized_to = get_local_authorization_strings(LOCAL_PRIVILEGES)
         if "upload workstation" not in authorized_to:
@@ -583,7 +586,8 @@ def upload_file(ws_id):
                                 f"has been uploaded but please make sure that it was the right one!"
                             result.add_log_line(s)
                             logging.warning(s)
-                            print(s)
+                        else:
+                            print(f"Received {filename.lower} from {current_user}")
                     else:
                         result.success = False
                         result.message = "Strangely, the target filename could not " \
@@ -600,9 +604,11 @@ def upload_file(ws_id):
             else:
                 raise UserError(e)
 
+        if not result.success:
+            logging.info(f"kioskfilemakerworkstationcontroller.upload_file failed: {result.message}")
         return result.jsonify()
     except UserError as e:
-        logging.error(f"kioskfilemakerworkstationcontroller.ws_download: {repr(e)}")
+        logging.error(f"kioskfilemakerworkstationcontroller.upload_file: {repr(e)}")
         print(repr(e))
         result = KioskResult(message=repr(e))
         result.message = f"{repr(e)}"
