@@ -1,5 +1,3 @@
-# my first line here should end with LF only
-# this should be my second line
 from kioskappfactory import KioskAppFactory
 import flask
 import inspect
