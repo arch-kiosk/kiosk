@@ -4,7 +4,8 @@ import flake8
 
 from http import HTTPStatus
 
-from flask import Blueprint, request, render_template, redirect, url_for, abort, make_response, \
+import flask_login
+from flask import Blueprint, current_app, request, render_template, redirect, url_for, abort, make_response, \
     send_file
 from flask_allows import requires
 from flask_cors import CORS
@@ -22,6 +23,7 @@ from core.kiosklib import nocache
 from filemakerrecording.filemakerworkstation import FileMakerWorkstation
 from kiosklib import is_ajax_request
 from kioskresult import KioskResult
+from kioskuser import KioskUser
 from kioskwtforms import kiosk_validate
 from mcpinterface.mcpconstants import MCPJobStatus
 from mcpinterface.mcpjob import MCPJob
@@ -413,19 +415,42 @@ def disable_workstation(ws_id: str) -> object:
 #  ****    DOWNLOAD
 #  *****************************************************************/
 @kioskfilemakerworkstation.route('/workstation/<ws_id>/download/<cmd>', methods=['GET', 'POST'])
-@full_login_required
+# @full_login_required # This can also be triggered as an api route, so login requirements
+# are checked in the body of the method
 @nocache
 def ws_download(ws_id, cmd):
     """
         todo: document
     """
-    print(ws_id + " " + cmd)
+
+    api_call = False
+    if not current_user.is_authenticated:
+        # this just activates login_required (usually a wrapper) so that we have a httpauth.current_user.
+        # The mindless lambda just serves as a function to wrap
+        f = kioskglobals.httpauth.login_required(lambda: True)()
+        httpauth_user = kioskglobals.httpauth.current_user()
+        if httpauth_user:
+            api_call = True
+            flask_login.login_user(httpauth_user)
+        else:
+            return current_app.login_manager.unauthorized()
+
+    # From here on we have a logged in flask_login.current_user
+
+    print(f"kioskfilemakerworkstationcontroller.ws_download: {ws_id} {cmd}")
     try:
         authorized_to = get_local_authorization_strings(LOCAL_PRIVILEGES)
-        if "download workstation" not in authorized_to:
+        authorized = "download workstation" in authorized_to
+
+        if not authorized:
+            print("NOT AUTHORIZED to download workstation")
             abort(HTTPStatus.UNAUTHORIZED)
         else:
             if cmd == "start":
+                if api_call:
+                    logging.debug(f"kioskfilemakerworkstationcontroller.ws_download: "
+                                  f"download of workstation {ws_id} via api call.")
+
                 sync = Synchronization()
                 ws = KioskFileMakerWorkstation(ws_id, sync=sync)
                 if not ws.load_workstation():
@@ -440,14 +465,34 @@ def ws_download(ws_id, cmd):
                 resp = make_response(send_file(fm_filename,
                                                mimetype='application/octet-stream',
                                                attachment_filename=dest_filename,
-                                               as_attachment=True, cache_timeout=0,
+                                               as_attachment=True,
+                                               cache_timeout=0,
+                                               last_modified=0,
+                                               max_age=0,
                                                etag=str(datetime.datetime.now().timestamp())))
 
-                resp.headers['Last-Modified'] = str(datetime.datetime.now().timestamp())
-                resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, ' \
-                                                'pre-check=0, public, max-age=0'
+                resp = send_file(fm_filename,
+                                 mimetype='application/octet-stream',
+                                 attachment_filename=dest_filename,
+                                 as_attachment=True,
+                                 cache_timeout=0,
+                                 last_modified=datetime.datetime.now().timestamp(),
+                                 max_age=0,
+                                 etag=str(datetime.datetime.now().timestamp()))
+
+                # resp.headers['Last-Modified'] = str(datetime.datetime.now().timestamp())
+                # resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, ' \
+                #                                 'pre-check=0, public, max-age=0'
+                resp.cache_control.no_store = True
+                resp.cache_control.no_cache = True
+                resp.cache_control.max_age = 0
+                resp.cache_control.must_revalidate = True
+                resp.cache_control.proxy_revalidate = True
+                resp.cache_control.public = True
+                resp.expires = 0
                 resp.headers['Pragma'] = 'no-cache'
-                resp.headers['Expires'] = '-1'
+                # according to mdn, this is ignored:
+                # resp.headers['Expires'] = '0'
                 logging.info("Starting download of file " + fm_filename)
                 resp.set_cookie('fileDownload', 'true')
                 logging.info("Starting download of workstation file " + fm_filename)
@@ -480,13 +525,35 @@ def ws_download(ws_id, cmd):
 #  **************************************************************
 #  ****    UPLOAD
 #  *****************************************************************/
+# @full_login_required # This can also be triggered as an api route, so login requirements
+# are checked in the body of the method
 @kioskfilemakerworkstation.route('/workstation/<ws_id>/upload', methods=['POST'])
-@full_login_required
 def upload_file(ws_id):
     """
         todo: document
     """
+    api_call = False
+    if not current_user.is_authenticated:
+        # this just activates login_required (usually a wrapper) so that we have a httpauth.current_user.
+        # The mindless lambda just serves as a function to wrap
+        f = kioskglobals.httpauth.login_required(lambda: True)()
+        httpauth_user = kioskglobals.httpauth.current_user()
+        if httpauth_user:
+            api_call = True
+            flask_login.login_user(httpauth_user)
+        else:
+            return current_app.login_manager.unauthorized()
+
+
     try:
+        if api_call:
+            print(f"kioskfilemakerworkstation/workstation/{ws_id}/upload via api call")
+            logging.debug(f"kioskfilemakerworkstationcontroller.ws_download: "
+                          f"download of workstation {ws_id} via api call.")
+        else:
+            print(f"kioskfilemakerworkstation/workstation/{ws_id}/upload via Kiosk UI")
+
+
         authorized_to = get_local_authorization_strings(LOCAL_PRIVILEGES)
         if "upload workstation" not in authorized_to:
             abort(HTTPStatus.UNAUTHORIZED)
@@ -519,6 +586,8 @@ def upload_file(ws_id):
                                 f"has been uploaded but please make sure that it was the right one!"
                             result.add_log_line(s)
                             logging.warning(s)
+                        else:
+                            print(f"Received {filename.lower} from {current_user}")
                     else:
                         result.success = False
                         result.message = "Strangely, the target filename could not " \
@@ -530,17 +599,24 @@ def upload_file(ws_id):
                 result.success = False
                 result.message = "No uploaded file detected."
         except BaseException as e:
-            raise UserError(repr(e))
+            if isinstance(e, HTTPException):
+                raise UserError(e.description)
+            else:
+                raise UserError(e)
 
+        if not result.success:
+            logging.info(f"kioskfilemakerworkstationcontroller.upload_file failed: {result.message}")
         return result.jsonify()
     except UserError as e:
-        logging.error(f"kioskfilemakerworkstationcontroller.ws_download: {repr(e)}")
+        logging.error(f"kioskfilemakerworkstationcontroller.upload_file: {repr(e)}")
+        print(repr(e))
         result = KioskResult(message=repr(e))
         result.message = f"{repr(e)}"
         result.success = False
         return result.jsonify()
     except HTTPException as e:
         logging.error(f"kioskfilemakerworkstationcontroller.ws_download: {repr(e)}")
+        print(repr(e))
         raise e
     except Exception as e:
         logging.error(f"kioskfilemakerworkstationcontroller.ws_download: {repr(e)}")
