@@ -81,7 +81,7 @@ class UserError(Exception):
 
 
 def check_ajax():
-    if not (kioskglobals.get_development_option("webapp_development") or kiosklib.is_ajax_request()):
+    if not (kioskglobals.get_development_option("webapp_development").lower() == "true" or kiosklib.is_ajax_request()):
         logging.error(f"administrationcontroller.check_ajax: "
                       f"attempt to access endpoint other than by ajax")
 
@@ -1113,7 +1113,7 @@ def start_install_patch(transfer_dir, cfg) -> Tuple[bool, str]:
 
         cmdline_str = "python " + os.path.join(unpackkiosk_file) + " " + transfer_dir + " " + \
                       cfg.base_path + " " + " ".join(unpackkiosk_parameters)
-        if not kioskstdlib.to_bool(kioskglobals.get_development_option("test_patch")):
+        if not kioskstdlib.to_bool(kioskglobals.get_development_option("test_patch").lower() == "true"):
             if kioskstdlib.in_virtual_env():
                 err_msg = f"administrationcontroller.start_install_patch: " \
                           f"attempt to install the patch on a system with virtual environment. " \

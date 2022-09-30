@@ -75,7 +75,7 @@ def full_login_required(func):
         is_ajax = False
         try:
             is_ajax = is_ajax_request()
-            if is_ajax and kioskglobals.get_development_option("webapp_development"):
+            if is_ajax and kioskglobals.get_development_option("webapp_development").lower() == "true":
                 logging.warning("full_login_required passed because of option 'webapp_development'")
             elif request.method in EXEMPT_METHODS:
                 pass

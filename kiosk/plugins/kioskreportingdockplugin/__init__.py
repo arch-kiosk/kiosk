@@ -28,7 +28,7 @@ if "mcpcore.mcpworker" not in sys.modules:
 
 
     def init_app(app, api=None):
-        if not kioskglobals.get_development_option("webapp_development"):
+        if not kioskglobals.get_development_option("webapp_development").lower() == "true":
             kioskreportingdock.before_request(guard_entire([IsAuthorized(DOWNLOAD_WORKSTATION)]))
         app.register_blueprint(kioskreportingdock)
         KioskReportingDock.register_types(app.type_repository)

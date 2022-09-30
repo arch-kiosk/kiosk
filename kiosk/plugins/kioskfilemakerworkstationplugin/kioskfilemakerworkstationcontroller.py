@@ -45,7 +45,7 @@ kioskfilemakerworkstation = Blueprint(_controller_name_, __name__,
                                       static_folder="static",
                                       url_prefix=_url_prefix_)
 
-if kioskglobals.get_development_option("webapp_development"):
+if kioskglobals.get_development_option("webapp_development").lower() == "true":
     CORS(kioskfilemakerworkstation)
 
 LOCAL_PRIVILEGES = {
@@ -67,7 +67,7 @@ class UserError(Exception):
 
 def init_controller():
     # kioskglobals.csrf.exempt(".".join([__name__, "workstation_actions"]))
-    if kioskglobals.get_development_option("webapp_development"):
+    if kioskglobals.get_development_option("webapp_development").lower() == "true":
         kioskglobals.csrf.exempt(kioskfilemakerworkstation)
 
 
@@ -77,7 +77,7 @@ def inject_current_plugin_controller():
 
 
 def check_ajax():
-    if not (kioskglobals.get_development_option("webapp_development") or is_ajax_request()):
+    if not (kioskglobals.get_development_option("webapp_development").lower() == "true" or is_ajax_request()):
         logging.error(f"kioskfilemakerworkstationcontroller.workstation_actions: "
                       f"attempt to access endpoint other than by ajax")
 

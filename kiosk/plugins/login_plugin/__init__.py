@@ -28,7 +28,7 @@ def init_app(app):
     kioskglobals.login_manager = LoginManager(app)
     kioskglobals.login_manager.login_view = "/login"
     kioskglobals.login_manager.user_loader(load_user)
-    if kioskglobals.get_development_option("webapp_development"):
+    if kioskglobals.get_development_option("webapp_development").lower() == "true":
         logging.warning("login_plugin.init_app: installing request_loader")
         kioskglobals.login_manager.request_loader(load_user_from_request)
     allows = Allows(app)
