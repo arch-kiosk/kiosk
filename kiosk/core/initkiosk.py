@@ -60,17 +60,18 @@ def basic_initialization(config_file):
     kioskglobals.cfg["kiosk"]["global_constants"]["kiosk_nickname"] = kioskglobals.kiosk_version_name
     try:
         kioskglobals.development = copy(kioskglobals.cfg["development"])
-        color = kioskstdlib.try_get_dict_entry(kioskglobals.get_config().kiosk, "terminal_accent_color_ansi",
-                                               "[31;1m")
-        print(f"\n\u001b{color}")
-        print("***************************** \n")
-        print("Development options are active: ")
-        print(kioskglobals.cfg["development"])
-        if kioskglobals.get_development_option("webapp_development"):
-            print("! Kiosk is in webapp development mode: Checking CSRF and Authorization are switched off ! ")
-            print("! Don't do that on a production server ! ")
-        print("*****************************")
-        print("\u001b[0m")
+        if kioskglobals.development:
+            color = kioskstdlib.try_get_dict_entry(kioskglobals.get_config().kiosk, "terminal_accent_color_ansi",
+                                                   "[31;1m")
+            print(f"\n\u001b{color}")
+            print("***************************** \n")
+            print("Development options are active: ")
+            print(kioskglobals.cfg["development"])
+            if kioskglobals.get_development_option("webapp_development").lower() == "true":
+                print("! Kiosk is in webapp development mode: Checking CSRF and Authorization are switched off ! ")
+                print("! Don't do that on a production server ! ")
+            print("*****************************")
+            print("\u001b[0m")
     except KeyError as e:
         pass
 
@@ -91,7 +92,7 @@ def init_app_related_stuff(app):
         logging.warning("Exception " + repr(e) + ": NO SECRET KEY CONFIGURED, WILL BE DEV! WHY NOT USE " + str(uuid4()))
         app.config['SECRET_KEY'] = "dev"
 
-    if kioskglobals.get_development_option("webapp_development"):
+    if kioskglobals.get_development_option("webapp_development").lower() == "true":
         app.config['WTF_CSRF_METHODS'] = []
         app.config['WTF_CSRF_ENABLED'] = False
 
@@ -198,7 +199,7 @@ def inject_global_scripts():
 
 
 def inject_system_information():
-    if kioskglobals.get_development_option("show_system_informaton"):
+    if kioskglobals.get_development_option("show_system_informaton").lower() == "true":
         return dict(
             sys_info={
                 "pid": os.getpid(),
