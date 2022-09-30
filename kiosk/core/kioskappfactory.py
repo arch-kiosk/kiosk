@@ -301,9 +301,11 @@ class KioskAppFactory(AppFactory):
     @classmethod
     def show_ip_addresses(cls):
         try:
-            subnet = kioskstdlib.try_get_dict_entry(kioskglobals.get_config().kiosk, "subnet", "192.168")
-            addresses = kioskstdlib.get_ip_addresses(subnet)
-            color = kioskstdlib.try_get_dict_entry(kioskglobals.get_config().kiosk, "terminal_accent_color_ansi",
+            cfg = kioskglobals.get_config()
+            subnet = kioskstdlib.try_get_dict_entry(cfg.kiosk, "subnet", "192.168")
+            addresses = kioskstdlib.get_ip_addresses(
+                subnet, kioskglobals.get_development_option("advanced_debug_log").lower() == "true")
+            color = kioskstdlib.try_get_dict_entry(cfg.kiosk, "terminal_accent_color_ansi",
                                                    "[31;1m")
             print(f"\n\u001b{color}")
             print("")
@@ -321,7 +323,7 @@ class KioskAppFactory(AppFactory):
             print("------------------------------------------------")
         except BaseException as e:
             print(repr(e))
-            logging.error(f"{cls.__class__.__name__}._create_std_app: Can't show IP addresses{repr(e)}")
+            logging.error(f"{cls.__class__.__name__}.show_ip_addresses: Can't show IP addresses{repr(e)}")
         finally:
             print("\u001b[0m")
 
@@ -427,7 +429,7 @@ class KioskAppFactory(AppFactory):
                                         addressee="admins",
                                         sender=f"{cls.__name__}._check_development_options")
 
-            if kioskglobals.get_development_option("webapp_development"):
+            if kioskglobals.get_development_option("webapp_development").lower() == "true":
                 raise Exception("Kiosk runs in webapp_development mode. This is a security risk "
                                 "and should not happen in "
                                 "production.")

@@ -5,6 +5,7 @@ import threading
 
 import math
 import zipfile
+from pprint import pformat
 from typing import List, Callable, Union
 
 import rawpy
@@ -1370,7 +1371,7 @@ def clear_dir(src: str):
         raise ValueError(f"{src} is not a directory")
 
 
-def get_ip_addresses(must_include='192.168'):
+def get_ip_addresses(must_include='192.168', debug_log=False):
     addresses = []
     try:
         try:
@@ -1379,17 +1380,33 @@ def get_ip_addresses(must_include='192.168'):
             logging.info(f"kioskstdlib.get_ip_addresses: netifaces module not installed.")
             return []
 
+        if debug_log:
+            logging.debug(f"get_ip_addresses: Searching network interfaces ...")
         for dev in netifaces.interfaces():
             try:
+                if debug_log:
+                    logging.debug(f"get_ip_addresses: Found device {pformat(dev)}:")
                 address = netifaces.ifaddresses(dev)[netifaces.AF_INET]
+                if debug_log:
+                    if address:
+                        logging.debug(f"                  {pformat(address)}")
+                    else:
+                        logging.debug(f"                  No information available.")
                 for part in address:
                     if 'addr' in part:
                         if must_include and (part['addr'].find(must_include) > -1):
                             addresses.append(part['addr'])
-            except:
-                pass
+            except BaseException as e:
+                if debug_log:
+                    if "KeyError(2)" in repr(e):
+                        logging.debug(f"                  Device has no IP addresses")
+                    else:
+                        logging.debug(f"                  Could not get more information: {repr(e)} ")
     except BaseException as e:
         logging.error(f"kioskstdlib.get_ip_addresses: {repr(e)}")
+
+    if debug_log:
+        logging.debug(f"get_ip_addresses: {len(addresses)} network addresses found.")
 
     return addresses
 
