@@ -17,6 +17,8 @@ old_*/
 *.log
 *.dsn
 *.dmp
+*.crt
+*.key
 *reset.yml
 **/log/
 **/.*cache/
