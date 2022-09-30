@@ -16,7 +16,7 @@ import threading
 
 kiosk_version = "1.2.3"
 kiosk_version_name = "Kiosk 1"
-kiosk_date = datetime.datetime(2022, 29, 9)
+kiosk_date = datetime.datetime(2022, 9, 29)
 debug = False
 development = {}
 
