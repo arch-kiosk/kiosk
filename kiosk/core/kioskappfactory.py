@@ -37,8 +37,6 @@ werkzeug.cached_property = werkzeug.utils.cached_property
 from appfactory import AppFactory
 from flask import redirect, url_for, request, jsonify, abort, render_template, g
 from flask.helpers import send_from_directory
-from flask.helpers import total_seconds
-from flask_login import current_user
 from flask_admin import Admin
 from flaskapppluginmanager import FlaskAppPluginManager
 from pluggableflaskapp import PluggableFlaskApp, current_app
@@ -214,7 +212,6 @@ class KioskAppFactory(AppFactory):
         """
         assert root_path
         assert os.path.isdir(root_path)
-
 
         plugin_manager = cls._before_app_creation(config_file=config_file, root_path=root_path)
         #
