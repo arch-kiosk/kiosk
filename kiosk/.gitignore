@@ -25,6 +25,8 @@ kiosk_secure.yml
 *.log
 *.dsn
 *.dmp
+*.crt
+*.key
 *reset.yml
 **/log/
 **/.*cache/
