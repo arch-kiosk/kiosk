@@ -1,28 +1,22 @@
 # from flask_restplus import Namespace, Resource
 import logging
-from pprint import pprint
 
 from flask import url_for, request
 from flask_allows import requires
-from authorization import get_local_authorization_strings, EDIT_WORKSTATION_PRIVILEGE, \
-    SYNCHRONIZE, PREPARE_WORKSTATIONS, DOWNLOAD_WORKSTATION, UPLOAD_WORKSTATION, CREATE_WORKSTATION, \
-    IsAuthorized, get_local_authorization_strings, is_explicitly_authorized
+from flask_restful import Resource, abort
+from marshmallow import Schema, fields
 
 import kioskglobals
 import kioskstdlib
-from kioskconfig import KioskConfig
-from kioskglobals import kiosk_version, kiosk_version_name, get_global_constants, get_config, httpauth
-from flask_restful import Resource, abort
-from core.kioskapi import KioskApi
-from marshmallow import Schema
 from api.kioskapi import PublicApiInfo
-from marshmallow import Schema, fields, ValidationError
-
+from authorization import EDIT_WORKSTATION_PRIVILEGE, \
+    IsAuthorized
+from core.kioskapi import KioskApi
+from kioskglobals import kiosk_version, kiosk_version_name, get_global_constants, get_config, httpauth
 from kioskworkstation import KioskWorkstation
-from mcpinterface.mcpconstants import MCPJobStatus
+from mcpinterface.mcpconstants import *
 from .kiosksyncmanager import KioskSyncManager
 from .kioskworkstationjobs import KioskWorkstationJob, JOB_META_TAG_DELETED, JOB_META_TAG_CREATED
-from mcpinterface.mcpconstants import *
 
 API_VERSION = "0.1.0"
 
@@ -231,7 +225,6 @@ class V1SyncManagerWorkstations(Resource):
                         result[ws_job.workstation_id]["meta"] = JOB_META_TAG_DELETED
                     else:
                         result[ws_job.workstation_id]["meta"] = JOB_META_TAG_CREATED
-                    # pprint(result[ws_job.workstation_id])
                 result[ws_job.workstation_id]["job_status"] = ws_job.mcp_job.status_text
                 result[ws_job.workstation_id]["job_status_code"] = ws_job.mcp_job.status
                 s += f'{ws_job.workstation_id} ({result[ws_job.workstation_id]["job_status_code"]}) '
@@ -269,7 +262,6 @@ class V1SyncManagerWorkstations(Resource):
         all_ports = list(set([kioskstdlib.try_get_dict_entry(dock, "recording_group", default_dock, True)
                               for dock in docks.values()]))
         all_ports.sort(key=lambda x: x.lower())
-        # pprint(all_ports)
 
         for key, dock in docks.items():
             if "recording_group" not in dock:
@@ -419,8 +411,6 @@ class V1SyncManagerDock(Resource):
                             schema: ApiDockGetError
         '''
         try:
-            print("V1SyncManagerDock.get")
-            print(f"User is {httpauth.current_user().user_id}")
             params = ApiDockGetParameter().load(request.args)
             cfg = get_config()
             sync_manager = KioskSyncManager(kioskglobals.type_repository)
