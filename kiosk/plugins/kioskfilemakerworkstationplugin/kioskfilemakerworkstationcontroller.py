@@ -7,7 +7,7 @@ from http import HTTPStatus
 import flask_login
 from flask import Blueprint, current_app, request, render_template, redirect, url_for, abort, make_response, \
     send_file
-from flask_allows import requires
+from flask_allows import requires, exempt_from_requirements
 from flask_cors import CORS
 from flask_login import current_user
 from werkzeug.exceptions import HTTPException
@@ -417,6 +417,7 @@ def disable_workstation(ws_id: str) -> object:
 @kioskfilemakerworkstation.route('/workstation/<ws_id>/download/<cmd>', methods=['GET', 'POST'])
 # @full_login_required # This can also be triggered as an api route, so login requirements
 # are checked in the body of the method
+@exempt_from_requirements
 @nocache
 def ws_download(ws_id, cmd):
     """
@@ -528,6 +529,7 @@ def ws_download(ws_id, cmd):
 # @full_login_required # This can also be triggered as an api route, so login requirements
 # are checked in the body of the method
 @kioskfilemakerworkstation.route('/workstation/<ws_id>/upload', methods=['POST'])
+@exempt_from_requirements
 def upload_file(ws_id):
     """
         todo: document
