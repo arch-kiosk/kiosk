@@ -66,7 +66,6 @@ class UserError(Exception):
 
 
 def init_controller():
-    # kioskglobals.csrf.exempt(".".join([__name__, "workstation_actions"]))
     if kioskglobals.get_development_option("webapp_development").lower() == "true":
         kioskglobals.csrf.exempt(kioskfilemakerworkstation)
 
