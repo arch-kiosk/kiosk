@@ -1,0 +1,9 @@
+[submodule "kiosk/plugins/logviewerplugin"]
+	path = kiosk/plugins/logviewerplugin
+	url = https://github.com/arch-kiosk/logviewerplugin.git
+[submodule "kiosk/plugins/pwastresstestplugin"]
+	path = kiosk/plugins/pwastresstestplugin
+	url = https://github.com/arch-kiosk/pwastresstestplugin.git
+[submodule "kiosk/sync/sync/tools/ustp_ceramics_import"]
+	path = kiosk/sync/sync/tools/ustp_ceramics_import
+	url = https://github.com/arch-kiosk/ustp_ceramics_import.git
