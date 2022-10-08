@@ -690,6 +690,14 @@ class KioskAppFactory(AppFactory):
         except BaseException as e:
             logging.error(f"{cls.__name__}.create_app: Cannot start app because of exception {repr(e)}")
             logging.error(f"{cls.__name__}.create_app: Will start emergency app instead.")
+            print(f"\n\u001b[31;1;5m")
+            print("")
+            print("------------------------------------------------")
+            print("")
+            print(f"ERROR: {repr(e)} ")
+            print("THE KIOSK SERVER DID NOT START PROPERLY AND IS IN EMERGENCY MODE ")
+            print("")
+            print("------------------------------------------------\u001b[0m")
             return cls._create_emergency_app(config_name, root_path=root_path, static_folder=static_folder,
                                              reason=repr(e))
 
