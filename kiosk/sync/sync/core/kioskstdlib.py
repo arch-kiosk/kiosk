@@ -1420,6 +1420,7 @@ def delete_any_of(s: str, illegal_characters: str):
 
     return result
 
+
 def in_virtual_env():
     """
         determines whether the current process is running inside a virtual environment (python or virtualenv).
@@ -1431,3 +1432,12 @@ def in_virtual_env():
     except AttributeError:
         pass
     return not (sys.prefix == sys.base_prefix)
+
+
+def erase_esc_seq(s: str) -> str:
+    """
+    erases all console escape sequences from the string. "\u001b;1;2;3mmeins\u001b0m" comes back as 'meins'
+    :param s: input string with escape sequences
+    :return: string without sequences
+    """
+    return re.sub('\u001b.+?m', '', s)
