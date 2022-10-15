@@ -60,7 +60,8 @@ def get_first_matching_file(filespath, identifier, prefix="", postfix="", wildca
     return ""
 
 
-def find_files(filepath, file_pattern, exclude_file="", include_path=True, order_by_time=False) -> List[str]:
+def find_files(filepath, file_pattern, exclude_file="", include_path=True, order_by_time=False,
+               order_desc=True) -> List[str]:
     """
     list files from a directory - not recursive!
     :param filepath: the path
@@ -85,7 +86,7 @@ def find_files(filepath, file_pattern, exclude_file="", include_path=True, order
                 file_ages[f] = kioskstdlib.get_file_date_since_epoch(f if include_path else os.path.join(filepath, f),
                                                                      use_most_recent_date=False)
 
-            files.sort(key=lambda x: file_ages[x], reverse=True)
+            files.sort(key=lambda x: file_ages[x], reverse=order_desc)
 
     return files
 
