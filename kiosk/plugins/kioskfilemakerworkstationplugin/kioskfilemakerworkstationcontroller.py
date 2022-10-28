@@ -772,7 +772,7 @@ def import_all():
 #  *****************************************************************/
 @kioskfilemakerworkstation.route('reset_all', methods=['POST', 'GET'])
 @full_login_required
-@requires(IsAuthorized(EDIT_WORKSTATION_PRIVILEGE))
+@requires(IsAuthorized(PREPARE_WORKSTATIONS))
 def reset_all():
     try:
         check_ajax()

@@ -378,8 +378,8 @@ class KioskFileMakerWorkstation(KioskWorkstation):
 
             self.register_option("reset_option", {"id": "workstation.reset",
                                                   "caption": "reset workstation",
-                                                  "description": "reset the workstation. Only for admins!",
-                                                  "privilege": "edit workstation",
+                                                  "description": "reset the workstation.",
+                                                  "privilege": "prepare workstation",
                                                   "low": True,
                                                   "warning": True,
                                                   "onclick": f"kfw_action('{self.id}',"
