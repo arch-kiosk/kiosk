@@ -1484,6 +1484,8 @@ class FileMakerWorkstation(RecordingWorkstation):
             in the filemaker table are taken to have been deleted. Consequently
             they will be marked using the field repl_deleted in the shadow-table.
 
+            LK: deleted records also get their modification timestamp set 2 seconds forward.
+
             todo: refactor, it is longish
 
         """
