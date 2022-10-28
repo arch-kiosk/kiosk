@@ -949,8 +949,6 @@ lot:
         - alter("modified_by")
 
 identification_methods:
-#  meta:
-#    flags: [export_dont_truncate]
   structure:
     2:
       id: [datatype(VARCHAR)]
@@ -988,8 +986,6 @@ identification_methods:
         - alter("modified_by")
 
 identifier_lists:
-  meta:
-    flags: [export_dont_truncate]
   structure:
     2:
       list_name: [datatype(VARCHAR)]
