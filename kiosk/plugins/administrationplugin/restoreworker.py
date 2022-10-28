@@ -85,7 +85,10 @@ class RestoreJob:
                                             body="Please run housekeeping after the server has been restarted.",
                                             project_id=cfg.get_project_id())
                     time.sleep(5)
-                    write_reset_file(self.cfg)
+                    try:
+                        write_reset_file(self.cfg)
+                    except BaseException as e:
+                        logging.error(f"restore worker: Ignored Exception when creating reset file: {repr(e)}")
                     logging.info(f"restore job {self.job.job_id}: done")
                 else:
                     self.job.publish_result({"success": False,
