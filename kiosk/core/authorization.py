@@ -31,6 +31,29 @@ FILE_EXPORT_PRIVILEGE = "file export"
 MANAGE_REPORTING = "manage reporting"
 OPERATE_REPORTING = "operate reporting"
 
+# All privileges need to be added here so that they can be selected in the administration:
+selection_of_privileges = [
+    "*",
+    ENTER_ADMINISTRATION_PRIVILEGE,
+    MANAGE_SERVER_PRIVILEGE,
+    BACKUP_PRIVILEGE,
+    RESTORE_PRIVILEGE,
+    MANAGE_USERS,
+    MODIFY_DATA,
+    DOWNLOAD_FILE,
+    DEVELOP_PRIVILEGE,
+    SYNCHRONIZE,
+    INSTALL_PLUGIN,
+    EDIT_WORKSTATION_PRIVILEGE,
+    PREPARE_WORKSTATIONS,
+    DOWNLOAD_WORKSTATION,
+    UPLOAD_WORKSTATION,
+    CREATE_WORKSTATION,
+    FILE_EXPORT_PRIVILEGE,
+    MANAGE_REPORTING,
+    OPERATE_REPORTING,
+]
+
 # standard user groups the system addresses explicitly
 USER_GROUP_ADMINS = "admins"
 USER_GROUP_DEVELOPERS = "developers"
