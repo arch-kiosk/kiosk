@@ -322,8 +322,8 @@ def check_all_workstations_idle(recording_group="") -> bool:
 
 def check_all_workstations_jobless(recording_group="") -> bool:
     """
-    checks if all workstation (of a certain recording group)
-    are IDLE and don't have a pending or running job
+    checks that none of the workstation (of a certain recording group)
+    have a pending or running job
     :param recording_group: if given only workstation of that group will be checked.
                             Otherwise all FileMakerWorkstation will be checked
     :return: boolean
@@ -545,7 +545,6 @@ def upload_file(ws_id):
         else:
             return current_app.login_manager.unauthorized()
 
-
     try:
         if api_call:
             print(f"kioskfilemakerworkstation/workstation/{ws_id}/upload via api call")
@@ -553,7 +552,6 @@ def upload_file(ws_id):
                           f"download of workstation {ws_id} via api call.")
         else:
             print(f"kioskfilemakerworkstation/workstation/{ws_id}/upload via Kiosk UI")
-
 
         authorized_to = get_local_authorization_strings(LOCAL_PRIVILEGES)
         if "upload workstation" not in authorized_to:
@@ -913,15 +911,9 @@ def install_update():
         check_ajax()
         sync = Synchronization()
         general_errors = []
-        if check_all_workstations_idle():
-            try:
-                print("All idle")
-                pass
-            except BaseException as e:
-                raise UserError(f"It was not possible to reset the template due to an error: {repr(e)}.")
-        else:
-            general_errors = [f"Some workstations are not in state synchronized."
-                              f"Please make sure that all workstations are in this state before updating "
+        if not check_all_workstations_jobless():
+            general_errors = [f"Some workstations have pending or running jobs."
+                              f"Please wait for those jobs to finish before updating "
                               f"the filemaker recording software"]
 
         return render_template('kioskfilemakerworkstationinstaller.html',
@@ -964,6 +956,11 @@ def trigger_install():
                 cfg = kioskglobals.get_config()
                 if file and file.filename:
                     logging.info("Received file " + file.filename)
+                    if not check_all_workstations_jobless():
+                        raise UserError(f"Some workstations have pending or running jobs."
+                                        f"Please wait for those jobs to finish before updating "
+                                        f"the filemaker recording software")
+
                     template_file_name = kioskstdlib.get_filename(file.filename)
                     if template_file_name != KioskFileMakerWorkstation.get_master_template_filename(cfg):
                         raise UserError(
