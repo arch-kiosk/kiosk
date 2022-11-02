@@ -534,9 +534,9 @@ class KioskFileMakerWorkstation(KioskWorkstation):
                 add_to_option_list(self._get_option("upload_option"), low=True)
 
             if self.status == "IN_THE_FIELD" and self.allow_download:
-                self._modify_option("export_option", "description",
-                                    "prepare filemaker database for download AGAIN. Make sure it's what you want.")
-                add_to_option_list(self._get_option("export_option"), low=True)
+                self._modify_option("fork_export_option", "description",
+                                    "prepare workstation for download from scratch AGAIN.")
+                add_to_option_list(self._get_option("fork_export_option"), low=True)
 
             add_to_option_list(self._get_option("reset_option"), low=True)
             if self.status == "IDLE":

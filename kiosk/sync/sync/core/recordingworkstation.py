@@ -350,12 +350,6 @@ class RecordingWorkstation(Dock):
 
         """
 
-        # just to make sure!
-        if not self.state_machine.get_state() in [self.READY_FOR_EXPORT, self.IDLE]:
-            logging.error("RecordingWorkstation.fork called although work station has state " +
-                          self.state_machine.get_state())
-            return False
-
         logging.info("Forking work station " + self.get_id())
         logging.info("rebuilding file-identifier-cache " + self.get_id())
         fic = FileIdentifierCache(self._get_workstation_dsd())
