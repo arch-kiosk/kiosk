@@ -10,22 +10,22 @@ from urapdatetimelib import local_time_offset_str
 class KioskFileMakerWorkstationForm(FlaskForm, KioskGeneralFormErrors):
     page_initialized = HiddenField()
     workstation_id = KioskLabeledStringField(label="unique workstation id",
-                                             validators=[Length(3, 20, "Please enter a workstation id"
-                                                                       "with at least 3 and not more than 20 characters"),
+                                             validators=[Length(min=3, max=20, message="Please enter a workstation id "
+                                                                               "with at least 3 and not more "
+                                                                               "than 20 characters"),
                                                          DataRequired(
                                                              "A workstation id is really required")],
 
                                              )
     description = KioskLabeledStringField(label="descriptive name",
-                                          validators=[Length(3, 20, "Please enter a descriptive name"
-                                                                    "with at least 3 and not more than 20 characters"),
+                                          validators=[Length(min=3, message="Please enter a descriptive name "
+                                                                            "with at least 3 characters"),
                                                       DataRequired(
                                                           "You really want a descriptive name")], )
     recording_group = KioskLabeledStringField(label="recording group",
                                               validators=[
-                                                  Length(3, 20, "Please select a recording group or enter a new one "
-                                                                "by giving it a name with at least 3 and "
-                                                                "not more than 20 characters"),
+                                                  Length(min=3, message="Please select a recording group or enter a "
+                                                                        "new one with at least 3 characters"),
                                                   DataRequired(
                                                       "A recording group is mandatory")]
                                               )

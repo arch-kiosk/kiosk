@@ -16,15 +16,15 @@ class KioskFileExportWorkstationForm(FlaskForm, KioskGeneralFormErrors):
 
                                              )
     description = KioskLabeledStringField(label="descriptive name",
-                                          validators=[Length(3, 20, "Please enter a descriptive name"
-                                                                    "with at least 3 and not more than 20 characters"),
+                                          validators=[Length(min=3, message="Please enter a descriptive name with "
+                                                                            "at least 3 characters"),
                                                       DataRequired(
                                                           "You really want a descriptive name")], )
     recording_group = KioskLabeledStringField(label="port",
                                               validators=[
-                                                  Length(3, 20, "Please select an existing port or create a new "
-                                                                "one by giving it a name with at least 3 and "
-                                                                "not more than 20 characters"),
+                                                  Length(min=3,
+                                                         message="Please select an existing port or create a new "
+                                                                 "one by giving it a name with at least 3 "),
                                                   DataRequired(
                                                       "A port name is mandatory")]
                                               )

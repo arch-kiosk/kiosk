@@ -19,8 +19,8 @@ class KioskReportingDockForm(FlaskForm, KioskGeneralFormErrors):
 
                                              )
     description = KioskLabeledStringField(label="descriptive name",
-                                          validators=[Length(3, 20, "Please enter a descriptive name"
-                                                                    "with at least 3 and not more than 20 characters"),
+                                          validators=[Length(min=3, message="Please enter a descriptive name with at "
+                                                                            "least 3 characters"),
                                                       DataRequired(
                                                           "You really want a descriptive name")], )
 

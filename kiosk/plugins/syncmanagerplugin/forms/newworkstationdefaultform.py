@@ -9,12 +9,6 @@ from core.kioskwtforms import KioskLabeledBooleanField, KioskStringField, \
 class NewWorkstationDefaultForm(FlaskForm, KioskGeneralFormErrors):
     page_initialized = HiddenField()
     workstation_type = KioskLabeledSelectField(label="dock type")
-    # workstation_id = KioskLabeledStringField(label="unique workstation id",
-    #                                          validators=[Length(3, 20, "Please enter a workstation id"
-    #                                                                    "with at least 3 and not more than 20 characters"),
-    #                                                      DataRequired(
-    #                                                          "A workstation id is really required")])
-    # description = KioskLabeledStringField(label="descriptive name")
 
     def __init__(self, workstation_types, *args, **kwargs):
         super().__init__(*args, **kwargs)
