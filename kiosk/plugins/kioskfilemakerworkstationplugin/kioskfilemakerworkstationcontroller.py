@@ -32,7 +32,7 @@ from plugins.kioskfilemakerworkstationplugin.forms.kioskfilemakerworkstationform
 from plugins.kioskfilemakerworkstationplugin.forms.selectrecordinggroupform import SelectRecordingGroupForm
 from plugins.syncmanagerplugin.kiosksyncmanager import KioskSyncManager
 from plugins.syncmanagerplugin.kioskworkstationjobs import MCP_SUFFIX_WORKSTATION, JOB_META_TAG_WORKSTATION, \
-    JOB_META_TAG_DELETED
+    JOB_META_TAG_DELETED, KioskWorkstationJobs
 from synchronization import Synchronization
 
 _plugin_name_ = "kioskfilemakerworkstationplugin"
@@ -577,6 +577,13 @@ def upload_file(ws_id):
                     if ws.sync_ws.upload_file(file):
                         ws.sync_ws.set_download_upload_status(ws.sync_ws.UPLOAD)
                         result.success = True
+                        jobs = KioskWorkstationJobs(kioskglobals.general_store,
+                                                    kioskglobals.get_config().get_project_id())
+                        try:
+                            jobs.release_workstation_jobs(ws.id)
+                        except BaseException as e:
+                            logging.error(f"kioskfilemakerworkstationcontroller.upload_file: "
+                                          f"Exception in release_workstation_jobs{repr(e)}")
 
                         filename = secure_filename(file.filename)
                         if filename.lower() != kioskglobals.cfg.filemaker_db_filename.lower():

@@ -1,3 +1,7 @@
+import logging
+from typing import Union
+
+from mcpinterface.mcpconstants import MCPJobStatus
 from mcpinterface.mcpqueue import MCPQueue
 from mcpinterface.mcpjob import MCPJob
 
@@ -65,7 +69,7 @@ class KioskWorkstationJobs:
         self._jobs = jobs
         return self._jobs
 
-    def get_workstation_job(self, ws_id: str) -> MCPJob or None:
+    def get_workstation_job(self, ws_id: str) -> Union[MCPJob, None]:
         if not self._jobs:
             self.fetch_workstation_jobs()
         for job in self._jobs:
@@ -74,3 +78,29 @@ class KioskWorkstationJobs:
                 return job
 
         return None
+
+    def release_workstation_jobs(self, ws_id: str) -> bool:
+        """
+        drops all old workstation jobs from the queue
+        :param ws_id: the workstation's id
+        :returns: True or False. Unlikely to throw an Exception
+        """
+        queue = MCPQueue(self._general_store)
+        job_list = self.fetch_workstation_jobs()
+        rc = True
+        for job in job_list:
+            if job.workstation_id == ws_id:
+                if job.mcp_job.status >= MCPJobStatus.JOB_STATUS_CANCELLING:
+                    try:
+                        if not queue.pop(job.job_id):
+                            logging.error(f"{self.__class__.__name__}.release_workstation_jobs: "
+                                          f"Cannot remove job {job.job_id} from queue.")
+                            rc = False
+                        else:
+                            logging.debug(f"{self.__class__.__name__}.release_workstation_jobs: "
+                                          f"Released job {job.job_id} from queue.")
+                    except BaseException as e:
+                        logging.error(f"{self.__class__.__name__}.release_workstation_jobs: "
+                                      f"Cannot remove job {job.job_id} from queue: exception {repr(e)}")
+                        rc = False
+        return rc
