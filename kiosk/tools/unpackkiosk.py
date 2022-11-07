@@ -272,6 +272,17 @@ def transform_file_repository(cfg_file):
         logging.warning(f"Transform file repository reported trouble with {transform.get_errors()} files.")
 
 
+def transform_file_cache(cfg_file):
+    from transformfilecache import TransformFileCache
+    print("Transforming file cache directories if necessary: ", end="", flush=True)
+    transform = TransformFileCache(cfg_file)
+    transform.console = True
+    if not transform.transform():
+        logging.error("Transform file cache failed miserably!")
+    if transform.get_errors() > 0:
+        logging.warning(f"Transform file cache reported trouble with {transform.get_errors()} files.")
+
+
 def housekeeping(cfg_file: str):
     try:
         from housekeeping import Housekeeping
@@ -484,6 +495,8 @@ if __name__ == '__main__':
             print(f"WARNING: something when wrong when deleting superfluous directories: {repr(e)}. Continuing ...")
 
         transform_file_repository(cfg_file)
+
+        transform_file_cache(cfg_file)
 
         if ("fro" in options or "fr" in options) and "nt" not in options:
             KioskRestore.refresh_thumbnails(cfg_file)

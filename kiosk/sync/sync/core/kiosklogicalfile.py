@@ -453,5 +453,12 @@ class KioskLogicalFile:
         if self._cache_manager:
             self._cache_manager.repair_cache_filename(self._uid)
 
+    def transform_cache_filename(self):
+        """
+        transform_cache_file of the cache manager for the file's uid
+        :returns: nothing. Lets through Exceptions.
+        """
+        if self._cache_manager:
+            self._cache_manager.transform_cache_file(self._uid)
 
 KioskCachedFile = KioskLogicalFile

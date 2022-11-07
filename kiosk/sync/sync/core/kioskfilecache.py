@@ -1,5 +1,6 @@
 import os
 import logging
+import shutil
 
 import kioskstdlib
 from kiosksqldb import KioskSQLDb
@@ -37,6 +38,28 @@ class KioskFileCache:
     def _get_cache_entries(self, uid):
         records = self._file_cache_model.get_many("uid_file=%s", [uid])
         return list(records)
+
+    def get_old_style_cache_filename(self, uid, representation_type: KioskRepresentationType,
+                                     src_file_extension) -> str:
+        """
+        Only used to transform and old cache filename (files were stored in cache directories that were not
+        structured into sub-directories on the basis of the first two digits of a file's uuid).
+
+        :param uid:
+        :param representation_type:
+        :param src_file_extension:
+        :return: the old-style cache filename
+        """
+        if not src_file_extension:
+            logging.error(f"{self.__class__.__name__}._get_old_style_cache_filename:"
+                          f" no file extension given for file with id {uid}.")
+            return ""
+        cache_dir = os.path.join(self._cache_base_dir,
+                                 representation_type.unique_name)
+
+        extension = src_file_extension
+
+        return os.path.join(cache_dir, f"{uid}.{extension}")
 
     def _get_cache_filename(self, uid, representation_type: KioskRepresentationType,
                             src_file_extension):
@@ -331,7 +354,7 @@ class KioskFileCache:
         :return: the directory
         """
         cache_dir = os.path.join(self._cache_base_dir,
-                                 representation_type.unique_name)
+                                 representation_type.unique_name, uid[:2])
 
         if not os.path.isdir(cache_dir):
             os.makedirs(cache_dir, exist_ok=True)
@@ -354,7 +377,7 @@ class KioskFileCache:
 
     def repair_cache_filename(self, uid, commit=True):
         """
-        checks if the if all the filenames in the cache for this file have the cache dir as the base path.
+        checks if all the filenames in the cache for this file have the cache dir as the base path.
         If not, the file cache might have been restored from a different system and the files just need to be
         rewritten towards a different cache directory.
         Any filename that does not have the cache dir as its base will be rewritten in the process.
@@ -378,3 +401,66 @@ class KioskFileCache:
                 representation_type = KioskRepresentationType(r.representation_type)
                 _rewrite(representation_type, s)
 
+    def transform_cache_file(self, uid, commit=True, test_mode=False) -> int:
+        """
+        checks if a cache entry includes a subdirectory based on the file's first two uuid digits.
+        If not, the entry is an old entry and the file will be moved to a subdirectory and the
+        cache entry rectified.
+        Any filename that does not have the cache dir as its base will be skipped entirely.
+
+        :param test_mode:
+        :param uid: the file's uid
+        :param commit: Set to false to prevent immediate commits.
+        :param test_mode: if false no changes will be made.
+        :returns: int. -1: At least one of the cache entry for the file wasn't correct and could not be transformed.
+                  Otherwise the number of files that were actually transformed.
+        """
+
+        def _transform(representation_type, current_filename: str) -> bool:
+            """
+            transforms a cache file if necessary.
+            :param representation_type:
+            :param current_filename:
+            :return: True only if the file actually got transformed.
+                     If that wasn't necessary or an error occurred this will be false
+            """
+            try:
+                extension = kioskstdlib.get_file_extension(current_filename)
+                old_style_filename = self.get_old_style_cache_filename(uid, representation_type, extension)
+
+                if current_filename == old_style_filename or os.path.exists(old_style_filename):
+                    new_cache_filename = self._get_cache_filename(uid, representation_type, extension)
+                    if not os.path.isfile(new_cache_filename):
+                        new_cache_dir = kioskstdlib.get_file_path(new_cache_filename)
+                        if not test_mode:
+                            if not os.path.isdir(new_cache_dir):
+                                os.mkdir(new_cache_dir)
+                            if os.path.isfile(old_style_filename):
+                                shutil.copy(old_style_filename, new_cache_filename)
+                                if os.path.isfile(new_cache_filename):
+                                    os.remove(old_style_filename)
+
+                    if not test_mode:
+                        entry = self._get_cache_entry(uid, representation_type)
+                        entry.path_and_filename = new_cache_filename
+                        entry.update(commit)
+                    return True
+            except BaseException as e:
+                logging.error(f"{self.__class__.__name__}.transform_cache_file: "
+                              f"Exception when transforming {current_filename}: {repr(e)}")
+            return False
+
+        rc = 0
+        records = self._file_cache_model.get_many("uid_file=%s", [uid])
+        for r in records:
+            s = str(r.path_and_filename)
+            if s.find(self._cache_base_dir) == 0:
+                representation_type = KioskRepresentationType(r.representation_type)
+                if _transform(representation_type, s) and rc > -1:
+                    rc += 1
+            else:
+                logging.warning(f"{self.__class__.__name__}.transform: File {uid} did not have the "
+                                f"correct file cache path to begin with: '{s}' instead of '{self._cache_base_dir}'")
+                rc = -1
+
+        return rc

@@ -255,6 +255,12 @@ class Housekeeping:
                 logging.error(f"{self.__class__.__name__}.housekeeping_check_cache_files:"
                               f" : Exception in _repair_cache_filename: {repr(e)}")
 
+            try:
+                ctx_file.transform_cache_filename()
+            except BaseException as e:
+                logging.error(f"{self.__class__.__name__}.housekeeping_check_cache_files:"
+                              f" : Exception in transform_cache_filename: {repr(e)}")
+
             if not ctx_file.create_auto_representations(error_on_fail=True):
                 logging.error(f"{self.__class__.__name__}.housekeeping_check_cache_files: "
                               f"create_auto_representation failed for {ctx_file.uid}. Will be tagged NOT_AN_IMAGE.")
