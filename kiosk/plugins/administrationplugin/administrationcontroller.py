@@ -44,8 +44,9 @@ from mcpinterface.mcpjob import MCPJob
 from mcpinterface.mcpqueue import MCPQueue, assert_mcp
 from messaging.systemmessagecatalog import SYS_MSG_ID_BEFORE_RESTORE_FAILED
 from pluggableflaskapp import current_app
+
 from sqlalchemy_models.adminmodel import KioskUser
-from sqlalchemy_models.adminmodel import test as test_add
+
 from synchronization import Synchronization
 from .forms.backupform import BackupForm
 from .forms.housekeepingform import HousekeepingForm
@@ -107,14 +108,6 @@ def test():
     print("\n*************** administration/test")
     print(f"\nGET: get_plugin_for_controller returns {get_plugin_for_controller(_plugin_name_)}")
     print(f"\nGET: plugin.name returns {get_plugin_for_controller(_plugin_name_).name}")
-
-    try:
-        test_add()
-        result = "ok"
-    except Exception as e:
-        result = repr(e)
-
-    return jsonify(result=result)
 
 
 #  **************************************************************
