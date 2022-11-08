@@ -3,10 +3,12 @@ $('document').ready(function () {
 
   trigger = $('#hamburger');
   trigger.click(function () {
+    closeMenu('#user-menu',$('#currentuser'));
     showhidemenu('#hamburger','#main-menu');
   });
 
   $('#currentuser').click(function () {
+    closeMenu('#main-menu',$('#hamburger'));
     showhidemenu('#currentuser','#user-menu');
   });
 
