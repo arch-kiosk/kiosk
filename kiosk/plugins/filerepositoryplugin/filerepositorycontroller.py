@@ -11,7 +11,7 @@ from werkzeug.datastructures import MultiDict
 from werkzeug.utils import secure_filename
 
 from flask import make_response, Blueprint, abort, request, render_template, jsonify, \
-    send_from_directory, current_app, session, send_file, redirect, url_for
+    send_from_directory, current_app, session, send_file, redirect, url_for, Response
 
 from flask_login import current_user
 from authorization import full_login_required, get_local_authorization_strings, MODIFY_DATA, DOWNLOAD_FILE
@@ -20,7 +20,7 @@ from wtforms import StringField, SelectField
 
 from contextmanagement.memoryidentifiercache import MemoryIdentifierCache
 from kioskcontextualfile import KioskContextualFile
-from kioskrepresentationtype import KioskRepresentationType
+from kioskrepresentationtype import KioskRepresentationType, KioskRepresentations
 from kioskresult import KioskResult
 from kiosksqldb import KioskSQLDb
 from plugins.filerepositoryplugin.forms.editform import ModalFileEditForm
@@ -36,7 +36,7 @@ from sync.core.filerepository import FileRepository
 
 from plugins.filerepositoryplugin.ModelFileRepository import ModelFileRepository, FileRepositoryFile
 from plugins.filerepositoryplugin.filerepositorylib import get_std_file_images
-from core.kioskcontrollerplugin import get_plugin_for_controller
+from core.kioskcontrollerplugin import get_plugin_for_controller, KioskControllerPlugin
 from kioskconfig import KioskConfig
 
 _plugin_name_ = "filerepositoryplugin"
@@ -368,6 +368,7 @@ def filerepository_editdialog(uid):
         ef_form.ef_tags.data = img.get_value("tags")
         ef_form.ef_export_filename.data = img.get_value("export_filename")
         authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
+        representations = KioskRepresentations.get_representation_labels_and_ids(cfg)
         fullscreen_representation_id = cfg.file_repository["fullscreen_representation"]
         print("\n*************** now rendering".format(uid))
         print(f"[{img.get_indirect_contexts()}]")
@@ -378,7 +379,9 @@ def filerepository_editdialog(uid):
                                fullscreen_representation_id=fullscreen_representation_id,
                                recorded_description=recorded_description,
                                file_extension=file_extension,
-                               file_size=file_size)
+                               file_size=file_size,
+                               representations = representations,
+                               )
 
     elif request.method == "POST":
         print("\n*************** Edit file dialog for image {} sent".format(uid))
@@ -815,64 +818,79 @@ def repository_replace_file(uuid):
 #  **************************************************************
 #  ****    DOWNLOAD
 #  *****************************************************************/
-@filerepository.route('/download/<uuid>/<cmd>', methods=['GET'])
+@filerepository.route('/download/<img>/<cmd>', methods=['GET'])
 @full_login_required
 # @nocache
-def file_repository_download_file(uuid, cmd):
+def file_repository_download_file(img, cmd):
     """
-    :param uuid:
-    :param cmd:
+    :param img: either just a uuid, in which case the raw file is requested or uuid:resolution to get a thumbnail
+    :param cmd: start / response
     :return:
     """
-    print("\n*************** Request to download file %s (command is %s)" % (uuid, cmd), flush=True)
-    logging.debug(f"/download {uuid}: {cmd}")
+    print("\n*************** Request to download file %s (command is %s)" % (img, cmd), flush=True)
+    logging.debug(f"/download {img}: {cmd}")
     if cmd == "start":
-        logging.info(f"file_repository_download_file: request to download {uuid}")
+        logging.info(f"file_repository_download_file: request to download {img}")
+    else:
+        logging.info("Download of file " + img + " successfully initiated -> response requested.")
+
+    try:
+        sync = synchronization.Synchronization()
+        file_repos = FileRepository(kioskglobals.cfg,
+                                    event_manager=None,
+                                    type_repository=sync.type_repository,
+                                    plugin_loader=sync
+                                    )
+        img_args = img.split(":")
+        uuid = img_args[0]
+        representation = ""
         try:
-            file_repos = FileRepository(kioskglobals.cfg,
-                                        event_manager=None,
-                                        type_repository=kioskglobals.type_repository,
-                                        plugin_loader=current_app
-                                        )
-            ctx_file = file_repos.get_contextual_file(uuid)
-            if ctx_file:
+            representation = img_args[1]
+        except:
+            pass
+        ctx_file = file_repos.get_contextual_file(uuid)
+        if ctx_file:
 
-                fm_filename = ctx_file.get()
-                dest_filename = ctx_file.get_descriptive_filename()
-
-                # a super dirty quick hack to figure out the correct mimetype:
-                dest_extension = kioskstdlib.get_file_extension(dest_filename).lower()
-                if dest_extension == 'pdf':
-                    mime_type = 'application/pdf'
-                elif dest_extension == 'zip':
-                    mime_type = 'application/zip'
-                elif 'xls' in dest_extension:
-                    mime_type = 'application/vnd.ms-excel'
-                else:
-                    mime_type = 'application/octet-stream'
-
-                try:
-                    resp = make_response(send_file(fm_filename,
-                                                   mimetype=mime_type,
-                                                   attachment_filename=dest_filename,
-                                                   as_attachment=True,
-                                                   etag=str(datetime.datetime.now().timestamp())))
-                    resp.set_cookie('fileDownload', 'true')
-                    resp.headers['Last-Modified'] = str(datetime.datetime.now().timestamp())
-                    resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, ' \
-                                                    'pre-check=0, max-age=0'
-                    resp.headers['Pragma'] = 'no-cache'
-                    resp.headers['Expires'] = '-1'
-                    logging.info("Starting download of file " + fm_filename)
-                    return resp
-                except BaseException as e:
-                    logging.error(f"filerepositorycontroller.file_repository_download_file: {repr(e)}")
-                    return jsonify(result="file not found")
+            if representation:
+                # representation_type = KioskRepresentationType(representation)
+                representation_type = KioskRepresentations.instantiate_representation_from_config(representation)
+                filename = ctx_file.get(representation_type, create=True)
+                if not filename:
+                    raise Exception(f"No representation '{representation}' for file '{uuid}'")
             else:
-                abort(404)
-        except BaseException as e:
-            logging.error(f"filerepositorycontroller/download_file: {repr(e)}")
-            return jsonify(result=f"filerepositorycontroller/download_file: {repr(e)}")
-    elif cmd == "response":
-        logging.info("Download for file " + uuid + " successfully initiated.")
-        return jsonify(result="ok")
+                filename = ctx_file.get()
+
+            dest_filename = ctx_file.get_descriptive_filename()
+
+            # a super dirty quick hack to figure out the correct mimetype:
+            dest_extension = kioskstdlib.get_file_extension(dest_filename).lower()
+            if dest_extension == 'pdf':
+                mime_type = 'application/pdf'
+            elif dest_extension == 'zip':
+                mime_type = 'application/zip'
+            elif 'xls' in dest_extension:
+                mime_type = 'application/vnd.ms-excel'
+            else:
+                mime_type = 'application/octet-stream'
+
+            if cmd == "response":
+                return jsonify(result="ok")
+
+            resp = make_response(send_file(filename,
+                                           mimetype=mime_type,
+                                           attachment_filename=dest_filename,
+                                           as_attachment=True,
+                                           etag=str(datetime.datetime.now().timestamp())))
+            resp.set_cookie('fileDownload', 'true')
+            resp.headers['Last-Modified'] = str(datetime.datetime.now().timestamp())
+            resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, ' \
+                                            'pre-check=0, max-age=0'
+            resp.headers['Pragma'] = 'no-cache'
+            resp.headers['Expires'] = '-1'
+            logging.info("Starting download of file " + filename)
+            return resp
+        else:
+            raise Exception(f'File {img} not found.')
+    except BaseException as e:
+        # if cmd == "response":
+        return jsonify(result=f"filerepositorycontroller.file_repository_download_file: {repr(e)}")

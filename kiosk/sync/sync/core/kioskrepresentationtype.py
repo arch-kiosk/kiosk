@@ -146,9 +146,10 @@ class KioskRepresentationType:
 
 class KioskRepresentations:
     @staticmethod
-    def _get_file_repository_config() -> dict:
+    def _get_file_repository_config(cfg: SyncConfig = None) -> dict:
         rc = {}
-        cfg = SyncConfig.get_config()
+        if not cfg:
+            cfg = SyncConfig.get_config()
         if cfg.has_key("file_repository"):
             rc = cfg.file_repository
 
@@ -194,6 +195,23 @@ class KioskRepresentations:
             if representation_id in file_repos_cfg["representations"]:
                 return file_repos_cfg["representations"][representation_id]
         return {}
+
+    @classmethod
+    def get_representation_labels_and_ids(cls, config: SyncConfig = None) -> list:
+        """
+        returns a list of (label, id) tuples of representations order by label.
+        Representations that don't have a lable are skipped
+        :param config: a Config object if on hand
+        :return: list of tuples (label, id)
+        """
+        config = cls._get_file_repository_config(config)
+        ids = cls.get_representation_ids(cfg=config)
+        result = []
+        for r_id in ids:
+            if "label" in config["representations"][r_id]:
+                result.append((config["representations"][r_id]["label"], r_id))
+        result.sort(key=lambda x: x[1])
+        return result
 
     @classmethod
     def instantiate_representation_from_config(cls, representation_id) -> KioskRepresentationType:

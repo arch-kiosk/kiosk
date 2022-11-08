@@ -12,6 +12,8 @@ $('document').ready(function () {
     showhidemenu('#currentuser','#user-menu');
   });
 
+});
+
   function showhidemenu(triggerid, menuid) {
     trigger = $(triggerid);
     isClosed = !trigger.hasClass("is-open");
@@ -21,9 +23,8 @@ $('document').ready(function () {
       openMenu(menuid, trigger)
     }
   }
-});
 
-function openMenu(menu_id, trigger) {
+  function openMenu(menu_id, trigger) {
   trigger.removeClass('is-closed');
   trigger.addClass('is-open');
   $(menu_id + '.dropdown-content').fadeIn("fast");

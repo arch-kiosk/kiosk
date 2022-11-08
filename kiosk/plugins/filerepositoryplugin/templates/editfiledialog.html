@@ -28,7 +28,17 @@
           <img id="image-container" src="{{ img.get_image_file_ref(fullscreen_representation_id) }}">
           <!--"assets/images/3A677DA4-01AE-9E46-B34A-EFC19EA17286.jpg"-->
           {% if "download file" in authorized_to %}
-            <button id="ef-download" class="modal-download"></button>
+            <div class="dropdown">
+                <div id="download-menu">
+                  <button id="download-menu-image"></button>
+                </div>
+                <div class="dropdown-content" id="download-menu-contents">
+                  <div id="download-raw" class="ef-download">download original file</div>
+                  {% for representation in representations %}
+                    <div class="ef-download" data-representation-id="{{representation[1]}}">download {{representation[0]}}</div>
+                  {% endfor %}
+                </div>
+            </div>
           {% endif %}
           {% if "modify data" in authorized_to %}
             <button id="ef-upload" class="modal-upload">
@@ -151,7 +161,10 @@
       $("#ef-delete").on("click", onEFDialogDelete);
       $("#ef-cancel").on("click", onEFDialogCancel);
       $("#ef-ok").on("click", onEFDialogOk);
-      $("#ef-download").on("click", onEFDownloadImage);
+      $(".ef-download").on("click", onEFDownloadImage);
+      $('#download-menu').click(function () {
+        showhidemenu('#download-menu','#download-menu-contents');
+      });
       initEFDialog();
     }
   </script>

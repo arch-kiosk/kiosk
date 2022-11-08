@@ -17,7 +17,6 @@ config_file = os.path.join(test_path, r"config", "config_kiosk_imagemanagement.y
 log_file = os.path.join(test_path, r"log", "test_log.log")
 
 
-
 # @pytest.mark.skip
 class TestKioskRepresentations(KioskPyTestHelper):
 
@@ -46,11 +45,23 @@ class TestKioskRepresentations(KioskPyTestHelper):
         kiosk_db.commit()
 
         KioskSQLDb.run_sql_script(os.path.join(shared_datadir,
-                                              "insert_file_records.sql"))
+                                               "insert_file_records.sql"))
         KioskSQLDb.run_sql_script(os.path.join(shared_datadir,
-                                              "create_archaeological_context_data.sql"))
+                                               "create_archaeological_context_data.sql"))
         kiosk_db.commit()
         return kiosk_db
+
+    def test_get_representation_labels_and_ids(self, config):
+        labels_and_ids = KioskRepresentations.get_representation_labels_and_ids(config)
+        assert labels_and_ids == [
+            ('fix_rotation', 'fix_rotation'),
+            ('many_masters', 'many_masters'),
+            ('master', 'master'),
+            ('master_1', 'master_1'),
+            ('master_2', 'master_2'),
+            ('medium thumbnail', 'medium'),
+            ('small thumbnail', 'small')
+        ]
 
     def test_representations(self, config):
         file_repos_config = KioskRepresentations._get_file_repository_config()
@@ -152,4 +163,3 @@ class TestKioskRepresentations(KioskPyTestHelper):
         assert ["MYOWNMANIPULATION2"] not in representation.get_specific_manipulations(required=False)
         assert representation.get_specific_manipulations(requested=False) == ["MYOWNMANIPULATION2"]
         assert ["MYOWNMANIPULATION1"] not in representation.get_specific_manipulations(required=True)
-

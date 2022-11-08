@@ -70,6 +70,7 @@ file_repository:
       dimensions: "256,256"
       format_request: "default"
     master:
+      label: "JPEG with max 4000x2000 pixel"
       format_request: "default"
       dimensions: "4000,2000"
       requested_manipulations: [ "FIX_ROTATION", "DROP_EXIF_DATA" ]
@@ -82,6 +83,11 @@ file_repository:
       requested_manipulations: [ "DROP_EXIF_DATA" ]
       format_request: "NEFTIF"
       dimensions: "2400,2500"
+    1024x768JPEG:
+      label: "1024x768 screen size file"
+      requested_manipulations: [ "DROP_EXIF_DATA", "FIX_ROTATION" ]
+      format_request: "default"
+      dimensions: "1024,768"
 
   auto_representations: [ 'medium', 'small' ]
   thumbnails: [ 'small', 'medium' ]

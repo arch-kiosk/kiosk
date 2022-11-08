@@ -771,54 +771,64 @@ function EFDeleteFile(uuid, forceIt) {
 }
 
 function start_download_spinner() {
-  $("#ef-download").hide();
+  $("#download-menu").hide();
+  $("#image-spinner").show()
 }
 
 function stop_download_spinner() {
-  $("#ef-download").show();
+  $("#download-menu").show();
+  $("#image-spinner").hide()
 }
 
-function onEFDownloadImage() {
+function onEFDownloadImage(event) {
+  closeMenu('#download-menu-contents', $('#download-menu'));
+  let uuid = $("#uid").text();
+
+  let target = event.target
+  if (target.id !== 'download-raw') {
+    let representationId = target.getAttribute("data-representation-id")
+    uuid = uuid + ':' + representationId
+    console.log("downloading representation " + representationId)
+  }
+  else console.log("downloading raw file")
+
   start_download_spinner();
-  uuid = $("#uid").text();
   $(".download-msg").remove();
   $.fileDownload('/filerepository/download/' + uuid + '/start')
-    .done(function () {
-      $.ajax({
-        method: 'GET',
-        url: '/filerepository/download/' + uuid + '/response',
-        dataType: "json",
-        data: {result: 'ok'}
+      .done(function () {
+        console.log("file download success")
+        afterFileDownload()
       })
+      .fail(function () {
+        console.log("file download failure")
+        afterFileDownload()
+      })
+
+  function afterFileDownload() {
+        $.ajax({
+          method: 'GET',
+          url: '/filerepository/download/' + uuid + '/response',
+          dataType: "json",
+          data: {result: 'ok'}
+        })
         .done(function (msg) {
           stop_download_spinner();
-          if (msg.result != 'ok') {
-            $("#ef-image-information").after('<div class="dialog-error download-msg">Drat! Something went wrong with the download:' + msg.result + '</div>');
+          console.log(msg)
+          if (msg.result !== 'ok') {
+            $("#image-spinner").before('<div class="dialog-error download-msg">Drat! Something went wrong with the download:<br>' + msg.result + '</div>');
             $(".download-msg").fadeIn();
             $(".download-msg").click(function () {
               $(".download-msg").remove()
             });
           } else {
-            $("#ef-image-information").after('<div class="dialog-error download-msg">Download initiated, perhaps even finished.</div>');
+            $("#image-spinner").before('<div class="dialog-error download-msg">Download initiated, might even finished.</div>');
             $(".download-msg").fadeIn();
             $(".download-msg").click(function () {
               $(".download-msg").remove()
             });
           }
-        })
-        .always(function () {
-          //$("#"+ctl_id+"_spinner").remove();
-          //$("#"+ctl_id).css('visibility', 'visible');
         });
-    })
-    .fail(function () {
-      stop_download_spinner();
-      $("#ef-image-information").after('<div class="dialog-error download-msg">Oh my. The download would not even start. You may try again?!?.</div>');
-      $(".download-msg").fadeIn();
-      $(".download-msg").click(function () {
-        $(".download-msg").fadeOut()
-      });
-    });
+  }
 }
 
 function activateImage(uuid) {

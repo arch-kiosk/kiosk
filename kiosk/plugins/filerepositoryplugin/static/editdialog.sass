@@ -63,8 +63,16 @@
     max-height: 100%
 #ef-upload-area
   position: relative
+  .dropdown
+    position: absolute
+    background-color: transparent
+    top: 25px
+    left: 1em
+    width: auto
 
-.modal-download, .modal-upload
+
+.modal-download,
+.modal-upload
   display: none
   background-size: 50%
   background-position: center
@@ -76,6 +84,7 @@
   z-index: 100
   &:hover, &:active
     border-color: white
+    background-color: $col-bg-btn-darker
 
 .modal-download
   background-image: url("/static/assets/images/download.svg")
@@ -86,6 +95,63 @@
   background-image: url("/static/assets/images/upload.svg")
   left: 60px
   background-color: rgba(0,0,0,0.2)
+
+
+#download-menu
+  //position: relative
+  //max-height: 120px
+  //height: 100%
+  position: absolute
+  width: 60px
+  height: 60px
+  top: -33px
+  left: -25px
+  z-index: 101
+  //padding-right: 20px
+  @media #{$screen-phone-portrait}
+    font-size: $font-small
+
+  #download-menu-image
+    background-position: center
+    background-repeat: no-repeat
+    background-size: 50%
+    background-color: rgba(0,0,0,0.2)
+    border-color: rgba(0,0,0,0)
+    //border-color: rgba(0,0,0,2)
+    //border-radius: 35px
+    //border-style: solid
+    //border-width: 2px
+    background-image: url("/static/assets/images/download.svg")
+    box-shadow: none
+    display: block
+    //@media #{$screen-phone-portrait}
+    //  width: 36px
+    //  height: 36px
+    //  margin-left: -18px
+    &:hover, &:active
+      background-color: $col-bg-btn-darker
+      border-color: white
+    &:hover
+      cursor: context-menu
+    &:active
+      cursor: context-menu
+
+  #download-menu.is-open
+    p
+      background-color: $col-bg-att
+      color: $col-primary-bg-att
+
+#download-menu-contents.dropdown-content
+  padding: .5em
+  margin-left: 0px
+  position: static
+  div
+    color: $col-primary-bg-1
+    padding: 12px 16px
+    display: block
+    font-size: 1.2em
+    &:hover
+      background-color: $col-bg-1-lighter
 
 #ef-image-information
   margin-bottom: .5em
