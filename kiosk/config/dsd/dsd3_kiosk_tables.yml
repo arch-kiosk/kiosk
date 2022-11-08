@@ -22,6 +22,14 @@ kiosk_privilege:
 
 kiosk_user:
   structure:
+    3:
+      uid: [datatype(UUID), uuid_key())]
+      user_id: ["datatype(VARCHAR,20)", not_null(), unique()]
+      user_name: [datatype(VARCHAR), not_null()]
+      pwd_hash: [datatype(VARCHAR), not_null(), default("''")]
+      repl_user_id: ["datatype(VARCHAR,20)"]
+      groups: [datatype(VARCHAR)]
+      must_change_pwd: [datatype(BOOL)]
     2:
       uid: [datatype(UUID), uuid_key())]
       user_id: ["datatype(VARCHAR,20)", not_null(), unique()]
@@ -39,6 +47,9 @@ kiosk_user:
       groups: [datatype(VARCHAR)]
       must_change_pwd: [datatype(BOOL)]
   migration:
+    3:
+      upgrade:
+        - alter(pwd_hash)
     2:
       upgrade:
         - alter(user_id)

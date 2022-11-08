@@ -1663,6 +1663,18 @@ constants:
     import_filter:
       fm12: "(\"sync\" is null) or (\"sync\"=1)"
   structure:
+    3:
+      id: [datatype(VARCHAR)]
+      value: [datatype(VARCHAR)]
+      value_ts: [datatype(TIMESTAMP)]
+      category: [datatype(VARCHAR)]
+      comment: [datatype(VARCHAR)]
+      field_type: [datatype(VARCHAR)]
+      sync: [datatype(NUMBER), default(1)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created(), default('now()')]
+      modified: [datatype(TIMESTAMP), replfield_modified(), default('now()')]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
     2:
       id: [datatype(VARCHAR)]
       value: [datatype(VARCHAR)]
@@ -1688,6 +1700,10 @@ constants:
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
   migration:
+    3:
+      upgrade:
+        - alter("created")
+        - alter("modified")
     2:
       upgrade:
         - alter("modified_by")

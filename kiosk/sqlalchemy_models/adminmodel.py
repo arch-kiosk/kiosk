@@ -1,6 +1,8 @@
 from kiosksqlalchemy import sqlalchemy_db as db
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.sql import func
+from sqlalchemy import DateTime
 
 
 class KioskUser(db.Model):
@@ -11,7 +13,7 @@ class KioskUser(db.Model):
                     unique=True, nullable=False, server_default="gen_random_uuid()")
     user_id = db.Column(db.String(20))
     user_name = db.Column(db.String())
-    pwd_hash = db.Column(db.String())
+    pwd_hash = db.Column(db.String(), server_default="''")
     repl_user_id = db.Column(db.String())
     groups = db.Column(db.String())
     must_change_pwd = db.Column(db.Boolean())
@@ -89,6 +91,25 @@ class KioskFileManagerDirectories(db.Model):
     privilege_modify = db.Column(db.String(), nullable=True)
     privilege_read = db.Column(db.String(), nullable=True)
     server_restart = db.Column(db.Boolean())
+
+
+class KioskFileMakerRecordingConstants(db.Model):
+    __tablename__ = "constants"
+
+    db: SQLAlchemy
+
+    uid = db.Column(UUID(as_uuid=True), primary_key=True,
+                    unique=True, nullable=False, server_default="gen_random_uuid()")
+    id = db.Column(db.String(), unique=True, nullable=False)
+    category = db.Column(db.String(), nullable=False)
+    value = db.Column(db.String(), nullable=True)
+    value_ts = db.Column(db.DateTime(), nullable=True)
+    field_type = db.Column(db.String(), nullable=True)
+    sync = db.Column(db.Numeric(), nullable=True)
+    modified_by = db.Column(db.String(), nullable=False)
+    modified = db.Column(DateTime, nullable=True, onupdate="now()", server_default=func.now())
+    created = db.Column(db.DateTime(), nullable=True, server_default=func.now())
+
 
 def test():
     user = KioskUser(user_id="Test 2",

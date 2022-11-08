@@ -1,4 +1,4 @@
-from wtforms import SelectField
+from wtforms import SelectField, DateTimeField, TextAreaField, StringField
 from wtforms.validators import InputRequired
 
 import kioskglobals
@@ -13,6 +13,7 @@ import kiosksqlalchemy
 from sqlalchemy_models.adminmodel import KioskFilePickingRules
 from sqlalchemy_models.adminmodel import KioskQCRules, KioskQCFlags
 from sqlalchemy_models.adminmodel import KioskQCRules, KioskFileManagerDirectories
+from sqlalchemy_models.adminmodel import KioskFileMakerRecordingConstants
 
 
 class EmptyStringField(wtforms.fields.StringField):
@@ -147,6 +148,34 @@ class KioskFileManagerDirectoriesView(KioskModelView):
                current_user.fulfills_requirement(MANAGE_SERVER_PRIVILEGE)
 
 
+class KioskFileMakerRecordingConstantsView(KioskModelView):
+    form_excluded_columns = ["modified", "created"]
+
+    form_overrides = {
+        'modified': DateTimeField,
+        'created': DateTimeField,
+        'value_ts': DateTimeField,
+        'sync': SelectField,
+        'value': TextAreaField
+
+    }
+
+    form_args = {
+        'sync': {
+            'label': 'synchronization type',
+            'description': 'defines if values for this key get synchronized. -1 and 0: never, 1=yes',
+            'choices': [-1, 0, 1]
+        },
+    }
+
+    form_widget_args = {
+        'value': {
+            'style': 'height: 15em'
+        }
+    }
+
+
+
 class KioskAdminRedirectView(AdminIndexView):
     @expose('/')
     def index(self):
@@ -170,3 +199,5 @@ def init_flask_admin(cfg, app):
         QCFlagsModelView(KioskQCFlags, kiosksqlalchemy.sqlalchemy_db.session))
     kioskglobals.flask_admin.add_view(
         KioskFileManagerDirectoriesView(KioskFileManagerDirectories, kiosksqlalchemy.sqlalchemy_db.session))
+    kioskglobals.flask_admin.add_view(
+        KioskFileMakerRecordingConstantsView(KioskFileMakerRecordingConstants, kiosksqlalchemy.sqlalchemy_db.session))

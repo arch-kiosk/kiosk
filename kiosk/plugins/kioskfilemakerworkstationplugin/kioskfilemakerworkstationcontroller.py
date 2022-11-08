@@ -66,7 +66,21 @@ class UserError(Exception):
 
 
 def init_controller():
-    if kioskglobals.get_development_option("webapp_development").lower() == "true":
+    cfg = kioskglobals.get_config()
+    try:
+        no_csrf_defense = kioskstdlib.to_bool(
+            kioskstdlib.try_get_dict_entry(cfg["kiosk"]["kioskfilemakerworkstationplugin"],
+                                           "no_csrf_defense", "false"))
+    except BaseException as e:
+        no_csrf_defense = False
+        logging.error(f"{repr(e)}")
+
+    if no_csrf_defense:
+        logging.warning(f"*************+ CSRF DEFENSE DEACTIVATED "
+                        f"(kiosk/kioskfilemakerworkstationplugin/no_csrf_defense *****************")
+
+    if kioskglobals.get_development_option("webapp_development").lower() == "true" or \
+            no_csrf_defense:
         kioskglobals.csrf.exempt(kioskfilemakerworkstation)
 
 
