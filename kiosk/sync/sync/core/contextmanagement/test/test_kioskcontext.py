@@ -158,8 +158,9 @@ class TestKioskContext(KioskPyTestHelper):
             }
         }
         context = KioskContext("context_name", dsd)
-        context._additional_fields = [("describes_file()", "description", "''"),
-                                      ("created", "created", "null")]
+        context._additional_fields = context._rectify_additional_fields([("describes_file()", "description", "''"),
+                                                                         ("created", "created", "null")])
+
         context.from_dict(context_data["context_name"])
         sql = context._get_selects('FA', 'uid_file()')
         assert sql == ['select distinct "unit"."arch_context" "identifier","unit"."uid" '
@@ -184,6 +185,8 @@ class TestKioskContext(KioskPyTestHelper):
         cur.close()
         cur = KioskSQLDb.execute_return_cursor(sql[1])
         cur.close()
+
+
 
     def test_select_query_in_memory(self, dsd, urapdb_with_records):
         context_data = {
@@ -963,3 +966,48 @@ class TestKioskContext(KioskPyTestHelper):
             assert cNo == 5
         finally:
             records.close()
+
+    def test__get_selects_with_additional_lookup_field(self, dsd):
+        context_data = {
+            "context_name": {
+                "type": "some type",
+                "scope": {
+                    "unit": {
+                        "locus": {
+                            "locus_photo": {}
+                        },
+                        "dayplan": {}
+                    }
+                }
+            }
+        }
+        context = KioskContext("context_name", dsd)
+        context._additional_fields = context._rectify_additional_fields([("describes_file()", "description", "''"),
+                                                                         ("created", "created", "null"),
+                                                                         ("uid_file()", "image_description", "", "",
+                                                                          "lookup('images','uid','description')")])
+
+        context.from_dict(context_data["context_name"])
+        sql = context._get_selects('FA', 'uid_file()')
+        assert sql == ['select distinct "unit"."arch_context" "identifier","unit"."uid" '
+                       '"id_uuid","locus_photo"."uid_image" "data","locus_photo"."uid" '
+                       '"data_uuid",false "primary",\'locus_photo\' '
+                       '"record_type","locus"."arch_context" "primary_identifier","locus"."uid" '
+                       '"primary_identifier_uuid","locus_photo"."description" '
+                       '"description","locus_photo"."created" "created" from unit inner join "locus" '
+                       'on "unit"."uid"="locus"."uid_unit" inner join "locus_photo" on '
+                       '"locus"."uid"="locus_photo"."uid_locus" where coalesce( '
+                       '"unit"."arch_context", \'\') ilike \'FA\' AND "locus_photo"."uid_image" is '
+                       'not null',
+                       'select distinct "unit"."arch_context" "identifier","unit"."uid" '
+                       '"id_uuid","dayplan"."uid_image" "data","dayplan"."uid" "data_uuid",true '
+                       '"primary",\'dayplan\' "record_type","unit"."arch_context" '
+                       '"primary_identifier","unit"."uid" '
+                       '"primary_identifier_uuid","dayplan"."image_description" '
+                       '"description","dayplan"."created" "created" from unit inner join "dayplan" '
+                       'on "unit"."uid"="dayplan"."uid_unit" where coalesce( "unit"."arch_context", '
+                       '\'\') ilike \'FA\' AND "dayplan"."uid_image" is not null']
+        cur = KioskSQLDb.execute_return_cursor(sql[0])
+        cur.close()
+        cur = KioskSQLDb.execute_return_cursor(sql[1])
+        cur.close()

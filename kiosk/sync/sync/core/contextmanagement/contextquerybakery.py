@@ -23,6 +23,9 @@ class ContextQueryBakery:
         self.kiosk_context: KioskContext = None
         self._target_field_or_instruction = ""
         self._target_format = ""
+
+        # additional_field is a tuple: (field_or_instruction, output_name, default, field_format, field_substitute)
+        # field_format and field_substitute can be empty.
         self._additional_fields = []
         self._dsd = dsd
         self.register_query_class("Raw", ContextQuery)
@@ -83,10 +86,11 @@ class ContextQueryBakery:
                 if term not in field:
                     raise CqlError(f"no {term} defined for additional field {output_name}.")
 
-            if "format" in field:
-                additional_field = (field["field_or_instruction"], output_name, field["default"], field["format"])
-            else:
-                additional_field = (field["field_or_instruction"], output_name, field["default"])
+            field_format = field["format"] if "format" in field else ""
+            field_substitute = field["substitute"] if "substitute" in field else ""
+
+            additional_field = (field["field_or_instruction"], output_name, field["default"], field_format,
+                                field_substitute)
             self._additional_fields.append(additional_field)
 
     def _get_scope(self):

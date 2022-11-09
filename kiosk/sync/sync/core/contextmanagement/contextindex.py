@@ -76,19 +76,7 @@ class ContextIndex:
                                      will only query the identifer field in record_type locus/ the type field in locus.
         :param sql_source_class: A subclass of ContextQuery
                 that will be instantiated to produce the query results. ContextQueryInMemory will be used as a default.
-        :param additional_fields: tuple(field_or_instruction, field_name, default_value)
-                additional fields of the target table that will be part of the result set.
-                The first part of the tuple is a field or instruction that marks a field.
-                That field or instruction will only be collected from the same record_type/table
-                as the parameter field_or_instruction! If parameter field_or_instruction is prefixed with a table,
-                that limits the additional_fields as well.
-                The second part of the tuple defines the field's name in the result set.
-                If an additional field cannot be found in the target table, the column will be
-                added (the second value of the tuple) nonetheless
-                with the default value (the third value of the tuple).
-
-                When using an instruction, make sure that all tables in the context definition have only one field marked
-                with that instruction. Otherwise a KioskContextDuplicateInstructionError exception will occur.
+        :param additional_fields: see KioskContext.select!
         :returns: a ContextQuery subclass that produces the query results.
         :exception KioskContextDuplicateInstructionError:
                 You used an instruction in field_or_instruction

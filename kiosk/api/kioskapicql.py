@@ -142,7 +142,7 @@ class ApiCQLQuery(Resource):
         page = params["page"]
         context: KioskContext = get_context()
         if params["additional_datum"]:
-            additional_fields = [(params["additional_datum"], "additional_datum", "")]
+            additional_fields = [(params["additional_datum"], "additional_datum", "", "", "")]
         else:
             additional_fields = []
 

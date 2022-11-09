@@ -1,8 +1,12 @@
 import copy
 import logging
 import re
+from uuid import uuid4
 
-from dsd.dsd3 import DataSetDefinition
+import nanoid
+
+import kioskstdlib
+from dsd.dsd3 import DataSetDefinition, Join
 from dsd.dsdgraph import DsdGraph
 from simplefunctionparser import SimpleFunctionParser
 from kiosksqldb import KioskSQLDb
@@ -44,11 +48,27 @@ class KioskContext:
         self.data_field = ""
         self.data_uuid_field = ""
 
-        self._additional_fields = []
+        self._additional_fields = []  # 5-tuple(field_or_instruction, field_name, default_value, output-format, substitute)
         self._output_format = ""
         self._output_formatters = {}
+
+        self._lookup_tables = {}
+
         self._type_info: ContextTypeInfo = None
         self.set_dsd(dsd)
+
+    @staticmethod
+    def _rectify_additional_fields(additional_fields: list):
+        """
+        Just makes sure that all additional field tuples have 5 elements.
+        That's for compatibility's sake.
+        :returns: This changes the input list and returns the very same.
+        """
+        for idx, additional_field in enumerate(additional_fields):
+            if len(additional_field) != 5:
+                additional_field = kioskstdlib.adjust_tuple(additional_field, 5, "")
+                additional_fields[idx] = additional_field
+        return additional_fields
 
     def register_output_formatter(self, name: str, formatter: SqlFieldFormatter):
         """
@@ -109,7 +129,7 @@ class KioskContext:
             else:
                 for additional_field in self._additional_fields:
                     if additional_field[1] == dst_field_name:
-                        if len(additional_field) == 4:
+                        if additional_field[3]:
                             output_format = additional_field[3]
                         break
 
@@ -175,6 +195,57 @@ class KioskContext:
         else:
             return "", additional_field
 
+    def register_lookup_table(self, src_field, table, key_field, value_field) -> str:
+        if table in self._lookup_tables:
+            lookup_table = self._lookup_tables[table]
+            if lookup_table["src_field"] != src_field:
+                raise KioskContextError(f"KioskContext._register_lookup_table: lookup-table {table} is referenced twice"
+                                        f"with different source fields: {src_field} != {lookup_table['src_field']}."
+                                        f"That's not supported, yet.")
+        else:
+            lookup_table = {
+                "src_field": src_field,
+                "key_field": key_field,
+                "table_alias": nanoid.generate(),
+                "value_fields": []
+            }
+            self._lookup_tables[table] = lookup_table
+
+        lookup_table["value_fields"].append(value_field)
+        return lookup_table["table_alias"]
+
+    def _process_substitution_directive(self, additional_field: tuple) -> tuple:
+        p = SimpleFunctionParser()
+        p.parse(additional_field[4])
+        if not p.ok:
+            raise KioskContextError(
+                f"KioskContext._process_substitution_directive: Statement {additional_field[4]} can't "
+                f"be parsed properly. ")
+
+        directive = p.instruction.lower()
+        if directive == 'lookup':
+            return self._process_lookup_substitution(additional_field, p)
+        else:
+            raise KioskContextError(
+                f"KioskContext._process_substitution_directive: Statement {additional_field[4]} is not "
+                f"referring to any known substitution function. ")
+
+    def _process_lookup_substitution(self, additional_field: tuple, p: SimpleFunctionParser) -> tuple:
+        if len(p.parameters) != 3:
+            raise KioskContextError(
+                f"KioskContext._process_lookup_substitution: lookup substitution {additional_field[4]} does not "
+                f"have the the expected 3 arguments. ")
+        # additional_field: 5 - tuple(field_or_instruction, field_name, default_value, output - format, substitute)
+        # parameters for lookup: table, key field, value field
+
+        table_alias = self.register_lookup_table(additional_field[0], *p.parameters)
+
+        # lookup substitutions are only allowed to return a varchar, currently
+        self._type_info.add_data_type(additional_field[1], "varchar")
+
+        # returns table, src_field_name, dst_field_name
+        return table_alias, p.parameters[2], additional_field[1]
+
     def _get_select_for_path(self, path: list) -> str:
         sql = "select distinct "
         sql += self._get_formatted_output_field(self.identifier_table, self.identifier_field, "identifier")
@@ -198,6 +269,9 @@ class KioskContext:
         sql += "," + self._get_formatted_output_field(self.closest_identifier_table,
                                                       self.closest_identifier_uid_field, "primary_identifier_uuid")
         for additional_field in self._additional_fields:
+            # additional_field:
+            # 5 - tuple(field_or_instruction, field_name, default_value, output - format, substitute)
+
             (table, field) = self._get_table_and_field(additional_field[0])
             if not table:
                 table = self.data_table
@@ -210,24 +284,62 @@ class KioskContext:
             else:
                 fields = None
 
-            if fields:
-                if len(fields) > 1:
-                    logging.warning(f"KioskContext._get_select_for_path: table {table} "
-                                    f"has more than one field with instruction {field}. "
-                                    f"That is not supported by KioskContext, right now.")
-                    raise KioskContextDuplicateInstructionError(
-                        f"KioskContext._get_select_for_path: table {table} "
-                        f"has more than one field with instruction {field}. "
-                        f"That is not supported by KioskContext, right now.")
-                field_name = fields[0]
-                sql += "," + self._get_formatted_output_field(table, field_name, additional_field[1])
-                # sql += f",{KioskSQLDb.sql_safe_ident(self.data_table)}.{KioskSQLDb.sql_safe_ident(field_name)} " \
-                #        f"{KioskSQLDb.sql_safe_ident(additional_field[1])}"
+            if additional_field[4]:
+                # there's a substitution directive
+                if fields:
+                    new_additional_field = (fields[0],
+                                            additional_field[1],
+                                            additional_field[2],
+                                            additional_field[3],
+                                            additional_field[4]
+                                            )
+                else:
+                    new_additional_field = additional_field
+
+                table, src_field_name, dst_field_name = self._process_substitution_directive(new_additional_field)
+                sql += "," + self._get_formatted_output_field(table, src_field_name, dst_field_name,
+                                                              add2type_info=False)
             else:
-                sql += "," + self._get_formatted_output_field(table, field, additional_field[1],
-                                                              default_value=additional_field[2])
-                # sql += f",'{additional_field[2]}' " \
-                #        f"{KioskSQLDb.sql_safe_ident(additional_field[1])}"
+
+                if fields:
+                    if len(fields) > 1:
+                        logging.warning(f"KioskContext._get_select_for_path: table {table} "
+                                        f"has more than one field with instruction {field}. "
+                                        f"That is not supported by KioskContext, right now.")
+                        raise KioskContextDuplicateInstructionError(
+                            f"KioskContext._get_select_for_path: table {table} "
+                            f"has more than one field with instruction {field}. "
+                            f"That is not supported by KioskContext, right now.")
+                    field_name = fields[0]
+                    sql += "," + self._get_formatted_output_field(table, field_name, additional_field[1])
+                    # sql += f",{KioskSQLDb.sql_safe_ident(self.data_table)}.{KioskSQLDb.sql_safe_ident(field_name)} " \
+                    #        f"{KioskSQLDb.sql_safe_ident(additional_field[1])}"
+                else:
+                    # 5 - tuple(field_or_instruction, field_name, default_value, output - format, substitute)
+                    sql += "," + self._get_formatted_output_field(table, field, additional_field[1],
+                                                                  default_value=additional_field[2])
+                    # sql += f",'{additional_field[2]}' " \
+                    #        f"{KioskSQLDb.sql_safe_ident(additional_field[1])}"
+
+        return sql
+
+    def _join_from_lookup_table(self, root_table, table) -> str:
+        if table not in self._lookup_tables:
+            raise KioskContextError(
+                f"KioskContext._join_from_lookup_table: lookup {table} is not "
+                f"a known look up table.")
+
+        lookup_table = self._lookup_tables[table]
+        table_alias = KioskSQLDb.sql_safe_ident(lookup_table['table_alias'])
+        # sql = "left outer join lookup_table table_alias on root_table.src_field = table_alias.key_field"
+
+        sql = ""
+        sql += f" left outer join"
+        sql += f" {KioskSQLDb.sql_safe_ident(table)} as {table_alias}"
+        sql += f" on {KioskSQLDb.sql_safe_ident(root_table)}." \
+               f"{KioskSQLDb.sql_safe_ident(lookup_table['src_field'])}"
+        sql += f"="
+        sql += f"{table_alias}.{KioskSQLDb.sql_safe_ident(lookup_table['key_field'])}"
 
         return sql
 
@@ -243,16 +355,19 @@ class KioskContext:
 
             root_table = table
 
+        for table in self._lookup_tables:
+            sql += self._join_from_lookup_table(root_table, table)
+
         return sql
 
     def _get_where_for_path(self, path: list, identifier) -> str:
         if identifier:
-            sql = "where coalesce("
+            sql = " where coalesce("
             sql += f" {KioskSQLDb.sql_safe_ident(self.identifier_table)}." \
                    f"{KioskSQLDb.sql_safe_ident(self.identifier_field)}, '')"
             sql += f" ilike '{identifier}'"
         else:
-            sql = "where coalesce("
+            sql = " where coalesce("
             sql += f" {KioskSQLDb.sql_safe_ident(self.identifier_table)}." \
                    f"{KioskSQLDb.sql_safe_ident(self.identifier_field)}, '')"
             sql += f" <> ''"
@@ -264,6 +379,7 @@ class KioskContext:
     def _get_sql_select(self, path: list, identifier: str, prefixed_field_or_instruction) -> str:
         self.identifier_table = path[0]
 
+        self._lookup_tables = {}
         search_term = prefixed_field_or_instruction.split(".")
         if len(search_term) == 2:
             table_prefix = search_term[0]
@@ -347,7 +463,7 @@ class KioskContext:
                               that converts the target field into a required format.
         :param sql_source_class: A subclass of SqlSource
                 that will be instantiated to produce the query results. ContextQueryInMemory will be used as a default.
-        :param additional_fields: 4-tuple(field_or_instruction, field_name, default_value, output-format)
+        :param additional_fields: 5-tuple(field_or_instruction, field_name, default_value, output-format, substitute)
                 additional fields of the target table that will be part of the result set.
                 - The first part of the tuple is a field or instruction that marks a field.
                 That field or instruction will only be collected from the same record_type/table
@@ -357,6 +473,7 @@ class KioskContext:
                 - If an additional field cannot be found in the target table, the column will be
                 added (the second value of the tuple) nonetheless with the default value (the third value of the tuple).
                 - The fourth element of the tuple is either an empty string or a valid output-format instruction.
+                - The tuple's fifth element is either an empty string or a valid substitution instruction
 
                 When using an instruction, make sure that all tables in the context definition have only one field marked
                 with that instruction. Otherwise a KioskContextDuplicateInstructionError exception will occur.
@@ -368,8 +485,9 @@ class KioskContext:
         """
         if additional_fields is None:
             additional_fields = []
+
         self._type_info = ContextTypeInfo(self._dsd.get_field_datatype)
-        self._additional_fields = additional_fields
+        self._additional_fields = self._rectify_additional_fields(additional_fields)
         self._output_format = output_format
         sql_selects = self._get_selects(identifier, field_or_instruction)
         return sql_source_class(selects=sql_selects, type_info=copy.deepcopy(self._type_info), name=self.name)
@@ -389,19 +507,7 @@ class KioskContext:
                               that converts the target field into a required format.
         :param sql_source_class: A subclass of SqlSource
                 that will be instantiated to produce the query results. ContextQueryInMemory will be used as a default.
-        :param additional_fields: 4-tuple(field_or_instruction, field_name, default_value, output-format)
-                additional fields of the target table that will be part of the result set.
-                The first part of the tuple is a field or instruction that marks a field.
-                That field or instruction will only be collected from the same record_type/table
-                as the parameter field_or_instruction! If parameter field_or_instruction is prefixed with a table,
-                that limits the additional_fields as well.
-                The second part of the tuple defines the field's name in the result set.
-                If an additional field cannot be found in the target table, the column will be
-                added (the second value of the tuple) nonetheless with the default value (the third value of the tuple).
-                The fourth element of the tuple is either an empty string or a valid output-format instruction.
-
-                When using an instruction, make sure that all tables in the context definition have only one field marked
-                with that instruction. Otherwise a KioskContextDuplicateInstructionError exception will occur.
+        :param additional_fields: see KioskContext.select
         :returns: a ContextQuery subclass that produces the query results.
         :exception KioskContextDuplicateInstructionError:
                 You used an instruction in field_or_instruction
@@ -410,6 +516,7 @@ class KioskContext:
         """
         if additional_fields is None:
             additional_fields = []
+
         return self.select(identifier="",
                            field_or_instruction=field_or_instruction,
                            sql_source_class=sql_source_class,

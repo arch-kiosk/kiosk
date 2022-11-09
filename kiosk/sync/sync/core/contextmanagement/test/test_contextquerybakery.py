@@ -179,9 +179,9 @@ class TestKioskContextQueryBakery(KioskPyTestHelper):
         bakery = ContextQueryBakery(dsd)
         bakery._set_cql(cql)
         bakery._prepare_base()
-        assert bakery._additional_fields == [('modified()', 'year', 1900, 'datetime(year)'),
-                                             ('modified()', 'month', 1, 'datetime(month)'),
-                                             ('modified()', 'day', 1, 'datetime(day)')]
+        assert bakery._additional_fields == [('modified()', 'year', 1900, 'datetime(year)', ''),
+                                             ('modified()', 'month', 1, 'datetime(month)', ''),
+                                             ('modified()', 'day', 1, 'datetime(day)', '')]
 
     def test_check_scope(self, dsd):
         cql = yaml.load("""

@@ -1442,3 +1442,19 @@ def erase_esc_seq(s: str) -> str:
     :return: string without sequences
     """
     return re.sub('\u001b.+?m', '', s)
+
+
+def adjust_tuple(in_tuple: tuple, length: int, default) -> tuple:
+    """
+    adjusts the length of a tuple.
+    It either shrinks the tuple to the given length or fills it up with the default value.
+    :param in_tuple: the tuple
+    :param length: the required length
+    :param default: the default value in case it needs to be filled up
+    :return: the adjusted tuple
+    """
+    if len(in_tuple) == length:
+        return in_tuple
+    return tuple([in_tuple[x] if x < len(in_tuple) else default
+                  for x in range(0, length)])
+

@@ -20,7 +20,7 @@ class Testkioskstdlib(KioskPyTestHelper):
 
     @pytest.fixture(scope="module")
     def cfg(self):
-        cfg = self.get_config(config_file,log_file=log_file)
+        cfg = self.get_config(config_file, log_file=log_file)
         return cfg
 
     def test_init(self, cfg):
@@ -157,3 +157,9 @@ class Testkioskstdlib(KioskPyTestHelper):
     def test_delete_any_of(self):
         assert kioskstdlib.delete_any_of("Me in.Stri ng%mit.:Son,de*rzeichen",
                                          " .,:!%*") == "MeinStringmitSonderzeichen"
+
+    def test_adjust_tuple(self):
+        assert kioskstdlib.adjust_tuple((1, 2, 3), 5, 0) == (1, 2, 3, 0, 0)
+        assert kioskstdlib.adjust_tuple((), 5, "") == ("", "", "", "", "",)
+        assert kioskstdlib.adjust_tuple((1, 2, 3, 4, 5), 5, "") == (1, 2, 3, 4, 5)
+        assert kioskstdlib.adjust_tuple((1, 2, 3, 4, 5), 3, "") == (1, 2, 3)
