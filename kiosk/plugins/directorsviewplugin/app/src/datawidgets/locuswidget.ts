@@ -449,7 +449,7 @@ class LocusWidget extends connect(store)(LitElement) {
                     <div class="list-header">lots</div>
                     <div class="list-header">creation</div>
                     <div class="list-header">description?</div>
-                    <div class="list-header">interpretation?</div>
+                    <div class="list-header tighter">interpre-tation?</div>
                     <div class="list-header">relations</div>
                     <div class="list-header">photos</div>
                     ${this.selected_member ? undefined : html`<div class="list-header">by</div>`}

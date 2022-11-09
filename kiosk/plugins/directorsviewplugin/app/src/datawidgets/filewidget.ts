@@ -32,6 +32,8 @@ class FileRecord {
     modified_by: string
     uid_file: string
     description: string
+    image_description: string
+    filename: string
     record_type: string
     modified: Date
 }
@@ -176,6 +178,16 @@ class FileWidget extends connect(store)(LitElement) {
                                     "description": {
                                         "field_or_instruction": "describes_file()",
                                         "default": ""
+                                    },
+                                    "image_description": {
+                                        "field_or_instruction": "uid_file()",
+                                        "default": "",
+                                        "substitute": "lookup('images','uid','description')"
+                                    },
+                                    "filename": {
+                                        "field_or_instruction": "uid_file()",
+                                        "default": "",
+                                        "substitute": "lookup('images','uid','export_filename')"
                                     }
 
                                 }
@@ -199,6 +211,12 @@ class FileWidget extends connect(store)(LitElement) {
                                     },
                                     "description": {
                                         "source_field": "description"
+                                    },
+                                    "image_description": {
+                                        "source_field": "image_description"
+                                    },
+                                    "filename": {
+                                        "source_field": "filename"
                                     },
                                     "record_type": {
                                         "source_field": "record_type"
@@ -245,6 +263,8 @@ class FileWidget extends connect(store)(LitElement) {
             file.modified = new Date(r.modified_timestamp)
             file.uid_file = r.uid_file
             file.description = r.description
+            file.image_description = r.image_description
+            file.filename = r.filename
             file.record_type = r.record_type
             this.record_types.add(r.record_type)
             this.files.push(file)
@@ -487,6 +507,8 @@ class FileWidget extends connect(store)(LitElement) {
                                         </div>
                                         <p>${recordType2Name(this.record_type_names, file.record_type)}</p>
                                         <p>${file.description}</p>
+                                        <p>${file.image_description}</p>
+                                        ${file.filename?html`<p>filename: ${file.filename}</p>`:undefined}
                                     </div>
                                 </div>`
                             : undefined}`
