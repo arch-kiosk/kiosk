@@ -821,7 +821,7 @@ function onEFDownloadImage(event) {
               $(".download-msg").remove()
             });
           } else {
-            $("#image-spinner").before('<div class="dialog-error download-msg">Download initiated, might even finished.</div>');
+            $("#image-spinner").before('<div class="dialog-error download-msg">Download initiated, might even be finished.</div>');
             $(".download-msg").fadeIn();
             $(".download-msg").click(function () {
               $(".download-msg").remove()
