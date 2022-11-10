@@ -243,7 +243,7 @@ def get_worker_setting(action: str):
                "fix_import": ("plugins.kioskfilemakerworkstationplugin.workers.importworkstationworker",
                               "ImportWorkstationWorker", PREPARE_WORKSTATIONS, False),
                "reset": ("plugins.kioskfilemakerworkstationplugin.workers.resetworkstationworker",
-                         "ResetWorkstationWorker", EDIT_WORKSTATION_PRIVILEGE, False),
+                         "ResetWorkstationWorker", PREPARE_WORKSTATIONS, False),
                "delete": ("plugins.kioskfilemakerworkstationplugin.workers.deleteworkstationworker",
                           "DeleteWorkstationWorker", EDIT_WORKSTATION_PRIVILEGE, False),
                "forknexport": ("plugins.kioskfilemakerworkstationplugin.workers.forknexportworkstationworker",
