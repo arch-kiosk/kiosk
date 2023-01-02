@@ -309,6 +309,22 @@ class KioskRestore:
                 f.writelines(["config:\n", f"  base_path: {kiosk_dir}\n"])
 
             cls.zip_extract_files(kiosk_dir, kiosk_zip, 'config/*.yml', )
+            try:
+                os.remove(kiosk_configfile)
+            except:
+                pass
+            template_config = os.path.join(config_dir, 'kiosk_config_template.yml')
+            if os.path.exists(template_config):
+                shutil.move(template_config, kiosk_configfile)
+            else:
+                print("\nWarning: There was no template configuration 'kiosk_config_template.yml' to use.\n")
+                with open(kiosk_configfile, "w", encoding='utf8') as ymlfile:
+                    ymlfile.write("""
+import_configurations:\n
+        - kiosk_default_config.yml\n
+        - kiosk_secure.yml\n
+""")
+
             cls.zip_extract_files(kiosk_dir, kiosk_zip, 'config/dsd', )
             cls.set_new_database_credentials(kiosk_configfile, secure_file, options)
 
@@ -876,7 +892,8 @@ class KioskRestore:
                     logging.debug(f"pg_restore_database: calling psql -U{user_id} "
                                   f"--file={dump_file} {db_name}")
                     rc = subprocess.run(f"psql -U{user_id} "
-                                        f"--file={dump_file} {db_name}", stdout=subprocess.PIPE)  # , stdout=subprocess.PIPE
+                                        f"--file={dump_file} {db_name}",
+                                        stdout=subprocess.PIPE)  # , stdout=subprocess.PIPE
 
                 rc = rc.returncode
                 sys.stdout.flush()

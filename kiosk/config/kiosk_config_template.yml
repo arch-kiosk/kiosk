@@ -1,0 +1,67 @@
+# *********************************************
+# kiosk config
+# *********************************************
+import_configurations:
+  - kiosk_default_config.yml
+  - kiosk_secure.yml
+
+config:
+  no_console: false
+
+# these settings are needed for filemaker recording:
+#  filemaker_template: '%sync%\filemaker\kiosk_recording_template.fmp12'
+#  expected_filemaker_template_version: '12.4'
+#  filemaker_db_filename: kiosk_recording.fmp12
+
+# odbc_ini_dsn depends on the actual name of the odbc entry of the filemaker odbc driver to use
+#  odbc_ini_dsn: filemaker_odbc
+
+file_repository:
+### These recording aliases must be configured according to the archaeological project's terminology:
+#  recording_context_aliases:
+#    locus: 'context'
+#    unit: 'trench/area'
+#    locus_photo: 'context'
+#    dayplan: 'trench/area'
+#    locus_relations: 'context relations'
+#    collected_material_photo: 'collected material & small finds'
+#    collected_material: 'collected material & small finds'
+#    unit_narrative: 'trench/area narrative'
+#    site_note_photo: 'site note'
+#    site: 'site map'
+#    pottery_images: 'pottery'
+#    tags: 'context tags'
+
+#kiosk:
+### state the subnet if this is a local server
+#  subnet: '192.168.1'
+
+### path to local imports
+#  local_importpaths: [ 'c:\notebook_source\urap\server' ]
+
+### configure these global constants according to your project's needs
+#  global_constants:
+#    project_name: 'uronarti regional archaeological project'
+#    project_short: 'urap'
+#    project_logo_top: ''
+#    project_logo_main: 'uronarti'
+#    project_logo_bottom: Paisajes Arqueológicos de Chachapoyas
+
+### configure the backup and restore settings
+#  administrationplugin:
+#    backup_filename_template: "kiosk_#a_#d#m#y-#h#m#s.dmp"
+#    backup_directory: 't:\gibtsnicht'
+#    restore_directory: 't:\gibtsnicht'
+#    defaults:
+#      backup_workstation_directories: false
+
+
+### activate this if you don't want to use csrf defense for kioskfilemakerworkstationplugin
+### (because you are using kioskbridge)
+#  kioskfilemakerworkstationplugin:
+#    no_csrf_defense: true
+
+
+
+
+

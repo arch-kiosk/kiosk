@@ -174,6 +174,7 @@ class KioskBackup:
                          kiosk_dir,
                          ["-xr!qrcoderecognitiontests", "-xr!node_modules", "-xr!.env.development.local",
                           "-xr!kiosk_secure.yml",
+                          "-xr!kiosk_config.yml",
                           "-xr!secure.js", "-xr!*.fmp12"]])
             zips.append([path.join(dst_dir, "kiosk.zip"),
                          [
@@ -186,7 +187,9 @@ class KioskBackup:
             zips.append([path.join(dst_dir, "kiosk.zip"),
                          cls.KIOSK_CONFIG_ONLY_FILES,
                          kiosk_dir,
-                         ['-xr!qrcoderecognitiontests', '-xr!kiosk_secure.yml']])
+                         ['-xr!qrcoderecognitiontests',
+                          "-xr!kiosk_config.yml",
+                          '-xr!kiosk_secure.yml']])
 
         if "w" in options:
             cls._add_workstation_files(config, dst_dir, zips)

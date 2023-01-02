@@ -46,6 +46,7 @@ config:
   test_mode: False
   use_double_commit: False
   file_repository: '%sync%\file_repository'
+  database_timeout_sec: 5
 
 file_repository:
   cache: '%file_repository%\cache'
@@ -105,6 +106,7 @@ file_repository:
 fileexportworkstation:
   plugins: [ "fileexportcsvdriver","fileexportexceldriver" ]
   file_export_dsd_view: '%base_path%\config\dsd\file_export_view.yml'
+  max_export_repo_mbytes: 500
   FileExportTargetZip:
     export_directory: '%base_path%\export'
     export_filename: 'kiosk.zip'
@@ -191,6 +193,8 @@ file_import:
         priority: 15
 
 kiosk:
+  security_token_timeout_seconds: 3600
+  reset_file: '%base_path%\reset.yml'
   SECRET_KEY: "fd82303c-6852-48c1-8165-9e60d4b25b94"
   template_path: '%base_path%\templates'
   static_image_path: '%base_path%\static\assets\images'
@@ -199,6 +203,8 @@ kiosk:
   custom_kiosk_modules: '%base_path%\custom'
   temp_file_max_age_days: 30
   startup_threads: [ ]
+  terminal_accent_color_ansi: '[30;41;1m'
+  backup_reminder_days: 1
 
   login_plugin:
     active: true
@@ -247,6 +253,7 @@ kiosk:
 
   kioskfilemakerworkstationplugin:
     active: true
+    no_csrf_defense: false
     menu:
       "prepare filemaker workstations": [ "+syncmanagerplugin" ]
       "import filemaker workstations": [ "+syncmanagerplugin" ]
@@ -300,4 +307,7 @@ kiosk:
     active: true
 
   kioskreportingdockplugin:
+    active: true
+
+  kioskexportworkstationplugin:
     active: true
