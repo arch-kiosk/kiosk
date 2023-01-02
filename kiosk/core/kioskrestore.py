@@ -283,6 +283,16 @@ class KioskRestore:
             print(f"Unzipping {src_file} to {working_directory}")
             cls.zip_extract_files(working_directory, src_file, None, zip_options)
 
+    @staticmethod
+    def get_server_type():
+        local_server = ""
+        while local_server not in ("y", "n"):
+            if local_server != "":
+                print("\nPlease answer with y for yes or n for no! \n")
+            local_server = input("Is this a local server? (y/n)")
+
+        return "local" if local_server == "y" else "online"
+
     @classmethod
     def create_kiosk(cls, src_dir, kiosk_dir, kiosk_configfile, options):
 
@@ -321,6 +331,7 @@ class KioskRestore:
 
             cfg["import_configurations"] = ["kiosk_default_config.yml", "kiosk_secure.yml"]
             cfg["config"]["sync"] = sync_dir
+            cfg["server_type"] = cls.get_server_type()
             # cfg["config"]["base_path"] = kiosk_dir
             # cfg["config"]["file_repository"] = r"%sync%\file_repository"
             # cfg["config"]["file_handling_definition"] = path.join(config_dir, r"file_handling.yml")

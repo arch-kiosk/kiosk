@@ -424,7 +424,6 @@ if __name__ == '__main__':
         else:
             logging.error(f"kiosk directory {kiosk_dir} exist but override parameter not set.")
             usage()
-
     else:
         print(f"Creating new kiosk under {kiosk_dir}")
         if not ("dbuser" in options and "dbpwd" and "dbname" in options):
