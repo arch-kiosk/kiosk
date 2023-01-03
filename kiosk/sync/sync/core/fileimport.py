@@ -1,6 +1,7 @@
 import datetime
 import logging
 import os
+import shutil
 
 from config import Config
 from typerepository import TypeRepository
@@ -43,6 +44,7 @@ class FileImport:
         self._instantiate_filters()
         self._check_identifier = None
         self._modified_by = "sys"
+        self.move_finished_files = False
 
     @property
     def file_repository(self):
@@ -416,6 +418,30 @@ class FileImport:
         self._import_filters_sorted = self.sort_import_filters()
         return self._import_single_file_to_repository(*args, **kwargs)
 
+    def _move_finished_file(self, path_and_filename: str) -> bool:
+        """
+        moves the file to a sub-directory "done". If the sub directory does not already exists, it will be created.
+        :param path_and_filename: the file
+        :return: boolean
+        """
+        dest_path = os.path.join(kioskstdlib.get_file_path(path_and_filename), 'done')
+        file_name = kioskstdlib.get_filename(path_and_filename)
+        try:
+            os.mkdir(dest_path)
+        except FileExistsError as e:
+            pass
+        except BaseException as e:
+            logging.warning(f"{self.__class__.__name__}._move_finished_file: Error creating dir {dest_path}: {repr(e)}")
+            return False
+
+        try:
+            shutil.move(path_and_filename, os.path.join(dest_path, file_name))
+            return True
+        except BaseException as e:
+            logging.warning(f"{self.__class__.__name__}._move_finisihed_file: "
+                          f"Error moving file {path_and_filename} to {dest_path}: {repr(e)}")
+            return False
+
     def _add_file_to_repository(self, path_and_filename, identifier="", description="", modified_by="",
                                 ts_file=None, tags=None):
         """ adds a file to the repository
@@ -436,6 +462,9 @@ class FileImport:
             rc = self.file_repository.add_contextual_file(path_and_filename, ctx_file, override=False)
             if ctx_file.last_error:
                 logging.error(f"{path_and_filename} identifier {identifier} troublesome: {ctx_file.last_error}")
+            else:
+                if rc and self.move_finished_files:
+                    self._move_finished_file(path_and_filename)
             return rc
 
         except BaseException as e:

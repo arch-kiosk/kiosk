@@ -258,6 +258,7 @@ def localimport():
             file_import.callback_progress = report_progress
             ic = MemoryIdentifierCache(kioskglobals.master_view.dsd)
             file_import.identifier_evaluator = ic.has_identifier
+            file_import.move_finished_files = True
             rc = file_import.execute()
             print("Running quality control")
             try:
