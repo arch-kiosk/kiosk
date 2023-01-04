@@ -164,11 +164,22 @@ class FileRepositoryFile:
     def get_file_datetime(self):
         return kioskstdlib.latin_date(self.r["file_datetime"], no_time=True)
 
-    def get_arch_identifier(self):
-        if 'identifiers' not in self.r:
+    def get_arch_identifier(self, include_indirect_identifiers=False):
+        """
+        :param include_indirect_identifiers: if true and there are no direct identifiers,
+               the indirect identifiers will be used instead.
+        :return: a comma separated list of identifiers
+        """
+        if 'identifiers' not in self.r or (self.r['identifiers'] is None and include_indirect_identifiers):
             self._get_identifiers_and_recording_contexts()
 
-        return self.get_value('identifiers')
+        v = self.get_value('identifiers')
+        if not v and include_indirect_identifiers:
+            indirect_identifiers: dict = self.get_value("indirect_contexts")
+            if indirect_identifiers:
+                v = ", ".join(f"({k})" for k in indirect_identifiers.keys())
+
+        return v
 
     def get_identifiers_and_recording_contexts(self):
         if 'identifiers_recording_contexts' not in self.r:
@@ -261,6 +272,9 @@ class FileRepositoryFile:
             return False
 
     def _get_identifiers_and_recording_contexts(self):
+        """
+            sets the key "identifiers", "indirect identifiers" and "identifiers_recording_contexts"
+        """
         cur = KioskSQLDb.get_dict_cursor()
         identifiers_recording_contexts = {}
         indirect_contexts = {}
@@ -415,7 +429,7 @@ class ModelFileRepository:
     def query_image_count(self):
         cur = KioskSQLDb.get_dict_cursor()
         file_identifier_cache_table_name = KioskSQLDb.sql_safe_namespaced_table(CONTEXT_CACHE_NAMESPACE,
-                                                                               'file_identifier_cache')
+                                                                                'file_identifier_cache')
         sql_where, params = self._get_where(file_identifier_cache_table_name)
         if sql_where:
             sql_where = " " + sql_where
@@ -442,7 +456,7 @@ class ModelFileRepository:
         result = []
         cur = KioskSQLDb.get_dict_cursor()
         file_identifier_cache_table_name = KioskSQLDb.sql_safe_namespaced_table(CONTEXT_CACHE_NAMESPACE,
-                                                                               'file_identifier_cache')
+                                                                                'file_identifier_cache')
         sql_where, params = self._get_where(file_identifier_cache_table_name)
         sql_order = self._get_order()
 

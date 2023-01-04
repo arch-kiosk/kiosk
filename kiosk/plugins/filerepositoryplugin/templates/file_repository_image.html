@@ -8,7 +8,7 @@
   </div>
   <div class="fr-image-descriptor">
     <p class="fr-identifier-and-check">
-      <span class="fr-arch-identifier"> {{ img.get_arch_identifier()|safe }}</span>
+      <span class="fr-arch-identifier"> {{ img.get_arch_identifier(True)|safe }}</span>
       <span class="fr-file-check"> <i class="fas fa-star"></i></span>
     </p>
     {% if session['kiosk_fr_sorting'] == "oldest first" or session['kiosk_fr_sorting'] == "latest first" %}
