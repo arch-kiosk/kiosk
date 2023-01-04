@@ -160,3 +160,12 @@ config:
         collected_material: 4
       flags:
         move_small_find_descriptions: 1
+
+    ustp_migrate_miscellaneous:
+#     This migration script simply changes all 'Miscellanesous' to 'Miscellaneous' in so ceramics
+      migration: "sql\\ustp_migrate_miscellaneous.sql"
+#      options: [after_table_migration]
+      preconditions:
+        su_ceramics_preprocessing_entry: 2
+      flags:
+        ustp_migrate_miscellaneous: 1
