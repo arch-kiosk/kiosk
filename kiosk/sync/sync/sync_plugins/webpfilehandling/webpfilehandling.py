@@ -27,6 +27,8 @@ class KioskPhysicalWebPFile(KioskPhysicalImageFile):
                               ("GIF", "Graphics Interchange Format", ["gif"], "gif"),
                               ("PNG", "Portable Network Graphics", ["png"], "png"),
                               ("BMP", "Bitmap Image File", ["bmp"], "bmp"),
+                              ("NEF", "Nikkon Electronic Format", ["nef"], None),
+                              ("CR2", "Canon Raw File Format", ["cr2"], None),
                               ("PSD", "Photoshop Document", ["psd"], "psd")
                              ]
 

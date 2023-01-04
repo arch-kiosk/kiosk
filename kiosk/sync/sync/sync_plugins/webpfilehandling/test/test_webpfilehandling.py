@@ -145,6 +145,27 @@ class TestWebPFileHandling(KioskPyTestHelper):
         assert file.convert_to(representation, "CE-004-7-2 exterior", shared_datadir)
         assert os.path.exists(dst_file)
 
+        src_file = os.path.join(shared_datadir, "492d8872-f119-463b-8704-611fa2d3d04b.NEF")
+        dst_file = os.path.join(shared_datadir, "492d8872-f119-463b-8704-611fa2d3d04b.webp")
+        representation = KioskRepresentationType("webp")
+        representation.format_request = {"*": "WEBP"}
+        assert f_class.can_convert_to(src_file, representation)
+        file: KioskPhysicalImageFile = f_class(src_file)
+        assert not os.path.exists(dst_file)
+        assert file.convert_to(representation, "492d8872-f119-463b-8704-611fa2d3d04b", shared_datadir)
+        assert os.path.exists(dst_file)
+
+        src_file = os.path.join(shared_datadir, "canon_eos_5d_mark_iii_02.cr2")
+        dst_file = os.path.join(shared_datadir, "canon_eos_5d_mark_iii_02.webp")
+        representation = KioskRepresentationType("webp")
+        representation.format_request = {"*": "WEBP"}
+        assert f_class.can_convert_to(src_file, representation)
+        file: KioskPhysicalImageFile = f_class(src_file)
+        assert not os.path.exists(dst_file)
+        assert file.convert_to(representation, "canon_eos_5d_mark_iii_02", shared_datadir)
+        assert os.path.exists(dst_file)
+
+
     def test_downscale_webp(self, sync: Synchronization, shared_datadir):
         cfg = SyncConfig.get_config()
 
