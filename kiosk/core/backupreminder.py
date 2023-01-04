@@ -19,8 +19,7 @@ class BackupReminder:
             backup_reminder_days = int(kioskstdlib.try_get_dict_entry(cfg.kiosk, 'backup_reminder_days', '0'))
             if not backup_reminder_days:
                 return
-            backup_dir = cfg.resolve_symbols(cfg.kiosk["administrationplugin"]["defaults"]["backup_directory"])
-            reminder_file = os.path.join(backup_dir, 'backup.reminder')
+            reminder_file = cls.get_reminder_filename(cfg)
             try:
                 days_since_reminder = kioskstdlib.get_file_age_days(reminder_file, use_modification_date=True)
             except BaseException as e:
@@ -98,6 +97,6 @@ class BackupReminder:
     def get_reminder_filename(cls, cfg):
         if not cfg:
             cfg = kioskglobals.get_config()
-        backup_dir = cfg.resolve_symbols(cfg.kiosk["administrationplugin"]["defaults"]["backup_directory"])
-        reminder_file = os.path.join(backup_dir, 'backup.reminder')
+        # backup_dir = cfg.resolve_symbols(cfg.kiosk["administrationplugin"]["defaults"]["backup_directory"])
+        reminder_file = os.path.join(cfg.base_path, 'backup.reminder')
         return reminder_file

@@ -44,8 +44,7 @@ class Testkioskstdlib(KioskPyTestHelper):
 
         monkeypatch.setattr(kiosklib, "dispatch_system_message", mock_dispatch_system_message)
 
-        backup_dir = cfg.resolve_symbols(cfg.kiosk["administrationplugin"]["defaults"]["backup_directory"])
-        reminder_file = os.path.join(backup_dir, 'backup.reminder')
+        reminder_file = os.path.join(cfg.base_path, 'backup.reminder')
         if os.path.isfile(reminder_file):
             os.remove(reminder_file)
         cfg.kiosk["backup_reminder_days"] = 0
