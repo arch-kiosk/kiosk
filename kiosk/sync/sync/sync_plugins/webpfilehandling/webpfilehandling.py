@@ -20,14 +20,14 @@ from synchronizationplugin import SynchronizationPlugin
 class KioskPhysicalWebPFile(KioskPhysicalImageFile):
     """ KioskPhysicalFile sub class that supports the WebP format with extensions WebP and JPG """
 
-    supported_file_formats = [("WEBP", "WebP Image Format", ["webp", "jpg"], None),
-                              ("PDF", "Adobe Portable Document Format", [], "pdf"),
-                              ("TIFF", "Tagged Image File Format", [], "tif"),
-                              ("JPEG", "JPEG", [], "jpg"),
-                              ("GIF", "Graphics Interchange Format", [], "gif"),
-                              ("PNG", "Portable Network Graphics", [], "png"),
-                              ("BMP", "Bitmap Image File", [], "bmp"),
-                              ("PSD", "Photoshop Document", [], "psd")
+    supported_file_formats = [("WEBP", "WebP Image Format", ["webp"], "webp"),
+                              ("PDF", "Adobe Portable Document Format", ["pdf"], "pdf"),
+                              ("TIFF", "Tagged Image File Format", ["tif", "tiff"], "tif"),
+                              ("JPEG", "JPEG", ["jpg", "jpeg"], "jpg"),
+                              ("GIF", "Graphics Interchange Format", ["gif"], "gif"),
+                              ("PNG", "Portable Network Graphics", ["png"], "png"),
+                              ("BMP", "Bitmap Image File", ["bmp"], "bmp"),
+                              ("PSD", "Photoshop Document", ["psd"], "psd")
                              ]
 
     supported_methods = ["BICUBIC", "CATROM", "LANCZOS"]

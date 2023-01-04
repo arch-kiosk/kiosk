@@ -49,6 +49,7 @@ class KioskPhysicalPdfFile(KioskPhysicalImageFile):
 
     supported_file_formats = [("PDF", "Adobe Portable Document Format", ["pdf"], None),
                               ("JPEG", "JPEG", [], "jpg"),
+                              ("WEBP", "WEBP Image File", [], "webp"),
                               ("PNG", "Portable Network Graphics", [], "png"),
                               ("BMP", "Bitmap Image File", [], "bmp"),
                               ]

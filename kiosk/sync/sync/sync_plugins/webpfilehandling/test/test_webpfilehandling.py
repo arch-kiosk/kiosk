@@ -41,21 +41,18 @@ class TestWebPFileHandling(KioskPyTestHelper):
         cfg = SyncConfig.get_config()
         assert cfg.file_formats
         assert "WEBP" in cfg.file_formats
-        assert "jpg" in cfg.file_formats["WEBP"]["extensions"]
+        assert "webp" in cfg.file_formats["WEBP"]["extensions"]
         f_class: KioskPhysicalFile = sync.type_repository.get_type(TYPE_PHYSICALFILEHANDLER, "KioskPhysicalWebPFile")
         assert f_class.supported_file_formats
-        assert len(f_class.supported_file_formats) == 9
+        assert len(f_class.supported_file_formats) == 8
         for fmt in f_class.supported_file_formats:
             fmt = SupportedFileFormat(*fmt)
             if fmt.id == "WEBP":
                 assert fmt.input_extensions
-                assert not fmt.output_extension
-            elif fmt.id == "JPEG":
-                assert not fmt.input_extensions
                 assert fmt.output_extension
-
-
-
+            elif fmt.id == "JPEG":
+                assert fmt.input_extensions
+                assert fmt.output_extension
 
     def test_wand(self, shared_datadir):
         filename = os.path.join(shared_datadir, '1_webp_a.webp')
@@ -73,8 +70,12 @@ class TestWebPFileHandling(KioskPyTestHelper):
         file = os.path.join(shared_datadir, "1_webp_a.webp")
         assert f_class.can_open(file)
 
-        # file = os.path.join(shared_datadir, "Photo 7-7-2018 10.09.19 AM.heic")
-        # assert f_class.can_open(file)
+        file = os.path.join(shared_datadir, "c377be85-fa86-4772-ae30-3c0485ce1504.jpg")
+        assert f_class.can_open(file)
+
+        file = os.path.join(shared_datadir, "CE-004-7-2 exterior.tif")
+        assert f_class.can_open(file)
+
         #
         # file = os.path.join(shared_datadir, "492d8872-f119-463b-8704-611fa2d3d04b.NEF")
         # assert not f_class.can_open(file)
@@ -111,6 +112,38 @@ class TestWebPFileHandling(KioskPyTestHelper):
         assert f_class.can_convert_to(file, representation)
         assert "FLIP_HORIZONTAL" in representation.get_all_manipulations()
         assert "FIX_ROTATION" in representation.get_all_manipulations()
+
+        file = os.path.join(shared_datadir, "c377be85-fa86-4772-ae30-3c0485ce1504.jpg")
+        representation = KioskRepresentationType("WEBP")
+        representation.format_request = {"JPEG": "webp"}
+
+        assert f_class.can_convert_to(file, representation)
+
+    def test_convert_to_webp(self, sync: Synchronization, shared_datadir):
+        cfg = SyncConfig.get_config()
+
+        f_class = sync.type_repository.get_type(TYPE_PHYSICALFILEHANDLER, "KioskPhysicalWebPFile")
+        assert f_class
+
+        src_file = os.path.join(shared_datadir, "c377be85-fa86-4772-ae30-3c0485ce1504.jpg")
+        dst_file = os.path.join(shared_datadir, "c377be85-fa86-4772-ae30-3c0485ce1504.webp")
+        representation = KioskRepresentationType("webp")
+        representation.format_request = {"*": "WEBP"}
+        assert f_class.can_convert_to(src_file, representation)
+        file: KioskPhysicalImageFile = f_class(src_file)
+        assert not os.path.exists(dst_file)
+        assert file.convert_to(representation, "c377be85-fa86-4772-ae30-3c0485ce1504", shared_datadir)
+        assert os.path.exists(dst_file)
+
+        src_file = os.path.join(shared_datadir, "CE-004-7-2 exterior.tif")
+        dst_file = os.path.join(shared_datadir, "CE-004-7-2 exterior.webp")
+        representation = KioskRepresentationType("webp")
+        representation.format_request = {"*": "WEBP"}
+        assert f_class.can_convert_to(src_file, representation)
+        file: KioskPhysicalImageFile = f_class(src_file)
+        assert not os.path.exists(dst_file)
+        assert file.convert_to(representation, "CE-004-7-2 exterior", shared_datadir)
+        assert os.path.exists(dst_file)
 
     def test_downscale_webp(self, sync: Synchronization, shared_datadir):
         cfg = SyncConfig.get_config()

@@ -29,7 +29,8 @@ class KioskPhysicalPillowFile(KioskPhysicalImageFile):
                               ("GIF", "Graphics Interchange Format", ["gif"], "gif"),
                               ("PNG", "Portable Network Graphics", ["png"], "png"),
                               ("BMP", "Bitmap Image File", ["bmp"], "bmp"),
-                              ("PSD", "Photoshop Document", ["psd"], "psd")]
+                              ("PSD", "Photoshop Document", ["psd"], "psd"),
+                              ]
 
     supported_methods = ["BICUBIC", "LANCZOS"]
 
