@@ -35,3 +35,4 @@ kiosk_secure.yml
 **/screenshots/
 **/venv_*/
 /urap_repl/
+backup.reminder
