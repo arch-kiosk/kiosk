@@ -1661,7 +1661,7 @@ constants:
   meta:
     flags: [export_dont_truncate, sync_ignore_unique_key_violation]
     import_filter:
-      fm12: "(\"sync\" is null) or (\"sync\"=1)"
+      fm12: "\"category\" <> 'system' and (\"sync\" is null or \"sync\"=1)"
   structure:
     3:
       id: [datatype(VARCHAR)]
