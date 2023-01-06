@@ -120,7 +120,8 @@ reportingdock:
   compression_method: 'DEFLATED'
 
 file_handlers:
-  plugins: [ "defaultfilehandling", "heicfilehandling", "pdffilehandling", "svgfilehandling" ]
+  plugins: [ "defaultfilehandling", "heicfilehandling", "pdffilehandling", "svgfilehandling",
+             "webpfilehandling", "jp2filehandling" ]
 
 file_import:
   file_extensions: [ "jpg" ]
