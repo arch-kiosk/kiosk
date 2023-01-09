@@ -847,15 +847,18 @@ class KioskContextualFile(KioskLogicalFile):
         else:
             return tuple()
 
-    def get_descriptive_filename(self):
+    def get_descriptive_filename(self, file_extension=None):
         """
         get the most humane filename possible for a file. It is either a list of
         context identifiers with the description, or only the description or
         the ugly uid.
         29.IV.2022: If the file has the export_filename attribute that sets the filename
+        :param file_extension: if set, the filename will have this file extension instead of the default extension
         :return: a filename that actually tells a user something about the file.
         """
-        fm_filename = self._get_path_and_filename()
+        if not file_extension:
+            file_extension = kioskstdlib.get_file_extension(self._get_path_and_filename())
+
         contexts = ";".join([x[0] for x in self._contexts.get_contexts()])
         dest_filename = ""
 
@@ -875,6 +878,6 @@ class KioskContextualFile(KioskLogicalFile):
             dest_filename = self.uid
 
         dest_filename = kioskstdlib.get_valid_filename(
-            f"{dest_filename}.{kioskstdlib.get_file_extension(fm_filename)}")
+            f"{dest_filename}.{file_extension}")
 
         return dest_filename

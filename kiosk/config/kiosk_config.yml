@@ -43,6 +43,22 @@ file_repository:
     site: 'site map'
     pottery_images: 'pottery'
     tags: 'context tags'
+  representations:
+    smaller:
+      label: "smaller thumbnail"
+      inherits: "master"
+      dimensions: "128,128"
+      format_request: "webp"
+  auto_representations: [ 'medium', 'small', 'smaller' ]
+  thumbnails: [ 'smaller','small', 'medium' ]
+  fullscreen_representation: 'master'
+
+  standard_format_requests:
+    webp:
+      "*": "WEBP"
+      "PNG": "!"
+      "SVG": "!"
+    
 fileexportworkstation:
   max_export_repo_mbytes: 500
 

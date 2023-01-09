@@ -380,7 +380,7 @@ def filerepository_editdialog(uid):
                                recorded_description=recorded_description,
                                file_extension=file_extension,
                                file_size=file_size,
-                               representations = representations,
+                               representations=representations,
                                )
 
     elif request.method == "POST":
@@ -857,10 +857,11 @@ def file_repository_download_file(img, cmd):
                 filename = ctx_file.get(representation_type, create=True)
                 if not filename:
                     raise Exception(f"No representation '{representation}' for file '{uuid}'")
+                dest_filename = ctx_file.get_descriptive_filename(
+                    file_extension=kioskstdlib.get_file_extension(filename))
             else:
                 filename = ctx_file.get()
-
-            dest_filename = ctx_file.get_descriptive_filename()
+                dest_filename = ctx_file.get_descriptive_filename()
 
             # a super dirty quick hack to figure out the correct mimetype:
             dest_extension = kioskstdlib.get_file_extension(dest_filename).lower()
