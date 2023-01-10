@@ -17,7 +17,7 @@ tables:
   - exclude("survey_unit_data")
   - exclude("tagging")
   - exclude("tags")
-  - exclude("unit_unit_relations")
+  - exclude("unit_unit_relation")
   - exclude_tables_with_flag("no_file_export")
   - exclude_fields_with_instruction("local_id")
   - exclude_fields_with_instruction("id_domain")
