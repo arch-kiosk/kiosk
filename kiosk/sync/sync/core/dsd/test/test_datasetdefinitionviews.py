@@ -16,6 +16,7 @@ dsd3_test_file = os.path.join(data_dir, "dsd3_test.yml")
 dsd3_external_test_base_file = os.path.join(data_dir, "dsd3_external_test_base.yml")
 dsd3_test_view1 = os.path.join(data_dir, "dsd3_view_filemaker_recording.yml")
 dsd3_dayplan = os.path.join(data_dir, "dsd3_dayplan.yml")
+default_dsd3 = os.path.join(data_dir, "default_dsd3.yml")
 
 config_file = os.path.join(test_path, r"config", "config_test.yml")
 
@@ -190,3 +191,21 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert "filename" not in view.dsd.list_fields("images")
         assert "extra_field" not in view.dsd.list_fields("images")
         assert "dontsync" not in view.dsd.list_fields("test")
+
+    def test__apply_exclude_id_and_domain_fields(self):
+        dsd = DataSetDefinition()
+        dsd.register_loader("yml", DSDYamlLoader)
+        dsd.append_file(default_dsd3)
+        view = DSDView(dsd)
+        assert "collected_material" in view.dsd._dsd_data.get([])
+        assert "arch_domain" in view.dsd.list_fields("collected_material")
+        assert "id" in view.dsd.list_fields("collected_material")
+        assert view.apply_view_instructions({"tables": ["include(*)",
+                                                        "exclude_fields_with_instruction('id_domain')",
+                                                        "exclude_fields_with_instruction('local_id')"]})
+        assert "arch_domain" not in view.dsd.list_fields("collected_material")
+        assert "id" not in view.dsd.list_fields("collected_material")
+        assert "uid" in view.dsd.list_fields("collected_material")
+        assert "arch_domain" not in view.dsd.list_fields("locus")
+        assert "id" not in view.dsd.list_fields("locus")
+        assert "uid" in view.dsd.list_fields("locus")

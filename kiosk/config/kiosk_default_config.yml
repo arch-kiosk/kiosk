@@ -65,7 +65,7 @@ file_repository:
       label: "small thumbnail"
       inherits: "master"
       dimensions: "128,128"
-      format_request: "default"
+      format_request: "webp"
     medium:
       label: "medium thumbnail"
       inherits: "master"
@@ -99,6 +99,9 @@ file_repository:
     default:
       "*": "JPEG"
       "PNG": "!"
+      "SVG": "!"
+    webp:
+      "*": "WEBP"
       "SVG": "!"
     NEFTIF:
       "NEF": "JPEG"

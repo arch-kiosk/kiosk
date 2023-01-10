@@ -2,6 +2,8 @@ config:
   format_version: 3
 
 repl_deleted_uids:
+  meta:
+    flags: [ no_file_export ]
   structure:
     1:
       uid: [datatype(UUID), primary(), unique(), default('gen_random_uuid()')]
@@ -37,6 +39,8 @@ repl_image_resolution:
         - rename("excavation_context","context")
 
 repl_file_picking_rules:
+  meta:
+    flags: [no_file_export]
   structure:
     1:
       workstation_type: [datatype(varchar), not_null()]

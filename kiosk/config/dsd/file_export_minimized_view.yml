@@ -1,0 +1,24 @@
+config:
+  format_version: 3
+
+tables:
+  - include_tables_with_instruction("replfield_uuid")
+  - include_tables_with_flag("file_export")
+  - exclude("collected_material_types")
+  - exclude("feature_units")
+  - exclude("inventory")
+  - exclude("locus_types")
+  - exclude("lot")
+  - exclude("pottery")
+  - exclude("pottery_images")
+  - exclude("site_notes")
+  - exclude("site_note_photo")
+  - exclude("survey_unit")
+  - exclude("survey_unit_data")
+  - exclude("tagging")
+  - exclude("tags")
+  - exclude("unit_unit_relations")
+  - exclude_tables_with_flag("no_file_export")
+  - exclude_fields_with_instruction("local_id")
+  - exclude_fields_with_instruction("id_domain")
+  - exclude_fields_with_instruction("no_file_export")

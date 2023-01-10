@@ -1,3 +1,5 @@
+import logging
+
 from dsd.dsd3 import DataSetDefinition, DSDInstructionSyntaxError, DSDUnknownInstruction
 from simplefunctionparser import SimpleFunctionParser
 
@@ -105,6 +107,7 @@ class DSDView:
         self.dsd.delete_field(table, field)
 
     def _apply_exclude_fields_with_instruction(self, parameters):
+        logging.debug(f"{self.__class__.__name__}._apply_exclude_fields_with_instruction: {parameters}")
         if len(parameters) == 1:
             tables = self.dsd.list_tables()
             instruction = parameters[0]
@@ -115,4 +118,6 @@ class DSDView:
         for table in tables:
             fields = self.dsd.get_fields_with_instructions(table, [instruction])
             for field in fields:
+                logging.debug(f"{self.__class__.__name__}._apply_exclude_fields_with_instruction: "
+                              f"removing field {table}.{field}")
                 self.dsd.delete_field(table, field)
