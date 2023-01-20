@@ -28,10 +28,11 @@ class FileExportCSVDriver(FileExportDriver):
         self._name = "CSV"
 
         if "fileexportcsvdriver" in self._config.config:
-            self.delimiter = kioskstdlib.try_get_dict_entry(self._config.config["fileexportcsvdriver"], "delimiter", self.delimiter)
+            self.delimiter = kioskstdlib.try_get_dict_entry(self._config.config["fileexportcsvdriver"], "delimiter",
+                                                            self.delimiter)
             self.quote = kioskstdlib.try_get_dict_entry(self._config.config["fileexportcsvdriver"], "quote", self.quote)
             self.quote_mode = kioskstdlib.try_get_dict_entry(self._config.config["fileexportcsvdriver"], "quote_mode",
-                                                            self.quote_mode)
+                                                             self.quote_mode)
 
         self._description = f"UTF-8 encoded values separated by '{self.delimiter}'"
 
@@ -53,7 +54,7 @@ class FileExportCSVDriver(FileExportDriver):
         self._dsd = dsd
         self._columns = list(dsd.list_fields(tablename))
         self._filename = os.path.join(self._working_dir, kioskstdlib.get_valid_filename(tablename + ".csv"))
-        self._file = open(self._filename, mode='w', encoding='utf-8')
+        self._file = open(self._filename, mode='w', encoding='utf-8', newline='')
         quoting = csv.QUOTE_MINIMAL
         if self.quote_mode.lower() == "nonnumeric":
             quoting = csv.QUOTE_NONNUMERIC
