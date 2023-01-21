@@ -14,9 +14,9 @@ from flask_httpauth import HTTPTokenAuth
 import datetime
 import threading
 
-kiosk_version = "1.4"
+kiosk_version = "1.4.1"
 kiosk_version_name = "Kiosk 1"
-kiosk_date = datetime.datetime(2023, 1, 10)
+kiosk_date = datetime.datetime(2023, 1, 20)
 debug = False
 development = {}
 
