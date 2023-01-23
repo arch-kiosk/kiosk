@@ -197,6 +197,9 @@ class QRCodeTester:
             if decoded:
                 c_files_decoded += 1
 
+            if self._report_func:
+                self._report_func(file, "", None, "recognized" if decoded else "not recognized")
+
         return c_files, c_files_decoded
 
     def save_report(self):

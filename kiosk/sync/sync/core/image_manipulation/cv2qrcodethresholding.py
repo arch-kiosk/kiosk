@@ -25,8 +25,9 @@ class CV2QrCodeThresholding(CV2ManipulationComposition):
         if "blur" in data and data["blur"] > 0:
             self.append_manipulation(CV2BlurManipulation(data["blur"]))
 
-        if "block_size" in data and data["block_size"] > 0:
-            self.append_manipulation(CV2AdaptiveThresholdManipulation(data["block_size"], c=1))
+        if "block_size" in data:
+            if data["block_size"] > 0.0:
+                self.append_manipulation(CV2AdaptiveThresholdManipulation(data["block_size"], c=1))
         else:
             raise Exception("block size required but not given.")
 
