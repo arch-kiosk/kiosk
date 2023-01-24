@@ -163,3 +163,11 @@ class Testkioskstdlib(KioskPyTestHelper):
         assert kioskstdlib.adjust_tuple((), 5, "") == ("", "", "", "", "",)
         assert kioskstdlib.adjust_tuple((1, 2, 3, 4, 5), 5, "") == (1, 2, 3, 4, 5)
         assert kioskstdlib.adjust_tuple((1, 2, 3, 4, 5), 3, "") == (1, 2, 3)
+
+    def test_trim_pathsep(self):
+        paths = [("c:\\done", "c:\\done"),
+                 ("c:\\done\\", "c:\\done"),
+                 ("c:\\", "c:\\")
+                 ]
+        for p in paths:
+            assert kioskstdlib.trim_pathsep(p[0]) == p[1]

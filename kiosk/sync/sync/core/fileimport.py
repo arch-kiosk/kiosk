@@ -275,11 +275,17 @@ class FileImport:
         :return: boolean. If false, recursion will stop.
         """
 
+        logging.info("searching directory " + pathname)
+        subdir = kioskstdlib.get_filename(kioskstdlib.trim_pathsep(pathname))
+        if subdir.lower() == "done":
+            logging.debug(f"FileImport._r_add_files_to_repository: Path {pathname} skipped because "
+                          f"it is supposed to contain"
+                          f"already processed files.")
+            return True
+
         if level > 10:
             logging.error("FileImport._r_add_files_to_repository: Recursion went deeper than level 10.")
             return False
-
-        logging.info("searching directory " + pathname)
 
         try:
             content = [os.path.join(pathname, x) for x in os.listdir(pathname)]

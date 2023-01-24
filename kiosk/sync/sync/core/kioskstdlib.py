@@ -138,6 +138,16 @@ def get_file_dimensions(filename):
     return result
 
 
+def trim_pathsep(path: str):
+    """
+    Get's rid of trailing path separators if they are unnecessary. E.g. "c:\path\" will be "c:\path"
+    but "c:\" will be kept.
+    :param path: input path
+    :return: return path without a superfluous trailing backslash
+    """
+    return os.path.normpath(path)
+
+
 def instantiate_exif_orientation(src_file, dst_file):
     if src_file[-4:].lower() != ".nef":
         try:
@@ -1457,4 +1467,3 @@ def adjust_tuple(in_tuple: tuple, length: int, default) -> tuple:
         return in_tuple
     return tuple([in_tuple[x] if x < len(in_tuple) else default
                   for x in range(0, length)])
-
