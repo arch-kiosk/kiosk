@@ -9,13 +9,31 @@ image_manipulation_sets:
       - cv2_qrcode_thresholding_0.5_33_7
       - cv2_qrcode_thresholding_1.0_33_0
   qr_code_black_velvet:
-    name: black velvet
+    name: Black Velvet
     description: Use this strategy to optimize QR Codes shot on black velvet
     strategies:
       - cv2_qrcode_thresholding_0.3_63_0
       - cv2_qrcode_thresholding_0.3_33_7
+  qr_code_italy:
+    name: August in Italy
+    description: Use this strategy to optimize QR Codes shot in hot Italy
+    strategies:
+      - cv2_qrcode_thresholding_0.5_63_0
+      - cv2_qrcode_thresholding_0_33_0
+      - cv2_qrcode_thresholding_0.5_33_0
+      - cv2_qrcode_thresholding_0.5_63_7
+      - cv2_qrcode_thresholding_0_63_7
+      - cv2_qrcode_thresholding_0_43_0
+      - cv2_qrcode_thresholding_0.7_63_7
+      - cv2_qrcode_thresholding_0.7_63_0
+      - cv2_qrcode_thresholding_0_23_0
+      - cv2_qrcode_thresholding_0_53_0
+      - cv2_qrcode_thresholding_0_63_0
+      - cv2_qrcode_thresholding_0_0_7
+      - cv2_qrcode_thresholding_0_33_3
+      - cv2_qrcode_thresholding_0.5_43_9
   qr_code_peru:
-    name: QR Code Peru
+    name: Peruvian Light
     description: Use this strategy to optimize QR Codes shot in a Peruvian surrounding
     strategies:
       - cv2_qrcode_thresholding_0_23_0
@@ -36,7 +54,6 @@ image_manipulation_sets:
       - cv2_qrcode_thresholding_0.7_23_0
       - cv2_qrcode_thresholding_0.7_63_0
       - cv2_qrcode_thresholding_0.7_73_7
-
 strategies:
   cv2_qrcode_thresholding_0.5_63_0:
     type: CV2QrCodeThresholding
@@ -153,4 +170,29 @@ strategies:
     scale_factor: 0.7
     block_size: 73
     blur: 7
+  cv2_qrcode_thresholding_0_63_7:
+    type: CV2QrCodeThresholding
+    scale_factor: 0
+    block_size: 63
+    blur: 7
+  cv2_qrcode_thresholding_0.7_63_7:
+    type: CV2QrCodeThresholding
+    scale_factor: 0.7
+    block_size: 63
+    blur: 7
+  cv2_qrcode_thresholding_0_0_7:
+    type: CV2QrCodeThresholding
+    scale_factor: 0
+    block_size: 0
+    blur: 7
+  cv2_qrcode_thresholding_0_33_3:
+    type: CV2QrCodeThresholding
+    scale_factor: 0.7
+    block_size: 33
+    blur: 3
+  cv2_qrcode_thresholding_0.5_43_9:
+    type: CV2QrCodeThresholding
+    scale_factor: 0.5
+    block_size: 43
+    blur: 9
 

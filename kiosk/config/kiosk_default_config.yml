@@ -165,6 +165,7 @@ file_import:
         image_manipulation_sets:
           - qr_code_sahara
           - qr_code_black_velvet
+          - qr_code_italy
           - qr_code_peru
       FileImportExifFilter:
         active: False
@@ -190,6 +191,7 @@ file_import:
         image_manipulation_sets:
           - qr_code_sahara
           - qr_code_black_velvet
+          - qr_code_italy
           - qr_code_peru
       FileImportExifFilter:
         active: False
