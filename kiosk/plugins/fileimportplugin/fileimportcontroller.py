@@ -72,7 +72,6 @@ def dialog():
 @full_login_required
 @fileimport.route('/dialogmethodselection', methods=['GET', 'POST'])
 def dialogmethodselection():
-
     cfg: KioskConfig = kioskglobals.cfg
     max_file_uploads = kioskstdlib.try_get_dict_entry(cfg.file_import, "max_file_uploads", 10)
 
@@ -111,7 +110,7 @@ def dialoglocalimport1():
             else:
                 try_path_list = rc_path_list
         except BaseException as e:
-            logging.error(f"fileimportcontroller.dialoglocalimport1: get_pathlist exception {repr(e)}")        
+            logging.error(f"fileimportcontroller.dialoglocalimport1: get_pathlist exception {repr(e)}")
         try_path_list.sort()
         # print(try_path_list)
         rc_path_list = []
@@ -250,6 +249,16 @@ def localimport():
                         t.extended_progress = prg["extended_progress"]
                 if new_progress > t.thread_progress:
                     t.thread_progress = new_progress
+            rc = True
+            try:
+                kioskglobals.general_store.get_int("STOPTHREAD")
+                rc = False
+            except ValueError:
+                rc = False
+            except BaseException as e:
+                pass
+
+            return rc
 
         try:
             print("Import - worker starts")
@@ -287,6 +296,7 @@ def localimport():
         user_config = UserConfig(kioskglobals.general_store, current_user.user_id, cfg.get_project_id())
         test_cfg = user_config.get_config("file_import")
         logging.debug(f"fileimportcontroller.localimport: user config: {test_cfg}")
+        kioskglobals.general_store.delete_key("STOPTHREAD")
         file_import = FileImport(cfg, sync, user_config=user_config)
 
         sorted_names = file_import.sort_import_filters()
@@ -342,8 +352,29 @@ def localimport():
 
 
 #  **************************************************************
-#  ****    import-dialog upload page 1: Filters
+#  ****    import-dialog local import: cancel running thread
 #  *****************************************************************/
+
+@full_login_required
+@fileimport.route('/cancel', methods=['GET'])
+def local_import_cancel():
+    print("Import - worker cancelled")
+    logging.info(f"fileimport.local_import_cancel: Request to cancel file import worker.")
+    result = KioskResult(False)
+    try:
+        kioskglobals.general_store.put_int("STOPTHREAD", 1)
+        result.success = True
+
+    except BaseException as e:
+        result.message = repr(e)
+        logging.error(f"fileimport.local_import_cancel: {repr(e)}")
+
+    return result.jsonify()
+
+
+#  **************************************************************
+#  ****    import-dialog upload page 1: Filters
+#  **************************************************************/
 @full_login_required
 @fileimport.route('/dialogupload1', methods=['GET', 'POST'])
 def dialogupload1():

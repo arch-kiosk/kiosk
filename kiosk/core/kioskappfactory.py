@@ -950,7 +950,6 @@ def get_progress():
                         has_errors=kioskglobals.kiosk_thread.last_action_had_errors(),
                         dump=msgs))
 
-
 #  **************************************************************
 #  ****    /delete_system_message: confirms and thus deletes a system message
 #  *****************************************************************/

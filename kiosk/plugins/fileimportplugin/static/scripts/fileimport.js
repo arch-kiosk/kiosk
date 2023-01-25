@@ -1,7 +1,9 @@
 let file_import_files_to_go;
+let local_import_running;
 
 function fileImportDialog(endpoint) {
   setCookie("import_tags","");
+  local_import_running = false;
   kioskOpenModalDialog(getRoutefor(endpoint), {
     closeOnBgClick: false,
     callbacks: {
@@ -16,6 +18,10 @@ function fileImportDialog(endpoint) {
         try {
           //todo: old, needs an update
           $('#mif-upload-area').dmUploader('cancel');
+        } catch (e) {
+        }
+        try {
+          cancelLocalImportIfNecessary()
         } catch (e) {
         }
         mifUploadClose();
@@ -37,19 +43,39 @@ function startLocalImport() {
     .done(function (json) {
       //$("#ws-message-div").css("height", "auto");
       if (json.result === "ok") {
+        local_import_running = true;
         pollImportProgress("Import started...");
       }
       else {
+        local_import_running = false;
         stop_spinner();
         $("#ws-message-div").html("Blast! Importing failed: <span style='color: red'>" + json.result + "</span>");
         showBackButton(true);
       }
     })
     .fail(function (xhr, status, errorThrown) {
+      local_import_running = false;
       stop_spinner();
       $("#ws-message-div").html("Importing failed - Your request could not even be sent. Reason: <span style='color: red'>" + errorThrown + ".</span> That should not have happened.");
       showBackButton(true);
     });
+}
+
+function cancelLocalImportIfNecessary() {
+  if (local_import_running) {
+    local_import_running = false;
+  $.ajax({
+    url: "/fileimport/cancel",
+    type: "GET",
+    dataType: "json",
+    data: true
+  })
+    // .done(function (json) {
+    // })
+    // .fail(function (xhr, status, errorThrown) {
+    // });
+
+  }
 }
 
 function pollImportProgress() {
@@ -73,10 +99,12 @@ function pollImportProgress() {
         }
       }
       else {
+        cancelLocalImportIfNecessary()
         show_import_log(true, json, "Some unspecific error occurred during import.");
       }
     })
     .fail(function (xhr, status, errorThrown) {
+      cancelLocalImportIfNecessary()
       stop_spinner();
       homeLineSvg();
       $("#ws-message-div").html("Cannot acquire progress from the sever. Reason: <span style='color: red'>" + errorThrown + ".</span> Your command might have been processed, all the same. Look at the general server log.");
@@ -85,6 +113,7 @@ function pollImportProgress() {
 
 function show_import_log(has_error, json, msg = "") {
   stop_spinner();
+  local_import_running = false
   msgdiv = $("#ws-message-div");
   //$("#ws-message-div").css("margin-top","1.5em");
 

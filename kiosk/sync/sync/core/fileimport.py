@@ -222,7 +222,6 @@ class FileImport:
                 if cfg:
                     self._config["file_import_filters"][self._method][import_filter.__class__.__name__] = cfg
 
-
     def sort_import_filters(self):
         sorted_filters = list(self._import_filters)
         sorted_filters.sort(key=lambda x: self._import_filters[x].get_filter_priority())
@@ -307,10 +306,13 @@ class FileImport:
             self.files_processed += 1
 
             # todo: topic should be the class or method name, not something new.
-            report_progress(self.callback_progress,
-                            progress=0,
-                            topic="import-local-files",
-                            extended_progress=[self.files_processed, self.files_added])
+            if self.callback_progress and \
+                    not report_progress(self.callback_progress,
+                                        progress=0,
+                                        topic="import-local-files",
+                                        extended_progress=[self.files_processed, self.files_added]):
+                logging.error("FileImport._r_add_files_to_repository: process aborted from outside")
+                return False
 
             if self._import_single_file_to_repository(f):
                 self.files_added += 1
@@ -445,7 +447,7 @@ class FileImport:
             return True
         except BaseException as e:
             logging.warning(f"{self.__class__.__name__}._move_finisihed_file: "
-                          f"Error moving file {path_and_filename} to {dest_path}: {repr(e)}")
+                            f"Error moving file {path_and_filename} to {dest_path}: {repr(e)}")
             return False
 
     def _add_file_to_repository(self, path_and_filename, identifier="", description="", modified_by="",
