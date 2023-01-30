@@ -1,0 +1,2 @@
+class KioskQueryException(Exception):
+    pass

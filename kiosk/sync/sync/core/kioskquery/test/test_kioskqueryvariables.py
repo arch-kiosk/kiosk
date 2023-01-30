@@ -5,12 +5,9 @@ import pytest
 import datetime
 
 import kioskstdlib
-import urapdatetimelib
-from dsd.dsd3singleton import Dsd3Singleton
-from reportingdock import ReportingDock
+from kioskquery.kioskquerylib import KioskQueryException
 from reportingdock.reportinglib import ReportingException
-from reportingdock.reportingvariables import ReportingVariables
-from synchronization import Synchronization
+from kioskquery.kioskqueryvariables import KioskQueryVariables
 from test.testhelpers import KioskPyTestHelper
 
 test_path = os.path.dirname(os.path.abspath(__file__))
@@ -19,7 +16,7 @@ config_file = os.path.join(test_path, r"config", "kiosk_config.yml")
 log_file = os.path.join(test_path, r"log", "test_log.log")
 
 
-class TestReportingVariables(KioskPyTestHelper):
+class TestKioskQueryVariables(KioskPyTestHelper):
     @pytest.fixture(scope="module")
     def config(self):
         return self.get_config(config_file, log_file=log_file)
@@ -30,7 +27,7 @@ class TestReportingVariables(KioskPyTestHelper):
             "material_type": "datatype(VARCHAR)",
             "date": "datatype(TIMESTAMP)"
         }
-        vars = ReportingVariables(definition)
+        vars = KioskQueryVariables(definition)
         assert vars
 
         assert vars.get_variable_type("context_identifier") == "varchar"
@@ -42,9 +39,9 @@ class TestReportingVariables(KioskPyTestHelper):
             "material_type": "datatype(VARCHAR)",
             "date": "datatype(TIMESTAMP)"
         }
-        vars = ReportingVariables({})
+        vars = KioskQueryVariables({})
         assert vars
-        with pytest.raises(ReportingException, match="not declared"):
+        with pytest.raises(KioskQueryException, match="not declared"):
             vars.set_variable("context_identifier", "FH-001")
 
         definition = {
@@ -52,11 +49,11 @@ class TestReportingVariables(KioskPyTestHelper):
             "material_type": "datatype(VARCHAR)",
             "date": "datatype(TIMESTAMP)"
         }
-        vars = ReportingVariables(definition)
+        vars = KioskQueryVariables(definition)
         vars.set_variable("context_identifier", "FH-001")
         assert vars.get_variable_raw("context_identifier") == "FH-001"
 
-        with pytest.raises(ReportingException, match="does not comply"):
+        with pytest.raises(KioskQueryException, match="does not comply"):
             vars.set_variable("date", "28.02.1973")
         vars.set_variable("date", kioskstdlib.iso8601_to_str(datetime.date(year=1973, month=2, day=28)))
         assert vars.get_variable_raw("date") == "1973-02-28"
@@ -70,7 +67,7 @@ class TestReportingVariables(KioskPyTestHelper):
             "material_type": "datatype(VARCHAR)",
             "date": "datatype(TIMESTAMP)"
         }
-        vars = ReportingVariables(var_definition)
+        vars = KioskQueryVariables(var_definition)
         vars.set_variable("context_identifier", "FH-001")
         assert vars.get_variable_raw("context_identifier") == "FH-001"
         settings = {

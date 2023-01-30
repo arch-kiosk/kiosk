@@ -5,7 +5,7 @@ from dsd.dsd3singleton import Dsd3Singleton
 from kiosksqldb import KioskSQLDb
 from reportingdock.reportinglib import ReportingException
 from reportingdock.reportingsqlquery import ReportingSqlQuery
-from reportingdock.reportingvariables import ReportingVariables
+from kioskquery.kioskqueryvariables import KioskQueryVariables
 from test.testhelpers import KioskPyTestHelper
 
 test_path = os.path.dirname(os.path.abspath(__file__))
@@ -36,7 +36,7 @@ class TestReportingSqlQuery(KioskPyTestHelper):
         variable_def = {
             "context_identifier": "datatype(VARCHAR)"
         }
-        variables = ReportingVariables(variable_def)
+        variables = KioskQueryVariables(variable_def)
         variables.set_variable("context_identifier", "LA-001")
         query = ReportingSqlQuery(query_def, variables, namespace="test_dock")
         with pytest.raises(ReportingException, match="no results"):
@@ -71,7 +71,7 @@ class TestReportingSqlQuery(KioskPyTestHelper):
         }
         KioskSQLDb.run_sql_script(reporting_test_data)
 
-        variables = ReportingVariables(variable_def)
+        variables = KioskQueryVariables(variable_def)
         variables.set_variable("context_identifier", "LA-002")
         query = ReportingSqlQuery(query_def, variables, namespace="test_dock")
         query.execute()

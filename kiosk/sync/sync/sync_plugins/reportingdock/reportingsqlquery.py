@@ -1,15 +1,14 @@
 import logging
-import pprint
 
 from kiosksqldb import KioskSQLDb
 from stringinjector import StringInjector
 from .reportinglib import *
 from .reportingquery import ReportingQuery
-from .reportingvariables import ReportingVariables
+from kioskquery.kioskqueryvariables import KioskQueryVariables
 
 
 class ReportingSqlQuery(ReportingQuery):
-    def __init__(self, query_dict: dict, variables: ReportingVariables, namespace):
+    def __init__(self, query_dict: dict, variables: KioskQueryVariables, namespace):
         if "type" not in query_dict or query_dict["type"].lower() != "sql":
             raise ReportingException(f"{self.__class__.__name__}: Call with wrong type of definition")
         if "query" not in query_dict:

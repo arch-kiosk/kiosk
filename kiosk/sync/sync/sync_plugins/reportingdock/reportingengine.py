@@ -1,6 +1,5 @@
 import logging
 import os
-import pprint
 from typing import Union, Iterator, Tuple, Callable
 from zipfile import ZipFile
 
@@ -19,7 +18,7 @@ from .reportingoutputdriver import ReportingOutputDriver
 from .reportingquery import ReportingQuery
 from .reportingquerydefinition import ReportingQueryDefinition
 from .reportingsqlquery import ReportingSqlQuery
-from .reportingvariables import ReportingVariables
+from kioskquery.kioskqueryvariables import KioskQueryVariables
 
 
 class ReportingEngine:
@@ -48,7 +47,7 @@ class ReportingEngine:
         :param query_definition_file: path and filename of a query definition
         """
         query_def = ReportingQueryDefinition(ConfigReader.read_file(query_definition_file))
-        ReportingVariables(query_def.variable_definitions)
+        KioskQueryVariables(query_def.variable_definitions)
 
     @classmethod
     def check_mapping_definition(cls, mapping_definition_file_path):
@@ -61,7 +60,7 @@ class ReportingEngine:
 
     def __init__(self, namespace="", file_repos=None):
         self._query_definition: Union[ReportingQueryDefinition, None] = None
-        self._variables: Union[ReportingVariables, None] = None
+        self._variables: Union[KioskQueryVariables, None] = None
         self._mapping_definition: Union[dict, None] = None
         self._namespace = namespace
         self.template_file = ""
@@ -80,7 +79,7 @@ class ReportingEngine:
         if query_definition_file_path == kioskstdlib.get_filename(query_definition_file_path):
             query_definition_file_path = os.path.join(self.get_reporting_path(), query_definition_file_path)
         self._query_definition = ReportingQueryDefinition(ConfigReader.read_file(query_definition_file_path))
-        self._variables = ReportingVariables(self._query_definition.variable_definitions)
+        self._variables = KioskQueryVariables(self._query_definition.variable_definitions)
         try:
             self._variables.add_constants(self._query_definition.settings)
         except AttributeError:

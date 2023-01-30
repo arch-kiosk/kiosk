@@ -1,10 +1,8 @@
-from stringinjector import StringInjector
-from .reportinglib import *
-from .reportingvariables import ReportingVariables
+from kioskquery.kioskqueryvariables import KioskQueryVariables
 
 
 class ReportingQuery:
-    def __init__(self, query_dict: dict, variables: ReportingVariables, namespace: str):
+    def __init__(self, query_dict: dict, variables: KioskQueryVariables, namespace: str):
         self._query_dict = query_dict
         self._variables = variables
         self._namespace = namespace
