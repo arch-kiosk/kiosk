@@ -47,6 +47,7 @@ config:
   test_mode: False
   use_double_commit: False
   file_repository: '%sync%\file_repository'
+  default_kiosk_queries: '%base_path%\config\kiosk_queries'
   database_timeout_sec: 5
 
 file_repository:

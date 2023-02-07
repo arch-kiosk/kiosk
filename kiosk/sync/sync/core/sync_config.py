@@ -468,6 +468,12 @@ class SyncConfig(Config):
     def sleep_for_filemaker(self):
         return self.config["sleep_for_filemaker"] if "sleep_for_filemaker" in self.config else 0
 
+    @property
+    def default_kiosk_queries(self):
+        return self.resolve_symbols(
+            self.config["default_kiosk_queries"]) if "default_kiosk_queries" in self.config else os.path.join(
+            self.base_path, 'config', 'kiosk_queries')
+
     def get_recording_context_alias(self, recording_context: str):
         """
         returns the alias for a recording context as it is configured under

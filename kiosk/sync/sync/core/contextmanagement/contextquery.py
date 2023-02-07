@@ -49,6 +49,10 @@ class ContextQuery:
     def distinct(self):
         return self._distinct
 
+    @property
+    def type_info(self):
+        return self._selects.get_type_info()
+
     @distinct.setter
     def distinct(self, value):
         if self._query_active:
@@ -262,7 +266,8 @@ class ContextQuery:
         """
         a generator: returns a new row with data from the context selection per iteration.
         Once started, page_count will be set to the actual number of pages available.
-
+        todo: The handling of pages is very inefficient. Think about a more efficient way and
+              perhaps introduce a version that does not count all records at all.
         :param formatter: Optional. A function that will be called with the record and
                           must return a formatted version of the record.
         :param page:      the number of the page, starting with 1.

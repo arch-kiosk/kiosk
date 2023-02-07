@@ -1,3 +1,5 @@
+import copy
+
 import kioskstdlib
 from kioskquery.kioskquerylib import *
 from simplefunctionparser import SimpleFunctionParser
@@ -5,8 +7,8 @@ from databasedrivers import DatabaseDriver
 
 
 class KioskQueryVariables:
-    def __init__(self, variable_defintions: dict):
-        self._variable_definitions = variable_defintions
+    def __init__(self, variable_definitions: dict):
+        self._variable_definitions = copy.deepcopy(variable_definitions)
         self._variables = {}
         self._parse_variable_definitions()
 
@@ -33,6 +35,9 @@ class KioskQueryVariables:
     def _parse_variable_definitions(self):
         for vname, decl in self._variable_definitions.items():
             self._variable_definitions[vname] = self._parse_variable_declaration(decl)
+
+    def has_variable_declaration(self, key: str):
+        return key in self._variable_definitions
 
     def has_variable(self, key: str):
         return key in self._variables
@@ -87,6 +92,9 @@ class KioskQueryVariables:
 
     def get_variables_dict(self):
         return self._variables
+
+    def get_variable_definitions(self):
+        return self._variable_definitions
 
     def add_constants(self, settings: dict):
         for key, value in settings.items():

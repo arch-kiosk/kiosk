@@ -120,3 +120,18 @@ kiosk_filemanager_directories:
       privilege_modify: [datatype(varchar)]
       privilege_read: [datatype(varchar)]
       server_restart: [datatype(boolean), default(false)]
+
+kiosk_queries:
+  structure:
+    1:
+      id: [datatype(VARCHAR), unique(), not_null()]
+      name: [datatype(VARCHAR), unique(), not_null()]
+      description: [datatype(VARCHAR)]
+      query_type: [datatype(VARCHAR)]
+      privilege_read: [datatype(VARCHAR)]
+      privilege_write: [datatype(VARCHAR)]
+      query: [datatype(json)]
+      created: [datatype(TIMESTAMP), not_null(), default("now()")]
+      modified: [datatype(TIMESTAMP), not_null(), default("now()")]
+      modified_by: [ datatype(VARCHAR), default(Null) ]
+      uid: [datatype(UUID), uuid_key())]

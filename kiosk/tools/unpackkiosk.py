@@ -289,12 +289,25 @@ def housekeeping(cfg_file: str):
         from sync_config import SyncConfig
         from filerepository import FileRepository
 
-        config = SyncConfig.get_config({"config_file", cfg_file})
+        config = SyncConfig.get_config({"config_file": cfg_file})
         file_repos = FileRepository(config)
         hk = Housekeeping(file_repos, True)
         hk.do_housekeeping(file_tasks_only=True)
     except BaseException as e:
         logging.error(f"housekeeping: Exception in housekeeping: {repr(e)}")
+
+
+def install_default_queries(cfg_file: str):
+    try:
+        from kioskquery.kioskquerystore import install_default_kiosk_queries
+        from sync_config import SyncConfig
+
+        config = SyncConfig.get_config({"config_file": cfg_file})
+        install_default_kiosk_queries(config)
+        print("Installed default kiosk queries.", flush=True)
+    except BaseException as e:
+        logging.error(f"install_default_queries: Exception in install_default_queries: {repr(e)}. "
+                      f"Continuing, though ...")
 
 
 def delete_old_directories():
@@ -509,6 +522,8 @@ if __name__ == '__main__':
             print(f"Exception when starting housekeeping: {repr(e)}")
             print(sys.path)
 
+    install_default_queries(cfg_file)
+
     logging.info("unpackkiosk is done.")
     if "rm" in options:
         try:
@@ -526,3 +541,4 @@ if __name__ == '__main__':
         print("====                                                    ====")
         print("============================================================")
         print("\u001b[0m")
+

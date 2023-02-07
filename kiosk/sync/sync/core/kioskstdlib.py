@@ -91,6 +91,22 @@ def find_files(filepath, file_pattern, exclude_file="", include_path=True, order
     return files
 
 
+def apply_files(filepath, file_pattern, file_method: Callable):
+    """
+    list files from a directory and calls a function on them.
+    :param filepath: the path
+    :param file_pattern: a pattern like "*.dmp"
+    :param file_method: a function that accepts a parameter path_and_filename
+    :param exclude_file: a single file that will not occur in the list.
+    :return: a list of files (list(str)
+    """
+
+    if filepath and file_pattern:
+        search_pattern = path.join(filepath, file_pattern)
+        for f in iglob(search_pattern):
+            file_method(f)
+
+
 def delete_files(file_list, exception_if_missing=False):
     if file_list:
         for f in file_list:

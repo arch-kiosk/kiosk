@@ -15,6 +15,8 @@ class Table:
     _fields = []
     _table_name = ""
 
+    debug = False
+
     def __init__(self, **kwargs):
         self._r = {}
         self._fields = []
@@ -146,6 +148,8 @@ class Table:
         """
         rc = False
         cur = KioskSQLDb.execute_return_cursor(sql, parameters=sql_params, commit=commit)
+        if self.debug:
+            print(cur.query)
         try:
             if self._key_fields_columns_str:
                 r = cur.fetchone()

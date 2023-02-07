@@ -1,0 +1,37 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+variables:
+  locus_type: [ datatype(VARCHAR) ]
+queries:
+  'loci_and_material_types':
+    name: 'what materials have been found in loci of type x?'
+    description: 'lists the materials that have been found in loci of a certain type'
+    type: 'CQL'
+    output_type: 'list'
+    query:
+      base:
+        scope:
+          locus: browse()
+        target:
+          field_or_instruction: collected_material.type
+        additional_fields:
+          locus_type:
+            field_or_instruction: locus.type
+            default: ""
+          locus_identifier:
+            field_or_instruction: locus.identifier()
+            default: ""
+      query:
+        type: raw
+        distinct: true
+        columns:
+          "arch_context":
+            source_field: locus_identifier
+          "collected_material_type":
+            source_field: data
+          "uid":
+            source_field: data_uuid
+        conditions:
+          ?: equals(locus_type, {{#locus_type}})

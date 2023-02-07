@@ -6,7 +6,6 @@ import datetime
 
 import kioskstdlib
 from kioskquery.kioskquerylib import KioskQueryException
-from reportingdock.reportinglib import ReportingException
 from kioskquery.kioskqueryvariables import KioskQueryVariables
 from test.testhelpers import KioskPyTestHelper
 

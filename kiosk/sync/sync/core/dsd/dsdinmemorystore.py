@@ -2,6 +2,7 @@ from dsd.dsdstore import DSDStore
 import logging
 import pprint
 
+
 class DSDInMemoryStore(DSDStore):
     def __init__(self):
         self._dsd_data = {}

@@ -66,6 +66,7 @@ class ApiCQLQueryResult(Schema):
     qc_messages: fields.List(fields.Dict(), default=[])
     overall_record_count: fields.Int()
 
+
 class ApiCQLQuery(Resource):
     @classmethod
     def register(cls, api):

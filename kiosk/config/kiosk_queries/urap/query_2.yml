@@ -1,0 +1,36 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+variables:
+  unit_id: [ datatype(VARCHAR) ]
+queries:
+  'material_types_of_unit_x':
+    name: 'which materials have been found in unit x?'
+    description: 'lists the material types that have been found in a certain unit'
+    type: 'CQL'
+    output_type: 'list'
+    query:
+      base:
+        scope:
+          unit: browse()
+        target:
+          field_or_instruction: collected_material.type
+        additional_fields:
+          locus_id:
+            field_or_instruction: locus.identifier()
+            default: ""
+      query:
+        type: raw
+        distinct: true
+        columns:
+          "collected_material_type":
+            source_field: data
+          "collected_material_id":
+            source_field: primary_identifier
+          "locus_id":
+            source_field: locus_id
+          "unit_id":
+            source_field: identifier
+        conditions:
+          ?: equals(unit_id, {{#unit_id}})
