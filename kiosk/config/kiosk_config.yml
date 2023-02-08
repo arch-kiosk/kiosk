@@ -92,9 +92,11 @@ kiosk:
     active: true
     no_csrf_defense: true
 
-
   pwastresstestplugin:
     active: true
 
+  queryandviewplugin:
+    active: true
+    is_main_index: false
 
 

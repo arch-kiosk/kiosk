@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "vite --host",
-    "build": "vite build --emptyOutDir"
+      "build": "vite build --emptyOutDir"
   },
   "keywords": [],
   "author": "",

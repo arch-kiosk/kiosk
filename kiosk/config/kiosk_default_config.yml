@@ -246,6 +246,12 @@ kiosk:
     menu:
       "director's view": [ "-directorsviewplugin" ]
 
+  queryandviewplugin:
+    active: true
+    is_main_index: false
+    menu:
+      "query and view data": [ "-queryandviewplugin" ]
+
   syncmanagerplugin:
     active: true
     is_main_index: true
