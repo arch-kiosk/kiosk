@@ -9,12 +9,12 @@ class TestSimpleFunctionParser:
         assert not parser.ok
         parser.parse('nonsense("nearly ok"')
         assert not parser.ok
-    
+
     def test_find_function_call(self):
         parser = SimpleFunctionParser()
         parser.parse("datatype(\"something\")")
         assert parser.instruction == "datatype"
-    
+
     def test_find_parameter(self):
         parser = SimpleFunctionParser()
         parser.parse("datatype(\"VARCHAR\")")
@@ -28,7 +28,7 @@ class TestSimpleFunctionParser:
         assert len(parser.parameters) == 2
         assert "VARCHAR" in parser.parameters
         assert '10' in parser.parameters
-    
+
     def test_no_parameters(self):
         parser = SimpleFunctionParser()
         parser.parse("noparamfunc()")
@@ -60,7 +60,36 @@ class TestSimpleFunctionParser:
         parser.parse("noparamfunc(\"first\",,\"third\")")
         assert parser.ok
         assert parser.instruction == "noparamfunc"
-        assert not len(parser.parameters) == 3
+        assert len(parser.parameters) == 3
+
+    def test_strange_empty_parametera(self):
+        parser = SimpleFunctionParser()
+        parser.parse("func(,,,)")
+        assert parser.ok
+        assert parser.instruction == "func"
+        assert parser.parameters == ['', '', '', '']
+
+        parser.parse("func(,a,b,)")
+        assert parser.ok
+        assert parser.instruction == "func"
+        assert parser.parameters == ['', 'a', 'b', '']
+
+    def test_empty_parameter_at_the_end(self):
+        parser = SimpleFunctionParser()
+        parser.parse("noparamfunc(first,second,)")
+        assert parser.ok
+        assert parser.instruction == "noparamfunc"
+        assert len(parser.parameters) == 3
+
+        parser.parse("noparamfunc(first,second,\"\")")
+        assert parser.ok
+        assert parser.instruction == "noparamfunc"
+        assert len(parser.parameters) == 3
+
+        parser.parse("noparamfunc(first,second,'')")
+        assert parser.ok
+        assert parser.instruction == "noparamfunc"
+        assert len(parser.parameters) == 3
 
     def test_test_case_1(self):
         parser = SimpleFunctionParser()
@@ -74,25 +103,48 @@ class TestSimpleFunctionParser:
     def test_null(self):
         parser = SimpleFunctionParser()
         parser.parse("default(something)")
-        print(parser.err)
         assert parser.ok
         assert parser.instruction == "default"
         assert parser.parameters[0] == "something"
 
         parser.parse("default('something')")
-        print(parser.err)
         assert parser.ok
         assert parser.instruction == "default"
         assert parser.parameters[0] == "something"
 
         parser.parse("default(null)")
-        print(parser.err)
         assert parser.ok
         assert parser.instruction == "default"
         assert parser.parameters[0] == "null"
 
         parser.parse("default('null')")
-        print(parser.err)
         assert parser.ok
         assert parser.instruction == "default"
         assert parser.parameters[0] == "'null'"
+
+        parser.parse("default(\"null\")")
+        assert parser.ok
+        assert parser.instruction == "default"
+        assert parser.parameters[0] == "'null'"
+
+        parser.parse("default(\"'null'\")")
+        assert parser.ok
+        assert parser.instruction == "default"
+        assert parser.parameters[0] == "'null'"
+
+        parser.parse("default('\"null\"')")
+        assert parser.ok
+        assert parser.instruction == "default"
+        assert parser.parameters[0] == '"null"'
+
+    def test_internal_brackets(self):
+        parser = SimpleFunctionParser()
+        parser.parse("func('something(that has brackets)', 'More(brackets)')")
+        assert parser.ok
+        assert parser.parameters[0] == "something(that has brackets)"
+        assert parser.parameters[1] == "More(brackets)"
+
+        parser.parse("func(something(that has brackets), More(brackets))")
+        assert parser.ok
+        assert parser.parameters[0] == "something(that has brackets)"
+        assert parser.parameters[1] == "More(brackets)"

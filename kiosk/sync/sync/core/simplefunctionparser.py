@@ -4,7 +4,8 @@ import re
 
 class SimpleFunctionParser:
     src_regex_function = r"""^\s*(?P<instruction>[a-zA-z0-9]+)\((?P<params>.*?)\)\s*$"""
-    src_regex_params = r"""((\s*\"(?P<param_quote>.*?)\"\s*)|(\s*'(?P<param_singlequote>.*?)'\s*)|(\s*(?P<param_noquote>[^\s|^,]+?)))(,|$)"""
+    # src_regex_params = r"""((\s*\"(?P<param_quote>.*?)\"\s*)|(\s*'(?P<param_singlequote>.*?)'\s*)|(\s*(?P<param_noquote>[^\s|^,]+?)))(,|$)"""
+    src_regex_params = r"""((\s*\"(?P<param_quote>.*?)\"\s*)|(\s*'(?P<param_singlequote>.*?)'\s*)|(\s*(?P<param_noquote>[^,]*)))(?P<end>,|$)"""
 
     def __init__(self):
         self.regex_function = re.compile(self.src_regex_function)
@@ -52,6 +53,8 @@ class SimpleFunctionParser:
                                     break
                             except IndexError as e:
                                 pass
+                        if not match.group("end"):
+                            break
                 else:
                     self.err = "syntax error"
                     logging.debug(f"SimpleFunctionParser.parse: Syntax error in params of command {command}.")
