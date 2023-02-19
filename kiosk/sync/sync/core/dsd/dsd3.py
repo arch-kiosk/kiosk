@@ -452,7 +452,7 @@ class DataSetDefinition:
 
         return result
 
-    def get_unparsed_field_instructions(self, table, fieldname, version=0) -> dict:
+    def get_unparsed_field_instructions(self, table, fieldname, version=0) -> list:
         """ returns the list of instructions for a field but does not parse the instructions.
         :param table: the table
         :param fieldname: the field

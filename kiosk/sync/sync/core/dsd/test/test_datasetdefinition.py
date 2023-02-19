@@ -775,3 +775,8 @@ class TestDataSetDefinition(KioskPyTestHelper):
                                                      'uid': ['datatype(UUID)', 'replfield_uuid()',
                                                              'join("tagging", "source_uid")'],
                                                      'uid_unit': ['datatype(UUID)', 'join("unit")']}
+
+    def test_get_unparsed_field_instructions(self, dsd_urap_dsd3):
+        dsd: DataSetDefinition = dsd_urap_dsd3
+        assert dsd.get_unparsed_field_instructions("locus", "arch_domain") == ['datatype(VARCHAR)',
+                                                                               'id_domain("arch_context")']
