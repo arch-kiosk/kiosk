@@ -148,3 +148,10 @@ class TestSimpleFunctionParser:
         assert parser.ok
         assert parser.parameters[0] == "something(that has brackets)"
         assert parser.parameters[1] == "More(brackets)"
+
+    def test_get_instruction_name_only(self):
+        parser = SimpleFunctionParser()
+        assert parser.get_instruction_name_only("no instruction here") == ""
+        assert parser.get_instruction_name_only("instruction()") == "instruction"
+        assert parser.get_instruction_name_only("instruction(,,,)") == "instruction"
+        assert parser.get_instruction_name_only("instruction(a,b,c,d)") == "instruction"

@@ -23,6 +23,18 @@ class SimpleFunctionParser:
         """
         return self.err if self.err else "unknown error"
 
+    def get_instruction_name_only(self, command: str):
+        """
+        returns only the name of the instruction
+        :param command:
+        :return: name of the instruction or "" if the command is not a valid instruction
+        """
+        result = self.regex_function.match(command)
+        if result and len(result.groups()) == 2:
+            return result.group('instruction')
+        else:
+            return ""
+
     def parse(self, command: str) -> None:
         self.ok = False
         self.instruction = ""
