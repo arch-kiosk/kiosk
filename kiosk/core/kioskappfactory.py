@@ -249,7 +249,11 @@ class KioskAppFactory(AppFactory):
         # registers the plugin manager with the app and
         # initializes all the plugins with the app object
 
-        register_kiosk_apis(app)
+        try:
+            register_kiosk_apis(app)
+        except BaseException as e:
+            raise Exception(f"_create_std_app: Error when registering kiosk apis{repr(e)}")
+
         plugin_manager.init_app(app, api=kioskglobals.api)
 
         cls._load_background_threads(app)
