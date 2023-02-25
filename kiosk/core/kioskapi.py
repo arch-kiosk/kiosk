@@ -18,7 +18,7 @@ class KioskApi(Api):
         self.spec = APISpec(
             title=self.title,
             version=self.version,
-            openapi_version="3.0.n",
+            openapi_version="3.0.2",
             info={
                 'description': self.description,
             },
