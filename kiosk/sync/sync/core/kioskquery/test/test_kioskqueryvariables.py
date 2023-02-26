@@ -5,6 +5,7 @@ import pytest
 import datetime
 
 import kioskstdlib
+from dsd.dsd3singleton import Dsd3Singleton
 from kioskquery.kioskquerylib import KioskQueryException
 from kioskquery.kioskqueryvariables import KioskQueryVariables
 from test.testhelpers import KioskPyTestHelper
@@ -19,6 +20,10 @@ class TestKioskQueryVariables(KioskPyTestHelper):
     @pytest.fixture(scope="module")
     def config(self):
         return self.get_config(config_file, log_file=log_file)
+
+    @pytest.fixture()
+    def dsd(self, config):
+        return self.get_dsd(config)
 
     def test_get_variable_type(self, config):
         definition = {
@@ -94,3 +99,71 @@ class TestKioskQueryVariables(KioskPyTestHelper):
         assert vars.get_variable_sql("const_int_list") == "1,12,13"
         assert vars.get_variable_type("const_float_list") == "float"
         assert vars.get_variable_sql("const_float_list") == "1.12,12.11,13.13"
+
+    def test_get_dsd_variable_type(self, config, dsd):
+        definition = {
+            "context_identifier": [r'dsd(locus, arch_context)'],
+            "material_type": "dsd(collected_material, type)",
+            "date": "dsd(collected_material, modified)"
+        }
+        assert dsd.table_is_defined("locus")
+        vars = KioskQueryVariables(definition)
+        assert vars
+
+        assert vars.get_variable_type("context_identifier") == "varchar"
+        assert vars.get_variable_type("date") == "timestamp"
+        assert vars.get_variable_type("material_type") == "varchar"
+
+    def test_get_dsd_variable_type_no_datatype_override(self, config, dsd):
+        definition = {
+            "context_identifier": [r'dsd(locus, arch_context)'],
+            "material_type": "datatype(number)",
+            "date": ["dsd(collected_material, modified)", "datatype(varchar)"]
+        }
+        assert dsd.table_is_defined("locus")
+        vars = KioskQueryVariables(definition)
+        assert vars
+
+        assert vars.get_variable_type("context_identifier") == "varchar"
+        assert vars.get_variable_type("date") == "timestamp"
+        assert vars.get_variable_type("material_type") == "number"
+
+    def test_get_variable_instructions(self, config, dsd):
+        definition = {
+            "context_identifier": r'dsd(locus, arch_context)',
+            "material_type": ["datatype(VARCHAR)", "identifier()"],
+            "date": ["dsd(collected_material, modified)", "additional_instruction(some, params)"]
+        }
+        assert dsd.table_is_defined("locus")
+        vars = KioskQueryVariables(definition)
+        assert vars
+
+        assert vars.get_variable_type("context_identifier") == "varchar"
+        assert vars.get_variable_type("date") == "timestamp"
+        assert vars.get_variable_type("material_type") == "varchar"
+
+        defs = vars.get_variable_definitions()
+        assert defs["context_identifier"] == ['datatype(VARCHAR)',
+                                              'identifier()',
+                                              'skip_index_on("hidden")']
+
+        assert defs["material_type"] == ['datatype(VARCHAR)',
+                                         'identifier()']
+
+        assert defs["date"] == ['datatype(TIMESTAMP)',
+                                'replfield_modified()',
+                                'additional_instruction(some, params)']
+
+    def test_get_variable_instructions_override(self, config, dsd):
+        definition = {
+            "uid_unit": [r'dsd(locus, uid_unit)', r'datatype(VARCHAR)', r'join("some_other_table")'],
+        }
+        assert dsd.table_is_defined("locus")
+        vars = KioskQueryVariables(definition)
+        assert vars
+
+        assert vars.get_variable_type("uid_unit") == "uuid"
+
+        defs = vars.get_variable_definitions()
+        assert defs["uid_unit"] == ['datatype(UUID)',
+                                    'join("some_other_table")']

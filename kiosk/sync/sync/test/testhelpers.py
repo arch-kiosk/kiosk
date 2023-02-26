@@ -158,11 +158,16 @@ class KioskPyTestHelper:
         Dsd3Singleton.release_dsd3()
         return cfg
 
+    def get_dsd(self, cfg):
+        dsd = Dsd3Singleton.get_dsd3()
+        assert dsd.append_file(cfg.dsdfile)
+        return dsd
+
     def get_urapdb(self, cfg, migration=True):
         if cfg.database_name != "urap_test":
             raise Exception(f"attempt to use database {cfg.database_name} in test. Stopped.")
-        dsd = Dsd3Singleton.get_dsd3()
-        assert dsd.append_file(cfg.dsdfile)
+
+        dsd = self.get_dsd(cfg)
         if migration:
             try:
                 KioskSQLDb.rollback()

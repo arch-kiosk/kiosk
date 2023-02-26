@@ -1,6 +1,8 @@
 import logging
 import sys
 from os import path
+
+from dsd.dsd3singleton import Dsd3Singleton
 from kioskquery.kioskquerystore import install_default_kiosk_queries
 from sync_config import SyncConfig
 
@@ -41,7 +43,8 @@ if __name__ == '__main__':
             usage()
 
     cfg = SyncConfig.get_config({'config_file': cfg_file})
-
+    dsd = Dsd3Singleton.get_dsd3()
+    assert dsd.append_file(cfg.dsdfile)
     print(
         f"Installing query definitions from {cfg.default_kiosk_queries} and "
         f"{cfg.default_kiosk_queries}\\{cfg.get_project_id()}")

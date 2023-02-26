@@ -73,7 +73,7 @@ export class KioskApi {
             throw new KioskApiError("No api-token when calling fetchFromApi");
         }
         let headers = this.getHeaders(mimetype)
-        let address = `${this.getApiUrl()}/${apiRoot}/${apiVersion}/${apiMethod}`;
+        let address = `${this.getApiUrl()}/${apiRoot?apiRoot + '/':''}${apiVersion}/${apiMethod}`;
 
         if ("caller" in fetchParams)
             console.log(`${fetchParams.caller} fetching from ${address}`);

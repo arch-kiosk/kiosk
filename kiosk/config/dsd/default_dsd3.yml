@@ -1394,7 +1394,7 @@ unit:
       identification_method_cm: [datatype(VARCHAR)]
       identification_method_analysis: [datatype(VARCHAR)]
       arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
-      arch_context: [datatype(VARCHAR), identifier()]
+      arch_context: [datatype(VARCHAR), identifier(), unit()]
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]

@@ -1,3 +1,5 @@
+import logging
+import os
 from concurrent.futures.thread import ThreadPoolExecutor
 from typing import Union
 
@@ -10,6 +12,8 @@ from generalstore.generalstore import GeneralStore
 from generalstore.generalstorekeys import gs_key_kiosk_init_counter
 from itsdangerous import TimedJSONWebSignatureSerializer as JWS
 from flask_httpauth import HTTPTokenAuth
+from uic.uictree import UICTree
+from uic.uicstream import UICStream, UICKioskFile
 
 import datetime
 import threading
@@ -20,9 +24,9 @@ kiosk_date = datetime.datetime(2023, 2, 4)
 debug = False
 development = {}
 
-global cfg
-global kiosk_thread
-global login_manager
+# global cfg
+# global kiosk_thread
+
 httpauth = HTTPTokenAuth(scheme="Bearer")
 
 flask_admin = None
@@ -52,6 +56,8 @@ identifier_cache = None
 current_log_file = "unknown"
 init_counter = 0
 jws = None
+
+uic_tree = None
 
 
 def get_global_constants():
@@ -131,3 +137,16 @@ def get_development_option(key: str) -> str:
         return str(v)
     except:
         return ""
+
+
+def get_uic_tree() -> UICTree:
+    global uic_tree
+    try:
+        if not uic_tree:
+            uic_stream = UICStream(UICKioskFile.get_file_stream("kiosk_ui_classes.uic"),
+                                   get_import_stream=UICKioskFile.get_file_stream)
+            uic_tree = uic_stream.tree
+    except BaseException as e:
+        logging.error(f"kioskglobals.get_uic_tree: {repr(e)}")
+
+    return uic_tree

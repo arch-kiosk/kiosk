@@ -1483,3 +1483,22 @@ def adjust_tuple(in_tuple: tuple, length: int, default) -> tuple:
         return in_tuple
     return tuple([in_tuple[x] if x < len(in_tuple) else default
                   for x in range(0, length)])
+
+
+def get_secure_windows_sub_path(sub_path: str) -> str:
+    """
+    returns a subdirectory path even if fed a static path (including a drive or path that starts with \\).
+    This is windows-specific and works only with \\
+    :param sub_path: a path
+    :return: a relative path without a leading \
+    """
+    regex = r"^\s*((.*):)?([\\|\s]*)(?P<path>.+?)\s*$"
+
+    match = re.match(regex, sub_path)
+    if match:
+        regex_path = match.group("path")
+        if regex_path:
+            return regex_path
+    return ""
+
+

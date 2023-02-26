@@ -3,7 +3,7 @@ header:
 meta:
   query_type: StructuredKioskQuery
 variables:
-  unit_id: [ datatype(VARCHAR) ]
+  unit_id: ["dsd('unit', 'arch_context')"]
 queries:
   'material_types_of_unit_x':
     name: 'which materials have been found in unit x?'

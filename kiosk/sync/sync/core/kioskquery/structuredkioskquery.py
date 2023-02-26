@@ -13,12 +13,13 @@ from kioskquery.structuredkioskquerydefinition import StructuredKioskQueryDefini
 from kioskquery.kioskquerylib import *
 from kioskquery.structuredkioskqueryui import StructuredKioskQueryUI
 from kiosksqldb import KioskSQLDb
+from uic.uictree import UICTree
 
 
 class StructuredKioskQuery(KioskQuery):
 
     def __init__(self, query_definition: dict, dsd: DataSetDefinition):
-        self._dsd = dsd
+        super().__init__(query_definition, dsd)
         self._definition = StructuredKioskQueryDefinition(query_definition)
         self._variables = self._definition.get_variables()
 
@@ -34,8 +35,8 @@ class StructuredKioskQuery(KioskQuery):
         return [name for name, q in self._definition.queries.items() if
                 "output_type" in q and q["output_type"] == "list"]
 
-    def get_query_ui(self) -> KioskQueryUI:
-        return StructuredKioskQueryUI(self._definition.get_variables())
+    def get_query_ui(self, uic_tree: UICTree) -> KioskQueryUI:
+        return StructuredKioskQueryUI(self._definition.get_variables(), uic_tree)
 
     def execute(self, query_name: str) -> KioskQueryResult:
         try:

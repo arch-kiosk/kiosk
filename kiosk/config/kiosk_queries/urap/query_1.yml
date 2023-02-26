@@ -3,7 +3,7 @@ header:
 meta:
   query_type: StructuredKioskQuery
 variables:
-  locus_type: [ datatype(VARCHAR) ]
+  locus_type: ["dsd(locus, type)"]
 queries:
   'loci_and_material_types':
     name: 'what materials have been found in loci of type x?'

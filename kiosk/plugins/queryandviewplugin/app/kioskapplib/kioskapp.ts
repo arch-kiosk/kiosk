@@ -9,22 +9,20 @@ export abstract class KioskApp extends LitElement {
     apiContext: any;
     showProgress: boolean;
 
-    static get properties() {
-        return {
-            /**
-             * The Api Context
-             */
-            apiContext: { type: Object },
-            appErrors: { type: Array },
-            showProgress: {type: Boolean}
-        };
-    }
+    static properties = {
+        /**
+         * The Api Context
+         */
+        apiContext: { type: Object },
+        appErrors: { type: Array },
+        showProgress: { type: Boolean },
+    };
 
     protected constructor() {
         super();
         this.appErrors = [];
         this.apiContext = undefined;
-        this.showProgress = false
+        this.showProgress = false;
     }
 
     updated(_changedProperties: any) {
@@ -42,8 +40,7 @@ export abstract class KioskApp extends LitElement {
         if (this.apiContext && this.apiContext.status === API_STATE_READY) {
             renderedHtml = this.apiRender();
         } else {
-            if (this.apiContext && this.apiContext.status === API_STATE_ERROR)
-                renderedHtml = this.renderApiError();
+            if (this.apiContext && this.apiContext.status === API_STATE_ERROR) renderedHtml = this.renderApiError();
             else renderedHtml = this.renderNoContextYet();
         }
         // noinspection HtmlUnknownTarget
@@ -70,12 +67,21 @@ export abstract class KioskApp extends LitElement {
                     height: 5px;
                     width: 100%;
                     border-radius: 3px;
-                    background: linear-gradient(90deg, red 0%, yellow 15%, lime 30%, cyan 50%, blue 65%, magenta 80%, red 100%);
+                    background: linear-gradient(
+                        90deg,
+                        red 0%,
+                        yellow 15%,
+                        lime 30%,
+                        cyan 50%,
+                        blue 65%,
+                        magenta 80%,
+                        red 100%
+                    );
                     background-size: 200%;
                     animation: move-gradient 2s ease-in infinite;
                 }
                 @keyframes move-gradient {
-                    0% { 
+                    0% {
                         background-position: 0% 0%;
                     }
                     100% {
@@ -83,23 +89,14 @@ export abstract class KioskApp extends LitElement {
                     }
                 }
             </style>
-            <link
-                rel="stylesheet"
-                href="${this.kiosk_base_url}static/styles.css"
-            />
-            ${this.renderProgress()}
-            ${this.renderErrors()} ${renderedHtml}
+            <link rel="stylesheet" href="${this.kiosk_base_url}static/styles.css" />
+            ${this.renderProgress()} ${this.renderErrors()} ${renderedHtml}
         `;
     }
 
     renderNoContextYet(): TemplateResult {
         // noinspection HtmlUnknownTarget
-        return html`
-            <link
-                rel="stylesheet"
-                href="${this.kiosk_base_url}static/styles.css"
-            />
-        `;
+        return html` <link rel="stylesheet" href="${this.kiosk_base_url}static/styles.css" /> `;
     }
     renderApiError(): TemplateResult {
         return undefined;
@@ -107,23 +104,17 @@ export abstract class KioskApp extends LitElement {
 
     renderErrors(): TemplateResult {
         if (this.appErrors.length > 0) {
-            return html`
-                ${this.appErrors.map(
-                    (error) => html`<div class="system-message">${error}</div>`,
-                )}
-            `;
+            return html` ${this.appErrors.map((error) => html`<div class="system-message">${error}</div>`)} `;
         } else return undefined;
     }
 
-    renderProgress(force=false): TemplateResult {
+    renderProgress(force = false): TemplateResult {
         if (force || this.showProgress)
-            return html`
-                <div class="loading">
-                    <div class="loading-progress"></div>
-                </div>`
-        else return undefined
+            return html` <div class="loading">
+                <div class="loading-progress"></div>
+            </div>`;
+        else return undefined;
     }
-
 
     addAppError(error: string) {
         this.appErrors.push(error);

@@ -1,3 +1,4 @@
+import copy
 from collections.abc import Mapping
 
 
@@ -18,7 +19,8 @@ def dict_merge(dct, merge_dct):
     # You should have received a copy of the GNU General Public License
     # along with this program.  If not, see <https://www.gnu.org/licenses/>.
     #
-    # Lutz: Just turned it into Python 3
+    # Lutz: Just turned it into Python 3 and made sure that merge_dct
+    # will not be modified later when dct gets modified.
     #
     """ Recursive dict merge. Inspired by :meth:``dict.update()``, instead of
     updating only top-level keys, dict_merge recurses down into dicts nested
@@ -34,7 +36,7 @@ def dict_merge(dct, merge_dct):
                 and isinstance(merge_dct[k], Mapping)):
             dict_merge(dct[k], merge_dct[k])
         else:
-            dct[k] = merge_dct[k]
+            dct[k] = copy.deepcopy(merge_dct[k])
 
 
 def dict_search(search_dict, key_to_find, cache=None):

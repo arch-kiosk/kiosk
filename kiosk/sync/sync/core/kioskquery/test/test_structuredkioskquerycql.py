@@ -43,8 +43,8 @@ class TestStructuredKioskQuerySQL(KioskPyTestHelper):
         return self.get_urapdb(config, migration=False)
 
     @pytest.fixture()
-    def dsd(self, urapdb_without_migration):
-        return Dsd3Singleton.get_dsd3()
+    def dsd(self, config):
+        return self.get_dsd(config)
 
     def test_init(self, config, dsd, urapdb_with_records):
         query_def = yaml.load("""

@@ -14,13 +14,14 @@ import_configurations:
   - kiosk_secure.yml
 
 config:
-  project_id: 'urap'
+  project_id: 'khpp'
   no_console: false
-  filemaker_template: '%sync%\filemaker\pvd_recording_template.fmp12'
-  filemaker_db_filename: pvd_recording.fmp12
+  filemaker_template: '%sync%\filemaker\khpp_recording_template.fmp12'
+  filemaker_db_filename: khpp_recording.fmp12
   filemaker_encoding: utf-8
+  database_name: khpp
 #  database_name: ustp
-  database_name: urap_rep
+#  database_name: urap_rep
 #    database_name: urap_test
 #  database_name: pacha
   odbc_ini_dsn: filemaker_odbc

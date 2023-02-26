@@ -186,7 +186,7 @@ if __name__ == "__main__":
     ws: FileMakerWorkstation = sync.get_workstation("FileMakerWorkstation", "x1lk")
     assert ws.exists()
     ws.callback_progress = lambda x: True
-    ws.fork()
+    ws.export()
     KioskSQLDb.commit()
     # pdb.set_trace()
     print("\ndone")

@@ -171,3 +171,11 @@ class Testkioskstdlib(KioskPyTestHelper):
                  ]
         for p in paths:
             assert kioskstdlib.trim_pathsep(p[0]) == p[1]
+
+    def test_get_secure_windows_sub_path(self):
+        assert kioskstdlib.get_secure_windows_sub_path(r"e:\my_path") == r"my_path"
+        assert kioskstdlib.get_secure_windows_sub_path(r"e:\my_path\another_path") == r"my_path\another_path"
+        assert kioskstdlib.get_secure_windows_sub_path(r"\my_path\another_path") == r"my_path\another_path"
+        assert kioskstdlib.get_secure_windows_sub_path(r"e:\\ \ \e:\my_path\another_path") == r"my_path\another_path"
+
+

@@ -33,8 +33,6 @@ def install_default_kiosk_queries(config: SyncConfig):
 
 
 class KioskQueryStore:
-    def __init__(self):
-        pass
 
     @classmethod
     def add(cls, query: KioskQuery):
@@ -70,7 +68,7 @@ class KioskQueryStore:
             raise KioskQueryException(f"{cls.__name__}.add_or_update_from_file: "
                                       f"File does not exist ({path_and_filename})")
         with open(path_and_filename, "r", encoding='utf8') as ymlfile:
-            query_def = yaml.load(ymlfile, Loader=yaml.BaseLoader)
+            query_def = yaml.load(ymlfile, Loader=yaml.FullLoader)
         return cls.add_or_update_from_raw_definition(query_def)
 
     @classmethod
@@ -104,11 +102,11 @@ class KioskQueryStore:
     def list(cls):
         """
         lists available queries from the store
-        :return: list of tuple (id, name, description)
+        :return: list of tuple (id, type, name, description)
         """
         result = []
         store_entry = KioskQueryStoreModel()
         for r in store_entry.all():
-            result.append((r.id, r.name, r.description))
+            result.append((r.id, r.query_type, r.name, r.description))
 
         return result

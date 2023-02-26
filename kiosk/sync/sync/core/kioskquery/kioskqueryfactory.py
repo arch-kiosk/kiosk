@@ -10,6 +10,7 @@ class KioskQueryFactory:
         returns a KioskQuery subclass appropriate for the given query_def.
         The query_def is expected to have the "meta/query_type:" attribute set to a known query type.
         :param query_def: a dictionary with a query definition
+        :param uic_tree: the uic tree with UI definitions
         :return: an initialized KioskQuery subclass
         """
         if "meta" not in query_def:

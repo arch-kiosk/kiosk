@@ -1,6 +1,7 @@
 import copy
 
 import kioskstdlib
+from dsd.dsd3singleton import Dsd3Singleton
 from kioskquery.kioskquerylib import *
 from simplefunctionparser import SimpleFunctionParser
 from databasedrivers import DatabaseDriver
@@ -8,33 +9,82 @@ from databasedrivers import DatabaseDriver
 
 class KioskQueryVariables:
     def __init__(self, variable_definitions: dict):
-        self._variable_definitions = copy.deepcopy(variable_definitions)
         self._variables = {}
-        self._parse_variable_definitions()
+        self._variable_definitions = self._parse_variable_definitions(variable_definitions)
 
-    def _parse_variable_declaration(self, decl):
+    def _parse_dsd_instruction(self, vname: str, cmd: str):
+        parser = SimpleFunctionParser()
+        parser.parse(cmd)
+        if not parser.ok:
+            raise KioskQueryException(f"{self.__class__.__name__}._parse_variable_declaration: "
+                                      f"syntax error when parsing dsd instruction: {cmd}.")
+        if len(parser.parameters) not in [1, 2]:
+            raise KioskQueryException(f"{self.__class__.__name__}._parse_variable_declaration: "
+                                      f"dsd instruction requires one or two parameters {cmd}.")
+
+        dsd_table = parser.parameters[0]
+        dsd_field = vname
+        if len(parser.parameters) == 2:
+            dsd_field = parser.parameters[1]
+
+        dsd = Dsd3Singleton.get_dsd3()
+        field_instructions = dsd.get_unparsed_field_instructions(dsd_table, dsd_field)
+        return field_instructions
+
+    def _parse_variable_declaration(self, vname: str, decl: list):
         result = {}
+        field_instructions = {}
+        parser = SimpleFunctionParser()
+
         if isinstance(decl, str):
             decl = [decl]
 
         for cmd in decl:
-            parser = SimpleFunctionParser()
-            parser.parse(cmd)
-            if not parser.ok:
+            if "dsd(" in cmd:
+                field_instruction_list = self._parse_dsd_instruction(vname, cmd)
+                for f in field_instruction_list:
+                    key = parser.get_instruction_name_only(f)
+                    if not key:
+                        raise KioskQueryException(f"{self.__class__.__name__}._parse_variable_declaration: "
+                                                  f"syntax error in dsd field instruction bound by {cmd}.")
+                    field_instructions[key.lower()] = f
+
+        # at this point all the dsd instructions are in field_instructions.
+        for cmd in decl:
+            instruction = parser.get_instruction_name_only(cmd)
+            if not instruction:
                 raise KioskQueryException(f"{self.__class__.__name__}._parse_variable_declaration: "
                                           f"syntax error in declaration {decl}.")
-            if parser.instruction == "datatype":
-                result["datatype"] = parser.parameters[0].lower()
+
+            if instruction == "datatype":
+                # datatype is not supposed to override the datatype set by the dsd (if any)
+                if "datatype" not in field_instructions.keys():
+                    field_instructions["datatype"] = cmd
             else:
-                raise KioskQueryException(f"{self.__class__.__name__}._parse_variable_declaration: "
-                                          f"syntax error in declaration {decl}: "
-                                          f"unknown instructon {parser.instruction}.")
+                if instruction != "dsd":
+                    field_instructions[instruction] = cmd
+
+        # at this point we have the datatype of the dsd and all the dsd instructions overridden with the
+        # variable-specific instructions
+        if "datatype" not in field_instructions.keys():
+            raise KioskQueryException(f"{self.__class__.__name__}._parse_variable_declaration: "
+                                      f"no datatype for variable in {decl}.")
+
+        parser.parse(field_instructions["datatype"])
+        if not parser.ok or len(parser.parameters) != 1:
+            raise KioskQueryException(f"{self.__class__.__name__}._parse_variable_declaration: "
+                                      f"syntax error in datatype instruction resulting from {decl}.")
+
+        result["datatype"] = parser.parameters[0].lower()
+        result["instructions"] = list(field_instructions.values())
 
         return result
 
-    def _parse_variable_definitions(self):
-        for vname, decl in self._variable_definitions.items():
-            self._variable_definitions[vname] = self._parse_variable_declaration(decl)
+    def _parse_variable_definitions(self, base_definitions: dict) -> dict:
+        result = {}
+        for vname, decl in base_definitions.items():
+            result[vname] = self._parse_variable_declaration(vname, decl)
+        return result
 
     def has_variable_declaration(self, key: str):
         return key in self._variable_definitions
@@ -94,7 +144,10 @@ class KioskQueryVariables:
         return self._variables
 
     def get_variable_definitions(self):
-        return self._variable_definitions
+        result = {}
+        for k, v in self._variable_definitions.items():
+            result[k] = copy.copy(v["instructions"])
+        return result
 
     def add_constants(self, settings: dict):
         for key, value in settings.items():

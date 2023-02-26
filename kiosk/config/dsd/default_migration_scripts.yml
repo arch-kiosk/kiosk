@@ -15,11 +15,11 @@ config:
         collected_material: 2
         pottery: 2
 
-    urap_unit_v2:
+    recording_unit_v2:
 #     This migration script runs as soon as the unit table has been migrated to version 2
 #     it sets the new fields unit.term_for_unit and unit.term_for_locus to appropriate values
 #     Flag 3: sets the unit method "excavation" to "locus recording"
-      projects: ["urap"]
+      projects: ["urap", "khpp"]
       migration: "sql\\urap_migrate_unit_terms.sql"
       preconditions:
         unit: 2

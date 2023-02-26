@@ -1,5 +1,5 @@
 import pytest
-from dicttools import dict_search
+from dicttools import dict_search, dict_merge
 from dicttools import dict_recursive_substitute
 import config
 import logging
@@ -47,3 +47,12 @@ class TestConfig():
         assert self.dict["key1"] == "replaced"
         assert self.dict["key2"]["subkey1"] == "replaced"
         assert self.dict["key3"] == "replaced"
+
+    def test_dict_merge(self):
+        dict_1 = {"1": {"2": "data"}}
+        dict_2 = {}
+        dict_merge(dict_2, dict_1)
+        assert dict_2 == {"1": {"2": "data"}}
+        dict_2["1"]["2"] = "data 2"
+        assert dict_2 == {"1": {"2": "data 2"}}
+        assert dict_1 == {"1": {"2": "data"}}
