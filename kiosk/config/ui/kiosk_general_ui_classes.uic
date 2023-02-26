@@ -1,0 +1,27 @@
+# header
+version: 1
+
+# datatype(VARCHAR) || datatype(TEXT)
+element_type:
+  name: TextField
+
+# datatype(timestamp) || datatype(datetime)
+element_type:
+  name: DateTimeField
+
+# datatype(time)
+element_type:
+  name: TimeField
+  datetime_format: time
+
+# datatype(date)
+element_type:
+  name: DateField
+  datetime_format: date
+
+# identifier()
+element_type:
+  isIdentifier: True
+
+# query_ui
+  query_ui: True

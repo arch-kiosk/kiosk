@@ -1,0 +1,18 @@
+@import "../../../../../static/styles/_constants"
+@import "appstyles"
+@import reset
+@import icons
+
+\:host
+  *
+    user-select: none
+
+.kiosk-query-layouter
+  background-color: $col-bg-1
+sl-tab-group
+  --sl-color-neutral-600: #{$col-primary-bg-1}
+  --sl-color-primary-600: #{$col-accent-bg-1}
+  --indicator-color: #{$col-success-bg-1}
+  --track-color: #{$col-bg-1-darker}
+sl-tab-panel
+  padding: .5em 1em
