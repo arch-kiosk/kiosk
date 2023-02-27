@@ -329,7 +329,7 @@ class FileMakerControlWindows(FileMakerControl):
         self._quit_fm_db()
         return None
 
-    def count_images_with_modified_by_null(self):
+    def count_images_modified_recently(self):
         """
         This checks how many records in the images table have modified_by set to null or "null"
         :return: the count
@@ -337,11 +337,11 @@ class FileMakerControlWindows(FileMakerControl):
         result = -1
         cur = self.cnxn.cursor()
         try:
-            cur.execute("select count(\"uid\") from \"images\" where \"modified_by\" is null "
-                        "or \"modified_by\" = 'null'")
+            cur.execute("select count(uid) from images where hour(CURTIMESTAMP - modified) = 0 and "
+                        "minute(CURTIMESTAMP - modified) < 5 ")
             result = cur.fetchone()[0]
         except BaseException as e:
-            logging.error(f"{self.__class__.__name__}.count_images_with_modified_by_null : {repr(e)}")
+            logging.error(f"{self.__class__.__name__}.count_images_modified_recently : {repr(e)}")
         finally:
             try:
                 cur.close()
