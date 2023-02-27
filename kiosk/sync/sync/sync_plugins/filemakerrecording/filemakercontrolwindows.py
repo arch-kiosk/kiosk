@@ -329,6 +329,28 @@ class FileMakerControlWindows(FileMakerControl):
         self._quit_fm_db()
         return None
 
+    def count_images_with_modified_by_null(self):
+        """
+        This checks how many records in the images table have modified_by set to null or "null"
+        :return: the count
+        """
+        result = -1
+        cur = self.cnxn.cursor()
+        try:
+            cur.execute("select count(\"uid\") from \"images\" where \"modified_by\" is null "
+                        "or \"modified_by\" = 'null'")
+            result = cur.fetchone()[0]
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.count_images_with_modified_by_null : {repr(e)}")
+        finally:
+            try:
+                cur.close()
+            except BaseException:
+                pass
+
+        return result
+
+
     def check_fm_database(self, check_template_version=False):
         """checks whether an open filemaker database meets the necessary specifications. It checks if the
             database meets the configured template_version (if check_template_version is True!) and

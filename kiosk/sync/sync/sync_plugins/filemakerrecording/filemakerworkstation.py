@@ -465,6 +465,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                 raise Exception(f"filemaker database check failed ({repr(e)}) ")
 
             if fm.set_constant("TRANSACTION_STATE", "CORRUPT"):
+                images_with_modified_by_null = fm.count_images_with_modified_by_null()
                 self.ws_fork_sync_time = fm.get_ts_constant("fork_sync_time")
                 report_progress(self.interruptable_callback_progress, 20, None, "Transferring data to FileMaker...")
                 if self._transfer_tables_to_filemaker(fm, self.interruptable_callback_progress):
@@ -493,6 +494,10 @@ class FileMakerWorkstation(RecordingWorkstation):
                                 if self._finish_and_check_import(fm):
                                     report_progress(self.interruptable_callback_progress, 94, None,
                                                     "finalizing ...")
+                                    diff = fm.count_images_with_modified_by_null() - images_with_modified_by_null
+                                    if diff != 0:
+                                        logging.info(f"{self.__class__.__name__}.export: {diff} new images "
+                                                     f"with a null modified_by.")
                                     rc = fm._apply_config_patches()
 
                                     if rc:
@@ -505,13 +510,11 @@ class FileMakerWorkstation(RecordingWorkstation):
                                             rc = True
                                         else:
                                             rc = False
-                                            logging.error(
-                                                ("FileMakerWorkstation.export: Error setting constant "
-                                                 "TRANSACTION_STATE failed"))
+                                            logging.error("FileMakerWorkstation.export: Error setting constant "
+                                                          "TRANSACTION_STATE failed")
                                     else:
-                                        logging.error(
-                                            ("FileMakerWorkstation.export: Error in apply_config_patches "
-                                             "TRANSACTION_STATE failed"))
+                                        logging.error("FileMakerWorkstation.export: Error in apply_config_patches "
+                                                      "TRANSACTION_STATE failed")
                                 else:
                                     rc = False
                                     logging.error("FileMakerWorkstation.export: _finish_and_check_import failed.")
