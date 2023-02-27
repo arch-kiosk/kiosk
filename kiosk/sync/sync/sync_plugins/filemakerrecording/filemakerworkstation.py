@@ -465,7 +465,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                 raise Exception(f"filemaker database check failed ({repr(e)}) ")
 
             if fm.set_constant("TRANSACTION_STATE", "CORRUPT"):
-                images_with_modified_by_null = fm.count_images_with_modified_by_null()
+                images_with_recent_modified_date = fm.count_images_modified_recently()
                 self.ws_fork_sync_time = fm.get_ts_constant("fork_sync_time")
                 report_progress(self.interruptable_callback_progress, 20, None, "Transferring data to FileMaker...")
                 if self._transfer_tables_to_filemaker(fm, self.interruptable_callback_progress):
@@ -494,10 +494,15 @@ class FileMakerWorkstation(RecordingWorkstation):
                                 if self._finish_and_check_import(fm):
                                     report_progress(self.interruptable_callback_progress, 94, None,
                                                     "finalizing ...")
-                                    diff = fm.count_images_with_modified_by_null() - images_with_modified_by_null
-                                    if diff != 0:
-                                        logging.info(f"{self.__class__.__name__}.export: {diff} new images "
-                                                     f"with a null modified_by.")
+                                    diff = fm.count_images_modified_recently() - images_with_recent_modified_date
+                                    if diff > 0:
+                                        logging.warning(f"{self.__class__.__name__}.export: {diff} new image records "
+                                                        f"have been recently modified. That should not be the case.")
+                                    else:
+                                        logging.debug(f"{self.__class__.__name__}.export: "
+                                                      f"{images_with_recent_modified_date} images records have been"
+                                                      f"recently modified")
+
                                     rc = fm._apply_config_patches()
 
                                     if rc:
