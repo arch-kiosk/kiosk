@@ -496,12 +496,14 @@ class FileMakerWorkstation(RecordingWorkstation):
                                                     "finalizing ...")
                                     diff = fm.count_images_modified_recently() - images_with_recent_modified_date
                                     if diff > 0:
-                                        logging.warning(f"{self.__class__.__name__}.export: {diff} new image records "
-                                                        f"have been recently modified. That should not be the case.")
+                                        logging.warning(f"{self.__class__.__name__}.export: {diff} image records "
+                                                        f"have a very recent modification time. This is usually not "
+                                                        f"a disaster but it is strange and you should report it before "
+                                                        f"you continue if you have time to wait.")
                                     else:
                                         logging.debug(f"{self.__class__.__name__}.export: "
-                                                      f"{images_with_recent_modified_date} images records have been"
-                                                      f"recently modified")
+                                                      f"{images_with_recent_modified_date} images records have a "
+                                                      f"recent modification timestamp")
 
                                     rc = fm._apply_config_patches()
 
