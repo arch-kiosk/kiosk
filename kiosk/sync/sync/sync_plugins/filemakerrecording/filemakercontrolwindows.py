@@ -350,7 +350,6 @@ class FileMakerControlWindows(FileMakerControl):
 
         return result
 
-
     def check_fm_database(self, check_template_version=False):
         """checks whether an open filemaker database meets the necessary specifications. It checks if the
             database meets the configured template_version (if check_template_version is True!) and
@@ -582,12 +581,28 @@ class FileMakerControlWindows(FileMakerControl):
             fm_cur = fm_cur.execute(f"select max(\"{modified_field}\") \"max_modified\", "
                                     f"count(\"{modified_field}\") \"c\" from \"{dest_tablename}\"")
             fm_record = fm_cur.fetchone()
-            logging.debug(f"{self.__class__.__name__}.transfer_table_data_to_filemaker: "
+            logging.debug(f"{self.__class__.__name__}._is_table_already_up_to_date: "
                           f"{dest_tablename}: max_modified={fm_record[0]}, count={fm_record[1]}")
-            if fm_record[0] == max_modified and fm_record[1] == record_count:
-                logging.info(f"{self.__class__.__name__}.transfer_table_data_to_filemaker: "
+            d1: datetime.datetime = fm_record[0]
+            d2: datetime.datetime = max_modified
+            if not d1 and not d2:
+                logging.info(f"{self.__class__.__name__}._is_table_already_up_to_date: "
+                             f"Skipped {dest_tablename}: No records, so there is nothing to do.")
+                return True
+
+            # need to get rid of microseconds
+            if d1:
+                d1 = datetime.datetime(d1.year, d1.month, d1.day, d1.hour, d1.minute, d1.second, 0)
+            if d2:
+                d2 = datetime.datetime(d2.year, d2.month, d2.day, d2.hour, d2.minute, d2.second, 0)
+
+            if d1 == d2 and fm_record[1] == record_count:
+                logging.info(f"{self.__class__.__name__}._is_table_already_up_to_date: "
                              f"Skipped {dest_tablename}: Nothing to do.")
                 rc = True
+            else:
+                logging.debug(f"{self.__class__.__name__}._is_table_already_up_to_date: "
+                              f"{dest_tablename} needs an update: {d1} <> {d2}")
         return rc
 
     def _handle_gobbledygook(self, dsd, f, field_value, row, tablename):
@@ -851,7 +866,7 @@ class FileMakerControlWindows(FileMakerControl):
         return result
 
     def start_fm_script_with_progress(self, script_name, progress_key, wait_seconds_per_step=1, max_wait_cycles=60,
-                                       printdots=False, callback_progress=None):
+                                      printdots=False, callback_progress=None):
         """ just the public version of _start_fm_script_with_progress """
 
         return self._start_fm_script_with_progress(script_name, progress_key,
