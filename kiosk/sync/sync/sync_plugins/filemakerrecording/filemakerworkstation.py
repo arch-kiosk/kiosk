@@ -752,7 +752,7 @@ class FileMakerWorkstation(RecordingWorkstation):
 
                 report_progress(callback_progress, c * 100 / c_tables, "transfer_tables", f"transferring {table} ...")
 
-                if not self._table_didnt_need_transfer(table):
+                if not self._table_didnt_need_transfer(table) or table.lower() == files_table:
                     if not self._gather_repldata(cur, dsd, table):
                         raise Exception(("FileMakerWorkstation._transfer_tables_to_filemaker: "
                                          "_gather_repldata returned False for table " + table))
