@@ -731,6 +731,26 @@ class DataSetDefinition:
 
         return ""
 
+    def get_field_label(self, table, field, version=0):
+        """
+        returns the label for a dsd field. It is either set by the "label()" instruction or will simply be
+        the name given by the parameter "field".
+        :param table: the dsd table
+        :param field: field in the dsd table
+        :param version: the version of the dsd table
+        :return: string
+        """
+        # noinspection PyBroadException
+        try:
+            version = version if version else self.get_current_version(table)
+            params = self.get_instruction_parameters(table, field, 'label', version)
+            if params:
+                return params[0]
+        except Exception as e:
+            pass
+
+        return field
+
     def get_attribute_reference(self, table, field, attribute, version=0):
         """ returns the value given in brackets of the given attribute of the given field.
             returns \"\" if the field does not have that attribute or whatever else happens 
@@ -1260,3 +1280,4 @@ class DataSetDefinition:
         :return:
         """
         return self._dsd_data.pprint(key=key, width=width)
+
