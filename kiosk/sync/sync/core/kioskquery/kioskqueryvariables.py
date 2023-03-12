@@ -29,6 +29,8 @@ class KioskQueryVariables:
 
         dsd = Dsd3Singleton.get_dsd3()
         field_instructions = dsd.get_unparsed_field_instructions(dsd_table, dsd_field)
+        field_instructions.append(f"dsd_table({dsd_table})")
+        field_instructions.append(f"dsd('{dsd_table}','{dsd_field}')")
         return field_instructions
 
     def _parse_variable_declaration(self, vname: str, decl: list):
