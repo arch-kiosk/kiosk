@@ -639,13 +639,20 @@ def str_starts_element(s: str, lst):
     return False
 
 
-def has_element_that_starts_with(s: str, lst):
+def has_element_that_starts_with(s: str, lst: list[string]):
+    """
+    checks if any element in a list of strings starts with the sequence s.
+    Search is case-insensitive.
+    :param s: the search string
+    :param lst: the list of strings
+    :return: True | False, element | None
+    """
     s = s.upper().strip()
     for element in lst:
         if element.upper().strip().startswith(s):
-            return True
+            return True, element
 
-    return False
+    return False, None
 
 
 def resolve_symbols_in_string(path, symbol_dict):
