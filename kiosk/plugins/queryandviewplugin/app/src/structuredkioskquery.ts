@@ -5,6 +5,7 @@ import { KioskAppComponent } from "../kioskapplib/kioskappcomponent";
 import { html, nothing, TemplateResult, unsafeCSS } from "lit";
 import { property, state, customElement } from "lit/decorators.js";
 import { KioskQueryInstance } from "./lib/apitypes";
+import { UISchema } from "ui-component";
 
 @customElement('structured-kiosk-query')
 export class StructuredKioskQuery extends KioskAppComponent {
@@ -16,6 +17,9 @@ export class StructuredKioskQuery extends KioskAppComponent {
 
     @property()
     public queryDefinition: KioskQueryInstance
+
+    @state()
+    uiSchema: UISchema
 
     firstUpdated(_changedProperties: any) {
         super.firstUpdated(_changedProperties);
@@ -30,10 +34,27 @@ export class StructuredKioskQuery extends KioskAppComponent {
         // }
     }
 
+    willUpdate(_changedProperties: any) {
+        if (_changedProperties.has("queryDefinition") && this.queryDefinition) {
+            //translate and amened the query definition into a correct UISchema here.
+            this.uiSchema = {
+                header: { version: 1 },
+                dsd: <any>this.queryDefinition.ui["dsd"],
+                layout_settings: {
+                    orchestration_strategy: "stack",
+                },
+                meta: {
+                    scenario: "query-ui"
+                },
+                ui_elements: this.queryDefinition.ui["ui_elements"]
+            }
+        }
+    }
+
     apiRender(): TemplateResult {
         return html`
             <div class="structured-kiosk-query">
-                <kiosk-query-ui .apiContext=${this.apiContext} .uiDefinition="${this.queryDefinition.ui}"></kiosk-query-ui>
+                <kiosk-query-ui .apiContext=${this.apiContext} .uiDefinition="${this.uiSchema}"></kiosk-query-ui>
             </div>
         `
     }
