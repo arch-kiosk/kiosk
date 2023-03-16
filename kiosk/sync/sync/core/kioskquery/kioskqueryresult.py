@@ -11,8 +11,8 @@ class KioskQueryResult:
         self._supports_pagination: bool = False
         self._included_dsd_tables = set()
         self._page_size = DEFAULT_PAGE_SIZE
-        self._page_count = -1
-        self._overall_record_count = -1
+        # self._page_count = -1
+        # self._overall_record_count = -1
         self._column_information: dict = {}
         self._query_information = query_information
 
@@ -26,11 +26,11 @@ class KioskQueryResult:
 
     @property
     def page_count(self):
-        return self._page_count
+        raise NotImplementedError
 
     @property
     def overall_record_count(self):
-        return self._overall_record_count
+        raise NotImplementedError
 
     def _include_dsd_table(self, table_name: str):
         self._included_dsd_tables.add(table_name)
@@ -68,10 +68,11 @@ class KioskQueryResult:
         :returns: dict {"columns" -> {"column" -> {datatype: string, identifier: bool},
                         "query" -> {"type": string}}
         """
-        result = {"columns": {}, "query": {}}
+        result = {"columns": {}, "column_order": self.get_column_names(), "query": {}}
         columns = result["columns"]
         parser = SimpleFunctionParser()
         for col, col_info in self._column_information.items():
+
             columns[col] = {"identifier": False, "datatype": ""}
             for instruction in col_info:
                 instruction: str
@@ -94,5 +95,11 @@ class KioskQueryResult:
     def close(self):
         """
         Makes sure that all resources are freed
+        """
+        raise NotImplementedError
+
+    def get_column_names(self):
+        """
+        returns the column names in the order of the intended appearance.
         """
         raise NotImplementedError

@@ -16,6 +16,16 @@ class KioskQueryResultSQL(KioskQueryResult):
         self._process_column_information(kiosk_query_def)
         self._process_include_dsds(kiosk_query_def)
         self._supports_pagination = True
+        self._page_count = 0
+        self._overall_record_count = 0
+
+    @property
+    def page_count(self):
+        return self._page_count
+
+    @property
+    def overall_record_count(self):
+        return self._overall_record_count
 
     def _get_column_names(self, cur=None) -> list:
         """
@@ -107,6 +117,9 @@ class KioskQueryResultSQL(KioskQueryResult):
             if self._cur:
                 self._cur.close()
             self._cur = None
+
+    def get_column_names(self):
+        return self._column_names
 
     def close(self):
         if self._cur:

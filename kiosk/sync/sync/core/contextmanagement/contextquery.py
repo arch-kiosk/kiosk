@@ -165,9 +165,9 @@ class ContextQuery:
                            f"attribute missing in query definition")
         source_field = self._columns[output_field_name]["source_field"].lower()
         if output_field_name.lower() == source_field.lower():
-            col_sql = source_field
+            col_sql = KioskSQLDb.sql_safe_ident(source_field)
         else:
-            col_sql = f"{source_field} {output_field_name}"
+            col_sql = f"{KioskSQLDb.sql_safe_ident(source_field)} {KioskSQLDb.sql_safe_ident(output_field_name)}"
 
         return col_sql
 

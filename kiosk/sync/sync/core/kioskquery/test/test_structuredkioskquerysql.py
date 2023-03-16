@@ -13,6 +13,7 @@ from kioskquery.kioskqueryresultsql import KioskQueryResultSQL
 from kioskquery.structuredkioskquery import StructuredKioskQuery
 from kiosksqldb import KioskSQLDb
 from test.testhelpers import KioskPyTestHelper
+from uic.uictree import UICTree
 
 test_path = os.path.dirname(os.path.abspath(__file__))
 config_file = os.path.join(test_path, r"config", "kiosk_config.yml")
@@ -69,12 +70,14 @@ class TestStructuredKioskQuerySQL(KioskPyTestHelper):
         """, yaml.BaseLoader)
 
         query = StructuredKioskQuery(query_def, dsd)
-        ui = query.get_query_ui()
+        ui = query.get_query_ui(UICTree())
         ui.process_input({"locus_type": "dp"})
 
         query_result = query.execute("loci_and_material_types")
         assert query_result
         records = list(query_result.get_documents())
+        columns = query_result.get_column_names()
+        assert columns == ["uid", "arch_context", "collected_material_type"]
 
         assert len(records) == 5
         records.sort(key=lambda x: x["uid"])
