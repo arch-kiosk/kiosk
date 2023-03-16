@@ -66,7 +66,7 @@ export class KioskApi {
         apiMethod: string,
         fetchParams: FetchParams,
         apiVersion = "v1",
-        urlSearchParams = "",
+        urlSearchParams: URLSearchParams | null = null,
         mimetype = "application/json",
     ) {
         if (!this.token) {
@@ -81,7 +81,7 @@ export class KioskApi {
         let init = { ...fetchParams };
         init["headers"] = headers;
         if (urlSearchParams) {
-            address += "?" + urlSearchParams;
+            address += "?" + new URLSearchParams(urlSearchParams);
         }
         let response;
         try {

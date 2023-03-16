@@ -12,6 +12,7 @@ from dsd.dsderrors import *
 from kiosksqldb import KioskSQLDb
 from dicttools import dict_merge
 
+
 class Join:
     def __init__(self, root_table, related_table, _type="inner", root_field="", related_field=""):
         self.root_table = root_table

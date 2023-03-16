@@ -9,6 +9,7 @@ import {ApiResultKioskQueryDescription} from "./lib/apitypes"
 import { FetchException } from "../kioskapplib/kioskapi";
 import { KioskAppComponent } from "../kioskapplib/kioskappcomponent";
 import {KioskQueryFactory} from "./kioskqueryfactory"
+import {SCENARIO } from "./apptypes"
 
 @customElement('kiosk-query-selector')
 export class KioskQuerySelector extends KioskAppComponent {
@@ -43,11 +44,14 @@ export class KioskQuerySelector extends KioskAppComponent {
         console.log(`loading queries`)
         this.loadingMessage = 'loading queries ...'
         this.showLocalProgress = true
+        const urlSearchParams = new URLSearchParams()
+        urlSearchParams.append("uic_literal", SCENARIO)
         this.apiContext.fetchFromApi("", "kioskquery",
             {
                 method: "GET",
                 caller: "kioskqueryselector.loadQueries"
-            }
+            }, "v1",
+            urlSearchParams
         )
             .then((data: any) => {
                 if ('result_msg' in data && data.result_msg !== "ok") {

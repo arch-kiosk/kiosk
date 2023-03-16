@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@shoelace-style/shoelace": "^2.0.0",
+    "@vaadin/grid": "^24.0.0",
     "lit": "^2.6.1",
     "nanoid": "^4.0.1",
     "ui-component": "git://github.com/arch-kiosk/uiwebcomponent"

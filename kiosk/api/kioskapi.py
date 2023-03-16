@@ -16,6 +16,7 @@ from .kioskapicql import ApiCQLQuery
 from .kioskapifiles import ApiFile, ApiResolution
 from .kioskapicontexts import ApiContexts
 from .kioskapikioskquery import ApiKioskQuery
+from .kioskapilookup import ApiLookup
 
 
 def register_resources(api: KioskApi):
@@ -33,7 +34,7 @@ def register_resources(api: KioskApi):
     ApiConstants.register(api)
     ApiContexts.register(api)
     ApiKioskQuery.register(api)
-
+    ApiLookup.register(api)
 
 # ***********************************************************************
 # ******* /api-info

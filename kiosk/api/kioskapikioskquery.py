@@ -1,4 +1,5 @@
 import logging
+import pprint
 from http import HTTPStatus
 
 import flask
@@ -40,9 +41,10 @@ class ApiResultKioskQueryDescription(Schema):
 
 class ApiKioskQueryPostParameter(Schema):
     class Meta:
-        fields = ("page",)
+        fields = ("page", "page_size")
 
     page = fields.Int(missing=1)
+    page_size = fields.Int(missing=0)
 
 
 class ApiKioskQueryPostBody(Schema):
@@ -56,7 +58,7 @@ class ApiKioskQueryPostBody(Schema):
 class ApiResultKioskQuery(Schema):
     class Meta:
         fields = ("result_msg", "page", "pages", "page_size", "record_count", "overall_record_count",
-                  "records")
+                  "dsd_information", "document_information", "records")
         ordered = True
 
     result_msg: fields.Str()
@@ -66,7 +68,7 @@ class ApiResultKioskQuery(Schema):
     record_count: fields.Int()
     overall_record_count: fields.Int()
     dsd_information: fields.Dict(missing={})
-    column_information: fields.Dict(missing={})
+    document_information: fields.Dict(missing={})
     records: fields.List(fields.Dict(), missing=[])
 
 
@@ -114,6 +116,7 @@ class ApiKioskQuery(Resource):
         # todo: get the literals from a proper, swagger-ui compatible list of strings
         try:
             uic_literals = request.args.getlist("uic_literal")
+            print("uic_literals", uic_literals)
             api_queries = []
             store_queries = KioskQueryStore.list()
             for store_query in store_queries:
@@ -184,27 +187,35 @@ class ApiKioskQuery(Resource):
             params = ApiKioskQueryPostParameter().load(request.args)
             # pprint({"ApiCQLQueryPostParameter": params})
             page = params["page"]
+            page_size = params["page_size"]
 
             body = ApiKioskQueryPostBody().load(request.json)
             query_id = body["query_id"]
             inputs = body["inputs"] if "inputs" in body and body["inputs"] else {}
 
             kiosk_query = KioskQueryStore.get(query_id)
-            ui = kiosk_query.get_query_ui()
+            uic_tree = kioskglobals.get_uic_tree()
+            if not uic_tree:
+                raise KioskQueryException("Kiosk has no ui classes configured or "
+                                          "the class definitions have errors. Please consult the Kiosk log for"
+                                          "details")
+            ui = kiosk_query.get_query_ui(uic_tree)
             ui.process_input(inputs)
 
             query_result = kiosk_query.execute(query_id)
-            documents = list(query_result.get_documents(page))
+            documents = list(query_result.get_documents(new_page_size=page_size, page=page))
             result = {'result_msg': "ok",
                       'record_count': len(documents),
                       'overall_record_count': query_result.overall_record_count,
                       'page': page,
                       'page_size': query_result.page_size,
                       'dsd_information': query_result.get_DSD_information(),
-                      'column_information': query_result.get_document_information(),
+                      'document_information': query_result.get_document_information(),
                       'records': documents,
                       }
+            pprint.pprint(result)
             api_return = ApiResultKioskQuery().dump(result)
+            # pprint.pprint(api_return)
             try:
                 if query_result is not None:
                     query_result.close()

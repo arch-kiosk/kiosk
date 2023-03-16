@@ -23,6 +23,3 @@ element_type:
 element_type:
   isIdentifier: True
 
-# query_ui
-  query_ui: True
-
