@@ -56,4 +56,6 @@ class KioskQueryResultCQL(KioskQueryResult):
         """
         returns the column names in the order of the intended appearance.
         """
+        if not self._column_names:
+            self._column_names = self._query.get_column_names()
         return self._column_names

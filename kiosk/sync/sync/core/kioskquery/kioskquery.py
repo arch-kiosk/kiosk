@@ -1,5 +1,6 @@
 from dsd.dsd3 import DataSetDefinition
 from uic.uictree import UICTree
+from .kioskquerydefinition import KioskQueryDefinition
 from .kioskqueryresult import KioskQueryResult
 from .kioskqueryui import KioskQueryUI
 
@@ -13,7 +14,7 @@ class KioskQuery:
         self._dsd = dsd
 
     @property
-    def query_definition(self):
+    def query_definition(self) -> KioskQueryDefinition:
         raise NotImplementedError
 
     def get_query_ui(self, uic_tree: UICTree) -> KioskQueryUI:
