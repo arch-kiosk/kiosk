@@ -106,6 +106,7 @@ class ContextQuery:
     def _get_where_from_conditions(self):
         stp = SqlConditionTranspiler(KioskSQLDb)
         stp.type_info = self._selects.get_type_info()
+        stp.output_field_information = self.columns
         sql_where = stp.run(self._conditions)
         print(sql_where)
         return sql_where
