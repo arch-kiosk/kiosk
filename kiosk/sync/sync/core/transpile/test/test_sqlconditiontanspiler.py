@@ -16,7 +16,6 @@ config_file = os.path.join(test_path, r"config", "test_kiosk_config.yml")
 log_file = os.path.join(test_path, r"log", "test_log.log")
 
 
-
 class TestSqlConditionTranspiler(KioskPyTestHelper):
 
     @pytest.fixture(scope="module")
@@ -26,7 +25,6 @@ class TestSqlConditionTranspiler(KioskPyTestHelper):
     @pytest.fixture(scope="module")
     def urapdb(self, cfg):
         return self.get_urapdb(cfg)
-
 
     def test_init(self, urapdb):
         conditions = {
