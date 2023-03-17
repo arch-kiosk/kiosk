@@ -1,3 +1,4 @@
+import logging
 import os
 
 import yaml
@@ -46,6 +47,7 @@ class KioskQueryStore:
 
     @classmethod
     def _update_definition(cls, store_entry, query_definition):
+        logging.info(f"{cls.__name__}._update_definition: update '{query_definition.query_name}'")
         store_entry.name = query_definition.query_name
         store_entry.description = query_definition.query_description
         store_entry.query = query_definition.raw_query_definition

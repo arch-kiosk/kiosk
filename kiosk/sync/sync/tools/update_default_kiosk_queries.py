@@ -25,7 +25,7 @@ if __name__ == '__main__':
 
     logging.basicConfig(format='>[%(module)s.%(levelname)s at %(asctime)s]: %(message)s', level=logging.ERROR)
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
 
     if len(sys.argv) != 2:
         usage()
