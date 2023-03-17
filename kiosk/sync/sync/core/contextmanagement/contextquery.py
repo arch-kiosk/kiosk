@@ -21,6 +21,7 @@ class ContextQuery:
         self._qualifications = {}
         self._query_active = False
         self._conditions = None
+        self._sort_order = None
         self._page_size: int = self.DEFAULT_PAGE_SIZE
         self._page_count: int = 0
         self._overall_record_count = 0
@@ -76,6 +77,25 @@ class ContextQuery:
         """
         self._conditions = conditions
 
+    def _add_sort_order(self, sort_order: list):
+        """
+        only saves sort order for later use. Parses the single list elements and turns them into
+        tuples of type (field, sort-direction).
+        :param sort_order: SQL sort order. Something like ['field:asc']
+        """
+        self._sort_order = []
+        for o in sort_order:
+            try:
+                field, direction = [x.strip() for x in o.split(":")]
+            except ValueError:
+                direction = "asc"
+                field = o.strip()
+            if direction in ["asc", "desc"]:
+                self._sort_order.append((field, direction))
+            else:
+                raise Exception(f"{self.__class__.__name__}._add_sort_order: "
+                                f"wrong sort direction {direction} for field {field}.")
+
     @property
     def columns(self):
         """
@@ -120,6 +140,16 @@ class ContextQuery:
         else:
             return self._get_where_from_qualifications()
 
+    def _get_order(self):
+        sql_order = ""
+        for o in self._sort_order:
+            field = o[0]
+            direction = o[1]
+            if field in self.columns:
+                field = self.columns[field]["source_field"]
+            sql_order += ("," if sql_order else "") + field + " " + direction
+        return sql_order
+
     def close(self):
         """
         makes sure that the query's cursor is closed. Should be called as soon as the query is not needed any longer.
@@ -159,6 +189,19 @@ class ContextQuery:
         if self.query_active:
             raise ContextQueryInUseError("ContextQuery.add_conditions called during open query.")
         self._add_conditions(conditions)
+
+    def add_sort_order(self, sort_order: list):
+        """
+        stores a sort order according to the Context Query DSL (CQL).
+        Note that they are not parsed at this point.
+
+        example: add_sort_order(['field:asc',])
+
+        :param sort_order: a list with regular CQL sort order elements
+        """
+        if self.query_active:
+            raise ContextQueryInUseError("ContextQuery.add_sort_order called during open query.")
+        self._add_sort_order(sort_order=sort_order)
 
     def _get_column_sql(self, output_field_name: str) -> str:
         if "source_field" not in self._columns[output_field_name]:
@@ -202,6 +245,10 @@ class ContextQuery:
             if sql_where:
                 sql = sql + " where " + sql_where
 
+        if self._sort_order:
+            sql_order = self._get_order()
+            if sql_order:
+                sql = sql + " order by " + sql_order
         cur = KioskSQLDb.execute_return_cursor(sql)
         try:
             columns = [desc[0] for desc in cur.description]
@@ -249,6 +296,8 @@ class ContextQuery:
             self._read_columns_from_dict(params)
         if "conditions" in params:
             self._read_conditions_from_dict(params)
+        if "sort" in params:
+            self._read_sort_order_from_dict(params)
 
     def _read_columns_from_dict(self, params: dict):
         self.columns = params["columns"]
@@ -256,6 +305,10 @@ class ContextQuery:
     def _read_conditions_from_dict(self, params: dict):
         conditions = params["conditions"]
         self._add_conditions(conditions)
+
+    def _read_sort_order_from_dict(self, params: dict):
+        sort_order = params["sort"]
+        self._add_sort_order(sort_order)
 
     def _auto_cache_query(self):
         if not isinstance(self._selects, SqlSourceCached):
