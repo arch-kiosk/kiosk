@@ -1,0 +1,25 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+variables:
+  unit_id: ["dsd('unit', 'arch_context')"]
+queries:
+  'lazy_loading_direct_sql_query':
+    name: 'Lazy Loading DirectSQLQuery?'
+    description: 'Lazy Loading DirectSQLQuery?'
+    type: 'CQL'
+    output_type: 'list'
+    query:
+      base:
+        scope:
+          unit: browse()
+        target:
+          field_or_instruction: collected_material.type
+        additional_fields:
+          locus_id:
+            field_or_instruction: locus.identifier()
+            default: ""
+      query:
+        type: DirectSqlQuery
+        sql: 'distinct "identifier" as "unit id", "locus_id" as "locus id", "primary_identifier" as "collected material id","data" as "collected material type" from {base} order by data, primary_identifier'

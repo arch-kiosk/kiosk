@@ -32,5 +32,6 @@ queries:
             source_field: locus_id
           "unit_id":
             source_field: identifier
-        conditions:
-          ?: equals(unit_id, {{#unit_id}})
+#        conditions:
+#          ?: equals(identifier, {{#unit_id}})
+        sort: ["unit_id: asc", "collected_material_id: asc"]
