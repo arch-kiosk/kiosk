@@ -20,7 +20,7 @@ export interface KioskQueryInstance extends ApiResultKioskQueryDescription {
 }
 
 export interface ApiResultKioskQueryDocumentInformation {
-    columns:[AnyDict]
+    columns: AnyDict
     column_order: [string]
     query: [AnyDict]
 }

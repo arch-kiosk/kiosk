@@ -78,7 +78,6 @@ export class KioskQuerySelector extends KioskAppComponent {
     connectedCallback() {
 
         super.connectedCallback()
-        console.log("query selector connected callback")
 
     }
     tryClose(selectedQuery: ApiResultKioskQueryDescription = null) {

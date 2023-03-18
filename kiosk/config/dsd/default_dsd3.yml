@@ -34,7 +34,7 @@ collected_material:
       uid_locus: [datatype(UUID), join("locus")]
       external_id: [datatype(VARCHAR), identifier("additional")]
       uid_lot: [datatype(UUID)]
-      type: [datatype(VARCHAR)]
+      type: [datatype(VARCHAR), label(material)]
       cm_type: [datatype(VARCHAR)]
       description: [datatype(VARCHAR), record_description()]
       isobject: [datatype(NUMBER)]

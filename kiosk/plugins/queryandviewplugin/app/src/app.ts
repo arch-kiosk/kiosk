@@ -74,6 +74,10 @@ export class QueryAndViewApp extends KioskApp {
         }
     }
 
+    private gotoIdentifier(event: CustomEvent) {
+        alert(event.detail["tableName"] + "." + event.detail["dsdName"] + ": " + event.detail["identifier"])
+    }
+
     protected render_toolbar() {
         return html` <div class="toolbar">
             <div id="toolbar-left">
@@ -120,7 +124,8 @@ export class QueryAndViewApp extends KioskApp {
         return html`<kiosk-query-layouter 
             .apiContext="${this.apiContext}" 
             .assignedQueries="${this.queries.map(q => [q.uid, q.name])}"
-            @close="${this.onCloseQuery}">
+            @close="${this.onCloseQuery}"
+            @identifierClicked="${this.gotoIdentifier}">
             ${this.queries.map(query => this.renderQuery(query))}
         </kiosk-query-layouter>`;
     }

@@ -4,6 +4,11 @@
 @import icons
 
 \:host
+  --lumo-font-size-s: $font-size-standard
+  --_lumo-grid-secondary-border-color: $col-bg-1-lighter
+  --_lumo-grid-border-width: 5px
+  --lumo-font-family: $standard-text
+  --lumo-size-m: $font-size-standard
   *
     user-select: none
 .kiosk-query-ui
@@ -14,3 +19,19 @@
   --ui-button-font-size: 20px
   padding: .5em
 
+vaadin-grid::part(cell)
+  padding-left: .5em
+  padding-top: 3px
+  padding-bottom: 3px
+
+vaadin-grid::part(header-cell)
+  min-height: auto
+  padding-top: .5em
+  padding-bottom: .5em
+  border-bottom-color: $col-bg-1-darker
+  border-bottom-width: 2px
+
+.identifier
+  text-decoration: underline
+  text-decoration-style: dotted
+  cursor: pointer

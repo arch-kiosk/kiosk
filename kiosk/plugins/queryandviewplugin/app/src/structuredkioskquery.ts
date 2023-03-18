@@ -2,7 +2,7 @@
 import local_css from './styles/component-structuredkioskquery.sass?inline'
 import 'ui-component'
 import { KioskAppComponent } from "../kioskapplib/kioskappcomponent";
-import { html, nothing, TemplateResult, unsafeCSS } from "lit";
+import { css, html, nothing, TemplateResult, unsafeCSS } from "lit";
 import { property, state, query ,customElement } from "lit/decorators.js";
 import { AnyDict, ApiResultKioskQuery, KioskQueryInstance } from "./lib/apitypes";
 import {
@@ -19,11 +19,14 @@ import '@vaadin/grid/vaadin-grid-filter-column.js';
 import '@vaadin/grid/vaadin-grid-selection-column.js';
 import '@vaadin/grid/vaadin-grid-sort-column.js';
 import '@vaadin/grid/vaadin-grid-tree-column.js';
+import { registerStyles } from '@vaadin/vaadin-themable-mixin/register-styles.js'
+
 import {ComboBoxDataProviderParams, ComboBoxDataProvider} from '@vaadin/combo-box'
 import { ComboBoxDataProviderCallback } from "@vaadin/combo-box/src/vaadin-combo-box-data-provider-mixin";
 import { handleCommonFetchErrors } from "../dist/src/lib/applib";
 import { Grid, GridDataProviderCallback, GridDataProviderParams, GridSorterDefinition } from "@vaadin/grid";
 import { SCENARIO } from "./apptypes";
+import { columnBodyRenderer, columnHeaderRenderer, GridColumnBodyLitRenderer } from "@vaadin/grid/lit";
 
 @customElement('structured-kiosk-query')
 export class StructuredKioskQuery extends KioskAppComponent {
@@ -50,6 +53,14 @@ export class StructuredKioskQuery extends KioskAppComponent {
     @state()
     data: ApiResultKioskQuery | null = null
 
+    constructor() {
+        super();
+        registerStyles('vaadin-grid', css`
+      :host [part~="header-cell"] ::slotted(vaadin-grid-cell-content), [part~="footer-cell"] ::slotted(vaadin-grid-cell-content), [part~="reorder-ghost"] {
+        font-weight: bold
+      }
+    `)
+    }
     firstUpdated(_changedProperties: any) {
         super.firstUpdated(_changedProperties);
     }
@@ -214,15 +225,67 @@ export class StructuredKioskQuery extends KioskAppComponent {
         }
     }
 
+    private isIdentifier(dsdName: string) {
+        console.log("Column", dsdName)
+        const colInfo = <AnyDict>this.data.document_information.columns[dsdName]
+        return ("identifier" in colInfo && colInfo["identifier"])
+    }
+
+    private getColumnLabel(dsdName: string) {
+        const colInfo = <AnyDict>this.data.document_information.columns[dsdName]
+        return "label" in colInfo?colInfo["label"]:dsdName
+    }
+
+    private gotoIdentifier(event: MouseEvent) {
+        const cell = <HTMLDivElement>event.currentTarget
+        const identifier = cell.getAttribute("data-identifier")
+        const colName = cell.getAttribute("data-column")
+        const colInfo = <AnyDict>this.data.document_information.columns[colName]
+        const tableName = colInfo["table"]
+        const fieldName = colInfo["field"]
+        const identifierEvent = new CustomEvent("identifierClicked",
+            {
+                "detail": {
+                    "dsdName": fieldName,
+                    "tableName": tableName,
+                    "identifier": identifier
+                    },
+                bubbles: true}
+        );
+        this.dispatchEvent(identifierEvent);
+    }
+
+    private cellRenderer:GridColumnBodyLitRenderer<AnyDict> = (row, model, column) => {
+        const dsdName = column.getAttribute("data-column")
+        if (this.isIdentifier(dsdName)) {
+            return html`
+                <div class="identifier" data-column=${dsdName} data-identifier="${row[dsdName]}" @click="${this.gotoIdentifier}">
+                    ${row[dsdName]}
+                </div>`
+        } else {
+            return html`
+                <div>
+                    ${row[dsdName]}
+                </div>`
+        }
+    }
+
+    private headerRenderer(col: HTMLElement) {
+        return html`<div>${this.getColumnLabel(col.getAttribute("data-column"))}</div>`
+    }
+
     renderQueryResult() {
         // if (!(this.data.result_msg === "ok")) {
         //     return html`An error occured: ${this.data.result_msg}`
         // }
         // console.log(this.data)
         return html`
-        <vaadin-grid id="grid" .dataProvider="${this.dataProvider}">
+        <vaadin-grid id="grid" .dataProvider="${this.dataProvider}" theme="no-border">
             ${this.data?this.data.document_information.column_order.map((col: string) => html`
-                <vaadin-grid-column path="${col}"></vaadin-grid-column>
+                    <vaadin-grid-column 
+                                        data-column="${col}"
+                                        ${columnHeaderRenderer(this.headerRenderer, [])}
+                                        ${columnBodyRenderer(this.cellRenderer, [])}></vaadin-grid-column>
                 `
             ):html`<vaadin-grid-column></vaadin-grid-column>`}
             
