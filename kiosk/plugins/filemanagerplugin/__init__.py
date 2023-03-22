@@ -20,7 +20,6 @@ if "mcpcore.mcpworker" not in sys.modules:
     plugin: KioskControllerPlugin = None
 
 
-
     def instantiate_plugin_object(name, package, init_plugin_configuration={}):
         return KioskControllerPlugin(name, package, plugin_version=plugin_version)
 
@@ -30,6 +29,7 @@ if "mcpcore.mcpworker" not in sys.modules:
         type_repository.register_type(TYPE_FILE_MANAGER_INTERFACE,
                                       TYPE_FILE_MANAGER_INTERFACE,
                                       KioskFileManagerInterface)
+
 
     def register_plugin_instance(plugin_to_register):
         global plugin
