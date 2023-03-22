@@ -32,7 +32,7 @@ config:
   filemaker_export_dir: '%sync%\filemaker\to_work_station'
   filemaker_import_dir: '%sync%\filemaker\from_work_station'
   filemaker_encoding: "UTF-8"
-  expected_filemaker_template_version: '14'
+  expected_filemaker_template_version: '14.1'
   file_handling_definition: '%base_path%\config\file_handling.yml'
   default_resolution: "low"
   default_recording_group: "default"
@@ -47,6 +47,7 @@ config:
   test_mode: False
   use_double_commit: False
   file_repository: '%sync%\file_repository'
+  default_kiosk_queries: '%base_path%\config\kiosk_queries'
   database_timeout_sec: 5
 
 file_repository:
@@ -55,10 +56,11 @@ file_repository:
     locus_photo: "context"
     dayplan: "trench/area"
     locus_relations: "context relations"
-    collected_material_photo: "collected material & small finds"
+    collected_material_photo: "collected material / small find"
     site_note_photo: "site note"
     site: "site map"
     pottery_images: "pottery"
+    coordinate_photo: "coordinate"
 
   representations:
     small:
@@ -244,6 +246,12 @@ kiosk:
     is_main_index: false
     menu:
       "director's view": [ "-directorsviewplugin" ]
+
+  queryandviewplugin:
+    active: true
+    is_main_index: false
+    menu:
+      "query and view data": [ "-queryandviewplugin" ]
 
   syncmanagerplugin:
     active: true

@@ -34,7 +34,7 @@ collected_material:
       uid_locus: [datatype(UUID), join("locus")]
       external_id: [datatype(VARCHAR), identifier("additional")]
       uid_lot: [datatype(UUID)]
-      type: [datatype(VARCHAR)]
+      type: [datatype(VARCHAR), label(material)]
       cm_type: [datatype(VARCHAR)]
       description: [datatype(VARCHAR), record_description()]
       isobject: [datatype(NUMBER)]
@@ -461,11 +461,39 @@ images:
         - drop("id_unit")
         - drop("id_cm")
         - drop("id_site")
+
+coordinates:
+  structure:
+    1:
+      coordinate_name: [datatype(VARCHAR), identifier()]
+      local_id: [datatype(NUMBER), local_id("coordinate_name")]
+      domain: [datatype(VARCHAR), id_domain("coordinate_name")]
+      category: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      longitude: [datatype(DECIMAL)]
+      latitude: [datatype(DECIMAL)]
+      elevation: [datatype(DECIMAL)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+
+coordinate_photo:
+  structure:
+    1:
+      uid_coordinate: [datatype(UUID), join("coordinates")]
+      description: [datatype(VARCHAR), describes_file(uid_image)]
+      uid_image: [datatype(UUID), uid_file(), file_location_for("coordinates")]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+
 locus:
   structure:
     7:
       uid_unit: [datatype(UUID), join("unit")]
-      type: [datatype(VARCHAR)]
+      type: [datatype(VARCHAR), label('locus type')]
       opening elevations: [datatype(VARCHAR)]
       closing elevations: [datatype(VARCHAR)]
       description: [datatype(VARCHAR), record_description()]
@@ -1394,7 +1422,7 @@ unit:
       identification_method_cm: [datatype(VARCHAR)]
       identification_method_analysis: [datatype(VARCHAR)]
       arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
-      arch_context: [datatype(VARCHAR), identifier()]
+      arch_context: [datatype(VARCHAR), identifier(), unit()]
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]

@@ -1,0 +1,5 @@
+config:
+  format_version: 3
+  imports:
+    - test_ceramics_dsd3.yml
+    - default_dsd3.yml

@@ -61,3 +61,8 @@ config:
                 relates_to:
                   locus_relations:
                     join: inner("uid", "uid_locus_2_related")
+    coordinate_images:
+      type: file_search
+      scope:
+        coordinates:
+          coordinate_photo: {}
