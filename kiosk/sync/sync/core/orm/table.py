@@ -216,7 +216,7 @@ class Table:
         else:
             return False
 
-    def get_many(self, where: str = "", params: [] = None):
+    def get_many(self, where: str = "", params: [] = None, order_by: str = ""):
         if len(self._key_fields_names) == 0:
             raise Exception("get_many does not work without having any keyfields defined.")
 
@@ -226,6 +226,9 @@ class Table:
         sql = "SELECT " + f"{self._key_fields_columns_str} FROM {self._table_name}"
         if where:
             sql += f" WHERE {where}"
+        if order_by:
+            sql += f" ORDER BY {order_by}"
+
         cur = KioskSQLDb.get_dict_cursor()
         try:
             cur.execute(sql, params)
