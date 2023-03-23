@@ -473,8 +473,8 @@ coordinates:
       longitude: [datatype(DECIMAL)]
       latitude: [datatype(DECIMAL)]
       elevation: [datatype(DECIMAL)]
-      uid: [datatype(UUID), replfield_uuid()]
-      created: [datatype(TIMESTAMP), replfield_created()]
+      uid: [datatype(UUID), replfield_uuid(), default(gen_random_uuid())]
+      created: [datatype(TIMESTAMP), replfield_created(), default(now())]
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
 
