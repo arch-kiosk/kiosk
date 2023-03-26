@@ -1,3 +1,5 @@
+// noinspection CssUnresolvedCustomProperty
+
 function triggerFileRepository(endpoint = "") {
   window.location.replace(getRoutefor(endpoint));
 }
@@ -82,6 +84,15 @@ function setFileRepositoryEventHandlers() {
         return false
       })
   });
+
+  let input = document.getElementById("frf-tags");
+  let awesomplete_tags = new Awesomplete(input,
+    {list: "fr-tags",
+      minChars: 0});
+  input.addEventListener("awesomplete-selectcomplete", fetchImageCount);
+
+  input = document.getElementById("frf-context");
+  input.addEventListener("awesomplete-selectcomplete", fetchImageCount);
 }
 
 function initPageList() {
