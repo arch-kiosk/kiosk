@@ -331,7 +331,7 @@ class FileMakerControlWindows(FileMakerControl):
 
     def count_images_modified_recently(self):
         """
-        This checks how many records in the images table have modified_by set to null or "null"
+        This checks how many records in the images table have been modified within the last 5 minutes
         :return: the count
         """
         result = -1
