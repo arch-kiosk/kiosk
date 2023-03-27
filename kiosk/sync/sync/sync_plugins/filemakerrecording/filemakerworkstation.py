@@ -466,6 +466,9 @@ class FileMakerWorkstation(RecordingWorkstation):
 
             if fm.set_constant("TRANSACTION_STATE", "CORRUPT"):
                 images_with_recent_modified_date = fm.count_images_modified_recently()
+                logging.debug(f"{self.__class__.__name__}.export: "
+                              f"{images_with_recent_modified_date} image records have a "
+                              f"recent modification timestamp in the filemaker db at the beginning of export")
                 self.ws_fork_sync_time = fm.get_ts_constant("fork_sync_time")
                 report_progress(self.interruptable_callback_progress, 20, None, "Transferring data to FileMaker...")
                 if self._transfer_tables_to_filemaker(fm, self.interruptable_callback_progress):
@@ -494,16 +497,16 @@ class FileMakerWorkstation(RecordingWorkstation):
                                 if self._finish_and_check_import(fm):
                                     report_progress(self.interruptable_callback_progress, 94, None,
                                                     "finalizing ...")
-                                    diff = fm.count_images_modified_recently() - images_with_recent_modified_date
-                                    if diff > 0:
+                                    images_with_recent_modified_date_after = fm.count_images_modified_recently()
+                                    diff = int(images_with_recent_modified_date_after - images_with_recent_modified_date)
+                                    if diff >= 1:
                                         logging.warning(f"{self.__class__.__name__}.export: {diff} image records "
                                                         f"have a very recent modification time. This is usually not "
                                                         f"a disaster but it is strange and you should report it before "
                                                         f"you continue if you have time to wait.")
-                                    else:
-                                        logging.debug(f"{self.__class__.__name__}.export: "
-                                                      f"{images_with_recent_modified_date} images records have a "
-                                                      f"recent modification timestamp")
+                                    logging.debug(f"{self.__class__.__name__}.export: "
+                                                  f"{images_with_recent_modified_date_after} image records have a "
+                                                  f"recent modification timestamp in the filemaker db after the export")
 
                                     rc = fm._apply_config_patches()
 

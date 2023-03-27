@@ -34,5 +34,6 @@ kiosk_secure.yml
 **/.idea/
 **/screenshots/
 **/venv_*/
+**/node_modules/
 /urap_repl/
 backup.reminder

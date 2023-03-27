@@ -31,6 +31,8 @@ class DSDTable(Table):
             instructions = self._dsd.get_field_instructions(self._table_name, field_name)
             if "replfield_uuid" in instructions or "replfield_created" in instructions:
                 orm_flags.append(self.ATTRIBUTE_DONT_UPDATE)
+                if "default" in instructions:
+                    orm_flags.append(self.ATTRIBUTE_DONT_INSERT)
 
             orm_fields.append((field_name, ",".join(orm_flags)))
             setattr(self, field_name, None)

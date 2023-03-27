@@ -157,12 +157,6 @@
     }
 
     function initFileRepository() {
-      //$(".fr-thumbnail").on("click", function(evt) {onEditImage(evt)});
-      let input = document.getElementById("frf-tags");
-      let awesomplete_tags = new Awesomplete(input,
-        {list: "fr-tags",
-          minChars: 0});
-      input.addEventListener("awesomplete-selectcomplete", fetchImageCount);
       setFileRepositoryEventHandlers();
       refreshBLazy();
       fetchIdentifiers();

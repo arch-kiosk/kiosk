@@ -7,32 +7,21 @@
   SECRET_KEY: "fd82303c-6852-48c1-8165-9e60d4b25b94"
   EXPLAIN_TEMPLATE_LOADING: False
   THREADED: False
-  SEND_FILE_MAX_AGE_DEFAULT: 43200
 
 config:
-  no_console: True
   sync: '%base_path%\sync\sync'
   sync_plugin_directory: '%base_path%\sync\sync\sync_plugins'
-  dataset_definition: '%base_path%\config\dsd\%project_id%_dsd3.yml'
   custom_sync_modules: '%sync%\custom'
   logfile: '%base_path%\log\kiosk_#a_#d#m#y-#H#M.log'
   log_level: 'DEBUG'
   werkzeug_log_level: 'WARNING'
   log_to_screen: False
-  autoload_plugins:
-    - 'filemakerrecording'
-    - 'redisgeneralstore'
-    - 'simpleqcengine'
-    - 'locusrelationshook'
-    - 'fileexportworkstation'
-    - 'reportingdock'
-    - '%base_path%\plugins\pwastresstestplugin\pluginpwastresstestdock'
-
+  autoload_plugins: ["filemakerrecording", "redisgeneralstore", "simpleqcengine", "locusrelationshook"]
+  dataset_definition: '%base_path%\config\dsd\default_dsd3.yml'
   master_view: '%base_path%\config\dsd\master_view.yml'
   filemaker_export_dir: '%sync%\filemaker\to_work_station'
   filemaker_import_dir: '%sync%\filemaker\from_work_station'
   filemaker_encoding: "UTF-8"
-  expected_filemaker_template_version: '14.1'
   file_handling_definition: '%base_path%\config\file_handling.yml'
   default_resolution: "low"
   default_recording_group: "default"
@@ -47,8 +36,6 @@ config:
   test_mode: False
   use_double_commit: False
   file_repository: '%sync%\file_repository'
-  default_kiosk_queries: '%base_path%\config\kiosk_queries'
-  database_timeout_sec: 5
 
 file_repository:
   cache: '%file_repository%\cache'
@@ -56,87 +43,61 @@ file_repository:
     locus_photo: "context"
     dayplan: "trench/area"
     locus_relations: "context relations"
-    collected_material_photo: "collected material / small find"
+    collected_material_photo: "collected material & small finds"
     site_note_photo: "site note"
     site: "site map"
     pottery_images: "pottery"
-    coordinate_photo: "coordinate"
 
   representations:
     small:
       label: "small thumbnail"
       inherits: "master"
       dimensions: "128,128"
-      format_request: "webp"
+      format_request: "default"
     medium:
       label: "medium thumbnail"
       inherits: "master"
       dimensions: "256,256"
       format_request: "default"
     master:
-      label: "JPEG with max 4000x2000 pixel"
       format_request: "default"
       dimensions: "4000,2000"
-      requested_manipulations: [ "FIX_ROTATION", "DROP_EXIF_DATA" ]
+      requested_manipulations: ["FIX_ROTATION", "DROP_EXIF_DATA"]
     1024x768:
       inherits: "master"
-      requested_manipulations: [ "DROP_EXIF_DATA" ]
+      requested_manipulations: ["DROP_EXIF_DATA"]
       format_request: "default"
       dimensions: "1024,768"
     RAW2400x2500:
-      requested_manipulations: [ "DROP_EXIF_DATA" ]
+      requested_manipulations: ["DROP_EXIF_DATA"]
       format_request: "NEFTIF"
       dimensions: "2400,2500"
-    1024x768JPEG:
-      label: "1024x768 screen size file"
-      requested_manipulations: [ "DROP_EXIF_DATA", "FIX_ROTATION" ]
-      format_request: "default"
-      dimensions: "1024,768"
 
-  auto_representations: [ 'medium', 'small' ]
-  thumbnails: [ 'small', 'medium' ]
+  auto_representations: ['medium', 'small']
+  thumbnails: ['small', 'medium']
   fullscreen_representation: 'master'
 
   standard_format_requests:
     default:
-      "*": "JPEG"
-      "PNG": "!"
-      "SVG": "!"
-    webp:
-      "*": "WEBP"
-      "SVG": "!"
+        "*": "JPEG"
+        "PNG": "!"
+        "SVG": "!"
     NEFTIF:
-      "NEF": "JPEG"
-      "TIFF": "JPEG"
-
-fileexportworkstation:
-  plugins: [ "fileexportcsvdriver","fileexportexceldriver" ]
-  file_export_dsd_view: '%base_path%\config\dsd\file_export_view.yml'
-  max_export_repo_mbytes: 500
-  FileExportTargetZip:
-    export_directory: '%base_path%\export'
-    export_filename: 'kiosk.zip'
-    compression_method: 'DEFLATED'
-
-reportingdock:
-  plugins: [ "reportingpdfdriver","reportingexceldriver" ]
-  base_path: '%base_path%\reporting'
-  output_filename_zip: 'kiosk_report_#a_#d#m#y-#H#M.zip'
-  compression_method: 'DEFLATED'
+        "NEF": "JPEG"
+        "TIFF": "JPEG"
 
 file_handlers:
-  plugins: [ "defaultfilehandling", "heicfilehandling", "pdffilehandling", "svgfilehandling",
-             "webpfilehandling", "jp2filehandling" ]
+  plugins: ["defaultfilehandling", "heicfilehandling", "pdffilehandling", "svgfilehandling"]
 
 file_import:
-  file_extensions: [ "jpg" ]
+  file_extensions: ["jpg"]
   recursive: True
   use_uuid: True
   log_import: True
-  tags: [ ]
+  tags: []
   add_only_with_excavation_context: True
-  folder_encodings: [ ]
-  filename_encodings: [ ]
+  folder_encodings: []
+  filename_encodings: []
   max_file_uploads: 10
   load_plugins:
     - "fileimportstandardfilters"
@@ -167,8 +128,6 @@ file_import:
         image_manipulation_sets:
           - qr_code_sahara
           - qr_code_black_velvet
-          - qr_code_italy
-          - qr_code_peru
       FileImportExifFilter:
         active: False
         get_context_from_exif: False
@@ -193,8 +152,7 @@ file_import:
         image_manipulation_sets:
           - qr_code_sahara
           - qr_code_black_velvet
-          - qr_code_italy
-          - qr_code_peru
+
       FileImportExifFilter:
         active: False
         get_context_from_exif: False
@@ -203,8 +161,6 @@ file_import:
         priority: 15
 
 kiosk:
-  security_token_timeout_seconds: 3600
-  reset_file: '%base_path%\reset.yml'
   SECRET_KEY: "fd82303c-6852-48c1-8165-9e60d4b25b94"
   template_path: '%base_path%\templates'
   static_image_path: '%base_path%\static\assets\images'
@@ -212,9 +168,7 @@ kiosk:
   plugin_path: '%base_path%\plugins'
   custom_kiosk_modules: '%base_path%\custom'
   temp_file_max_age_days: 30
-  startup_threads: [ ]
-  terminal_accent_color_ansi: '[30;41;1m'
-  backup_reminder_days: 1
+  startup_threads: []
 
   login_plugin:
     active: true
@@ -223,7 +177,7 @@ kiosk:
     active: true
     is_main_index: false
     menu:
-      "file repository": [ "-filerepositoryplugin" ]
+      "file repository": ["-filerepositoryplugin"]
 
     file_icons:
       general: 'dummyfile.svg'
@@ -234,24 +188,20 @@ kiosk:
 
     file_descriptions:
       set1:
-        name: "full description"
-        primary: [ [ "pottery_images", "collected_material_photo", "locus_photo" ], [ "locus_photo" ], [ "dayplan" ], [ "locus_relations" ], [ "images" ] ]
-        secondary: [ [ "images" ] ]
+       name: "full description"
+       primary: [["pottery_images", "collected_material_photo", "locus_photo"], ["locus_photo"], ["dayplan"], ["locus_relations"], ["images"]]
+       secondary: [["images"]]
       set2:
-        name: "single description"
-        primary: [ [ "pottery","collected_material_photo", "locus_photo", "dayplan", "locus_relations" ] ]
+       name: "single description"
+       primary: [["pottery","collected_material_photo", "locus_photo", "dayplan", "locus_relations"]]
 
-  directorsviewplugin:
+  workstationmanagerplugin:
     active: true
     is_main_index: false
     menu:
-      "director's view": [ "-directorsviewplugin" ]
-
-  queryandviewplugin:
-    active: true
-    is_main_index: false
-    menu:
-      "query and view data": [ "-queryandviewplugin" ]
+      "synchronize": ["+workstationmanagerplugin"]
+      "workstations": ["-workstationmanagerplugin"]
+    allow_operations: []
 
   syncmanagerplugin:
     active: true
@@ -259,17 +209,14 @@ kiosk:
     default_workstation_type: 'filemaker recording'
     poll_intervall_slow_sec: 10
     poll_intervall_fast_sec: 1
-    ports: [ "default", "*", "reporting" ]
-    grant_by_wildcard: True
     menu:
-      "synchronize": [ "+syncmanagerplugin" ]
-      "new dock": [ "+syncmanagerplugin" ]
-      "Hubbub": [ "-syncmanagerplugin" ]
-    allow_operations: [ ]
+      "synchronize": ["+syncmanagerplugin"]
+      "new workstation": ["+syncmanagerplugin"]
+      "field manager": ["-syncmanagerplugin"]
+    allow_operations: []
 
   kioskfilemakerworkstationplugin:
     active: true
-    no_csrf_defense: false
     menu:
       "prepare filemaker workstations": [ "+syncmanagerplugin" ]
       "import filemaker workstations": [ "+syncmanagerplugin" ]
@@ -279,15 +226,15 @@ kiosk:
   fileimportplugin:
     active: true
     is_main_index: false
-    allow_operations: [ "local filesystem", "upload" ]
+    allow_operations: ["local filesystem", "upload"]
     menu:
-      "import files": [ "+filerepositoryplugin" ]
+      "import files": ["+filerepositoryplugin"]
 
   bugsandfeaturesplugin:
     active: true
     is_main_index: false
     menu:
-      "import files": [ "-bugsandfeaturesplugin" ]
+      "import files": ["-bugsandfeaturesplugin"]
 
   administrationplugin:
     active: true
@@ -295,29 +242,19 @@ kiosk:
     backup_filename_template: "backup_#a_#d#m#y-#H#M#S.dmp"
 
     menu:
-      "administration": [ "-administrationplugin" ]
-      "process management": [ "+administrationplugin" ]
-      "backup": [ "+administrationplugin" ]
-      "install patch": [ "+administrationplugin" ]
-      "privileges": [ "+administrationplugin" ]
-      "users": [ "+administrationplugin" ]
-      "logs": [ "+administrationplugin" ]
-      "file picking rules": [ "+administrationplugin", "+syncmanagerplugin" ]
-      "quality control rules": [ "+administrationplugin" ]
+      "administration": ["-administrationplugin"]
+      "process management": ["+administrationplugin"]
+      "backup": ["+administrationplugin"]
+      "privileges": ["+administrationplugin"]
+      "users": ["+administrationplugin"]
+      "logs": ["+administrationplugin"]
+      "file picking rules": ["+administrationplugin", "+syncmanagerplugin"]
 
   playgroundplugin:
     active: false
     is_main_index: false
     menu:
-      "developer's playground": [ "-playgroundplugin" ]
-
-  filemanagerplugin:
-    active: true
-    is_main_index: false
-    max_upload_size_mb: 25
-    menu:
-      "file manager": [ "+administrationplugin" ]
-      "topic configuration": [ "+filemanagerplugin" ]
+      "developer's playground": ["-playgroundplugin"]
 
   pointrepositoryplugin:
     active: true
@@ -326,13 +263,5 @@ kiosk:
       "point repository": [ "-pointrepositoryplugin" ]
     csv:
       columns: ["point_name", "latitude", "longitude", "elevation"]
-      skip_lines: 1
-
-  logviewerplugin:
-    active: true
-
-  kioskreportingdockplugin:
-    active: true
-
-  kioskexportworkstationplugin:
-    active: true
+      skip_lines: 2
+      category_line: 1

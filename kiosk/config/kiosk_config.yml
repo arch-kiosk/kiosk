@@ -14,7 +14,7 @@ import_configurations:
   - kiosk_secure.yml
 
 config:
-  project_id: 'urap'
+  project_id: 'test'
   no_console: false
   filemaker_template: '%sync%\filemaker\khpp_recording_template.fmp12'
   filemaker_db_filename: khpp_recording.fmp12

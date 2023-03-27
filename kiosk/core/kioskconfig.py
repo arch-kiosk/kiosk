@@ -26,7 +26,12 @@ class KioskConfig(SyncConfig):
             else:
                 return []
 
-    def get_temporary_upload_path(self):
+    def get_temporary_upload_path(self) -> str:
+        """
+        returns the temporary upload path (kiosk/temporary_upload_path)
+        Makes sure the directory actually exists
+        :return: string
+        """
         path = ""
         if "temporary_upload_path" in self.kiosk:
             path = self.resolve_symbols(self.kiosk["temporary_upload_path"])

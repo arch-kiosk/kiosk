@@ -20,7 +20,7 @@ import threading
 
 kiosk_version = "1.4.3"
 kiosk_version_name = "queasy queries"
-kiosk_date = datetime.datetime(2023, 2, 4)
+kiosk_date = datetime.datetime(2023, 3, 26)
 debug = False
 development = {}
 
