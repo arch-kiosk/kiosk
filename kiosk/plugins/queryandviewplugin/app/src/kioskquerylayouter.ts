@@ -9,6 +9,7 @@ import '@shoelace-style/shoelace/dist/components/tab-panel/tab-panel.js';
 import '@shoelace-style/shoelace/dist/components/tab/tab.js';
 import '@shoelace-style/shoelace/dist/components/tab-group/tab-group.js';
 import { ApiResultKioskQueryDescription } from "./lib/apitypes";
+import { SlTabGroup } from "@shoelace-style/shoelace";
 
 export type QueryTuple = [id: string, name: string]
 
@@ -33,6 +34,13 @@ export class KioskQueryLayouter extends KioskAppComponent {
         super.updated(_changedProperties);
     }
 
+    public selectQuery(queryId: string) {
+        let tabGroup = <SlTabGroup> this.shadowRoot.querySelector("sl-tab-group")
+
+        console.log("showing tab ", queryId)
+        setTimeout(()=>tabGroup.show(queryId), 100)
+    }
+
     tryClose(e: Event) {
         const tab = e.target;
         if ("panel" in tab) {
@@ -44,6 +52,7 @@ export class KioskQueryLayouter extends KioskAppComponent {
 
     apiRender(): TemplateResult {
         console.log("render kioskquerylayouter")
+        console.log(this.assignedQueries)
         return html`
             <div class="kiosk-query-layouter">
                 <sl-tab-group @sl-close="${this.tryClose}">
@@ -54,10 +63,8 @@ export class KioskQueryLayouter extends KioskAppComponent {
                         <sl-tab-panel name="${q[0]}"><slot name="${q[0]}"></slot></sl-tab-panel>
                     `)}
                 </sl-tab-group>
-                <slot></slot>
             </div>
         `
     }
-
 }
 

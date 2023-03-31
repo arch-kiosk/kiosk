@@ -38,8 +38,8 @@
   text-align: right
   z-index: 2
   i
-    line-height: 20px
-    font-size: 2em
+    line-height: $font-size-h3
+    font-size: $font-size-h3
     &:hover
       color: $col-accent-bg-1
 
@@ -52,33 +52,41 @@
   border-bottom: 1px solid $col-bg-1-darker
   padding-bottom: 1em
   margin-bottom: 1em
-  h2
+  h3
     margin-left: .5em
   i
-    font-size: 36px
+    font-size: $font-size-h2
 
+#kiosk-query-list
+  display: grid
+  width: 100%
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr))
+  grid-column-gap: 1em
+  grid-row-gap: .3em
 .kiosk-query
   display: flex
   align-items: center
-  padding-bottom: .5em
-  margin-bottom: .5em
+  padding-bottom: .2em
+  margin-bottom: .2em
   color: $col-primary-bg-1
-  border-bottom: 1px solid $col-bg-1-darker
+  //border-bottom: 1px solid $col-bg-1-darker
   &:hover
     color: $col-accent-bg-1
   &:active
     background-color: $col-bg-1-darker
 
   i
-    font-size: 24px
+    font-size: $font-size-h3
   .kiosk-query-text
     margin-left: 1em
     display: flex
     flex-direction: column
     div
       color: inherit
+      font-size: $font-size-standard
       &:first-child
-        font-size: $font-size-h3
+        font-size: $font-size-h4
+        font-weight: bold
       //&:nth-child(2)
       //  color: $col-primary-bg-1
 

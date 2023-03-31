@@ -32,7 +32,8 @@
     "@vaadin/grid": "^24.0.0",
     "lit": "^2.6.1",
     "nanoid": "^4.0.1",
-    "ui-component": "git://github.com/arch-kiosk/uiwebcomponent"
+    "ui-component": "C:\\notebook_source\\urap\\lab\\uiwebcomponent\\npm\\uicomponent-0.0.1.tgz"
+
   },
   "devDependencies": {
     "@types/ejs": "^3.1.1",
