@@ -1,0 +1,59 @@
+<diagram program="umletino" version="15.0.0"><zoom_level>10</zoom_level><element><id>UMLState</id><coordinates><x>50</x><y>60</y><w>210</w><h>40</h></coordinates><panel_attributes>addCollectedMateriaial</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>140</x><y>0</y><w>20</w><h>20</h></coordinates><panel_attributes>type=initial</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>140</x><y>10</y><w>30</w><h>70</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element><element><id>UMLState</id><coordinates><x>50</x><y>160</y><w>210</w><h>40</h></coordinates><panel_attributes>get_new_archaeological_context</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>140</x><y>90</y><w>30</w><h>90</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;70;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>140</x><y>190</y><w>260</w><h>100</h></coordinates><panel_attributes>lt=&lt;-
+$nm_creation_script: generation function;</panel_attributes><additional_attributes>10;80;10;10</additional_attributes></element><element><id>Text</id><coordinates><x>260</x><y>60</y><w>330</w><h>50</h></coordinates><panel_attributes>{$$nm_callback=e.g. "addCollectedMaterialOnResult"
+$$nm_uid=uid of identification method
+}
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>160</x><y>0</y><w>550</w><h>50</h></coordinates><panel_attributes>{$$free_input_override: 1 if temporary free input is on;
+$$arch_context_term: name of the kind of archaeological context being processed (e.g. 'bulk')
+}
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>260</x><y>160</y><w>330</w><h>50</h></coordinates><panel_attributes>{$$nm_formatting_script: formatting function
+$$nm_on_after_creation=""
+}
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLState</id><coordinates><x>50</x><y>270</y><w>210</w><h>40</h></coordinates><panel_attributes>
+idgen_material
+( from $nm_creation_script )
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>260</x><y>260</y><w>570</w><h>80</h></coordinates><panel_attributes>{$$nm_on_after_creation="idgen_material_after_creation"
+$$idgen_material_add_serial=true if idgen_material parameter add_serial is "true", otherwise false^;
+$$idgen_material_current_domain: evaluation of idgen_material parameter 'domain'
+$$idgen_material_other_code=idgen_material parameter "other code"
+}
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLState</id><coordinates><x>50</x><y>440</y><w>300</w><h>40</h></coordinates><panel_attributes>call layout "input_arch_context_by_material"
+bg=yellow
+type=sender</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>140</x><y>300</y><w>30</w><h>70</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element><element><id>UMLState</id><coordinates><x>50</x><y>590</y><w>150</w><h>40</h></coordinates><panel_attributes>button clicked
+bg=yellow
+type=receiver</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLState</id><coordinates><x>50</x><y>510</y><w>280</w><h>40</h></coordinates><panel_attributes>input_arch_context_by_material_on_enter</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>140</x><y>470</y><w>110</w><h>60</h></coordinates><panel_attributes>lt=&lt;-
+on open layout</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>140</x><y>540</y><w>30</w><h>70</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>130</x><y>350</y><w>40</w><h>40</h></coordinates><panel_attributes>type=decision</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>140</x><y>380</y><w>30</w><h>80</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;60;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>160</x><y>350</y><w>320</w><h>40</h></coordinates><panel_attributes>lt=&lt;-
+[$$free_input_override]</panel_attributes><additional_attributes>300;20;10;20</additional_attributes></element><element><id>UMLState</id><coordinates><x>460</x><y>350</y><w>370</w><h>40</h></coordinates><panel_attributes>call layout "input_arch_context_by_material_free_input"
+bg=yellow
+type=sender</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLState</id><coordinates><x>460</x><y>510</y><w>370</w><h>40</h></coordinates><panel_attributes>input_arch_context_by_material_free_input_on_enter</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>590</x><y>380</y><w>110</w><h>150</h></coordinates><panel_attributes>lt=&lt;-
+on open layout</panel_attributes><additional_attributes>10;130;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>140</x><y>620</y><w>30</w><h>70</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element><element><id>UMLState</id><coordinates><x>50</x><y>670</y><w>280</w><h>40</h></coordinates><panel_attributes>close_input_material_context</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLState</id><coordinates><x>530</x><y>590</y><w>150</w><h>40</h></coordinates><panel_attributes>button clicked
+bg=yellow
+type=receiver</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>590</x><y>540</y><w>30</w><h>70</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>670</x><y>590</y><w>110</w><h>40</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>90;20;10;20</additional_attributes></element><element><id>UMLState</id><coordinates><x>760</x><y>600</y><w>280</w><h>40</h></coordinates><panel_attributes>close_input_material_context_free_input</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>330</x><y>670</y><w>330</w><h>50</h></coordinates><panel_attributes>{$$input_arch_context_result: selected material code
+$$idgen_material_selected_material: material display name
+}
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLSpecialState</id><coordinates><x>130</x><y>740</y><w>40</w><h>40</h></coordinates><panel_attributes>type=decision</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>140</x><y>700</y><w>30</w><h>70</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;50;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>160</x><y>740</y><w>240</w><h>40</h></coordinates><panel_attributes>lt=&lt;-
+[$$idgen_material_add_serial]</panel_attributes><additional_attributes>220;20;10;20</additional_attributes></element><element><id>UMLState</id><coordinates><x>380</x><y>740</y><w>280</w><h>40</h></coordinates><panel_attributes>idgen_material_serial</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>190</x><y>760</y><w>330</w><h>50</h></coordinates><panel_attributes>{original parameters
+ from idgen_serial as parameter
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>140</x><y>770</y><w>370</w><h>200</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>350;180;350;140;10;140;10;10</additional_attributes></element><element><id>UMLState</id><coordinates><x>400</x><y>1040</y><w>280</w><h>40</h></coordinates><panel_attributes>format_new_archaeological_context</panel_attributes><additional_attributes></additional_attributes></element><element><id>Text</id><coordinates><x>510</x><y>980</y><w>330</w><h>50</h></coordinates><panel_attributes>{As parameters: 
+$$idgen_material_current_domain and
+$$input_arch_context_result
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLState</id><coordinates><x>390</x><y>1210</y><w>280</w><h>40</h></coordinates><panel_attributes>addCollectedMaterialOnResult
+(from $$nm_callback)</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>500</x><y>1070</y><w>30</w><h>160</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;140;10;10</additional_attributes></element><element><id>Text</id><coordinates><x>510</x><y>1120</y><w>330</w><h>80</h></coordinates><panel_attributes>{As parameters: 
+domain;
+local Id;
+full archaeological identifier
+}
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>500</x><y>770</y><w>30</w><h>200</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;180;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>900</x><y>630</y><w>30</w><h>130</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;110;10;10</additional_attributes></element><element><id>UMLState</id><coordinates><x>770</x><y>740</y><w>280</w><h>40</h></coordinates><panel_attributes>_idgen_material_free_input</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>520</x><y>770</y><w>410</w><h>200</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;180;10;140;390;140;390;10</additional_attributes></element><element><id>UMLSyncBarHorizontal</id><coordinates><x>490</x><y>940</y><w>40</w><h>20</h></coordinates><panel_attributes>lw=5
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>500</x><y>940</y><w>30</w><h>120</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>10;100;10;10</additional_attributes></element></diagram>

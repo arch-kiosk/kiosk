@@ -1,0 +1,61 @@
+<diagram program="umletino" version="14.3.0"><zoom_level>10</zoom_level><element><id>UMLClass</id><coordinates><x>20</x><y>667</y><w>430</w><h>210</h></coordinates><panel_attributes>**KioskContextualFile**
+fg=black
+--
+ __init__()
+**upload(src_path_and_filename, override, backup_old, ...)**
+**update(commit; fail_on_contexts_issue,set_modified):**
+_check_md5_hash()
+_check_archaeological_context()
+get_tags()
+delete()
+add_tag()
+drop_tag()
+
+
+
+
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>438</x><y>750</y><w>170</w><h>40</h></coordinates><panel_attributes>lt=&lt;-
+m1=0..n</panel_attributes><additional_attributes>142;17;10;17</additional_attributes></element><element><id>UMLClass</id><coordinates><x>1170</x><y>747</y><w>430</w><h>320</h></coordinates><panel_attributes>**FileIdentifierCache**
+fg=black
+--
+build_file_identifier_cache(cls, general_store: GeneralStore = None):</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>570</x><y>397</y><w>570</w><h>260</h></coordinates><panel_attributes>**KioskContext**
+fg=black
+--
+_parse_join(join_statement, root_table, table) -&gt; Join:
+_get_default_join(root_table: str, table: str) -&gt; Join
+_get_field_or_instruction(data_table, field_or_instruction)
+_get_where_for_path(path: list, identifier): str
+_get_select_for_path(path: list): str:
+_get_from_for_path(path: list): str
+_get_sql_select(path: list, identifier: str, field_or_instruction) -&gt; str:
+_get_selects(identifier, field_or_instruction): []
+--
+__init__(name: str)
++read_from_dict(dict)
++read_from_dsd()
++get_root_identifiers(): []
++select(self, identifier: str, field_or_instruction: str, additional_fields:[]) -&gt; ContextQuery
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>928</x><y>790</y><w>260</w><h>40</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>240;17;10;17</additional_attributes></element><element><id>UMLClass</id><coordinates><x>580</x><y>727</y><w>360</w><h>220</h></coordinates><panel_attributes>/**KioskFileContext**/
+fg=black
+--
+
+_file_uid
++assign_contextual_file(KioskContextualFile)
+
+
+
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>728</x><y>650</y><w>40</w><h>100</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>12;10;10;80</additional_attributes></element><element><id>UMLClass</id><coordinates><x>858</x><y>20</y><w>220</w><h>70</h></coordinates><panel_attributes>**DSD3**
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>588</x><y>20</y><w>290</w><h>400</h></coordinates><panel_attributes>lt=&lt;-
+</panel_attributes><additional_attributes>270;17;10;20;10;377</additional_attributes></element><element><id>UMLClass</id><coordinates><x>860</x><y>127</y><w>220</w><h>140</h></coordinates><panel_attributes>/**IdentifierCache**/
+fg=black
+--
++__init(dsd)__
++rebuild_cache()
++add(identifier, uid, recording_context)
++has_identifier(identifier)
++get_recording_contexts(identifier)
++delete_identifier(identifier[, recording_context])
