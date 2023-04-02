@@ -35,3 +35,26 @@ vaadin-grid::part(header-cell)
   text-decoration: underline
   text-decoration-style: dotted
   cursor: pointer
+.kiosk-query-results
+  position: relative
+
+.no-records
+  position: absolute
+  display: grid
+  place-items: center
+  height: 100%
+  width: 100%
+  background-color: $col-bg-body
+  top: 0px
+  div
+    padding-right: 1em
+    font-size: $font-size-standard
+    display: flex
+    flex-direction: row
+    line-height: $font-size-h3
+  i
+    font-style: normal
+    font-size: $font-size-h3
+    vertical-align: middle
+    font-family: $fontawesome-font-family
+    padding-right: 1em

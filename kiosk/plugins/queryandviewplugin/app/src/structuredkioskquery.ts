@@ -33,7 +33,7 @@ import { FetchException } from "../kioskapplib/kioskapi";
 export class StructuredKioskQuery extends KioskAppComponent {
     static styles = unsafeCSS(local_css);
 
-    overall_record_count: number = 0
+    overall_record_count: number = -1
 
     static properties = {
         ...super.properties
@@ -138,7 +138,11 @@ export class StructuredKioskQuery extends KioskAppComponent {
             })
             let data, count
             [data, count] = rc
-            if (count > 0) this.overall_record_count = count
+            if (count > 0 || page == 0) {
+                this.overall_record_count = count
+                this.requestUpdate()
+                console.log('no records found.')
+            }
             console.log("over_all_count:", this.overall_record_count)
             console.log("first line:", data[0])
             callback(data, this.overall_record_count);
@@ -219,7 +223,7 @@ export class StructuredKioskQuery extends KioskAppComponent {
     queryUIChanged(event: CustomEvent) {
 
         if (event.detail.srcElement === "start") {
-            this.overall_record_count = 0
+            this.overall_record_count = -1
             this._inputData = event.detail.newData
             // this.fetchQueryResults()
             this.grid?.clearCache();
@@ -301,7 +305,9 @@ export class StructuredKioskQuery extends KioskAppComponent {
                 <ui-component id="ui" @dataChanged="${this.queryUIChanged}"></ui-component>
             </div>
             <div class="kiosk-query-results">
-                ${!this._inputData?nothing:this.renderQueryResult()}
+                ${(!this._inputData)?nothing:this.renderQueryResult()}
+                ${(!this._inputData || this.overall_record_count != 0)?nothing:html`
+                    <div class="no-records"><div><i></i>Sorry, your query yielded no results.</div></div>`}
             </div>
         `;
     }
