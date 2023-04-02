@@ -1,0 +1,11 @@
+# header
+version: 1
+
+# dsd('unit','arch_context')
+element_type:
+  name: "selection"
+  items:
+    lookup_type: "table"
+    topic: "unit"
+    selection: ["arch_context"]
+    key: "arch_context"
