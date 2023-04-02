@@ -66,3 +66,15 @@ config:
       scope:
         coordinates:
           coordinate_photo: {}
+
+    locus_tags_cm:
+      type: query
+      scope:
+        tags:
+          tagging:
+            join: inner("tag", "tag")
+            relates_to:
+              locus:
+                join: inner("source_uid", "uid")
+                relates_to:
+                  collected_material: {}
