@@ -397,6 +397,10 @@ import_configurations:\n
                 f.write(f'{path.join(kiosk_dir, "sync", "sync", "core")}"\n')
                 f.write('python console.py')
 
+            cls.zip_extract_files(kiosk_dir, kiosk_zip, "config/dsd", "-aoa")
+            cls.zip_extract_files(kiosk_dir, kiosk_zip, "config/ui", "-aoa")
+            cls.zip_extract_files(kiosk_dir, kiosk_zip, 'config/kiosk_ui_classes.uic', "-aoa")
+            cls.zip_extract_files(kiosk_dir, kiosk_zip, "config/kiosk_queries", "-aoa")
             print("ok", flush=True)
 
         except IOError as e:
