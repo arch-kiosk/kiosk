@@ -119,6 +119,12 @@ class ContextQueryBakery:
         else:
             raise CqlError(f"scope expects a string, list or dictionary.")
 
+        if not self._kiosk_context:
+            raise CqlError(f"no KioskContext after attempt to read the scope.")
+        if self._kiosk_context.has_no_scope():
+            raise CqlError(f'It was not possible to resolve the scope of the CQL '
+                           f'definition {self._cql["cql"]["base"]["scope"]}')
+
     def _get_named_scope(self, scope_name):
         contexts = self._dsd.get_context_names()
         if scope_name in contexts:

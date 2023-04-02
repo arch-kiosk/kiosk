@@ -10,10 +10,11 @@ export class KioskApiError extends Error {
     }
 }
 
-export class FetchException {
+export class FetchException extends Error{
     msg: string
     response: any
     constructor(msg: string, response:any = null) {
+        super();
         this.msg = msg;
         this.response = response;
     }
@@ -100,8 +101,13 @@ export class KioskApi {
         if (response.ok) {
             return await response.json();
         } else {
+            const json_response = await response.json();
             console.log(`caught ${response.status} in fetchFromApi`);
-            throw new FetchException(response.statusText, response);
+            if (json_response && 'result_msg' in json_response) {
+                throw new FetchException(json_response.result_msg, response);
+            } else {
+                throw new FetchException(response.statusText, response);
+            }
         }
     }
 }

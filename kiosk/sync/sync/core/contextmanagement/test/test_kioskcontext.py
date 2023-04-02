@@ -91,6 +91,25 @@ class TestKioskContext(KioskPyTestHelper):
         assert config
         assert urapdb
 
+    def test_has_no_scope(self, dsd):
+        context = KioskContext("some name", dsd)
+        context_data = {
+            "context_name": {
+                "type": "some type",
+                "scope": {
+                    "unit": {
+                        "locus": {
+                            "locus_photo": {}
+                        },
+                        "dayplan": {}
+                    }
+                }
+            }
+        }
+        context = KioskContext("context_name", dsd)
+        context.from_dict(context_data["context_name"])
+        assert not context.has_no_scope()
+
     def test__get_field_or_instruction(self, dsd):
         context = KioskContext("some name", dsd)
         assert context._get_field_or_instructions("unit", "uid") == ["uid"]

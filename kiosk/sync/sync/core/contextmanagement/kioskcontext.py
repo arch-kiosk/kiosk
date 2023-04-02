@@ -102,6 +102,9 @@ class KioskContext:
             self._type = context_data["type"]
             self._graph.add_tables(context_data["scope"])
 
+    def has_no_scope(self):
+        return self._graph.is_empty() if self._graph else True
+
     def read_from_dsd(self):
         """
         reads the context from the dsd.

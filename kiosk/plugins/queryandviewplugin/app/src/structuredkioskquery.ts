@@ -23,10 +23,11 @@ import { registerStyles } from '@vaadin/vaadin-themable-mixin/register-styles.js
 
 import {ComboBoxDataProviderParams, ComboBoxDataProvider} from '@vaadin/combo-box'
 import { ComboBoxDataProviderCallback } from "@vaadin/combo-box/src/vaadin-combo-box-data-provider-mixin";
-import { handleCommonFetchErrors } from "../dist/src/lib/applib";
+import { handleCommonFetchErrors } from "./lib/applib";
 import { Grid, GridDataProviderCallback, GridDataProviderParams, GridSorterDefinition } from "@vaadin/grid";
 import { SCENARIO } from "./apptypes";
 import { columnBodyRenderer, columnHeaderRenderer, GridColumnBodyLitRenderer } from "@vaadin/grid/lit";
+import { FetchException } from "../kioskapplib/kioskapi";
 
 @customElement('structured-kiosk-query')
 export class StructuredKioskQuery extends KioskAppComponent {
@@ -83,7 +84,7 @@ export class StructuredKioskQuery extends KioskAppComponent {
             }
         })
         .catch((e: Error) => {
-            handleCommonFetchErrors(this, e, "structuredKioskQuery.apiLookupProvider", null);
+            handleCommonFetchErrors(this, <FetchException> e, "structuredKioskQuery.apiLookupProvider", null);
             callback([],0)
         });
     }
@@ -93,7 +94,7 @@ export class StructuredKioskQuery extends KioskAppComponent {
         pageSize: number;
         searchTerm: string;
         sortOrders: GridSorterDefinition[];
-    }):Promise<[[AnyDict], number]> {
+    }):Promise<[[AnyDict]|[], number]> {
         const apiData = {
             "query_id": this.queryDefinition.id,
             "inputs": this._inputData
@@ -116,9 +117,9 @@ export class StructuredKioskQuery extends KioskAppComponent {
                 return [data.records, this.data.overall_record_count]
             }
         }
-        catch(e: any) {
+        catch(e) {
             handleCommonFetchErrors(this, e, "structuredKioskQuery.fetchQueryResults", null);
-            return [null,0]
+            return [[],0]
         }
     }
 

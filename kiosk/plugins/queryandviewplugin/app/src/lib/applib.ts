@@ -89,7 +89,7 @@ export function handleCommonFetchErrors(handlerInstance: LitElement,
             onUnhandledError(e)
         } else {
             sendMessage(handlerInstance, MSG_NETWORK_ERROR,
-                `${messagePrefix}Kiosk server responded with an error.`, `(${e.response.statusText}). 
+                `${messagePrefix}Kiosk server responded with an error.`, `(${e.msg}). 
                 The server might be down or perhaps you are not logged in properly.`)
         }
 

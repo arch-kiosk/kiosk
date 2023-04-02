@@ -24,8 +24,9 @@ class KioskQueryResultCQL(KioskQueryResult):
     def _process_column_information(self):
         dsd_fields = {}
 
-        for type_info in self._query.type_info.extended_field_information:
-            dsd_fields[type_info[0]] = (type_info[1], type_info[2])
+        if hasattr(self._query.type_info, "extended_field_information"):
+            for type_info in self._query.type_info.extended_field_information:
+                dsd_fields[type_info[0]] = (type_info[1], type_info[2])
 
         for c, v in self._query.columns.items():
             source_field = v["source_field"]

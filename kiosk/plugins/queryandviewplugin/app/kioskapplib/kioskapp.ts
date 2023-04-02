@@ -25,6 +25,16 @@ export abstract class KioskApp extends LitElement {
         this.showProgress = false;
     }
 
+    protected onAppMessage(e: CustomEvent) {
+        console.log(`Unhandled AppMessage received`, e.detail)
+        this.addAppError(e.detail.headline + '<br>' + e.detail.body)
+    }
+
+    firstUpdated(_changedProperties: any) {
+        super.firstUpdated(_changedProperties);
+        this.addEventListener("send-message", this.onAppMessage)
+    }
+
     updated(_changedProperties: any) {
         if (_changedProperties.has("apiContext")) {
             this.showProgress = false;
@@ -104,8 +114,13 @@ export abstract class KioskApp extends LitElement {
 
     renderErrors(): TemplateResult {
         if (this.appErrors.length > 0) {
-            return html` ${this.appErrors.map((error) => html`<div class="system-message">${error}</div>`)} `;
+            return html` ${this.appErrors.map((error) => html`<div class="system-message" @click="${this.errorClicked}">${error}</div>`)} `;
         } else return undefined;
+    }
+
+    errorClicked(e: MouseEvent) {
+        console.log(e)
+        this.deleteError((<HTMLDivElement>e.target).textContent)
     }
 
     renderProgress(force = false): TemplateResult {

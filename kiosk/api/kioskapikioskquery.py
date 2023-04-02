@@ -1,7 +1,6 @@
 import logging
 import pprint
 from http import HTTPStatus
-
 import flask
 from flask import request
 from flask_login import current_user
@@ -185,7 +184,7 @@ class ApiKioskQuery(Resource):
             dsd = kioskglobals.master_view.dsd
 
             params = ApiKioskQueryPostParameter().load(request.args)
-            # pprint({"ApiCQLQueryPostParameter": params})
+            pprint.pprint({"ApiCQLQueryPostParameter": params})
             page = params["page"]
             page_size = params["page_size"]
 
@@ -226,20 +225,22 @@ class ApiKioskQuery(Resource):
             try:
                 if query_result is not None:
                     query_result.close()
-            except BaseException as e:
-                logging.error(f"{self.__class__.__name__}.POST: Exception when closing kiosk query: {repr(e)}")
+                pprint.pprint(repr(e))
+            except BaseException as e_close:
+                logging.error(f"{self.__class__.__name__}.POST: Exception when closing kiosk query: {repr(e_close)}")
 
             try:
-                logging.error(f"{self.__class__.__name__}.post: {repr(e)}")
+                logging.error(f"{self.__class__.__name__}.post: Api Call fails with 500 because of: {repr(e)}")
                 KioskSQLDb.rollback()
-            except BaseException as e:
+            except BaseException:
                 pass
             try:
                 result = {'result_msg': repr(e),
                           'record_count': 0,
                           'page': 0,
                           }
-                return ApiResultKioskQuery().dump(result), 500
+                rc = flask.make_response(ApiResultKioskQuery().dump(result), HTTPStatus.BAD_REQUEST)
+                return rc
             except BaseException as e:
-                logging.error(f"{self.__class__.__name__}.post: {repr(e)}")
-                flask.abort(500)
+                logging.error(f"{self.__class__.__name__}.post: Exception when dumping result: {repr(e)}")
+                flask.abort(500, repr(e))
