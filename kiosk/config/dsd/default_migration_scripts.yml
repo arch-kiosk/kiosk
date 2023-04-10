@@ -169,3 +169,12 @@ config:
         su_ceramics_preprocessing_entry: 2
       flags:
         ustp_migrate_miscellaneous: 1
+
+    migrate_locus_relation_chronology:
+#     This migration script adds a chronology value according to the locus relation type
+      migration: "sql\\migrate_locus_relation_chronology.sql"
+      options: [after_table_migration]
+      preconditions:
+        locus_relations: 3
+      flags:
+        migrate_locus_relation_chronology: 1

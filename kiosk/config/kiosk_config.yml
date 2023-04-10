@@ -19,9 +19,9 @@ config:
   filemaker_template: '%sync%\filemaker\khpp_recording_template.fmp12'
   filemaker_db_filename: khpp_recording.fmp12
   filemaker_encoding: utf-8
-#  database_name: khpp
+  database_name: khpp
 #  database_name: ustp
-  database_name: urap_rep
+#  database_name: urap_rep
 #    database_name: urap_test
 #  database_name: pacha
   odbc_ini_dsn: filemaker_odbc
