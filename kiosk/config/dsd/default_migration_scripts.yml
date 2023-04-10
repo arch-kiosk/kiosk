@@ -178,3 +178,13 @@ config:
         locus_relations: 3
       flags:
         migrate_locus_relation_chronology: 1
+
+    cm_remove_dangling_small_find_records:
+#     This migration script deletes all small find records that are empty and connected to a collected material that is
+#     not of cm_type "small_find"
+      migration: "sql\\cm_remove_dangling_small_find_records.sql"
+      options: [after_table_migration]
+      preconditions:
+        collected_material: 4
+      flags:
+        cm_remove_dangling_small_find_records: 1
