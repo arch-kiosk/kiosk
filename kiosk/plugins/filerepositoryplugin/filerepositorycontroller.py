@@ -256,8 +256,9 @@ def file_repository_show():
 
     tag_list = m_file_repository.get_tags()
     sorting_options = m_file_repository.get_sorting_options()
-    image_field_tables = ModelFileRepository.get_aliased_recording_contexts(
-        m_file_repository.file_repos.get_file_field_tables().keys())
+    # image_field_tables = ModelFileRepository.get_aliased_recording_contexts(
+    #     m_file_repository.file_repos.get_file_field_tables().keys())
+    image_field_tables = ModelFileRepository.get_aliased_recording_contexts()
     filter_form.recording_context.choices = [("", "")]
     filter_form.recording_context.choices.extend([(t, t) for t in image_field_tables])
     if "kiosk_fr_resolution" not in session:
