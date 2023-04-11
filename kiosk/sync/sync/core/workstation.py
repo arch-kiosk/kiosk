@@ -275,6 +275,7 @@ class Dock:
             if cur is not None:
                 self._on_create_workstation(cur)
 
+                cur.execute("DELETE " + "FROM \"repl_workstation\" where \"id\" = %s", [self._id])
                 sql = "INSERT " + "INTO \"repl_workstation\"(\"id\",\"description\",\"recording_group\", \"state\", " \
                                   "\"workstation_type\", \"gmt_time_zone\", \"grant_access_to\") " \
                                   "VALUES(%s, %s, %s, %s, %s, %s, %s)"

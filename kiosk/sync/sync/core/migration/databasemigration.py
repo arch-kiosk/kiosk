@@ -367,6 +367,16 @@ class DatabaseMigration:
         """
         return self._adapter_delete_from_migration_catalog(db_table, namespace)
 
+    def _adapter_delete_namespace(self, prefix, namespace):
+        """
+        deletes a namespace with all tables from the database and from the migration catalog.
+        Both prefix and namespace are necessary to remove records from the migration tables
+        :param prefix: the prefix
+        :param namespace: the namespace
+        :returns: bool
+        """
+        raise NotImplementedError
+
     def _adapter_delete_from_migration_catalog(self, db_table, namespace=""):
         """
         deletes a record from the migration_catalog!
@@ -407,6 +417,16 @@ class DatabaseMigration:
             abstract adapter implementation of get_sql_lines
         """
         raise NotImplementedError
+
+    def delete_namespace(self, prefix, namespace):
+        """
+        deletes a namespace with all tables from the database and from the migration catalog.
+        Both prefix and namespace are necessary to remove records from the migration tables
+        :param prefix: the prefix
+        :param namespace: the namespace
+        :returns: bool
+        """
+        return self._adapter_delete_namespace(prefix=prefix, namespace=namespace)
 
     def migrate_table(self, dsd_table, version=0, prefix="", namespace="", one_step_only=False):
         """ migrates a single table from its current version (if it exists at all) to the given version. 

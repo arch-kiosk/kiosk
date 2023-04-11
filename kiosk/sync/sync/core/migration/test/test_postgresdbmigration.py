@@ -494,3 +494,30 @@ class TestPostgresDbMigration(KioskPyTestHelper):
         assert pg_migration.set_migration_flag("flag2", "value2_2")
         assert pg_migration.get_migration_flag("flag1") == "value1_2"
         assert pg_migration.get_migration_flag("flag2") == "value2_2"
+
+    def test__adapter_delete_namespace(self, db, pg_migration):
+        self.db_execute(db, "drop table if exists \"migration_catalog\";")
+        self.db_execute(db, "drop table if exists \"test\";")
+        self.db_execute(db, "DROP SCHEMA if exists \"testnamespace\" CASCADE;")
+
+        assert pg_migration.get_table_structure_version("migration_catalog") == 1
+        pg_migration.dsd.append({"config": {
+            "format_version": 3},
+            "test": {
+                "structure": {
+                    1: {
+                        "uid": ["datatype('UUID')", "uuid_key()"],
+                    }
+                }
+            }
+        })
+        assert pg_migration.create_table("test", namespace="testnamespace")
+        assert pg_migration.get_table_structure_version("test",namespace="testnamespace") == 1
+        assert pg_migration._adapter_table_exists(table="test", namespace="testnamespace")
+        pg_migration.set_migration_flag("prefix_testnamespace_some_flag", "1")
+        assert get_first_record(db, "migration_catalog", field="table", value="test")
+        assert get_first_record(db, "migration_flags", field="flag", value="prefix_testnamespace_some_flag")
+        assert pg_migration._adapter_delete_namespace("prefix", "testnamespace")
+        assert not pg_migration._adapter_table_exists(table="test", namespace="testnamespace")
+        assert not get_first_record(db, "migration_catalog", field="table", value="test")
+        assert not get_first_record(db, "migration_flags", field="flag", value="prefix_testnamespace_some_flag")

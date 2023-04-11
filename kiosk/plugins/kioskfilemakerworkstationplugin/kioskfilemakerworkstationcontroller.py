@@ -58,6 +58,24 @@ LOCAL_PRIVILEGES = {
     INSTALL_PLUGIN: INSTALL_PLUGIN
 }
 
+workers = {"fork": ("plugins.kioskfilemakerworkstationplugin.workers.forkworkstationworker",
+                    "ForkWorkstationWorker", PREPARE_WORKSTATIONS, False),
+           "export": ("plugins.kioskfilemakerworkstationplugin.workers.exportworkstationworker",
+                      "ExportWorkstationWorker", PREPARE_WORKSTATIONS, False),
+           "import": ("plugins.kioskfilemakerworkstationplugin.workers.importworkstationworker",
+                      "ImportWorkstationWorker", PREPARE_WORKSTATIONS, False),
+           "fix_import": ("plugins.kioskfilemakerworkstationplugin.workers.importworkstationworker",
+                          "ImportWorkstationWorker", PREPARE_WORKSTATIONS, False),
+           "reset": ("plugins.kioskfilemakerworkstationplugin.workers.resetworkstationworker",
+                     "ResetWorkstationWorker", PREPARE_WORKSTATIONS, False),
+           "renew": ("plugins.kioskfilemakerworkstationplugin.workers.resetworkstationworker",
+                     "ResetWorkstationWorker", PREPARE_WORKSTATIONS, False),
+           "delete": ("plugins.kioskfilemakerworkstationplugin.workers.deleteworkstationworker",
+                      "DeleteWorkstationWorker", EDIT_WORKSTATION_PRIVILEGE, False),
+           "forknexport": ("plugins.kioskfilemakerworkstationplugin.workers.forknexportworkstationworker",
+                           "ForkNExportWorkstationWorker", PREPARE_WORKSTATIONS, False)
+           }
+
 print(f"{_controller_name_} module loaded")
 
 
@@ -234,21 +252,6 @@ def get_worker_setting(action: str):
 
     """
     action = action.lower()
-    workers = {"fork": ("plugins.kioskfilemakerworkstationplugin.workers.forkworkstationworker",
-                        "ForkWorkstationWorker", PREPARE_WORKSTATIONS, False),
-               "export": ("plugins.kioskfilemakerworkstationplugin.workers.exportworkstationworker",
-                          "ExportWorkstationWorker", PREPARE_WORKSTATIONS, False),
-               "import": ("plugins.kioskfilemakerworkstationplugin.workers.importworkstationworker",
-                          "ImportWorkstationWorker", PREPARE_WORKSTATIONS, False),
-               "fix_import": ("plugins.kioskfilemakerworkstationplugin.workers.importworkstationworker",
-                              "ImportWorkstationWorker", PREPARE_WORKSTATIONS, False),
-               "reset": ("plugins.kioskfilemakerworkstationplugin.workers.resetworkstationworker",
-                         "ResetWorkstationWorker", PREPARE_WORKSTATIONS, False),
-               "delete": ("plugins.kioskfilemakerworkstationplugin.workers.deleteworkstationworker",
-                          "DeleteWorkstationWorker", EDIT_WORKSTATION_PRIVILEGE, False),
-               "forknexport": ("plugins.kioskfilemakerworkstationplugin.workers.forknexportworkstationworker",
-                               "ForkNExportWorkstationWorker", PREPARE_WORKSTATIONS, False)
-               }
     if action not in workers.keys():
         raise UserError("Attempt to trigger an unknown action.")
     return workers[action]
@@ -285,6 +288,8 @@ def trigger_action(action: str, ws_id: str):
         additional_job_data = None
         if action == "fix_import":
             additional_job_data = {"fix": True}
+        if action == "renew":
+            additional_job_data = {"renew": True}
 
         return mcp_workstation_action(worker_settings[0],
                                       worker_settings[1], ws_id,

@@ -6,7 +6,7 @@ from shutil import copyfile
 import time
 from os import path
 
-from statemachine import StateTransition
+from statemachine import StateTransition, StateMachine
 from werkzeug import datastructures
 
 import kioskstdlib
@@ -258,6 +258,7 @@ class FileMakerWorkstation(RecordingWorkstation):
         sql += ");"
         cur.execute(sql)
 
+        cur.execute("DELETE " + "FROM \"repl_workstation_filemaker\" where \"id\" = %s", [self._id])
         sql = "INSERT " + "INTO \"repl_workstation_filemaker\"(\"id\") " \
                           "VALUES(%s)"
 
@@ -1679,6 +1680,26 @@ class FileMakerWorkstation(RecordingWorkstation):
         todo: refactor - That might be more useful as an abstract method in Workstation.
         """
         return self._set_state(self.IDLE, commit=True)
+
+    def renew(self) -> bool:
+        """ renews the workstation by removing database structures and recreating them
+            Also sets the workstation back to state IDLE. """
+        dsd = self._get_workstation_dsd()
+        if dsd is None:
+            logging.error(("FileMakerWorkstation.renew: "
+                           "KioskSQLDb.get_dsd() failed"))
+            return False
+        db_migration = PostgresDbMigration(dsd, KioskSQLDb.get_con())
+        if not db_migration.delete_namespace(prefix=self._id, namespace=self._db_namespace):
+            logging.error(("FileMakerWorkstation.renew: "
+                           "Migration.delete_namespace failed"))
+            return False
+
+        self.state_machine.state = None
+
+        return self._create()
+
+
 
     def _create_export_file_from_template(self, template_file):
         """ creates a new filemaker database file for a workstation from the given template file.

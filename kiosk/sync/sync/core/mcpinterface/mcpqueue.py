@@ -161,6 +161,7 @@ class MCPQueue:
         :param job_id: the job id
         return: the job data or an empty dict, if the job is unknown. Can throw Exceptions.
         """
+        logging.debug(f"MCPQueue.pop: {job_id} ")
         data = {}
         lock = self.lock()
         try:

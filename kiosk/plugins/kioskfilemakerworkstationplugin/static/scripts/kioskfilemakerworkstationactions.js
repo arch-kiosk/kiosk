@@ -16,7 +16,7 @@ function kfw_action(ws_id, title, action_url, ack = false, jsonData = {}) {
 
   let targetUrl = "/kioskfilemakerworkstation/trigger/" + action_url + "/" + ws_id
 
-  if (!ack && action_url === "reset") {
+  if (!ack && (action_url === "reset" || action_url === "renew")) {
     kioskYesNoToast("Are you sure, you want to reset this workstation? Afterwards, you will not be able to import " +
       " any copy of it that is still out there!",
       () => {

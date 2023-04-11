@@ -10,7 +10,7 @@ from synchronization import Synchronization
 class ResetWorkstationWorker(WorkstationManagerWorker):
 
     def worker(self):
-        def reset_workstation():
+        def reset_workstation(renew: bool):
             try:
                 logging.debug("Reset Worker starts")
                 self.init_dsd()
@@ -20,7 +20,11 @@ class ResetWorkstationWorker(WorkstationManagerWorker):
                 name = ws.description
                 self.job.publish_progress(10)
                 if ws:
-                    rc = ws.sync_ws._set_state(ws.sync_ws.IDLE, commit=True)
+                    if renew:
+                        rc = ws.sync_ws.renew()
+                    else:
+                        rc = ws.sync_ws.reset()
+
                     self.job.publish_progress(100)
                     if rc:
                         result = KioskResult(True)
@@ -51,8 +55,14 @@ class ResetWorkstationWorker(WorkstationManagerWorker):
             if self.job.fetch_status() == MCPJobStatus.JOB_STATUS_RUNNING:
                 self.job.publish_progress(0, "processing request...")
                 ws_id = self.job.job_data["workstation_id"]
-                logging.debug(f"resetting workstation {ws_id}")
-                result = reset_workstation()
+                renew = False
+                if "renew" in self.job.job_data and self.job.job_data["renew"] == True:
+                    logging.debug(f"renewing workstation {ws_id}")
+                    renew = True
+                else:
+                    logging.debug(f"resetting workstation {ws_id}")
+
+                result = reset_workstation(renew)
                 self.job.publish_result(result.get_dict())
                 if result.success:
                     logging.info(f"job {self.job.job_id}: successful")
@@ -70,6 +80,3 @@ class ResetWorkstationWorker(WorkstationManagerWorker):
                     KioskResult(message="An error occurred. Please refer to the log for details.").get_dict())
 
         logging.debug("reset workstation - worker ends")
-
-
-

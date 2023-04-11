@@ -122,7 +122,6 @@ class KioskFileMakerWorkstation(KioskWorkstation):
             logging.error(f"{cls.__name__}.before_restore: reset_all_recording_groups failed: {repr(e)}")
             raise e
 
-
     @classmethod
     def reset_all_recording_groups(cls):
         """
@@ -378,7 +377,8 @@ class KioskFileMakerWorkstation(KioskWorkstation):
 
             self.register_option("reset_option", {"id": "workstation.reset",
                                                   "caption": "reset workstation",
-                                                  "description": "reset the workstation.",
+                                                  "description": "reset the state of the workstation back to 'needs "
+                                                                 "preparation'",
                                                   "privilege": "prepare workstation",
                                                   "low": True,
                                                   "warning": True,
@@ -386,6 +386,18 @@ class KioskFileMakerWorkstation(KioskWorkstation):
                                                              f"'Reset workstation',"
                                                              f"'reset')",
                                                   "js_key": "reset"
+                                                  })
+
+            self.register_option("renew_option", {"id": "workstation.renew",
+                                                  "caption": "renew workstation",
+                                                  "description": "deletes and recreates the workstation.",
+                                                  "privilege": "prepare workstation",
+                                                  "low": True,
+                                                  "warning": True,
+                                                  "onclick": f"kfw_action('{self.id}',"
+                                                             f"'Renew workstation',"
+                                                             f"'renew')",
+                                                  "js_key": "renew"
                                                   })
 
             self.register_option("reset_rg_option", {"id": "recordinggroup.reset",
@@ -539,6 +551,7 @@ class KioskFileMakerWorkstation(KioskWorkstation):
                 add_to_option_list(self._get_option("fork_export_option"), low=True)
 
             add_to_option_list(self._get_option("reset_option"), low=True)
+            add_to_option_list(self._get_option("renew_option"), low=True)
             if self.status == "IDLE":
                 add_to_option_list(self._get_option("edit_option"), low=True)
             else:
