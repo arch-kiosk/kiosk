@@ -125,6 +125,15 @@ if "mcpcore.mcpworker" not in sys.modules:
                                       if hasattr(current_user, "fulfills_requirement") else False,
                               parent_menu='administration'
                               ),
+                KioskMenuItem(name="kiosk queries",
+                              onclick="triggerAdminInterface('kioskqueries.index_view')",
+                              endpoint="kioskqueries.index_view",
+                              menu_cfg=plugin.get_menu_config(),
+                              is_active=lambda:
+                                  current_user.fulfills_requirement(ENTER_ADMINISTRATION_PRIVILEGE)
+                                      if hasattr(current_user, "fulfills_requirement") else False,
+                              parent_menu='administration'
+                              ),
                 KioskMenuItem(name="logs",
                               onclick="triggerAdminInterface('administration.show_logs')",
                               endpoint="administration.show_logs",
