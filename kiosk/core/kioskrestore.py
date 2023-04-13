@@ -354,6 +354,7 @@ import_configurations:\n
             # cfg["config"]["dataset_definition"] = r"%sync%\config\dsd\dsd3.yml"
             # cfg["config"]["filemaker_export_dir"] = r"%sync%\filemaker\to_work_station"
             # cfg["config"]["filemaker_import_dir"] = r"%sync%\filemaker\from_work_station"
+            cfg["kiosk"] = {}
             cfg["kiosk"]["local_import_paths"] = []
             cfg["kiosk"]["base_path"] = kiosk_dir
             if "pgdb" in options:
