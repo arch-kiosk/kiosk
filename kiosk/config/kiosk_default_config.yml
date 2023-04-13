@@ -301,6 +301,7 @@ kiosk:
       "install patch": [ "+administrationplugin" ]
       "privileges": [ "+administrationplugin" ]
       "users": [ "+administrationplugin" ]
+      "kiosk queries": [ "+administrationplugin" ]
       "logs": [ "+administrationplugin" ]
       "file picking rules": [ "+administrationplugin", "+syncmanagerplugin" ]
       "quality control rules": [ "+administrationplugin" ]
