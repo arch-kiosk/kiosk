@@ -554,6 +554,8 @@ def upload_file(ws_id):
     """
     api_call = False
     if not current_user.is_authenticated:
+        logging.debug(f"kioskfilemakerworkstationcontroller.ws_upload: "
+                      f"No current user. Trying httpauth user to upload workstation {ws_id}")
         # this just activates login_required (usually a wrapper) so that we have a httpauth.current_user.
         # The mindless lambda just serves as a function to wrap
         f = kioskglobals.httpauth.login_required(lambda: True)()
@@ -562,18 +564,22 @@ def upload_file(ws_id):
             api_call = True
             flask_login.login_user(httpauth_user)
         else:
+            logging.info(f"kioskfilemakerworkstationcontroller.ws_upload: "
+                         f"No current user in attempt to upload workstation {ws_id}")
             return current_app.login_manager.unauthorized()
 
     try:
         if api_call:
-            print(f"kioskfilemakerworkstation/workstation/{ws_id}/upload via api call")
-            logging.debug(f"kioskfilemakerworkstationcontroller.ws_download: "
-                          f"download of workstation {ws_id} via api call.")
+            logging.debug(f"kioskfilemakerworkstationcontroller.ws_upload: "
+                          f"upload of workstation {ws_id} via api call.")
         else:
-            print(f"kioskfilemakerworkstation/workstation/{ws_id}/upload via Kiosk UI")
+            logging.debug(f"kioskfilemakerworkstationcontroller.ws_upload: "
+                          f"upload of workstation {ws_id} via Kiosk UI")
 
         authorized_to = get_local_authorization_strings(LOCAL_PRIVILEGES)
         if "upload workstation" not in authorized_to:
+            logging.info(f"kioskfilemakerworkstationcontroller.ws_upload: "
+                         f"{current_user.user_id} is lacking privileges required to upload workstation {ws_id}")
             abort(HTTPStatus.UNAUTHORIZED)
 
         result = KioskResult(message="Unknown error after upload")
@@ -640,11 +646,11 @@ def upload_file(ws_id):
         result.success = False
         return result.jsonify()
     except HTTPException as e:
-        logging.error(f"kioskfilemakerworkstationcontroller.ws_download: {repr(e)}")
+        logging.error(f"kioskfilemakerworkstationcontroller.ws_upload: {repr(e)}")
         print(repr(e))
         raise e
     except Exception as e:
-        logging.error(f"kioskfilemakerworkstationcontroller.ws_download: {repr(e)}")
+        logging.error(f"kioskfilemakerworkstationcontroller.ws_upload: {repr(e)}")
         abort(HTTPStatus.INTERNAL_SERVER_ERROR)
 
 
