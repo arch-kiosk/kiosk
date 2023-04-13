@@ -6,6 +6,7 @@ import_configurations:
   - kiosk_secure.yml
 
 config:
+#  project_id: # your project id
   no_console: false
 
 # these settings are needed for filemaker recording:
