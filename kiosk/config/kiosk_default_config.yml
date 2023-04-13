@@ -269,7 +269,7 @@ kiosk:
 
   kioskfilemakerworkstationplugin:
     active: true
-    no_csrf_defense: false
+    no_csrf_defense: true
     menu:
       "prepare filemaker workstations": [ "+syncmanagerplugin" ]
       "import filemaker workstations": [ "+syncmanagerplugin" ]

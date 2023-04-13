@@ -91,7 +91,6 @@ kiosk:
 
   kioskfilemakerworkstationplugin:
     active: true
-    no_csrf_defense: true
 
   pwastresstestplugin:
     active: true
