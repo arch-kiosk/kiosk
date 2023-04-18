@@ -6,9 +6,6 @@ import_configurations:
   - kiosk_local_config.yml
   - kiosk_secure.yml
 
-'test':
-  kiosk: 1
-
 config:
   project_id: 'test'
   filemaker_template: '%sync%\filemaker\pvd_recording_template.fmp12'

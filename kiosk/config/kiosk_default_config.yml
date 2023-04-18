@@ -1,10 +1,6 @@
 # *********************************************
 # Default Kiosk Config
 # *********************************************
-'test':
-  loaded: 1
-  kiosk_default: 1
-
 'Flask':
   SOME_OPERATION: 'Something'
   SECRET_KEY: "fd82303c-6852-48c1-8165-9e60d4b25b94"
