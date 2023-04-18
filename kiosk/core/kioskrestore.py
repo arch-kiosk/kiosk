@@ -322,6 +322,7 @@ class KioskRestore:
                     ymlfile.write("""
 import_configurations:\n
         - kiosk_default_config.yml\n
+        - kiosk_local_config.yml\n
         - kiosk_secure.yml\n
 """)
 
