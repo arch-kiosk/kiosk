@@ -1390,7 +1390,7 @@ def copytree(src: str, dst: str, only_modified_files: bool, only_different_size:
 
 def clear_dir(src: str):
     """
-    deletes all files in a directory. Not recusrive and does not delete the directory itself.
+    deletes all files in a directory. Not recursive and does not delete the directory itself.
     :param src: the directory.
     """
     if len(str(src)) < 4:
