@@ -1074,6 +1074,15 @@ def start_install_patch(transfer_dir, cfg) -> Tuple[bool, str]:
         logging.error(err_msg)
         return False, err_msg
 
+    max_version = kioskstdlib.try_get_dict_entry(patch_file['patch'], 'version', '')
+    if max_version:
+        if kioskstdlib.cmp_semantic_version(kioskglobals.kiosk_version, max_version) > -1:
+            err_msg = f"administrationcontroller.start_install_patch: " \
+                      f"Patch file lifts kiosk to version {max_version}, " \
+                      f"But Kiosk is already on version {kioskglobals.kiosk_version}."
+            logging.error(err_msg)
+            return False, err_msg
+
     if kioskstdlib.to_bool(kioskstdlib.try_get_dict_entry(patch_file['patch'], 'close_mcp', 'False')):
         shutdown_mcp()
 
