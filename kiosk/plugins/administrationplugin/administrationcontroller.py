@@ -56,7 +56,7 @@ _plugin_name_ = "administrationplugin"
 _controller_name_ = "administration"
 _url_prefix_ = '/' + _controller_name_
 plugin_version = 0.1
-CURRENT_PATCH_FILE_VERSION = 0.1
+CURRENT_PATCH_FILE_VERSION = 0.2
 
 LOCAL_ADMINISTRATION_PRIVILEGES = {
     ENTER_ADMINISTRATION_PRIVILEGE: "enter administration",
@@ -1082,6 +1082,11 @@ def start_install_patch(transfer_dir, cfg) -> Tuple[bool, str]:
                       f"But Kiosk is already on version {kioskglobals.kiosk_version}."
             logging.error(err_msg)
             return False, err_msg
+    else:
+        err_msg = f"administrationcontroller.start_install_patch: " \
+                  f"Patch file has not target version. That is not allowed anymore."
+        logging.error(err_msg)
+        return False, err_msg
 
     if kioskstdlib.to_bool(kioskstdlib.try_get_dict_entry(patch_file['patch'], 'close_mcp', 'False')):
         shutdown_mcp()
