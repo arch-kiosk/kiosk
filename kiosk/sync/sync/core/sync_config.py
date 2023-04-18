@@ -299,8 +299,8 @@ class SyncConfig(Config):
         if "file_identifier_cache_sql" in self.config:
             self.file_identifier_cache_sql = self.resolve_symbols(self.config["file_identifier_cache_sql"])
         else:
-            if self._log_warnings:
-                logging.warning("No sql script to build the file-identifier cache given!")
+            # if self._log_warnings:
+            #     logging.warning("No sql script to build the file-identifier cache given!")
             self.file_identifier_cache_sql = ""
 
         return not fatal_error

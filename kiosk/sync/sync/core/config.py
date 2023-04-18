@@ -45,7 +45,7 @@ from dicttools import dict_search
 class Config(logginglib.LoggingFeature):
     _instance = None  # Keep instance reference
     IMPORT_MODE_FIRST_WINS = 1  # when importing a value that is already there, keep the original value
-    IMPORT_MODE_OVERRIDE = 2 # when importing a value that is already there, override the original value
+    IMPORT_MODE_OVERRIDE = 2  # when importing a value that is already there, override the original value
 
     def __new__(cls, *args, **kwargs):
         if not cls._instance:
@@ -174,7 +174,10 @@ class Config(logginglib.LoggingFeature):
     def reset_config(self):
         self._config = {}
 
-    def read_config(self, config_to_add):
+    def read_config(self, config_to_add, import_mode=None):
+        if not import_mode:
+            import_mode = self.import_mode
+
         if not self._on_read_config_handler:
             raise Exception("no reader registered: use get_config_dict_handler")
 
@@ -185,17 +188,27 @@ class Config(logginglib.LoggingFeature):
             else:
                 import_cfg = None
 
-            if self.import_mode == self.IMPORT_MODE_FIRST_WINS:
+            if import_mode == self.IMPORT_MODE_FIRST_WINS:
                 #  self._config = {**new_config, **self._config}
                 dict_merge(new_config, self._config)
                 self._config = new_config
 
-            elif self.import_mode == self.IMPORT_MODE_OVERRIDE:
+            elif import_mode == self.IMPORT_MODE_OVERRIDE:
                 #  self._config = {**self._config, **new_config}
                 dict_merge(self._config, new_config)
+            else:
+                logging.warning(f"{self.__class__.__name__}.read_config: unknown import_mode {import_mode} "
+                                f"when merging configs.")
 
             if import_cfg:
-                for cfg in import_cfg:
+                # I do not like this solution, but it is the quickest way to solve #2037 without a major
+                # overhaul of the config source code. The issue is that I load the config keys of the config
+                # that import other configs FIRST. Then I merge those other configs with the already existing
+                # config. That's why I must use import_mode_first_wins. BUT if two configs are imported I expect
+                # the second to win over the first. And that was not the case with 'for cfg in import_cfg'.
+                # a better solution would be to separate the config that impors from its own keys.
+
+                for cfg in reversed(import_cfg):
                     if isinstance(import_cfg, dict):
                         import_config: str = import_cfg[cfg]
                     else:
@@ -230,4 +243,3 @@ class Config(logginglib.LoggingFeature):
         :param value: usually a dict. But can be everything.
         """
         self._config[key] = value
-

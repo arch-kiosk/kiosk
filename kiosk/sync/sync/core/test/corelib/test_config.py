@@ -87,11 +87,20 @@ class TestConfig:
 
     def test_import_config(self):
         def get_config(config_id):
-            if config_id == "first_config": return {"testkey": "testvalue",
-                                                    "shared_key": "first value",
-                                                    "import_configurations": {"config1": "import_config_1"}}
-            if config_id == "import_config_1": return {"testkey2": "testvalue2",
-                                                       "shared_key": "second value", }
+            if config_id == "first_config": return {"import_configurations": {"config1": "import_config_1",
+                                                                              "config2": "import_config_2"},
+                                                    "test": {
+                                                        "testkey": "testvalue",
+                                                        "shared_key": "first value"},
+                                                    }
+            if config_id == "import_config_1": return {"test": {
+                "testkey2": "testvalue2",
+                "shared_key": "second value"}
+            }
+            if config_id == "import_config_2": return {"test": {
+                "testkey3": "testvalue3",
+                "shared_key": "third value"}
+            }
 
             return None
 
@@ -99,9 +108,42 @@ class TestConfig:
         cfg.on_read_config(get_config)
         cfg.read_config("first_config")
 
-        assert cfg.testkey == "testvalue"
-        assert cfg.testkey2 == "testvalue2"
-        assert cfg.shared_key == "first value"
+        assert cfg.test["testkey"] == "testvalue"
+        assert cfg.test["testkey2"] == "testvalue2"
+        assert cfg.test["shared_key"] == "first value"
+
+        with pytest.raises(KeyError) as excinfo:
+            print(cfg.import_configurations)
+
+        with pytest.raises(KeyError) as excinfo:
+            print(cfg.config1)
+
+    def test_import_config_2(self):
+        # this time the second config should win with the shared key
+        def get_config(config_id):
+            if config_id == "first_config": return {"import_configurations": ["import_config_1",
+                                                                              "import_config_2"],
+                                                    "test": {
+                                                        "testkey": "testvalue"},
+                                                    }
+            if config_id == "import_config_1": return {"test": {
+                "testkey2": "testvalue2",
+                "shared_key": "second value"}
+            }
+            if config_id == "import_config_2": return {"test": {
+                "testkey3": "testvalue3",
+                "shared_key": "third value"}
+            }
+
+            return None
+
+        cfg = config.Config(import_mode=config.Config.IMPORT_MODE_FIRST_WINS)
+        cfg.on_read_config(get_config)
+        cfg.read_config("first_config")
+
+        assert cfg.test["testkey"] == "testvalue"
+        assert cfg.test["testkey2"] == "testvalue2"
+        assert cfg.test["shared_key"] == "third value"
 
         with pytest.raises(KeyError) as excinfo:
             print(cfg.import_configurations)
@@ -234,7 +276,8 @@ class TestConfig:
         assert cfg.resolve_symbols(cfg.config["some_path"]) == str(os.path.join(shared_datadir, "subpath"))
 
         assert cfg.config["some_other_path"] == r'%custom_path%\subpath'
-        assert cfg.resolve_symbols(cfg.config["some_other_path"]) == str(os.path.join(shared_datadir, r"custom\subpath"))
+        assert cfg.resolve_symbols(cfg.config["some_other_path"]) == str(
+            os.path.join(shared_datadir, r"custom\subpath"))
 
         assert cfg.config["some_value"] == "custom"
         assert cfg.config["some_default_value"] == "default"
