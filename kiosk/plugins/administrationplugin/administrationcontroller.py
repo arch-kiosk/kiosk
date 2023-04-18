@@ -1074,7 +1074,7 @@ def start_install_patch(transfer_dir, cfg) -> Tuple[bool, str]:
         logging.error(err_msg)
         return False, err_msg
 
-    max_version = kioskstdlib.try_get_dict_entry(patch_file['patch'], 'version', '')
+    max_version = kioskstdlib.try_get_dict_entry(patch_file['patch'], 'kiosk_version', '')
     if max_version:
         if kioskstdlib.cmp_semantic_version(kioskglobals.kiosk_version, max_version) > -1:
             err_msg = f"administrationcontroller.start_install_patch: " \

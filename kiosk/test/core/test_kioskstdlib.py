@@ -198,3 +198,6 @@ class Testkioskstdlib(KioskPyTestHelper):
 
         assert kioskstdlib.cmp_semantic_version("2.1.0.0", "2.0.0.0") == 1
         assert kioskstdlib.cmp_semantic_version("2.0.0.0", "2.2.0.0") == -1
+
+        assert kioskstdlib.cmp_semantic_version("1.8.0", "1.8.0.1") == -1
+        assert kioskstdlib.cmp_semantic_version("1.8.1", "1.8.0.1") == 1
