@@ -27,6 +27,7 @@ from PIL import Image
 
 import kioskstdlib
 from urapdatetimelib import *
+from semantic_version import Version
 
 if os.name == 'nt':
     import win32api
@@ -1509,3 +1510,47 @@ def get_secure_windows_sub_path(sub_path: str) -> str:
     return ""
 
 
+def get_kiosk_semantic_version(version: str) -> (str, str):
+    """
+    returns the generation and semantic version of a kiosk version. A kiosk version has an additional leading generation
+    version number that is incompatible with the semantic version.
+    :param version: either a 4 digit kiosk version or a 3 digit semantic version.
+    :return: a tuple consisting of the generation and semantic version.
+    """
+    if re.fullmatch(r'^(\d+)\.(\d+)\.(\d+)$', version):
+        version = version + ".0"
+    rc = re.fullmatch(r'^(?P<generation>\d+)\.(?P<version>(\d+)\.(\d+)\.(\d+))$', version)
+    if rc:
+        if rc.group("version"):
+            return rc.group("generation"), rc.group("version")
+
+    return "", ""
+
+
+def cmp_semantic_version(version1: str, version2: str) -> int:
+    """
+    compares two semantic versions (something like 1.0.0).
+    Additionally deals with kiosk versions which have an extra leading generation number
+    :param version1: a semantic or kiosk version number
+    :param version2:a semantic or kiosk version number
+    :return: -1: version 1 is smaller than version 2, 1: version 1 is bigger than version 2, 0 if they are equal
+    """
+
+    if re.fullmatch(r'^(?P<generation>\d+)\.(?P<version>(\d+)\.(\d+)\.(\d+))$', version1) or re.fullmatch(
+            r'^(?P<generation>\d+)\.(?P<version>(\d+)\.(\d+)\.(\d+))$', version2):
+        generation_1, sv1 = get_kiosk_semantic_version(version1)
+        generation_2, sv2 = get_kiosk_semantic_version(version2)
+        if not generation_1 or not generation_2:
+            raise ValueError(f"One of the versions is not compatible: {version1}, {version2}")
+        generation_1 = int(generation_1)
+        generation_2 = int(generation_2)
+        if generation_1 < generation_2:
+            return -1
+        if generation_1 > generation_2:
+            return 1
+        version1 = sv1
+        version2 = sv2
+
+    v1 = Version(version1)
+    v2 = Version(version2)
+    return -1 if v1 < v2 else (1 if v1 > v2 else 0)
