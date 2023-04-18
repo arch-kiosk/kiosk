@@ -1,36 +1,21 @@
 # *********************************************
 # urap kiosk config
 # *********************************************
-development:
-  webapp_development: true
-  print_raw_requests: false
-  generate_system_message: false
-  show_system_informaton: true
-  suppress_system_messages: false
-  test_patch: true
-
 import_configurations:
   - kiosk_default_config.yml
+  - kiosk_local_config.yml
   - kiosk_secure.yml
+
+'test':
+  kiosk: 1
 
 config:
   project_id: 'test'
-  no_console: false
   filemaker_template: '%sync%\filemaker\pvd_recording_template.fmp12'
+  expected_filemaker_template_version: '14.2'
   filemaker_db_filename: test_recording.fmp12
-  filemaker_encoding: utf-8
-#  database_name: khpp
-#  database_name: ustp
-  database_name: urap_rep
-#    database_name: urap_test
-#  database_name: pacha
-  odbc_ini_dsn: filemaker_odbc
-  database_timeout_sec: 5
-  file_repository: '%sync%\file_repository'
-  server_type: 'local'
 
 file_repository:
-  cache: '%file_repository%\cache'
   recording_context_aliases:
     locus: 'context'
     unit: 'trench/area'
@@ -45,58 +30,21 @@ file_repository:
     pottery_images: 'pottery'
     tags: 'context tags'
 
-fileexportworkstation:
-  max_export_repo_mbytes: 500
-
-reportingdock:
-  debug_sql: True
 
 kiosk:
-  security_token_timeout_seconds: 3600
-  reset_file: '%base_path%\reset.yml'
-  subnet: '192.168.1'
-  terminal_accent_color_ansi: '[30;41;1m'
-  backup_reminder_days: 1
-  local_importpaths: [ 'c:\notebook_source\urap\server' ]
   global_constants:
-    project_name: 'uronarti regional archaeological project'
-    project_short: 'urap'
+    project_name: ''
+    project_short: 'URAP'
     project_logo_top: ''
-    project_logo_main: 'uronarti'
-    project_logo_bottom: Paisajes Arqueológicos de Chachapoyas
-  suppress_messages:
-    sys_msg_id_mcp_not_up: false
-
-  administrationplugin:
-    backup_filename_template: "urap_#a_#d#m#y-#h#m#s.dmp"
-    backup_directory: 't:\gibtsnicht'
-    restore_directory: 't:\gibtsnicht'
-    defaults:
-      backup_workstation_directories: false
+    project_logo_main: 'Uronarti'
+    project_logo_bottom: 'Uronarti Regional Archaeological Project'
 
   playgroundplugin:
     active: true
     is_main_index: false
 
-  syncmanagerplugin:
-    active: true
-    is_main_index: true
-
-  filerepositoryplugin:
-    active: true
-    is_main_index: false
-
-  kioskexportworkstationplugin:
-    active: true
-
-  kioskfilemakerworkstationplugin:
-    active: true
-
   pwastresstestplugin:
     active: true
 
-  queryandviewplugin:
-    active: true
-    is_main_index: false
 
 
