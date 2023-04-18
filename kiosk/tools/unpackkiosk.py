@@ -42,7 +42,9 @@ params = {"-fr": "fr", "--unpack_file_repository": "fr",
           "--test_drive": "test_drive",
           "-rm": "rm",
           "--update_custom_modules": "ucm",
-          "--exclude_mcp": "exclude_mcp"
+          "--exclude_mcp": "exclude_mcp",
+          "-ncu": "no_clear_up",
+          "--no_clear_up": "no_clear_up",
           }
 
 
@@ -59,6 +61,8 @@ def usage():
                      The kiosk_config will never be modified, though! Only the kiosk_default_config and the other default
                      dsd and config files. 
         -c / --code: unpacks the code for kiosk and kiosk-sync and installs our custom libraries.
+        -ncu/ --no_clear_up: skips deleting old files first. Only useful together with very special patches that
+                             use zip files with only a few files in them. 
         -nc / --no_custom_directories: don't unpack custom directories
         -fr / --unpack_file_repository: unpacks the contents of the file repository zip to the actual file repository
                 it will only add files and not override existing ones.

@@ -105,19 +105,21 @@ class KioskRestore:
                 return
 
         print(cmdline)
+        rc = None
         try:
             rc = subprocess.run(cmdline, cwd=working_directory)  # stdout=subprocess.PIPE
         except OSError as e:
             cls._abort_with_error(0, f"Exception in zip_add_files: {repr(e)}")
 
-        if rc.returncode != 0:
+        if not rc or rc.returncode != 0:
             cls._abort_with_error(0, f"7zip returned an error: {rc.returncode}")
 
         return True
 
     @classmethod
-    def zip_extract_files(cls, working_directory, src_file, files, zip_options: str = ""):
+    def zip_extract_files(cls, working_directory, src_file, files, zip_options: str = "", fail_on_error=True):
         # f"-w{working_directory}",
+
         if zip_options:
             cmdline = ["7za.exe", "x", zip_options, src_file,
                        ]
@@ -126,6 +128,7 @@ class KioskRestore:
 
         if files:
             cmdline.append(files)
+        rc = None
 
         try:
             if cls.dev_mode:
@@ -135,15 +138,26 @@ class KioskRestore:
                 rc = subprocess.run(cmdline, cwd=working_directory, stdout=subprocess.PIPE)
 
         except OSError as e:
-            cls._abort_with_error(0, f"Exception in zip_extract_files: {repr(e)}")
+            if fail_on_error:
+                cls._abort_with_error(0, f"Exception in zip_extract_files: {repr(e)}")
+            else:
+                print(f"WARNING: Exception in zip_extract_files: {repr(e)}. Skipped because this is a patch.")
+                return True
 
-        if rc.returncode != 0:
-            cls._abort_with_error(0, f"7zip returned an error: {rc.returncode}")
+        if not rc or rc.returncode != 0:
+            if fail_on_error:
+                cls._abort_with_error(0, f"7zip returned an error: {rc.returncode}")
+            else:
+                print(f"WARNING: 7zip returned an error: {rc.returncode}. Skipped because this is a patch.")
 
         return True
 
     @classmethod
-    def rm_dirs(cls, working_dir, files=None):
+    def rm_dirs(cls, working_dir, files=None, options=None):
+        if options is None:
+            options = []
+        if "no_clear_up" in options:
+            return
         try:
             if files:
                 paths_to_delete = files
@@ -232,7 +246,7 @@ class KioskRestore:
                            "-xr!*template*"]
                           )
             if "o" in options:
-                cls.rm_dirs(filemaker_dir, None)
+                cls.rm_dirs(filemaker_dir, None, options=options)
 
         if "ft" in options:
             unzips.append([path.join(src_dir, "filemaker.zip"),
@@ -243,12 +257,12 @@ class KioskRestore:
         # _remove_old_zip_files(unzips)
 
         if "o" in options and "c" in options:
-            cls.rm_dirs(kiosk_dir, KIOSK_FILES)
+            cls.rm_dirs(kiosk_dir, KIOSK_FILES, options=options)
             if "exclude_mcp" not in options:
-                cls.rm_dirs(kiosk_dir, MCP_CORE_FILES)
+                cls.rm_dirs(kiosk_dir, MCP_CORE_FILES, options=options)
 
         for unzip_set in unzips:
-            cls._unzip_unzip_set(path_dict, *unzip_set)
+            cls._unzip_unzip_set(path_dict, *unzip_set, options=options)
 
     @classmethod
     def _assert_paths(cls, config: KioskConfig):
@@ -272,13 +286,22 @@ class KioskRestore:
             cls._abort_with_error(-1, "This tool needs an installed version of the 7zip command line tool 7za.exe.")
 
     @classmethod
-    def _unzip_unzip_set(cls, path_dict, src_file, to_unzip, working_directory, zip_options):
+    def _unzip_unzip_set(cls, path_dict, src_file, to_unzip, working_directory, zip_options, options=None):
+        if options is None:
+            options = []
+        fail_on_error = "patch" not in options
+        if not path.isfile(src_file):
+            if fail_on_error:
+                cls._abort_with_error(-1, f"Error unzipping {src_file}: File not found.")
+            else:
+                print(f"\nWarning unzipping {src_file}: File not found. Skipped because this is a patch.\n")
+                return
         if to_unzip:
             for z in to_unzip:
                 s = kioskstdlib.resolve_symbols_in_string(z, path_dict)
                 print(f"Unzipping {s} from {src_file} to {working_directory}")
                 time.sleep(2)
-                cls.zip_extract_files(working_directory, src_file, s, zip_options)
+                cls.zip_extract_files(working_directory, src_file, s, zip_options, fail_on_error=fail_on_error)
         else:
             print(f"Unzipping {src_file} to {working_directory}")
             cls.zip_extract_files(working_directory, src_file, None, zip_options)
