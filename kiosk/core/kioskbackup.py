@@ -56,6 +56,7 @@ class KioskBackup:
         [r"tools", "unpackkiosk.py"],
         [r"tools", "analyzefilerepository.py"],
         [r"tools", "packkiosk.py"],
+        [r"tools", "update_default_kiosk_queries.py"],
         [r"sync\sync\core", "config.py"],
         [r"sync\sync\core", "dicttools.py"],
         [r"sync\sync\core", "yamlconfigreader.py"],
