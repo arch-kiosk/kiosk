@@ -347,7 +347,7 @@ class KioskLogicalFile:
             r.image_attributes = None
             r.update()
 
-    def create_auto_representations(self, error_on_fail: bool = False):
+    def create_auto_representations(self, error_on_fail: bool = False, log_warning_on_fail: bool = True):
         """
             creates the representations for the file that are listed in config
             as auto_representations under file_repository.
@@ -367,9 +367,10 @@ class KioskLogicalFile:
                                       f"could not be created for file {self.get()} ({self._uid})")
                         return False
                     else:
-                        logging.warning(
-                            f"{self.__class__.__name__}.create_auto_representations: representation {r_name} "
-                            f"could not be created for file {self.get()} ({self._uid})")
+                        if log_warning_on_fail:
+                            logging.warning(
+                                f"{self.__class__.__name__}.create_auto_representations: representation {r_name} "
+                                f"could not be created for file {self.get()} ({self._uid})")
                         if error_on_fail:
                             return False
                 else:
