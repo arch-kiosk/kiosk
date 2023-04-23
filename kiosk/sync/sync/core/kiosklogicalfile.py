@@ -253,7 +253,7 @@ class KioskLogicalFile:
                 rc = self._create_representation(representation_type, create_to_file=create_to_file)
                 KioskSQLDb.commit_savepoint(savepoint)
             except BaseException as e:
-                logging.error(f"{self.__class__.__name__}.get_representation(): {repr(e)}")
+                logging.error(f"{self.__class__.__name__}.get_representation(), File {self._uid}: {repr(e)}")
                 logging.error(f"{self.__class__.__name__}.get_representation(): ROLLBACK to savepoint!")
                 KioskSQLDb.rollback_savepoint(savepoint)
 
@@ -294,11 +294,15 @@ class KioskLogicalFile:
 
         # todo: Is this line even necessary if the value isn't use subsequently?
         manipulations = representation_type.get_specific_manipulations()
-        factory = KioskPhysicalFileFactory(self._type_repository,
-                                           plugin_loader=self._plugin_loader)
-        handlers = factory.get(source_file, representation_type)
-        dest_path_and_filename = None
-        cache_path = None
+        try:
+            factory = KioskPhysicalFileFactory(self._type_repository,
+                                               plugin_loader=self._plugin_loader)
+            handlers = factory.get(source_file, representation_type)
+            dest_path_and_filename = None
+            cache_path = None
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}._create_representation: {repr(e)}")
+            raise e
 
         if create_to_file:
             dest_path_and_filename = create_to_file

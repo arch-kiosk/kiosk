@@ -1,3 +1,5 @@
+import logging
+
 from typerepository import TypeRepository
 
 import kioskstdlib
@@ -6,6 +8,7 @@ from kioskrepresentationtype import KioskRepresentationType
 from sync_config import SyncConfig
 from syncrepositorytypes import TYPE_PHYSICALFILEHANDLER
 from kioskabstractclasses import PluginLoader
+
 
 class KioskPhysicalFileFactory:
     def __init__(self, type_repository: TypeRepository,
@@ -38,6 +41,10 @@ class KioskPhysicalFileFactory:
                  the file (and conversion, if requested)
         """
         handlers = []
+        if not self.type_repository:
+            logging.debug(f"{self.__class__.__name__}.get: no type_repository set.")
+            return handlers
+
         handler_types = self.type_repository.list_types(TYPE_PHYSICALFILEHANDLER)
         if not handler_types:
             self._load_plugins()

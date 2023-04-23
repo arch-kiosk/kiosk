@@ -465,10 +465,12 @@ class KioskFileCache:
                     logging.warning(f"{self.__class__.__name__}.transform: File {uid} did not have the "
                                     f"correct file cache path to begin with: '{s}' instead of '{self._cache_base_dir}'")
                     rc = -1
+                    break
             else:
                 logging.info(f"{self.__class__.__name__}.transform: File {uid} has an empty  "
-                             f"file cache path. Preumably the file has no cache representation. "
+                             f"file cache path. Presumably the file has no cache representation. "
                              f"Transform can't be done.")
                 rc = -1
+                break
 
         return rc
