@@ -15,4 +15,4 @@ Projects using descriptive elevations rather than the numeric elevations will fi
 - 🧯 New safety catch: If your local server is in an earlier time zone than an ipad the FileMaker database will refuse to start. Always make sure your local server and your ipads are all on the same time and in the same time zone. 
 - 🌸 registration ui to track collected materials: The new checkbox popup is so improved that we don't need the registration codes as an input field anymore.   
 - 🌸 collected material by unit/area: when coming back from a collected material the active row in the list is now moved into view (#1990)
-- 🌸 locus/context ui: soil compaction type has a reasonable sorting order. 
+- 🌸 locus/context ui: soil compaction type has a reasonable sorting order.
