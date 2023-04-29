@@ -765,6 +765,24 @@ locus_burial:
         - alter("modified_by")
 locus_deposit:
   structure:
+    3:
+      uid_locus: [datatype(UUID), join("locus")]
+      material: [datatype(VARCHAR)]
+      compositions: [datatype(VARCHAR)]
+      inclusions: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      soil_compaction_type: [datatype(VARCHAR)]
+      soil_compaction_description: [datatype(VARCHAR)]
+      soil_particle_sorting: [datatype(VARCHAR)]
+      soil_texture: [datatype(VARCHAR)]
+      gravel_prc: [datatype(DECIMAL)]
+      sand_prc: [datatype(DECIMAL)]
+      silt_prc: [datatype(DECIMAL)]
+      clay_prc: [datatype(DECIMAL)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
     2:
       uid_locus: [datatype(UUID), join("locus")]
       material: [datatype(VARCHAR)]
@@ -794,6 +812,12 @@ locus_deposit:
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
   migration:
+    3:
+      upgrade:
+        - add("soil_compaction_type")
+        - add("soil_compaction_description")
+        - add("soil_particle_sorting")
+        - add("soil_texture")
     2:
       upgrade:
         - alter("modified_by")
