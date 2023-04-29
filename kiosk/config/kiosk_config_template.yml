@@ -1,22 +1,21 @@
 # *********************************************
 # kiosk config
 # *********************************************
-import_configurations:
-  - kiosk_default_config.yml
-  - kiosk_secure.yml
+#import_configurations:
+#  - kiosk_default_config.yml
+#  - kiosk_local_config.yml
+#  - kiosk_secure.yml
 
-config:
-  no_console: false
+#config:
+#  project_id: # your project id
 
 # these settings are needed for filemaker recording:
 #  filemaker_template: '%sync%\filemaker\kiosk_recording_template.fmp12'
-#  expected_filemaker_template_version: '12.4'
+#  expected_filemaker_template_version: '14.2'
 #  filemaker_db_filename: kiosk_recording.fmp12
 
-# odbc_ini_dsn depends on the actual name of the odbc entry of the filemaker odbc driver to use
-#  odbc_ini_dsn: filemaker_odbc
 
-file_repository:
+#file_repository:
 ### These recording aliases must be configured according to the archaeological project's terminology:
 #  recording_context_aliases:
 #    locus: 'context'

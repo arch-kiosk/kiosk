@@ -46,6 +46,9 @@ class DsdGraph:
                     root_field=self.parser.parameters[0],
                     related_field=self.parser.parameters[1])
 
+    def is_empty(self):
+        return len(self._graph.vs) == 0
+
     def get_root_tables(self) -> list:
         """
         returns all tables at the root of the context

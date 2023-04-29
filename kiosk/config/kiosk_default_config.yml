@@ -1,7 +1,6 @@
 # *********************************************
 # Default Kiosk Config
 # *********************************************
-
 'Flask':
   SOME_OPERATION: 'Something'
   SECRET_KEY: "fd82303c-6852-48c1-8165-9e60d4b25b94"
@@ -32,7 +31,7 @@ config:
   filemaker_export_dir: '%sync%\filemaker\to_work_station'
   filemaker_import_dir: '%sync%\filemaker\from_work_station'
   filemaker_encoding: "UTF-8"
-  expected_filemaker_template_version: '14.1'
+  expected_filemaker_template_version: '14.2'
   file_handling_definition: '%base_path%\config\file_handling.yml'
   default_resolution: "low"
   default_recording_group: "default"
@@ -269,7 +268,7 @@ kiosk:
 
   kioskfilemakerworkstationplugin:
     active: true
-    no_csrf_defense: false
+    no_csrf_defense: true
     menu:
       "prepare filemaker workstations": [ "+syncmanagerplugin" ]
       "import filemaker workstations": [ "+syncmanagerplugin" ]
@@ -292,7 +291,8 @@ kiosk:
   administrationplugin:
     active: true
     is_main_index: false
-    backup_filename_template: "backup_#a_#d#m#y-#H#M#S.dmp"
+#    backup_filename_template: "backup_#a_#d#m#y-#H#M#S.dmp"
+    backup_filename_template: "%project_id%_#a_#d#m#y-#h#m#s.dmp"
 
     menu:
       "administration": [ "-administrationplugin" ]
@@ -301,6 +301,7 @@ kiosk:
       "install patch": [ "+administrationplugin" ]
       "privileges": [ "+administrationplugin" ]
       "users": [ "+administrationplugin" ]
+      "kiosk queries": [ "+administrationplugin" ]
       "logs": [ "+administrationplugin" ]
       "file picking rules": [ "+administrationplugin", "+syncmanagerplugin" ]
       "quality control rules": [ "+administrationplugin" ]
@@ -336,3 +337,6 @@ kiosk:
 
   kioskexportworkstationplugin:
     active: true
+
+  pwastresstestplugin:
+    active: false

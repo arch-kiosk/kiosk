@@ -1,0 +1,42 @@
+'test':
+  loaded: 2
+#'Flask':
+#  SECRET_KEY: "fd82303c-6852-48c1-8165-9e60d4b25b94"
+#  EXPLAIN_TEMPLATE_LOADING: False
+#  THREADED: False
+#  SEND_FILE_MAX_AGE_DEFAULT: 43200
+
+#development:
+#  webapp_development: true
+#  print_raw_requests: false
+#  generate_system_message: false
+#  show_system_informaton: true
+#  suppress_system_messages: false
+#  test_patch: true
+
+#config:
+#  no_console: false
+#  odbc_ini_dsn depends on the actual name of the odbc entry of the filemaker odbc driver to use
+#  odbc_ini_dsn: filemaker_odbc
+#  database_name: urap_rep
+#  server_type: 'local'
+
+#kiosk:
+#  security_token_timeout_seconds: 3600
+#  reset_file: '%base_path%\reset.yml'
+#  subnet: '192.168.1'
+#  terminal_accent_color_ansi: '[30;41;1m'
+#  backup_reminder_days: 1
+#  local_importpaths: [ 'c:\notebook_source\urap\server' ]
+#  suppress_messages:
+#    sys_msg_id_mcp_not_up: false
+#  administrationplugin:
+#    backup_filename_template: "%project_id%_#a_#d#m#y-#h#m#s.dmp"
+#    backup_directory: 't:\gibtsnicht'
+#    restore_directory: 't:\gibtsnicht'
+#    defaults:
+#      backup_workstation_directories: false
+
+#reportingdock:
+#  debug_sql: True
+

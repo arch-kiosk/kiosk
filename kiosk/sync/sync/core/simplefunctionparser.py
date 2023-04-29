@@ -4,7 +4,8 @@ import re
 
 class SimpleFunctionParser:
     src_regex_function = r"""^\s*(?P<instruction>[a-zA-z0-9]+)\((?P<params>.*?)\)\s*$"""
-    src_regex_params = r"""((\s*\"(?P<param_quote>.*?)\"\s*)|(\s*'(?P<param_singlequote>.*?)'\s*)|(\s*(?P<param_noquote>[^\s|^,]+?)))(,|$)"""
+    # src_regex_params = r"""((\s*\"(?P<param_quote>.*?)\"\s*)|(\s*'(?P<param_singlequote>.*?)'\s*)|(\s*(?P<param_noquote>[^\s|^,]+?)))(,|$)"""
+    src_regex_params = r"""((\s*\"(?P<param_quote>.*?)\"\s*)|(\s*'(?P<param_singlequote>.*?)'\s*)|(\s*(?P<param_noquote>[^,]*)))(?P<end>,|$)"""
 
     def __init__(self):
         self.regex_function = re.compile(self.src_regex_function)
@@ -21,6 +22,18 @@ class SimpleFunctionParser:
         :return: the last error message or "unknown error" if there was none reported.
         """
         return self.err if self.err else "unknown error"
+
+    def get_instruction_name_only(self, command: str):
+        """
+        returns only the name of the instruction
+        :param command:
+        :return: name of the instruction or "" if the command is not a valid instruction
+        """
+        result = self.regex_function.match(command)
+        if result and len(result.groups()) == 2:
+            return result.group('instruction')
+        else:
+            return ""
 
     def parse(self, command: str) -> None:
         self.ok = False
@@ -52,6 +65,8 @@ class SimpleFunctionParser:
                                     break
                             except IndexError as e:
                                 pass
+                        if not match.group("end"):
+                            break
                 else:
                     self.err = "syntax error"
                     logging.debug(f"SimpleFunctionParser.parse: Syntax error in params of command {command}.")

@@ -171,3 +171,33 @@ class Testkioskstdlib(KioskPyTestHelper):
                  ]
         for p in paths:
             assert kioskstdlib.trim_pathsep(p[0]) == p[1]
+
+    def test_get_secure_windows_sub_path(self):
+        assert kioskstdlib.get_secure_windows_sub_path(r"e:\my_path") == r"my_path"
+        assert kioskstdlib.get_secure_windows_sub_path(r"e:\my_path\another_path") == r"my_path\another_path"
+        assert kioskstdlib.get_secure_windows_sub_path(r"\my_path\another_path") == r"my_path\another_path"
+        assert kioskstdlib.get_secure_windows_sub_path(r"e:\\ \ \e:\my_path\another_path") == r"my_path\another_path"
+
+    def test_get_kiosk_semantic_version(self):
+        assert kioskstdlib.get_kiosk_semantic_version("0.1.1.1") == ("0", "1.1.1")
+        assert kioskstdlib.get_kiosk_semantic_version("0.1.1") == ("0", "1.1.0")
+        assert kioskstdlib.get_kiosk_semantic_version("1.0.0") == ("1", "0.0.0")
+
+    def test_cmp_semantic_version(self):
+        assert kioskstdlib.cmp_semantic_version("1.0.0", "1.1.1") == -1
+        assert kioskstdlib.cmp_semantic_version("1.0.0", "1.0.0") == 0
+        assert kioskstdlib.cmp_semantic_version("1.1.0", "1.0.0") == 1
+
+        assert kioskstdlib.cmp_semantic_version("1.0.0.0", "1.0.0.1") == -1
+        assert kioskstdlib.cmp_semantic_version("1.0.0.0", "1.0.0.0") == 0
+        assert kioskstdlib.cmp_semantic_version("1.0.0.1", "1.0.0.0") == 1
+
+        assert kioskstdlib.cmp_semantic_version("1.1.0.0", "2.0.0.0") == -1
+        assert kioskstdlib.cmp_semantic_version("2.1.0.0", "2.1.0.0") == 0
+        assert kioskstdlib.cmp_semantic_version("2.0.0.0", "1.2.0.0") == 1
+
+        assert kioskstdlib.cmp_semantic_version("2.1.0.0", "2.0.0.0") == 1
+        assert kioskstdlib.cmp_semantic_version("2.0.0.0", "2.2.0.0") == -1
+
+        assert kioskstdlib.cmp_semantic_version("1.8.0", "1.8.0.1") == -1
+        assert kioskstdlib.cmp_semantic_version("1.8.1", "1.8.0.1") == 1

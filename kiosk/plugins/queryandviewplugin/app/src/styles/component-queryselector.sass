@@ -1,0 +1,92 @@
+@import "../../../../../static/styles/_constants"
+@import "appstyles"
+@import reset
+@import icons
+
+\:host
+  *
+    user-select: none
+
+.query-selector-overlay
+  position: fixed
+  width: 100%
+  height: 100%
+  top: 0
+  left: 0
+  right: 0
+  bottom: 0
+  background-color: rgb(0,0,0,.5)
+  z-index: 2
+  cursor: pointer
+
+
+.query-selector
+  position: relative
+  background-color: $col-bg-1
+  margin: 2em 2em
+  //min-height: 50vh
+  min-height: 200px
+  width: calc(100% - 4em)
+  z-index: 3
+  padding: 1em
+  user-select: none
+  overflow-y: auto
+
+.kiosk-query-selector-title-bar
+  position: sticky
+  top: 0
+  text-align: right
+  z-index: 2
+  i
+    line-height: $font-size-h3
+    font-size: $font-size-h3
+    &:hover
+      color: $col-accent-bg-1
+
+.kiosk-query-selector-headline
+  position: sticky
+  background-color: $col-bg-1
+  top: 0
+  display: flex
+  align-items: center
+  border-bottom: 1px solid $col-bg-1-darker
+  padding-bottom: 1em
+  margin-bottom: 1em
+  h3
+    margin-left: .5em
+  i
+    font-size: $font-size-h2
+
+#kiosk-query-list
+  display: grid
+  width: 100%
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr))
+  grid-column-gap: 1em
+  grid-row-gap: .3em
+.kiosk-query
+  display: flex
+  align-items: center
+  padding-bottom: .2em
+  margin-bottom: .2em
+  color: $col-primary-bg-1
+  //border-bottom: 1px solid $col-bg-1-darker
+  &:hover
+    color: $col-accent-bg-1
+  &:active
+    background-color: $col-bg-1-darker
+
+  i
+    font-size: $font-size-h3
+  .kiosk-query-text
+    margin-left: 1em
+    display: flex
+    flex-direction: column
+    div
+      color: inherit
+      font-size: $font-size-standard
+      &:first-child
+        font-size: $font-size-h4
+        font-weight: bold
+      //&:nth-child(2)
+      //  color: $col-primary-bg-1
+

@@ -389,17 +389,19 @@ class KioskFileCache:
         def _rewrite(representation_type, wrong_filename):
             extension = kioskstdlib.get_file_extension(wrong_filename)
 
-            cache_filename = self._get_cache_filename(uid, representation_type, extension)
-            entry = self._get_cache_entry(uid, representation_type)
-            entry.path_and_filename = cache_filename
-            entry.update(commit)
+            if extension:
+                cache_filename = self._get_cache_filename(uid, representation_type, extension)
+                entry = self._get_cache_entry(uid, representation_type)
+                entry.path_and_filename = cache_filename
+                entry.update(commit)
 
         records = self._file_cache_model.get_many("uid_file=%s", [uid])
         for r in records:
             s = str(r.path_and_filename)
-            if s.find(self._cache_base_dir) != 0:
-                representation_type = KioskRepresentationType(r.representation_type)
-                _rewrite(representation_type, s)
+            if s:
+                if s.find(self._cache_base_dir) != 0:
+                    representation_type = KioskRepresentationType(r.representation_type)
+                    _rewrite(representation_type, s)
 
     def transform_cache_file(self, uid, commit=True, test_mode=False) -> int:
         """
@@ -454,13 +456,21 @@ class KioskFileCache:
         records = self._file_cache_model.get_many("uid_file=%s", [uid])
         for r in records:
             s = str(r.path_and_filename)
-            if s.find(self._cache_base_dir) == 0:
-                representation_type = KioskRepresentationType(r.representation_type)
-                if _transform(representation_type, s) and rc > -1:
-                    rc += 1
+            if s:
+                if s.find(self._cache_base_dir) == 0:
+                    representation_type = KioskRepresentationType(r.representation_type)
+                    if _transform(representation_type, s) and rc > -1:
+                        rc += 1
+                else:
+                    logging.warning(f"{self.__class__.__name__}.transform: File {uid} did not have the "
+                                    f"correct file cache path to begin with: '{s}' instead of '{self._cache_base_dir}'")
+                    rc = -1
+                    break
             else:
-                logging.warning(f"{self.__class__.__name__}.transform: File {uid} did not have the "
-                                f"correct file cache path to begin with: '{s}' instead of '{self._cache_base_dir}'")
+                logging.info(f"{self.__class__.__name__}.transform: File {uid} has an empty  "
+                             f"file cache path. Presumably the file has no cache representation. "
+                             f"Transform can't be done.")
                 rc = -1
+                break
 
         return rc

@@ -1,0 +1,80 @@
+<diagram program="umletino" version="15.0.0"><zoom_level>9</zoom_level><element><id>UMLClass</id><coordinates><x>360</x><y>162</y><w>270</w><h>54</h></coordinates><panel_attributes>/KioskQueryDefinition/
+&lt;&lt;interface&gt;&gt;
+--
+load(dict)
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>666</x><y>90</y><w>207</w><h>45</h></coordinates><panel_attributes>StructuredKioskQueryDefinition
+--
+get_variables()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>729</x><y>279</y><w>153</w><h>27</h></coordinates><panel_attributes>FullTextKioskQueryDefinition</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>621</x><y>99</y><w>63</w><h>108</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;100;50;10</additional_attributes></element><element><id>Relation</id><coordinates><x>621</x><y>198</y><w>198</w><h>99</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;200;90</additional_attributes></element><element><id>UMLClass</id><coordinates><x>81</x><y>216</y><w>180</w><h>90</h></coordinates><panel_attributes>/KioskQuery/
+--
+/__init__(dict)/
+/get_query_ui/
+/execute/
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>252</x><y>180</y><w>126</w><h>72</h></coordinates><panel_attributes>lt=&lt;.
+&lt;&lt;instantiates&gt;&gt;</panel_attributes><additional_attributes>120;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>936</x><y>90</y><w>153</w><h>27</h></coordinates><panel_attributes>StructuredQueryBuilder</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>864</x><y>81</y><w>90</w><h>36</h></coordinates><panel_attributes>lt=&lt;-
+&lt;&lt;creates&gt;&gt;</panel_attributes><additional_attributes>10;20;80;20</additional_attributes></element><element><id>UMLClass</id><coordinates><x>711</x><y>387</y><w>261</w><h>81</h></coordinates><panel_attributes>/QueryUI/
+&lt;&lt;interface&gt;&gt;
+--
+__init__(KioskQueryVariables)
+renderInputRequest()
+processInput()
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>720</x><y>513</y><w>135</w><h>27</h></coordinates><panel_attributes>StructuredQueryUI
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>864</x><y>513</y><w>135</w><h>27</h></coordinates><panel_attributes>FullTextQueryUI
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>792</x><y>459</y><w>36</w><h>72</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>20;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>846</x><y>459</y><w>81</w><h>72</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;70;60</additional_attributes></element><element><id>Relation</id><coordinates><x>252</x><y>288</y><w>477</w><h>126</h></coordinates><panel_attributes>lt=&lt;.
+&lt;&lt;instantiates&gt;&gt;</panel_attributes><additional_attributes>510;120;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>81</x><y>54</y><w>180</w><h>90</h></coordinates><panel_attributes>KioskQueryFactory
+--
+load(dict)</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>162</x><y>135</y><w>99</w><h>99</h></coordinates><panel_attributes>lt=&lt;.
+&lt;&lt;instantiates&gt;&gt;</panel_attributes><additional_attributes>10;90;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>18</x><y>351</y><w>180</w><h>90</h></coordinates><panel_attributes>StructuredKioskQuery
+--
+__init__(dict)
+get_query_catalog()
+get_query_ui()
+execute(query_name: str)
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>234</x><y>351</y><w>180</w><h>90</h></coordinates><panel_attributes>FullTextKioskQuery
+--
+__init__(dict)
+get_query_ui()
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>99</x><y>297</y><w>81</w><h>72</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>70;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>162</x><y>297</y><w>144</w><h>72</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;140;60</additional_attributes></element><element><id>UMLPackage</id><coordinates><x>927</x><y>18</y><w>216</w><h>135</h></coordinates><panel_attributes>Structured Query Builder
+&lt;&lt;external&gt;&gt;
+--
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLNote</id><coordinates><x>945</x><y>135</y><w>171</w><h>63</h></coordinates><panel_attributes>External App
+that generates 
+structured query definitions
+
+bg=yellow</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLPackage</id><coordinates><x>369</x><y>0</y><w>216</w><h>135</h></coordinates><panel_attributes>Query Store
+&lt;&lt;external&gt;&gt;
+--
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>378</x><y>45</y><w>189</w><h>63</h></coordinates><panel_attributes>KioskQueryStore
+--</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>531</x><y>99</y><w>81</w><h>81</h></coordinates><panel_attributes>lt=-&gt;
+&lt;&lt;manages&gt;&gt;
+m2=0..n
+
+</panel_attributes><additional_attributes>10;10;10;70</additional_attributes></element><element><id>UMLClass</id><coordinates><x>495</x><y>603</y><w>180</w><h>90</h></coordinates><panel_attributes>/FullTextKioskQueryEngine/
+--
+load(dict)
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>405</x><y>378</y><w>198</w><h>243</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>200;250;10;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>288</x><y>477</y><w>180</w><h>90</h></coordinates><panel_attributes>/KioskQueryEngine/
+&lt;&lt;interface&gt;&gt;
+--
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>423</x><y>558</y><w>90</w><h>81</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;80;70</additional_attributes></element><element><id>UMLClass</id><coordinates><x>153</x><y>612</y><w>180</w><h>90</h></coordinates><panel_attributes>/CQLKioskQueryEngine/
+--
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>315</x><y>711</y><w>180</w><h>90</h></coordinates><panel_attributes>/SQLKioskQueryEngine/
+--
+load(dict)
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>117</x><y>432</y><w>108</w><h>198</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>100;200;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>99</x><y>432</y><w>234</w><h>342</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>240;360;10;360;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>405</x><y>558</y><w>27</w><h>171</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>10;10;10;170</additional_attributes></element><element><id>Relation</id><coordinates><x>234</x><y>558</y><w>171</w><h>72</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>170;10;10;60</additional_attributes></element><element><id>UMLClass</id><coordinates><x>414</x><y>243</y><w>180</w><h>72</h></coordinates><panel_attributes>/KioskQueryVariables/
+--
+__init__(variable_definitions:dict)
+has_variable(str) -&gt; bool
+set_variable(str, value)
+get_variable_raw(key) -&gt; Any
+get_variable_type(str) -&gt; DSD type
+get_variable_sql(str)
+get_list_variable_sql(data_type: str, list_value: list) -&gt; str
+get_variables_dict()
+add_constants(settings: dict)
+
+
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>486</x><y>207</y><w>27</w><h>54</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;40;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>531</x><y>306</y><w>216</w><h>99</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;10;220;90</additional_attributes></element></diagram>

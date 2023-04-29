@@ -24,11 +24,17 @@ class TestDsdGraph(KioskPyTestHelper):
 
     def test__parse_join(self, dsd):
         graph = DsdGraph(dsd)
+        assert graph.is_empty()
         assert graph._parse_join("inner(uid, uid_site)", "site", "site_notes") == Join(root_table="site",
                                                                                        related_table="site_notes",
                                                                                        _type="inner",
                                                                                        related_field="uid_site",
                                                                                        root_field="uid")
+    def test_is_empty(self, dsd):
+        graph = DsdGraph(dsd)
+        assert graph.is_empty()
+        graph.add_table("unit")
+        assert not graph.is_empty()
 
     @pytest.fixture
     def graph1(self, dsd):

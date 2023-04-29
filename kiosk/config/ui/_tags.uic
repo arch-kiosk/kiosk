@@ -1,0 +1,12 @@
+# header
+version: 1
+
+# dsd('tags','tag')
+element_type:
+  name: "selection"
+  items:
+    lookup_type: "table"
+    topic: "tags"
+    selection: ["tag"]
+    key: "tag"
+

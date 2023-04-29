@@ -308,7 +308,7 @@ class PostgresDbMigration(DatabaseMigration):
             :param namespace: use if the db_table is organized in a namespace.
             :returns: bool
         """
-        sql = f"INSERT INTO \"{self.migration_catalog_name}" \
+        sql = f"INSERT " + f"INTO \"{self.migration_catalog_name}" \
               f"\"(\"table\", \"table_definition\", \"version\", \"namespace\") "
         sql += "VALUES(%s, %s, %s, %s);"
         return self.execute_sql(sql, [db_table, dsd_table, version, namespace]) == 1
@@ -330,16 +330,41 @@ class PostgresDbMigration(DatabaseMigration):
     def _adapter_delete_from_migration_catalog(self, db_table, namespace=""):
         """
         deletes a record from the migration_catalog! 
-        :returns: bool. Suceeds if record did not exist to begin with.
+        :returns: bool. Succeeds if record did not exist to begin with.
         """
 
-        sql = f"delete from {self.sql_safe_ident(self.migration_catalog_name)} where \"table\"=%s and \"namespace\"=%s"
+        sql = f"delete " + f"from {self.sql_safe_ident(self.migration_catalog_name)} where \"table\"=%s and " \
+                           f"\"namespace\"=%s "
         try:
             self.execute_sql(sql, [db_table, namespace])
             return True
         except BaseException as e:
             logging.error(f"postgresdbmigration._adapter_delete_from_migration_catalog: Exception {repr(e)}")
 
+        return False
+
+    def _adapter_delete_namespace(self, prefix, namespace):
+        """
+        deletes a namespace with all tables from the database and from the migration catalog.
+        Both prefix and namespace are necessary to remove records from the migration tables
+        :param prefix: the prefix
+        :param namespace: the namespace
+        :returns: bool
+        """
+
+        try:
+            self.execute_sql(f"delete " +
+                             f"from {self.sql_safe_ident(self.migration_catalog_name)}"
+                             f" where namespace=%s", [namespace])
+            self.execute_sql(f"delete " +
+                             f"from {self.sql_safe_ident(self.migration_flags_name)}"
+                             f" where \"flag\" like %s ESCAPE''", [f"{prefix}_{namespace}%"])
+            self.execute_sql(f"DROP SCHEMA IF EXISTS"
+                             f"{self.sql_safe_ident(namespace)}"
+                             f" CASCADE")
+            return True
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}._adapter_delete_namespace : {repr(e)}")
         return False
 
     @classmethod
@@ -377,7 +402,7 @@ class PostgresDbMigration(DatabaseMigration):
         cur = self._get_dict_cursor()
         try:
             params = [namespace]
-            cur.execute(f"select \"table\", \"table_definition\", \"version\" from "
+            cur.execute(f"select " + f" \"table\", \"table_definition\", \"version\" from "
                         f"{self.sql_safe_ident(self.migration_catalog_name)}"
                         f" where namespace=%s", params)
             r = cur.fetchone()

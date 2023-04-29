@@ -1,0 +1,43 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+variables:
+  input_tag: ["dsd(tags, tag)"]
+queries:
+  'collected_material_by_tag':
+    name: 'What materials have been found in loci tagged as x?'
+    description: 'Lists the materials that have been found in loci that were tagged with the selected tag'
+    type: 'CQL'
+    output_type: 'list'
+    query:
+      base:
+        scope:
+          - "locus_tags_cm"
+        target:
+          field_or_instruction: collected_material.type
+        additional_fields:
+          tag:
+            field_or_instruction: tags.tag
+            default: null
+          locus_type:
+            field_or_instruction: locus.type
+            default: ""
+          cm_type:
+            field_or_instruction: collected_material.cm_type
+            default: ""
+          locus_identifier:
+            field_or_instruction: locus.identifier()
+            default: ""
+      query:
+        type: raw
+        distinct: true
+        columns:
+          "locus id":
+            source_field: locus_identifier
+          "collected material type":
+            source_field: cm_type
+          "material":
+            source_field: data
+        conditions:
+          ?: equals(tag, {{#input_tag}})

@@ -133,7 +133,8 @@ class KioskPhysicalFile:
             dest_format = representation.get_requested_output_format(src_format)
             if dest_format != "*" and \
                     dest_format not in cls.get_supported_output_formats():
-                logging.debug(f"{cls.__name__}.can_convert_to: dest_format for '{dest_format}' could not be determined.")
+                logging.info(f"{cls.__name__}.can_convert_to: dest_format '{dest_format}' for '{src_format}' "
+                             f"could not be determined.")
                 return False
             else:
                 logging.debug(f"{cls.__name__}.can_convert : dest_format is {dest_format}")

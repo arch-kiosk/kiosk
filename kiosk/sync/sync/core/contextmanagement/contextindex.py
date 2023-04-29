@@ -29,6 +29,9 @@ class ContextIndex:
                 raise KeyError(f"{self.__class__.__name__}.from_dict: "
                                f"Key {context_def} of index definition has wrong format.")
 
+    def has_no_scope(self):
+        return len(self._contexts) == 0
+
     def read_from_dsd(self, index_id: str):
         """
         adds a context index definition from the dsd to the index
@@ -65,7 +68,7 @@ class ContextIndex:
 
     def select_all(self, field_or_instruction: str, field_from_record_type: str = "",
                    sql_source_class: SqlSource.__class__ = SqlSourceInMemory,
-                   additional_fields: list = None) -> SqlSource:
+                   additional_fields: list = None, output_format: str = "") -> SqlSource:
         """
         prepares a query for all the values of all fields that match a search_term in all of the indexes contexts
         Or in other words: selects all records in all the contexts of the index.
@@ -77,6 +80,7 @@ class ContextIndex:
         :param sql_source_class: A subclass of ContextQuery
                 that will be instantiated to produce the query results. ContextQueryInMemory will be used as a default.
         :param additional_fields: see KioskContext.select!
+        :param output_format: unclear
         :returns: a ContextQuery subclass that produces the query results.
         :exception KioskContextDuplicateInstructionError:
                 You used an instruction in field_or_instruction
@@ -88,7 +92,8 @@ class ContextIndex:
             sql_source.add_source(ctx.select_all(field_or_instruction=field_or_instruction,
                                                  field_from_record_type=field_from_record_type,
                                                  sql_source_class=sql_source_class,
-                                                 additional_fields=additional_fields))
+                                                 additional_fields=additional_fields,
+                                                 output_format=output_format))
         return sql_source
 
     def register_output_formatter(self, name, formatter):

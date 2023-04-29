@@ -45,12 +45,17 @@ class QRCodeFormat:
             raise Exception(f"{self.__class__.__name__}._decode_raw_data_v1: "
                             f"D: missing in raw data")
 
-        timestamp = data_items[3]
-        if timestamp[0:3] == "TS:":
-            self.timestamp = urapdatetimelib.guess_datetime(timestamp[3:])
+        if len(data_items) > 3:
+            timestamp = data_items[3]
+            if timestamp[0:3] == "TS:":
+                self.timestamp = urapdatetimelib.guess_datetime(timestamp[3:])
+            else:
+                raise Exception(f"{self.__class__.__name__}._decode_raw_data_v1: TS: missing "
+                                f"in TimeStamp part of qrcode.")
         else:
             raise Exception(f"{self.__class__.__name__}._decode_raw_data_v1: TS: missing "
                             f"in TimeStamp part of qrcode.")
+
         return True
 
     def encode(self):

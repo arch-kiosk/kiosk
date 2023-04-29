@@ -1,0 +1,27 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+variables:
+  unit_id: ["dsd('unit', 'arch_context')"]
+queries:
+  'lazy_loading_sql_query':
+    name: 'Lazy Loading type SQL?'
+    description: 'Lazy Loading type SQL'
+    type: 'SQL'
+    output_type: 'list'
+    query: '
+      select distinct unit.arch_context as "unit id", 
+                      locus.arch_context as "locus id",
+                      cm.arch_context as "cm id",
+                      cm.type as "cm type" from
+                      unit 
+                        inner join locus on unit.uid = locus.uid_unit
+                        inner join collected_material cm on locus.uid=cm.uid_locus 
+        order by unit.arch_context, cm.arch_context
+    '
+    column_information:
+      "unit id": DSD("unit", "arch_context")
+      "locus id": DSD("locus", "arch_context")
+      "cm id": DSD("collected_material","arch_context")
+      "cm type": DSD("collected_material", "type")

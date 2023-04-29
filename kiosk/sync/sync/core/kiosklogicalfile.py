@@ -253,7 +253,7 @@ class KioskLogicalFile:
                 rc = self._create_representation(representation_type, create_to_file=create_to_file)
                 KioskSQLDb.commit_savepoint(savepoint)
             except BaseException as e:
-                logging.error(f"{self.__class__.__name__}.get_representation(): {repr(e)}")
+                logging.error(f"{self.__class__.__name__}.get_representation(), File {self._uid}: {repr(e)}")
                 logging.error(f"{self.__class__.__name__}.get_representation(): ROLLBACK to savepoint!")
                 KioskSQLDb.rollback_savepoint(savepoint)
 
@@ -294,11 +294,15 @@ class KioskLogicalFile:
 
         # todo: Is this line even necessary if the value isn't use subsequently?
         manipulations = representation_type.get_specific_manipulations()
-        factory = KioskPhysicalFileFactory(self._type_repository,
-                                           plugin_loader=self._plugin_loader)
-        handlers = factory.get(source_file, representation_type)
-        dest_path_and_filename = None
-        cache_path = None
+        try:
+            factory = KioskPhysicalFileFactory(self._type_repository,
+                                               plugin_loader=self._plugin_loader)
+            handlers = factory.get(source_file, representation_type)
+            dest_path_and_filename = None
+            cache_path = None
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}._create_representation: {repr(e)}")
+            raise e
 
         if create_to_file:
             dest_path_and_filename = create_to_file
@@ -347,7 +351,7 @@ class KioskLogicalFile:
             r.image_attributes = None
             r.update()
 
-    def create_auto_representations(self, error_on_fail: bool = False):
+    def create_auto_representations(self, error_on_fail: bool = False, log_warning_on_fail: bool = True):
         """
             creates the representations for the file that are listed in config
             as auto_representations under file_repository.
@@ -367,9 +371,10 @@ class KioskLogicalFile:
                                       f"could not be created for file {self.get()} ({self._uid})")
                         return False
                     else:
-                        logging.warning(
-                            f"{self.__class__.__name__}.create_auto_representations: representation {r_name} "
-                            f"could not be created for file {self.get()} ({self._uid})")
+                        if log_warning_on_fail:
+                            logging.warning(
+                                f"{self.__class__.__name__}.create_auto_representations: representation {r_name} "
+                                f"could not be created for file {self.get()} ({self._uid})")
                         if error_on_fail:
                             return False
                 else:

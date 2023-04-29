@@ -14,6 +14,7 @@ from sqlalchemy_models.adminmodel import KioskFilePickingRules
 from sqlalchemy_models.adminmodel import KioskQCRules, KioskQCFlags
 from sqlalchemy_models.adminmodel import KioskQCRules, KioskFileManagerDirectories
 from sqlalchemy_models.adminmodel import KioskFileMakerRecordingConstants
+from sqlalchemy_models.adminmodel import KioskQueries
 
 
 class EmptyStringField(wtforms.fields.StringField):
@@ -139,6 +140,15 @@ class QCFlagsModelView(KioskModelView):
     pass
 
 
+class KioskQueriesView(KioskModelView):
+    form_excluded_columns = ["modified", "created"]
+
+    form_overrides = {
+        'modified': DateTimeField,
+        'created': DateTimeField,
+    }
+
+
 class KioskFileManagerDirectoriesView(KioskModelView):
     form_columns = ('alias', 'description', 'path', "enabled", "privilege_modify", "privilege_read", "server_restart")
     column_display_pk = True
@@ -201,3 +211,5 @@ def init_flask_admin(cfg, app):
         KioskFileManagerDirectoriesView(KioskFileManagerDirectories, kiosksqlalchemy.sqlalchemy_db.session))
     kioskglobals.flask_admin.add_view(
         KioskFileMakerRecordingConstantsView(KioskFileMakerRecordingConstants, kiosksqlalchemy.sqlalchemy_db.session))
+    kioskglobals.flask_admin.add_view(
+        KioskQueriesView(KioskQueries, kiosksqlalchemy.sqlalchemy_db.session))

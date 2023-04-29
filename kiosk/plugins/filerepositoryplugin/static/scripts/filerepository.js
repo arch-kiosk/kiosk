@@ -926,7 +926,7 @@ function startBulkTagging() {
           remove_button_loader($("#bt-ok"));
           kioskActivateButton($("#bt-ok"), null);
           kioskErrorToast("Sorry, an error occured when applying the tag changes: <br><br>" +
-            "<span style='color: var(--col-accent-alert)'>" + msg + "</span>", {
+            "<span style='color: var(--col-accent-alerts)'>" + msg + "</span>", {
             timeout: 5000,
             transitionIn: 'fadeIn',
             transitionOut: 'fadeOut',

@@ -752,3 +752,31 @@ class TestDataSetDefinition(KioskPyTestHelper):
     def test_document_dsd3(self, dsd_urap_dsd3):
         dsd: DataSetDefinition = dsd_urap_dsd3
         assert len(dsd.pprint()) > 50
+
+    def test_get_table_definition(self, dsd_urap_dsd3):
+        dsd: DataSetDefinition = dsd_urap_dsd3
+        assert dsd.get_table_definition("locus") == {'arch_context': ['datatype(VARCHAR)', 'identifier()'],
+                                                     'arch_domain': ['datatype(VARCHAR)', 'id_domain("arch_context")'],
+                                                     'closing elevations': ['datatype(VARCHAR)'],
+                                                     'colour': ['datatype(VARCHAR)'],
+                                                     'created': ['datatype(TIMESTAMP)', 'replfield_created()'],
+                                                     'date_closed': ['datatype(DATE)'],
+                                                     'date_defined': ['datatype(DATE)'],
+                                                     'description': ['datatype(VARCHAR)'],
+                                                     'formation_process': ['datatype(VARCHAR)'],
+                                                     'id': ['datatype(NUMBER)', 'local_id("arch_context")'],
+                                                     'interpretation': ['datatype(VARCHAR)'],
+                                                     'modified': ['datatype(TIMESTAMP)', 'replfield_modified()'],
+                                                     'modified_by': ['datatype(VARCHAR)',
+                                                                     'replfield_modified_by()',
+                                                                     "default('Null')"],
+                                                     'opening elevations': ['datatype(VARCHAR)'],
+                                                     'type': ['datatype(VARCHAR)'],
+                                                     'uid': ['datatype(UUID)', 'replfield_uuid()',
+                                                             'join("tagging", "source_uid")'],
+                                                     'uid_unit': ['datatype(UUID)', 'join("unit")']}
+
+    def test_get_unparsed_field_instructions(self, dsd_urap_dsd3):
+        dsd: DataSetDefinition = dsd_urap_dsd3
+        assert dsd.get_unparsed_field_instructions("locus", "arch_domain") == ['datatype(VARCHAR)',
+                                                                               'id_domain("arch_context")']

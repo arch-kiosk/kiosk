@@ -330,3 +330,37 @@ class TestFilemakerWorkstation(KioskPyTestHelper):
                                            "recording_v12.fmp12"))
         assert ws.delete(commit=True)
 
+    def test_renew_workstation(self, config, urapdb):
+        helper = KioskPyTestHelper()
+        ws = FileMakerWorkstation("test_id", "test_description")
+        assert ws
+        ws.recording_group = "default"
+        ws.save()
+        ws = FileMakerWorkstation("test_id", "test_description")
+        assert ws.exists()
+        helper.assert_table("test_id_locus", schema="test_id")
+        helper.assert_table("test_id_fm_image_transfer", schema="test_id")
+        helper.assert_table("test_id_locus", schema="test_id")
+        urapdb.execute('INSERT ' +
+                       'INTO test_id.test_id_locus (uid_unit, id, type, "opening elevations", "closing elevations", '
+                       'description, date_defined, date_closed, interpretation, colour, uid, created, modified, '
+                       'modified_by, repl_deleted, repl_tag, formation_process, arch_domain, arch_context, '
+                       'recorded_by, elevation_opening_nw, elevation_opening_ne, elevation_opening_sw, '
+                       'elevation_opening_se, elevation_closing_nw, elevation_closing_ne, elevation_closing_sw, '
+                       'elevation_closing_se, elevation_opening_ct, elevation_closing_ct, width, length, depth, '
+                       'volume, datum_point_elevation)' +
+                       "VALUES ('d041335f-85ff-4ac0-97c4-291fe739f100', 13, 'dp', '(1) 10.03', '(6) 9.82', 'Material "
+                       "found under G10.1-010 and part of G10.1-009 after it was removed. Includes burnt mudbrick, "
+                       "light tan, and grey mudbrick. This was a quickly finished locus; once we removed the burnt "
+                       "mudbrick, the mudbricks of G10.1-016 became apparent. ', '2018-07-28', '2018-07-28', null, "
+                       "'Brown', '8efe5428-1e04-42a3-a934-84b86807983b', '2018-07-28 09:57:42.000000', '2018-08-03 "
+                       "22:21:57.000000', 'Rob''s iPad', false, null, null, 'G10.1', 'G10.1-013', 'Rob''s iPad', "
+                       "null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);")
+        helper.assert_record_exists("test_id_locus", "d041335f-85ff-4ac0-97c4-291fe739f100", "uid_unit", "test_id")
+        assert ws.renew()
+        ws = FileMakerWorkstation("test_id", "test_description")
+        assert ws.exists()
+        helper.assert_record_missing("test_id_locus", "d041335f-85ff-4ac0-97c4-291fe739f100", "uid_unit", "test_id")
+        helper.assert_table("test_id_locus", schema="test_id")
+        helper.assert_table("test_id_fm_image_transfer", schema="test_id")
+        helper.assert_table("test_id_locus", schema="test_id")

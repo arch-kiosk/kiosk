@@ -1,0 +1,30 @@
+config:
+  format_version: 1
+
+compilations:
+  locus_compilation:
+    name: locus view
+    record_type: locus
+    groups: ["group_1","group_2"]
+    group_1:
+      type: "single"
+      parts: [locus.sheet]
+    group_2:
+      type: "accordion"
+      parts: [-locus_relations.list,-locus_photos.list,-collected_material.list]
+
+locus.sheet:
+  record_type: locus
+  view_type: list  # (can be list, sheet or file_list)
+  layout_settings:
+    orchestration_strategy: grid  # (the default for the sheet scenario)
+    ui_elements: # one entry per ui element. Either a dictionary or an array of dsd-fields
+      element_id: # unique id of the layout element
+        binding: # optional. A field that is missing a binding does NOT bind to a dsd field.
+          field_name: # link to the entry in dsd
+        layout:
+          min-width: # optional. max | 1-n slots. default is 1. "max" means the control will take up a whole line
+          min-height: #optional. 1-n lines. default is 1.
+        element_type:
+          name: # name of the element type
+          # type-specific settings

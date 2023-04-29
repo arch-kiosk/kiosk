@@ -14,6 +14,15 @@ class ContextTypeInfo:
         """
         self._types = {}
         self._get_field_data_type_callback: Callable[[str, str], any] = get_field_data_type_callback
+        self._dsd_fields = []
+
+    @property
+    def extended_field_information(self) -> list:
+        """
+        returns a list of tuples with a more extensive set of information about all fields and types.
+        :return: list of (field-alias, dsd field name, dsd table, datatype)
+        """
+        return self._dsd_fields
 
     def add_type(self, field: str, record_type: str = "", field_alias="") -> None:
         """
@@ -41,6 +50,7 @@ class ContextTypeInfo:
                 field = field_parts[1]
 
         type_info = self._get_field_data_type_callback(record_type, field)
+        self._dsd_fields.append((field_alias, field, record_type, type_info))
         self.add_data_type(field_alias, type_info)
 
     def add_data_type(self, field: str, datatype: str):

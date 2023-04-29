@@ -1,0 +1,60 @@
+@import "../../../../../static/styles/_constants"
+@import "appstyles"
+@import reset
+@import icons
+
+\:host
+  --lumo-font-size-s: $font-size-standard
+  --_lumo-grid-secondary-border-color: $col-bg-1-lighter
+  --_lumo-grid-border-width: 5px
+  --lumo-font-family: $standard-text
+  --lumo-size-m: $font-size-standard
+  *
+    user-select: none
+.kiosk-query-ui
+  background-color: $col-bg-2
+  --ui-col-bg-1: $col-bg-2
+  --ui-button-width: 42px
+  --ui-button-height: 42px
+  --ui-button-font-size: 20px
+  padding: .5em
+
+vaadin-grid::part(cell)
+  padding-left: .5em
+  padding-top: 3px
+  padding-bottom: 3px
+
+vaadin-grid::part(header-cell)
+  min-height: auto
+  padding-top: .5em
+  padding-bottom: .5em
+  border-bottom-color: $col-bg-1-darker
+  border-bottom-width: 2px
+
+.identifier
+  text-decoration: underline
+  text-decoration-style: dotted
+  cursor: pointer
+.kiosk-query-results
+  position: relative
+
+.no-records
+  position: absolute
+  display: grid
+  place-items: center
+  height: 100%
+  width: 100%
+  background-color: $col-bg-body
+  top: 0px
+  div
+    padding-right: 1em
+    font-size: $font-size-standard
+    display: flex
+    flex-direction: row
+    line-height: $font-size-h3
+  i
+    font-style: normal
+    font-size: $font-size-h3
+    vertical-align: middle
+    font-family: $fontawesome-font-family
+    padding-right: 1em

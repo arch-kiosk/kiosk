@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Kiosk Query & View</title>
+        <!--suppress HtmlUnknownTarget -->
+        <link rel="stylesheet" href="<%- VITE_KIOSK_BASE_URL %>static/styles.css" />
+        <link rel="stylesheet" href="<%- VITE_KIOSK_BASE_URL %>static/purecss/shoelace/light.css" />
+        <link rel="stylesheet" href="<%- VITE_KIOSK_BASE_URL %>static/kioskshoelacetheme.css" />
+        <% if ( VITE_MODE == "DEVELOPMENT") { %>
+        <!--        This section is to load things in the development environment
+                    that are naturally available in the kiosk environment -->
+<!--        <script src="http://localhost:5000/static/scripts/jquery.js"></script>-->
+<!--        <script src="http://localhost:5000/static/scripts/thirdparty/jquery.magnific-popup.js"></script>-->
+<!--        <script src="http://localhost:5000/static/scripts/thirdparty/izi-toast/iziToast.js"></script>-->
+        <% } %>
+        <style>
+            header {
+                background: lightgrey;
+                padding: 0.5em;
+                margin-bottom: 2em;
+            }
+        </style>
+    </head>
+    <body>
+        <queryandview-app id="kiosk-app" showprogress="true"></queryandview-app>
+    </body>
+    <script type="module" src="/src/app.ts"></script>
+    <script type="module" src="/kioskdevstarter.ts"></script>
+    <!--suppress JSUnresolvedLibraryURL -->
+    <script src="http://localhost:5000/static/scripts/kiosklastscript.js"></script>
+</html>

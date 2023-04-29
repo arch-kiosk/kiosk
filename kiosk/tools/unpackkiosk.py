@@ -42,7 +42,9 @@ params = {"-fr": "fr", "--unpack_file_repository": "fr",
           "--test_drive": "test_drive",
           "-rm": "rm",
           "--update_custom_modules": "ucm",
-          "--exclude_mcp": "exclude_mcp"
+          "--exclude_mcp": "exclude_mcp",
+          "-ncu": "no_clear_up",
+          "--no_clear_up": "no_clear_up",
           }
 
 
@@ -59,6 +61,8 @@ def usage():
                      The kiosk_config will never be modified, though! Only the kiosk_default_config and the other default
                      dsd and config files. 
         -c / --code: unpacks the code for kiosk and kiosk-sync and installs our custom libraries.
+        -ncu/ --no_clear_up: skips deleting old files first. Only useful together with very special patches that
+                             use zip files with only a few files in them. 
         -nc / --no_custom_directories: don't unpack custom directories
         -fr / --unpack_file_repository: unpacks the contents of the file repository zip to the actual file repository
                 it will only add files and not override existing ones.
@@ -289,12 +293,25 @@ def housekeeping(cfg_file: str):
         from sync_config import SyncConfig
         from filerepository import FileRepository
 
-        config = SyncConfig.get_config({"config_file", cfg_file})
+        config = SyncConfig.get_config({"config_file": cfg_file})
         file_repos = FileRepository(config)
         hk = Housekeeping(file_repos, True)
         hk.do_housekeeping(file_tasks_only=True)
     except BaseException as e:
         logging.error(f"housekeeping: Exception in housekeeping: {repr(e)}")
+
+
+def install_default_queries(cfg_file: str):
+    try:
+        from kioskquery.kioskquerystore import install_default_kiosk_queries
+        from sync_config import SyncConfig
+
+        config = SyncConfig.get_config({"config_file": cfg_file})
+        install_default_kiosk_queries(config)
+        print("Installed default kiosk queries.", flush=True)
+    except BaseException as e:
+        logging.error(f"install_default_queries: Exception in install_default_queries: {repr(e)}. "
+                      f"Continuing, though ...")
 
 
 def delete_old_directories():
@@ -410,9 +427,15 @@ if __name__ == '__main__':
                 print(f"unzipping configuration files ...", end="")
                 kiosk_zip = path.join(src_dir, "kiosk.zip")
                 KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/kiosk_default_config.yml", "-aoa")
+                KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/kiosk_local_config_template.yml", "-aoa")
+                KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/kiosk_secure_template.yml", "-aoa")
+                KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/kiosk_config_template.yml", "-aoa")
                 KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, 'config/image_manipulation_config.yml', "-aoa")
                 KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, 'config/file_handling.yml', "-aoa")
+                KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, 'config/kiosk_ui_classes.uic', "-aoa")
                 KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/dsd", "-aoa")
+                KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/ui", "-aoa")
+                KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/kiosk_queries", "-aoa")
                 print(f"ok", end="\n")
             else:
                 print(f"skipped configuration files.", end="\n")
@@ -509,6 +532,8 @@ if __name__ == '__main__':
             print(f"Exception when starting housekeeping: {repr(e)}")
             print(sys.path)
 
+    install_default_queries(cfg_file)
+
     logging.info("unpackkiosk is done.")
     if "rm" in options:
         try:
@@ -526,3 +551,4 @@ if __name__ == '__main__':
         print("====                                                    ====")
         print("============================================================")
         print("\u001b[0m")
+

@@ -683,16 +683,39 @@ class ModelFileRepository:
         return recording_context
 
     @classmethod
-    def get_aliased_recording_contexts(cls, recording_contexts: list) -> dict:
+    def get_aliased_recording_contexts(cls, recording_contexts: list = None) -> dict:
         """
         returns a dictionary with the recording contexts or, if available their aliases as keys and the
         recording context as value.
 
-        :param recording_contexts:
-        :return: dictionary with alias/recording_context = recording_context
+        :param recording_contexts: either a list of record types or this will query the file identifier cache for
+                                   available record types.
+        :return: dictionary with alias/record_type = record_type
         """
         d = {}
+        if not recording_contexts:
+            recording_contexts = cls.get_used_record_types()
         for c in recording_contexts:
             d[cls.get_recording_context_alias(c)] = c
 
         return d
+
+    @classmethod
+    def get_used_record_types(cls):
+        cur = KioskSQLDb.get_dict_cursor()
+        result = []
+        try:
+            cur.execute(f"select" +
+                        f" distinct record_type from "
+                        f"{KioskSQLDb.sql_safe_namespaced_table(CONTEXT_CACHE_NAMESPACE, 'file_identifier_cache')} ")
+
+            r = cur.fetchone()
+            while r:
+                result.append(r["record_type"])
+                r = cur.fetchone()
+        except BaseException as e:
+            logging.error(f"{cls.__name__}.get_used_record_types: {repr(e)}")
+        finally:
+            cur.close()
+
+        return result

@@ -1,0 +1,12 @@
+# header
+version: 1
+
+# dsd('locus','type')
+element_type:
+  name: "selection"
+  items:
+    lookup_type: "table"
+    topic: "locus_types"
+    selection: ["type_name"]
+    key: "id"
+

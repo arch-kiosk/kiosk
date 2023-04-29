@@ -7,10 +7,11 @@ from dsd.dsdconstants import *
 from dsd.dsdstore import DSDStore
 from dsd.dsdinmemorystore import DSDInMemoryStore
 from simplefunctionparser import SimpleFunctionParser
-from copy import deepcopy
+from copy import deepcopy, copy
 from dsd.dsderrors import *
 from kiosksqldb import KioskSQLDb
 from dicttools import dict_merge
+
 
 class Join:
     def __init__(self, root_table, related_table, _type="inner", root_field="", related_field=""):
@@ -399,6 +400,19 @@ class DataSetDefinition:
 
         return self._dsd_data.get_keys([table, KEY_TABLE_STRUCTURE, version])
 
+    def get_table_definition(self, table, version=0) -> dict:
+        """ returns the complete definition (of a given version) of a table.
+            Instructions stay as text and are not parsed.
+        :param table: the table in the dsd.
+        :param version: if not given or set to 0 the most recent version is used
+        :return: dict: a deep copy of the dsd definition
+        """
+        version = version if version else self.get_current_version(table)
+        if self.is_table_dropped(table, version):
+            raise DSDTableDropped(f"{table}, version {version} dropped.")
+
+        return deepcopy(self._dsd_data.get([table, KEY_TABLE_STRUCTURE, version]))
+
     def delete_field(self, table, field, version=0) -> None:
         """
         deletes a field from a table in the dsd. (This is not permanent).
@@ -439,12 +453,27 @@ class DataSetDefinition:
 
         return result
 
+    def get_unparsed_field_instructions(self, table, fieldname, version=0) -> list:
+        """ returns the list of instructions for a field but does not parse the instructions.
+        :param table: the table
+        :param fieldname: the field
+        :param version: the version. 0 for the most recent version.
+        :return: a list of instructions (strings)
+        :raises all kinds of exceptions.
+        """
+        result = {}
+        parser = SimpleFunctionParser()
+        version = version if version else self.get_current_version(table)
+        instructions = self._dsd_data.get([table, KEY_TABLE_STRUCTURE, version, fieldname])
+        return copy(instructions)
+
     def get_field_instructions(self, table, fieldname, version=0) -> dict:
         """ returns a dictionary with all the instructions and their parameters for a field
         :param table: the table
         :param fieldname: the field
         :param version: the version. 0 for the most recent version.
         :return: a dictionary with the instructions as key and a list of parameters as values.
+        :raises all kinds of exceptions.
         """
         result = {}
         parser = SimpleFunctionParser()
@@ -702,6 +731,26 @@ class DataSetDefinition:
             logging.error("DataSetDefinition.get_file_field_reference: Exception " + repr(e))
 
         return ""
+
+    def get_field_label(self, table, field, version=0):
+        """
+        returns the label for a dsd field. It is either set by the "label()" instruction or will simply be
+        the name given by the parameter "field".
+        :param table: the dsd table
+        :param field: field in the dsd table
+        :param version: the version of the dsd table
+        :return: string
+        """
+        # noinspection PyBroadException
+        try:
+            version = version if version else self.get_current_version(table)
+            params = self.get_instruction_parameters(table, field, 'label', version)
+            if params:
+                return params[0]
+        except Exception as e:
+            pass
+
+        return field
 
     def get_attribute_reference(self, table, field, attribute, version=0):
         """ returns the value given in brackets of the given attribute of the given field.
@@ -1232,3 +1281,4 @@ class DataSetDefinition:
         :return:
         """
         return self._dsd_data.pprint(key=key, width=width)
+

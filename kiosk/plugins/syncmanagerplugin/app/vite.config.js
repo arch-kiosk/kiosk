@@ -1,7 +1,8 @@
 // noinspection JSUnusedGlobalSymbols
 
 import { defineConfig, searchForWorkspaceRoot, loadEnv } from "vite";
-import { injectHtml } from "vite-plugin-html";
+import { injectHtml } from 'vite-plugin-html'
+
 import copy from 'rollup-plugin-copy'
 
 export default defineConfig(({ mode }) => {

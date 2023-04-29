@@ -20,6 +20,15 @@ class Migration:
         if not self._project_id:
             self._project_id = SyncConfig.get_config().get_project_id()
 
+    def delete_namespace(self, prefix, namespace):
+        """ removes tables of the namespace and the namespace from the database
+            and clears up migration records
+        """
+        if not self._self_check:
+            self.self_check()
+        self._db_adapter.delete_namespace(prefix, namespace)
+
+
     def migrate_dataset(self, prefix="", namespace=""):
         """
         Migrates the current database to the recent structure defined by the dsd.
@@ -89,7 +98,7 @@ class Migration:
 
         except BaseException as e:
             raise Exception(f"{self.__class__.__name__}.migrate_datatable: "
-                            f"An error occured during self check: {repr(e)}")
+                            f"An error occurred during self check: {repr(e)}")
         return self._self_check
 
     def migrate_datatable(self, dsd_table: str, version=0, prefix="", namespace="", one_step_only=False):
