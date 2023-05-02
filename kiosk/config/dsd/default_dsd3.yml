@@ -491,6 +491,41 @@ coordinate_photo:
 
 locus:
   structure:
+    8:
+      uid_unit: [datatype(UUID), join("unit")]
+      type: [datatype(VARCHAR), label('locus type')]
+      opening elevations: [datatype(VARCHAR)]
+      closing elevations: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR), record_description()]
+      date_defined: [datatype(DATE)]
+      date_closed: [datatype(DATE)]
+      interpretation: [datatype(VARCHAR)]
+      colour: [datatype(VARCHAR)]
+      excavated_with: [datatype(VARCHAR)]
+      formation_process: [datatype(VARCHAR)]
+      elevation_opening_nw: [datatype(FLOAT)]
+      elevation_opening_ne: [datatype(FLOAT)]
+      elevation_opening_se: [datatype(FLOAT)]
+      elevation_opening_sw: [datatype(FLOAT)]
+      elevation_opening_ct: [datatype(FLOAT)]
+      elevation_closing_nw: [datatype(FLOAT)]
+      elevation_closing_ne: [datatype(FLOAT)]
+      elevation_closing_se: [datatype(FLOAT)]
+      elevation_closing_sw: [datatype(FLOAT)]
+      elevation_closing_ct: [datatype(FLOAT)]
+      datum_point_elevation: [datatype(FLOAT)]
+      width: [datatype(FLOAT)]
+      length: [datatype(FLOAT)]
+      depth: [datatype(FLOAT)]
+      volume: [datatype(FLOAT)]
+      id: [datatype(NUMBER), local_id("arch_context")]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier(), skip_index_on("hidden")]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      recorded_by: [datatype(VARCHAR), default(null)]
     7:
       uid_unit: [datatype(UUID), join("unit")]
       type: [datatype(VARCHAR), label('locus type')]
@@ -658,6 +693,9 @@ locus:
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
   migration:
+    8:
+      upgrade:
+        - add("excavated_with")
     7:
       upgrade:
         - add("datum_point_elevation")
@@ -765,6 +803,27 @@ locus_burial:
         - alter("modified_by")
 locus_deposit:
   structure:
+    4:
+      uid_locus: [datatype(UUID), join("locus")]
+      material: [datatype(VARCHAR)]
+      compositions: [datatype(VARCHAR)]
+      inclusions: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      soil_compaction_type: [datatype(VARCHAR)]
+      soil_compaction_description: [datatype(VARCHAR)]
+      soil_particle_sorting: [datatype(VARCHAR)]
+      soil_texture: [datatype(VARCHAR)]
+      gravel_prc: [datatype(DECIMAL)]
+      sand_prc: [datatype(DECIMAL)]
+      silt_prc: [datatype(DECIMAL)]
+      clay_prc: [datatype(DECIMAL)]
+      contamination: [datatype(VARCHAR)]
+      horizon_clarity_top: [datatype(VARCHAR)]
+      horizon_clarity_bottom: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
     3:
       uid_locus: [datatype(UUID), join("locus")]
       material: [datatype(VARCHAR)]
@@ -812,6 +871,12 @@ locus_deposit:
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
   migration:
+    4:
+      upgrade:
+        - add("contamination")
+        - add("horizon_clarity_top")
+        - add("horizon_clarity_bottom")
+
     3:
       upgrade:
         - add("soil_compaction_type")
