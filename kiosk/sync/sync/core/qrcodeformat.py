@@ -53,7 +53,7 @@ class QRCodeFormat:
                 raise Exception(f"{self.__class__.__name__}._decode_raw_data_v1: TS: missing "
                                 f"in TimeStamp part of qrcode.")
         else:
-            raise Exception(f"{self.__class__.__name__}._decode_raw_data_v1: TS: missing "
+            logging.warning(f"{self.__class__.__name__}._decode_raw_data_v1: TS: missing "
                             f"in TimeStamp part of qrcode.")
 
         return True
