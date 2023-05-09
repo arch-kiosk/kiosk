@@ -187,6 +187,14 @@ class TestConfig:
         cfg["SOMEFILE"] = "%SOMEPATH%\\some_file"
         assert cfg.resolve_symbols(cfg["SOMEFILE"]) == "c:\\some_path\\some_file"
 
+    def test_resolve_symbols_in_list(self):
+        cfg = config.Config()
+        cfg["PATH1"] = "resolved path1"
+        cfg["PATH2"] = "resolved path2"
+        assert cfg.resolve_symbols([r"%PATH1%\%PATH2%\%PATH3%",
+                                    r"%PATH3%\%PATH2%\%PATH1%"]) == [r"resolved path1\resolved path2\!PATH3!",
+                                                                     r"!PATH3!\resolved path2\resolved path1"]
+
     def test_resolve_symbols_recursive(self):
         cfg = config.Config()
 

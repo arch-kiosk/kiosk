@@ -118,11 +118,16 @@ class Config(logginglib.LoggingFeature):
 
     def resolve_symbols(self, value):
         """
-        resolves symbols in a string and returns the result.
+        resolves symbols in a string or list of strings and returns the result.
         If not handler to resolve symbols is active, value will just be returned as it is
         """
         if isinstance(value, str) and self._on_resolve_symbols_handler:
             return self._on_resolve_symbols_handler(value, self._config)
+        elif isinstance(value, list) and self._on_resolve_symbols_handler:
+            result = []
+            for s in value:
+                result.append(self._on_resolve_symbols_handler(s, self._config))
+            return result
         else:
             return value
 
