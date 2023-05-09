@@ -152,7 +152,12 @@ def dialoglocalimport1():
         else:
             config = file_import.get_wtform_values()
             localimportform1 = LocalImportForm1(ImmutableMultiDict(config))
-
+        try:
+            if localimportform1.mif_local_path.data is None or localimportform1.mif_local_path.data.strip() == "":
+                localimportform1.mif_local_path.data = path_list[0]
+        except BaseException as e:
+            logging.debug(f"fileimportcontroller.dialoglocalimport1: "
+                          f"Benign Xception when setting default import path: {repr(e)}")
     general_errors = []
     if not file_import.sort_import_filters():
         print("There are no context filters!")
