@@ -80,7 +80,7 @@ if "mcpcore.mcpworker" not in sys.modules:
                 KioskMenuItem(name="new dock",
                               onclick="triggerNewWorkstation('syncmanager.create_workstation')",
                               endpoint="syncmanager.sync_manager_show",
-                              order="1010",
+                              order="2027",
                               is_active=lambda: current_user.fulfills_requirement(
                                   CREATE_WORKSTATION) if hasattr(current_user,
                                                                  "fulfills_requirement") else True,
@@ -93,7 +93,7 @@ if "mcpcore.mcpworker" not in sys.modules:
                                   SYNCHRONIZE) if hasattr(current_user,
                                                           "fulfills_requirement") else True,
                               menu_cfg=plugin.get_menu_config(),
-                              parent_menu="main", order="3010")
+                              parent_menu="main", order="2025")
                 ]
 
 

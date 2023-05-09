@@ -86,7 +86,7 @@ if "mcpcore.mcpworker" not in sys.modules:
                                   PREPARE_WORKSTATIONS) if hasattr(current_user,
                                                                          "fulfills_requirement") else True,
                               parent_menu="Hub",
-                              order="2005"),
+                              order="2040"),
                 KioskMenuItem(name="update recording software",
                               onclick="kfwInstallUpdate('kioskfilemakerworkstation.install_update')",
                               endpoint="kioskfilemakerworkstation.install_update",
@@ -95,7 +95,7 @@ if "mcpcore.mcpworker" not in sys.modules:
                                   INSTALL_PLUGIN) if hasattr(current_user,
                                                                          "fulfills_requirement") else True,
                               parent_menu="Hub",
-                              order="2009")
+                              order="2030")
 
                 ]
 
