@@ -214,6 +214,7 @@ kiosk:
   startup_threads: [ ]
   terminal_accent_color_ansi: '[30;41;1m'
   backup_reminder_days: 1
+  limit_import_to_paths: True
 
   login_plugin:
     active: true

@@ -27,7 +27,8 @@
 #  subnet: '192.168.1'
 #  terminal_accent_color_ansi: '[30;41;1m'
 #  backup_reminder_days: 1
-#  local_importpaths: [ 'c:\notebook_source\urap\server' ]
+#  local_import_paths: [ 'z:\file_import', 'y:\vm\shared\file_import' ]
+#  limit_import_to_paths: True
 #  suppress_messages:
 #    sys_msg_id_mcp_not_up: false
 #  administrationplugin:
