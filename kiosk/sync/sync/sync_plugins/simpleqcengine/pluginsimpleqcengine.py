@@ -84,7 +84,7 @@ class SimpleQCEngine(QCEngine):
 
         finally:
             if cur:
-                print("closed!")
+                # print("closed!")
                 cur.close()
 
     def _execute_rule(self, trigger_id, rule: QCRuleModel, data_context):

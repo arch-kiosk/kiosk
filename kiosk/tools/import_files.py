@@ -1,0 +1,257 @@
+import datetime
+import sys
+from time import sleep
+
+import yaml
+
+import kioskstdlib
+from contextmanagement.memoryidentifiercache import MemoryIdentifierCache
+from dsd.dsd3singleton import Dsd3Singleton
+from dsd.dsdview import DSDView
+from dsd.dsdyamlloader import DSDYamlLoader
+from kioskconfig import KioskConfig
+from filerepository import FileRepository
+import os
+import logging
+from kioskconfig import KioskConfig
+from sync.core.fileimport import FileImport
+
+from synchronization import Synchronization
+from test.testhelpers import KioskPyTestHelper
+from kiosksqldb import KioskSQLDb
+
+import_params = {"-import_params": "p",
+                 "-repl_user_id": "u",
+                 "-?": "?"
+                 }
+options = {}
+last_progress = 0
+
+
+def interpret_param(known_param, param):
+    new_option = import_params[known_param]
+    rc = None
+
+    if new_option in ["p", "u"]:
+        param_parts = param.split("=")
+        if len(param_parts) == 2:
+            param_2 = param_parts[1]
+            if param_2:
+                rc = {new_option: param_2}
+    else:
+        rc = {new_option: None}
+
+    return rc
+
+
+def usage():
+    print("""
+    Usage of import_files.py:
+    ===================
+      import_files <path and filename of file import folder> -import_params=<path and filename of parameters -repl_user_id=<user-id>>
+      parameters:
+        -import_params: path and filename of a YAML file that has specific parameters
+                 if given all other parameters will be ignored.
+        -repl_user_id: user id as used in the filemaker recording to mark the imported files
+        -?: additional help for the YAML file. 
+        
+    """)
+    sys.exit(0)
+
+
+def show_yaml_help():
+    print("""
+    example of a YAML file with parameters:
+    ===================
+    file_import:
+      recursive: True
+      add_needs_context: False
+    #  file_extensions: "jpg,nef"
+    #  tags: "import_091256"
+    file_import_filters:
+      fileimportqrcodefilter:
+        get_identifier: True
+        get_date: True
+        recognition_strategy: "qr_code_peru"
+    """)
+    sys.exit(0)
+
+
+def init(config_file):
+    KioskConfig._release_config()
+    cfg = KioskConfig.get_config({"config_file": config_file})
+
+    # Initialize logging and settings
+    logging.basicConfig(format='>[%(module)s.%(levelname)s at %(asctime)s]: %(message)s', level=logging.ERROR)
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+    logger.handlers = []
+
+    if cfg.get_logfile():
+        log_pattern = cfg.get_logfile().replace("#", "%")
+        log_file = datetime.datetime.strftime(datetime.datetime.now(), log_pattern)
+        ch = logging.FileHandler(filename=cfg.resolve_symbols(log_file))
+        ch.setLevel(logging.INFO)
+        formatter = logging.Formatter('>[%(module)s.%(levelname)s at %(asctime)s]: %(message)s')
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+
+
+def report_progress(prg):
+    global last_progress
+    print("\r", end="")
+    if "progress" in prg:
+        new_progress = 0
+        if "topic" in prg:
+            if prg["topic"].find("import-local-files"):
+                new_progress = int(prg["progress"])
+            if "extended_progress" in prg:
+                print(f"Trying file #{prg['extended_progress'][0]}. "
+                      f"({prg['extended_progress'][1]} files imported so far)",
+                      end="")
+        if new_progress > last_progress:
+            last_progress = new_progress
+    sleep(.5)
+    return True
+
+
+def init_dsd(cfg):
+    master_dsd = Dsd3Singleton.get_dsd3()
+    master_dsd.register_loader("yml", DSDYamlLoader)
+    if not master_dsd.append_file(cfg.get_dsdfile()):
+        logging.error(
+            f"init_dsd: {cfg.get_dsdfile()} could not be loaded by append_file.")
+        raise Exception(f"init_dsd: {cfg.get_dsdfile()} could not be loaded.")
+
+    try:
+        master_view = DSDView(master_dsd)
+        master_view_instructions = DSDYamlLoader().read_view_file(cfg.get_master_view())
+        master_view.apply_view_instructions(master_view_instructions)
+        logging.debug(f"init_dsd: dsd3 initialized: {cfg.get_dsdfile()}. ")
+        return master_view
+    except BaseException as e:
+        logging.error(f"init_dsd: Exception when applying master view to dsd: {repr(e)}")
+        raise e
+
+
+def load_master_view():
+    try:
+        master_view = DSDView(Dsd3Singleton.get_dsd3())
+        master_view_instructions = DSDYamlLoader().read_view_file(cfg.get_master_view())
+        master_view.apply_view_instructions(master_view_instructions)
+    except BaseException as e:
+        logging.error(f"load_master_view: Exception when applying master view to dsd: {repr(e)}")
+        raise e
+
+    logging.debug(f"load_master_view: master view initialized: {cfg.get_master_view()}")
+
+
+if __name__ == '__main__':
+    this_path = os.path.dirname(os.path.abspath(__file__))
+    kiosk_dir = KioskPyTestHelper.get_kiosk_base_path_from_test_path(this_path)
+    init(os.path.join(kiosk_dir, "config", 'kiosk_config.yml'))
+    cfg = KioskConfig.get_config()
+    cfg.truncate_log()
+
+    if not os.path.isdir(cfg.get_file_repository()):
+        logging.error(f"file repository {cfg.file_repository} does not point to a valid path.")
+        exit(-1)
+
+    if len(sys.argv) < 2:
+        logging.error(f"No file import directory given.")
+        usage()
+
+    import_dir = sys.argv[1]
+    if not import_dir or not os.path.isdir(import_dir):
+        logging.error(f"kiosk directory {import_dir} does not seem to exist or is not a valid directory.")
+        usage()
+
+    for i in range(2, len(sys.argv)):
+        param = sys.argv[i]
+        known_param = [p for p in import_params if param.lower().startswith(p)]
+        if known_param:
+            known_param = known_param[0]
+            new_option = interpret_param(known_param, param)
+            if new_option:
+                options.update(new_option)
+            else:
+                logging.error(f"parameter {param} not understood.")
+        else:
+            print(f"parameter \"{param}\" unknown.")
+            usage()
+
+    print("parameters are: ")
+    print(options)
+
+    if "?" in options:
+        show_yaml_help()
+
+    if "p" not in options:
+        logging.error(f"Please state a parameter file.")
+        usage()
+
+    print(f"Using parameters file {options['p']}")
+    if not os.path.isfile(options["p"]):
+        logging.error(f"The file {options['p']} does not exist.")
+        usage()
+
+    if "u" not in options:
+        logging.error(f"No repl_user_id given.")
+        usage()
+    repl_user_id = options["u"]
+    with open(options["p"], "r", encoding='utf8') as ymlfile:
+        import_params = yaml.load(ymlfile, Loader=yaml.FullLoader)
+
+    if not import_params or 'file_import' not in import_params or 'file_import_filters' not in import_params:
+        logging.error(f"The file with parameters does not contain the required keys.")
+        usage()
+
+    sync = Synchronization()
+    file_repos = FileRepository(cfg, sync.events, sync.type_repository, sync)
+    # files = file_repos.do_housekeeping(console=True)
+
+    file_import = FileImport(cfg, sync)
+
+    sorted_names = file_import.sort_import_filters()
+    context_filters = [file_import.get_file_import_filter(x) for x in sorted_names]
+    filter_params = import_params['file_import_filters']
+    for context_filter in context_filters:
+        context_filter_name = context_filter.__class__.__name__.lower()
+        if context_filter_name in filter_params:
+            context_filter.set_filter_configuration_values(filter_params[context_filter_name])
+            print(f"Using filter {context_filter_name} with parameters {context_filter.get_filter_configuration()}")
+            context_filter.activate()
+        else:
+            print(f"Not using filter {context_filter_name}.")
+            context_filter.deactivate()
+
+    general_import_params = import_params["file_import"]
+    tags = general_import_params["tags"] if "tags" in general_import_params else ""
+
+    if len(tags) == 0:
+        tags = "import_" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        general_import_params["tags"] = tags
+        print("")
+        logging.info(
+            "Files will be automatically tagged as " + tags)
+
+    general_import_params["mif_local_path"] = import_dir
+    file_import.set_from_dict(general_import_params)
+    print(f"using user \"{repl_user_id}\" to mark imported files.")
+    print(f"files will be tagged as \"{general_import_params['tags']}\" to mark imported files.")
+    file_import.modified_by = repl_user_id
+    file_import.callback_progress = report_progress
+    last_progress = 0
+
+    file_import.file_repository = file_repos
+    file_import.callback_progress = report_progress
+    master_view = init_dsd(cfg)
+    ic = MemoryIdentifierCache(master_view.dsd)
+    file_import.identifier_evaluator = ic.has_identifier
+    file_import.move_finished_files = True
+    print(f"---------------------------------------------------------------------------------")
+    print(f"\nImport from \"{file_import.pathname}\" into project \"{cfg.get_project_id()}\":")
+    rc = file_import.execute()
+    print("Import done.")
+    print(f"---------------------------------------------------------------------------------")
+    print(f"{file_import.files_added}/{file_import.files_processed} files added.")

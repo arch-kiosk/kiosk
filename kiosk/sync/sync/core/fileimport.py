@@ -149,6 +149,21 @@ class FileImport:
         if hasattr(form, "tags"):
             self.tags = split_or_empty_list(form.tags.data, ",")
 
+    def set_from_dict(self, d: dict):
+        if not d:
+            raise Exception("no dict in file_import.set_from_dict")
+        if "mif_local_path" in d:
+            self.pathname = d["mif_local_path"]
+            self._config["pathname"] = self.pathname
+        if "recursive" in d:
+            self._config["recursive"] = d["recursive"]
+        if "add_needs_context" in d:
+            self._config["add_needs_context"] = d["add_needs_context"]
+        if "file_extensions" in d:
+            self._config["file_extensions"] = split_or_empty_list(d["file_extensions"], ",")
+        if "tags" in d:
+            self.tags = split_or_empty_list(d["tags"], ",")
+
     def get_file_import_filter_class_names(self) -> list:
         """
 

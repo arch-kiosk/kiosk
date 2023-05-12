@@ -83,6 +83,7 @@ class ImageManipulationStrategyFactory:
     def image_manipulation_set_strategies(cls, set_id) -> Generator[ImageManipulationStrategy, None, None]:
         cls._get_image_manipulation_config()
         manipulation_set = cls._image_manipulation_config["image_manipulation_sets"][set_id]
+        logging.info(f"ImageManipulationStrategyFactory.image_manipulation_set_strategies: using {set_id}")
         for strategy_id in manipulation_set["strategies"]:
             strategy = cls.create_from_dict(strategy_id, cls._image_manipulation_config["strategies"][strategy_id])
             yield strategy

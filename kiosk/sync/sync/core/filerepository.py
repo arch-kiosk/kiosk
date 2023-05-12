@@ -49,7 +49,7 @@ class FileRepository:
             self._cache_dir = self.conf.resolve_symbols(self.conf.file_repository["cache"])
         else:
             logging.warning(f"file_repository_cache not set: Defaulting to {self._cache_dir}")
-        print(self.conf.file_repository)
+        # print(self.conf.file_repository)
         if not self._cache_dir:
             raise Exception(f"{self.__class__.__name__}.__init__ : file_repository_cache no set")
 

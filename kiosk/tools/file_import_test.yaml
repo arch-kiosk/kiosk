@@ -1,0 +1,10 @@
+file_import:
+  recursive: True
+  add_needs_context: False
+#  file_extensions: "jpg,nef"
+#  tags: "import_091256"
+file_import_filters:
+  fileimportqrcodefilter:
+    get_identifier: True
+    get_date: True
+    recognition_strategy: "qr_code_peru"
