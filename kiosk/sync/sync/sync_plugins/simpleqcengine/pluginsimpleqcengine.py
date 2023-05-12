@@ -155,7 +155,7 @@ class SimpleQCEngine(QCEngine):
             sql += sql_join
             sql += f" where {sql_record_type}.{KioskSQLDb.sql_safe_ident(uid_field)}=%s"
             sql += sql_group_by
-            pprint(sql)
+            # pprint(sql)
             value = kioskstdlib.null_val(KioskSQLDb.get_field_value_from_sql("c", sql, [record_type_uuid]), 0)
             return value
         else:
