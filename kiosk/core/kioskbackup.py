@@ -33,6 +33,7 @@ class KioskBackup:
         r"templates",
         r"sqlalchemy_models",
         r"__init__.py",
+        r"this_is_the_kiosk_root.md",
         r"sync\sync\console.py",
         r"sync\sync\config",
         r"sync\sync\sync_plugins",
@@ -41,6 +42,9 @@ class KioskBackup:
         r"sync\sync\tools\UrapCreateDSDFromFM.py",
         r"sync\sync\tools\migrate_kiosk_db.py",
         r"sync\sync\tools\UrapDatabaseIntegrity.py",
+        r"tools\analyzefilerepository.py",
+        r"tools\update_default_kiosk_queries.py",
+        r"tools\import_files.py",
     ]
 
     KIOSK_CONFIG_ONLY_FILES = [

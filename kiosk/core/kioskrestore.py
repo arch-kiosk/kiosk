@@ -23,6 +23,7 @@ KIOSK_FILES = [
     r"plugins",
     r"static",
     r"templates",
+    r"tools",
     r"sqlalchemy_models",
     r"__init__.py",
     r"sync\sync\console.py",
