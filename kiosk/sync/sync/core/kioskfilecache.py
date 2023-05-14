@@ -455,9 +455,9 @@ class KioskFileCache:
         rc = 0
         records = self._file_cache_model.get_many("uid_file=%s", [uid])
         for r in records:
-            s = str(r.path_and_filename)
+            s = str(r.path_and_filename).lower()
             if s:
-                if s.find(self._cache_base_dir) == 0:
+                if s.find(self._cache_base_dir.lower()) == 0:
                     representation_type = KioskRepresentationType(r.representation_type)
                     if _transform(representation_type, s) and rc > -1:
                         rc += 1
