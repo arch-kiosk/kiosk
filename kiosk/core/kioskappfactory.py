@@ -319,7 +319,7 @@ class KioskAppFactory(AppFactory):
                 print("Kiosk is ready and listening to these addresses:")
                 print("")
                 for address in addresses:
-                    print(f"{address}:5000")
+                    print(f"{address}")
             else:
                 print("Can't show what ip address kiosk is using")
 
