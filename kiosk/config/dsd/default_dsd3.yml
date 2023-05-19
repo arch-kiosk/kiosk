@@ -491,6 +491,43 @@ coordinate_photo:
 
 locus:
   structure:
+    9:
+      uid_unit: [datatype(UUID), join("unit")]
+      type: [datatype(VARCHAR), label('locus type')]
+      opening elevations: [datatype(VARCHAR)]
+      closing elevations: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR), record_description()]
+      date_defined: [datatype(DATE)]
+      date_closed: [datatype(DATE)]
+      interpretation: [datatype(VARCHAR)]
+      colour: [datatype(VARCHAR)]
+      excavated_with: [datatype(VARCHAR)]
+      formation_process: [datatype(VARCHAR)]
+      elevation_opening_nw: [datatype(FLOAT)]
+      elevation_opening_ne: [datatype(FLOAT)]
+      elevation_opening_se: [datatype(FLOAT)]
+      elevation_opening_sw: [datatype(FLOAT)]
+      elevation_opening_ct: [datatype(FLOAT)]
+      elevation_closing_nw: [datatype(FLOAT)]
+      elevation_closing_ne: [datatype(FLOAT)]
+      elevation_closing_se: [datatype(FLOAT)]
+      elevation_closing_sw: [datatype(FLOAT)]
+      elevation_closing_ct: [datatype(FLOAT)]
+      datum_point_elevation: [datatype(FLOAT)]
+      width: [datatype(FLOAT)]
+      length: [datatype(FLOAT)]
+      depth: [datatype(FLOAT)]
+      volume: [datatype(FLOAT)]
+      id: [datatype(NUMBER), local_id("arch_context")]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier(), skip_index_on("hidden")]
+      alternate_id: [datatype(VARCHAR), identifier("additional"), skip_index_on("hidden")]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      recorded_by: [datatype(VARCHAR), default(null)]
+
     8:
       uid_unit: [datatype(UUID), join("unit")]
       type: [datatype(VARCHAR), label('locus type')]
@@ -693,6 +730,9 @@ locus:
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
   migration:
+    9:
+      upgrade:
+        - add("alternate_id")
     8:
       upgrade:
         - add("excavated_with")
@@ -1665,6 +1705,17 @@ unit_narrative:
     2:
       upgrade:
         - add("uid_unit")
+
+narrative_file_association:
+  structure:
+    1:
+      uid_narrative: [datatype(UUID)]
+      # currently it is not necessary to make this a real "file()" because the files all come from dayplans:
+      uid_file: [datatype(UUID)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(TEXT), replfield_modified_by(), default(null)]
 
 unit_shop:
   meta:
