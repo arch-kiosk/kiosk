@@ -1517,6 +1517,8 @@ def get_kiosk_semantic_version(version: str) -> (str, str):
     :param version: either a 4 digit kiosk version or a 3 digit semantic version.
     :return: a tuple consisting of the generation and semantic version.
     """
+    if re.fullmatch(r'^(\d+)\.(\d+)$', version):
+        version = version + ".0"
     if re.fullmatch(r'^(\d+)\.(\d+)\.(\d+)$', version):
         version = version + ".0"
     rc = re.fullmatch(r'^(?P<generation>\d+)\.(?P<version>(\d+)\.(\d+)\.(\d+))$', version)
@@ -1550,7 +1552,21 @@ def cmp_semantic_version(version1: str, version2: str) -> int:
             return 1
         version1 = sv1
         version2 = sv2
+    else:
+        if re.fullmatch(r'^(\d+)\.(\d+)$', version1):
+            version1 = version1 + ".0"
+        if re.fullmatch(r'^(\d+)\.(\d+)$', version2):
+            version2 = version2 + ".0"
 
-    v1 = Version(version1)
-    v2 = Version(version2)
+    try:
+        v1 = Version(version1)
+    except BaseException as e:
+        logging.error(f"kioskstdlib.cmp_semantic_version: Version 1 ({version1}) is not valid: {repr(e)}")
+        raise e
+    try:
+        v2 = Version(version2)
+    except BaseException as e:
+        logging.error(f"kioskstdlib.cmp_semantic_version: Version 2 ({version2}) is not valid: {repr(e)}")
+        raise e
+
     return -1 if v1 < v2 else (1 if v1 > v2 else 0)
