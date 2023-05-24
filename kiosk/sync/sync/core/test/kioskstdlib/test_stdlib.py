@@ -187,3 +187,9 @@ class TestStandardLibrary(KioskPyTestHelper):
 
         files = kioskstdlib.find_files(data_dir, file_pattern="*.*", include_path=True, order_by_time=True)
         assert files == [os.path.join(data_dir, f) for f in ['imageB.png', 'imageA.png', 'imageD.png', 'imageC.png']]
+
+    def test_force_positive_int_from_string(self):
+        assert kioskstdlib.force_positive_int_from_string("") == -1
+        assert kioskstdlib.force_positive_int_from_string("123") == 123
+        assert kioskstdlib.force_positive_int_from_string("123 123") == 123123
+        assert kioskstdlib.force_positive_int_from_string("000 001") == 1

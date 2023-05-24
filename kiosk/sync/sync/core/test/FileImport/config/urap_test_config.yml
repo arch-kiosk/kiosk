@@ -44,6 +44,13 @@ file_import:
         priority: 1
       FileImportStandardFileFilter:
         priority: 2
+    filesequence_import:
+      FileImportQRCodeFilter:
+        priority: 0
+      FileImportStandardFileFilter:
+        priority: 1
+      FileImportExifFilter:
+        priority: 2
 
 
 file_repository:

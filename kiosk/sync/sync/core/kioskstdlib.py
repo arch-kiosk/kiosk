@@ -1570,3 +1570,15 @@ def cmp_semantic_version(version1: str, version2: str) -> int:
         raise e
 
     return -1 if v1 < v2 else (1 if v1 > v2 else 0)
+
+
+def force_positive_int_from_string(param: str, ignore_non_digit_strings=True) -> int:
+    """
+    returns a positive int cobbled together from all the digits in the string.
+    :param ignore_non_digit_strings: If False a ValueError exception is raised if a string has not digits at all
+    :return: -1 if the string does not contain any digits
+    """
+    result = ''.join(filter(str.isdigit, param))
+    if not ignore_non_digit_strings and not result:
+        raise ValueError(f'{param} does not have a single digit')
+    return int(result) if result else -1

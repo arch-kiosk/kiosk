@@ -242,6 +242,9 @@ class FileImport:
         sorted_filters.sort(key=lambda x: self._import_filters[x].get_filter_priority())
         return sorted_filters
 
+    def check_more_import_requirements(self):
+        return True
+
     def execute(self, identifier_evaluator=None) -> bool:
         """
         starts the file import.
@@ -255,6 +258,9 @@ class FileImport:
 
         if not os.path.isdir(self.pathname):
             logging.error("FileImport.execute: " + self.pathname + " is not a directory.")
+            return False
+
+        if not self.check_more_import_requirements():
             return False
 
         if not self.tags:

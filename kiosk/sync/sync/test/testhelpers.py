@@ -46,6 +46,8 @@ class KioskPyTestHelper:
             if len(current_path) == 3:
                 break
 
+            exists = True
+
             for d in id_directories:
                 if not os.path.exists(os.path.join(current_path, d)):
                     exists = False
