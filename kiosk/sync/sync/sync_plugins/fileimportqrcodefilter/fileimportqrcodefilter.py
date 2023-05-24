@@ -1,6 +1,7 @@
 """
     Plugin and FileImportFilter to retrieve information from the exif parpart of an image.
 """
+import copy
 import logging
 from uuid import uuid4
 
@@ -132,9 +133,11 @@ class FileImportQRCodeFilter(FileImportFilter):
         self.context_utils.init_standard_rgx(cfg)
         self.image_manipulation_set = ""
         self.cfg: SyncConfig = cfg
+        self.qr_code_data = {}
         # logging.debug("FileImportQRCodeFilter instantiated")
 
     def get_file_information(self, context) -> dict:
+        self.qr_code_data = {}
         if not (self.get_filter_configuration_value("get_identifier") or
                 self.get_filter_configuration_value("get_date")
                 ) or \
@@ -167,6 +170,10 @@ class FileImportQRCodeFilter(FileImportFilter):
             return context
 
         if qr_code_tester.quick_decode(path_and_filename):
+            self.qr_code_data = {"timestamp": qr_code_tester.qr_code_recognized.timestamp,
+                                 "identifier": qr_code_tester.qr_code_recognized.data,
+                                 "type": qr_code_tester.qr_code_recognized.qr_code_type,
+                                 "raw": qr_code_tester.qr_code_recognized.raw_data}
             if self.get_filter_configuration_value("get_identifier") and qr_code_tester.qr_code_recognized:
                 identifier = qr_code_tester.qr_code_recognized.data
                 if identifier:

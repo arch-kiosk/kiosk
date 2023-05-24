@@ -179,3 +179,19 @@ class TestQRCodeFilter(KioskPyTestHelper):
         assert "identifier" in context
         assert context["identifier"] == "Meghan Test"
 
+    def test_qr_code_data(self):
+        file_import = self.file_import
+
+        qrcode_filter: FileImportQRCodeFilter = file_import.get_file_import_filter("FileImportQRCodeFilter")
+        path_and_file_name = os.path.join(test_path, "images", "v3_qr_code.jpg")
+
+        qrcode_filter.set_path_and_filename(path_and_file_name)
+        qrcode_filter.set_image_manipulation_set("qr_code_sahara")
+        qrcode_filter.register_type_repository(self.sync.type_repository, self.sync)
+        qrcode_filter.activate()
+        qrcode_filter.set_filter_configuration_values({"get_identifier": True})
+        context = qrcode_filter.get_file_information({})
+        assert "identifier" in context
+        assert context["identifier"] == "NA-008"
+        assert qrcode_filter.qr_code_data["raw"] == "$V:3$D:NA-008$TS:24.05.2023 14:37:26$T:M"
+

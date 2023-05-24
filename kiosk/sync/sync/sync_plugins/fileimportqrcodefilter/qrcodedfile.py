@@ -11,6 +11,7 @@ class QRCodedFile:
     SUPPORTED_FILE_EXTENSIONS = [".nef", ".tif", ".jpg", ".jpeg", ".png", ".bmp", ".gif"]
     src_file: str = None
     raw_data: str
+    qr_code_type: str = ""
     data: str = None
     timestamp: datetime.datetime = None
 
@@ -88,9 +89,11 @@ class QRCodedFile:
                         qr = decoded[0]
                         fmt = QRCodeFormat()
                         fmt.raw_data = qr.data.decode("UTF-8")
+                        self.raw_data = fmt.raw_data
                         if fmt.decode():
                             self.data = fmt.data
                             self.timestamp = fmt.timestamp
+                            self.qr_code_type = fmt.qr_code_type
                             rc = True
                         else:
                             rc = False
