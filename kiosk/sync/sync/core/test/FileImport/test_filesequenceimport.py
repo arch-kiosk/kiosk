@@ -8,6 +8,7 @@ import pytest
 import kioskstdlib
 import sync_plugins.fileimportstandardfilters.fileimportstandardfilters as stdfilters
 import synchronization
+from fileimport import FileImport
 from filesequenceimport import FileSequenceImport
 from filerepository import FileRepository
 # import console
@@ -37,7 +38,7 @@ class TestFileSequenceImport(KioskPyTestHelper):
         config = self.get_config(config_file, log_file=log_file)
         return config
 
-    @pytest.fixture()
+    @pytest.fixture(scope="module")
     def urapdb(self, cfg, shared_datadir):
         return self.get_urapdb(cfg)
 
@@ -131,3 +132,129 @@ class TestFileSequenceImport(KioskPyTestHelper):
                          'EB unrecognizable due to bad perspective - optimized.jpg',
                          'EC-002 b in desparate need of optimization.jpg',
                          'EC-002 b perfectly optimized.jpg']
+
+    def test_get_context_from_qr_code(self, file_import_setup):
+        file_import = file_import_setup
+        p = os.path.join(test_path, "test_files", "sequence_files")
+        f = os.path.join(p, "v3_qr_code.jpg")
+
+        file_filter = file_import.get_file_import_filter("FileImportQRCodeFilter")
+        assert file_filter
+        assert file_filter.get_filter_configuration()["get_identifier"]
+        assert file_filter.get_filter_configuration()["get_date"]
+        assert file_filter.is_active()
+        file_filter.set_filter_configuration_values({"recognition_strategy": "qr_code_sahara"})
+        context = file_import_setup.get_context_from_qr_code(f)
+        assert context == {'day': 24, 'identifier': 'NA-008', 'month': 5, 'year': 2023}
+
+        f = os.path.join(p, "Context NA Single Shot.jpg")
+        context = file_import_setup.get_context_from_qr_code(f)
+        assert context == {'import': False}
+
+        f = os.path.join(p, test_path, "test_files", "sequence_files", "DSC_0148.jpg")
+        context = file_import_setup.get_context_from_qr_code(f)
+        assert not context
+
+    @mock.patch.object(FileRepository, "add_contextual_file")
+    def test_import_sequence_to_repository(self, mock_add_contextual_file, file_import_setup,
+                                           monkeypatch):
+        def mock__fetch_contexts(sql_instruction, prefix="", namespace=""):
+            print("mock__fetch_contexts")
+            return []
+
+        monkeypatch.setattr(KioskContextualFile, "_fetch_contexts", mock__fetch_contexts)
+
+        mock_add_contextual_file.return_value = True
+
+        file_import = file_import_setup
+        file_filter = file_import.get_file_import_filter("FileImportQRCodeFilter")
+        assert file_filter
+        assert file_filter.get_filter_configuration()["get_identifier"]
+        assert file_filter.get_filter_configuration()["get_date"]
+        assert file_filter.is_active()
+
+        file_import.pathname = os.path.join(test_path, "test_files", "sequence_files")
+
+        file_import.recursive = False
+        file_import._config["file_extensions"] = ["jpg"]
+        file_import.tags = ["-"]
+        file_import.set_from_dict({
+            "sort_sequence_by": file_import.SEQUENCE_SORT_OPTIONS["FILE_CREATION_TIME"],
+            "image_manipulation_set": "qr_code_sahara",
+
+        })
+        assert file_import.execute()
+        assert mock_add_contextual_file.call_count == 1
+
+    @mock.patch.object(FileImport, "_add_file_to_repository")
+    def test_import_multiple_files_to_repository(self, mock_add_file_to_repository, file_import_setup):
+        mock_add_file_to_repository.return_value = True
+
+        file_import = file_import_setup
+        file_filter = file_import.get_file_import_filter("FileImportQRCodeFilter")
+        assert file_filter
+        assert file_filter.get_filter_configuration()["get_identifier"]
+        assert file_filter.get_filter_configuration()["get_date"]
+        assert file_filter.is_active()
+
+        file_import.pathname = os.path.join(test_path, "test_files", "sequence_files_2")
+
+        file_import.recursive = True
+        file_import._config["file_extensions"] = ["jpg"]
+        file_import.tags = ["-"]
+        file_import.set_from_dict({
+            "sort_sequence_by": file_import.SEQUENCE_SORT_OPTIONS["FILE_CREATION_TIME"],
+            "image_manipulation_set": "qr_code_sahara",
+        })
+
+        assert file_import.execute(identifier_evaluator=lambda x: True)
+
+        test_basis = {
+            "description": "",
+            "modified_by": "sys",
+            "tags": ["-"]
+        }
+
+        test_values = [
+            {
+                "path_and_filename": os.path.join(test_path, "test_files", "sequence_files_2",
+                                                  "import_1.jpg"),
+                "identifier": "NA-008",
+                "ts_file": datetime.datetime(2023, 5, 25, 1, 9, 50,
+                                             tzinfo=zoneinfo.ZoneInfo("US/Eastern")).astimezone().replace(tzinfo=None)
+            },
+            {
+                "path_and_filename": os.path.join(test_path, "test_files", "sequence_files_2",
+                                                  "import_2.jpg"),
+                "identifier": "NA-008",
+                "ts_file": datetime.datetime(2023, 5, 25, 1, 9, 50,
+                                             tzinfo=zoneinfo.ZoneInfo("US/Eastern")).astimezone().replace(tzinfo=None)
+            },
+            {
+                "path_and_filename": os.path.join(test_path, "test_files", "sequence_files_2",
+                                                  "import_3.jpg"),
+                "identifier": "NA-008",
+                "ts_file": datetime.datetime(2023, 5, 25, 1, 9, 50,
+                                             tzinfo=zoneinfo.ZoneInfo("US/Eastern")).astimezone().replace(tzinfo=None)
+            },
+            {
+                "path_and_filename": os.path.join(test_path, "test_files", "sequence_files_2", "sequence_3",
+                                                  "import_2.jpg"),
+                "identifier": "NA-008",
+                "ts_file": datetime.datetime(2023, 5, 25, 2, 6, 54,
+                                             tzinfo=zoneinfo.ZoneInfo("US/Eastern")).astimezone().replace(tzinfo=None)
+            },
+            {
+                "path_and_filename": os.path.join(test_path, "test_files", "sequence_files_2", "sequence_3",
+                                                  "import_3.jpg"),
+                "identifier": "NA-008",
+                "ts_file": datetime.datetime(2023, 5, 25, 2, 6, 54,
+                                             tzinfo=zoneinfo.ZoneInfo("US/Eastern")).astimezone().replace(tzinfo=None)
+            },
+        ]
+        call_list = []
+        for val in test_values:
+            test_file = {**test_basis.copy(), **val}
+            call_list.append(call(**test_file))
+
+        mock_add_file_to_repository.assert_has_calls(call_list)

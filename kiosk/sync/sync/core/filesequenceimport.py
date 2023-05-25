@@ -5,6 +5,7 @@ import os
 import kioskstdlib
 from fileimport import FileImport
 from fileimportfilter import FileImportFilter
+from fileimportqrcodefilter.fileimportqrcodefilter import FileImportQRCodeFilter
 from kioskstdlib import report_progress
 from sync_config import SyncConfig
 from userconfig import UserConfig
@@ -24,7 +25,7 @@ class FileSequenceImport(FileImport):
         super().__init__(cfg, app, method, user_config)
         self._exif_filter_present = False
         self.skip_qrcodes_proper = True
-        self.use_coded_filenames = True
+        self.use_coded_filenames = False
         self.sort_sequence_by = self.SEQUENCE_SORT_OPTIONS["FILE_CREATION_TIME"]
         self.use_exif_time = False
         self.image_manipulation_set = ""
@@ -127,19 +128,28 @@ class FileSequenceImport(FileImport):
     def check_sequence_import_requirements(self):
         std_filter: FileImportFilter = self.get_file_import_filter("FileImportStandardFileFilter")
         if not std_filter or not std_filter.is_active():
-            logging.error("FileSequenceImport.execute: FileImportStandardFileFilter not available")
+            logging.error("FileSequenceImport.check_sequence_import_requirements: "
+                          "FileImportStandardFileFilter not available")
             return False
 
-        std_filter: FileImportFilter = self.get_file_import_filter("FileImportQRCodeFilter")
-        if not std_filter or not std_filter.is_active():
-            logging.error("FileSequenceImport.execute: FileImportQRCodeFilter not available")
+        qr_filter: FileImportFilter = self.get_file_import_filter("FileImportQRCodeFilter")
+        if not qr_filter or not qr_filter.is_active():
+            logging.error("FileSequenceImport.check_sequence_import_requirements: FileImportQRCodeFilter not available")
             return False
 
         if self.use_exif_time:
             std_filter: FileImportFilter = self.get_file_import_filter("FileImportExifFilter")
             if not std_filter or not std_filter.is_active():
-                logging.error("FileSequenceImport.execute: FileImportExifFilter not available")
+                logging.error("FileSequenceImport.check_sequence_import_requirements: "
+                              "FileImportExifFilter not available")
                 return False
+        if not self.image_manipulation_set:
+            logging.error("FileSequenceImport.check_sequence_import_requirements: no image manipulation set given")
+            return False
+        else:
+            qr_filter.set_filter_configuration_values({"recognition_strategy": self.image_manipulation_set})
+
+        return True
 
     def _r_add_files_to_repository(self, pathname, level=0) -> bool:
         """
@@ -183,8 +193,10 @@ class FileSequenceImport(FileImport):
                 return False
 
             new_context = self.get_context_from_qr_code(f)
-
             self.files_processed += 1
+
+            if "import" in new_context and not new_context["import"]:
+                continue
 
             if current_context:
                 #  there is a current context
@@ -192,6 +204,9 @@ class FileSequenceImport(FileImport):
                     #  That's the end of the sequence or the start of a new one (because the old one was not closed)
                     if new_context["identifier"] == current_context["identifier"]:
                         # sequence closed: Import it
+                        logging.debug(f"{self.__class__.__name__}._r_add_files_to_repository: "
+                                      f"Sequence '{current_context['identifier']} "
+                                      f"closing with file {kioskstdlib.get_filename(f)}.")
                         if not self.skip_qrcodes_proper:
                             current_sequence.append(f)
                         self._context = current_context
@@ -207,6 +222,12 @@ class FileSequenceImport(FileImport):
                         current_sequence = []
                         if not self.skip_qrcodes_proper:
                             current_sequence.append(f)
+                else:
+                    # no new context but an open sequence
+                    logging.debug(f"{self.__class__.__name__}._r_add_files_to_repository: "
+                                  f"Adding file {kioskstdlib.get_filename(f)}."
+                                  f"to sequence '{current_context['identifier']} ")
+                    current_sequence.append(f)
             else:
                 # no current context
                 if new_context and "identifier" in new_context:
@@ -215,11 +236,17 @@ class FileSequenceImport(FileImport):
                     current_sequence = []
                     if not self.skip_qrcodes_proper:
                         current_sequence.append(f)
+                    logging.debug(f"{self.__class__.__name__}._r_add_files_to_repository: "
+                                  f"Sequence '{current_context['identifier']} "
+                                  f"started with file {kioskstdlib.get_filename(f)}.")
                 else:
                     # import an image without identifier
-                    self._context = {}
-                    if self._import_single_file_to_repository(f):
-                        self.files_added += 1
+                    if not self.add_needs_context:
+                        self._context = {}
+                        logging.debug(f"{self.__class__.__name__}._r_add_files_to_repository: "
+                                      f"imported context-independent {kioskstdlib.get_filename(f)}.")
+                        if self._import_single_file_to_repository(f):
+                            self.files_added += 1
 
         if current_sequence:
             # sequence not properly closed but new sequence starts.
@@ -269,14 +296,23 @@ class FileSequenceImport(FileImport):
         return False
 
     def get_context_from_qr_code(self, f):
-        qr_filter: FileImportFilter = self.get_file_import_filter("FileImportQRCodeFilter")
+        # noinspection PyTypeChecker
+        qr_filter: FileImportQRCodeFilter = self.get_file_import_filter("FileImportQRCodeFilter")
         if not qr_filter.is_active():
             raise Exception(f"{self.__class__.__name__}.build_context : QR Code Filter got deactivated")
 
         qr_filter.set_path_and_filename(f)
-        new_context = {"import": True}
+        new_context = {}
         new_context = qr_filter.get_file_information(new_context)
-        return new_context
+        if new_context:
+            if "type" in qr_filter.qr_code_data and qr_filter.qr_code_data["type"] == "M":
+                return new_context
+            else:
+                logging.info(f"{self.__class__.__name__}.get_context_from_qr_code : "
+                             f"file {kioskstdlib.get_filename(f)} has a QR Code but it is not a sequence marker: "
+                             f"The file is skipped entirely.")
+                return {"import": False}
+        return {}
 
     def build_context(self, f):
         new_context = copy.deepcopy(self._context)

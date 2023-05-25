@@ -174,6 +174,7 @@ class FileImportQRCodeFilter(FileImportFilter):
                                  "identifier": qr_code_tester.qr_code_recognized.data,
                                  "type": qr_code_tester.qr_code_recognized.qr_code_type,
                                  "raw": qr_code_tester.qr_code_recognized.raw_data}
+            logging.debug(self.qr_code_data)
             if self.get_filter_configuration_value("get_identifier") and qr_code_tester.qr_code_recognized:
                 identifier = qr_code_tester.qr_code_recognized.data
                 if identifier:

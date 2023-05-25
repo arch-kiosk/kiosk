@@ -17,6 +17,7 @@ config:
   thumbnail_dir: '%file_repository%\thumbnails'
   default_resolution: high
   file_handling_definition: '%base_path%\config\file_handling.yml'
+  image_manipulation_config: '%base_path%\config\image_manipulation_config.yml'
   default_file_handling: ipad
   static_image_path: '%base_path%\static\assets\images'
   redis_address: "127.0.0.1"
@@ -25,6 +26,9 @@ config:
   thumbnail_sets:
     'small': 128,128
     'medium': 256,256
+
+file_handlers:
+  plugins: ["defaultfilehandling", "heicfilehandling", "pdffilehandling", "svgfilehandling"]
 
 file_import:
   file_extensions: ["*"]
@@ -47,11 +51,14 @@ file_import:
     filesequence_import:
       FileImportQRCodeFilter:
         priority: 0
+        recognition_strategy: qr_code_sahara
+        image_manipulation_sets:
+          - qr_code_sahara
+          - qr_code_black_velvet
       FileImportStandardFileFilter:
         priority: 1
       FileImportExifFilter:
         priority: 2
-
 
 file_repository:
   cache: '%file_repository%\cache'
