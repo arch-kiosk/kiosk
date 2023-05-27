@@ -242,7 +242,7 @@ class KioskJob {
 
     if (subHeading) {
       let jqHeading = jqLogView.find(".kiosk-log-heading");
-      jqHeading.append(`<span class=kiosk-log-subheading"><br>${subHeading}</span>`);
+      jqHeading.append(`<span class="kiosk-log-subheading"><br>${subHeading}</span>`);
     }
 
     let jqLogLineTemplate = jqLogView.find(".kiosk-log-line").clone();

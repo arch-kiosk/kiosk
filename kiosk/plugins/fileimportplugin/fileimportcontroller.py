@@ -24,6 +24,7 @@ from core.kioskresult import KioskResult
 from filesequenceimport import FileSequenceImport
 from image_manipulation.imagemanipulationstrategyfactory import ImageManipulationStrategyFactory
 from kioskcleanup import KioskCleanup
+from mcpinterface.mcpjob import MCPJob
 from sync.core.fileimport import FileImport
 from sync.core.filerepository import FileRepository
 from sync.core.synchronization import Synchronization
@@ -611,7 +612,6 @@ def dialogsequence1():
     test_cfg = user_config.get_config("file_import")
     logging.debug(f"fileimportcontroller.dialogsequence1: user config: {test_cfg}")
     print("fileimportcontroller.dialogsequence1")
-    print(user_config)
 
     file_import = FileSequenceImport(cfg, sync, user_config=user_config)
 
@@ -707,9 +707,18 @@ def run_sequence_import():
         file_import = FileSequenceImport(cfg, sync, user_config=user_config)
         file_import.form_to_config(sequenceimportform1)
 
-        json_message = "Not implemented"
+        errors = []
+
+        job = MCPJob(kioskglobals.general_store)
+        job.set_worker("plugins.fileimportplugin.workers.filesequenceimportworker", "FileSequenceImportWorker")
+        job.job_data = file_import.get_wtform_values()
+        job.queue()
+        job_uid = job.job_id
+        json_message = "ok"
+
     except Exception as e:
+        job_uid = ""
         json_message = "Exception in FileImport/sequence_import: " + repr(e)
         logging.error(json_message)
 
-    return jsonify(result=json_message)
+    return jsonify(result=json_message, job_uid=job_uid)

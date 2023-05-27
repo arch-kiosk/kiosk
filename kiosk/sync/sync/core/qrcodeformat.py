@@ -73,17 +73,18 @@ class QRCodeFormat:
         self.qr_code_type = ""
 
         for data in data_items:
-            if data[0:2] == "D:":
-                self.data = data[2:]
+            if data.strip():
+                if data[0:2] == "D:":
+                    self.data = data[2:]
 
-            elif data[0:3] == "TS:":
-                self.timestamp = urapdatetimelib.guess_datetime(data[3:])
-            elif data[0:2] == "T:":
-                self.qr_code_type = data[2:]
-            elif data[0:2] == "V:":
-                pass
-            else:
-                logging.warning(f"{self.__class__.__name__}._decode_raw_data_v3: Unknown datum {data}")
+                elif data[0:3] == "TS:":
+                    self.timestamp = urapdatetimelib.guess_datetime(data[3:])
+                elif data[0:2] == "T:":
+                    self.qr_code_type = data[2:]
+                elif data[0:2] == "V:":
+                    pass
+                else:
+                    logging.warning(f"{self.__class__.__name__}._decode_raw_data_v3: Unknown datum \"{data}\"")
 
         return True
 

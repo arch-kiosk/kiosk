@@ -5,7 +5,7 @@ import os
 import kioskstdlib
 from fileimport import FileImport
 from fileimportfilter import FileImportFilter
-from fileimportqrcodefilter.fileimportqrcodefilter import FileImportQRCodeFilter
+from sync_plugins.fileimportqrcodefilter.fileimportqrcodefilter import FileImportQRCodeFilter
 from kioskstdlib import report_progress
 from sync_config import SyncConfig
 from userconfig import UserConfig
@@ -30,7 +30,7 @@ class FileSequenceImport(FileImport):
         self.image_manipulation_set = ""
 
         super().__init__(cfg, app, method, user_config)
-        print(self._config)
+        # print(self._config)
         self._initialize_filters()
 
     def _init_from_config(self, config):
