@@ -21,6 +21,17 @@
         </p>
       </div>
     {% endif %}
+    {% if current_plugin_controller.is_operation_allowed("sequence") %}
+      <div id="bt-sequence" class="filter-selection">
+        <h3>Sequences</h3>
+        <p>
+          Use this option if you have a ton of images that are structured as a sequences of photos with qr codes
+          marking the begin and end of each sequence and connecting the sequence to an archaeological context.
+          <br>This needs access to a local device on the physical server.
+          If you are accessing an internet server this is not your option.
+        </p>
+      </div>
+    {% endif %}
   {% else %}
     <div id="no-import-option">
       <h3>No options available</h3>
@@ -52,6 +63,9 @@
       case "bt-upload":
         next_page = "fileimport/dialogupload1";
         break;
+      case "bt-sequence":
+        next_page = "fileimport/dialogsequence1";
+        break;
     }
     if (next_page) {
 
@@ -73,13 +87,17 @@
     goto_next_page(pressed_name);
   });
 
-  if (!(elementExists("#bt-upload") && elementExists("#bt-local-import"))) {
+  if (!(elementExists("#bt-upload") && elementExists("#bt-local-import") && elementExists("#bt-sequence"))) {
     if (elementExists("#bt-local-import")) {
       goto_next_page("bt-local-import");
     } else {
-      if (elementExists("#bt-upload")) {
-        goto_next_page("bt-upload");
-      }
+        if (elementExists("#bt-upload")) {
+            goto_next_page("bt-upload");
+        } else {
+            if (elementExists("#bt-sequence")) {
+                goto_next_page("bt-sequence");
+            }
+        }
     }
   }
 

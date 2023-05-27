@@ -130,6 +130,11 @@ file_handlers:
 file_import:
   file_extensions: [ "jpg" ]
   recursive: True
+  sort_sequence_by: "FILE_CREATION_TIME"
+  use_coded_filenames: False  # used for sequence import
+  skip_qrcodes_proper: True  # used for sequence import
+  use_exif_time: False  # used for sequence import
+  image_manipulation_set: qr_code_sahara  # used for sequence import
   use_uuid: True
   log_import: True
   tags: [ ]
@@ -200,6 +205,38 @@ file_import:
         get_date_from_exif: False
         get_description_from_exif: True
         priority: 15
+    filesequence_import:
+      FileImportStandardValuesFilter:
+        active: False
+        priority: 0
+      FileImportStandardFolderFilter:
+        priority: 10
+        active: True
+        get_context_from_folder: True
+        get_date_from_folder: True
+      FileImportStandardFileFilter:
+        active: True
+        get_context_from_file: True
+        get_date_from_file: False
+        priority: 20
+      FileImportQRCodeFilter:
+        active: True
+        get_excavation_context: True
+        get_date: True
+        priority: 30
+        recognition_strategy: qr_code_sahara
+        image_manipulation_sets:
+          - qr_code_sahara
+          - qr_code_black_velvet
+          - qr_code_italy
+          - qr_code_peru
+      FileImportExifFilter:
+        active: True
+        get_context_from_exif: False
+        get_date_from_exif: False
+        get_description_from_exif: True
+        priority: 25
+
 
 kiosk:
   security_token_timeout_seconds: 3600
@@ -279,7 +316,7 @@ kiosk:
   fileimportplugin:
     active: true
     is_main_index: false
-    allow_operations: [ "local filesystem", "upload" ]
+    allow_operations: [ "local filesystem", "upload", "sequence" ]
     menu:
       "import files": [ "+filerepositoryplugin" ]
 

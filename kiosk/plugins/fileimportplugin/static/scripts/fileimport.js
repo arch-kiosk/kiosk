@@ -411,5 +411,37 @@ function kioskImportSendAjaxForm(jq_bt_next, jq_outer_div, url, on_eval, on_fail
     });
 }
 
+function startSequenceImport() {
+
+  installSpinnerEx($("#import-spinner"), "triggering import ...");
+
+  $.ajax({
+    url: "/fileimport/sequenceimport",
+    type: "POST",
+    data: {},
+    dataType: "json",
+  })
+    .done(function (json) {
+      //$("#ws-message-div").css("height", "auto");
+      if (json.result === "ok") {
+        local_import_running = true;
+        pollImportProgress("Import started...");
+      }
+      else {
+        local_import_running = false;
+        stop_spinner();
+        $("#ws-message-div").html("Blast! Importing failed: <span style='color: red'>" + json.result + "</span>");
+        showBackButton(true);
+      }
+    })
+    .fail(function (xhr, status, errorThrown) {
+      local_import_running = false;
+      stop_spinner();
+      $("#ws-message-div").html("Importing failed - Your request could not even be sent. Reason: <span style='color: red'>" + errorThrown + ".</span> That should not have happened.");
+      showBackButton(true);
+    });
+}
+
+
 
 //# sourceURL=fileimport.js

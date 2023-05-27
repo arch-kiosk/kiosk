@@ -1,8 +1,10 @@
+import copy
 import datetime
 import logging
 import os
 import shutil
 
+import dicttools
 from config import Config
 from typerepository import TypeRepository
 
@@ -186,7 +188,9 @@ class FileImport:
     def _init_from_config(self, config):
         if isinstance(config, Config):
             if self._user_config:
-                self._config = self._user_config.init_topic("file_import", config.file_import)
+                self._config = copy.deepcopy(config.file_import)
+                dicttools.dict_merge(self._config,
+                                     self._user_config.init_topic("file_import", config.file_import))
             else:
                 self._config = config.file_import
 
@@ -204,7 +208,6 @@ class FileImport:
             raise Exception("FileImport._instantiate_filters: No app.")
         type_repos: TypeRepository = self._app.type_repository
         filter_types = type_repos.list_types(TYPE_FILEIMPORTFILTER)
-
         for filter_type_name in filter_types:
             filter_type = type_repos.get_type(TYPE_FILEIMPORTFILTER, filter_type_name)
             file_import_filter: FileImportFilter = filter_type(self._sync_config)

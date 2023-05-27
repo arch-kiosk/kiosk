@@ -51,7 +51,7 @@ class KioskFileExportWorkstationForm(FlaskForm, KioskGeneralFormErrors):
         Initializes the edit/create form for export KioskFileExportWorkstation
         :param mode: if "edit" attributes that cannot be changed will be disabled
         :param export_formats: a tuple (id, name): Something like [("excel", "Excel"), ("csv", "CSV")]
-        :param filename_renderings: something like [("use unique id as filename", "uid"), ("render descriptive filenames", "descriptive")]
+        :param filename_renderings: something like [("uid", "use unique id as filename"), ("descriptive", "render descriptive filenames")]
         :param args:
         :param kwargs:
         """

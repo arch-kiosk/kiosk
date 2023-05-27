@@ -114,13 +114,13 @@ class TestFileSequenceImport(KioskPyTestHelper):
     def test__get_sorted_files(self, file_import_setup):
         p = os.path.join(test_path, "test_files", "sort_files")
         content = [os.path.join(p, x) for x in os.listdir(p)]
-        file_import_setup.sort_sequence_by = file_import_setup.SEQUENCE_SORT_OPTIONS["NUMERICAL_FILENAME"]
+        file_import_setup.sort_sequence_by = "NUMERICAL_FILENAME"
         files = [kioskstdlib.get_filename(x) for x in file_import_setup._get_sorted_files(content)]
         assert files == ['DSC_0148.jpg', 'DSC_0155.NEF', 'DSC_0253.NEF', 'DSC_0802.NEF', 'buptap-aad-1008.jpg']
 
         p = os.path.join(test_path, "test_files", "test_files")
         content = [os.path.join(p, x) for x in os.listdir(p)]
-        file_import_setup.sort_sequence_by = file_import_setup.SEQUENCE_SORT_OPTIONS["FILE_CREATION_TIME"]
+        file_import_setup.sort_sequence_by = "FILE_CREATION_TIME"
         files = [kioskstdlib.get_filename(x) for x in file_import_setup._get_sorted_files(content)]
         assert files == ['buptap-aad-008.jpg',
                          'buptap-aad-008-optimized.jpg',
@@ -179,7 +179,7 @@ class TestFileSequenceImport(KioskPyTestHelper):
         file_import._config["file_extensions"] = ["jpg"]
         file_import.tags = ["-"]
         file_import.set_from_dict({
-            "sort_sequence_by": file_import.SEQUENCE_SORT_OPTIONS["FILE_CREATION_TIME"],
+            "sort_sequence_by": "FILE_CREATION_TIME",
             "image_manipulation_set": "qr_code_sahara",
 
         })
@@ -203,7 +203,7 @@ class TestFileSequenceImport(KioskPyTestHelper):
         file_import._config["file_extensions"] = ["jpg"]
         file_import.tags = ["-"]
         file_import.set_from_dict({
-            "sort_sequence_by": file_import.SEQUENCE_SORT_OPTIONS["FILE_CREATION_TIME"],
+            "sort_sequence_by": "FILE_CREATION_TIME",
             "image_manipulation_set": "qr_code_sahara",
         })
 

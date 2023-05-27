@@ -1,0 +1,94 @@
+{% from 'dialogmacros.html' import kiosk_error_div, kiosk_error_span, kiosk_general_form_errors %}
+<div id="sequence-import-form-3-div" import-tags="{{ import_tags }}">
+    {{ kiosk_general_form_errors(general_errors) }}
+    <div class="grid-12">
+        <div class="col-12">
+            <div>The sequence import is running, this can take quite a while.</div>
+        </div>
+        <div class="col-12">
+            <div>
+                <div id="import-progress">
+                    <div id="import-spinner"></div>
+                </div>
+                <div id="import-log-wrapper">
+                    <div id="import-log">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+      var gotoPage = "";
+      //Initialization code
+
+      kioskShowFooter(true);
+      kioskActivateButton($("#bt-next"), null);
+      kioskActivateButton($("#bt-back"), null);
+      kioskActivateButton($("#bt-ok"), null);
+      kioskActivateButton($("#bt-close"), null);
+      kioskActivateButton($("#bt-cancel"), null);
+
+      InitLocalDialog();
+
+      //methods
+
+      function InitLocalDialog() {
+        startSequenceImport();
+      }
+
+      /*
+       function localImportStart() {
+          gotoPage = "fileimport/dialoglocalimport3";
+          kioskSendAjaxForm($("#bt-ok").first(),
+              $("#sequence-import-form-2-div"),
+              "fileimport/dialoglocalimport2",
+              onLocalImportFormEvaluated, onLocalImportFormFailure)
+      }
+      */
+
+      function localImportPrevPage() {
+
+        kioskSendAjaxForm($("#bt-back").first(),
+          $("#sequence-import-form-2-div"),
+          "fileimport/dialoglocalimport2",
+          onLocalImportFormEvaluated, onLocalImportFormFailure,
+          {gotoPage: "fileimport/dialoglocalimport1"})
+      }
+
+      function onLocalImportFormFailure(xhr, status, errorThrown, state_data) {
+        alert(`The trouble is: ${errorThrown}`);
+      }
+
+      function onLocalImportFormEvaluated(jq_form, state_data) {
+        if (!kioskElementHasErrors(jq_form)) {
+          if (!("gotoPage" in state_data)) {
+            kioskErrorToast(`<div>Sorry, I don't know where to go from here.</div>`,
+              {
+                onClosing: () => {
+                  $.magnificPopup.close();
+                }
+              })
+            return
+          }
+
+          kioskGetAjaxElement($("#pagecontrol"),
+            state_data.gotoPage,
+            null,
+            $("#pagecontrol"),
+            (response, status, xhr) => {
+              if (status == "error") {
+                kioskErrorToast(`<div>Error loading page ${gotoPage}: ${response} </div>`,
+                  {
+                    onClosing: () => {
+                      $.magnificPopup.close();
+                    }
+                  });
+              }
+            }
+          );
+        }
+      }
+
+      //# sourceURL=fileimportdialoglocalimport3.js
+    </script>
+</div>

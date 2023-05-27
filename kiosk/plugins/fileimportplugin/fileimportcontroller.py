@@ -21,6 +21,8 @@ from authorization import full_login_required, MODIFY_DATA, get_local_authorizat
 from core.kioskconfig import KioskConfig
 from core.kioskcontrollerplugin import get_plugin_for_controller
 from core.kioskresult import KioskResult
+from filesequenceimport import FileSequenceImport
+from image_manipulation.imagemanipulationstrategyfactory import ImageManipulationStrategyFactory
 from kioskcleanup import KioskCleanup
 from sync.core.fileimport import FileImport
 from sync.core.filerepository import FileRepository
@@ -30,6 +32,7 @@ from kioskstdlib import urap_secure_filename
 from userconfig import UserConfig
 from .forms.fileimportdialoglocalimportform1 import LocalImportForm1
 from .forms.fileimportdialoglocalimportform2 import LocalImportForm2
+from .forms.fileimportdialogsequenceform1 import SequenceImportForm1
 from .forms.fileimportdialoguploadform1 import UploadForm1
 
 _plugin_name_ = "fileimportplugin"
@@ -59,11 +62,20 @@ def inject_current_plugin_controller():
 @full_login_required
 @fileimport.route('/dialog', methods=['GET'])
 def dialog():
-    for s in ["dialoglocalimport1", "dialoglocalimport2", "dialogupload1", "dialogupload2"]:
+    for s in ["dialoglocalimport1", "dialoglocalimport2", "dialogupload1", "dialogupload2",
+              "dialogsequence1", "dialogsequence2"]:
         if s in session:
             session.pop(s)
 
     return render_template(r"fileimportdialog.html")
+
+
+def get_secure_filename(param_filename):
+    filename = urap_secure_filename(param_filename)
+    if not filename:
+        raise Exception(f"Cannot create a secure filename based on filename {param_filename}")
+    # logging.info(f"repository_upload_image: Received filename {param_filename} is now {filename}. ")
+    return filename
 
 
 #  **************************************************************
@@ -74,10 +86,47 @@ def dialog():
 def dialogmethodselection():
     cfg: KioskConfig = kioskglobals.cfg
     max_file_uploads = kioskstdlib.try_get_dict_entry(cfg.file_import, "max_file_uploads", 10)
-
     return render_template(r"fileimportdialogmethodselection.html",
                            repl_user_id=current_user.repl_user_id,
                            max_file_uploads=max_file_uploads)
+
+
+def get_pathlist(cfg):
+    try_path_list = []
+    try:
+        rc_path_list = cfg.get_local_importpaths()
+        if isinstance(rc_path_list, str):
+            rc_path_list = [rc_path_list]
+
+        if not kioskstdlib.to_bool(kioskstdlib.try_get_dict_entry(cfg.kiosk, "limit_import_to_paths", "false")):
+            try:
+                drives = win32api.GetLogicalDriveStrings()
+                if drives:
+                    drives = list(map(lambda d: d.lower()[:1], drives.split('\000')))
+                    drives = [d for d in drives if d and d.lower()[:1] not in ['b', 'a']]
+                else:
+                    drives = []
+            except BaseException as e:
+                logging.error(f"fileimportcontroller.get_pathlist: Exception when listing drives: {repr(e)}. "
+                              f"drives is '{drives}'")
+                logging.error(f"fileimportcontroller.get_pathlist: Exception when listing drives: {repr(e)}")
+            try_path_list = list(filter(lambda p: p.lower()[0] in drives, rc_path_list))
+            try_path_list.extend(filter(lambda p: p not in try_path_list, list(map(lambda d: d + ":\\", drives))))
+        else:
+            try_path_list = rc_path_list
+    except BaseException as e:
+        logging.error(f"fileimportcontroller.get_pathlist: get_pathlist exception {repr(e)}")
+    try_path_list.sort()
+    # print(try_path_list)
+    rc_path_list = []
+    for p in try_path_list:
+        try:
+            if os.path.isdir(p):
+                rc_path_list.append(p)
+        except:
+            pass
+
+    return rc_path_list
 
 
 #  **************************************************************
@@ -86,45 +135,8 @@ def dialogmethodselection():
 @full_login_required
 @fileimport.route('/dialoglocalimport1', methods=['GET', 'POST'])
 def dialoglocalimport1():
-    def get_pathlist():
-        try_path_list = []
-        try:
-            rc_path_list = cfg.get_local_importpaths()
-            if isinstance(rc_path_list, str):
-                rc_path_list = [rc_path_list]
-
-            if not kioskstdlib.to_bool(kioskstdlib.try_get_dict_entry(cfg.kiosk, "limit_import_to_paths", "false")):
-                try:
-                    drives = win32api.GetLogicalDriveStrings()
-                    if drives:
-                        drives = list(map(lambda d: d.lower()[:1], drives.split('\000')))
-                        drives = [d for d in drives if d and d.lower()[:1] not in ['b', 'a']]
-                    else:
-                        drives = []
-                except BaseException as e:
-                    logging.error(f"fileimportcontroller.dialoglocalimport1: Exception when listing drives: {repr(e)}. "
-                                  f"drives is '{drives}'")
-                    logging.error(f"fileimportcontroller.dialoglocalimport1: Exception when listing drives: {repr(e)}")
-                try_path_list = list(filter(lambda p: p.lower()[0] in drives, rc_path_list))
-                try_path_list.extend(filter(lambda p: p not in try_path_list, list(map(lambda d: d + ":\\", drives))))
-            else:
-                try_path_list = rc_path_list
-        except BaseException as e:
-            logging.error(f"fileimportcontroller.dialoglocalimport1: get_pathlist exception {repr(e)}")
-        try_path_list.sort()
-        # print(try_path_list)
-        rc_path_list = []
-        for p in try_path_list:
-            try:
-                if os.path.isdir(p):
-                    rc_path_list.append(p)
-            except:
-                pass
-
-        return rc_path_list
-
     cfg: KioskConfig = kioskglobals.cfg
-    path_list = get_pathlist()
+    path_list = get_pathlist(cfg)
     sync = Synchronization()
 
     user_config = UserConfig(kioskglobals.general_store, current_user.user_id, cfg.get_project_id())
@@ -160,7 +172,6 @@ def dialoglocalimport1():
                           f"Benign Xception when setting default import path: {repr(e)}")
     general_errors = []
     if not file_import.sort_import_filters():
-        print("There are no context filters!")
         general_errors += ["There are no context filters installed. Please talk to your admin."]
 
     return render_template(r"fileimportdialoglocalimport1.html",
@@ -192,7 +203,6 @@ def dialoglocalimport2():
         for context_filter in context_filters:
             context_filter.init_form(request.form)
             frm = context_filter.get_form()
-            print("validating form for filter " + context_filter.get_display_name())
             rc = frm.validate()
             is_valid = is_valid & rc
 
@@ -220,10 +230,8 @@ def dialoglocalimport2():
 
 
 #  **************************************************************
-#  ****    import-dialog local import page 2: Filters and options
+#  ****    import-dialog local import page 3: Progress page
 #  *****************************************************************/
-
-
 @full_login_required
 @fileimport.route('/dialoglocalimport3', methods=['GET', 'POST'])
 def dialoglocalimport3():
@@ -235,8 +243,6 @@ def dialoglocalimport3():
 #  **************************************************************
 #  ****    import-dialog local import page 2: Filters and options
 #  *****************************************************************/
-
-
 @full_login_required
 @fileimport.route('/localimport', methods=['POST'])
 def localimport():
@@ -274,7 +280,6 @@ def localimport():
             file_import.identifier_evaluator = ic.has_identifier
             file_import.move_finished_files = True
             rc = file_import.execute()
-            print("Running quality control")
             try:
                 kiosklib.run_quality_control()
             except BaseException as e:
@@ -292,7 +297,6 @@ def localimport():
             t.thread_progress = 100
 
         worker_queue.put(("json_message", json_msg))
-        print("Import - worker ends")
 
     # localimport main function
     try:
@@ -315,9 +319,8 @@ def localimport():
 
         file_import.form_to_config(localimportform1)
 
-        print(file_import.__dict__)
-        for context_filter in context_filters:
-            print(context_filter.__dict__)
+        # for context_filter in context_filters:
+        #     print(context_filter.__dict__)
 
         authorized_to = get_local_authorization_strings(LOCAL_FILE_IMPORT_PRIVILEGES)
         if "modify data" not in authorized_to:
@@ -393,7 +396,6 @@ def dialogupload1():
     context_filters = [file_import.get_file_import_filter(x) for x in sorted_names]
     general_message = ""
 
-    print(context_filters)
     import_tags = ""
     if request.method == 'POST':
         is_valid = True
@@ -595,9 +597,119 @@ def uploadimage():
     return result.jsonify()
 
 
-def get_secure_filename(param_filename):
-    filename = urap_secure_filename(param_filename)
-    if not filename:
-        raise Exception(f"Cannot create a secure filename based on filename {param_filename}")
-    # logging.info(f"repository_upload_image: Received filename {param_filename} is now {filename}. ")
-    return filename
+#  **************************************************************
+#  ****    import-dialog sequence import page 1
+#  *****************************************************************/
+@full_login_required
+@fileimport.route('/dialogsequence1', methods=['GET', 'POST'])
+def dialogsequence1():
+    cfg: KioskConfig = kioskglobals.cfg
+    path_list = get_pathlist(cfg)
+    sync = Synchronization()
+
+    user_config = UserConfig(kioskglobals.general_store, current_user.user_id, cfg.get_project_id())
+    test_cfg = user_config.get_config("file_import")
+    logging.debug(f"fileimportcontroller.dialogsequence1: user config: {test_cfg}")
+    print("fileimportcontroller.dialogsequence1")
+    print(user_config)
+
+    file_import = FileSequenceImport(cfg, sync, user_config=user_config)
+
+    general_message = ""
+
+    sort_options = [("FILE_CREATION_TIME", "file's creation time"),
+                    ("FILE_NUM_PART", "numerical part of file name")]
+
+    image_manipulation_sets = [(strategy["id"], strategy["name"]) for strategy in
+                               ImageManipulationStrategyFactory.get_image_manipulation_set_descriptors()]
+
+    import_tags = ""
+    if request.method == 'POST':
+        sequenceform1 = SequenceImportForm1(sort_options, image_manipulation_sets, **request.form)
+        # sequenceform1.init_lists()
+        if sequenceform1.validate():
+            if len(str(sequenceform1.tags.data)) == 0:
+                form_data = dict(request.form)
+                form_data["tags"] = "import_" + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                import_tags = form_data["tags"]
+                logging.info(
+                    "dialogsequence1: Files will be automatically tagged as " + import_tags)
+                session["dialogsequence1"] = form_data
+            else:
+                session["dialogsequence1"] = request.form
+                import_tags = session["dialogsequence1"]["tags"]
+    else:
+        if 'dialogsequence1' in session:
+            sequenceform1 = SequenceImportForm1(sort_options, image_manipulation_sets, **ImmutableMultiDict(session["dialogsequence1"]))
+        else:
+            config = file_import.get_wtform_values()
+            sequenceform1 = SequenceImportForm1(sort_options, image_manipulation_sets, **ImmutableMultiDict(config))
+        try:
+            if sequenceform1.mif_local_path.data is None or sequenceform1.mif_local_path.data.strip() == "":
+                sequenceform1.mif_local_path.data = path_list[0]
+        except BaseException as e:
+            logging.debug(f"fileimportcontroller.dialogsequence1: "
+                          f"Benign Xception when setting default import path: {repr(e)}")
+        # sequenceform1.init_lists(sort_options, image_manipulation_sets)
+
+    general_errors = []
+    if not file_import.sort_import_filters():
+        general_errors += ["There are no context filters installed. Please talk to your admin."]
+
+    resp = make_response(render_template(r"fileimportdialogsequence1.html",
+                                         sequenceimportform1=sequenceform1,
+                                         general_errors=general_errors,
+                                         path_list=path_list))
+    resp.set_cookie('import_tags', import_tags)
+
+    return resp
+
+
+#  **************************************************************
+#  ****    import-dialog local import page 3: Progress page
+#  *****************************************************************/
+@full_login_required
+@fileimport.route('/sequenceimport', methods=['GET', "POST"])
+def sequence_import():
+    if request.method == 'GET':
+        import_tags = session["dialogsequence1"]["tags"]
+        return render_template(r"fileimportdialogsequence2.html",
+                               import_tags=import_tags)
+    else:
+        return run_sequence_import()
+
+
+#  **************************************************************
+#  ****    import-dialog sequence import: Start the import
+#  *****************************************************************/
+def run_sequence_import():
+    json_message = "unknown error"
+    cfg: KioskConfig = kioskglobals.cfg
+
+    # localimport main function
+    try:
+        authorized_to = get_local_authorization_strings(LOCAL_FILE_IMPORT_PRIVILEGES)
+        if "modify data" not in authorized_to:
+            return jsonify(result="You do not have the necessary privilege to import files.")
+
+        sync = Synchronization()
+
+        user_config = UserConfig(kioskglobals.general_store, current_user.user_id, cfg.get_project_id())
+        test_cfg = user_config.get_config("file_import")
+        logging.debug(f"fileimportcontroller.localimport: user config: {test_cfg}")
+        kioskglobals.general_store.delete_key("STOPTHREAD")
+        sort_options = [("FILE_CREATION_TIME", "file's creation time"),
+                        ("FILE_NUM_PART", "numerical part of file name")]
+
+        image_manipulation_sets = [(strategy["id"], strategy["name"]) for strategy in
+                                   ImageManipulationStrategyFactory.get_image_manipulation_set_descriptors()]
+        sequenceimportform1 = SequenceImportForm1(sort_options, image_manipulation_sets, **session["dialogsequence1"])
+        file_import = FileSequenceImport(cfg, sync, user_config=user_config)
+        file_import.form_to_config(sequenceimportform1)
+
+        json_message = "Not implemented"
+    except Exception as e:
+        json_message = "Exception in FileImport/sequence_import: " + repr(e)
+        logging.error(json_message)
+
+    return jsonify(result=json_message)

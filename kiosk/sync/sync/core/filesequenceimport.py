@@ -15,21 +15,36 @@ class FileSequenceImport(FileImport):
     """
       :todo: refactor _app towards separate TypeRepository/EventManager/PluginLoader classes
     """
-    SEQUENCE_SORT_OPTIONS = {"FILE_CREATION_TIME": 0, "NUMERICAL_FILENAME": 1}
+    # SEQUENCE_SORT_OPTIONS = ["FILE_CREATION_TIME", "NUMERICAL_FILENAME"]
 
     def __init__(self, cfg: SyncConfig, app, method="filesequence_import", user_config: UserConfig = None):
         if method != "filesequence_import":
             raise Exception(f"{self.__class__.__name__}.__init__: "
                             f"Instantiation of FileSequenceImport with method {method} not possible. "
                             f"Use FileImport instead.")
-        super().__init__(cfg, app, method, user_config)
         self._exif_filter_present = False
         self.skip_qrcodes_proper = True
         self.use_coded_filenames = False
-        self.sort_sequence_by = self.SEQUENCE_SORT_OPTIONS["FILE_CREATION_TIME"]
+        self.sort_sequence_by = "FILE_CREATION_TIME"
         self.use_exif_time = False
         self.image_manipulation_set = ""
+
+        super().__init__(cfg, app, method, user_config)
+        print(self._config)
         self._initialize_filters()
+
+    def _init_from_config(self, config):
+        super()._init_from_config(config)
+        if "skip_qrcodes_proper" in self._config:
+            self.skip_qrcodes_proper = self._config["skip_qrcodes_proper"]
+        if "use_coded_filenames" in self._config:
+            self.use_coded_filenames = self._config["use_coded_filenames"]
+        if "sort_sequence_by" in self._config:
+            self.sort_sequence_by = self._config["sort_sequence_by"]
+        if "use_exif_time" in self._config:
+            self.use_exif_time = self._config["use_exif_time"]
+        if "image_manipulation_set" in self._config:
+            self.image_manipulation_set = self._config["image_manipulation_set"]
 
     def _initialize_filters(self):
 
@@ -280,10 +295,10 @@ class FileSequenceImport(FileImport):
             # print(f"self._file_extensions is null")
             files = [x for x in content if os.path.isfile(x)]
 
-        if self.sort_sequence_by == self.SEQUENCE_SORT_OPTIONS["FILE_CREATION_TIME"]:
+        if self.sort_sequence_by == "FILE_CREATION_TIME":
             for idx, file_path_and_name in enumerate(files):
                 files[idx] = (file_path_and_name, kioskstdlib.get_earliest_date_from_file(file_path_and_name))
-        elif self.sort_sequence_by == self.SEQUENCE_SORT_OPTIONS["NUMERICAL_FILENAME"]:
+        elif self.sort_sequence_by == "NUMERICAL_FILENAME":
             for idx, file_path_and_name in enumerate(files):
                 files[idx] = (file_path_and_name,
                               kioskstdlib.force_positive_int_from_string(file_path_and_name,
