@@ -45,6 +45,9 @@ class FileContextUtils:
                                                         method="PREFIX", fallback=True)
         if custom_contexts:
             custom_contexts.register_custom_rgx(self)
+            rgx_list = [r for r in list(self.STRING2IDENTIFIER_RGX.values())]
+            for r in rgx_list:
+                logging.debug(f"filecontextutils.init_standard_rgx: Using regex '{r}'")
         else:
             raise ModuleNotFoundError("init_standard_rgx: Could not load custom filecontexts module")
 

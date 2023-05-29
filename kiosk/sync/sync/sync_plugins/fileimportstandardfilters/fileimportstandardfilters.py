@@ -253,6 +253,7 @@ class FileImportStandardFolderFilter(FileImportFilter):
     def get_file_information(self, context) -> dict:
         if not (self.get_filter_configuration_value("get_date_from_folder") or
                 self.get_filter_configuration_value("get_identifier_from_folder")):
+            logging.debug("FileImportStandardFolderFilter: deactivated due to missing configuration values")
             self.deactivate()
             return context
 
@@ -362,6 +363,7 @@ class FileImportStandardFileFilter(FileImportFilter):
         if not (self.get_filter_configuration_value("get_date_from_file") or
                 self.get_filter_configuration_value("get_identifier_from_filename") or
                 self.get_filter_configuration_value("get_description_from_filename")):
+            logging.debug("FileImportStandardFileFilter: deactivated due to missing configuration values")
             self.deactivate()
             return context
 
