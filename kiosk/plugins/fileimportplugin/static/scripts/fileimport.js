@@ -111,7 +111,7 @@ function pollImportProgress() {
                 }
             } else {
                 cancelLocalImportIfNecessary()
-                show_import_log(true, json, "Some unspecific error occurred during import.");
+                show_import_log(true, json, "Some error occurred during import");
             }
         })
         .fail(function (xhr, status, errorThrown) {

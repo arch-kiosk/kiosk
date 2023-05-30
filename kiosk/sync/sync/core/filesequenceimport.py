@@ -222,8 +222,7 @@ class FileSequenceImport(FileImport):
                         logging.debug(f"{self.__class__.__name__}._r_add_files_to_repository: "
                                       f"Sequence '{current_context['identifier']} "
                                       f"closing with file {kioskstdlib.get_filename(f)}.")
-                        if not self.skip_qrcodes_proper:
-                            current_sequence.append(f)
+                        current_sequence.append(f)
                         self._context = current_context
                         self._import_sequence(current_sequence)
                         self._context = {}
@@ -249,8 +248,7 @@ class FileSequenceImport(FileImport):
                     # but a new context was found:
                     current_context = new_context
                     current_sequence = []
-                    if not self.skip_qrcodes_proper:
-                        current_sequence.append(f)
+                    current_sequence.append(f)
                     logging.debug(f"{self.__class__.__name__}._r_add_files_to_repository: "
                                   f"Sequence '{current_context['identifier']} "
                                   f"started with file {kioskstdlib.get_filename(f)}.")
@@ -279,9 +277,18 @@ class FileSequenceImport(FileImport):
         return True
 
     def _import_sequence(self, sequence: list):
+        # The first and the last image are the bracketing images that need to be moved to the done folder
+
+        start_file = sequence.pop(0)
+        end_file = sequence.pop()
+
         for f in sequence:
             if self._import_single_file_to_repository(f):
                 self.files_added += 1
+
+        if self.move_finished_files:
+            self._move_finished_file(start_file)
+            self._move_finished_file(end_file)
 
     def _get_sorted_files(self, content):
         if self._file_extensions:
@@ -335,10 +342,13 @@ class FileSequenceImport(FileImport):
 
         file_filters = []
         if self.use_exif_time:
-            file_filters.append("FileImportEXIFFilter")
+            file_filters.append("FileImportExifFilter")
         file_filters.append("FileImportStandardFileFilter")
         for file_filter_name in file_filters:
             file_filter: FileImportFilter = self.get_file_import_filter(file_filter_name)
+            if not file_filter:
+                raise Exception(f"{self.__class__.__name__}.build_context : {file_filter_name} not available")
+
             if not file_filter.is_active():
                 raise Exception(f"{self.__class__.__name__}.build_context : {file_filter_name} got deactivated")
 

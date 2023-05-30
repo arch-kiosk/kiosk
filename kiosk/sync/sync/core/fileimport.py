@@ -47,6 +47,7 @@ class FileImport:
         self._check_identifier = None
         self._modified_by = "sys"
         self.move_finished_files = False
+        self._stop_import = False
 
     @property
     def file_repository(self):
@@ -272,6 +273,7 @@ class FileImport:
 
         self.files_processed = 0
         self.files_added = 0
+        self._stop_import = False
 
         report_progress(self.callback_progress,
                         progress=0,
@@ -305,6 +307,9 @@ class FileImport:
                           f"it is supposed to contain"
                           f"already processed files.")
             return True
+
+        if self._stop_import:
+            return False
 
         if level > 10:
             logging.error("FileImport._r_add_files_to_repository: Recursion went deeper than level 10.")
@@ -340,6 +345,9 @@ class FileImport:
 
             if self._import_single_file_to_repository(f):
                 self.files_added += 1
+            else:
+                if self._stop_import:
+                    return False
 
             report_progress(self.callback_progress, progress=0, topic="import-local-files",
                             extended_progress=[self.files_processed, self.files_added])
@@ -356,14 +364,28 @@ class FileImport:
     def build_context(self, f):
         context = {"import": True}
         for import_filter_name in self._import_filters_sorted:
-            import_filter: FileImportFilter = self._import_filters[import_filter_name]
-            if not import_filter.has_identifier_evaluator:
-                import_filter.register_identifier_evaluator(self._check_identifier)
-            if import_filter.is_active():
-                logging.debug(f"trying filter '{import_filter.get_display_name()}' on file {f}")
-                import_filter.set_path_and_filename(f)
-                new_context = import_filter.get_file_information(context)
-                context = new_context
+            try:
+                import_filter: FileImportFilter = self._import_filters[import_filter_name]
+                if not import_filter.has_identifier_evaluator:
+                    import_filter.register_identifier_evaluator(self._check_identifier)
+                if import_filter.is_active():
+                    logging.debug(f"trying filter '{import_filter.get_display_name()}' on file {f}")
+                    import_filter.set_path_and_filename(f)
+                    new_context = import_filter.get_file_information(context)
+                    if "identifier" in new_context:
+                        if hasattr(import_filter, "qr_code_data"):
+                            if "type" in import_filter.qr_code_data and import_filter.qr_code_data["type"] == "M":
+                                logging.error(f"FileImport: {kioskstdlib.get_filename(f)} "
+                                              f"has a qr code that is a sequence marker."
+                                              "But you are not importing a sequence right now. "
+                                              "Always run your sequence imports first! Import aborted.")
+                                new_context["import"] = False
+                                self._stop_import = True
+                                return new_context
+                    context = new_context
+            except BaseException as e:
+                logging.error(f"{self.__class__.__name__}.build_context: Exception "
+                              f"with filter {import_filter_name}: {repr(e)}")
         return context
 
     def _import_single_file_to_repository(self, f):
@@ -381,7 +403,7 @@ class FileImport:
 
             context = self.build_context(f)
 
-            if not kioskstdlib.try_get_dict_entry(context, "import", True):
+            if not kioskstdlib.try_get_dict_entry(context, "import", True) or self._stop_import:
                 logging.error(f"file {f} has been suppressed by some earlier file import filter")
                 return False
 
