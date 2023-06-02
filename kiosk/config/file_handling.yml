@@ -34,8 +34,3 @@ file_handling:
         storage:
           location: internal
           representation: RAW2400x2500
-    tiny:
-      default:
-        storage:
-          location: internal
-          representation: small
