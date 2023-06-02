@@ -2,7 +2,7 @@ import logging
 import os
 from http import HTTPStatus
 
-from flask import Blueprint, request, render_template, redirect, url_for, abort
+from flask import Blueprint, request, render_template, redirect, url_for, abort, jsonify
 from flask_allows import requires
 from flask_cors import CORS
 from flask_login import current_user
@@ -441,7 +441,10 @@ def run(dock_id: str):
         raise e
     except Exception as e:
         logging.error(f"kioskreportingdockcontroller.dock_actions: {repr(e)}")
-        abort(HTTPStatus.INTERNAL_SERVER_ERROR)
+        response = jsonify({'message': repr(e)})
+        response.status_code = HTTPStatus.BAD_REQUEST
+        return response
+        # abort(HTTPStatus.INTERNAL_SERVER_ERROR, repr(e))
 
 
 @kioskreportingdock.route('run/<string:dock_id>/<string:base_query>', methods=['GET', 'POST'])
@@ -470,14 +473,21 @@ def variables(dock_id: str, base_query: str):
 
         variable_dict = {}
 
+        variable_errors = {}
         rdv_form = None
         if request.method == 'POST':
             form_variables = request.form.to_dict()
             for variable in reporting_engine.get_required_variables(base_query):
                 if not form_variables[variable]:
-                    general_errors.append(f"Please enter a value for variable '{variable}'.")
-                variable_dict[variable] = form_variables[variable]
-            if not general_errors:
+                    variable_errors[variable] = f"Please enter a value for '{variable}'."
+                    variable_dict[variable] = ""
+                else:
+                    err = reporting_engine.get_variable_error(variable, form_variables[variable])
+                    if err:
+                        variable_errors[variable] = err
+                    variable_dict[variable] = form_variables[variable]
+
+            if not general_errors and not variable_errors:
                 rdv_form = KioskReportingVariablesForm()
                 general_errors += run_report(dock_id, base_query, variable_dict, rdv_form.zip_output_files.data)
 
@@ -488,8 +498,12 @@ def variables(dock_id: str, base_query: str):
         if not rdv_form:
             rdv_form = KioskReportingVariablesForm()
 
+        if variable_errors and not general_errors:
+            general_errors.append("Please check your inputs")
+
         return render_template('reportingdockrunvariables.html',
                                general_errors=general_errors,
+                               variable_errors=variable_errors,
                                ws=reporting_dock,
                                base_query=base_query,
                                dock_id=dock_id,

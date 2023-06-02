@@ -1,6 +1,9 @@
 import copy
+import datetime
+import logging
 
 import kioskstdlib
+import urapdatetimelib
 from dsd.dsd3singleton import Dsd3Singleton
 from kioskquery.kioskquerylib import *
 from simplefunctionparser import SimpleFunctionParser
@@ -101,6 +104,7 @@ class KioskQueryVariables:
                                       f"not declared in reporting definition")
         if self.get_variable_type(key) in ["date", "datetime", "time", "timestamp"]:
             try:
+                value = self.transform_variable_value(key, value)
                 kioskstdlib.str_to_iso8601(value)
             except ValueError:
                 raise KioskQueryException(f"{self.__class__.__name__}.set_variable: attempt to set variable {key} "
@@ -118,6 +122,48 @@ class KioskQueryVariables:
             raise KioskQueryException(f"{self.__class__.__name__}.get_variable_raw: Variable {key} "
                                       f"not declared in reporting definition")
         return self._variable_definitions[key]["datatype"]
+
+    def transform_variable_value(self, key: str, value: str) -> str:
+        """
+        transforms a variable input into what is the proper value for that variable type. Tries e.g. to transform a
+        date into the iso format.
+        :param  key: variable name
+                value: variable input value
+        :return: string representaton of the correct value
+        :except: raises Exceptions if the transformation is not possible.
+        """
+        variable_type: str = self.get_variable_type(key)
+        if not variable_type:
+            raise Exception(f"Cannot determine type for variable {key}. This is an internal error "
+                            f"or a problem of the query definition.")
+        if variable_type.lower() in ["timestamp", "date", "time", "datetime"]:
+            # try:
+            #     v = kioskstdlib.str_to_iso8601(value)
+            #     if v:
+            #         return v
+            # except:
+            #     pass
+            result = urapdatetimelib.check_urap_date_time(value, allow_date_only=True)
+            if not result[0]:
+                raise Exception(result[1])
+            else:
+                dt: datetime.datetime = result[0]
+                return kioskstdlib.iso8601_to_str(dt)
+
+        return value
+
+    def transform_all_variables(self):
+        """
+        Transforms all variable inputs into inputs that match the requirements of the datatype
+        """
+        logging.debug(f"{self.__class__.__name__}.transform_all_variables: "
+                      f"transforming all variable values")
+        for key in self._variables:
+            new_value = self.transform_variable_value(key, self._variables[key])
+            logging.debug(f"{self.__class__.__name__}.transform_all_variables: "
+                          f"Variable {key} transformed from {self._variables[key]} to {new_value}")
+            self._variables[key] = new_value
+
 
     def get_variable_raw(self, key: str):
         if key not in self._variable_definitions:

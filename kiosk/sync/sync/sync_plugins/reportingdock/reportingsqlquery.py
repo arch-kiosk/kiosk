@@ -8,15 +8,15 @@ from kioskquery.kioskqueryvariables import KioskQueryVariables
 
 
 class ReportingSqlQuery(ReportingQuery):
-    def __init__(self, query_dict: dict, variables: KioskQueryVariables, namespace):
+    def __init__(self, query_dict: dict, variables: KioskQueryVariables, namespace, template_strings=None):
         if "type" not in query_dict or query_dict["type"].lower() != "sql":
             raise ReportingException(f"{self.__class__.__name__}: Call with wrong type of definition")
         if "query" not in query_dict:
             raise ReportingException(f"{self.__class__.__name__}: 'query' missing in query dict")
         if "output_type" not in query_dict:
             raise ReportingException(f"{self.__class__.__name__}: Call without output_type")
-
-        super().__init__(query_dict, variables, namespace)
+        super().__init__(query_dict, variables, namespace, template_strings)
+        logging.debug(f"{self.__class__.__name__}.ReportingSqlQuery: {self._template_strings}")
 
     def _translate_variable_term(self, term) -> str:
         if term[0] == '#':
@@ -26,9 +26,27 @@ class ReportingSqlQuery(ReportingQuery):
 
         return result
 
+    def _translate_template_term(self, template) -> str:
+        if template:
+            logging.debug(f"{self.__class__.__name__}._translate_template_term: translating {template}")
+            template_id = template
+            if template_id in self._template_strings:
+                return self._template_strings[template_id]
+            else:
+                logging.warning(f"{self.__class__.__name__}._translate_template_term: template string "
+                                f"{template} is not defined in base query")
+                logging.warning(f"{self.__class__.__name__}._translate_template_term: template strings are "
+                                f"{self._template_strings}")
+
+        return ""
+
     def _translate_variable_terms(self, s) -> str:
+        template_injector = StringInjector(self._translate_template_term, r"({\?.*?\?})")
+        no_template_sql = template_injector.inject_variables(s)
+        if no_template_sql != s:
+            logging.debug(f"{self.__class__.__name__}._translate_variable_terms: no_template_sql is {no_template_sql}")
         injector = StringInjector(self._translate_variable_term)
-        return injector.inject_variables(s)
+        return injector.inject_variables(no_template_sql)
 
     def _prepare_key_value_output_table(self, prepare_first_run=False):
         """

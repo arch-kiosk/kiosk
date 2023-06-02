@@ -50,7 +50,7 @@ function krd_run(ws_id, title, action_url) {
                       $("#dialog-workzone"),
                       (response, status, xhr) => {
                         if (status == "error") {
-                          kioskErrorToast("Dialog could not be initialized. Please try again.", {
+                          kioskErrorToast(`An error occured: ${response}.<br>${xhr.responseJSON.message}.`, {
                             timeout: 5000,
                             transitionIn: 'fadeIn',
                             transitionOut: 'fadeOut'

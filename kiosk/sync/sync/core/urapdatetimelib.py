@@ -3,6 +3,8 @@ import time
 import logging
 import re
 
+import kioskstdlib
+
 latin_months = {"I": "01", "II": "02", "III": "03", "IV": "04", "V": "05", "VI": "06",
                 "VII": "07", "VIII": "08", "IX": "09", "X": "10", "XI": "11", "XII": "12"}
 
@@ -51,6 +53,12 @@ def check_urap_date_time(str_ts, allow_date_only=False) -> tuple:
     ts_parts = str_ts.rsplit(" ", 1)
     if (len(ts_parts) < 2) and (not allow_date_only):
         return None, "Date and time are expected in the format MM.DD.YYYY HH:MM:SS"
+
+    try:
+        iso_dt = kioskstdlib.str_to_iso8601(str_ts)
+        return iso_dt, ""
+    except:
+        pass
 
     date_part = ts_parts[0].strip()
 

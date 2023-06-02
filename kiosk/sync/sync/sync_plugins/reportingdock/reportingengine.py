@@ -100,6 +100,25 @@ class ReportingEngine:
         """
         return self._query_definition.get_required_variables(base_query_name)
 
+    def get_variable_error(self, variable_name, variable_value) -> str:
+        """
+        returns an error text if the value does not meet the variable's requirements
+        :returns: str
+        """
+        try:
+            v = self._variables.transform_variable_value(variable_name, variable_value)
+            return ""
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.get_variable_error: {repr(e)}")
+            return repr(e)
+
+    def get_template_strings(self, base_query_name):
+        """
+        returns the names of the variables that are required to run a report on the base_query
+        :returns: list [str]
+        """
+        return self._query_definition.get_template_strings(base_query_name)
+
     def load_mapping_definition(self, mapping_definition_file_path: str, template_file: str = ""):
         """
         Loads the mapping definition and instantiates the output driver according to the
@@ -151,6 +170,7 @@ class ReportingEngine:
         if namespace:
             self._namespace = namespace
         self._callback_progress = callback_progress
+        self._variables.transform_all_variables()
 
         if not selected_base_query:
             if len(self._query_definition.base_queries) == 1:
@@ -162,10 +182,12 @@ class ReportingEngine:
             raise ReportingException(f"{self.__class__.__name__}.create_reports: "
                                      f"selected base query {selected_base_query} is missing in the query definition.")
         config = SyncConfig.get_config()
+
         base_query = self._query_definition.base_queries[selected_base_query]
         base_query["output_type"] = "base_query"
+        logging.debug(f"{self.__class__.__name__}.create_reports: about to instantiate ReportingSQLQuery")
         query = ReportingSqlQuery(base_query, self._variables,
-                                  self._namespace)
+                                  self._namespace, self.get_template_strings(selected_base_query))
         query.debug = kioskstdlib.to_bool(kioskstdlib.try_get_dict_entry(config.reportingdock, "debug_sql", "false"))
         if query.debug:
             logging.warning(f"{self.__class__.__name__}.create_reports: sql debugging is on. "
@@ -191,7 +213,7 @@ class ReportingEngine:
                                                       f"running report for {identifier}")
                 self.set_variable("context_identifier", identifier)
                 logging.info(f"Creating report for {identifier}")
-                self.prepare_data(namespace=self._namespace, config=config)
+                self.prepare_data(namespace=self._namespace, config=config, base_query=selected_base_query)
                 self.map(self._namespace)
                 output_path_and_filename = self.output(context_identifier=identifier)
                 if zip_instance:
@@ -205,11 +227,12 @@ class ReportingEngine:
             if zip_instance:
                 zip_instance.close()
 
-    def prepare_data(self, namespace: str, config):
+    def prepare_data(self, namespace: str, config, base_query=""):
         """
         Prepares the data for a single context identifier which must be present as the variable "#context_identifier"
         :param namespace: the (schema) name of the reporting dock.
         :param config: a config instance
+        :param base_query: id of base query
         """
         if not self._query_definition:
             raise ReportingException(f"{self.__class__.__name__}.prepare_data: No query definition present.")
@@ -220,8 +243,10 @@ class ReportingEngine:
             if type_id not in self._query_type_mapping:
                 raise ReportingException(f"{self.__class__.__name__}.prepare_data: query type {type_id} unknown.")
 
-            query_instance: ReportingQuery = self._query_type_mapping[type_id](query_dict, self._variables,
-                                                                               namespace=namespace)
+            query_instance: ReportingQuery = self._query_type_mapping[type_id](
+                query_dict, self._variables,
+                namespace=namespace,
+                template_strings=self.get_template_strings(base_query))
             query_instance.debug = kioskstdlib.to_bool(
                 kioskstdlib.try_get_dict_entry(config.reportingdock, "debug_sql", "false"))
 
@@ -260,7 +285,6 @@ class ReportingEngine:
                 f"{sql_cols} from {KioskSQLDb.sql_safe_namespaced_table(self._namespace, 'reporting_' + list_name)}"
                 f"{sql_order_by}")
 
-            logging.info("RowIterator coming up...")
             return RowIterator(cur).generate()
 
         except BaseException as e:

@@ -160,7 +160,7 @@ class ReportingDock(Dock):
             return False
 
         dock_id = self.get_id()
-        logging.info("Running report to reporting dock " + dock_id)
+        logging.info(f"{self.__class__.__name__}.run: Running report to reporting dock " + dock_id)
 
         # sync = Synchronization()
         file_repos = FileRepository(SyncConfig.get_config())
@@ -169,6 +169,7 @@ class ReportingDock(Dock):
         reporting_engine.template_file = os.path.join(reporting_path, self.template_file)
         reporting_engine.filename_prefix = self.output_file_prefix
         reporting_engine.zip_output_files = self.zip_output_files
+        logging.debug(f"{self.__class__.__name__}.run: loading query definition " + self.query_definition_filename)
         reporting_engine.load_query_definition(os.path.join(reporting_path,
                                                             self.query_definition_filename))
         reporting_engine.load_mapping_definition(os.path.join(reporting_path,
@@ -176,6 +177,7 @@ class ReportingDock(Dock):
 
         for var_name, value in self.variables.items():
             reporting_engine.set_variable(var_name, value)
+
         reporting_engine.create_reports(namespace=dock_id,
                                         selected_base_query=self.base_query,
                                         callback_progress=self.callback_progress)

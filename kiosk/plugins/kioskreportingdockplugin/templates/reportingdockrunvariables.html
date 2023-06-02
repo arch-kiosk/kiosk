@@ -17,6 +17,9 @@
           <label class="kiosk-dialog-label" for="{{ variable_name }}">{{ variable_name }}</label>
           <input type="text" class="kiosk-dialog-textfield" name="{{ variable_name }}" id="{{ variable_name }}"
                  value="{{ variable }}">
+          {% if variable_name in variable_errors %}
+          <span class="kiosk-error-line">{{ variable_errors[variable_name] }}</span>
+          {% endif %}
         </div>
       {% endfor %}
       <div class="col-12">

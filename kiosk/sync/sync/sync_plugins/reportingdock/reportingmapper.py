@@ -18,7 +18,7 @@ class ReportingMapper:
     TYPE_VAR = 2
     TYPE_LIST = 3
     TYPE_VALUE = 4
-    CURRENT_DEF_VERSION = "1.0"
+    CURRENT_DEF_VERSION = "1.1"
 
     VALUE_TYPES = [(r"""^'(\#.*)'$""", TYPE_VAR),
                    (r"""^"(\#.*)"$""", TYPE_VAR),
@@ -33,8 +33,9 @@ class ReportingMapper:
         if "header" not in mapping_definition:
             raise ReportingException("no header found.")
         if "version" not in mapping_definition["header"] \
-                or str(mapping_definition["header"]["version"]) != cls.CURRENT_DEF_VERSION:
-            raise ReportingException(f"the file's version is not {cls.CURRENT_DEF_VERSION}")
+                or kioskstdlib.cmp_semantic_version(str(mapping_definition["header"]["version"]), cls.CURRENT_DEF_VERSION) > 0:
+            raise ReportingException(f"mapping definition: the mapping definition is not compatible with version "
+                                     f"{cls.CURRENT_DEF_VERSION}")
 
         if "mapping" not in mapping_definition:
             raise ReportingException("no 'mappings' found.")

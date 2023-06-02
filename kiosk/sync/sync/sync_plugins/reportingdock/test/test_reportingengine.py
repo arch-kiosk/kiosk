@@ -18,6 +18,7 @@ query_def_unknown_query_type = os.path.join(test_path, r"defs", "query_def_unkno
 query_def_2 = os.path.join(test_path, r"defs", "query_def_2.yml")
 query_def_3 = os.path.join(test_path, r"defs", "query_def_3.yml")
 query_def_4 = os.path.join(test_path, r"defs", "query_def_4.yml")
+query_def_template_string = os.path.join(test_path, r"defs", "query_def_template_string.yml")
 mapping_def_1 = os.path.join(test_path, r"defs", "mapping_def_1.yml")
 mapping_def_2 = os.path.join(test_path, r"defs", "mapping_def_2.yml")
 mapping_def_3 = os.path.join(test_path, r"defs", "mapping_def_3.yml")
@@ -236,3 +237,23 @@ class TestReportingEngine(KioskPyTestHelper):
 
         assert self.file_exists(os.path.join(shared_datadir, "reporting_la-003.pdf"))
         assert self.file_exists(os.path.join(shared_datadir, "reporting_la-002.pdf"))
+
+    def test_reporting_engine_with_template_string(self, config, dsd, shared_datadir, monkeypatch):
+        def get_output_directory(cfg):
+            return shared_datadir
+
+        KioskSQLDb.run_sql_script(reporting_test_data)
+        KioskSQLDb.drop_table_if_exists("reporting_values", namespace='dock_test')
+        # test a real query definition with two queries in it, now with data
+        reporting_engine = ReportingEngine()
+        reporting_engine.load_query_definition(query_definition_file_path=query_def_template_string)
+        reporting_engine.set_variable("context_identifier", "LA-002")
+        reporting_engine.set_variable("locus_type", "ac")
+        reporting_engine.prepare_data(namespace="dock_test", config=config)
+        reporting_engine.template_file = os.path.join(shared_datadir, "kiosk_test_form.pdf")
+        reporting_engine.load_mapping_definition(mapping_definition_file_path=mapping_def_2)
+        m = reporting_engine.map(namespace="dock_test")
+        monkeypatch.setattr(reporting_engine, "get_output_directory", get_output_directory)
+        reporting_engine.filename_prefix = "reporting_"
+        reporting_engine.output("LA-002")
+        assert os.path.isfile(os.path.join(shared_datadir, "reporting_LA-002.pdf"))

@@ -2,9 +2,12 @@ import re
 
 
 class StringInjector:
-    def __init__(self, get_variable_callback):
+    def __init__(self, get_variable_callback, variable_regex=""):
         self._get_variable_callback = get_variable_callback
-        self.variable_regex = "({{.*?}})"
+        if not variable_regex:
+            self.variable_regex = "({{.*?}})"
+        else:
+            self.variable_regex = variable_regex
 
     def inject_variables(self, s_in) -> str:
         """
@@ -22,10 +25,10 @@ class StringInjector:
         for key in subst.keys():
             subst[key] = self._get_variable_callback(key[2:-2])
 
-        result = s_in
+        result: str = s_in
         for key, value in subst.items():
-            result = re.sub(key, value, result)
-
+            # result = re.sub(key, value, result)
+            result = result.replace(key, value)
         return result
 
 
