@@ -394,32 +394,42 @@ class ReportingMapper:
     def _instruction_set_if_smaller(self, current_result, instruction):
         """
         replaces the current value if the param's value is smaller than the current value.
+        If there is a second parameter, that one will be returned if the comparison is true.
         If the current value is empty it will always get replaced.
         If the current value or the parameter's value isn't an integer, this transformation will be skipped
         """
         new_result = str(current_result) if current_result else ""
         if not new_result or new_result.isdigit():
-            for p in instruction['params']:
+            if len(instruction['params']) > 0:
+                p = instruction['params'][0]
                 value_type, value = self._resolve_value_and_type(p)
                 if str(value).isdigit():
                     if (not new_result.isdigit()) or int(value) < int(new_result):
-                        return value
+                        if len(instruction['params']) > 1:
+                            return instruction['params'][1]
+                        else:
+                            return value
 
         raise ReportingVoidTransformation
 
     def _instruction_set_if_greater(self, current_result, instruction):
         """
         replaces the current value if the param's value is greater than the current value.
+        If there is a second parameter, that one will be returned if the comparison is true.
         If the current value is empty it will always get replaced.
         If the current value or the parameter's value isn't an integer, this transformation will be skipped
         """
         new_result = str(current_result) if current_result else "0"
         if new_result.isdigit():
-            for p in instruction['params']:
+            if len(instruction['params']) > 0:
+                p = instruction['params'][0]
                 value_type, value = self._resolve_value_and_type(p)
                 if str(value).isdigit():
                     if int(value) > int(new_result):
-                        return value
+                        if len(instruction['params']) > 1:
+                            return instruction['params'][1]
+                        else:
+                            return value
 
         raise ReportingVoidTransformation
 

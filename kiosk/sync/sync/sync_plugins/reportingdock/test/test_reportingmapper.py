@@ -284,6 +284,22 @@ class TestReportingMapper(KioskPyTestHelper):
             "target_field": "12"
         }
 
+        mapping_dict = yaml.load("""
+                    "header":
+                        "version": "1.2"
+                    "mapping": 
+                        "target_field":
+                            - "#db_value"
+                            - set_if_smaller(1, "param 2")
+                """, Loader=yaml.FullLoader)
+
+        mapper = ReportingMapper(mapping_dict, {"db_value": "2", "#context_identifier": "FH-001"}, None)
+        result = mapper.map()
+        assert result == {
+            "target_field": "param 2"
+        }
+
+
     def test_complex_mapping_set_if_greater(self, config):
         mapping_dict = yaml.load("""
                     "header":
@@ -359,6 +375,22 @@ class TestReportingMapper(KioskPyTestHelper):
         assert result == {
             "target_field": "12"
         }
+
+        mapping_dict = yaml.load("""
+                    "header":
+                        "version": "1.2"
+                    "mapping": 
+                        "target_field":
+                            - "#db_value"
+                            - set_if_greater(3, "param 2")
+                """, Loader=yaml.FullLoader)
+
+        mapper = ReportingMapper(mapping_dict, {"db_value": "2", "#context_identifier": "FH-001"}, None)
+        result = mapper.map()
+        assert result == {
+            "target_field": "param 2"
+        }
+
 
     def test_complex_mapping_has_value(self, config):
         #  test simple then case with a constant then value
