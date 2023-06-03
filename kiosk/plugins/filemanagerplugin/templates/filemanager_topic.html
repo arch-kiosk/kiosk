@@ -11,7 +11,7 @@
 
   <div class="filemanager-topic">
     <div id="max-upload-size-mb" style="display:None" max-upload-size-mb={{ max_upload_size_mb }}></div>
-    <a href="{{ url_for('filemanager.filemanager_show') }}">
+    <a href="{{ url_for(back_url) }}">
       <div class="small-list-button"><i class='fas fa-arrow-circle-left' style='justify-self: center'></i></div>
     </a>
     <p>{{ headline }}</p>

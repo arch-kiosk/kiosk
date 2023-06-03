@@ -133,11 +133,18 @@ def filemanager_topic(topic: str):
     for header in headers:
         if header.caption == sort_by:
             header.sort = "fa-sort-up" if sort_order == "asc" else "fa-sort-down"
+    back_url = request.cookies.get('kiosk_fm_back_url', default="")
+    if back_url:
+        headline = request.cookies.get('kiosk_fm_back_name', default="")
+    else:
+        back_url = 'filemanager.filemanager_show'
+        headline = topic
 
     return render_template('filemanager_topic.html',
                            authorized_to=authorized_to,
                            topic=full_topic,
-                           headline=topic,
+                           back_url=back_url,
+                           headline=headline,
                            files=files,
                            headers=headers,
                            sort_by=sort_by,

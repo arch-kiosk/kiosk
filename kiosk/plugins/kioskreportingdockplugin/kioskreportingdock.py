@@ -2,6 +2,7 @@ import logging
 from pprint import pformat
 from typing import List, Union
 
+from flask import url_for
 from werkzeug import datastructures
 
 import kioskglobals
@@ -180,12 +181,13 @@ class KioskReportingDock(KioskDock):
             fm: KioskFileManagerBridge = KioskFileManagerBridge.instantiate()
             if fm:
                 url_for_alias = fm.url_for_directory("reporting")
+                url_for_back = "syncmanager.sync_manager_show"
                 self.register_option("download", {"id": "workstation.download",
                                                   "caption": "download via file manager",
                                                   "description": f"click to jump to the file manager "
                                                                  f"where you can download the report",
                                                   "onclick": f"kioskActivateFileManager('{url_for_alias}$"
-                                                             f"${self._sync_dock.get_id()}')",
+                                                             f"${self._sync_dock.get_id()}','{url_for_back}', 'Hub')",
                                                   "low": False,
                                                   "warning": False,
                                                   "privilege": OPERATE_REPORTING,
