@@ -14,10 +14,6 @@ function kioskFileExportStart(ws_id, action_url) {
   )
 }
 
-function kioskFileExportActivateFileManager(url) {
-  if (url) window.location.replace(url);
-}
-
 function kioskFileExportAction(ws_id, title, action_url) {
   $("#workstation-options").replaceWith("<div></div>");
   $("#dialog-subtitle").text(title);

@@ -143,11 +143,12 @@ class KioskExportWorkstation(KioskWorkstation):
 
                 if len(targets) == 1:
                     url_for_alias = fm.url_for_directory(targets[0])
+                    url_for_back = "syncmanager.sync_manager_show"
 
                     self._options.append(FileExportWorkstationOption(
                         caption="download via file manager",
                         description="click to jump to the file manager where you can download the exported files",
-                        onclick=f"kioskFileExportActivateFileManager('{url_for_alias}')",
+                        onclick=f"kioskActivateFileManager('{url_for_alias}','{url_for_back}', 'Hub')",
                         css_id="go_file_manager",
                         disabled=False,
                         warning=False,

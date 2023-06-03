@@ -1,5 +1,7 @@
 import sys
 
+from flask import url_for
+
 # that might be rather a hack, but it keeps the imports from happening if the workers are imported by
 # the mcpworker. They are supposed to run only when this is loaded as a plugin.
 from kioskglobals import type_repository
@@ -47,8 +49,9 @@ if "mcpcore.mcpworker" not in sys.modules:
 
     def register_menus():
         global plugin
+        url = url_for('filemanager.filemanager_show')
         return [KioskMenuItem(name="file manager",
-                              onclick="triggerModule('filemanager.filemanager_show')",
+                              onclick=f"kioskActivateFileManager('{url}')",
                               endpoint="filemanager.filemanager_show",
                               menu_cfg=plugin.get_menu_config(),
                               is_active=lambda: current_user.fulfills_requirement(
