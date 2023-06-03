@@ -18,7 +18,7 @@ class ReportingMapper:
     TYPE_VAR = 2
     TYPE_LIST = 3
     TYPE_VALUE = 4
-    CURRENT_DEF_VERSION = "1.1"
+    CURRENT_DEF_VERSION = "1.2"
 
     VALUE_TYPES = [(r"""^'(\#.*)'$""", TYPE_VAR),
                    (r"""^"(\#.*)"$""", TYPE_VAR),
@@ -61,6 +61,8 @@ class ReportingMapper:
         self._instructions = {
             "append": self._instruction_append,
             "prepend": self._instruction_prepend,
+            "set_if_smaller": self._instruction_set_if_smaller,
+            "set_if_greater": self._instruction_set_if_greater,
             "has_value": self._instruction_has_value,
             "in": self._instruction_in,
             "lookup": self._instruction_lookup,
@@ -70,7 +72,7 @@ class ReportingMapper:
     def _check_mapping_dict(self):
         if not ("header" in self._mapping_dict and
                 float(kioskstdlib.try_get_dict_entry(self._mapping_dict["header"], "version",
-                                                     "")) == float(self.CURRENT_DEF_VERSION)):
+                                                     "")) <= float(self.CURRENT_DEF_VERSION)):
             raise ReportingException(f"{self.__class__.__name__}._check_mapping_dict: mapping definition does not seem "
                                      f"to have the right version {self.CURRENT_DEF_VERSION}")
         if "mapping" not in self._mapping_dict:
@@ -388,6 +390,38 @@ class ReportingMapper:
             raise ReportingVoidTransformation
         else:
             return lead + (str(current_result) if current_result else "")
+
+    def _instruction_set_if_smaller(self, current_result, instruction):
+        """
+        replaces the current value if the param's value is smaller than the current value.
+        If the current value is empty it will always get replaced.
+        If the current value or the parameter's value isn't an integer, this transformation will be skipped
+        """
+        new_result = str(current_result) if current_result else ""
+        if not new_result or new_result.isdigit():
+            for p in instruction['params']:
+                value_type, value = self._resolve_value_and_type(p)
+                if str(value).isdigit():
+                    if (not new_result.isdigit()) or int(value) < int(new_result):
+                        return value
+
+        raise ReportingVoidTransformation
+
+    def _instruction_set_if_greater(self, current_result, instruction):
+        """
+        replaces the current value if the param's value is greater than the current value.
+        If the current value is empty it will always get replaced.
+        If the current value or the parameter's value isn't an integer, this transformation will be skipped
+        """
+        new_result = str(current_result) if current_result else "0"
+        if new_result.isdigit():
+            for p in instruction['params']:
+                value_type, value = self._resolve_value_and_type(p)
+                if str(value).isdigit():
+                    if int(value) > int(new_result):
+                        return value
+
+        raise ReportingVoidTransformation
 
     def _instruction_has_value(self, current_result, instruction):
         """

@@ -208,6 +208,158 @@ class TestReportingMapper(KioskPyTestHelper):
             "target_field": ""
         }
 
+    def test_complex_mapping_set_if_smaller(self, config):
+        mapping_dict = yaml.load("""
+                    "header":
+                        "version": "1.2"
+                    "mapping": 
+                        "target_field":
+                            - "#db_value"
+                            - set_if_smaller(0)
+                """, Loader=yaml.FullLoader)
+
+        mapper = ReportingMapper(mapping_dict, {"db_value": "1", "#context_identifier": "FH-001"}, None)
+        result = mapper.map()
+        assert result == {
+            "target_field": "0"
+        }
+
+        mapping_dict = yaml.load("""
+                    "header":
+                        "version": "1.2"
+                    "mapping": 
+                        "target_field":
+                            - "#db_value"
+                            - set_if_smaller(2)
+                """, Loader=yaml.FullLoader)
+
+        mapper = ReportingMapper(mapping_dict, {"db_value": "1", "#context_identifier": "FH-001"}, None)
+        result = mapper.map()
+        assert result == {
+            "target_field": "1"
+        }
+
+        mapping_dict = yaml.load("""
+                    "header":
+                        "version": "1.2"
+                    "mapping": 
+                        "target_field":
+                            - "#db_value"
+                            - set_if_smaller(2)
+                """, Loader=yaml.FullLoader)
+
+        mapper = ReportingMapper(mapping_dict, {"db_value": "", "#context_identifier": "FH-001"}, None)
+        result = mapper.map()
+        assert result == {
+            "target_field": "2"
+        }
+
+        mapping_dict = yaml.load("""
+                    "header":
+                        "version": "1.2"
+                    "mapping": 
+                        "target_field":
+                            - "#db_value"
+                            - set_if_smaller(12)
+                """, Loader=yaml.FullLoader)
+
+        mapper = ReportingMapper(mapping_dict, {"db_value": "not an int", "#context_identifier": "FH-001"}, None)
+        result = mapper.map()
+        assert result == {
+            "target_field": "not an int"
+        }
+
+        mapping_dict = yaml.load("""
+                    "header":
+                        "version": "1.2"
+                    "mapping": 
+                        "target_field":
+                            - "#db_value"
+                            - set_if_smaller("not an int")
+                """, Loader=yaml.FullLoader)
+
+        mapper = ReportingMapper(mapping_dict, {"db_value": "12", "#context_identifier": "FH-001"}, None)
+        result = mapper.map()
+        assert result == {
+            "target_field": "12"
+        }
+
+    def test_complex_mapping_set_if_greater(self, config):
+        mapping_dict = yaml.load("""
+                    "header":
+                        "version": "1.2"
+                    "mapping": 
+                        "target_field":
+                            - "#db_value"
+                            - set_if_greater(1)
+                """, Loader=yaml.FullLoader)
+
+        mapper = ReportingMapper(mapping_dict, {"db_value": "0", "#context_identifier": "FH-001"}, None)
+        result = mapper.map()
+        assert result == {
+            "target_field": "1"
+        }
+
+        mapping_dict = yaml.load("""
+                    "header":
+                        "version": "1.2"
+                    "mapping": 
+                        "target_field":
+                            - "#db_value"
+                            - set_if_greater(1)
+                """, Loader=yaml.FullLoader)
+
+        mapper = ReportingMapper(mapping_dict, {"db_value": "2", "#context_identifier": "FH-001"}, None)
+        result = mapper.map()
+        assert result == {
+            "target_field": "2"
+        }
+
+        mapping_dict = yaml.load("""
+                    "header":
+                        "version": "1.2"
+                    "mapping": 
+                        "target_field":
+                            - "#db_value"
+                            - set_if_greater(2)
+                """, Loader=yaml.FullLoader)
+
+        mapper = ReportingMapper(mapping_dict, {"db_value": "", "#context_identifier": "FH-001"}, None)
+        result = mapper.map()
+        assert result == {
+            "target_field": "2"
+        }
+
+        mapping_dict = yaml.load("""
+                    "header":
+                        "version": "1.2"
+                    "mapping": 
+                        "target_field":
+                            - "#db_value"
+                            - set_if_greater(12)
+                """, Loader=yaml.FullLoader)
+
+        mapper = ReportingMapper(mapping_dict, {"db_value": "not an int", "#context_identifier": "FH-001"}, None)
+        result = mapper.map()
+        assert result == {
+            "target_field": "not an int"
+        }
+
+        mapping_dict = yaml.load("""
+                    "header":
+                        "version": "1.2"
+                    "mapping": 
+                        "target_field":
+                            - "#db_value"
+                            - set_if_greater("not an int")
+                """, Loader=yaml.FullLoader)
+
+        mapper = ReportingMapper(mapping_dict, {"db_value": "12", "#context_identifier": "FH-001"}, None)
+        result = mapper.map()
+        assert result == {
+            "target_field": "12"
+        }
+
     def test_complex_mapping_has_value(self, config):
         #  test simple then case with a constant then value
         mapping_dict = yaml.load("""
