@@ -352,9 +352,13 @@ class ReportingMapper:
                     try:
                         result = self._instructions[instruction["instruction"]](result, instruction)
                         if result:
-                            result = result.strip()
+                            result = str(result).strip()
                     except ReportingVoidTransformation:
                         pass
+                    except BaseException as e:
+                        logging.error(f"{self.__class__.__name__}._process_transformations: "
+                                      f"Exception in instruction {instruction}: {repr(e)}")
+                        raise e
                 else:
                     raise ReportingException(f"Mapping instruction {instruction} unknown.")
             else:
