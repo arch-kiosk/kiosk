@@ -740,3 +740,181 @@ class TestReportingMapper(KioskPyTestHelper):
             cur.close()
         return result
 
+    def test_complex_mapping_let(self):
+        mapping_dict = yaml.load("""
+                    "header":
+                        "version": "1.0"
+                    "mapping": 
+                        "target_field":
+                            - "a value"
+                            - let("new_var")
+                            - ""
+                            - "#new_var"
+                """, Loader=yaml.FullLoader)
+
+        mapper = ReportingMapper(mapping_dict, {"min_year": "2018", "max_year": "2019",
+                                                "#context_identifier": "FH-001"}, None)
+        result = mapper.map()
+        assert result == {
+            "target_field": "a value"
+        }
+
+        mapping_dict = yaml.load("""
+                    "header":
+                        "version": "1.0"
+                    "mapping": 
+                        "target_field":
+                            - "a value"
+                            - let("new_var", "#min_year")
+                            - ""
+                            - "#new_var"
+                """, Loader=yaml.FullLoader)
+
+        mapper = ReportingMapper(mapping_dict, {"min_year": "2018", "max_year": "2019",
+                                                "#context_identifier": "FH-001"}, None)
+        result = mapper.map()
+        assert result == {
+            "target_field": "2018"
+        }
+
+
+    def test_complex_mapping_let_logic(self):
+        mapping_dict = yaml.load("""
+                    "header":
+                        "version": "1.0"
+                    "mapping": 
+                        "target_field":
+                            - "#min_year"
+                            - set_if_smaller("9999","")
+                            - let(from_year)
+                            - "#from_year"
+                            - set_if_greater(#max_year,"")
+                            - has_value:"#max_year"
+                            - let(to_year)
+                            - "#to_year"
+                            - has_value?"-"
+                            - let(separator)
+                            - "#from_year"
+                            - append("#separator", "#to_year")
+                """, Loader=yaml.FullLoader)
+
+        mapper = ReportingMapper(mapping_dict, {"min_year": "2018", "max_year": "2019",
+                                                "#context_identifier": "FH-001"}, None)
+        result = mapper.map()
+        assert result == {
+            "target_field": "2018-2019"
+        }
+
+        mapping_dict = yaml.load("""
+                    "header":
+                        "version": "1.0"
+                    "mapping": 
+                        "target_field":
+                            - "#min_year"
+                            - set_if_smaller("9999","")
+                            - let(from_year)
+                            - "#from_year"
+                            - set_if_greater(#max_year,"")
+                            - has_value?"":"#max_year"
+                            - let(to_year)
+                            - "#to_year"
+                            - has_value?"-"
+                            - let(separator)
+                            - "#from_year"
+                            - append("#separator", "#to_year")
+                """, Loader=yaml.FullLoader)
+
+        mapper = ReportingMapper(mapping_dict, {"min_year": "2019", "max_year": "2019",
+                                                "#context_identifier": "FH-001"}, None)
+        result = mapper.map()
+        assert result == {
+            "target_field": "2019"
+        }
+
+        mapping_dict = yaml.load("""
+                    "header":
+                        "version": "1.0"
+                    "mapping": 
+                        "target_field":
+                            - "#min_year"
+                            - set_if_smaller("9999","")
+                            - let(from_year)
+                            - "#from_year"
+                            - set_if_greater(#max_year,"")
+                            - has_value?"":"#max_year"
+                            - let(to_year)
+                            - "#to_year"
+                            - has_value?"-"
+                            - let(separator)
+                            - "#from_year"
+                            - append("#separator", "#to_year")
+                """, Loader=yaml.FullLoader)
+
+        mapper = ReportingMapper(mapping_dict, {"min_year": "2019", "max_year": "",
+                                                "#context_identifier": "FH-001"}, None)
+        result = mapper.map()
+        assert result == {
+            "target_field": "2019"
+        }
+
+        mapper = ReportingMapper(mapping_dict, {"min_year": "2019", "max_year": "2019",
+                                                "#context_identifier": "FH-001"}, None)
+        result = mapper.map()
+        assert result == {
+            "target_field": "2019"
+        }
+
+        mapping_dict = yaml.load("""
+                    "header":
+                        "version": "1.0"
+                    "mapping": 
+                        "target_field":
+                            - "#min_year"
+                            - set_if_smaller("9999","")
+                            - let(from_year)
+                            - "#from_year"
+                            - set_if_greater(#max_year,"")
+                            - has_value?"":"#max_year"
+                            - set_if_greater(1,"")
+                            - let(to_year)
+                            - "#to_year"
+                            - has_value?"-"
+                            - let(separator)
+                            - "#from_year"
+                            - append("#separator", "#to_year")
+                """, Loader=yaml.FullLoader)
+
+        mapper = ReportingMapper(mapping_dict, {"min_year": "10000", "max_year": "0",
+                                                "#context_identifier": "FH-001"}, None)
+        result = mapper.map()
+        assert result == {
+            "target_field": ""
+        }
+
+        mapping_dict = yaml.load("""
+                    "header":
+                        "version": "1.0"
+                    "mapping": 
+                        "target_field":
+                            - "#min_year"
+                            - set_if_smaller("9999","")
+                            - let(from_year)
+                            - "#from_year"
+                            - set_if_greater(#max_year,"")
+                            - has_value?"":"#max_year"
+                            - set_if_greater(1,"")
+                            - let(to_year)
+                            - "#to_year"
+                            - has_value?"#from_year"
+                            - has_value?"-"
+                            - let(separator)
+                            - "#from_year"
+                            - append("#separator", "#to_year")
+                """, Loader=yaml.FullLoader)
+
+        mapper = ReportingMapper(mapping_dict, {"min_year": "10000", "max_year": "2019",
+                                                "#context_identifier": "FH-001"}, None)
+        result = mapper.map()
+        assert result == {
+            "target_field": "2019"
+        }

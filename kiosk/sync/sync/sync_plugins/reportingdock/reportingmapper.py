@@ -61,6 +61,7 @@ class ReportingMapper:
         self._instructions = {
             "append": self._instruction_append,
             "prepend": self._instruction_prepend,
+            "let": self._instruction_let,
             "set_if_smaller": self._instruction_set_if_smaller,
             "set_if_greater": self._instruction_set_if_greater,
             "has_value": self._instruction_has_value,
@@ -366,6 +367,23 @@ class ReportingMapper:
                     result = value
 
         return result
+
+    def _instruction_let(self, current_result, instruction):
+        if len(instruction['params']) > 0:
+            p = instruction['params'][0]
+            value_type, value = self._resolve_value_and_type(p)
+            if value_type and value:
+                var_name = value
+                var_value = current_result
+                if len(instruction['params']) > 1:
+                    p = instruction['params'][1]
+                    value_type, value = self._resolve_value_and_type(p)
+                    if value_type and value:
+                        var_value = value
+                self._key_values[var_name] = var_value
+                return current_result
+
+        raise ReportingVoidTransformation
 
     def _instruction_append(self, current_result, instruction):
         new_result = str(current_result) if current_result else ""
