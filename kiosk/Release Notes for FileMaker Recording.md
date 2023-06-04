@@ -26,3 +26,15 @@ Projects using descriptive elevations rather than the numeric elevations will fi
 - 🌸 many little bugs and annoyances fixed
 - 🌸 Supports the new FileMaker Go 2023 on iPads 
      
+### 🌹  Release Notes for FileMaker Recording App 1.5.6 (4 June 2023) 🌹
+
+This and older release notes are on https://github.com/arch-kiosk/arch-kiosk-office/issues/1434
+:octocat: We recommend viewing release notes on GitHub.
+
+🎬 You'll find updated documentation and many new video tutorials on sites.brown.edu/kiosk 🎬 
+
+
+- 🌹 brand new revolutionary, life-changing qr-coded photo sequences (#2138)
+- 🌹 the search function can now search for fragments (#2114)
+- 🌹 improved registration: You can now filter and sort my material (#2141)
+- 🌹 bug fixes (#1184, #2075, #2123, #2152)

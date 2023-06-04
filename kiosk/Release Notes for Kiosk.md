@@ -4,6 +4,8 @@ This and older release notes are on https://github.com/arch-kiosk/arch-kiosk-off
 
 :octocat: We recommend viewing them on GitHub.
 
+🎬 You'll find updated documentation and many new video tutorials on sites.brown.edu/kiosk 🎬 
+
 
 - 🌷 New Point Repository to manage RTK / GIS points in Kiosk and make them available to FileMaker Recording. (#1986)   
 This allows you to import points from a CSV or Excel file as supplied by an RTK or GIS into Kiosk in order to manage your Control Points and make them available to the new "Coordinates" UI in FileMaker Recording.  
@@ -27,3 +29,20 @@ If you record audio or video (don't) in FileMaker or add a file that isn't an im
 ... and ...
 - 🪟 Windows 11: Kiosks supports field servers running Windows 11 now.
 - 🌷 Use an Opal router to access Kiosk via "http://kiosk" instead of an ip address.
+
+### ☀ Release Notes for Kiosk Version 1.5.2.1 (04 June 2023) ☀
+This is an overview of the visible improvements since Version 1.5 (22. May 2023):
+This and older release notes are on https://github.com/arch-kiosk/arch-kiosk-office/issues/1434
+
+This and older release notes are on https://github.com/arch-kiosk/arch-kiosk-office/issues/1434
+:octocat: We recommend viewing release notes on GitHub.
+
+🎬 You'll find updated documentation and many new video tutorials on sites.brown.edu/kiosk 🎬 
+
+
+- ☀ brand new life-changing qr-coded file sequence import (#2138)
+     You'll find the new "file sequence" import in the file import. 
+     It will change your life in the field when the sun is glaring down on your ipad or some shrubbery is casting shadows on your screen
+- ☀ improvements to the reporting engine that support PASU reporting (#1822, #2155, #2159, #2154)
+
+
