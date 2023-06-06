@@ -15,6 +15,7 @@ class FileSequenceImport(FileImport):
     """
       :todo: refactor _app towards separate TypeRepository/EventManager/PluginLoader classes
     """
+
     # SEQUENCE_SORT_OPTIONS = ["FILE_CREATION_TIME", "NUMERICAL_FILENAME"]
 
     def __init__(self, cfg: SyncConfig, app, method="filesequence_import", user_config: UserConfig = None):
@@ -224,7 +225,8 @@ class FileSequenceImport(FileImport):
                                       f"closing with file {kioskstdlib.get_filename(f)}.")
                         current_sequence.append(f)
                         self._context = current_context
-                        self._import_sequence(current_sequence)
+                        if not self._import_sequence(current_sequence):
+                            return False
                         self._context = {}
                         current_context = {}
                         current_sequence = []
@@ -276,7 +278,7 @@ class FileSequenceImport(FileImport):
 
         return True
 
-    def _import_sequence(self, sequence: list):
+    def _import_sequence(self, sequence: list) -> bool:
         # The first and the last image are the bracketing images that need to be moved to the done folder
 
         start_file = sequence.pop(0)
@@ -285,10 +287,20 @@ class FileSequenceImport(FileImport):
         for f in sequence:
             if self._import_single_file_to_repository(f):
                 self.files_added += 1
+            if self.callback_progress and \
+                    not report_progress(self.callback_progress,
+                                        progress=0,
+                                        topic="import-local-files",
+                                        extended_progress=[self.files_processed, self.files_added]):
+                logging.error("FileImport._r_add_files_to_repository: process aborted from outside "
+                              "in the middle of a sequence")
+                return False
 
         if self.move_finished_files:
             self._move_finished_file(start_file)
             self._move_finished_file(end_file)
+
+        return True
 
     def _get_sorted_files(self, content):
         if self._file_extensions:
