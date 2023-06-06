@@ -61,7 +61,7 @@ function kioskAjax(url, ajaxData, ajaxMethod, options = {}, stateData = {}) {
       }
     })
     .fail((xhr, status, errorThrown) => {
-      let errStr = "An unexpected transmission error occurred: " + errorThrown;
+      let errStr = `An unexpected transmission error (${status}) occurred when fetching from (${url}): ` + errorThrown;
       if (options.hasOwnProperty("onError")) {
         options.onError(errStr, status, xhr, stateData);
       } else {

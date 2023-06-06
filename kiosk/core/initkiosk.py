@@ -15,6 +15,7 @@ from flask_wtf.csrf import CSRFProtect
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound, Unauthorized
 
 import kioskglobals
+import kiosklib
 import kioskstdlib
 from kioskconfig import KioskConfig
 from kioskmenuitem import KioskMenuItem
@@ -92,13 +93,20 @@ def init_app_related_stuff(app):
         logging.warning("Exception " + repr(e) + ": NO SECRET KEY CONFIGURED, WILL BE DEV! WHY NOT USE " + str(uuid4()))
         app.config['SECRET_KEY'] = "dev"
 
+    cfg: KioskConfig = kioskglobals.cfg
+
     if kioskglobals.get_development_option("webapp_development").lower() == "true":
-        app.config['WTF_CSRF_METHODS'] = []
         app.config['WTF_CSRF_ENABLED'] = False
+    # if kiosklib.is_local_server(cfg):
+    #     app.config['WTF_CSRF_METHODS'] = []
+    #     app.config['WTF_CSRF_ENABLED'] = False
+
+    if not app.config['WTF_CSRF_ENABLED']:
+        logging.warning("ini_app_related_stuff: CSRF protection is switched off")
+        app.config['WTF_CSRF_METHODS'] = []
 
     kioskglobals.csrf = CSRFProtect(app)
 
-    cfg: KioskConfig = kioskglobals.cfg
 
     template_loader = jinja2.ChoiceLoader([
         app.jinja_loader,

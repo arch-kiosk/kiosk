@@ -973,7 +973,9 @@ def delete_system_message():
 #  **************************************************************
 #  ****    /system_messages
 #  *****************************************************************/
-@full_login_required
+# field projects don't need this:
+# todo: check full login if this runs on an online server.
+# @full_login_required
 def get_system_messages():
     try:
         change_mark = int(request.form['change_mark'])
@@ -1008,21 +1010,42 @@ def mcp_job_progress():
 
 def fetch_mcp_job_progress(job_uid):
     try:
-        job = MCPJob(kioskglobals.general_store, job_id=job_uid)
-        return jsonify({"status": job.status,
-                        "progress": job.progress.get_progress_dict(),
-                        "result": job.result
-                        }
-                       )
+        attempts = 1
+        last_exception = ""
+        job = None
+
+        # hacky, hacky
+        while not job and attempts < 5:
+            try:
+                job = MCPJob(kioskglobals.general_store, job_id=job_uid)
+            except BaseException as e:
+                last_exception = repr(e)
+                attempts += 1
+                time.sleep(.5)
+
+        if job:
+            return jsonify({"status": job.status,
+                            "progress": job.progress.get_progress_dict(),
+                            "result": job.result
+                            }
+                           )
+        else:
+            # I am not happy with this, but it might be the only way to get some
+            # patience into the system
+            logging.error(f"kioskappfactory/fetch_mcp_job_progress: faking a running job after {last_exception}.")
+            return jsonify({"status": MCPJobStatus.JOB_STATUS_RUNNING
+                            }
+                           )
     except BaseException as e:
         logging.error(f"kioskappfactory/fetch_mcp_job_progress: Exception {repr(e)}")
-        abort(500)
+        abort(500, "could not fetch progress of running mcp job")
 
 
 #  **************************************************************
 #  ****    /mcp_job_log
 #  *****************************************************************/
-@full_login_required
+# @full_login_required
+# todo: on online servers the full_login should be checked.
 def mcp_job_log():
     if is_ajax_request():
         if "job_uid" in request.form and request.form["job_uid"]:

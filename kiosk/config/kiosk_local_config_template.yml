@@ -1,10 +1,9 @@
-'test':
-  loaded: 2
 #'Flask':
 #  SECRET_KEY: "fd82303c-6852-48c1-8165-9e60d4b25b94"
 #  EXPLAIN_TEMPLATE_LOADING: False
 #  THREADED: False
 #  SEND_FILE_MAX_AGE_DEFAULT: 43200
+#  WTF_CSRF_ENABLED: False
 
 #development:
 #  webapp_development: true
