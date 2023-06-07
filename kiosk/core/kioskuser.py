@@ -289,7 +289,8 @@ class KioskUser(UserMixin):
                 # if no thresholds at all are configured or they are all faulty, let's not set the threshold.
                 self._group_threshold = threshold
         except KeyError as e:
-            logging.debug(f"{self.__class__.__name__}._load_message_thresholds: "
-                          f"kiosk/system_messages/thresholds not configured.")
+            # logging.debug(f"{self.__class__.__name__}._load_message_thresholds: "
+            #               f"kiosk/system_messages/thresholds not configured.")
+            pass
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}._load_message_thresholds: Outer Exception {repr(e)}")

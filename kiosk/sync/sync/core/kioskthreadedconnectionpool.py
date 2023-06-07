@@ -35,9 +35,9 @@ class KioskThreadedConnectionPool(ThreadedConnectionPool):
                 raise PoolError("when using establish=False a key must be provided.")
             if key not in self._used:
                 raise PoolNoConnectionError()
-        else:
-            if key not in self._used:
-                logging.debug(f"{self.__class__.__name__}: establishing new db connection for Thread {get_thread_id()}")
+        # else:
+        #     if key not in self._used:
+        #         logging.debug(f"{self.__class__.__name__}: establishing new db connection for Thread {get_thread_id()}")
 
         return super()._getconn(key)
 

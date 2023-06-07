@@ -107,8 +107,8 @@ class KioskSQLDb(SqlSafeIdentMixin):
                 con = cls.get_thread_con(establish=False)
                 if con:
                     cls._pool.putconn(con, key=kioskstdlib.get_thread_id())
-                    logging.debug(f"{cls.__name__}.release_thread_con: "
-                                  f"Released db connection for thread {kioskstdlib.get_thread_id()}")
+                    # logging.debug(f"{cls.__name__}.release_thread_con: "
+                    #               f"Released db connection for thread {kioskstdlib.get_thread_id()}")
         except BaseException as e:
             logging.error(f"{cls.__name__}.release_thread_con: Exception {repr(e)}")
             raise e

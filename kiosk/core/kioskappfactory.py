@@ -380,7 +380,7 @@ class KioskAppFactory(AppFactory):
                     time.sleep(.5)
                     assert_mcp(kioskglobals.general_store)
 
-                return True
+                return   True
             else:
                 # todo: _check_mcp only runs on local servers for the time being because it is unreliable online
                 return True
@@ -623,7 +623,7 @@ class KioskAppFactory(AppFactory):
                     menu_entries = plugin.register_menus()
                     if menu_entries:
                         for m in menu_entries:
-                            logging.debug(f"plugin {plugin.name} registers menu {m.name}->{m.endpoint}")
+                            # logging.debug(f"plugin {plugin.name} registers menu {m.name}->{m.endpoint}")
                             kioskglobals.url_for_publisher.add_route(m.endpoint)
                             kioskglobals.menu.append(m)
             except Exception as e:
@@ -641,8 +641,8 @@ class KioskAppFactory(AppFactory):
                     routes = plugin.register_global_routes()
                     if routes:
                         for m in routes:
-                            logging.debug(f"{cls.__name__}.KioskAppFactory.register_global_routes : "
-                                          f"plugin {plugin.name} registers global route {m}")
+                            # logging.debug(f"{cls.__name__}.KioskAppFactory.register_global_routes : "
+                            #               f"plugin {plugin.name} registers global route {m}")
                             if isinstance(m, str):
                                 kioskglobals.url_for_publisher.add_route(m)
                             elif isinstance(m, tuple):

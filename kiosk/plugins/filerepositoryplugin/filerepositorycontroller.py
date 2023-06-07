@@ -104,7 +104,7 @@ def fetch_repository_file(file_uuid, resolution):
     """ This fetches the url to a file from the
         file-repository to be displayed in the browser.
         :todo needs refactoring and presumably a redesign    """
-    print(f"************* fetching {file_uuid} in resolution {resolution}")
+    # print(f"************* fetching {file_uuid} in resolution {resolution}")
     filename = None
     ctx_file = None
     # just to test the error handling within javascript if an image cannot be loaded:

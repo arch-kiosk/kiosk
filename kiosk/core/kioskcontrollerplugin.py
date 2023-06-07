@@ -49,7 +49,7 @@ class KioskControllerPlugin(FlaskAppPlugin):
         self.add_to_controller_plugins(self)
 
     def __init__(self, name, package, plugin_version=0):
-        print(f"Instantiated a KioskControllerPlugin for {name}")
+        # print(f"Instantiated a KioskControllerPlugin for {name}")
         if plugin_version:
             self._plugin_version = plugin_version
         super().__init__(name, package)
@@ -121,10 +121,10 @@ class KioskControllerPlugin(FlaskAppPlugin):
             if kioskglobals.cfg.kiosk[self.name]:
                 if key in kioskglobals.cfg.kiosk[self.name]:
                     return kioskglobals.cfg.kiosk[self.name][key]
-                else:
-                    logging.debug(f"KioskControllerPlugin.plugin_config. Config of plugin {self.name}: "
-                                  f"Key {key} not configured "
-                                  f"- might be an noteworthy.")
+                # else:
+                #     logging.debug(f"KioskControllerPlugin.plugin_config. Config of plugin {self.name}: "
+                #                   f"Key {key} not configured "
+                #                   f"- might be an noteworthy.")
             else:
                 logging.debug(f"KioskControllerPlugin.plugin_config. Config of plugin {self.name}: "
                               f"no entry in config at all."

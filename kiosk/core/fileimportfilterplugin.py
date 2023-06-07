@@ -20,7 +20,7 @@ class FileImportFilterPlugin(FlaskAppPlugin):
         super().init_app(app)
 
     def __init__(self, name, package):
-        print(f"Instantiated a FileImportFilterPlugin for {name}")
+        # print(f"Instantiated a FileImportFilterPlugin for {name}")
         super().__init__(name, package)
 
     def __getattr__(self, name):

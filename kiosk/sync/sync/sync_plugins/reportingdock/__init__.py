@@ -15,7 +15,7 @@ class PluginReportingDock(SynchronizationPlugin):
             logging.error("Plugin {} can't connect to app.")
             return False
 
-        logging.debug("plugin for FileMaker Recording ready")
+        # logging.debug("plugin for FileMaker Recording ready")
         return True
 
 
