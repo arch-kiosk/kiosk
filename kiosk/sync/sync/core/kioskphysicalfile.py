@@ -136,8 +136,8 @@ class KioskPhysicalFile:
                 logging.info(f"{cls.__name__}.can_convert_to: dest_format '{dest_format}' for '{src_format}' "
                              f"could not be determined.")
                 return False
-            else:
-                logging.debug(f"{cls.__name__}.can_convert : dest_format is {dest_format}")
+            # else:
+            #     logging.debug(f"{cls.__name__}.can_convert : dest_format is {dest_format}")
 
             if not representation.method or cls.supports_method(representation.method):
                 if not representation.required_manipulations or \
