@@ -176,7 +176,7 @@ class Synchronization(PluginLoader):
 
         """
 
-        logging.debug(f"create_workstation: args:{pformat(args)}, \n kwargs:{pformat(kwargs)}")
+        # logging.debug(f"create_workstation: args:{pformat(args)}, \n kwargs:{pformat(kwargs)}")
         if not workstation_type_name:
             logging.error("Synchronization.create_workstation: No name of workstation type given")
             return None
