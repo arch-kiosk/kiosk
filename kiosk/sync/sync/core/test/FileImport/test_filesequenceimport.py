@@ -114,7 +114,7 @@ class TestFileSequenceImport(KioskPyTestHelper):
     def test__get_sorted_files(self, file_import_setup):
         p = os.path.join(test_path, "test_files", "sort_files")
         content = [os.path.join(p, x) for x in os.listdir(p)]
-        file_import_setup.sort_sequence_by = "NUMERICAL_FILENAME"
+        file_import_setup.sort_sequence_by = "FILE_NUM_PART"
         files = [kioskstdlib.get_filename(x) for x in file_import_setup._get_sorted_files(content)]
         assert files == ['DSC_0148.jpg', 'DSC_0155.NEF', 'DSC_0253.NEF', 'DSC_0802.NEF', 'buptap-aad-1008.jpg']
 

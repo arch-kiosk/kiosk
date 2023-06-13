@@ -208,6 +208,7 @@ class FileSequenceImport(FileImport):
                 logging.error("FileImport._r_add_files_to_repository: process aborted from outside")
                 return False
 
+            logging.info(f"{self.__class__.__name__}._r_add_files_to_repository: Trying file {f}")
             new_context = self.get_context_from_qr_code(f)
             self.files_processed += 1
 
@@ -317,11 +318,15 @@ class FileSequenceImport(FileImport):
         if self.sort_sequence_by == "FILE_CREATION_TIME":
             for idx, file_path_and_name in enumerate(files):
                 files[idx] = (file_path_and_name, kioskstdlib.get_earliest_date_from_file(file_path_and_name))
-        elif self.sort_sequence_by == "NUMERICAL_FILENAME":
+        elif self.sort_sequence_by == "FILE_NUM_PART":
             for idx, file_path_and_name in enumerate(files):
                 files[idx] = (file_path_and_name,
                               kioskstdlib.force_positive_int_from_string(file_path_and_name,
                                                                          ignore_non_digit_strings=False))
+        else:
+            logging.error(f"{self.__class__.__name__}._get_sorted_files: Unknown sort sequence {self.sort_sequence_by}")
+            for idx, file_path_and_name in enumerate(files):
+                files[idx] = (file_path_and_name, kioskstdlib.get_earliest_date_from_file(file_path_and_name))
 
         files = [x[0] for x in sorted(files, key=lambda x: x[1])]
         return files
