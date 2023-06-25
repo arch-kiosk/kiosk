@@ -38,3 +38,5 @@ kiosk_secure.yml
 /urap_repl/
 backup.reminder
 /config/kiosk_local_config.yml
+/.run/
+/static/styles.css

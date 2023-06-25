@@ -9,9 +9,19 @@
 @import "purecss/gridlex.css"
 @import "purecss/iziToast.css"
 @import "purecss/basicpurecss.css"
-@import "styles/fontawesome-free-6.3.0-web/scss/solid"
-@import "styles/fontawesome-free-6.3.0-web/scss/regular"
-@import "styles/fontawesome-free-6.3.0-web/scss/fontawesome"
+
+$fa-font-path: "/static/assets/fonts/fontawesome6"
+@import "styles/fontawesome-free-6.4.0-web/scss/solid"
+@import "styles/fontawesome-free-6.4.0-web/scss/regular"
+@import "styles/fontawesome-free-6.4.0-web/scss/fontawesome"
+
+// This is just to patch a few fontawesome icons that still refer to 5 somehow
+@font-face
+  font-family: 'Font Awesome 5 Free'
+  font-style: normal
+  font-weight: 900
+  font-display: $fa-font-display
+  src: url('#{$fa-font-path}/fa-solid-900.woff2') format('woff2'), url('#{$fa-font-path}/fa-solid-900.ttf') format('truetype')
 
 @import "styles/prettycheckbox/_pretty-checkbox"
 @import "styles/mixins"
