@@ -45,6 +45,10 @@ class SyncConfig(Config):
             return None
 
     @classmethod
+    def release_config(cls):
+        cls._release_config()
+
+    @classmethod
     def _release_config(cls):
         SyncConfig._config = None
         if hasattr(cls, "_instance") and cls._instance:
@@ -107,7 +111,7 @@ class SyncConfig(Config):
         else:
             self.temp_dir = os.path.join(self.base_path, 'temp')
             self.config["temp_dir"] = self.temp_dir
-            logging.warning(f"No temp_dir configured. Defaulting to {self.temp_dir}.")
+            logging.info(f"No temp_dir configured. Defaulting to {self.temp_dir}.")
 
         if "dataset_definition" in self.config:
             self.dsdfile = self.resolve_symbols(self.config["dataset_definition"])
@@ -281,8 +285,7 @@ class SyncConfig(Config):
             self.cache_dir = self.config["cache_dir"]
         else:
             self.cache_dir = None
-            if self._log_warnings:
-                logging.warning("No cache_dir configured. The cache dir will be cache in the file repository")
+            logging.info("No cache_dir configured. The cache dir will be cache in the file repository")
 
         if "custom_sync_modules" in self.config:
             self.custom_sync_modules = self.resolve_symbols(self.config["custom_sync_modules"])
