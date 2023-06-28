@@ -8,13 +8,11 @@ import yaml
 
 import kioskstdlib
 from contextmanagement.memoryidentifiercache import MemoryIdentifierCache
-from dsd.dsd3singleton import Dsd3Singleton
-from dsd.dsdview import DSDView
-from dsd.dsdyamlloader import DSDYamlLoader
 from filerepository import FileRepository
 from kioskconfig import KioskConfig
 from sync.core.fileimport import FileImport
 from synchronization import Synchronization
+from tools.kiosktoolslib import init_dsd
 
 import_params = {"-import_params": "p",
                  "-repl_user_id": "u",
@@ -151,35 +149,6 @@ def report_progress(prg):
     return True
 
 
-def init_dsd(cfg):
-    master_dsd = Dsd3Singleton.get_dsd3()
-    master_dsd.register_loader("yml", DSDYamlLoader)
-    if not master_dsd.append_file(cfg.get_dsdfile()):
-        logging.error(
-            f"init_dsd: {cfg.get_dsdfile()} could not be loaded by append_file.")
-        raise Exception(f"init_dsd: {cfg.get_dsdfile()} could not be loaded.")
-
-    try:
-        master_view = DSDView(master_dsd)
-        master_view_instructions = DSDYamlLoader().read_view_file(cfg.get_master_view())
-        master_view.apply_view_instructions(master_view_instructions)
-        logging.debug(f"init_dsd: dsd3 initialized: {cfg.get_dsdfile()}. ")
-        return master_view
-    except BaseException as e:
-        logging.error(f"init_dsd: Exception when applying master view to dsd: {repr(e)}")
-        raise e
-
-
-def load_master_view():
-    try:
-        master_view = DSDView(Dsd3Singleton.get_dsd3())
-        master_view_instructions = DSDYamlLoader().read_view_file(cfg.get_master_view())
-        master_view.apply_view_instructions(master_view_instructions)
-    except BaseException as e:
-        logging.error(f"load_master_view: Exception when applying master view to dsd: {repr(e)}")
-        raise e
-
-    logging.debug(f"load_master_view: master view initialized: {cfg.get_master_view()}")
 
 
 if __name__ == '__main__':
