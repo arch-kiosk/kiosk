@@ -1,7 +1,6 @@
 /static/static/
 /static/awesom*/
 /static/bourbon/
-custom
 reporting
 /.*cache*
 *.dmp

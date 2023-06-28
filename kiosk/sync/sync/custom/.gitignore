@@ -1,0 +1,2 @@
+*.py
+!default_filecontexts.py
