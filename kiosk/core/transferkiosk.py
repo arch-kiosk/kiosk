@@ -78,7 +78,7 @@ class TransferKiosk:
         cat_file = os.path.join(target_dir, 'cat_file.json')
         self.console_log(f"Dumping file information into {cat_file}", end="")
         cur = KioskSQLDb.execute_return_cursor(f"select uid, modified, md5_hash "
-                                               f"from images where not tags ilike %s", ["%BROKEN_FILE%"])
+                                               f"from images where not coalesce(tags,'') ilike %s", ["%BROKEN_FILE%"])
         count = 0
         with open(cat_file, 'w', encoding='utf-8') as f:
             f.write("[\n")
@@ -140,7 +140,7 @@ class TransferKiosk:
 
         files_table_sql = f"(select uid, modified, md5_hash from " \
                           f"{KioskSQLDb.sql_safe_ident(self.master_view.dsd.files_table)} " \
-                          f"where not tags ilike " \
+                          f"where not coalesce(tags,'') ilike " \
                           f"{DatabaseDriver.quote_value('VARCHAR', DatabaseDriver.wildcard('BROKEN_FILE'))})"
         if source_catalog:
             self.console_log(f"Creating delta to transfer files from a remote Kiosk to this one ", end="")
@@ -158,8 +158,12 @@ class TransferKiosk:
             json.dump(self._delta, f)
 
     def file2delta(self, filename: str):
+        if not os.path.isfile(filename):
+            logging.error(f"{self.__class__.__name__}.file2delta: delta file {filename} does not exist.")
+            return False
         with open(filename, "r") as f:
             self._delta = json.load(f)
+        return True
 
     def _import_json_catalog(self, catalog_file):
         with open(catalog_file, "r") as f:
@@ -212,6 +216,9 @@ class TransferKiosk:
                 self.console_log(".", end="", flush=True)
 
         cError = 0
+
+
+
         try:
             kfm = KioskFilesModel()
             if not os.path.exists(target_dir):

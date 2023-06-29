@@ -116,14 +116,14 @@ def create_files_delta():
 
 def pack_delta():
     print(f"Load files delta {options['delta-file']} ... ", end="")
-    transfer_kiosk.file2delta(options["delta-file"])
-    print(f"okay")
-    if "tolerated-errors" in options:
-        tolerated_errors = int(options["tolerated-errors"])
-    else:
-        tolerated_errors = 0
-    transfer_kiosk.pack_delta(options['target-dir'], fake_it=True if "fake" in options else False,
-                              max_errors=tolerated_errors)
+    if transfer_kiosk.file2delta(options["delta-file"]):
+        print(f"okay")
+        if "tolerated-errors" in options:
+            tolerated_errors = int(options["tolerated-errors"])
+        else:
+            tolerated_errors = 0
+        transfer_kiosk.pack_delta(options['target-dir'], fake_it=True if "fake" in options else False,
+                                  max_errors=tolerated_errors)
 
 
 def unpack():

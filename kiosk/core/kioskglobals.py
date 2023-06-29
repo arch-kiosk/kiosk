@@ -150,3 +150,4 @@ def get_uic_tree() -> UICTree:
         logging.error(f"kioskglobals.get_uic_tree: {repr(e)}")
 
     return uic_tree
+

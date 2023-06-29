@@ -45,6 +45,8 @@ class KioskBackup:
         r"tools\analyzefilerepository.py",
         r"tools\update_default_kiosk_queries.py",
         r"tools\import_files.py",
+        r"tools\transfer_kiosk_cli.py",
+        r"tools\kiosktoolslib.py",
     ]
 
     KIOSK_CONFIG_ONLY_FILES = [
