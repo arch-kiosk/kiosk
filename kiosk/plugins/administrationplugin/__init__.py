@@ -149,6 +149,7 @@ if "mcpcore.mcpworker" not in sys.modules:
     def register_global_routes() -> List[Union[str, Tuple[str, str]]]:
         global plugin
         return ["administration.trigger_patch",
+                "administration.upload_catalog"
                 ]
 
     def register_global_scripts():

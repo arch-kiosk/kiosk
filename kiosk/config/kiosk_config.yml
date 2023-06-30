@@ -27,7 +27,6 @@ file_repository:
     pottery_images: 'pottery'
     tags: 'context tags'
 
-
 kiosk:
   global_constants:
     project_name: ''
@@ -35,6 +34,8 @@ kiosk:
     project_logo_top: ''
     project_logo_main: 'Uronarti'
     project_logo_bottom: 'Uronarti Regional Archaeological Project'
+  administrationplugin:
+    fake_transfer: True
 
   playgroundplugin:
     active: true

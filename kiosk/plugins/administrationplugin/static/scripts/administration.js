@@ -35,6 +35,7 @@ function triggerUploadPatch(endpoint) {
 }
 
 
+
 function init_bt_backup() {
     let bt = $("#bt-backup");
     bt.prop("disabled", false);
@@ -53,12 +54,46 @@ function init_bt_backup() {
                 },
                 ajaxFailed: () => {
                     $.magnificPopup.close();
-                    kioskErrorToast("Sorry, the backup dialog wouldn't start.");
+                    kioskErrorToast("Sorry, the backup dialog wouldn't start. Perhaps you need a fresh login.");
                 }
             }
         });
     });
 }
+
+function init_bt_transfer() {
+    let bt = $("#bt-transfer");
+    bt.prop("disabled", false);
+    bt.on("click", () => {
+        kioskOpenModalDialog("/administration/transfer", {
+            closeOnBgClick: false,
+            focus: "#transfer-dir",
+            showCloseBtn: false,
+            callbacks: {
+                open: () => {
+                    $('#transfer-form').bind('keypress', function (e) {
+                        if (e.keyCode === 13) {
+                            $(this).find('input[type=submit]:first').click();
+                        }
+                    });
+                },
+                ajaxFailed: () => {
+                    $.magnificPopup.close();
+                    kioskErrorToast("Sorry, the transfer dialog wouldn't start. Perhaps you need a fresh login.");
+                },
+                close: () => {
+                    if (startToServerTransfer.hasOwnProperty("transfer_job")) {
+                        if (startToServerTransfer.transfer_job) {
+                            console.log("Job cancelled.")
+                            startToServerTransfer.transfer_job.stopit = true;
+                        }
+                    }
+                }
+            }
+        });
+    });
+}
+
 
 function init_bt_restore() {
     let bt = $("#bt-restore");
@@ -224,6 +259,7 @@ function initAdministration() {
     $(".btn-reset-password").on("click", resetPassword);
     init_bt_backup();
     init_bt_restore();
+    init_bt_transfer()
     init_bt_clear();
     init_bt_housekeeping();
     init_bt_dataintegrity();
@@ -425,6 +461,94 @@ housekeeping has started. Please look at the logs.</div>`);
         (xhr, status, errorThrown, state_data) => {
             kioskModalErrorToast(`<div>Sorry, There was an error: ${errorThrown} </div>`);
         });
+}
+
+
+function startToServerTransfer(event = null) {
+
+    if (event) {
+        event.preventDefault();
+    }
+    kioskSendAjaxForm($("#bt-ok"),
+        $("#dialog-ajax-part"),
+        "/administration/transfer",
+        (jq_form, state_data) => {
+            $("#drop-area-div").hide()
+
+            if (!kioskElementHasErrors()) {
+                let job_uid = getJobIDFromHtml();
+                if (job_uid) {
+
+                    let job = new KioskJob($("#transfer-form"))
+                    if (job) {
+                        job.onSuccess = (result) => {
+                            startToServerTransfer.transfer_job = null
+                            serverTransferFinished(result['transfer_dir'])
+                        };
+                        job.onStopProgress = () => {
+                            stop_spinner();
+                        };
+                        job.onError = (err_msg) => {
+                            startToServerTransfer.transfer_job = null
+                            $.magnificPopup.close();
+                            kioskErrorToast("Task aborted due to an error: " + err_msg);
+                        };
+                        job.onInitProgress = () => {
+                            kioskDisableButton($("#bt-ok"), true);
+                            kioskDisableButton($("#bt-cancel"), true);
+                            installSpinner($("#transfer-form"), "initializing ... ");
+                        };
+                        job.onProgress = (progress, message, topic) => {
+                            if (!topic) {
+                                $("#ws-message-div").html(`${progress}%: ${message}`);
+                            }
+                        };
+                        startToServerTransfer.transfer_job = job;
+                    }
+                    if (startToServerTransfer.transfer_job)
+                        startToServerTransfer.transfer_job.connect(job_uid);
+                    else {
+                        kioskModalErrorToast(`<div>Sorry, some error makes it impossible to say if the 
+transfer has started. Please look at the process list and the logs.</div>`);
+                    }
+                } else {
+                    kioskModalErrorToast(`<div>Sorry, some error (no job-id) makes it impossible to say if the 
+transfer has started. Please look at the process list and the logs.</div>`);
+                }
+            } else {
+                kioskDisableButton($("#bt-ok"), true);
+                kioskDisableButton($("#bt-cancel"), false);
+            }
+        },
+        (xhr, status, errorThrown, state_data) => {
+            kioskModalErrorToast(`<div>Sorry, There was an error: ${errorThrown} </div>`);
+        });
+
+}
+
+function serverTransferFinished(transfer_dir) {
+    kioskActivateButton($("#bt-ok"), null);
+    kioskActivateButton($("#bt-cancel"), null);
+    kioskActivateButton($("#bt-close"), () => {
+        $.magnificPopup.close();
+    });
+    let result_html = `<div class="transfer-result">
+        <div class="transfer-success-header">Transfer directory compiled successfully.</div>` +
+        `<div class="transfer-success-text">
+        Everything in the following local transfer dir needs to be transferred to the other Kiosk Server. <br>
+        If you transfer to an online server copy everything to the shared folder on a Google Drive or 
+        follow the instructions you got in case of a different file sharing service. </div>` +
+        `<span id="transfer-result-dir">${transfer_dir}</span>` +
+        `<button id="backup-clipboard" class="kiosk-btn-32"><i class="mdi mdi-content-copy"></i></button></div>`
+    $("#dlg-spinner-wrapper").html(result_html);
+    $("#backup-clipboard").click(() => {
+        navigator.clipboard.writeText(transfer_dir).then(function () {
+            kioskSuccessToast("The path to the transfer directory is on the clipboard!");
+            $.magnificPopup.close();
+        }, function () {
+            kioskErrorToast("Copying to clipboard did not work. Please jot it down.");
+        });
+    });
 }
 
 // ************************************************************

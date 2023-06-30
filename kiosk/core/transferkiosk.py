@@ -17,6 +17,7 @@ from databasedrivers import DatabaseDriver
 
 
 class TransferKiosk:
+    transfer_progress = None
 
     def __init__(self, cfg: KioskConfig):
         self.cfg = cfg
@@ -31,6 +32,15 @@ class TransferKiosk:
             self.console_log = print
         else:
             self.console_log = lambda *args, **kwargs: None
+
+    @classmethod
+    def set_progress_handler(cls, progress_handler):
+        cls.transfer_progress = progress_handler
+
+    @classmethod
+    def _report_progress(cls, progress_prc=0, msg=""):
+        return kioskstdlib.report_progress(cls.transfer_progress, progress_prc, topic="transfer_kiosk",
+                                           extended_progress=msg)
 
     @staticmethod
     def _init_dsd(cfg):
@@ -99,7 +109,7 @@ class TransferKiosk:
         self.console_log(f" okay: {count} file records dumped.")
         return True
 
-    def create_files_delta(self, target_catalog, source_catalog):
+    def create_files_delta(self, target_catalog=None, source_catalog=None):
         if not (target_catalog or source_catalog):
             logging.error(f"{self.__class__.__name__}.create_files_delta: "
                           f"Called without either a target catalog or a source catalog.")
@@ -215,9 +225,12 @@ class TransferKiosk:
             else:
                 self.console_log(".", end="", flush=True)
 
+            if not self._report_progress(int(100 * c / len(self._delta)), "compiling transfer directory"):
+                logging.error(f"{self.__class__.__name__}.pack_delta: "
+                              f"Progress cancelled by user")
+                return False
+
         cError = 0
-
-
 
         try:
             kfm = KioskFilesModel()

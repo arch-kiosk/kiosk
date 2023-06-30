@@ -51,6 +51,7 @@ from synchronization import Synchronization
 from .forms.backupform import BackupForm
 from .forms.housekeepingform import HousekeepingForm
 from .forms.restoreform import RestoreForm
+from .forms.transferform import TransferForm
 
 _plugin_name_ = "administrationplugin"
 _controller_name_ = "administration"
@@ -426,6 +427,158 @@ def start_mcp_backup(backup_dir: str, backup_workstations: bool, backup_file_rep
     except Exception as e:
         errors.append("Could not start the backup: " + repr(e))
         logging.error("Could not start the backup: " + repr(e))
+
+    return errors, job
+
+
+#  **************************************************************
+#  ****    /transfer index / form request
+#  *****************************************************************/
+@administration.route('/transfer', methods=['POST', 'GET'])
+@full_login_required
+@requires(IsAuthorized(BACKUP_PRIVILEGE))
+# @nocache
+def transfer():
+    print("\n*************** administration/transfer ")
+    print(f"\nGET: get_plugin_for_controller returns {get_plugin_for_controller(_plugin_name_)}")
+    print(f"\nGET: plugin.name returns {get_plugin_for_controller(_plugin_name_).name}")
+    if not kiosklib.is_ajax_request():
+        logging.error(f"administrationcontroller.transfer: Attempt to GET it without AJAX.")
+        abort(HTTPStatus.BAD_REQUEST)
+
+    transfer_form = TransferForm()
+    general_errors = []
+    job_uid = ""
+    if request.method == 'POST':
+        general_errors += kiosk_validate(transfer_form)
+
+        if not general_errors:
+            try:
+                assert_mcp(kioskglobals.general_store)
+                job = None
+                filename = kioskstdlib.urap_secure_filename(transfer_form.catalog_file.data)
+                cfg = kioskglobals.get_config()
+                catalog_file = os.path.join(cfg.get_temp_dir(), filename)
+                errors, job = start_mcp_transfer(transfer_form.transfer_dir.data,
+                                                 catalog_file,
+                                                 )
+                general_errors += errors
+                if job:
+                    job_uid = job.job_id
+            except BaseException as e:
+                logging.error(f"administrationcontroller.transfer: {repr(e)}")
+                general_errors.append(repr(e))
+    else:
+        cfg = get_plugin_config()
+        try:
+            backup_directory = kioskglobals.cfg.resolve_symbols(cfg["defaults"]["backup_directory"])
+            transfer_directory = os.path.join(kioskstdlib.get_parent_dir(backup_directory), "transfer")
+            transfer_form.transfer_dir.data = transfer_directory
+        except (TypeError, KeyError) as e:
+            logging.warning(f"administrationcontroller.transfer: defaults not configured: {repr(e)} ")
+
+    return render_template('transferdialog.html',
+                           config=kioskglobals.cfg, transfer_form=transfer_form,
+                           general_errors=general_errors, job_uid=job_uid)
+
+
+#  **************************************************************
+#  ****    upload catalog file for transfer
+#  *****************************************************************/
+@administration.route('/upload_catalog', methods=['POST'])
+@full_login_required
+def upload_catalog():
+    """
+        todo: document
+    """
+    print("administrationcontroller.upload_catalog called.")
+    logging.info(f"administrationcontroller.upload_catalog called.")
+    try:
+        authorized_to = get_local_authorization_strings(LOCAL_ADMINISTRATION_PRIVILEGES)
+        if "backup" not in authorized_to:
+            logging.warning(f"Unauthorized access to kioskfilemakerworkstation/upload_catalog "
+                            f"by user {current_user.user_id}")
+            abort(HTTPStatus.UNAUTHORIZED)
+
+        result = KioskResult(message="Unknown error after uploading a transfer catalog")
+        logging.info(f"Received new transfer catalog from user {current_user.user_id}")
+
+        try:
+            cfg = kioskglobals.get_config()
+            if not is_local_server(cfg):
+                raise HTTPException('This feature is only available on local servers.')
+
+            temp_dir = cfg.get_temp_dir()
+            if 'file' in request.files:
+                file = request.files['file']
+                if file and file.filename:
+                    logging.info("Received file " + file.filename)
+                    uploaded_file_name = kioskstdlib.get_filename(file.filename)
+                    if kioskstdlib.get_file_extension(uploaded_file_name).lower() != 'json':
+                        raise UserError(
+                            f"The uploaded file {uploaded_file_name} does not have the expected extension JSON.")
+
+                    secure_filename = kioskstdlib.get_filename(kioskstdlib.get_unique_filename(
+                        temp_dir,
+                        kioskstdlib.get_datetime_template_filename('cat_#a_#d#m#y-#H#M.json'),
+                        file_extension='json'))
+
+                    cat_file = os.path.join(temp_dir, secure_filename)
+                    if os.path.isfile(cat_file):
+                        os.remove(cat_file)
+                    file.save(cat_file)
+                    logging.info(f"administrationcontroller.upload_catalog: Catalog file saved as "
+                                 f"{secure_filename}.")
+                    result.success = True
+                    result.set_data("filename", secure_filename)
+                    result.message = "The catalog got successfully uploaded"
+                else:
+                    result.success = False
+                    result.message = "Either file or filename is empty."
+            else:
+                result.success = False
+                result.message = "No uploaded file detected."
+        except UserError as e:
+            raise e
+        except BaseException as e:
+            raise UserError(repr(e))
+
+        return result.jsonify()
+    except UserError as e:
+        logging.error(f"administrationcontroller.upload_catalog: {repr(e)}")
+        result = KioskResult(message=repr(e))
+        result.message = f"{repr(e)}"
+        result.success = False
+        return result.jsonify()
+    except HTTPException as e:
+        logging.error(f"administrationcontroller.upload_catalog: {repr(e)}")
+        raise e
+    except Exception as e:
+        logging.error(f"administrationcontroller.upload_catalog: {repr(e)}")
+        abort(HTTPStatus.INTERNAL_SERVER_ERROR)
+
+
+def start_mcp_transfer(transfer_dir: str, catalog_file: str):
+    errors = []
+    job = None
+    try:
+        if not path.isfile(catalog_file):
+            errors.append("The catalog file was not uploaded correctly. Please try again.")
+        else:
+            try:
+                job = MCPJob(kioskglobals.general_store)
+                job.job_data = args = {'transfer_dir': transfer_dir,
+                                       'catalog_file': catalog_file}
+                job.set_worker(module_name="plugins.administrationplugin.transferworker", class_name="TransferJob")
+                job.system_lock = True
+                KioskSQLDb.close_connection()
+                job.queue()
+            except Exception as e:
+                logging.error("Exception in administrationcontroller.start_mcp_transfer: " + repr(e))
+                errors.append("Could not start the transfer process: " + repr(e))
+    except Exception as e:
+        errors.append("Could not start the transfer process: " + repr(e))
+        logging.error("Could not start the transfer process: " + repr(e))
 
     return errors, job
 

@@ -1,0 +1,146 @@
+{% from 'dialogmacros.html' import kiosk_error_div, kiosk_error_span, kiosk_general_form_errors %}
+{% extends "basicmodaldialog.html" %}
+{% block kiosk_modal_dialog_id %}id="transfer-dialog"{% endblock %}
+{% block kiosk_modal_dialog_classes %}.kiosk-modal-dialog-medium{% endblock %}
+{% block kiosk_modal_dialog_name %}transfer options{% endblock %}
+{% block kiosk_modal_dialog_content %}
+  <div id="dialog-ajax-part" class="pagecontrol-content kiosk-modal-dialog-griddy">
+    {{ kiosk_general_form_errors(general_errors) }}
+    {% if job_uid %}
+      <div id="mcp-job-info" jobid="{{ job_uid }}"></div>
+    {% endif %}
+
+    <div id="catalog-upload-success" style="display:none" class="kiosk-success-div">
+        The catalog file was successfully uploaded.
+    </div>
+    <div id="drop-area-div" class="upload-zone installer">
+      <input id="file-upload" type="file" name="files[]">
+      <h3>Please click here <br> or drop the online server's catalog file here.</h3>
+    </div>
+
+    <form id="transfer-form" onsubmit="starttransferOrRestore">
+
+      {{ transfer_form.csrf_token }}
+      <input id="catalog_file" name="catalog_file" type="hidden" value=""></input>
+
+      <div>{{ transfer_form.transfer_dir(class="kiosk-dialog-textfield",
+                      placeholder="local path where the transfer will be stored",
+                      errclass="kiosk-error-border",
+                      labelclass="kiosk-dialog-label") }}
+      </div>
+      <div class="kiosk-dialog-label"><span>Please make sure that there is enough space in the</br>destination directory</span></div>
+{#      <div> {{ transfer_form.transfer_file_repository(class="kiosk-dialog-checkbox",#}
+{#                      errclass="kiosk-error-border",#}
+{#                      labelclass="kiosk-dialog-label") }}#}
+{#      </div>#}
+
+{#      <div style="visibility: hidden; height: 0px">{{ transfer_form.transfer_workstation_files(class="kiosk-dialog-checkbox",#}
+{#                      errclass="kiosk-error-border",#}
+{#                      labelclass="kiosk-dialog-label") }}#}
+{#      </div>#}
+      {#          {{ transfer_form.page_initialized() }}#}
+{#      <div class="input-field">#}
+{#        <input id="transfer-path" type="text" class="validate">#}
+{#        <label for="transfer-path">transfer to directory</label>#}
+{#      </div>#}
+{#      <label>#}
+{#        <input type="checkbox"/>#}
+{#        <span>transfer workstation files, too</span>#}
+{#      </label>#}
+    </form>
+
+  </div>
+{% endblock %}
+{% block kiosk_modal_dialog_after %}
+  <script>
+    initTransferDialog();
+
+  function initTransferDialog() {
+    kioskShowFooter(true);
+    bindReturnKeyToButtons("transfer-dialog", "bt-ok", ["bt-cancel"]);
+    kioskActivateButton($("#bt-next"), null);
+    kioskActivateButton($("#bt-back"), null);
+    //kioskActivateButton($("#bt-ok"), null);
+    //kioskDisableButton($("#bt-ok"), true);
+    kioskActivateButton($("#bt-close"), null);
+    kioskActivateButton($("#bt-delete"), null);
+
+    kioskActivateButton($("#bt-cancel"), () => {
+      $.magnificPopup.close();
+    });
+    kioskActivateButton($("#bt-ok"), startToServerTransfer);
+    initCatalogUploadZone()
+  }
+
+      function initCatalogUploadZone() {
+        const MAX_INSTALL_FILE_SIZE = 250 // 250 Megabyte
+
+        const route = getRoutefor("administration.upload_catalog")
+        console.log(`upload catalog route: ${route}`)
+
+        $('#drop-area-div').dmUploader({
+          url: route,
+          auto: true,
+          queue: false,
+          extFilter: ["json"],
+          dataType: 'json',
+          maxFileSize: MAX_INSTALL_FILE_SIZE * 1024 * 1024,
+          onBeforeUpload: function (id) {
+            installSpinner($("#drop-area-div"),"hold on ...")
+            setCatalogUploadProgress(id, 0);
+          },
+          onUploadProgress: function (id, percent) {
+            setCatalogUploadProgress(id, percent);
+
+          },
+          onUploadSuccess: function (id, data) {
+            if (data.success) {
+                console.log(data)
+              $("#catalog_file").val(data.data.filename)
+            }
+            else {
+              $.magnificPopup.close()
+              kioskErrorToast(`The upload failed (${data.message}). Please try again.`)
+            }
+          },
+          onUploadError: function (id, xhr, status, errorThrown) {
+            console.log(xhr)
+            console.log(status)
+            console.log(errorThrown)
+            $.magnificPopup.close()
+            if (errorThrown) {
+              kioskErrorToast(`The upload failed (${errorThrown}). Please try again.`)
+            }
+            else
+              kioskErrorToast(`The upload failed. Please try again.`)
+            $.magnificPopup.close()
+        },
+          onFallbackMode: function (message) {
+            kioskErrorToast('The upload failed because your Browser does not support it: ' + message);
+            $.magnificPopup.close()
+          },
+          onFileExtError: function (file) {
+            kioskErrorToast('Only files with the extension .json can be uploaded here. Please select a proper file.')
+            $.magnificPopup.close()
+          },
+          onFileSizeError: function (file) {
+            kioskErrorToast(`The selected file exceeds the file size limit of ${MAX_INSTALL_FILE_SIZE} MBytes`)
+            $.magnificPopup.close()
+          }
+
+        });
+      }
+
+      function setCatalogUploadProgress(id, percent) {
+          if (percent != 100)
+            $("#ws-message-div").html(`${percent} % done`)
+          else
+            $("#ws-message-div").hide()
+            removeSpinnerEx("")
+            $("#catalog-upload-success").show()
+      }
+
+
+    //# sourceURL=transferdialog.js
+  </script>
+{% endblock %}

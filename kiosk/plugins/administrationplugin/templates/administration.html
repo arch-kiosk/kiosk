@@ -25,6 +25,13 @@
           </button>
         {% endif %}
       </li>
+      <li>
+        {% if current_user.is_authenticated and "backup" in authorized_to %}
+          <button id="bt-transfer" class="admin-action kiosk-btn-128" disabled>
+            transfer
+          </button>
+        {% endif %}
+      </li>
       {% if current_user.is_authenticated and "delete workstation" in authorized_to %}
         <li>
           <button class="admin-action kiosk-btn-128" disabled>
