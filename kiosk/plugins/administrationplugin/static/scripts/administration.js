@@ -469,11 +469,13 @@ function startToServerTransfer(event = null) {
     if (event) {
         event.preventDefault();
     }
+    setModalDialogTitle("transfer in progress ...")
     kioskSendAjaxForm($("#bt-ok"),
         $("#dialog-ajax-part"),
         "/administration/transfer",
         (jq_form, state_data) => {
             $("#drop-area-div").hide()
+            setModalDialogTitle("transfer")
 
             if (!kioskElementHasErrors()) {
                 let job_uid = getJobIDFromHtml();

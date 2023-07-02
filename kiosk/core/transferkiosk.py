@@ -226,9 +226,8 @@ class TransferKiosk:
                 self.console_log(".", end="", flush=True)
 
             if not self._report_progress(int(100 * c / len(self._delta)), "compiling transfer directory"):
-                logging.error(f"{self.__class__.__name__}.pack_delta: "
-                              f"Progress cancelled by user")
-                return False
+                raise Exception(f"{self.__class__.__name__}.pack_delta: "
+                                f"Progress cancelled by user")
 
         cError = 0
 

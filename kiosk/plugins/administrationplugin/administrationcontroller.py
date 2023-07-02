@@ -481,7 +481,6 @@ def transfer():
                            config=kioskglobals.cfg, transfer_form=transfer_form,
                            general_errors=general_errors, job_uid=job_uid)
 
-
 #  **************************************************************
 #  ****    upload catalog file for transfer
 #  *****************************************************************/
