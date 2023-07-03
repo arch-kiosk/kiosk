@@ -1,13 +1,13 @@
 # *********************************************
 # kiosk config
 # *********************************************
-#import_configurations:
-#  - kiosk_default_config.yml
-#  - kiosk_local_config.yml
-#  - kiosk_secure.yml
+import_configurations:
+  - kiosk_default_config.yml
+  - kiosk_local_config.yml
+  - kiosk_secure.yml
 
-#config:
-#  project_id: # your project id
+config:
+  project_id: kiosk # your project id
 
 # these settings are needed for filemaker recording:
 #  filemaker_template: '%sync%\filemaker\kiosk_recording_template.fmp12'
