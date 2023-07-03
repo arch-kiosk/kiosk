@@ -345,8 +345,9 @@ class SyncConfig(Config):
                         "get_file_repository: Exception creating file repository under " + self._file_repository + ": " + repr(
                             e))
             else:
-                logging.error(
-                    "SyncConfig.get_file_repository: path to missing file repository requested but without option to create it")
+                logging.warning(
+                    f"SyncConfig.get_file_repository: path to missing "
+                    f"file repository ({self._file_repository}) requested but without option to create it.")
             if os.path.isdir(self._file_repository):
                 return self._file_repository
         else:

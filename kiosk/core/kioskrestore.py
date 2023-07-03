@@ -26,6 +26,7 @@ KIOSK_FILES = [
     r"tools",
     r"sqlalchemy_models",
     r"__init__.py",
+    r"this_is_the_kiosk_root.md",
     r"sync\sync\console.py",
     r"sync\sync\sync_plugins",
     r"sync\sync\core",

@@ -52,9 +52,9 @@ class KioskBackup:
     KIOSK_CONFIG_ONLY_FILES = [
         r"config",
         r"sync\sync\config",
-        r"sync\sync\tools",
     ]
 
+    # these are the files that are needed in the unpackkiosk directory!
     TOOLS_FILES = [
         [r"core", "kioskconfig.py"],
         [r"core", "kioskrestore.py"],
@@ -513,3 +513,4 @@ class KioskBackup:
             logging.error(f"{cls.__name__}.copy_file_repository_to_path: Error copying files to "
                           f"{dest_path}: {repr(e)}")
             return -1
+
