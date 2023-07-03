@@ -7,9 +7,6 @@
 [submodule "kiosk/sync/sync/tools/ustp_ceramics_import"]
 	path = kiosk/sync/sync/tools/ustp_ceramics_import
 	url = https://github.com/arch-kiosk/ustp_ceramics_import.git
-[submodule "kiosk/sync/sync/tools/qrcoderecognitiontests"]
-	path = kiosk/sync/sync/tools/qrcoderecognitiontests
-	url = https://github.com/arch-kiosk/qrcoderecognitiontests.git
 [submodule "kiosk/plugins/pointrepositoryplugin"]
 	path = kiosk/plugins/pointrepositoryplugin
 	url = https://github.com/arch-kiosk/pointrepositoryplugin.git
