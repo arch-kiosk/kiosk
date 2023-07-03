@@ -320,6 +320,9 @@ class KioskRestore:
     @classmethod
     def create_kiosk(cls, src_dir, kiosk_dir, kiosk_configfile, options):
 
+        if "project_id" not in options:
+            cls._abort_with_error(-1, f"For a new Kiosk you must state the -project_id parameter!")
+
         try:
 
             kiosk_zip = path.join(src_dir, "kiosk.zip")
@@ -343,12 +346,24 @@ class KioskRestore:
             else:
                 print("\nWarning: There was no template configuration 'kiosk_config_template.yml' to use.\n")
                 with open(kiosk_configfile, "w", encoding='utf8') as ymlfile:
-                    ymlfile.write("""
-import_configurations:\n
-        - kiosk_default_config.yml\n
-        - kiosk_local_config.yml\n
-        - kiosk_secure.yml\n
-""")
+                    ymlfile.write(f"""
+# Kiosk Project Configuration\n""")
+
+            with open(kiosk_configfile, "r", encoding='utf8') as ymlfile:
+                cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
+
+            print(f"Initializing basic config for project {options['project_id']}... ", end=" ", flush=True)
+            if not cfg:
+                cfg = {}
+            if "import_configurations" not in cfg:
+                cfg["import_configurations"] = ["kiosk_default_config.yml", "kiosk_local_config.yml", "kiosk_secure.yml"]
+            if "config" not in cfg:
+                cfg["config"] = {}
+            cfg["config"] = {"project_id": options["project_id"]}
+
+            with open(kiosk_configfile, "w") as ymlfile:
+                yaml.dump(cfg, ymlfile, default_flow_style=False)
+            print("ok", flush=True)
 
             cls.zip_extract_files(kiosk_dir, kiosk_zip, 'config/dsd', )
             cls.set_new_database_credentials(kiosk_configfile, secure_file, options)

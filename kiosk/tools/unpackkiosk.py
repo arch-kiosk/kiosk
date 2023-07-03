@@ -45,6 +45,7 @@ params = {"-fr": "fr", "--unpack_file_repository": "fr",
           "--exclude_mcp": "exclude_mcp",
           "-ncu": "no_clear_up",
           "--no_clear_up": "no_clear_up",
+          "--project_id": "project_id",
           }
 
 
@@ -73,9 +74,10 @@ def usage():
         -ft / --unpack_filemaker_template: Unpacks the filemaker template file
         -p: installs pip and the requirements and libraries with pip
         -nh / --no_housekeeping: suppresses housekeeping at the end of unpackkiosk
+        --project_id: Only for new installations and in that case required: The central id for the project. 
         -db / --database: if in update mode: restores the database from the dbbackup.dmp. 
                                              A current database will be renamed first to _<current date>
-                          if new installation: creates the database if necessary. 
+                          if new installation: creates the database if necessary.
         -dbuser=user-id: This sets a new database user in the config.yml
         -dbpwd=password: This sets a new database password for the user in the config.yml
         -dbname=database name: This sets a different database to use in the config.yml
@@ -116,6 +118,9 @@ def interpret_param(known_param, param):
     elif new_option == "dbname":
         dbname = param.split("=")[1]
         rc = {new_option: dbname}
+    elif new_option == "project_id":
+        project_id = param.split("=")[1]
+        rc = {new_option: project_id}
     elif new_option == "patch":
         rc = {new_option: None,
               "o": None,
