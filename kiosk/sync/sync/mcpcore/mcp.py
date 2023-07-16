@@ -1,6 +1,6 @@
 # Master Control Program - job scheduler for Kiosk
 
-MCP_VERSION = "0.1.2"
+MCP_VERSION = "0.2"
 
 import inspect
 import logging
@@ -31,6 +31,7 @@ class MCP:
         self.gs = gs
         self.queue = OrderedDict()
         self.mcp_pulse_timeout = MCP_PULSE_TIMEOUT
+        self.in_debug_mode = False
 
     def _load_queue(self):
         """
@@ -293,10 +294,17 @@ class MCP:
                 except ValueError as e:
                     logging.error(repr(e))
                     return 0
-                try:
-                    return self.start_process(job.job_id, job.kiosk_base_path, job.config_file, test_mode=test_mode)
-                except BaseException as e:
-                    logging.error(f"{self.__class__.__name__}.start_job: Exception when starting process: {repr(e)}")
+                if self.in_debug_mode:
+                    try:
+                        return self.debug_process(job.job_id, job.kiosk_base_path, job.config_file, test_mode=test_mode)
+                    except BaseException as e:
+                        logging.error(
+                            f"{self.__class__.__name__}.start_job: Exception when debugging job: {repr(e)}")
+                else:
+                    try:
+                        return self.start_process(job.job_id, job.kiosk_base_path, job.config_file, test_mode=test_mode)
+                    except BaseException as e:
+                        logging.error(f"{self.__class__.__name__}.start_job: Exception when starting process: {repr(e)}")
             else:
                 logging.error(f"{self.__class__.__name__}.start_job: reload of job {job.job_id} failed.")
         finally:
@@ -309,6 +317,14 @@ class MCP:
         p = multiprocessing.Process(target=mcp_worker, args=(job_id, kiosk_base_path, config_file, test_mode))
         p.start()
         return p
+
+    @staticmethod
+    def debug_process(job_id, kiosk_base_path, config_file, test_mode=0):
+        logging.debug(f"debugging job under {kiosk_base_path} using {config_file}")
+        # p = multiprocessing.Process(target=mcp_worker, args=(job_id, kiosk_base_path, config_file, test_mode))
+        # p.start()
+        mcp_worker(job_id, kiosk_base_path, config_file, test_mode)
+        return 0
 
     def loop(self):
         pass

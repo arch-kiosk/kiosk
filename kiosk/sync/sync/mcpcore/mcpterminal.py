@@ -25,6 +25,7 @@ class MCPView:
         self.gs = general_store
         self.refresh_screen = True
         self.queue = OrderedDict()
+        self.in_debug_mode = False
 
     def async_refresh_screen(self, queue: OrderedDict):
         self.refresh_screen = True
@@ -99,11 +100,18 @@ class MCPTerminalView(MCPView):
     def header(self):
         pulse_width = self.update_pulse()
         with self.term.location(y=0):
-            print(self.term.black + self.term.on_color_rgb(*self.bg_green) +
-                  self.term.ljust(f"Kiosk Master Control Program {MCP_VERSION}",
-                                  width=self.term.width - pulse_width))
-            print(self.term.on_color_rgb(*self.bg_grey) +
-                  self.term.ljust(f"using {config_file}", width=self.term.width-pulse_width))
+            if self.in_debug_mode:
+                print(self.term.black + self.term.on_color_rgb(*self.bg_red) +
+                      self.term.ljust(f"Kiosk Master Control Program {MCP_VERSION}",
+                                      width=self.term.width - pulse_width))
+                print(self.term.on_color_rgb(*self.bg_red) +
+                      self.term.ljust(f"using {config_file} and in debug mode", width=self.term.width - pulse_width))
+            else:
+                print(self.term.black + self.term.on_color_rgb(*self.bg_green) +
+                      self.term.ljust(f"Kiosk Master Control Program {MCP_VERSION}",
+                                      width=self.term.width - pulse_width))
+                print(self.term.on_color_rgb(*self.bg_grey) +
+                      self.term.ljust(f"using {config_file}", width=self.term.width - pulse_width))
 
         self.menu()
 
@@ -207,7 +215,7 @@ class MCPTerminalView(MCPView):
                 self.job_list()
             else:
                 term = self.term
-                with term.location(y=term.height // 2 - (1-self.refresh_counter % 2)):
+                with term.location(y=term.height // 2 - (1 - self.refresh_counter % 2)):
                     print(term.white_on_black + term.center(f" z z ", width=term.width), end="")
                 with term.location(y=term.height // 2 - (self.refresh_counter % 2)):
                     print(term.white_on_black + term.center(f"z", width=term.width), end="")
@@ -277,6 +285,7 @@ class MCPLoop:
     def __init__(self, mcp: MCP, mcp_view: MCPView):
         self.mcp = mcp
         self.mcp_view: MCPView = mcp_view
+        self.mcp_view.in_debug_mode = mcp.in_debug_mode
         self.cancel = False
 
     def loop(self):
@@ -307,7 +316,6 @@ class MCPLoop:
 
 
 def init_logging(cfg):
-
     # This is to suppress the red lock log entries.
     red_lock_logger = logging.getLogger('redis_lock')
     red_lock_logger.setLevel(logging.ERROR)
@@ -348,7 +356,6 @@ def create_new_file_log(root_path, cfg, logger: logging.Logger):
         logging.info("Can't create new log file")
 
 
-
 def close_all_file_loggers(logger):
     for handler in logger.handlers:
         if isinstance(handler, logging.FileHandler):
@@ -370,7 +377,17 @@ if __name__ == '__main__':
         raise Exception("MCP needs the kiosk configuration file as parameter.")
     config_file = sys.argv[1]
     sync_config = SyncConfig.get_config({'config_file': config_file})
+    if not sync_config:
+        raise Exception(f"Could not load Kiosk configuration from '{config_file}'")
     print(f" ** MCP running within {sync_config.base_path} using {config_file} ** ")
+
+    in_debug_mode = False
+    if len(sys.argv) > 2:
+        param = sys.argv[2]
+        if param == "--debug":
+            in_debug_mode = True
+        else:
+            raise Exception(f"Unknown parameter '{sys.argv[2]}'")
 
     logger = init_logging(sync_config)
 
@@ -389,6 +406,7 @@ if __name__ == '__main__':
         exit(0)
 
     mcp_instance = MCP(gs)
+    mcp_instance.in_debug_mode = in_debug_mode
     mcp_instance.publish_version()
     mcp_view = MCPTerminalView(gs)
     mcp_loop = MCPLoop(mcp_instance, mcp_view)
