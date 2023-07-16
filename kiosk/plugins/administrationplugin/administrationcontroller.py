@@ -35,6 +35,7 @@ from core.kioskcontrollerplugin import get_plugin_for_controller
 # from kioskthread import KioskThread
 from dsd.dsd3singleton import Dsd3Singleton
 from kioskconfig import KioskConfig
+from kioskrestore import KioskRestore
 from kioskresult import KioskResult
 from kiosksqldb import KioskSQLDb
 from kioskstdlib import id_generator
@@ -161,27 +162,27 @@ def restart():
 #  **************************************************************
 #  ****    /administration.data-integrity
 #  *****************************************************************/
-@administration.route('/data-integrity', methods=['GET', "POST"])
-@full_login_required
-@requires(IsAuthorized(ENTER_ADMINISTRATION_PRIVILEGE))
-# @nocache
-def admin_data_integrity():
-    result = {}
-    conf = kioskglobals.cfg
-    print("\n*************** administration/data_integrity ")
-    print(f"\nGET: get_plugin_for_controller returns {get_plugin_for_controller(_plugin_name_)}")
-    print(f"\nGET: plugin.name returns {get_plugin_for_controller(_plugin_name_).name}")
-    print(request.accept_languages)
-
-    try:
-        kiosklib.run_quality_control()
-        # integrity_check = UrapDatabaseIntegrity(conf)
-        # integrity_check.update_default_fields()
-        result = "ok"
-    except Exception as e:
-        result = repr(e)
-
-    return jsonify(result=result)
+# @administration.route('/data-integrity', methods=['GET', "POST"])
+# @full_login_required
+# @requires(IsAuthorized(ENTER_ADMINISTRATION_PRIVILEGE))
+# # @nocache
+# def admin_data_integrity():
+#     result = {}
+#     conf = kioskglobals.cfg
+#     print("\n*************** administration/data_integrity ")
+#     print(f"\nGET: get_plugin_for_controller returns {get_plugin_for_controller(_plugin_name_)}")
+#     print(f"\nGET: plugin.name returns {get_plugin_for_controller(_plugin_name_).name}")
+#     print(request.accept_languages)
+#
+#     try:
+#         kiosklib.run_quality_control()
+#         # integrity_check = UrapDatabaseIntegrity(conf)
+#         # integrity_check.update_default_fields()
+#         result = "ok"
+#     except Exception as e:
+#         result = repr(e)
+#
+#     return jsonify(result=result)
 
 
 #  **************************************************************
@@ -620,13 +621,28 @@ def restore():
                 general_errors.append(f"Sorry, but the file {filename} does not exist on the server.")
             else:
                 assert_mcp(kioskglobals.general_store)
-                errors, job = start_mcp_restore(filename, restore_form.restore_file_repository.data)
+                if not restore_form.keep_users_and_privileges:
+                    restore_users = KioskRestore.RESTORE_USERS_ALL
+                elif restore_form.restore_new_users:
+                    restore_users = KioskRestore.RESTORE_USERS_NEW
+                else:
+                    restore_users = KioskRestore.RESTORE_USERS_NONE
+
+                restore_workstations = not restore_form.keep_workstations
+                errors, job = start_mcp_restore(filename, restore_form.restore_file_repository.data,
+                                                restore_users, restore_workstations)
                 general_errors += errors
                 if job:
                     job_uid = job.job_id
     else:
         restore_form.restore_file_repository.data = kioskstdlib.to_bool(
             kioskstdlib.try_get_dict_entry(cfg["defaults"], "restore_files_too", "false"))
+        restore_form.keep_users_and_privileges.data = kioskstdlib.to_bool(
+            kioskstdlib.try_get_dict_entry(cfg["defaults"], "keep_users_and_privileges", "true"))
+        restore_form.restore_new_users.data = kioskstdlib.to_bool(
+            kioskstdlib.try_get_dict_entry(cfg["defaults"], "restore_new_users", "true"))
+        restore_form.keep_workstations.data = kioskstdlib.to_bool(
+            kioskstdlib.try_get_dict_entry(cfg["defaults"], "keep_workstations", "true"))
 
     if restore_path:
         restore_files = kioskstdlib.find_files(restore_path, "*.dmp", order_by_time=True, include_path=False)
@@ -657,7 +673,7 @@ def before_restore(backup_file: str) -> bool:
     return False
 
 
-def start_mcp_restore(backup_file: str, restore_file_repos: bool):
+def start_mcp_restore(backup_file: str, restore_file_repos: bool, restore_users: int, restore_workstations: bool):
     errors = []
     job = None
     try:
@@ -675,7 +691,10 @@ def start_mcp_restore(backup_file: str, restore_file_repos: bool):
 
                 job = MCPJob(kioskglobals.general_store)
                 job.job_data = args = {'backup_file': backup_file,
-                                       'restore_file_repository': restore_file_repos}
+                                       'restore_file_repository': restore_file_repos,
+                                       'restore_users': restore_users,
+                                       'restore_workstations': restore_workstations
+                                       }
                 job.set_worker(module_name="plugins.administrationplugin.restoreworker", class_name="RestoreJob")
                 job.system_lock = True
                 KioskSQLDb.close_connection()

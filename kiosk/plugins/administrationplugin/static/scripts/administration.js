@@ -202,27 +202,27 @@ function init_bt_clear() {
     })
 }
 
-function init_bt_dataintegrity() {
-    let bt = $("#bt-data-integrity");
-    bt.prop("disabled", false);
-    bt.on("click", function () {
-        kioskSendAjaxCommand("POST", $(this),
-            "/administration/data-integrity",
-            {},
-            () => {
-                kioskSuccessToast(`Done!`)
-            },
-            (err_code, json) => {
-                if (json) {
-                    console.log(json.result);
-                    kioskErrorToast(json.result);
-                } else {
-                    kioskErrorToast(`An Error occurred in when calling resetpassword: ${err_code}`)
-                }
-
-            });
-    });
-}
+// function init_bt_dataintegrity() {
+//     let bt = $("#bt-data-integrity");
+//     bt.prop("disabled", false);
+//     bt.on("click", function () {
+//         kioskSendAjaxCommand("POST", $(this),
+//             "/administration/data-integrity",
+//             {},
+//             () => {
+//                 kioskSuccessToast(`Done!`)
+//             },
+//             (err_code, json) => {
+//                 if (json) {
+//                     console.log(json.result);
+//                     kioskErrorToast(json.result);
+//                 } else {
+//                     kioskErrorToast(`An Error occurred in when calling resetpassword: ${err_code}`)
+//                 }
+//
+//             });
+//     });
+// }
 
 function init_bt_system_messages() {
     let bt = $(".btn-check-message");
@@ -262,7 +262,7 @@ function initAdministration() {
     init_bt_transfer()
     init_bt_clear();
     init_bt_housekeeping();
-    init_bt_dataintegrity();
+    // init_bt_dataintegrity();
     init_bt_system_messages();
     init_bt_restart_server();
     // kioskGetAjaxElement();
