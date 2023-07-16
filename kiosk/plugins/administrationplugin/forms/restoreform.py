@@ -11,7 +11,9 @@ class RestoreForm(FlaskForm, KioskGeneralFormErrors):
     page_initialized = HiddenField()
     restore_file = KioskLabeledStringField(label="backup file")
     restore_file_repository = KioskLabeledPrettyCheckboxField(label="restore file repository, too")
-    # restore_workstation_files=KioskLabeledPrettyCheckboxField(label="restore workstation files, too")
+    keep_users_and_privileges = KioskLabeledPrettyCheckboxField(label="keep current users and privileges")
+    restore_new_users = KioskLabeledPrettyCheckboxField(label="restore new users")
+    keep_workstations = KioskLabeledPrettyCheckboxField(label="keep current docks and workstations")
 
     def validate_restore_file(form, field):
         if not form.restore_file.data.strip():

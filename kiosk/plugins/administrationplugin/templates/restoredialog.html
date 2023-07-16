@@ -29,15 +29,27 @@
                                      labelclass="kiosk-dialog-label") }}
         <button id="restore-drop-down" class="kiosk-dropdown-btn" type="button"><span class="caret"></span></button>
       </div>
-      <div> {{ restore_form.restore_file_repository(class="kiosk-dialog-checkbox",
-                      errclass="kiosk-error-border",
-                      labelclass="kiosk-dialog-label") }}
-      </div>
       <datalist id="restore-files">
         {% for f in restore_files %}
           <option value="{{ f }}"></option>
         {% endfor %}
       </datalist>
+      <div> {{ restore_form.restore_file_repository(class="kiosk-dialog-checkbox",
+                      errclass="kiosk-error-border",
+                      labelclass="kiosk-dialog-label") }}
+      </div>
+      <div> {{ restore_form.keep_users_and_privileges(class="kiosk-dialog-checkbox",
+                      errclass="kiosk-error-border",
+                      labelclass="kiosk-dialog-label") }}
+      </div>
+      <div> {{ restore_form.restore_new_users(class="kiosk-dialog-checkbox",
+                      errclass="kiosk-error-border",
+                      labelclass="kiosk-dialog-label") }}
+      </div>
+      <div> {{ restore_form.keep_workstations(class="kiosk-dialog-checkbox",
+                      errclass="kiosk-error-border",
+                      labelclass="kiosk-dialog-label") }}
+      </div>
     </form>
   </div>
 {% endblock %}

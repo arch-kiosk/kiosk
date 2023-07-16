@@ -53,8 +53,12 @@ class RestoreJob:
 
         try:
             restore_options = self.job.job_data
+            logging.debug(f'Restore options are {restore_options}')
             logging.info(f'Restoring from {restore_options["backup_file"]}')
             restore_file_repos = kioskstdlib.try_get_dict_entry(restore_options, "restore_file_repository", False)
+            restore_users = int(kioskstdlib.try_get_dict_entry(restore_options, "restore_users",
+                                                               KioskRestore.RESTORE_USERS_ALL))
+            restore_workstations = kioskstdlib.try_get_dict_entry(restore_options, "restore_workstations", False)
             if restore_file_repos:
                 logging.info(f'Restoring file repository, too')
 
@@ -65,8 +69,8 @@ class RestoreJob:
                 KioskRestore._report_progress(msg="restoring database")
                 KioskSQLDb.release_pool()
                 KioskRestore.restore_db(cfg, src_dir="",
-                                        restore_users=True,
-                                        restore_workstations=True,
+                                        restore_users=restore_users,
+                                        restore_workstations=restore_workstations,
                                         backup_file=restore_options["backup_file"])
                 if restore_file_repos:
                     restore_dir = os.path.join(kioskstdlib.get_file_path(restore_options["backup_file"]), 'files')

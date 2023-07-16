@@ -152,7 +152,12 @@ class KioskPyTestHelper:
             logger.handlers = []
 
         if cfg.get_logfile():
-            ch = logging.FileHandler(filename=cfg.get_logfile())
+            log_file = cfg.get_logfile()
+            path_to_log_file = kioskstdlib.get_file_path(log_file)
+            if not os.path.isdir(path_to_log_file):
+                os.mkdir(path_to_log_file)
+
+            ch = logging.FileHandler(filename=log_file)
             ch.setLevel(logging.DEBUG)
             formatter = logging.Formatter('>[%(module)s.%(levelname)s at %(asctime)s]: %(message)s')
             ch.setFormatter(formatter)

@@ -95,6 +95,8 @@ def init_app_related_stuff(app):
 
     cfg: KioskConfig = kioskglobals.cfg
 
+    if 'WTF_CSRF_ENABLED' not in app.config:
+        app.config['WTF_CSRF_ENABLED'] = True
     if kioskglobals.get_development_option("webapp_development").lower() == "true":
         app.config['WTF_CSRF_ENABLED'] = False
     # if kiosklib.is_local_server(cfg):
@@ -106,7 +108,6 @@ def init_app_related_stuff(app):
         app.config['WTF_CSRF_METHODS'] = []
 
     kioskglobals.csrf = CSRFProtect(app)
-
 
     template_loader = jinja2.ChoiceLoader([
         app.jinja_loader,

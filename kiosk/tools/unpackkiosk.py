@@ -479,7 +479,7 @@ if __name__ == '__main__':
                 restore_users = "ru" in options
                 restore_workstations = "w" in options
                 KioskRestore.restore_db(cfg_file, src_dir,
-                                        restore_users=restore_users,
+                                        restore_users=KioskRestore.RESTORE_USERS_ALL,
                                         restore_workstations=restore_workstations)
             else:
                 if not KioskRestore.create_db_if_missing(cfg_file):

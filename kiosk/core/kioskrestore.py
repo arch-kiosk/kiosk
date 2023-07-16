@@ -44,7 +44,14 @@ USER_TABLES = [
 
 WORKSTATION_TABLES = [
     r"kiosk_workstation",
-    r"repl_workstation"
+    r"repl_workstation",
+    r"repl_workstation_filemaker",
+    r"repl_workstation_file_export",
+    r"repl_dock_reporting"
+]
+
+CONFIG_TABLES = [
+    r"repl_file_picking_rules",
 ]
 
 
@@ -53,6 +60,9 @@ class KioskRestore:
     restore_progress = None
     in_console = False
     postgres_master_db = "postgres"
+    RESTORE_USERS_NONE = 0
+    RESTORE_USERS_ALL = 1
+    RESTORE_USERS_NEW = 2
 
     @classmethod
     def _print_if_console(cls, *args, **kwargs):
@@ -186,10 +196,12 @@ class KioskRestore:
     @classmethod
     def unpack_kiosk(cls, src_dir, config_file, options=None):
         try:
-            config = KioskConfig.get_config({"config_file", config_file})
+            config = KioskConfig.get_config({"config_file": config_file})
         except BaseException as e:
             cls._abort_with_error(-1, f"unpack_kiosk: Exception when "
                                       f"reading configuration file {config_file}: {repr(e)}")
+            return
+
         path_dict = cls._assert_paths(config)
         kiosk_dir = path_dict["kiosk"]
         filemaker_dir = path.dirname(config.filemaker_template)
@@ -357,7 +369,8 @@ class KioskRestore:
             if not cfg:
                 cfg = {}
             if "import_configurations" not in cfg:
-                cfg["import_configurations"] = ["kiosk_default_config.yml", "kiosk_local_config.yml", "kiosk_secure.yml"]
+                cfg["import_configurations"] = ["kiosk_default_config.yml", "kiosk_local_config.yml",
+                                                "kiosk_secure.yml"]
             if "config" not in cfg:
                 cfg["config"] = {}
             cfg["config"] = {"project_id": options["project_id"]}
@@ -533,6 +546,7 @@ class KioskRestore:
 
     @classmethod
     def _delete_user_data(cls, db_name, user_id, user_pwd):
+        con = None
         try:
             con, connected_db = cls.get_postgres_connection(db_name, user_id, user_pwd)
             if connected_db == db_name:
@@ -546,7 +560,8 @@ class KioskRestore:
             else:
                 raise Exception(f"delete_user_data could not connect to {db_name}")
         finally:
-            con.close()
+            if con:
+                con.close()
 
     @classmethod
     def _transfer_record_by_record(cls, source_con, table, target_con, dst_table=""):
@@ -582,15 +597,92 @@ class KioskRestore:
         return c
 
     @classmethod
-    def _transfer_tables(cls, tables, db_name, tmp_db_name, user_id, user_pwd):
-        done = False
+    def _transfer_only_new_records(cls, source_con, table, target_con, dst_table=""):
+        source_cur = source_con.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        source_cur.execute(f"select * from {table}")
+
+        if not dst_table:
+            dst_table = table
+
+        target_cur: psycopg2.extras.DictCursor = target_con.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        c = 0
+        r_src = source_cur.fetchone()
+        while r_src:
+            sqlfields = f'insert' + f' into "{dst_table}"('
+            sqlrecord = ' select '
+            sqlparam = []
+
+            for field in source_cur.index:
+                if not r_src[field] is None:
+                    sqlfields += f'"{field}",'
+                    sqlrecord += "%s,"
+                    sqlparam.append(r_src[field])
+
+            sqlfields = sqlfields[:-1] + ')'
+            sqlrecord = sqlrecord[:-1] + f' WHERE NOT EXISTS (select uid from {dst_table} where uid=%s)'
+            sqlparam.append(r_src["uid"])
+            sql = sqlfields + sqlrecord + ";"
+            target_cur.execute(sql, sqlparam)
+            q = target_cur.query
+            print(q)
+            c += target_cur.rowcount
+            r_src = source_cur.fetchone()
+
+        return c
+
+    @classmethod
+    def _check_table_versions(cls, table_name, source_con, src_table_versions, target_con, tmp_table_versions):
+        """
+
+        :param table_name: name of the table
+        :param source_con: source database (the current one that is about to be replaced)
+        :param src_table_versions: dict with the table name as key and a Tuple (dsd-table, version) as value
+        :param target_con: target database (the one that is about to be restored)
+        :param tmp_table_versions: dict with the table name as key and a Tuple (dsd-table, version) as value
+        :return: True if the table in both source and target database have the same versions
+        """
         try:
-            source_con = psycopg2.connect(f"dbname={db_name} user={user_id} password={user_pwd}")
+            if table_name not in src_table_versions:
+                raise Exception(f"No migration information for table {table_name} in the source (current) database.")
+
+            if table_name not in tmp_table_versions:
+                raise Exception(
+                    f"No migration information for table {table_name} in the target (restored) database.")
+
+            src_version = src_table_versions[table_name][1]
+            dst_version = tmp_table_versions[table_name][1]
+            if src_version != dst_version:
+                raise Exception(f"The version of table {table_name} in the current database is different "
+                                f"from the version in the target database (the one that got restored): "
+                                f"{src_version} <> {dst_version}. ")
+
+            if src_version == dst_version:
+                return True
+
+        except BaseException as e:
+            logging.error(f"{cls.__name__}._migrate_dest_table: {repr(e)}")
+        return False
+
+    @classmethod
+    def _transfer_tables(cls, tables, src_db_name, src_table_versions,
+                         tmp_db_name, tmp_table_versions, user_id, user_pwd, only_new=False):
+        done = False
+        source_con = None
+        target_con = None
+        try:
+            source_con = psycopg2.connect(f"dbname={src_db_name} user={user_id} password={user_pwd}")
             target_con = psycopg2.connect(f"dbname={tmp_db_name} user={user_id} password={user_pwd}")
 
             for t in tables:
-                c = cls._transfer_record_by_record(source_con, t, target_con)
-                print(f"table {t} recovered from old database: {c} records.", flush=True)
+                if cls._check_table_versions(t, source_con, src_table_versions, target_con, tmp_table_versions):
+                    if only_new:
+                        c = cls._transfer_only_new_records(source_con, t, target_con)
+                    else:
+                        c = cls._transfer_record_by_record(source_con, t, target_con)
+                    print(f"table {t} recovered from old database: {c} records.", flush=True)
+                else:
+                    raise Exception("Restore stopped because of an earlier error.")
 
             target_con.commit()
             done = True
@@ -598,11 +690,13 @@ class KioskRestore:
             logging.error(f"Exception in kioskrestore.transfer_tables: {repr(e)}")
         finally:
             try:
-                source_con.close()
+                if source_con:
+                    source_con.close()
             except:
                 pass
             try:
-                target_con.close()
+                if target_con:
+                    target_con.close()
             except:
                 pass
 
@@ -678,12 +772,12 @@ class KioskRestore:
         :param config_data: filename of the configuration file OR a KioskConfig object
         :return: True or False
         """
+
         from dsd.dsd3singleton import Dsd3Singleton
         from dsd.dsdyamlloader import DSDYamlLoader
         from dsd.dsdview import DSDView
         from migration.postgresdbmigration import PostgresDbMigration
         from migration.migration import Migration
-
         def init_dsd(cfg):
             master_dsd = Dsd3Singleton.get_dsd3()
             master_dsd.register_loader("yml", DSDYamlLoader)
@@ -742,17 +836,163 @@ class KioskRestore:
             return False
 
     @classmethod
-    def restore_db(cls, config_data, src_dir, restore_users=False, restore_workstations=False, backup_file=""):
+    def _restore_users(cls, restore_users, db_name, src_table_versions, tmp_db_name, tmp_table_versions,
+                       user_id, user_pwd):
+        try:
+            if restore_users == cls.RESTORE_USERS_NONE:
+                cls._transfer_tables(USER_TABLES,
+                                     db_name, src_table_versions,
+                                     tmp_db_name, tmp_table_versions,
+                                     user_id, user_pwd)
+            else:
+                complete_tables = [t for t in USER_TABLES if t != "kiosk_user"]
+                cls._transfer_tables(complete_tables,
+                                     db_name, src_table_versions,
+                                     tmp_db_name, tmp_table_versions,
+                                     user_id, user_pwd)
+                cls._transfer_tables(["kiosk_user"],
+                                     db_name, src_table_versions,
+                                     tmp_db_name, tmp_table_versions,
+                                     user_id, user_pwd, only_new = True)
+
+
+        except BaseException as e:
+            logging.error(f"{cls.__name__}._restore_users : {repr(e)}")
+            raise e
+
+    @classmethod
+    def _restore_existing_data(cls, cfg, src_db_name, restore_users, restore_workstations, tmp_db_name,
+                               user_id, user_pwd):
         """
-        restores a database from a backupfile using pgrestore
+
+        :param cfg: SyncConfig
+        :param src_db_name: The source database (or rather the active database BEFORE the restore)
+        :param restore_users: RESTORE_USERS_ALL or RESTORE_USERS_NONE or cls.RESTORE_USERS_NEW
+        :param restore_workstations: boolean
+        :param tmp_db_name: The name of the target database (will be the active database AFTER the restore)
+        :param user_id: user-id and
+        :param user_pwd: password for postgres
+        :return:
+        """
+        # check first if the options expect any transfer from the current to the restored database
+        if restore_users == cls.RESTORE_USERS_ALL and restore_workstations:
+            return
+
+        from dsd.dsd3singleton import Dsd3Singleton
+        from dsd.dsdyamlloader import DSDYamlLoader
+        from dsd.dsdview import DSDView
+        from migration.postgresdbmigration import PostgresDbMigration
+        from migration.migration import Migration
+
+        def init_dsd(cfg):
+            master_dsd = Dsd3Singleton.get_dsd3()
+            master_dsd.register_loader("yml", DSDYamlLoader)
+            if not master_dsd.append_file(cfg.get_dsdfile()):
+                logging.error(
+                    f"{cls.__name__}.init_dsd: {cfg.get_dsdfile()} could not be loaded by append_file.")
+                raise Exception(f"{cls.__name__}.init_dsd: {cfg.get_dsdfile()} could not be loaded.")
+
+            try:
+                master_view = DSDView(master_dsd)
+                master_view_instructions = DSDYamlLoader().read_view_file(cfg.get_master_view())
+                master_view.apply_view_instructions(master_view_instructions)
+            except BaseException as e:
+                logging.error(f"{cls.__name__}.init_dsd: Exception when applying master view to dsd: {repr(e)}")
+                raise e
+            logging.debug(f"{cls.__name__}.init_dsd: dsd3 initialized: {cfg.get_dsdfile()}. ")
+            return master_view.dsd
+
+
+        src_db = None
+        tmp_db = None
+        src_table_versions = {}
+        tmp_table_versions = {}
+        try:
+            src_db, src_connected_db_name = cls.get_postgres_connection(src_db_name, user_id, user_pwd)
+            if src_connected_db_name != src_db_name:
+                logging.error(
+                    f"{cls.__class__.__name__}._restore_existing_data: cannot connect to database {src_db_name}")
+                raise Exception("Error in _restore_existing_data")
+            tmp_db, dst_connected_db_name = cls.get_postgres_connection(tmp_db_name, user_id, user_pwd)
+            if dst_connected_db_name != tmp_db_name:
+                logging.error(
+                    f"{cls.__class__.__name__}._restore_existing_data: cannot connect to database {tmp_db_name}")
+                raise Exception("Error in _restore_existing_data")
+            dsd = init_dsd(cfg)
+
+            db_migration = PostgresDbMigration(dsd, tmp_db)
+
+            migration = Migration(dsd, db_migration, cfg.get_project_id())
+            migration.self_check()
+            logging.debug("Migration ready.")
+            if migration.migrate_dataset():
+                tmp_db.commit()
+                logging.info("Migration complete, target database committed.")
+                cls._report_progress(msg=f"database {tmp_db_name} successfully migrated.")
+
+            tmp_table_versions = db_migration.get_tables_and_versions()
+
+            db_migration = PostgresDbMigration(dsd, src_db)
+            src_table_versions = db_migration.get_tables_and_versions()
+        finally:
+            try:
+                if src_db:
+                    src_db.close()
+            except:
+                pass
+
+            try:
+                if tmp_db:
+                    tmp_db.close()
+            except:
+                pass
+
+        if not src_table_versions:
+            raise Exception(f"{cls.__class__.__name__}._restore_existing_data: "
+                            f"Can't access information about the current database's table versions")
+        if not tmp_table_versions:
+            raise Exception(f"{cls.__class__.__name__}._restore_existing_data: "
+                            f"Can't access information about the restored database's table versions")
+
+        ### continue here.
+        if restore_users != cls.RESTORE_USERS_ALL:
+            # transfer user data to the restored database (which
+            # has the effect of keeping the users of the target database)
+            print("recovering user data from old database ...", flush=True)
+            cls._restore_users(restore_users, src_db_name, src_table_versions, tmp_db_name, tmp_table_versions,
+                               user_id, user_pwd)
+            print("recovering user data from old database ... Done", flush=True)
+
+        if not restore_workstations:
+            # transfer workstation data to the restored database
+            print("recovering workstation data from old database ...", flush=True)
+            cls._transfer_tables(WORKSTATION_TABLES, src_db_name, src_table_versions, tmp_db_name, tmp_table_versions,
+                                 user_id, user_pwd)
+            print("recovering workstation data from old database ... Done", flush=True)
+
+        # if not restore_config:
+        #     # transfer workstation data to the restored database
+        #     print("recovering configuration data from old database ...", flush=True)
+        #     cls._transfer_tables(WORKSTATION_TABLES, src_db_name, src_table_versions, tmp_db_name, tmp_table_versions,
+        #                          user_id, user_pwd)
+        #     print("recovering configuration data from old database ... Done", flush=True)
+
+    @classmethod
+    def restore_db(cls, config_data, src_dir,
+                   restore_users=RESTORE_USERS_NONE,
+                   restore_workstations=False,
+                   backup_file="",
+                   restore_configuration=False):
+        """
+        restores a database from a backupfile using psql
 
         :param config_data: filename of the configuration file OR a KioskConfig object
         :param src_dir: if backup_file is not given, a "backup.dmp" is expected in this src_dir.
-                Otherwise src_dir is ignored.
-        :param restore_users: True if Users are to be restored from the backup
-        :param restore_workstations: True if workstations are to be restored from the backup
-                (repl_workstation and kiosk_workstation!)
+                        Otherwise src_dir is ignored.
+        :param restore_users: one of the RESTORE_USERS_ constants
+        :param restore_workstations: True if workstations are to be restored from the backup.
         :param backup_file: see src_dir.
+        :param restore_configuration: True if configuration tables (in the widest sense) are to be restored.
         :returns: Nothing. calls abort() in case of an error.
         """
 
@@ -812,23 +1052,14 @@ class KioskRestore:
 
                 rc = cls.pg_restore_database(src_dir, src_file, tmp_db_name, user_id, user_pwd)
                 if rc != 0:
-                    raise Exception(f"pg_restore_database (pg_restore or psql) returned error {str(rc)}")
+                    raise Exception(f"pg_restore_database (using psql) returned error {str(rc)}")
 
                 print(f"ok", flush=True)
                 cls._report_progress(progress_prc=80, msg="restoring database")
 
                 if kiosk_db_exists:
-                    if not restore_users:
-                        # transfer user data to the restored database (which
-                        # has the effect of keeping the users of the target database)
-                        print("recovering user data from old database ...", flush=True)
-                        cls._transfer_tables(USER_TABLES, db_name, tmp_db_name, user_id, user_pwd)
-                        print("recovering user data from old database ... Done", flush=True)
-                    if not restore_workstations:
-                        # transfer workstation data to the restored database
-                        print("recovering workstation data from old database ...", flush=True)
-                        cls._transfer_tables(WORKSTATION_TABLES, db_name, tmp_db_name, user_id, user_pwd)
-                        print("recovering workstation data from old database ... Done", flush=True)
+                    cls._restore_existing_data(config, db_name, restore_users, restore_workstations,
+                                               tmp_db_name, user_id, user_pwd)
                 else:
                     if restore_users:
                         # delete users since there was nothing to keep
@@ -871,18 +1102,42 @@ class KioskRestore:
 
                 cur = con.cursor(cursor_factory=psycopg2.extras.DictCursor)
                 cur.execute(f"alter database \"{tmp_db_name}\" rename to \"{db_name}\"")
+                cur.close()
+                con.commit()
                 con.close()
                 print("ok", flush=True)
                 print(f"Database {db_name} successfully restored ", end="", flush=True)
-                cls._report_progress(progress_prc=100, msg="Database successfully restored.")
+                cls._report_progress(progress_prc=98, msg="Database successfully restored, cleaning up ...")
 
+                try:
+                    from plugins.kioskfilemakerworkstationplugin import KioskFileMakerWorkstation
+                    KioskFileMakerWorkstation.reset_all_recording_groups()
+                    logging.info(f"KioskRestore.restore_db: reset all recording groups")
+                except BaseException as e:
+                    logging.error(f"KioskRestore.restore_db: After a successful restore it was not possible "
+                                  f"to reset all recording groups due to error {repr(e)}")
+
+                try:
+                    con, connected_db = cls.get_postgres_connection(db_name, user_id, user_pwd)
+                    if not con:
+                        raise Exception(
+                            f"Cannot open {db_name} after successful restore.")
+                    cur = con.cursor(cursor_factory=psycopg2.extras.DictCursor)
+                    cur.execute(f"update repl_workstation set state=0")
+                    con.close()
+                    logging.info(f"KioskRestore.restore_db: reset all docks")
+                except BaseException as e:
+                    logging.error(f"KioskRestore.restore_db: After a successful restore it was not possible "
+                                  f"to reset all workstations due to error {repr(e)}")
+
+                cls._report_progress(progress_prc=100, msg="Restore complete.")
                 rc = True
             except Exception as e:
                 if cls.in_console:
                     print("failed.")
 
                 rc = False
-                logging.error(f"Exception in restore_db: {repr(e)}.")
+                logging.error(f"KioskRestore.restore_db: {repr(e)}.")
                 if kiosk_db_renamed:
                     logging.info(f"restore_db: The former db exists as {kiosk_db_renamed}.")
 
@@ -923,6 +1178,7 @@ class KioskRestore:
     @classmethod
     def pg_restore_database(cls, src_dir, dump_file, db_name, user_id, user_pwd, native_format=False):
         rc = -1
+        pgpassfile = ""
         try:
             pgpassfile = path.join(src_dir, "pgpass.conf")
             print(f"using passfile: {pgpassfile}")
@@ -949,7 +1205,8 @@ class KioskRestore:
                 rc = False
         finally:
             try:
-                os.remove(pgpassfile)
+                if pgpassfile:
+                    os.remove(pgpassfile)
             except:
                 pass
 

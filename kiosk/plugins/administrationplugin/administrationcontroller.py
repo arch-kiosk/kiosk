@@ -621,14 +621,14 @@ def restore():
                 general_errors.append(f"Sorry, but the file {filename} does not exist on the server.")
             else:
                 assert_mcp(kioskglobals.general_store)
-                if not restore_form.keep_users_and_privileges:
+                if not restore_form.keep_users_and_privileges.data:
                     restore_users = KioskRestore.RESTORE_USERS_ALL
-                elif restore_form.restore_new_users:
+                elif restore_form.restore_new_users.data:
                     restore_users = KioskRestore.RESTORE_USERS_NEW
                 else:
                     restore_users = KioskRestore.RESTORE_USERS_NONE
 
-                restore_workstations = not restore_form.keep_workstations
+                restore_workstations = not restore_form.keep_workstations.data
                 errors, job = start_mcp_restore(filename, restore_form.restore_file_repository.data,
                                                 restore_users, restore_workstations)
                 general_errors += errors
