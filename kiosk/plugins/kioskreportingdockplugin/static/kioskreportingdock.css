@@ -1,0 +1,421 @@
+.col-bg-body-lighter {
+  background-color: var(--col-bg-body-lighter);
+}
+
+.col-bg-body {
+  background-color: var(--col-bg-body);
+}
+
+.col-bg-body-darker {
+  background-color: var(--col-bg-body-darker);
+}
+
+.col-bg-1-lighter {
+  background-color: var(--col-bg-1-lighter);
+}
+
+.col-bg-1 {
+  background-color: var(--col-bg-1);
+}
+
+.col-bg-1-darker {
+  background-color: var(--col-bg-1-darker);
+}
+
+.col-bg-1-input {
+  background-color: var(--col-bg-1-input);
+}
+
+.col-primary-bg-1 {
+  background-color: var(--col-primary-bg-1);
+}
+
+.col-accent-bg-1 {
+  background-color: var(--col-accent-bg-1);
+}
+
+.col-success-bg-1 {
+  background-color: var(--col-success-bg-1);
+}
+
+.col-warning-bg-1 {
+  background-color: var(--col-warning-bg-1);
+}
+
+.col-error-bg-1 {
+  background-color: var(--col-error-bg-1);
+}
+
+.col-bg-2-lighter {
+  background-color: var(--col-bg-2-lighter);
+}
+
+.col-bg-2 {
+  background-color: var(--col-bg-2);
+}
+
+.col-bg-2-darker {
+  background-color: var(--col-bg-2-darker);
+}
+
+.col-bg-2-button {
+  background-color: var(--col-bg-2-button);
+}
+
+.col-bg-2-input {
+  background-color: var(--col-bg-2-input);
+}
+
+.col-primary-bg-2 {
+  background-color: var(--col-primary-bg-2);
+}
+
+.col-accent-bg-2 {
+  background-color: var(--col-accent-bg-2);
+}
+
+.col-success-bg-2 {
+  background-color: var(--col-success-bg-2);
+}
+
+.col-warning-bg-2 {
+  background-color: var(--col-warning-bg-2);
+}
+
+.col-error-bg-2 {
+  background-color: var(--col-error-bg-2);
+}
+
+.col-bg-3-lighter {
+  background-color: var(--col-bg-3-lighter);
+}
+
+.col-bg-3 {
+  background-color: var(--col-bg-3);
+}
+
+.col-bg-3-darker {
+  background-color: var(--col-bg-3-darker);
+}
+
+.col-bg-3-button {
+  background-color: var(--col-bg-3-button);
+}
+
+.col-bg-3-input {
+  background-color: var(--col-bg-3-input);
+}
+
+.col-primary-bg-3 {
+  background-color: var(--col-primary-bg-3);
+}
+
+.col-accent-bg-3 {
+  background-color: var(--col-accent-bg-3);
+}
+
+.col-success-bg-3 {
+  background-color: var(--col-success-bg-3);
+}
+
+.col-warning-bg-3 {
+  background-color: var(--col-warning-bg-3);
+}
+
+.col-error-bg-3 {
+  background-color: var(--col-error-bg-3);
+}
+
+.col-bg-ack-lighter {
+  background-color: var(--col-bg-ack-lighter);
+}
+
+.col-bg-ack {
+  background-color: var(--col-bg-ack);
+}
+
+.col-bg-ack-darker {
+  background-color: var(--col-bg-ack-darker);
+}
+
+.col-primary-bg-ack {
+  background-color: var(--col-primary-bg-ack);
+}
+
+.col-accent-bg-ack {
+  background-color: var(--col-accent-bg-ack);
+}
+
+.col-bg-att-lighter {
+  background-color: var(--col-bg-att-lighter);
+}
+
+.col-bg-att {
+  background-color: var(--col-bg-att);
+}
+
+.col-bg-att-darker {
+  background-color: var(--col-bg-att-darker);
+}
+
+.col-primary-bg-att {
+  background-color: var(--col-primary-bg-att);
+}
+
+.col-accent-bg-att {
+  background-color: var(--col-accent-bg-att);
+}
+
+.col-bg-alert-lighter {
+  background-color: var(--col-bg-alert-lighter);
+}
+
+.col-bg-alert {
+  background-color: var(--col-bg-alert);
+}
+
+.col-bg-alert-darker {
+  background-color: var(--col-bg-alert-darker);
+}
+
+.col-primary-bg-alert {
+  background-color: var(--col-primary-bg-alert);
+}
+
+.col-accent-bg-alert {
+  background-color: var(--col-accent-bg-alert);
+}
+
+.col-bg-btn-lighter {
+  background-color: var(--col-bg-btn-lighter);
+}
+
+.col-bg-btn {
+  background-color: var(--col-bg-btn);
+}
+
+.col-bg-btn-darker {
+  background-color: var(--col-bg-btn-darker);
+}
+
+.col-primary-bg-btn {
+  background-color: var(--col-primary-bg-btn);
+}
+
+.col-accent-bg-btn {
+  background-color: var(--col-accent-bg-btn);
+}
+
+/* patterns */
+.pattern-diagonal-stripes-sm {
+  background: repeating-linear-gradient(45deg, transparent, transparent 10px, currentColor 10px, currentColor 20px);
+}
+
+.pattern-dots-lg {
+  background-image: radial-gradient(currentColor 1.5px, transparent 1.5px);
+  background-size: 15px 15px;
+}
+
+.pattern-dots-md {
+  background-image: radial-gradient(currentColor 1px, transparent 1px);
+  background-size: 8px 8px;
+}
+
+.pattern-dots-medium-dense {
+  background-image: radial-gradient(currentColor 0.5px, transparent 0.5px);
+  background-size: 3px 3px;
+}
+
+.pattern-dots-sm {
+  background-image: radial-gradient(currentColor 0.5px, transparent 0.5px);
+  background-size: 5px 5px;
+}
+
+.pattern-cross-dots-md, .imagelist-background {
+  background-image: radial-gradient(currentColor 0.7px, transparent 1px), radial-gradient(currentColor 0.7px, transparent 1px);
+  background-size: 6.5px 6.5px;
+  background-position: 0 0, 3.5px 3.5px;
+}
+
+.imagelist-background {
+  background-color: rgba(255, 255, 255, 0.6);
+  background-blend-mode: overlay;
+}
+
+#drop-area-div {
+  position: relative;
+}
+
+#file-upload {
+  opacity: 0;
+  background-color: red;
+  width: 100%;
+  height: 100%;
+  top: -2px;
+  left: -2px;
+  position: absolute;
+}
+
+#workstation-options {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  margin-top: 20px;
+}
+
+.workstation-option-frame {
+  display: flex;
+  flex-direction: row;
+}
+
+.workstation-option-marker[disabled] {
+  opacity: 70%;
+}
+
+.workstation-option-marker-green {
+  width: 25px;
+  margin: 5px 5px 5px 0px;
+  background-color: var(--col-bg-ack);
+}
+
+.workstation-option-marker-neutral {
+  width: 25px;
+  margin: 5px 5px 5px 0px;
+  background-color: var(--col-bg-btn);
+}
+
+.workstation-option-marker-red {
+  width: 25px;
+  margin: 5px 5px 5px 0px;
+  background-color: var(--col-bg-alert);
+}
+
+.workstation-option {
+  margin: 5px 0px 5px 0px;
+  padding: 5px 5px 5px 5px;
+  box-sizing: border-box;
+  background-color: var(--col-bg-btn);
+  border: 3px solid var(--col-bg-btn-lighter);
+  min-height: 5em;
+  width: 100%;
+}
+.workstation-option h3 {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 1em;
+  margin-top: 5px;
+  cursor: default;
+  color: var(--col-primary-bg-btn);
+}
+.workstation-option p {
+  width: 100%;
+  line-height: 1.5em;
+  font-size: var(--font-size-h4);
+  color: var(--col-primary-bg-btn);
+  cursor: default;
+  text-align: center;
+}
+
+.workstation-option[disabled] {
+  opacity: 70%;
+}
+
+.workstation-option:hover {
+  background-color: var(--col-bg-btn-lighter);
+}
+
+.workstation-option:active {
+  margin: 10px 0px 0px 0px;
+  padding: 5px 5px 5px 5px;
+  background-position-y: 2px;
+  background-position-x: 2px;
+  background-color: var(--col-bg-btn-lighter);
+}
+
+#more-options {
+  margin-top: 0.5em;
+}
+
+#filemaker-workstation-actions-dialog {
+  max-width: 700px;
+}
+
+.full-background-bg-1 {
+  padding: 1em;
+}
+
+#new-workstation-form {
+  margin-top: 1em;
+}
+
+#workstation-id[disabled] {
+  background-color: var(--col-bg-1);
+  color: var(--col-primary-bg-1);
+}
+
+.icon-header {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 2em;
+}
+
+.icon-header-icon {
+  background: url("/syncmanager/static/assets/images/add.svg");
+  width: 48px;
+  height: 48px;
+  margin-right: 1em;
+}
+
+.one-column {
+  max-width: 500px;
+}
+
+form {
+  margin-bottom: 2em;
+}
+
+.kiosk-general-form-error {
+  background-color: var(--col-bg-alert);
+  border: 2px solid var(--col-bg-alert-darker);
+  padding: 2px;
+  color: var(--col-primary-bg-alert);
+  margin-top: 2px;
+}
+
+.reporting-dock-uploader h3 {
+  font-size: 1em;
+  font-weight: normal;
+}
+
+.base-query-selection {
+  width: auto;
+  height: auto;
+  border-radius: 0px;
+  margin: 5px 0px 5px 0px;
+  padding: 1em;
+  box-sizing: border-box;
+  background-color: var(--col-bg-btn);
+  color: var(--col-primary-bg-btn);
+  box-shadow: 1px 1px 5px var(--col-bg-btn-lighter);
+  font-weight: normal;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.base-query-selection span {
+  background-color: rgba(0, 0, 0, 0);
+  box-shadow: none;
+}
+.base-query-selection:hover, .base-query-selectionactive {
+  background-color: var(--col-bg-btn-lighter);
+}
+.base-query-selection:active {
+  box-shadow: none;
+}
+.base-query-selection h3 {
+  color: var(--col-accent-bg-btn);
+  margin-bottom: 1em;
+}
+
+/*# sourceMappingURL=kioskreportingdock.css.map */

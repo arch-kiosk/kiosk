@@ -1,0 +1,406 @@
+.col-bg-body-lighter {
+  background-color: var(--col-bg-body-lighter);
+}
+
+.col-bg-body {
+  background-color: var(--col-bg-body);
+}
+
+.col-bg-body-darker {
+  background-color: var(--col-bg-body-darker);
+}
+
+.col-bg-1-lighter {
+  background-color: var(--col-bg-1-lighter);
+}
+
+.col-bg-1 {
+  background-color: var(--col-bg-1);
+}
+
+.col-bg-1-darker {
+  background-color: var(--col-bg-1-darker);
+}
+
+.col-bg-1-input {
+  background-color: var(--col-bg-1-input);
+}
+
+.col-primary-bg-1 {
+  background-color: var(--col-primary-bg-1);
+}
+
+.col-accent-bg-1 {
+  background-color: var(--col-accent-bg-1);
+}
+
+.col-success-bg-1 {
+  background-color: var(--col-success-bg-1);
+}
+
+.col-warning-bg-1 {
+  background-color: var(--col-warning-bg-1);
+}
+
+.col-error-bg-1 {
+  background-color: var(--col-error-bg-1);
+}
+
+.col-bg-2-lighter {
+  background-color: var(--col-bg-2-lighter);
+}
+
+.col-bg-2 {
+  background-color: var(--col-bg-2);
+}
+
+.col-bg-2-darker {
+  background-color: var(--col-bg-2-darker);
+}
+
+.col-bg-2-button {
+  background-color: var(--col-bg-2-button);
+}
+
+.col-bg-2-input {
+  background-color: var(--col-bg-2-input);
+}
+
+.col-primary-bg-2 {
+  background-color: var(--col-primary-bg-2);
+}
+
+.col-accent-bg-2 {
+  background-color: var(--col-accent-bg-2);
+}
+
+.col-success-bg-2 {
+  background-color: var(--col-success-bg-2);
+}
+
+.col-warning-bg-2 {
+  background-color: var(--col-warning-bg-2);
+}
+
+.col-error-bg-2 {
+  background-color: var(--col-error-bg-2);
+}
+
+.col-bg-3-lighter {
+  background-color: var(--col-bg-3-lighter);
+}
+
+.col-bg-3 {
+  background-color: var(--col-bg-3);
+}
+
+.col-bg-3-darker {
+  background-color: var(--col-bg-3-darker);
+}
+
+.col-bg-3-button {
+  background-color: var(--col-bg-3-button);
+}
+
+.col-bg-3-input {
+  background-color: var(--col-bg-3-input);
+}
+
+.col-primary-bg-3 {
+  background-color: var(--col-primary-bg-3);
+}
+
+.col-accent-bg-3 {
+  background-color: var(--col-accent-bg-3);
+}
+
+.col-success-bg-3 {
+  background-color: var(--col-success-bg-3);
+}
+
+.col-warning-bg-3 {
+  background-color: var(--col-warning-bg-3);
+}
+
+.col-error-bg-3 {
+  background-color: var(--col-error-bg-3);
+}
+
+.col-bg-ack-lighter {
+  background-color: var(--col-bg-ack-lighter);
+}
+
+.col-bg-ack {
+  background-color: var(--col-bg-ack);
+}
+
+.col-bg-ack-darker {
+  background-color: var(--col-bg-ack-darker);
+}
+
+.col-primary-bg-ack {
+  background-color: var(--col-primary-bg-ack);
+}
+
+.col-accent-bg-ack {
+  background-color: var(--col-accent-bg-ack);
+}
+
+.col-bg-att-lighter {
+  background-color: var(--col-bg-att-lighter);
+}
+
+.col-bg-att {
+  background-color: var(--col-bg-att);
+}
+
+.col-bg-att-darker {
+  background-color: var(--col-bg-att-darker);
+}
+
+.col-primary-bg-att {
+  background-color: var(--col-primary-bg-att);
+}
+
+.col-accent-bg-att {
+  background-color: var(--col-accent-bg-att);
+}
+
+.col-bg-alert-lighter {
+  background-color: var(--col-bg-alert-lighter);
+}
+
+.col-bg-alert {
+  background-color: var(--col-bg-alert);
+}
+
+.col-bg-alert-darker {
+  background-color: var(--col-bg-alert-darker);
+}
+
+.col-primary-bg-alert {
+  background-color: var(--col-primary-bg-alert);
+}
+
+.col-accent-bg-alert {
+  background-color: var(--col-accent-bg-alert);
+}
+
+.col-bg-btn-lighter {
+  background-color: var(--col-bg-btn-lighter);
+}
+
+.col-bg-btn {
+  background-color: var(--col-bg-btn);
+}
+
+.col-bg-btn-darker {
+  background-color: var(--col-bg-btn-darker);
+}
+
+.col-primary-bg-btn {
+  background-color: var(--col-primary-bg-btn);
+}
+
+.col-accent-bg-btn {
+  background-color: var(--col-accent-bg-btn);
+}
+
+/* patterns */
+.pattern-diagonal-stripes-sm, .upload-area {
+  background: repeating-linear-gradient(45deg, transparent, transparent 10px, currentColor 10px, currentColor 20px);
+}
+
+.pattern-dots-lg {
+  background-image: radial-gradient(currentColor 1.5px, transparent 1.5px);
+  background-size: 15px 15px;
+}
+
+.pattern-dots-md {
+  background-image: radial-gradient(currentColor 1px, transparent 1px);
+  background-size: 8px 8px;
+}
+
+.pattern-dots-medium-dense {
+  background-image: radial-gradient(currentColor 0.5px, transparent 0.5px);
+  background-size: 3px 3px;
+}
+
+.pattern-dots-sm {
+  background-image: radial-gradient(currentColor 0.5px, transparent 0.5px);
+  background-size: 5px 5px;
+}
+
+.pattern-cross-dots-md, .imagelist-background {
+  background-image: radial-gradient(currentColor 0.7px, transparent 1px), radial-gradient(currentColor 0.7px, transparent 1px);
+  background-size: 6.5px 6.5px;
+  background-position: 0 0, 3.5px 3.5px;
+}
+
+.imagelist-background {
+  background-color: rgba(255, 255, 255, 0.6);
+  background-blend-mode: overlay;
+}
+
+.filemanager-instructions {
+  margin-top: 1em;
+  font-family: var(--standard-text-font);
+  font-size: var(--font-size-h3);
+}
+
+.filemanager-directories {
+  display: grid;
+  margin-top: 1em;
+  grid-template-columns: 50px auto auto auto;
+  max-width: 1200px;
+  column-gap: 1px;
+}
+.filemanager-directories div {
+  padding: 0.25em 0.5em;
+}
+
+.fm-header {
+  background-color: var(--col-bg-1);
+  border-bottom: 2px solid var(--col-bg-1-darker);
+}
+
+.fm-bool-col {
+  text-align: center;
+}
+
+.fm-select {
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  font-size: 1.5em;
+}
+
+.right-align {
+  text-align: right;
+}
+
+.filemanager-topic {
+  font-family: var(--standard-text-font);
+  font-size: var(--font-size-h3);
+  background-color: var(--col-bg-1);
+  color: var(--col-primary-bg-1);
+  height: 2em;
+  padding: 0.25em 0.25em;
+  display: flex;
+  align-items: center;
+}
+.filemanager-topic a {
+  vertical-align: middle;
+  color: var(--col-bg-btn);
+}
+.filemanager-topic i {
+  font-size: var(--font-size-h3);
+  margin-right: 0.5em;
+}
+
+.fm-file-list {
+  display: grid;
+  margin-top: 1em;
+  grid-template-columns: fit-content(100%) auto auto auto;
+  max-width: 1200px;
+  column-gap: 1px;
+}
+.fm-file-list div {
+  padding: 0.25em 0.5em;
+}
+
+.fm-file-header {
+  background-color: var(--col-bg-1);
+  border-bottom: 2px solid var(--col-bg-1-darker);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.fm-file-header i {
+  font-size: 1.3em;
+}
+
+.fm-file-header.left {
+  justify-content: space-between;
+}
+
+.fm-file-header.right {
+  justify-content: end;
+}
+
+.fm-actions {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.fm-action {
+  margin: 0px 0.5em;
+}
+.fm-action i {
+  font-size: 1.3em;
+}
+
+.fm-historical {
+  opacity: 0.4;
+}
+
+.upload-area {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin: 1em 0px;
+  background-color: rgba(255, 255, 255, 0.95);
+  background-blend-mode: overlay;
+}
+
+.upload-area-top, .upload-area-bottom {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.upload-area-top div, .upload-area-bottom div {
+  width: 20px;
+  height: 20px;
+}
+
+.upload-area-top div:nth-child(1) {
+  border-top: 3px solid var(--col-bg-1-darker);
+  border-left: 3px solid var(--col-bg-1-darker);
+}
+.upload-area-top div:nth-child(2) {
+  border-top: 3px solid var(--col-bg-1-darker);
+  border-right: 3px solid var(--col-bg-1-darker);
+}
+
+.upload-area-bottom div:nth-child(1) {
+  border-bottom: 3px solid var(--col-bg-1-darker);
+  border-left: 3px solid var(--col-bg-1-darker);
+}
+.upload-area-bottom div:nth-child(2) {
+  border-bottom: 3px solid var(--col-bg-1-darker);
+  border-right: 3px solid var(--col-bg-1-darker);
+}
+
+.upload-area-center {
+  margin: 0px 1em;
+  text-align: center;
+}
+
+#fm-drop-area-div {
+  position: relative;
+}
+
+#fm-file-upload {
+  opacity: 0;
+  background-color: red;
+  width: 100%;
+  height: 100%;
+  top: -2px;
+  left: -2px;
+  position: absolute;
+}
+
+/*# sourceMappingURL=filemanager.css.map */

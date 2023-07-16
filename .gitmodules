@@ -7,3 +7,6 @@
 [submodule "kiosk/plugins/pointrepositoryplugin"]
 	path = kiosk/plugins/pointrepositoryplugin
 	url = https://github.com/arch-kiosk/pointrepositoryplugin.git
+[submodule "kiosk/plugins/pwastresstestplugin"]
+	path = kiosk/plugins/pwastresstestplugin
+	url = https://github.com/arch-kiosk/pwastresstestplugin.git

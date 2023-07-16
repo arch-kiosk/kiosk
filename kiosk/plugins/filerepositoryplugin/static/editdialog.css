@@ -1,0 +1,545 @@
+.col-bg-body-lighter {
+  background-color: var(--col-bg-body-lighter);
+}
+
+.col-bg-body {
+  background-color: var(--col-bg-body);
+}
+
+.col-bg-body-darker {
+  background-color: var(--col-bg-body-darker);
+}
+
+.col-bg-1-lighter {
+  background-color: var(--col-bg-1-lighter);
+}
+
+.col-bg-1 {
+  background-color: var(--col-bg-1);
+}
+
+.col-bg-1-darker {
+  background-color: var(--col-bg-1-darker);
+}
+
+.col-bg-1-input {
+  background-color: var(--col-bg-1-input);
+}
+
+.col-primary-bg-1 {
+  background-color: var(--col-primary-bg-1);
+}
+
+.col-accent-bg-1 {
+  background-color: var(--col-accent-bg-1);
+}
+
+.col-success-bg-1 {
+  background-color: var(--col-success-bg-1);
+}
+
+.col-warning-bg-1 {
+  background-color: var(--col-warning-bg-1);
+}
+
+.col-error-bg-1 {
+  background-color: var(--col-error-bg-1);
+}
+
+.col-bg-2-lighter {
+  background-color: var(--col-bg-2-lighter);
+}
+
+.col-bg-2 {
+  background-color: var(--col-bg-2);
+}
+
+.col-bg-2-darker {
+  background-color: var(--col-bg-2-darker);
+}
+
+.col-bg-2-button {
+  background-color: var(--col-bg-2-button);
+}
+
+.col-bg-2-input {
+  background-color: var(--col-bg-2-input);
+}
+
+.col-primary-bg-2 {
+  background-color: var(--col-primary-bg-2);
+}
+
+.col-accent-bg-2 {
+  background-color: var(--col-accent-bg-2);
+}
+
+.col-success-bg-2 {
+  background-color: var(--col-success-bg-2);
+}
+
+.col-warning-bg-2 {
+  background-color: var(--col-warning-bg-2);
+}
+
+.col-error-bg-2 {
+  background-color: var(--col-error-bg-2);
+}
+
+.col-bg-3-lighter {
+  background-color: var(--col-bg-3-lighter);
+}
+
+.col-bg-3 {
+  background-color: var(--col-bg-3);
+}
+
+.col-bg-3-darker {
+  background-color: var(--col-bg-3-darker);
+}
+
+.col-bg-3-button {
+  background-color: var(--col-bg-3-button);
+}
+
+.col-bg-3-input {
+  background-color: var(--col-bg-3-input);
+}
+
+.col-primary-bg-3 {
+  background-color: var(--col-primary-bg-3);
+}
+
+.col-accent-bg-3 {
+  background-color: var(--col-accent-bg-3);
+}
+
+.col-success-bg-3 {
+  background-color: var(--col-success-bg-3);
+}
+
+.col-warning-bg-3 {
+  background-color: var(--col-warning-bg-3);
+}
+
+.col-error-bg-3 {
+  background-color: var(--col-error-bg-3);
+}
+
+.col-bg-ack-lighter {
+  background-color: var(--col-bg-ack-lighter);
+}
+
+.col-bg-ack {
+  background-color: var(--col-bg-ack);
+}
+
+.col-bg-ack-darker {
+  background-color: var(--col-bg-ack-darker);
+}
+
+.col-primary-bg-ack {
+  background-color: var(--col-primary-bg-ack);
+}
+
+.col-accent-bg-ack {
+  background-color: var(--col-accent-bg-ack);
+}
+
+.col-bg-att-lighter {
+  background-color: var(--col-bg-att-lighter);
+}
+
+.col-bg-att {
+  background-color: var(--col-bg-att);
+}
+
+.col-bg-att-darker {
+  background-color: var(--col-bg-att-darker);
+}
+
+.col-primary-bg-att {
+  background-color: var(--col-primary-bg-att);
+}
+
+.col-accent-bg-att {
+  background-color: var(--col-accent-bg-att);
+}
+
+.col-bg-alert-lighter {
+  background-color: var(--col-bg-alert-lighter);
+}
+
+.col-bg-alert {
+  background-color: var(--col-bg-alert);
+}
+
+.col-bg-alert-darker {
+  background-color: var(--col-bg-alert-darker);
+}
+
+.col-primary-bg-alert {
+  background-color: var(--col-primary-bg-alert);
+}
+
+.col-accent-bg-alert {
+  background-color: var(--col-accent-bg-alert);
+}
+
+.col-bg-btn-lighter {
+  background-color: var(--col-bg-btn-lighter);
+}
+
+.col-bg-btn {
+  background-color: var(--col-bg-btn);
+}
+
+.col-bg-btn-darker {
+  background-color: var(--col-bg-btn-darker);
+}
+
+.col-primary-bg-btn {
+  background-color: var(--col-primary-bg-btn);
+}
+
+.col-accent-bg-btn {
+  background-color: var(--col-accent-bg-btn);
+}
+
+/* patterns */
+.pattern-diagonal-stripes-sm {
+  background: repeating-linear-gradient(45deg, transparent, transparent 10px, currentColor 10px, currentColor 20px);
+}
+
+.pattern-dots-lg {
+  background-image: radial-gradient(currentColor 1.5px, transparent 1.5px);
+  background-size: 15px 15px;
+}
+
+.pattern-dots-md {
+  background-image: radial-gradient(currentColor 1px, transparent 1px);
+  background-size: 8px 8px;
+}
+
+.pattern-dots-medium-dense {
+  background-image: radial-gradient(currentColor 0.5px, transparent 0.5px);
+  background-size: 3px 3px;
+}
+
+.pattern-dots-sm {
+  background-image: radial-gradient(currentColor 0.5px, transparent 0.5px);
+  background-size: 5px 5px;
+}
+
+.pattern-cross-dots-md, .imagelist-background {
+  background-image: radial-gradient(currentColor 0.7px, transparent 1px), radial-gradient(currentColor 0.7px, transparent 1px);
+  background-size: 6.5px 6.5px;
+  background-position: 0 0, 3.5px 3.5px;
+}
+
+.imagelist-background {
+  background-color: rgba(255, 255, 255, 0.6);
+  background-blend-mode: overlay;
+}
+
+.kiosk-error {
+  background-color: red;
+  border: 2px solid red;
+}
+
+#fr-edit-dialog .kiosk-modal-dialog-image {
+  background-image: url("/filerepository/static/assets/images/editdialog.svg");
+}
+#fr-edit-dialog .kiosk-modal-dialog-footer {
+  display: none;
+}
+#fr-edit-dialog .kiosk-modal-dialog-header {
+  min-height: 5.2em;
+}
+
+#ef-header-right {
+  position: absolute;
+  top: 2em;
+  right: 40px;
+  padding-right: 10px;
+  padding-left: 10px;
+  left: auto;
+  font-family: var(--standard-text-font);
+  font-size: 12px;
+  line-height: 1.2;
+  background-color: var(--col-bg-1);
+}
+@media only screen and (max-width : 640px) {
+  #ef-header-right {
+    display: none;
+  }
+}
+#ef-header-right div, #ef-header-right span {
+  user-select: text;
+}
+
+#ef-image {
+  margin-left: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#img-data-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-left: -1rem;
+}
+
+#image-container {
+  max-width: 100%;
+  max-height: 65vh;
+  min-width: 256px;
+  min-height: 256px;
+  background-color: white;
+  display: none;
+  padding: 5px;
+  margin-bottom: 1em;
+}
+@media only screen and (max-width : 640px) {
+  #image-container {
+    width: 100vw;
+    max-height: 100%;
+  }
+}
+
+#ef-upload-area {
+  position: relative;
+}
+#ef-upload-area .dropdown {
+  position: absolute;
+  background-color: transparent;
+  top: 25px;
+  left: 1em;
+  width: auto;
+}
+
+.modal-download,
+.modal-upload {
+  display: none;
+  background-size: 50%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  border-color: rgba(0, 0, 0, 0);
+  position: absolute;
+  top: -7px;
+  z-index: 100;
+}
+.modal-download:hover, .modal-download:active,
+.modal-upload:hover,
+.modal-upload:active {
+  border-color: white;
+  background-color: var(--col-bg-btn-darker);
+}
+
+.modal-download {
+  background-image: url("/static/assets/images/download.svg");
+  left: -7px;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.modal-upload {
+  background-image: url("/static/assets/images/upload.svg");
+  left: 60px;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+#download-menu {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  top: -33px;
+  left: -25px;
+  z-index: 101;
+}
+@media only screen and (max-width : 440px) {
+  #download-menu {
+    font-size: var(--font-size-small);
+  }
+}
+#download-menu #download-menu-image {
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 50%;
+  background-color: rgba(0, 0, 0, 0.2);
+  border-color: rgba(0, 0, 0, 0);
+  background-image: url("/static/assets/images/download.svg");
+  box-shadow: none;
+  display: block;
+}
+#download-menu #download-menu-image:hover, #download-menu #download-menu-image:active {
+  background-color: var(--col-bg-btn-darker);
+  border-color: white;
+}
+#download-menu #download-menu-image:hover {
+  cursor: context-menu;
+}
+#download-menu #download-menu-image:active {
+  cursor: context-menu;
+}
+#download-menu #download-menu.is-open p {
+  background-color: var(--col-bg-att);
+  color: var(--col-primary-bg-att);
+}
+
+#download-menu-contents.dropdown-content {
+  padding: 0.5em;
+  margin-left: 0px;
+  position: static;
+}
+#download-menu-contents.dropdown-content div {
+  color: var(--col-primary-bg-1);
+  padding: 12px 16px;
+  display: block;
+  font-size: 1.2em;
+}
+#download-menu-contents.dropdown-content div:hover {
+  background-color: var(--col-bg-1-lighter);
+}
+
+#ef-image-information {
+  margin-bottom: 0.5em;
+}
+
+#ef-upload-input {
+  opacity: 0;
+  height: 64px;
+  max-width: 64px;
+  top: 0px;
+  right: 0px;
+  margin: 0px;
+  border: solid transparent;
+  cursor: pointer;
+}
+
+#ef-image-data {
+  margin-left: 1rem;
+  margin-top: 1rem;
+  flex-basis: 30%;
+  flex-grow: 1;
+}
+
+#ef-button-bar {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+#ef-dialog-buttons {
+  width: 150px;
+  display: flex;
+}
+#ef-dialog-buttons button {
+  min-width: 64px;
+}
+#ef-dialog-buttons button:first-child {
+  margin-left: 0px;
+}
+
+.fr-description-summary {
+  background-color: var(--col-bg-1-lighter);
+  margin-bottom: 0.5em;
+  line-height: 2em;
+  padding-left: 5px;
+}
+
+.ef-context-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  box-sizing: border-box;
+  border-radius: 0px;
+  font-family: var(--standard-text-font);
+  font-size: 1em;
+  padding: 4px;
+  border: none;
+  margin-bottom: 5px;
+  margin-top: 2px;
+  width: 100%;
+  background: var(--col-bg-1-lighter);
+}
+.ef-context-list:focus {
+  margin-bottom: 3px;
+  border-bottom: 2px solid rgb(0, 0, 0);
+}
+.ef-context-list .ef-context {
+  border-right: var(--col-bg-1) solid 2px;
+  padding-right: 0.5em;
+  margin-right: 0.5em;
+  min-height: 24px;
+}
+
+.ef-dialog-identifier {
+  font-weight: bold;
+}
+
+#image-spinner {
+  width: 50px;
+  height: 50px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#img-load-err {
+  background-color: var(--color-light-grey);
+  max-width: 100%;
+  max-height: 65vh;
+  min-width: 256px;
+  min-height: 256px;
+  padding: 5px;
+}
+#img-load-err span {
+  display: block;
+  margin-top: 50%;
+  transform: translateY(-50%);
+  text-align: center;
+}
+
+.ef-new-context-controls {
+  background: white;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 1px 0 1px 0;
+  padding-left: 0.25em;
+}
+.ef-new-context-controls div {
+  max-height: 45px;
+}
+.ef-new-context-controls .dialog-error {
+  margin: 0 0 0 0;
+  padding: 0 0 2px 0;
+  font-size: 12px;
+  transform: translateY(-10px);
+  line-height: 12px;
+}
+
+.ef-cancel-new-context, .ef-cancel-context {
+  margin-left: 0.5em;
+  margin-right: 0.2em;
+  color: var(--col-bg-alert);
+}
+
+.ef-undo-drop-context {
+  display: none;
+  border-radius: 5px;
+  margin-left: 0.5em;
+  margin-right: 0.2em;
+}
+
+.drop-context-marker span {
+  text-decoration: line-through;
+  color: var(--col-bg-alert);
+}
+
+/*# sourceMappingURL=editdialog.css.map */
