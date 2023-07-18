@@ -37,10 +37,19 @@ class TextSubstitutionElement:
 
         pattern = m.group("pattern")
         if pattern:
-            self.regex_pattern = re.compile(pattern, flags=0 if self.case_sensitive else re.IGNORECASE)
+            if self.is_regex_pattern:
+                self.regex_pattern = re.compile(pattern, flags=0 if self.case_sensitive else re.IGNORECASE)
+            else:
+                self.regex_pattern = re.compile(re.escape(pattern), flags=0 if self.case_sensitive else re.IGNORECASE)
         else:
             raise ValueError(f"{self.__class__.__name__}.interpret_search_pattern: "
                              f"substitution pattern {self.search_pattern} is empty.")
+
+    def replace(self, text: str) -> str:
+        if self.is_regex_pattern:
+            return self.regex_pattern.sub(lambda m: self.replace_with, text, count=0 if self.replace_all else 1)
+        else:
+            return self.regex_pattern.sub(lambda m: self.replace_with, text, count=0 if self.replace_all else 1)
 
 
 class TextSubstitution:
@@ -63,6 +72,6 @@ class TextSubstitution:
 
     def substitute(self, text: str) -> str:
         for tse in self._substitutions:
-            text = tse.regex_pattern.sub(tse.replace_with, text, count=0 if tse.replace_all else 1)
+            text = tse.replace(text)
 
         return text

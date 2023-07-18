@@ -34,3 +34,25 @@ class TestTextSubstitution:
         subst.add_from_list([(r"\ALL,NOCASE:abc", "cba")])
         assert subst.substitute(
             "my abc is now in reverse and so is my ABC") == "my cba is now in reverse and so is my cba"
+
+    def test_substitute_regexs(self):
+        subst = TextSubstitution()
+        subst.add_from_list([(r"\ALL,REGEX:abc", r"\cba")])
+        assert subst.substitute(
+            "my abc is now in reverse and so is my abc") == r"my \cba is now in reverse and so is my \cba"
+
+        subst = TextSubstitution()
+        subst.add_from_list([(r"\ALL,NOCASE,REGEX:A.C", r"\cba")])
+        assert subst.substitute(
+            "my abc is now in reverse and so is my abc") == r"my \cba is now in reverse and so is my \cba"
+
+    def test_substitute_no_regexs(self):
+        subst = TextSubstitution()
+        subst.add_from_list([(r"\ALL:abc", r"\cba")])
+        assert subst.substitute(
+            "my abc is now in reverse and so is my abc") == r"my \cba is now in reverse and so is my \cba"
+
+        subst = TextSubstitution()
+        subst.add_from_list([(r"\ALL,NOCASE:A\BC", r"D\EF")])
+        assert subst.substitute(
+            r"a\Bc is now A\bC") == r"D\EF is now D\EF"
