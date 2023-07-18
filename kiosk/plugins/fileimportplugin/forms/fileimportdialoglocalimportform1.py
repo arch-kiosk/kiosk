@@ -18,6 +18,7 @@ class LocalImportForm1(FlaskForm, KioskGeneralFormErrors):
     tags = KioskLabeledStringField(label="assign tags")
     recursive = KioskLabeledBooleanField(label="scan subfolders, too")
     add_needs_context = KioskLabeledBooleanField(label="import only files with context")
+    substitute_identifiers = KioskLabeledBooleanField(label="substitute patterns in identifiers")
 
     def validate_file_extensions(self, field):
         if field.data:

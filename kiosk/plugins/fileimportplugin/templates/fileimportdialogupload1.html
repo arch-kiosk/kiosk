@@ -19,8 +19,8 @@
                 {{ kiosk_error_div(uploadform1.tags, class="col-12" ) }}
             </div>
             <div class="col-12">
-                <div class="grid-2">
-                    {% for checkbox in ["add_needs_context"] %}
+                <div class="grid-1">
+                    {% for checkbox in ["add_needs_context", "substitute_identifiers"] %}
                         <div class="col">
                             {{ uploadform1.__getitem__(checkbox)(class="kiosk-dialog-checkbox",
                                 labelclass="kiosk-dialog-label kiosk-dialog-checkbox-label",
@@ -44,15 +44,18 @@
                             <div class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></div>
                         </div>
                         <div class="col-12 filter-description">{{ filter.get_description() }}</div>
-                        <div class="col-12 kiosk-collapsible-content"><div class="grid-2">
+                        <div class="col-12 kiosk-collapsible-content">
+                            <div class="grid-2">
                                 {% for field in filter.get_form() %}
                                     {% if field.name != filter.get_form().get_use_filter_field().name
                                      and field.name != "csrf_token" %}
-                                      {% if field.css_class != "kiosk-dialog-selectfield" %}
-                                        <div class="col">{{ field }}{{ kiosk_error_div(field, class="col-12" ) }}</div>
-                                      {% else %}
-                                        <div class="col-12">{{ field }}{{ kiosk_error_div(field, class="col-12" ) }}</div>
-                                      {% endif %}
+                                        {% if field.css_class != "kiosk-dialog-selectfield" %}
+                                            <div class="col">
+                                                {{ field }}{{ kiosk_error_div(field, class="col-12" ) }}</div>
+                                        {% else %}
+                                            <div class="col-12">
+                                                {{ field }}{{ kiosk_error_div(field, class="col-12" ) }}</div>
+                                        {% endif %}
 
                                     {% endif %}
                                 {% endfor %}
@@ -72,7 +75,9 @@
       kioskActivateButton($("#bt-back"), null);
       kioskActivateButton($("#bt-ok"), null);
       kioskActivateButton($("#bt-close"), null);
-      kioskActivateButton($("#bt-cancel"), ()=>{$.magnificPopup.close()});
+      kioskActivateButton($("#bt-cancel"), () => {
+        $.magnificPopup.close()
+      });
 
       initCollapsibles();
       InitLocalDialog();
@@ -81,30 +86,29 @@
 
       function InitLocalDialog() {
         /* if (!modalDialogInitialized($("form").first())) {
-          $('#mif-local-path').focus();
-        } */
+					$('#mif-local-path').focus();
+				} */
       }
 
       function uploadnextpage() {
-        gotoPage = "fileimport/dialogupload2";
         kioskSendAjaxForm($("#bt-next").first(),
           $("#upload-form-1-div"),
           "fileimport/dialogupload1",
           onLocalImportFormEvaluated, onLocalImportFormFailure,
-          {gotoPage: gotoPage})
+          {gotoPage: "next"})
       }
 
       /* function uploadPrevPage() {
-        let gotoPage = "fileimport/dialogupload";
-        kioskSendAjaxForm($("#bt-back").first(),
-          $("#upload-form-1-div"),
-          "fileimport/dialogupload1",
-          onLocalImportFormEvaluated, onLocalImportFormFailure,
-          {gotoPage: gotoPage})
-      } */
+				let gotoPage = "fileimport/dialogupload";
+				kioskSendAjaxForm($("#bt-back").first(),
+					$("#upload-form-1-div"),
+					"fileimport/dialogupload1",
+					onLocalImportFormEvaluated, onLocalImportFormFailure,
+					{gotoPage: gotoPage})
+			} */
 
       function onLocalImportFormFailure(xhr, status, errorThrown, state_data) {
-        kioskErrorToast(`<div>double trouble: ${ errorThrown } </div>`,
+        kioskErrorToast(`<div>double trouble: ${errorThrown} </div>`,
           {
             onClosing: () => {
               $.magnificPopup.close();
@@ -127,11 +131,22 @@
           }
 
           if (general_message) {
-              kioskSuccessToast(general_message);
+            kioskSuccessToast(general_message);
+          }
+
+          let gotoPage = state_data.gotoPage
+          if (gotoPage == "next") {
+            let substitute_identifiers = getCookie("substitute_identifiers") === "True"
+            console.log("substitute_identifiers", getCookie("substitute_identifiers"))
+            if (substitute_identifiers) {
+              gotoPage = "fileimport/identifiersubstitution";
+            } else {
+              gotoPage = "fileimport/dialogupload2";
+            }
           }
 
           kioskGetAjaxElement($("#pagecontrol"),
-            state_data.gotoPage,
+            gotoPage,
             null,
             $("#pagecontrol"),
             (response, status, xhr) => {

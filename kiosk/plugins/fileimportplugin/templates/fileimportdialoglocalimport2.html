@@ -69,7 +69,7 @@
       }
 
       function localImportPrevPage() {
-        let gotoPage = "fileimport/dialoglocalimport1";
+        let gotoPage = "prev";
         kioskSendAjaxForm($("#bt-back").first(),
           $("#local-import-form-2-div"),
           "fileimport/dialoglocalimport2",
@@ -99,8 +99,19 @@
             return
           }
 
+          gotoPage = state_data.gotoPage
+
+          if (gotoPage == "prev") {
+            let substitute_identifiers = getCookie("substitute_identifiers") === "True"
+            if (substitute_identifiers) {
+              gotoPage = "fileimport/identifiersubstitution"
+            } else {
+              gotoPage = "fileimport/dialoglocalimport1"
+            }
+          }
+
           kioskGetAjaxElement($("#pagecontrol"),
-            state_data.gotoPage,
+            gotoPage,
             null,
             $("#pagecontrol"),
             (response, status, xhr) => {

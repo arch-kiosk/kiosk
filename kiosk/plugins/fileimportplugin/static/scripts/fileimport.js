@@ -11,6 +11,7 @@ function showBackButton(eventHandler) {
 
 function fileImportDialog(endpoint) {
     setCookie("import_tags", "");
+    setCookie("substitute_identifiers", "false");
     var local_import_running = false;
     kioskOpenModalDialog(getRoutefor(endpoint), {
         closeOnBgClick: false,

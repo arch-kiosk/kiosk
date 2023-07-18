@@ -104,7 +104,10 @@ class KioskPhysicalPillowFile(KioskPhysicalImageFile):
             img.im = Image.deferred_error(ValueError("Operation on closed image"))
 
         if img:
-            _close_pillow_image(img)
+            try:
+                img.close()
+            except BaseException as e:
+                _close_pillow_image(img)
 
     def _fix_rotation(self, img: Image, representation):
         try:

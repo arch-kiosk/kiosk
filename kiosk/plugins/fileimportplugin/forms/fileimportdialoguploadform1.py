@@ -10,3 +10,4 @@ class UploadForm1(FlaskForm, KioskGeneralFormErrors):
     page_initialized = HiddenField()
     tags = KioskLabeledStringField(label="assign tags")
     add_needs_context = KioskLabeledBooleanField(label="import only files with context")
+    substitute_identifiers = KioskLabeledBooleanField(label="substitute patterns in identifiers")

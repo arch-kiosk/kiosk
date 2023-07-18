@@ -53,12 +53,11 @@
       }*/
 
       function localImportPrevPage() {
-        gotoPage = "fileimport/dialogupload1";
         kioskSendAjaxForm($("#bt-back").first(),
           $("#upload-form-2-div"),
           "fileimport/dialogupload2",
           onLocalImportFormEvaluated, onLocalImportFormFailure,
-          {gotoPage: gotoPage})
+          {gotoPage: "prev"})
       }
 
       function onLocalImportFormFailure(xhr, status, errorThrown, state_data) {
@@ -83,8 +82,20 @@
             return
           }
 
+          gotoPage = state_data.gotoPage
+
+          if (gotoPage == "prev") {
+            let substitute_identifiers = getCookie("substitute_identifiers") === "True"
+            if (substitute_identifiers) {
+              gotoPage = "fileimport/identifiersubstitution";
+            } else {
+              gotoPage = "fileimport/dialogupload1";
+            }
+          }
+
+
           kioskGetAjaxElement($("#pagecontrol"),
-            state_data.gotoPage,
+            gotoPage,
             null,
             $("#pagecontrol"),
             (response, status, xhr) => {

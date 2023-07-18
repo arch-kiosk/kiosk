@@ -31,6 +31,7 @@ from sync.core.synchronization import Synchronization
 from kiosklogger import KioskLogger
 from kioskstdlib import urap_secure_filename
 from userconfig import UserConfig
+from .forms.fileimportdialogidentifiersubstitutionform import IdentifierSubstitutionForm
 from .forms.fileimportdialoglocalimportform1 import LocalImportForm1
 from .forms.fileimportdialoglocalimportform2 import LocalImportForm2
 from .forms.fileimportdialogsequenceform1 import SequenceImportForm1
@@ -147,6 +148,7 @@ def dialoglocalimport1():
     file_import = FileImport(cfg, sync, user_config=user_config)
     general_message = ""
 
+    substitute_identifiers = False
     if request.method == 'POST':
         localimportform1 = LocalImportForm1(request.form)
         if localimportform1.validate():
@@ -171,15 +173,22 @@ def dialoglocalimport1():
         except BaseException as e:
             logging.debug(f"fileimportcontroller.dialoglocalimport1: "
                           f"Benign Xception when setting default import path: {repr(e)}")
+
+    if 'dialoglocalimport1' in session and "substitute_identifiers" in session["dialoglocalimport1"]:
+        substitute_identifiers = session["dialoglocalimport1"]["substitute_identifiers"] == "on"
+
     general_errors = []
     if not file_import.sort_import_filters():
         general_errors += ["There are no context filters installed. Please talk to your admin."]
 
-    return render_template(r"fileimportdialoglocalimport1.html",
-                           localimportform1=localimportform1,
-                           general_errors=general_errors,
-                           path_list=path_list)
+    resp = make_response(render_template(r"fileimportdialoglocalimport1.html",
+                                         localimportform1=localimportform1,
+                                         general_errors=general_errors,
+                                         path_list=path_list))
 
+    resp.set_cookie('substitute_identifiers', str(substitute_identifiers))
+    resp.set_cookie('import_type', "local")
+    return resp
 
 #  **************************************************************
 #  ****    import-dialog local import page 2: Filters and options
@@ -327,6 +336,13 @@ def localimport():
         if "modify data" not in authorized_to:
             return jsonify(result="You do not have the necessary privilege to import files.")
 
+        if localimportform1.substitute_identifiers.data and 'identifiersubstitutionform' in session:
+            if 'search_pattern' in session['identifiersubstitutionform'] and \
+                    session['identifiersubstitutionform']['search_pattern']:
+                identifier_substitutions = [(session['identifiersubstitutionform']['search_pattern'],
+                                             session['identifiersubstitutionform']['replace_with'])]
+                file_import.set_identifier_substitutions(identifier_substitutions)
+
         # kioskglobals.kiosk_thread
         print(" \n**** import local files\n")
 
@@ -398,6 +414,7 @@ def dialogupload1():
     general_message = ""
 
     import_tags = ""
+    substitute_identifiers = False
     if request.method == 'POST':
         is_valid = True
         for context_filter in context_filters:
@@ -420,8 +437,6 @@ def dialogupload1():
                 session["dialogupload1"] = form_data
             else:
                 session["dialogupload1"] = request.form
-                import_tags = session["dialogupload1"]["tags"]
-
     else:
         if 'dialogupload1' in session:
             for context_filter in context_filters:
@@ -432,6 +447,12 @@ def dialogupload1():
                 context_filter.init_form({})
             config = file_import.get_wtform_values()
             uploadform1 = UploadForm1(ImmutableMultiDict(config))
+
+    if "dialogupload1" in session:
+        if "tags" in session["dialogupload1"]:
+            import_tags = session["dialogupload1"]["tags"]
+        if "substitute_identifiers" in session["dialogupload1"]:
+            substitute_identifiers = session["dialogupload1"]["substitute_identifiers"] == "on"
 
     general_errors = uploadform1.get_general_form_errors()
     if not context_filters:
@@ -447,6 +468,9 @@ def dialogupload1():
                                          general_message=general_message))
 
     resp.set_cookie('import_tags', import_tags)
+    resp.set_cookie('substitute_identifiers', str(substitute_identifiers))
+    resp.set_cookie('import_type', "upload")
+
     return resp
 
 
@@ -474,6 +498,38 @@ def dialogupload2():
                            general_errors=general_errors,
                            max_file_uploads=max_file_uploads,
                            import_tags=session["dialogupload1"]["tags"])
+
+
+#  **************************************************************
+#  ****    import-dialog shared page for pattern substitution
+#  *****************************************************************/
+@full_login_required
+@fileimport.route('/identifiersubstitution', methods=['GET', 'POST'])
+def identifiersubstitution():
+    # just to get the csrf token
+    cfg: KioskConfig = kioskglobals.cfg
+    sync = Synchronization()
+    user_config = UserConfig(kioskglobals.general_store, current_user.user_id, cfg.get_project_id())
+    # file_import = FileImport(cfg, sync, method="upload", user_config=user_config)
+
+    if request.method == 'POST':
+        is_valid = True
+        identifier_substitution_form = IdentifierSubstitutionForm(request.form)
+        is_valid = is_valid & identifier_substitution_form.validate()
+
+        if is_valid:
+            session["identifiersubstitutionform"] = request.form
+    else:
+        if 'identifiersubstitutionform' in session:
+            identifier_substitution_form = IdentifierSubstitutionForm(
+                ImmutableMultiDict(session["identifiersubstitutionform"]))
+        else:
+            identifier_substitution_form = IdentifierSubstitutionForm()
+
+    general_errors = []
+    return render_template(r"fileimportdialogidentifiersubstitution.html",
+                           identifier_substitution_form=identifier_substitution_form,
+                           general_errors=general_errors)
 
 
 #  **************************************************************
@@ -517,6 +573,13 @@ def uploadimage():
                     file_import.save_user_filter_configuration()
                 else:
                     raise Exception("Exception: Dialog data not complete. Please try again.")
+
+                if upload_form1.substitute_identifiers.data and 'identifiersubstitutionform' in session:
+                    if 'search_pattern' in session['identifiersubstitutionform'] and \
+                            session['identifiersubstitutionform']['search_pattern']:
+                        identifier_substitutions = [(session['identifiersubstitutionform']['search_pattern'],
+                                                     session['identifiersubstitutionform']['replace_with'])]
+                        file_import.set_identifier_substitutions(identifier_substitutions)
 
                 dest_file = os.path.join(cfg.get_temporary_upload_path(), filename)
                 # logging.debug(f"fileimportcontroller.upload_image: dest_file is {dest_file}")
@@ -640,7 +703,8 @@ def dialogsequence1():
                 import_tags = session["dialogsequence1"]["tags"]
     else:
         if 'dialogsequence1' in session:
-            sequenceform1 = SequenceImportForm1(sort_options, image_manipulation_sets, **ImmutableMultiDict(session["dialogsequence1"]))
+            sequenceform1 = SequenceImportForm1(sort_options, image_manipulation_sets,
+                                                **ImmutableMultiDict(session["dialogsequence1"]))
         else:
             config = file_import.get_wtform_values()
             sequenceform1 = SequenceImportForm1(sort_options, image_manipulation_sets, **ImmutableMultiDict(config))

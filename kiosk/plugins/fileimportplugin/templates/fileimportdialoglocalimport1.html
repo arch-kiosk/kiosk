@@ -35,7 +35,7 @@
             </div>
             <div class="col-12">
                 <div class="grid-2">
-                    {% for checkbox in ["recursive", "add_needs_context"] %}
+                    {% for checkbox in ["recursive", "add_needs_context", "substitute_identifiers"] %}
                         <div class="col">
                             {{ localimportform1.__getitem__(checkbox)(class="kiosk-dialog-checkbox",
                                 labelclass="kiosk-dialog-label kiosk-dialog-checkbox-label",
@@ -100,8 +100,14 @@
 
       function onLocalImportFormEvaluated(jq_form, state_data) {
         if (!kioskElementHasErrors($("#local-import-form-1-div"))) {
+            let substitute_identifiers = getCookie("substitute_identifiers") === "True"
+            if (substitute_identifiers) {
+              gotoPage = "fileimport/identifiersubstitution";
+            } else {
+              gotoPage = "fileimport/dialoglocalimport2";
+            }
           kioskGetAjaxElement($("#pagecontrol"),
-            "fileimport/dialoglocalimport2",
+            gotoPage,
             $("#bt-next"),
             null,
             (response, status, xhr) => {

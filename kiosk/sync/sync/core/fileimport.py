@@ -3,9 +3,11 @@ import datetime
 import logging
 import os
 import shutil
+from typing import List, Tuple
 
 import dicttools
 from config import Config
+from textsubstitution import TextSubstitution
 from typerepository import TypeRepository
 
 import kioskstdlib
@@ -48,6 +50,7 @@ class FileImport:
         self._modified_by = "sys"
         self.move_finished_files = False
         self._stop_import = False
+        self._identifier_substitutions = TextSubstitution()
 
     @property
     def file_repository(self):
@@ -108,6 +111,19 @@ class FileImport:
         else:
             return True
 
+    @property
+    def substitute_identifiers(self):
+        """
+        returns the value of the configuration key "substitute_identifiers"
+
+        :return: True/False according to the value of the configuration key.
+                 If the key is missing, the default is False
+        """
+        if "substitute_identifiers" in self._config:
+            return self._config["substitute_identifiers"]
+        else:
+            return False
+
     def _ensure_filter_plugins(self):
         if not self._config:
             logging.error(f"FileImport_ensure_filter_plugin: No configuration set.")
@@ -130,6 +146,7 @@ class FileImport:
         values = {"mif_local_path": self.pathname,
                   "recursive": "true" if self.recursive else "false",
                   "add_needs_context": "true" if self.add_needs_context else "false",
+                  "substitute_identifiers": "true" if self.substitute_identifiers else "false",
                   "file_extensions": ",".join([x.strip() for x in self.file_extensions if x != "*"]),
                   "tags": ",".join(self.tags)
                   }
@@ -145,6 +162,8 @@ class FileImport:
             self._config["recursive"] = form.recursive.data
         if hasattr(form, "add_needs_context"):
             self._config["add_needs_context"] = form.add_needs_context.data
+        if hasattr(form, "substitute_identifiers"):
+            self._config["substitute_identifiers"] = form.substitute_identifiers.data
         if hasattr(form, "file_extensions"):
             self._config["file_extensions"] = split_or_empty_list(form.file_extensions.data, ",")
         if self._user_config:
@@ -162,6 +181,8 @@ class FileImport:
             self._config["recursive"] = d["recursive"]
         if "add_needs_context" in d:
             self._config["add_needs_context"] = d["add_needs_context"]
+        if "substitute_identifiers" in d:
+            self._config["substitute_identifiers"] = d["substitute_identifiers"]
         if "file_extensions" in d:
             self._config["file_extensions"] = split_or_empty_list(d["file_extensions"], ",")
         if "tags" in d:
@@ -361,18 +382,30 @@ class FileImport:
 
         return True
 
+    def _check_substituted_identifier(self, identifier: str):
+        subst_identifier = self._identifier_substitutions.substitute(identifier)
+        return self._check_identifier(subst_identifier)
+
     def build_context(self, f):
         context = {"import": True}
         for import_filter_name in self._import_filters_sorted:
             try:
                 import_filter: FileImportFilter = self._import_filters[import_filter_name]
                 if not import_filter.has_identifier_evaluator:
-                    import_filter.register_identifier_evaluator(self._check_identifier)
+                    if self.substitute_identifiers and self._identifier_substitutions.count > 0:
+                        import_filter.register_identifier_evaluator(self._check_substituted_identifier)
+                    else:
+                        import_filter.register_identifier_evaluator(self._check_identifier)
                 if import_filter.is_active():
                     logging.debug(f"trying filter '{import_filter.get_display_name()}' on file {f}")
                     import_filter.set_path_and_filename(f)
+                    old_identifier = context["identifier"] if "identifier" in context else ""
                     new_context = import_filter.get_file_information(context)
                     if "identifier" in new_context:
+                        if new_context["identifier"] != old_identifier:
+                            if self.substitute_identifiers and self._identifier_substitutions.count > 0:
+                                new_context["identifier"] = self._identifier_substitutions.substitute(
+                                    new_context["identifier"])
                         if hasattr(import_filter, "qr_code_data"):
                             if "type" in import_filter.qr_code_data and import_filter.qr_code_data["type"] == "M":
                                 logging.error(f"FileImport: {kioskstdlib.get_filename(f)} "
@@ -524,3 +557,6 @@ class FileImport:
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}._add_file_to_repository : {repr(e)}")
             return False
+
+    def set_identifier_substitutions(self, identifier_substitutions: List[Tuple]):
+        self._identifier_substitutions.add_from_list(identifier_substitutions)
