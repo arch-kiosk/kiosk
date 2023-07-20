@@ -1,7 +1,7 @@
 import logging
 from .defaultfilehandling import PluginDefaultFileHandling
 
-_plugin_version_ = 0.1
+_plugin_version_ = 1.1
 _plugin_ = None
 
 

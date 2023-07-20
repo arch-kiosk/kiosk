@@ -40,7 +40,7 @@ from .forms.fileimportdialoguploadform1 import UploadForm1
 _plugin_name_ = "fileimportplugin"
 _controller_name_ = "fileimport"
 _url_prefix_ = '/' + _controller_name_
-plugin_version = 0.9
+plugin_version = 1.1
 
 fileimport = Blueprint(_controller_name_, __name__,
                        template_folder='templates',
