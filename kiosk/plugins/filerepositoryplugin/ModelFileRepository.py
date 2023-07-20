@@ -374,7 +374,7 @@ class ModelFileRepository:
                     if self.filter_options["filter_values"][o]:
                         # where_part = " file_identifier_cache.identifier ilike %s"
                         where_part = f" {file_identifier_cache_table_name}.\"identifier\" ilike %s"
-                        param = self.filter_options["filter_values"][o]  # + "%"
+                        param = kioskstdlib.escape_backslashs(self.filter_options["filter_values"][o])
             elif o in ["description"] and self.filter_options["filter_values"][o]:
                 where_part = f"""
                     (({file_identifier_cache_table_name}.\"description\" ilike %s 
@@ -391,8 +391,8 @@ class ModelFileRepository:
                         )
                         or images.export_filename ilike %s   
                     ) """
-                param = "%" + self.filter_options["filter_values"][o] + "%"
-                param2 = "%" + self.filter_options["filter_values"][o] + "%"
+                param = kioskstdlib.escape_backslashs("%" + self.filter_options["filter_values"][o] + "%")
+                param2 = kioskstdlib.escape_backslashs("%" + self.filter_options["filter_values"][o] + "%")
                 param3 = self.filter_options["filter_values"][o]
                 param4 = param
                 param5 = param
@@ -439,7 +439,7 @@ class ModelFileRepository:
                           f"on images.uid={file_identifier_cache_table_name}.\"data\"::uuid {sql_where};"
         try:
             cur.execute(sql, params)
-            # print(cur.query)
+            logging.debug(f"sql: {str(cur.query)}")
             r = cur.fetchone()
             cur.close()
             if r:

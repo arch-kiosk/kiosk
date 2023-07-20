@@ -1477,6 +1477,13 @@ def erase_esc_seq(s: str) -> str:
     """
     return re.sub('\u001b.+?m', '', s)
 
+def escape_backslashs(s: str) -> str:
+    """
+    duplicates all backslashs
+    :param s: input string with
+    :return: string with duplicate backslashs
+    """
+    return s.replace("\\", "\\\\")
 
 def adjust_tuple(in_tuple: tuple, length: int, default) -> tuple:
     """
