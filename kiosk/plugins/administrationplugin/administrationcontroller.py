@@ -57,7 +57,7 @@ from .forms.transferform import TransferForm
 _plugin_name_ = "administrationplugin"
 _controller_name_ = "administration"
 _url_prefix_ = '/' + _controller_name_
-plugin_version = 0.1
+plugin_version = 1.1
 CURRENT_PATCH_FILE_VERSION = 0.2
 
 LOCAL_ADMINISTRATION_PRIVILEGES = {
@@ -1086,7 +1086,10 @@ def patch():
 
         cfg = kioskglobals.get_config()
         if is_local_server(cfg):
-            error_msg, transfer_dir = get_transfer_dir(cfg)
+            transfer_dir = cfg.get_create_transfer_dir()
+            if not transfer_dir:
+                error_msg = 'Cannot find, access or create the local transfer directory.'
+
         else:
             error_msg = 'The feature is only available on local servers.'
 
@@ -1106,27 +1109,9 @@ def patch():
         abort(HTTPStatus.INTERNAL_SERVER_ERROR, repr(e))
 
 
-def get_transfer_dir(cfg):
-    transfer_dir = kioskstdlib.try_get_dict_entry(cfg.config, "transfer_dir", "")
-    if transfer_dir:
-        if os.path.isdir(transfer_dir):
-            if os.path.isdir(os.path.join(transfer_dir, "unpackkiosk")):
-                if os.path.isfile(os.path.join(transfer_dir, "unpackkiosk", "unpackkiosk.py")):
-                    error_msg = ""
-                else:
-                    error_msg = f"unpackkiosk.py is not installed in {os.path.join(transfer_dir, 'unpackkiosk')}"
-            else:
-                error_msg = f"No unpackkiosk directory installed in {transfer_dir}"
-        else:
-            error_msg = f"Transfer directory {transfer_dir} does not exist."
-    else:
-        error_msg = f"transfer_dir not configured."
-    return error_msg, transfer_dir
-
-
 #  **************************************************************
 #  ****    upload and install patch
-#  *****************************************************************/
+#  **************************************************************/
 @administration.route('/trigger_patch', methods=['POST'])
 @full_login_required
 def trigger_patch():
@@ -1149,8 +1134,8 @@ def trigger_patch():
             if not is_local_server(cfg):
                 raise HTTPException('This feature is only available on local servers.')
 
-            error_msg, transfer_dir = get_transfer_dir(cfg)
-            if error_msg:
+            transfer_dir = cfg.get_create_transfer_dir()
+            if not transfer_dir:
                 abort(HTTPStatus.INTERNAL_SERVER_ERROR, "transfer_dir not properly configured.")
             if 'file' in request.files:
                 file = request.files['file']
@@ -1258,6 +1243,14 @@ def start_install_patch(transfer_dir, cfg) -> Tuple[bool, str]:
                   f"Patch file has not target version. That is not allowed anymore."
         logging.error(err_msg)
         return False, err_msg
+
+    if kioskstdlib.to_bool(kioskstdlib.try_get_dict_entry(patch_file['patch'], 'unpackkiosk', 'False')):
+        error_msg, transfer_dir = cfg.get_transfer_dir(check_unpack_kiosk=True)
+        if error_msg or not transfer_dir:
+            err_msg = f"administrationcontroller.start_install_patch: " \
+                      f"the transfer directory is not properly set up: {error_msg}"
+            logging.error(err_msg)
+            return False, err_msg
 
     if kioskstdlib.to_bool(kioskstdlib.try_get_dict_entry(patch_file['patch'], 'close_mcp', 'False')):
         shutdown_mcp()

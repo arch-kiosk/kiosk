@@ -1,6 +1,8 @@
 import sys
 import os
 import logging
+
+import kioskstdlib
 from config import Config
 from yamlconfigreader import YAMLConfigReader
 
@@ -500,3 +502,48 @@ class SyncConfig(Config):
         :return: boolean
         """
         return self.get_log_level() == logging.DEBUG
+
+    def get_transfer_dir(self, check_unpack_kiosk=True):
+        transfer_dir = kioskstdlib.try_get_dict_entry(self.config, "transfer_dir", "")
+        if transfer_dir:
+            if os.path.isdir(transfer_dir):
+                if check_unpack_kiosk:
+                    if os.path.isdir(os.path.join(transfer_dir, "unpackkiosk")):
+                        if os.path.isfile(os.path.join(transfer_dir, "unpackkiosk", "unpackkiosk.py")):
+                            error_msg = ""
+                        else:
+                            error_msg = f"unpackkiosk.py is not installed in {os.path.join(transfer_dir, 'unpackkiosk')}"
+                    else:
+                        error_msg = f"No unpackkiosk directory installed in {transfer_dir}"
+                else:
+                    error_msg = ""
+            else:
+                error_msg = f"Transfer directory {transfer_dir} does not exist."
+        else:
+            error_msg = f"transfer_dir not configured."
+        return error_msg, transfer_dir
+
+    def get_create_transfer_dir(self) -> str:
+        """
+        creates the transfer dir if it does not exist. If it is not configured, a default will be used
+        (the parent dir of Kiosk + transfer_dir)
+        This does not check if unpackkiosk is available in the transfer_dir
+        :param cfg: SyncConfig
+        :return: the transfer_dir or an empty string in case of an error
+        """
+        error_msg, transfer_dir = self.get_transfer_dir(check_unpack_kiosk=False)
+        if not error_msg:
+            return transfer_dir
+        if not transfer_dir:
+            transfer_dir = os.path.join(kioskstdlib.get_parent_dir(self.base_path), "transfer")
+            logging.warning(f"administrationcontroller.get_create_transfer_dir: transfer dir not configured: "
+                            f"defaulting to {transfer_dir}")
+
+        if transfer_dir:
+            try:
+                if not os.path.isdir(transfer_dir):
+                    os.mkdir(transfer_dir)
+                return transfer_dir
+            except BaseException as e:
+                logging.error(f"administrationcontroller.get_create_transfer_dir: {repr(e)}")
+                return ""

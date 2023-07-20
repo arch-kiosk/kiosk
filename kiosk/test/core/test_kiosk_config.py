@@ -1,5 +1,7 @@
 import pytest
 import os
+
+import kioskstdlib
 from kioskconfig import KioskConfig
 from config import Config
 
@@ -50,11 +52,28 @@ class TestSyncConfig(KioskPyTestHelper):
 
     def test_base_and_project_config(self):
         kiosk_config = self.get_config(config_file=project_config_file)
-        print("\n")
-        print(kiosk_config.get_logfile())
         assert kiosk_config.kiosk
         assert kiosk_config.get_file_repository().lower() == os.path.join(
             self.get_kiosk_base_path_from_test_path(test_path),
             'test', 'core', 'sync', 'file_repository').lower()
         assert kiosk_config.get_project_id() == "test"
         assert kiosk_config.file_import
+
+    def test_get_transfer_dir(self, shared_datadir):
+        kiosk_config = self.get_config(config_file=project_config_file)
+        error_msg, transfer_dir = kiosk_config.get_transfer_dir(check_unpack_kiosk=False)
+        assert error_msg == "transfer_dir not configured."
+        expected_transfer_dir = os.path.join(shared_datadir, "transfer")
+        kiosk_config.config["transfer_dir"] = expected_transfer_dir
+        error_msg, transfer_dir = kiosk_config.get_transfer_dir(check_unpack_kiosk=False)
+        assert error_msg == f"Transfer directory {expected_transfer_dir} does not exist."
+        os.mkdir(expected_transfer_dir)
+        error_msg, transfer_dir = kiosk_config.get_transfer_dir(check_unpack_kiosk=False)
+        assert error_msg == ""
+        error_msg, transfer_dir = kiosk_config.get_transfer_dir(check_unpack_kiosk=True)
+        assert error_msg == f"No unpackkiosk directory installed in {expected_transfer_dir}"
+
+    def test_get_create_transfer_dir(self, shared_datadir):
+        kiosk_config = self.get_config(config_file=project_config_file)
+        transfer_dir = kiosk_config.get_create_transfer_dir()
+        assert transfer_dir == os.path.join(kioskstdlib.get_parent_dir(kiosk_config.base_path), "transfer")
