@@ -100,6 +100,13 @@ class ReportingEngine:
         """
         return self._query_definition.get_required_variables(base_query_name)
 
+    def allows_zip(self, base_query_name):
+        """
+        simply returns the setting of the query definition. Look there for further information.
+        :returns: bool.
+        """
+        return self._query_definition.allows_zip(base_query_name)
+
     def get_variable_error(self, variable_name, variable_value) -> str:
         """
         returns an error text if the value does not meet the variable's requirements
@@ -127,10 +134,10 @@ class ReportingEngine:
         template_file property will be used.
         """
         self._mapping_definition = ConfigReader.read_file(mapping_definition_file_path)
-        if not template_file:
-            template_file = self.template_file
+        if template_file:
+            self.template_file = template_file
 
-        self._instantiate_output_driver(template_file)
+        self._instantiate_output_driver()
 
     def set_variable(self, key: str, value: any):
         if not self._query_definition:
@@ -167,6 +174,7 @@ class ReportingEngine:
         :param selected_base_query: the base query to use
         :param callback_progress: a callback method that receives progress information
         """
+        result = False
         if namespace:
             self._namespace = namespace
         self._callback_progress = callback_progress
@@ -208,6 +216,9 @@ class ReportingEngine:
             if self.zip_output_files:
                 zip_instance = self._prepare_zip_file(config)
 
+            if not self.init_output():
+                raise Exception("init_output was not successful.")
+
             for index, identifier in enumerate(identifiers):
                 self._interruptable_callback_progress(index * 100 / len(identifiers),
                                                       f"running report for {identifier}")
@@ -220,10 +231,19 @@ class ReportingEngine:
                     zip_instance.write(filename=output_path_and_filename,
                                        arcname=kioskstdlib.get_filename(output_path_and_filename))
                     os.remove(output_path_and_filename)
+
+            result = True
+
         except BaseException as e:
-            logging.error(f"{self.__class__.__name__}.create_reports : {repr(e)}")
+            logging.error(f"{self.__class__.__name__}.create_reports: {repr(e)}")
+
             raise e
         finally:
+            try:
+                if not self.close_output(success=result):
+                    raise Exception(f"Error closing the output driver with success={result}")
+            except BaseException as e2:
+                logging.error(f"{self.__class__.__name__}.create_reports : {repr(e2)}")
             if zip_instance:
                 zip_instance.close()
 
@@ -351,7 +371,7 @@ class ReportingEngine:
                 cur.close()
             KioskSQLDb.rollback()
 
-    def _instantiate_output_driver(self, template_file: str):
+    def _instantiate_output_driver(self):
         """
         Instantiates the output driver (e.g. ReportingOutputPDF or ReportingOutputExcel) from the information
         in the current mapping definition. afterwards self._output_driver is set.
@@ -376,13 +396,13 @@ class ReportingEngine:
         sync.load_plugins(cfg.reportingdock["plugins"])
         type_repository: TypeRepository = sync.type_repository
 
-        if not output_driver_name:
-            output_driver_name = self.get_report_type_from_file_extension(type_repository, template_file)
+        if not output_driver_name and self.template_file:
+            output_driver_name = self.get_report_type_from_file_extension(type_repository, self.template_file)
 
         if not output_driver_name:
-            logging.warning(f"{self.__class__.__name__}._instantiate_output_driver: "
-                            f"{template_file} does not imply any active reporting output driver. "
-                            f"Perhaps the responsible output driver is not listed in the reportingdock config?")
+            logging.error(f"{self.__class__.__name__}._instantiate_output_driver: "
+                          f"{self.template_file} does not imply any active reporting output driver. "
+                          f"Perhaps the responsible output driver is not listed in the reportingdock config?")
             raise ReportingException(f"{self.__class__.__name__}._instantiate_output_driver: "
                                      f"No output driver identifiable from either mapping definition or template file")
 
@@ -393,6 +413,13 @@ class ReportingEngine:
                                      f"Perhaps it is not listed in the reportingdock config?")
 
         self._output_driver = Driver()
+        self._output_driver.target_dir = self.get_output_directory(cfg)
+        if self.template_file:
+            self._output_driver.template_file = self.template_file
+
+    def get_output_driver(self) -> ReportingOutputDriver:
+        self._instantiate_output_driver()
+        return self._output_driver
 
     def map(self, namespace):
         if not self._mapping_definition:
@@ -431,22 +458,41 @@ class ReportingEngine:
             os.mkdir(report_directory)
         return report_directory
 
-    def output(self, context_identifier: str) -> str:
+    def init_output(self) -> bool:
         """
-        executes the output (the step that creates the actually output files of the report)
-        :param context_identifier: the context identifier which is at the center of this report
-        :returns the result of the ReportingOutputDriver - should be path and filename of the output file
+        gives the output-driver the chance to initialize the whole report (this is not called per arch-context)
         """
         if not self._mapping_definition:
             raise ReportingException(f"{self.__class__.__name__}.output: No mapping definition present.")
         if not self.template_file:
             raise ReportingException(f"{self.__class__.__name__}.output: No template file given.")
 
-        self._instantiate_output_driver(self.template_file)
-        cfg = SyncConfig.get_config()
+        self._instantiate_output_driver()
+
+        self._output_driver.mapping_definition = self._mapping_definition
+        return self._output_driver.init()
+
+    def close_output(self, success: bool) -> bool:
+        """
+        gives the output-driver the chance to finish the whole report (this is not called per arch-context)
+        success: True if the report ran successfully up to this point
+                 False if an error occured and the output driver will rather do some cleaning up.
+        """
+        if not self._output_driver:
+            raise ReportingException(f"{self.__class__.__name__}.output: output driver not instantiated.")
+
+        return self._output_driver.close(success)
+
+    def output(self, context_identifier: str) -> str:
+        """
+        executes the output (the step that creates the actually output files of the report)
+        :param context_identifier: the context identifier which is at the center of this report
+        :returns the result of the ReportingOutputDriver - should be path and filename of the output file
+        """
+        if not self._output_driver:
+            raise ReportingException(f"{self.__class__.__name__}.output: output driver not instantiated.")
 
         self._output_driver.template_file = self.template_file
-        self._output_driver.target_dir = self.get_output_directory(cfg)
         self._output_driver.target_file_name_without_extension = kioskstdlib.urap_secure_filename(
             self.filename_prefix + context_identifier)
         self._output_driver.mapping_definition = self._mapping_definition

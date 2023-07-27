@@ -62,8 +62,14 @@ function krd_run(ws_id, title, action_url) {
                       });
 }
 
+function krd_view(ws_id, title, action_url) {
+    $.magnificPopup.close();
+    window.open("/kioskreportingdock/view/" + ws_id, '_blank')
+}
 
 function krd_edit(ws_id, endpoint) {
   const route = getRoutefor(endpoint)
   window.location.replace(`${route}/${ws_id}/edit`);
 }
+
+//# sourceURL=kioskreportingdockaction.js

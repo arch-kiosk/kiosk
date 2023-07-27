@@ -69,6 +69,10 @@ class ReportingExcelDriver(ReportingOutputDriver):
     SUBTYPE_KEY = '/Subtype'
     WIDGET_SUBTYPE_KEY = '/Widget'
 
+    can_view = False
+    can_download = True
+    can_zip = True
+
     @classmethod
     def get_supported_file_extensions(cls):
         return ["xlsx"]

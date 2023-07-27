@@ -79,7 +79,7 @@ class ReportingDock(Dock):
                                 f")" \
                                 f" VALUES(%s,%s,%s,%s,%s,%s,%s)"
 
-        cur.execute(sql, [self._id, 
+        cur.execute(sql, [self._id,
                           self.query_definition_filename,
                           self.mapping_definition_filename,
                           self.template_file,
@@ -144,9 +144,30 @@ class ReportingDock(Dock):
         dsd = Dsd3Singleton.get_dsd3()
         dsd_workstation_view = DSDView(dsd)
         dsd_workstation_view.apply_view_instructions({"config":
-                                                     {"format_ver": 3},
+                                                          {"format_ver": 3},
                                                       "tables": ["include_tables_with_flag('reporting')"]})
         return dsd_workstation_view.dsd
+
+    def get_reporting_dock_capabilities(self) -> dict:
+        result = {
+            "can_view": False,
+            "can_download": False,
+            "can_zip": False,
+        }
+        try:
+            file_repos = FileRepository(SyncConfig.get_config())
+            reporting_engine = ReportingEngine(self.get_id(), file_repos=file_repos)
+            reporting_engine.load_mapping_definition(os.path.join(ReportingEngine.get_reporting_path(),
+                                                                  self.mapping_definition_filename))
+            reporting_driver = reporting_engine.get_output_driver()
+            result["can_view"] = reporting_driver.can_view
+            result["can_download"] = reporting_driver.can_download
+            result["can_zip"] = reporting_driver.can_zip
+
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.get_reporting_dock_capabilities: {repr(e)}")
+
+        return result
 
     def run(self) -> bool:
         # just to make sure!
@@ -182,3 +203,18 @@ class ReportingDock(Dock):
                                         selected_base_query=self.base_query,
                                         callback_progress=self.callback_progress)
         return True
+
+    def get_report_file_for_view(self) -> str:
+        try:
+            file_repos = FileRepository(SyncConfig.get_config())
+            reporting_engine = ReportingEngine(self.get_id(), file_repos=file_repos)
+            reporting_engine.template_file = self.template_file
+            reporting_engine.load_mapping_definition(os.path.join(ReportingEngine.get_reporting_path(),
+                                                                  self.mapping_definition_filename))
+            reporting_driver = reporting_engine.get_output_driver()
+            return reporting_driver.get_target_filename()
+
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.get_report_file_for_view: {repr(e)}")
+
+        return ""

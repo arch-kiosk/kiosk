@@ -44,6 +44,23 @@ class ReportingQueryDefinition:
         else:
             return []
 
+    def allows_zip(self, base_query_name):
+        """
+        checks if the report based on this query would allow zipping the outputs. Note that this
+        does not override the general capability of the output driver! The output driver must
+        support zipping explicitly independent of what this setting here is set to.
+        If a query definition does not have the allow_zip setting it is assumed to be True.
+        :returns: bool.
+        """
+        try:
+            base_query = self.base_queries[base_query_name]
+            if "allows_zip" in base_query:
+                return base_query["allows_zip"]
+        except BaseException as e:
+            pass
+
+        return True
+
     def get_template_strings(self, base_query_name) -> dict:
         """
         returns a dictionary with all the sql templates for a base_query

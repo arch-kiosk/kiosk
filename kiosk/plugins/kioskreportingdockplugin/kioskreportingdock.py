@@ -24,7 +24,6 @@ from authorization import EDIT_WORKSTATION_PRIVILEGE, PREPARE_WORKSTATIONS, DOWN
 
 
 class KioskReportingDock(KioskDock):
-
     PRIVILEGES = {
         OPERATE_REPORTING: "operate reporting",
         MANAGE_REPORTING: "manage reporting"
@@ -178,22 +177,40 @@ class KioskReportingDock(KioskDock):
                                          "js_key": "run"
                                          })
 
-            fm: KioskFileManagerBridge = KioskFileManagerBridge.instantiate()
-            if fm:
-                url_for_alias = fm.url_for_directory("reporting")
-                url_for_back = "syncmanager.sync_manager_show"
-                self.register_option("download", {"id": "workstation.download",
-                                                  "caption": "download via file manager",
-                                                  "description": f"click to jump to the file manager "
-                                                                 f"where you can download the report",
-                                                  "onclick": f"kioskActivateFileManager('{url_for_alias}$"
-                                                             f"${self._sync_dock.get_id()}','{url_for_back}', 'Hub')",
+            driver_capabilities = self._sync_dock.get_reporting_dock_capabilities()
+            if kioskstdlib.try_get_dict_entry(driver_capabilities, "can_download", False, True):
+                fm: KioskFileManagerBridge = KioskFileManagerBridge.instantiate()
+                if fm:
+                    url_for_alias = fm.url_for_directory("reporting")
+                    url_for_back = "syncmanager.sync_manager_show"
+                    self.register_option("download", {"id": "workstation.download",
+                                                      "caption": "download via file manager",
+                                                      "description": f"click to jump to the file manager "
+                                                                     f"where you can download the report",
+                                                      "onclick": f"kioskActivateFileManager('{url_for_alias}$"
+                                                                 f"${self._sync_dock.get_id()}','{url_for_back}', 'Hub')",
+                                                      "low": False,
+                                                      "warning": False,
+                                                      "privilege": OPERATE_REPORTING,
+                                                      "js_key": "download"
+                                                      }
+                                         )
+            if kioskstdlib.try_get_dict_entry(driver_capabilities, "can_view", False, True):
+                fm: KioskFileManagerBridge = KioskFileManagerBridge.instantiate()
+                if fm:
+                    self.register_option("view", {"id": "workstation.view",
+                                                  "caption": "view report",
+                                                  "description": f"click to view the report you "
+                                                                 f"ran recently",
+                                                  "onclick": f"krd_view('{self.id}',"
+                                                             f"'view report',"
+                                                             f"'view')",
+                                                  "js_key": "view",
                                                   "low": False,
                                                   "warning": False,
                                                   "privilege": OPERATE_REPORTING,
-                                                  "js_key": "download"
                                                   }
-                                     )
+                                         )
 
             self.register_option("delete_option", {"id": "workstation.delete",
                                                    "caption": "remove reporting dock",
@@ -249,7 +266,10 @@ class KioskReportingDock(KioskDock):
 
         add_to_option_list(self._get_option("run"))
         if self._sync_dock.get_state() == self._sync_dock.REPORTED:
-            add_to_option_list(self._get_option("download"), low=False)
+            if "download" in self._ws_options:
+                add_to_option_list(self._get_option("download"), low=False)
+            if "view" in self._ws_options:
+                add_to_option_list(self._get_option("view"), low=False)
 
         add_to_option_list(self._get_option("edit_option"), low=True)
         add_to_option_list(self._get_option("delete_option"), low=True)

@@ -23,10 +23,12 @@
         </div>
       {% endfor %}
       <div class="col-12">
+        {% if can_zip_output_files %}
         <div>{{ rdv_form.zip_output_files(class="kiosk-dialog-checkbox",
                       errclass="kiosk-error-border",
                       labelclass="kiosk-dialog-label") }}
         </div>
+        {% endif %}
       </div>
     </div>
   </form>

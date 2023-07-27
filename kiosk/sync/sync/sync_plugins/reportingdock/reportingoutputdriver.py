@@ -9,6 +9,10 @@ from .reportingmapper import ReportingMapper
 
 
 class ReportingOutputDriver:
+    can_view = False
+    can_download = False
+    can_zip = False
+
     def __init__(self):
         self._mapped_values = {}
         self.template_file = ""
@@ -65,12 +69,39 @@ class ReportingOutputDriver:
                                                _on_render_filename)
         self._mapped_values = self._mapper.map()
 
+    def init(self) -> bool:
+        """
+        initializes the report. This is called only once per run (unlike "execute" which is called for
+        every arch-context)
+        :returns if the initialization was successful
+        """
+        return True
+
     def execute(self, _on_load_records: Union[Callable[[str, List[str]], Iterator[Tuple]], None]) -> str:
         """
         executes the report
         :param _on_load_records: a callable which gets the table_name and the "columns" list and
                                  returns a generator that returns a new row (a tuple with values)
                                  on each iteration
+        :returns the path and filename of the target file
+        """
+        raise NotImplementedError
+
+    def close(self, success: bool) -> bool:
+        """
+        closes the report. This is called only once per run (unlike "execute" which is called for
+        every arch-context)
+        success: indicates whether the rest of the report ran successfully.
+                 If there was an earlier error this will be False.
+        :returns: if the operation was successful
+        """
+        return True
+
+    def get_target_filename(self):
+        """
+        returns the filename of the saved report after it ran. This is currently only necessary for
+        ReportingDocks that allow the "view" option.
+
         :returns the path and filename of the target file
         """
         raise NotImplementedError

@@ -111,7 +111,9 @@ def init_app_related_stuff(app):
 
     template_loader = jinja2.ChoiceLoader([
         app.jinja_loader,
-        jinja2.FileSystemLoader([cfg.resolve_symbols(cfg.kiosk["template_path"]), ]),
+        # jinja2.FileSystemLoader([cfg.resolve_symbols(cfg.kiosk["template_path"]), ]),
+        jinja2.FileSystemLoader([os.path.join(app.root_path, "reporting")])
+
     ])
     app.jinja_loader = template_loader
 

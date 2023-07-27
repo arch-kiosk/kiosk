@@ -2,7 +2,7 @@ import logging
 import os
 from http import HTTPStatus
 
-from flask import Blueprint, request, render_template, redirect, url_for, abort, jsonify
+from flask import Blueprint, request, render_template, redirect, url_for, abort, jsonify, render_template_string
 from flask_allows import requires
 from flask_cors import CORS
 from flask_login import current_user
@@ -18,6 +18,7 @@ from kiosklib import is_ajax_request
 from kioskresult import KioskResult
 from kioskwtforms import kiosk_validate
 from mcpinterface.mcpjob import MCPJob
+from plugins.filerepositoryplugin.ModelFileRepository import FileRepositoryFile
 from plugins.kioskreportingdockplugin import kioskreportingdock, KioskReportingDock
 from plugins.kioskreportingdockplugin.forms.kioskreportingvariablesform import KioskReportingVariablesForm
 from plugins.kioskreportingdockplugin.forms.kioskreportingdockform import KioskReportingDockForm
@@ -489,7 +490,8 @@ def variables(dock_id: str, base_query: str):
 
             if not general_errors and not variable_errors:
                 rdv_form = KioskReportingVariablesForm()
-                general_errors += run_report(dock_id, base_query, variable_dict, rdv_form.zip_output_files.data)
+                general_errors += run_report(dock_id, base_query, variable_dict,
+                                             rdv_form.zip_output_files.data)
 
         elif request.method == 'GET':
             for variable in reporting_engine.get_required_variables(base_query):
@@ -497,13 +499,22 @@ def variables(dock_id: str, base_query: str):
 
         if not rdv_form:
             rdv_form = KioskReportingVariablesForm()
+            rdv_form.zip_output_files.data = False
 
         if variable_errors and not general_errors:
             general_errors.append("Please check your inputs")
 
+        try:
+            can_zip = reporting_dock.sync_dock.get_reporting_dock_capabilities()["can_zip"]
+        except BaseException as e:
+            logging.error(f"kioskreportingdockcontroller.variables: Exception when checking can_zip status: {repr(e)}")
+            can_zip = False
+        can_zip = can_zip and reporting_engine.allows_zip(base_query)
+
         return render_template('reportingdockrunvariables.html',
                                general_errors=general_errors,
                                variable_errors=variable_errors,
+                               can_zip_output_files=can_zip,
                                ws=reporting_dock,
                                base_query=base_query,
                                dock_id=dock_id,
@@ -511,10 +522,10 @@ def variables(dock_id: str, base_query: str):
                                rdv_form=rdv_form)
 
     except HTTPException as e:
-        logging.error(f"kioskreportingdockcontroller.run: {repr(e)}")
+        logging.error(f"kioskreportingdockcontroller.variables: {repr(e)}")
         raise e
     except Exception as e:
-        logging.error(f"kioskreportingdockcontroller.dock_actions: {repr(e)}")
+        logging.error(f"kioskreportingdockcontroller.variables: {repr(e)}")
         abort(HTTPStatus.INTERNAL_SERVER_ERROR)
 
 
@@ -548,3 +559,43 @@ def assert_export_directory() -> bool:
     return bridge.assert_file_transfer_directory("reporting",
                                                  f"reports ",
                                                  ReportingEngine.get_reporting_path(resolve_symbols=False))
+
+
+@kioskreportingdock.route('view/<string:dock_id>', methods=['GET'])
+@full_login_required
+def view(dock_id: str):
+    try:
+        if not dock_id.strip():
+            logging.error(f"kioskreportingdockcontroller.run: "
+                          f"attempt to access endpoint with empty reporting dock")
+            abort(HTTPStatus.BAD_REQUEST, f"There was an attempt to access an endpoint with empty reporting dock")
+
+        sync = Synchronization()
+        reporting_dock = KioskReportingDock(dock_id, sync)
+        reporting_dock.load_workstation()
+        if not reporting_dock.exists:
+            abort(HTTPStatus.BAD_REQUEST, "Attempt to load a reporting dock that does not exist")
+        if not reporting_dock.is_option_available("view",
+                                                  current_plugin_controller=get_plugin_for_controller(_plugin_name_)):
+            abort(HTTPStatus.BAD_REQUEST, "The triggered option is not available.")
+
+        template_file = reporting_dock.sync_dock.get_report_file_for_view()
+        if not template_file:
+            abort(HTTPStatus.BAD_REQUEST, "Attempt to load a report that does not exist")
+        with open(template_file, 'r') as f:
+            template_str = f.read()
+
+        return render_template_string(template_str)
+
+    except Exception as e:
+        logging.error(f"kioskreportingdockcontroller.view: {repr(e)}")
+        try:
+            if hasattr(e, "description"):
+                error_message = e.description
+            else:
+                error_message = repr(e)
+            return render_template('reportviewerror.html',
+                                   error_message=error_message)
+        except BaseException as e:
+            logging.error(f"kioskreportingdockcontroller.view: {repr(e)}")
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR)
