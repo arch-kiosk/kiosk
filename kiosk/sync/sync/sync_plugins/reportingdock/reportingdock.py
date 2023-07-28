@@ -157,6 +157,7 @@ class ReportingDock(Dock):
         try:
             file_repos = FileRepository(SyncConfig.get_config())
             reporting_engine = ReportingEngine(self.get_id(), file_repos=file_repos)
+            reporting_engine.template_file = self.template_file
             reporting_engine.load_mapping_definition(os.path.join(ReportingEngine.get_reporting_path(),
                                                                   self.mapping_definition_filename))
             reporting_driver = reporting_engine.get_output_driver()
