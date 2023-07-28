@@ -1,4 +1,5 @@
 import logging
+import re
 import threading
 from copy import copy
 from uuid import uuid4
@@ -12,11 +13,14 @@ from flask import url_for, \
 from flask_login import current_user
 from flask_wtf.csrf import CSRFError
 from flask_wtf.csrf import CSRFProtect
+from jinja2 import Markup
+from markupsafe import escape
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound, Unauthorized
 
 import kioskglobals
 import kiosklib
 import kioskstdlib
+from jinjafilters import newline_to_br
 from kioskconfig import KioskConfig
 from kioskmenuitem import KioskMenuItem
 from kioskthread import KioskThread
@@ -120,6 +124,8 @@ def init_app_related_stuff(app):
     logging.info("creating KioskThread")
     kioskglobals.kiosk_thread = KioskThread()
 
+    register_jinja_filters(app)
+
     register_context_processors(app)
 
     register_error_handlers(app)
@@ -140,6 +146,10 @@ def register_context_processors(app):
     app.template_context_processors[None].append(inject_routes)
     app.template_context_processors[None].append(inject_system_messages)
     app.template_context_processors[None].append(inject_system_information)
+
+
+def register_jinja_filters(app):
+    app.jinja_env.filters['newline_to_br'] = newline_to_br
 
 
 def handle_csrf_error(e):

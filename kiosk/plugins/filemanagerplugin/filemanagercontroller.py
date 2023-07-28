@@ -169,7 +169,7 @@ def split_topic(topic):
 
 @filemanager.route('/download/<string:topic>/<string:file>', methods=['GET'])
 @full_login_required
-@requires(IsAuthorized(MANAGE_SERVER_PRIVILEGE))
+@requires(IsAuthorized(ENTER_ADMINISTRATION_PRIVILEGE))
 # @nocache
 def filemanager_download(topic: str, file: str):
     print(f"\n*************** filemanager/download/{topic}/{file} ")
