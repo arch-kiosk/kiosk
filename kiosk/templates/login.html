@@ -18,9 +18,11 @@
       <div class="login-form">
         <form method="post" autocomplete="on">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-          <div id="userid-image"><img src="{{ url_for('static', filename='assets/images/pharaoh.svg') }}"/></div>
+{#          <div id="userid-image"><img src="{{ url_for('static', filename='assets/images/pharaoh.svg') }}"/></div>#}
+          <div id="userid-image"></div>
           <input class="login-edits" id="user-id" name="user-id" autocomplete="off"/>
-          <div id="userpwd-image"><img src="{{ url_for('static', filename='assets/images/crook-and-fail.svg') }}"/></div>
+{#          <div id="userpwd-image"><img src="{{ url_for('static', filename='assets/images/crook-and-fail.svg') }}"/></div>#}
+          <div id="userpwd-image"></div>
           <input class="login-edits" id="user-pwd" name="user-pwd" type="password" autocomplete="current-password"/>
           <button id="login-btn" class="modal-ok" type="submit" value="Login"/>
         </form>
