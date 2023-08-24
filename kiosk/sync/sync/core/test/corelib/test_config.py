@@ -204,6 +204,18 @@ class TestConfig:
         cfg["SOMEFILE2"] = "%SOMEPATH4%\\some_other_file"
         assert cfg.resolve_symbols(cfg["SOMEFILE1"]) == "c:\\some_path\\some_file"
         assert cfg.resolve_symbols(cfg["SOMEFILE2"]) == "c:\\some_other_path\\some_other_file"
+        assert cfg.resolve_symbols("%SOMEFILE5% and %SOMEFILE1%") == "!SOMEFILE5! and c:\\some_path\\some_file"
+
+    def test_resolve_known_symbols_recursive(self):
+        cfg = config.Config()
+
+        cfg["SOMEMODULE"] = {"SOMEPATH1": "NOTING", "SOMEPATH2": "c:\\some_path"}
+        cfg["SOMEOTHERMODULE"] = {"SOMEPATH3": "NOTING", "SOMEPATH4": "c:\\some_other_path"}
+        cfg["SOMEFILE1"] = "%SOMEPATH2%\\some_file"
+        cfg["SOMEFILE2"] = "%SOMEPATH4%\\some_other_file"
+        assert cfg._resolve_only_known_symbols_recursive(cfg["SOMEFILE1"], cfg._config) == "c:\\some_path\\some_file"
+        assert cfg._resolve_only_known_symbols_recursive(cfg["SOMEFILE2"], cfg._config) == "c:\\some_other_path\\some_other_file"
+        assert cfg._resolve_only_known_symbols_recursive("%SOMEFILE5% and %SOMEFILE1%", cfg._config) == "%SOMEFILE5% and c:\\some_path\\some_file"
 
     def test_import_config_with_resolved_symbols(self):
         def get_config(config_id):
