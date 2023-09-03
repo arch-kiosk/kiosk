@@ -9,6 +9,8 @@ from kioskquery.kioskqueryvariables import KioskQueryVariables
 
 class ReportingSqlQuery(ReportingQuery):
     def __init__(self, query_dict: dict, variables: KioskQueryVariables, namespace, template_strings=None):
+        self.used_key_value_store = False
+
         if "type" not in query_dict or query_dict["type"].lower() != "sql":
             raise ReportingException(f"{self.__class__.__name__}: Call with wrong type of definition")
         if "query" not in query_dict:
@@ -115,7 +117,7 @@ class ReportingSqlQuery(ReportingQuery):
                 self._execute_key_value_query(sql)
                 KioskSQLDb.commit()
             except BaseException as e:
-                logging.error(f"{self.__class__.__name__}._execute: {repr(e)}")
+                logging.error(f"{self.__class__.__name__}.execute: {repr(e)}")
                 KioskSQLDb.rollback()
                 logging.error(f"{self.__class__.__name__}.execute: "
                               f"Database rolled back because of former error.")
@@ -128,7 +130,7 @@ class ReportingSqlQuery(ReportingQuery):
                 self._execute_list_query(sql, self._query_dict["output_table"])
                 KioskSQLDb.commit()
             except BaseException as e:
-                logging.error(f"{self.__class__.__name__}._execute: {repr(e)}")
+                logging.error(f"{self.__class__.__name__}.execute: Error in _execute_list_query: {repr(e)}")
                 KioskSQLDb.rollback()
                 logging.error(f"{self.__class__.__name__}.execute: "
                               f"Database rolled back because of former error in query")
@@ -160,6 +162,7 @@ class ReportingSqlQuery(ReportingQuery):
             if r:
                 raise ReportingException(f"{self.__class__.__name__}._execute_key_value_query: "
                                          f"More than one row returned by key-value query {sql}.")
+            self.used_key_value_store = True
         finally:
             cur.close()
 

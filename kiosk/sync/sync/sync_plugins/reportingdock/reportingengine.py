@@ -70,6 +70,7 @@ class ReportingEngine:
         self.zip_output_files = False
         self._output_driver: Union[ReportingOutputDriver, None] = None
         self._file_repos: Union[FileRepository, None] = file_repos
+        self._has_key_value_store = False
 
     def _interruptable_callback_progress(self, *args, **kwargs):
         if self._callback_progress and not self._callback_progress(*args, **kwargs):
@@ -257,6 +258,7 @@ class ReportingEngine:
         if not self._query_definition:
             raise ReportingException(f"{self.__class__.__name__}.prepare_data: No query definition present.")
 
+        self._has_key_value_store = False
         already_used_query_types = []
         for qid, query_dict in self._query_definition.queries.items():
             type_id = query_dict["type"].lower()
@@ -271,6 +273,8 @@ class ReportingEngine:
                 kioskstdlib.try_get_dict_entry(config.reportingdock, "debug_sql", "false"))
 
             query_instance.execute(prepare_first_run=type_id not in already_used_query_types)
+            if hasattr(query_instance, "used_key_value_store") and query_instance.used_key_value_store:
+                self._has_key_value_store = True
 
             already_used_query_types.append(type_id)
 
@@ -350,6 +354,10 @@ class ReportingEngine:
         """
         cur = None
         result = {}
+        if not self._has_key_value_store:
+            logging.debug(f"{self.__class__.__name__}._load_key_values: "
+                          f"report has no table reporting_values and no key-value query")
+            return result
         try:
             cur = KioskSQLDb.execute_return_cursor(
                 "select " +

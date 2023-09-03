@@ -5,7 +5,7 @@ import shutil
 from typing import Union, Callable, List, Iterator, Tuple
 
 import kioskstdlib
-from jinjafilters import newline_to_br
+from jinjafilters import newline_to_br, format_datetime
 from sync_plugins.reportinghtmldriver.reportingmapperhtml import ReportingMapperHTML
 from sync_plugins.reportingdock.reportingoutputdriver import ReportingOutputDriver
 from synchronization import Synchronization
@@ -75,6 +75,7 @@ class ReportingHTMLDriver(ReportingOutputDriver):
                           autoescape=select_autoescape())
 
         env.filters['newline_to_br'] = newline_to_br
+        env.filters['format_datetime'] = format_datetime
 
         sub_template = kioskstdlib.get_filename_without_extension(self.template_file) + "_sub.html"
         if not os.path.isfile(os.path.join(kioskstdlib.get_file_path(self.template_file), sub_template)):
