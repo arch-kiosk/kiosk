@@ -290,7 +290,7 @@ class DsdGraph:
         edge = self._graph.add_edge(join.root_table, join.related_table)
         edge["join"] = copy.copy(join)
 
-    def get_paths_to_table(self, table_name: str) -> list:
+    def get_paths_to_table(self, table_name: str, start_table="") -> list:
         """
         returns a list with all paths that lead to a table
         :param table_name:
@@ -305,7 +305,11 @@ class DsdGraph:
         if not vs.indegree():
             return [[table_name]]
 
-        root_tables = self.get_root_tables()
+        if not start_table:
+            root_tables = self.get_root_tables()
+        else:
+            root_tables = [start_table]
+
         for root_table in root_tables:
             all_paths = self._graph.get_all_simple_paths(root_table, table_name)
             if all_paths and all_paths[0]:
@@ -372,7 +376,7 @@ class DsdGraph:
     def find_closest(self, paths, search_term) -> (str, int):
         """
         finds the closest table backwards matching the search term.
-        E.G. if table1 has an identifier() instruction and neither table2 or table3 does,
+        E.G. if table1 has an identifier() instruction and neither table2 nor table3 do,
         and the graph is table1->table2->table3 then find_closest([table1, table2, table3], "identifier()")
         results in table1.
         :param paths: list of paths [[table, table, table], ...] leading to the same target table. That is
