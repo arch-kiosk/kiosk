@@ -11,7 +11,6 @@ config:
   filemaker_template: '%sync%\filemaker\pvd_recording_template.fmp12'
   filemaker_db_filename: test_recording.fmp12
 
-
 file_repository:
   recording_context_aliases:
     locus: 'context'
@@ -26,6 +25,10 @@ file_repository:
     site: 'site map'
     pottery_images: 'pottery'
     tags: 'context tags'
+glossary:
+  "locus": ['locus', 'loci']
+  "collected material": ['collected material', 'collected materials']
+  "unit": ["trench", "trenches"]
 
 kiosk:
   global_constants:

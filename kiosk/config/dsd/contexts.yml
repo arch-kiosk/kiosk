@@ -66,6 +66,8 @@ config:
       scope:
         coordinates:
           coordinate_photo: {}
+          coordinate_categories:
+            join: inner("category", "category")
 
     locus_tags_cm:
       type: query

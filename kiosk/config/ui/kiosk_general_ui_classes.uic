@@ -23,3 +23,16 @@ element_type:
 element_type:
   isIdentifier: True
 
+# datatype(float)
+element_type:
+  name: TextField
+  format: FLOAT
+
+# datatype(uuid)
+element_type:
+  name: TextField
+
+# datatype(number)
+element_type:
+  name: TextField
+  format: FLOAT

@@ -46,7 +46,7 @@ class ApiLookup(Resource):
 
     @httpauth.login_required
     def post(self):
-        ''' retrieves available constants
+        ''' retrieves data from Kiosk tables
             ---
             summary: retrieves a list of constants
             security:

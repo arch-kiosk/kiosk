@@ -109,3 +109,22 @@ export function gotoPage(href: string) : void {
     }
     window.location.href = href
 }
+
+/**
+ * Calculate a 32 bit FNV-1a hash
+ * Found here: https://stackoverflow.com/a/22429679/11150752 (CC BY-SA 4.0)
+ * Ref 1: https://gist.github.com/vaiorabbit/5657561
+ * Ref 2: http://isthe.com/chongo/tech/comp/fnv/
+ *
+ */
+export function fowlerNollVo1aHashModern(str: string, offset = 0x811c9dc5, prime = 0x01000193): number {
+    let hashValue = offset
+
+    for (let i = 0; i < str.length; i++) {
+        hashValue ^= str.charCodeAt(i)
+        hashValue = Math.imul(hashValue, prime)
+    }
+
+    return hashValue >>> 0
+}
+

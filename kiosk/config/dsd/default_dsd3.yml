@@ -489,6 +489,17 @@ coordinate_photo:
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
 
+coordinate_categories:
+  structure:
+    1:
+      category: [datatype(VARCHAR), not_null()]
+      description: [datatype(VARCHAR)]
+      sketch_uid: [datatype(UUID), uid_file()]
+      uid: [datatype(UUID), replfield_uuid(), default(gen_random_uuid())]
+      created: [datatype(TIMESTAMP), replfield_created(), default(now())]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+
 locus:
   structure:
     9:
@@ -520,7 +531,7 @@ locus:
       volume: [datatype(FLOAT)]
       id: [datatype(NUMBER), local_id("arch_context")]
       arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
-      arch_context: [datatype(VARCHAR), identifier(), skip_index_on("hidden")]
+      arch_context: [datatype(VARCHAR), identifier(), skip_index_on("hidden"), label("locus")]
       alternate_id: [datatype(VARCHAR), identifier("additional"), skip_index_on("hidden")]
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
@@ -1551,7 +1562,7 @@ unit:
       identification_method_cm: [datatype(VARCHAR)]
       identification_method_analysis: [datatype(VARCHAR)]
       arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
-      arch_context: [datatype(VARCHAR), identifier(), unit()]
+      arch_context: [datatype(VARCHAR), identifier(), unit(), label("unit")]
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]

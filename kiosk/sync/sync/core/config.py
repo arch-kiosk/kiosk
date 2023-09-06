@@ -173,6 +173,37 @@ class Config(logginglib.LoggingFeature):
                 next_symbol = rx_symbol.search(config_str)
         return config_str
 
+    def _resolve_only_known_symbols_recursive(self, config_str, current_config):
+        """
+        This version of the resolve symbols method leaves symbols that cannot be resolved untouched.
+        Other versions would replace an unkown symbol %my_symbol% with !my_symbol!
+        :param config_str:
+        :param current_config:
+        :return:
+        """
+        c = 0
+        if config_str:
+            rx_symbol = re.compile(r"(%.*?%)", re.I)
+            result_str = config_str
+            next_symbol = rx_symbol.search(config_str)
+            while next_symbol:
+                c += 1
+                if c > 10:
+                    logging.error("resolve_symbols_in_string exceed depth of 10")
+                    return None
+
+                key = next_symbol.group(0)[1:-1]
+                value = dict_search(current_config, key, self._symbol_cache)
+                if not value:
+                    value = "!" + next_symbol.group(0)[1:-1] + "!"
+                else:
+                    result_str = result_str.replace(next_symbol.group(0), value)
+
+                config_str = config_str.replace(next_symbol.group(0), value)
+                next_symbol = rx_symbol.search(config_str)
+        return result_str
+
+
     def on_read_config(self, get_config_dict):
         self._on_read_config_handler = get_config_dict
 
@@ -211,7 +242,7 @@ class Config(logginglib.LoggingFeature):
                 # that import other configs FIRST. Then I merge those other configs with the already existing
                 # config. That's why I must use import_mode_first_wins. BUT if two configs are imported I expect
                 # the second to win over the first. And that was not the case with 'for cfg in import_cfg'.
-                # a better solution would be to separate the config that impors from its own keys.
+                # a better solution would be to separate the config that imports from its own keys.
 
                 for cfg in reversed(import_cfg):
                     if isinstance(import_cfg, dict):

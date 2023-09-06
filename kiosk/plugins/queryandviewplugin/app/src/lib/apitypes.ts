@@ -35,3 +35,4 @@ export interface ApiResultKioskQuery {
     document_information: ApiResultKioskQueryDocumentInformation
     records: [AnyDict]
 }
+

@@ -264,7 +264,8 @@ export class StructuredKioskQuery extends KioskAppComponent {
         const dsdName = column.getAttribute("data-column")
         if (this.isIdentifier(dsdName)) {
             return html`
-                <div class="identifier" data-column=${dsdName} data-identifier="${row[dsdName]}" @click="${this.gotoIdentifier}">
+                <div class="identifier" data-column=${dsdName} data-identifier="${row[dsdName]}" 
+                     @click="${this.gotoIdentifier}">
                     ${row[dsdName]}
                 </div>`
         } else {

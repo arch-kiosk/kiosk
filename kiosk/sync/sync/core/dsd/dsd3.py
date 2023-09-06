@@ -48,7 +48,7 @@ class Join:
 
 
 class DataSetDefinition:
-    """ DataSetDefinition capsules the access to the DataSetDefinition file.
+    """ DataSetDefinition encapsulates the access to the DataSetDefinition file.
         The latter describes which fields and tables are involved in the replication
         and synchronization. It also describes the structure of the synchronization tables
         (shadow tables) and the mapping directives.
@@ -91,6 +91,7 @@ class DataSetDefinition:
         self.files_table_filename_field = ""
         self.dsd_root_path = ""
         self.format = self.CURRENT_DSD_FORMAT_VERSION
+        self._glossary = None
 
     @classmethod
     def translate_datatype(cls, data_type):
@@ -129,6 +130,9 @@ class DataSetDefinition:
     def register_loader(self, file_ext: str, DSDLoaderClass):
         """"""
         self._loaders[file_ext.lower()] = DSDLoaderClass
+
+    def register_glossary(self, glossary):
+        self._glossary = glossary
 
     def _read_dsd_data_from_file(self, path_and_filename: str):
         if not os.path.isfile(path_and_filename):
@@ -732,21 +736,28 @@ class DataSetDefinition:
 
         return ""
 
-    def get_field_label(self, table, field, version=0):
+    def get_field_label(self, table, field, version=0, glossary=None):
         """
         returns the label for a dsd field. It is either set by the "label()" instruction or will simply be
         the name given by the parameter "field".
         :param table: the dsd table
         :param field: field in the dsd table
         :param version: the version of the dsd table
+        :param glossary: A KioskGlossary object
         :return: string
         """
         # noinspection PyBroadException
         try:
+            if not glossary and self._glossary:
+                glossary = self._glossary
+
             version = version if version else self.get_current_version(table)
             params = self.get_instruction_parameters(table, field, 'label', version)
             if params:
-                return params[0]
+                if glossary:
+                    return glossary.get_term(params[0], 1, auto_plural=False)
+                else:
+                    return params[0]
         except Exception as e:
             pass
 
@@ -1281,4 +1292,3 @@ class DataSetDefinition:
         :return:
         """
         return self._dsd_data.pprint(key=key, width=width)
-

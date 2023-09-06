@@ -15,7 +15,7 @@ import '@shoelace-style/shoelace/dist/components/tab-group/tab-group.js';
 let KioskQueryLayouter = class KioskQueryLayouter extends KioskAppComponent {
     constructor() {
         super(...arguments);
-        this.assignedQueries = [];
+        this.assignedPages = [];
     }
     firstUpdated(_changedProperties) {
         super.firstUpdated(_changedProperties);
@@ -39,10 +39,10 @@ let KioskQueryLayouter = class KioskQueryLayouter extends KioskAppComponent {
         return html `
             <div class="kiosk-query-layouter">
                 <sl-tab-group @sl-close="${this.tryClose}">
-                    ${this.assignedQueries.map(q => html `
+                    ${this.assignedPages.map(q => html `
                         <sl-tab slot="nav" panel="${q[0]}" closable>${q[1]}</sl-tab>
                     `)}
-                    ${this.assignedQueries.map(q => html `
+                    ${this.assignedPages.map(q => html `
                         <sl-tab-panel name="${q[0]}"><slot name="${q[0]}"></slot></sl-tab-panel>
                     `)}
                 </sl-tab-group>

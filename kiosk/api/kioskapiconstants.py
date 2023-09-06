@@ -2,8 +2,10 @@ from flask_restful import Resource
 from flask import abort
 from marshmallow import Schema, fields
 
+import kioskglobals
 import kioskstdlib
 from kioskglobals import get_config, httpauth
+from kioskglossary import KioskGlossary
 from kiosksqldb import KioskSQLDb
 
 
@@ -54,6 +56,7 @@ class ApiConstants(Resource):
         self.add_recording_context_aliases(cfg, constants)
         self.add_labels(constants)
         self.add_collected_material_type_names(constants)
+        self.add_glossary(constants)
 
         return ApiResultConstant(many=True).dump(constants), 200
 
@@ -86,3 +89,13 @@ class ApiConstants(Resource):
             constant.value = kioskstdlib.null_val(r["value"], "")
             constants.append(constant)
             r = cur.fetchone()
+
+    def add_glossary(self, constants):
+        glossary = KioskGlossary(kioskglobals.get_config()).get_all()
+
+        for key, value in glossary:
+            constant = ApiResultConstant()
+            constant.path = "glossary"
+            constant.key = key
+            constant.value = value
+            constants.append(constant)

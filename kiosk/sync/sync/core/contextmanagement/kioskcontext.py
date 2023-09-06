@@ -86,7 +86,7 @@ class KioskContext:
     def from_dict(self, context_data: dict, scope_only=False) -> None:
         """
         reads a context definition from the dict and creates the graph to navigate the context's structure.
-        Necessary preparatory step before the context an be used for anything.
+        Necessary preparatory step before the context can be used for anything.
         :param context_data: dictionary with the context data (the name of the context not included)
         :param scope_only: optional. If set the context definition is expected to be a scope,
                 so "type" and "scope" keywords are skipped.
@@ -398,7 +398,8 @@ class KioskContext:
             #     logging.warning(f"KioskContext._get_sql_select: {self.identifier_table} "
             #                             f"has {len(identifier_fields)} identifiers. Only one is currently supported")
             self.identifier_field = identifier_field
-            self.id_uuid_field = self._dsd.get_fields_with_instruction(self.identifier_table, "replfield_uuid")[0]
+            self.id_uuid_field = self._dsd.get_fields_with_instruction(self.identifier_table,
+                                                                       "replfield_uuid")[0]
 
             self.data_table = path[len(path) - 1]
             self.closest_identifier_table = self._graph.find_closest_identifier(self.data_table)

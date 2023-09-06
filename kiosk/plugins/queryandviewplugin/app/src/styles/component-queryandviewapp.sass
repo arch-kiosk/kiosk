@@ -8,6 +8,19 @@
   width: 100%
 div, p
   font-family: $standard-text
+
+.dev-tool-bar
+  background-color: $col-bg-att
+.dev-open-identifier
+  display: inline-block
+  padding: 0 1em
+  margin: 0 5px
+  background-color: $col-bg-att-darker
+  &:hover
+    background-color: $col-bg-att-lighter
+  &:active
+    background-color: $col-bg-ack
+
 .center-div
   display: flex
   flex-direction: column
@@ -60,6 +73,10 @@ div, p
 #toolbar-buttons
   @extend .toolbar-section
   background-color: $col-bg-3-darker
+
+.splitter
+  height: 8px
+  background-color: $col-bg-body
 
 .toolbar-button
   color: $col-primary-bg-3

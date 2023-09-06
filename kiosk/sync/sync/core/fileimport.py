@@ -396,6 +396,7 @@ class FileImport:
                         import_filter.register_identifier_evaluator(self._check_substituted_identifier)
                     else:
                         import_filter.register_identifier_evaluator(self._check_identifier)
+
                 if import_filter.is_active():
                     logging.debug(f"trying filter '{import_filter.get_display_name()}' on file {f}")
                     import_filter.set_path_and_filename(f)

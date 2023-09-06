@@ -12,6 +12,7 @@ compilations:
           locus.sheet:
             text: 'locus ${arch_context}'
             position: 1
+            layout: locus.sheet
 #      group_2:
 #        type: "accordion"
 #        parts:
@@ -30,7 +31,13 @@ compilations:
 
 locus.sheet:
   record_type: locus
-  view_type: sheet  # (can be list, sheet or file_list or harris_matrix)
-  fields_selection: dsd
+  view_type: sheet
+  dsd_view: dsd_view_kiosk_view.yml
+  fields_selection: view
   layout_settings:
-    orchestration_strategy: grid  # (the default for the sheet scenario)
+    orchestration_strategy: grid
+    ui_elements:
+      arch_context:
+        layout:
+          min-width: 1
+          min-height: 1

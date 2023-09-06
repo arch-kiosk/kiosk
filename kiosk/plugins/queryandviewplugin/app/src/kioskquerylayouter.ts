@@ -2,7 +2,7 @@
 import local_css from './styles/component-kioskquerylayouter.sass?inline'
 
 import { KioskAppComponent } from "../kioskapplib/kioskappcomponent";
-import { html, PropertyValues, TemplateResult, unsafeCSS } from "lit";
+import { html, nothing, PropertyValues, TemplateResult, unsafeCSS } from "lit";
 import { property, state, customElement } from "lit/decorators.js";
 
 import '@shoelace-style/shoelace/dist/components/tab-panel/tab-panel.js';
@@ -24,7 +24,7 @@ export class KioskQueryLayouter extends KioskAppComponent {
     }
 
     @property()
-    public assignedQueries: QueryTuple[] = []
+    public assignedPages: QueryTuple[] = []
 
     firstUpdated(_changedProperties: any) {
         super.firstUpdated(_changedProperties);
@@ -34,7 +34,7 @@ export class KioskQueryLayouter extends KioskAppComponent {
         super.updated(_changedProperties);
     }
 
-    public selectQuery(queryId: string) {
+    public selectPage(queryId: string) {
         let tabGroup = <SlTabGroup> this.shadowRoot.querySelector("sl-tab-group")
 
         console.log("showing tab ", queryId)
@@ -52,14 +52,14 @@ export class KioskQueryLayouter extends KioskAppComponent {
 
     apiRender(): TemplateResult {
         console.log("render kioskquerylayouter")
-        console.log(this.assignedQueries)
-        return html`
+        console.log(this.assignedPages)
+        return (this.assignedPages.length==0)?html``:html`
             <div class="kiosk-query-layouter">
                 <sl-tab-group @sl-close="${this.tryClose}">
-                    ${this.assignedQueries.map(q => html`
+                    ${this.assignedPages.map(q => html`
                         <sl-tab slot="nav" panel="${q[0]}" closable>${q[1]}</sl-tab>
                     `)}
-                    ${this.assignedQueries.map(q => html`
+                    ${this.assignedPages.map(q => html`
                         <sl-tab-panel name="${q[0]}"><slot name="${q[0]}"></slot></sl-tab-panel>
                     `)}
                 </sl-tab-group>

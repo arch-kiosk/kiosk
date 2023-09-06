@@ -1,3 +1,5 @@
+from typing import Union
+
 import nanoid
 import psycopg2
 import psycopg2.extras
@@ -692,7 +694,7 @@ class KioskSQLDb(SqlSafeIdentMixin):
         return rc
 
     @classmethod
-    def get_first_record_from_sql(cls, sql: str, params: list = []) -> dict:
+    def get_first_record_from_sql(cls, sql: str, params: Union[list, dict] = []) -> dict:
         rc = None
         try:
             cur = cls.get_dict_cursor()
