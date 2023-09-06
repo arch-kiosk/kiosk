@@ -552,3 +552,6 @@ class SyncConfig(Config):
             except BaseException as e:
                 logging.error(f"administrationcontroller.get_create_transfer_dir: {repr(e)}")
                 return ""
+
+    def get_dsd_path(self):
+        return kioskstdlib.get_file_path(self.dsdfile)
