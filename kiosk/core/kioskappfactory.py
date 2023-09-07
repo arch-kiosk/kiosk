@@ -225,9 +225,12 @@ class KioskAppFactory(AppFactory):
         app.config.from_object(cls.FlaskConfigObject(cls.cfg["Flask"]))
         app.register_event_manager(EventManager())
         app.register_plugin_manager(plugin_manager)
-        app.before_first_request_funcs.append(cls._before_first_request)
-        # i am not sure this will work
-        # cls._before_first_request(app)
+        if hasattr(app, "before_first_request_funcs"):
+            # Flask < 2.3.0
+            app.before_first_request_funcs.append(cls._before_first_request)
+        else:
+            # Flask >= 2.3.0
+            cls._before_first_request(app)
         app.teardown_request_funcs.setdefault(None, []).append(cls._teardown_request)
         cors = CORS(app)
         app.config['CORS_HEADERS'] = 'Content-Type'

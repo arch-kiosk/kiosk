@@ -46,6 +46,7 @@ apispec
 marshmallow
 openpyxl
 semantic-version
+pyjwt
 pdfrw2
 netifaces
 flake8
