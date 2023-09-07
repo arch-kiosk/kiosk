@@ -880,7 +880,7 @@ def file_repository_download_file(img, cmd):
 
             resp = make_response(send_file(filename,
                                            mimetype=mime_type,
-                                           attachment_filename=dest_filename,
+                                           download_name=dest_filename,
                                            as_attachment=True,
                                            etag=str(datetime.datetime.now().timestamp())))
             resp.set_cookie('fileDownload', 'true')

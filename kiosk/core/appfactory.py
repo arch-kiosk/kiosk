@@ -8,7 +8,7 @@ from yamlconfigreader import YAMLConfigReader
 
 class AppFactory:
     #Just a helper that translates a the keys of a dictionary into an object with attributes
-    class FlaskConfigObject():
+    class FlaskConfigObject:
         def __init__(self, key_value_pairs):
             self.__dict__ = {**self.__dict__, **key_value_pairs}
 

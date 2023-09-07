@@ -1012,8 +1012,8 @@ def log_action(action, log_id):
         logging.info(f"administration_controller.log_action/download: fetching log-file {log_id}")
         resp = make_response(send_file(files[0],
                                        mimetype='text/plain',
-                                       attachment_filename=kioskstdlib.get_filename(files[0]),
-                                       as_attachment=True, cache_timeout=0,
+                                       download_name=kioskstdlib.get_filename(files[0]),
+                                       as_attachment=True, max_age=0,
                                        etag=str(datetime.datetime.now().timestamp())))
         return resp
     else:

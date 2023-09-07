@@ -51,8 +51,8 @@ class KioskUser(UserMixin):
         # noinspection PyBroadException
         b_token = ""
         try:
-            b_token = token.encode("utf-8")
-            data = get_jws().loads(b_token)
+            # b_token = token.encode("utf-8")
+            data = get_jws().check(token)
             key = "_".join([kiosk_core_security_tokens, token])
             general_store = get_general_store()
             general_store.set_timeout(key, get_config().security_token_timeout_seconds)
@@ -83,8 +83,10 @@ class KioskUser(UserMixin):
 
         if not self.get_token(reload=True):
 
-            b_token = get_jws().dumps({"uuid": self.id})
-            token = b_token.decode("utf-8")
+            token = get_jws().encode({"uuid": self.id})
+
+            # data = jws.loads(b_token)
+            # token = b_token.decode("utf-8")
 
             key = "_".join([kiosk_core_security_user_tokens, self.id])
             general_store = get_general_store()
