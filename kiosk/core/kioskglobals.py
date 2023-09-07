@@ -19,9 +19,9 @@ from uic.uicstream import UICStream, UICKioskFile
 import datetime
 import threading
 
-kiosk_version = "1.5.7.1"
+kiosk_version = "1.5.9"
 kiosk_version_name = "queasy queries"
-kiosk_date = datetime.datetime(2023, 7, 28)
+kiosk_date = datetime.datetime(2023, 9, 7)
 debug = False
 development = {}
 
