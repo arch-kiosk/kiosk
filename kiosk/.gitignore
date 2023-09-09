@@ -9,6 +9,7 @@ reporting
 *.css.map
 *.pstat
 *.zip
+*.tar.gz
 callgrind*.*
 /plugins/syncmanagerplugin/app/src/pattern.css-master/
 /static/scripts/thirdparty/circular-progress-bar-master/

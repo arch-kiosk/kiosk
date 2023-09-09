@@ -12,5 +12,6 @@ class DirectoryFileSource(FileSource):
     def next_file(self) -> Generator[str, None, None]:
         for filename in os.listdir(self.path_name):
             path_and_filename = os.path.join(self.path_name, filename)
-            if os.path.isfile(path_and_filename):
+            if (os.path.isfile(path_and_filename) and not os.path.islink(path_and_filename)
+                    and not filename.startswith(".")):
                 yield str(path_and_filename)
