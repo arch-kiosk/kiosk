@@ -313,6 +313,23 @@ class FileImport:
 
         return self._r_add_files_to_repository(self.pathname)
 
+    def _do_skip_file(self, path_and_filename: str, suppress_dot_files=True):
+        try:
+            if os.path.islink(path_and_filename) or kioskstdlib.is_file_hidden(path_and_filename):
+                logging.warning(
+                    "import_single_file_to_repository: file {} hidden or a link -> skipped.".format(path_and_filename))
+                return True
+
+            if kioskstdlib.get_filename(path_and_filename).startswith(".") and suppress_dot_files:
+                logging.warning("import_single_file_to_repository: filename {} starts with a . -> skipped.".format(
+                    path_and_filename))
+                return True
+
+            return False
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}._do_skip_file: {repr(e)}")
+            raise e
+
     def _r_add_files_to_repository(self, pathname, level=0) -> bool:
         """
 
@@ -352,26 +369,32 @@ class FileImport:
             # print(f"self._file_extensions is null")
             files = sorted([x for x in content if os.path.isfile(x)])
 
+        suppress_dot_files = kioskstdlib.to_bool(
+            kioskstdlib.try_get_dict_entry(self._config,
+                                           "suppress_dot_files",
+                                           "True", True))
+
         for f in files:
-            self.files_processed += 1
+            if not self._do_skip_file(f, suppress_dot_files=suppress_dot_files):
+                self.files_processed += 1
 
-            # todo: topic should be the class or method name, not something new.
-            if self.callback_progress and \
-                    not report_progress(self.callback_progress,
-                                        progress=0,
-                                        topic="import-local-files",
-                                        extended_progress=[self.files_processed, self.files_added]):
-                logging.error("FileImport._r_add_files_to_repository: process aborted from outside")
-                return False
-
-            if self._import_single_file_to_repository(f):
-                self.files_added += 1
-            else:
-                if self._stop_import:
+                # todo: topic should be the class or method name, not something new.
+                if self.callback_progress and \
+                        not report_progress(self.callback_progress,
+                                            progress=0,
+                                            topic="import-local-files",
+                                            extended_progress=[self.files_processed, self.files_added]):
+                    logging.error("FileImport._r_add_files_to_repository: process aborted from outside")
                     return False
 
-            report_progress(self.callback_progress, progress=0, topic="import-local-files",
-                            extended_progress=[self.files_processed, self.files_added])
+                if self._import_single_file_to_repository(f):
+                    self.files_added += 1
+                else:
+                    if self._stop_import:
+                        return False
+
+                report_progress(self.callback_progress, progress=0, topic="import-local-files",
+                                extended_progress=[self.files_processed, self.files_added])
 
         if self.recursive:
             dirs = sorted([x for x in content if os.path.isdir(x) and not kioskstdlib.is_dir_hidden(x)])
@@ -430,7 +453,10 @@ class FileImport:
         """
         try:
             file_description = ""
-            if os.path.islink(f) or kioskstdlib.is_file_hidden(f):
+            if self._do_skip_file(f, suppress_dot_files=kioskstdlib.to_bool(
+                    kioskstdlib.try_get_dict_entry(self._config,
+                                                   "suppress_dot_files",
+                                                   "True", True))):
                 logging.warning("import_single_file_to_repository: file {} hidden or a link -> skipped.".format(f))
                 return False
 
