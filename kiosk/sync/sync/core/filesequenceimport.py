@@ -243,8 +243,12 @@ class FileSequenceImport(FileImport):
                             logging.warning(f"  -> {len(current_sequence)} files were not imported.")
                             current_context = new_context
                             current_sequence = []
-                            if not self.skip_qrcodes_proper:
-                                current_sequence.append(f)
+                            # if not self.skip_qrcodes_proper: #  the if makes no sense to me anymore.
+                            #    current_sequence.append(f)
+                            current_sequence.append(f)
+                            logging.debug(f"{self.__class__.__name__}._r_add_files_to_repository: "
+                                          f"Sequence '{current_context['identifier']} "
+                                          f"started with file {kioskstdlib.get_filename(f)}.")
                     else:
                         # no new context but an open sequence
                         logging.debug(f"{self.__class__.__name__}._r_add_files_to_repository: "
