@@ -316,13 +316,13 @@ class FileImport:
     def _do_skip_file(self, path_and_filename: str, suppress_dot_files=True):
         try:
             if os.path.islink(path_and_filename) or kioskstdlib.is_file_hidden(path_and_filename):
-                logging.warning(
-                    "import_single_file_to_repository: file {} hidden or a link -> skipped.".format(path_and_filename))
+                logging.debug(f"{self.__class__.__name__}._do_skip_file: "
+                              f"file {path_and_filename} is hidden -> skipped.")
                 return True
 
             if kioskstdlib.get_filename(path_and_filename).startswith(".") and suppress_dot_files:
-                logging.warning("import_single_file_to_repository: filename {} starts with a . -> skipped.".format(
-                    path_and_filename))
+                logging.debug(f"{self.__class__.__name__}._do_skip_file: "
+                              f"filename {path_and_filename} starts with a . -> skipped.")
                 return True
 
             return False

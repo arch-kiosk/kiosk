@@ -199,6 +199,11 @@ class FileSequenceImport(FileImport):
         current_context = {}
         current_sequence = []
 
+        suppress_dot_files = kioskstdlib.to_bool(
+            kioskstdlib.try_get_dict_entry(self._config,
+                                           "suppress_dot_files",
+                                           "True", True))
+
         for f in files:
             if self.callback_progress and \
                     not report_progress(self.callback_progress,
@@ -208,61 +213,63 @@ class FileSequenceImport(FileImport):
                 logging.error("FileImport._r_add_files_to_repository: process aborted from outside")
                 return False
 
-            logging.info(f"{self.__class__.__name__}._r_add_files_to_repository: Trying file {f}")
-            new_context = self.get_context_from_qr_code(f)
-            self.files_processed += 1
+            if not self._do_skip_file(f, suppress_dot_files=suppress_dot_files):
+                self.files_processed += 1
+                logging.info(f"{self.__class__.__name__}._r_add_files_to_repository: Trying file {f}")
+                new_context = self.get_context_from_qr_code(f)
+                self.files_processed += 1
 
-            if "import" in new_context and not new_context["import"]:
-                continue
+                if "import" in new_context and not new_context["import"]:
+                    continue
 
-            if current_context:
-                #  there is a current context
-                if new_context and "identifier" in new_context:
-                    #  That's the end of the sequence or the start of a new one (because the old one was not closed)
-                    if new_context["identifier"] == current_context["identifier"]:
-                        # sequence closed: Import it
-                        logging.debug(f"{self.__class__.__name__}._r_add_files_to_repository: "
-                                      f"Sequence '{current_context['identifier']} "
-                                      f"closing with file {kioskstdlib.get_filename(f)}.")
-                        current_sequence.append(f)
-                        self._context = current_context
-                        if not self._import_sequence(current_sequence):
-                            return False
-                        self._context = {}
-                        current_context = {}
-                        current_sequence = []
+                if current_context:
+                    #  there is a current context
+                    if new_context and "identifier" in new_context:
+                        #  That's the end of the sequence or the start of a new one (because the old one was not closed)
+                        if new_context["identifier"] == current_context["identifier"]:
+                            # sequence closed: Import it
+                            logging.debug(f"{self.__class__.__name__}._r_add_files_to_repository: "
+                                          f"Sequence '{current_context['identifier']} "
+                                          f"closing with file {kioskstdlib.get_filename(f)}.")
+                            current_sequence.append(f)
+                            self._context = current_context
+                            if not self._import_sequence(current_sequence):
+                                return False
+                            self._context = {}
+                            current_context = {}
+                            current_sequence = []
+                        else:
+                            # sequence not properly closed but new sequence starts.
+                            logging.warning(f"Sequence '{current_context['identifier']} not properly closed.")
+                            logging.warning(f"  -> {len(current_sequence)} files were not imported.")
+                            current_context = new_context
+                            current_sequence = []
+                            if not self.skip_qrcodes_proper:
+                                current_sequence.append(f)
                     else:
-                        # sequence not properly closed but new sequence starts.
-                        logging.warning(f"Sequence '{current_context['identifier']} not properly closed.")
-                        logging.warning(f"  -> {len(current_sequence)} files were not imported.")
+                        # no new context but an open sequence
+                        logging.debug(f"{self.__class__.__name__}._r_add_files_to_repository: "
+                                      f"Adding file {kioskstdlib.get_filename(f)}."
+                                      f"to sequence '{current_context['identifier']} ")
+                        current_sequence.append(f)
+                else:
+                    # no current context
+                    if new_context and "identifier" in new_context:
+                        # but a new context was found:
                         current_context = new_context
                         current_sequence = []
-                        if not self.skip_qrcodes_proper:
-                            current_sequence.append(f)
-                else:
-                    # no new context but an open sequence
-                    logging.debug(f"{self.__class__.__name__}._r_add_files_to_repository: "
-                                  f"Adding file {kioskstdlib.get_filename(f)}."
-                                  f"to sequence '{current_context['identifier']} ")
-                    current_sequence.append(f)
-            else:
-                # no current context
-                if new_context and "identifier" in new_context:
-                    # but a new context was found:
-                    current_context = new_context
-                    current_sequence = []
-                    current_sequence.append(f)
-                    logging.debug(f"{self.__class__.__name__}._r_add_files_to_repository: "
-                                  f"Sequence '{current_context['identifier']} "
-                                  f"started with file {kioskstdlib.get_filename(f)}.")
-                else:
-                    # import an image without identifier
-                    if not self.add_needs_context:
-                        self._context = {}
+                        current_sequence.append(f)
                         logging.debug(f"{self.__class__.__name__}._r_add_files_to_repository: "
-                                      f"imported context-independent {kioskstdlib.get_filename(f)}.")
-                        if self._import_single_file_to_repository(f):
-                            self.files_added += 1
+                                      f"Sequence '{current_context['identifier']} "
+                                      f"started with file {kioskstdlib.get_filename(f)}.")
+                    else:
+                        # import an image without identifier
+                        if not self.add_needs_context:
+                            self._context = {}
+                            logging.debug(f"{self.__class__.__name__}._r_add_files_to_repository: "
+                                          f"imported context-independent {kioskstdlib.get_filename(f)}.")
+                            if self._import_single_file_to_repository(f):
+                                self.files_added += 1
 
         if current_sequence:
             # sequence not properly closed but new sequence starts.
