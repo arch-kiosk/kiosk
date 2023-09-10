@@ -20,7 +20,7 @@ import threading
 
 kiosk_version = "1.5.7.99"
 kiosk_version_name = "sunny sequence"
-kiosk_date = datetime.datetime(2023, 7, 28)
+kiosk_date = datetime.datetime(2023, 9, 10)
 debug = False
 development = {}
 
