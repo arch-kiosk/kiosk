@@ -169,6 +169,28 @@ class KioskContextualFile(KioskLogicalFile):
         r.export_filename = self.export_filename
         r.uid = self._uid
 
+    def file_hash_exists(self, src_path_and_filename: str) -> bool:
+        """
+        Checks if there is already a hash in the files table that is similar to the given file's hash.
+
+        :param src_path_and_filename: str
+        :return: boolean
+        :exception: can raise Exceptions, raises an Exception if no hash can be created for the given file.
+        """
+        md5_hash = kioskstdlib.get_file_hash(src_path_and_filename)
+        if md5_hash:
+            uid_hash = self._get_uid_from_hash(md5_hash=md5_hash)
+            logging.debug(f"{self.__class__.__name__}.file_hash_exists : "
+                          f"_get_uid_from_hash returned {uid_hash}, {md5_hash}")
+            if uid_hash:
+                return True
+            else:
+                return False
+        else:
+            raise Exception(f"{self.__class__.__name__}.file_hash_exists: "
+                            f"Can't create a hash for file {src_path_and_filename}")
+
+
     def upload(self, src_path_and_filename: str,
                override: bool = False,
                backup_old: bool = True,

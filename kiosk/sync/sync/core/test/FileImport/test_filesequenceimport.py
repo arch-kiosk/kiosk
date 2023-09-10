@@ -3,6 +3,8 @@ import os
 import unittest.mock as mock
 from unittest.mock import call
 
+from dateutil import relativedelta
+
 import pytest
 
 import kioskstdlib
@@ -120,18 +122,36 @@ class TestFileSequenceImport(KioskPyTestHelper):
 
         p = os.path.join(test_path, "test_files", "test_files")
         content = [os.path.join(p, x) for x in os.listdir(p)]
+
         file_import_setup.sort_sequence_by = "FILE_CREATION_TIME"
+        dt_base = datetime.datetime.now() - datetime.timedelta(365)
+        for file in ['buptap-aad-008.jpg',
+                     'buptap-aad-008-optimized.jpg',
+                     'DSC_0802.NEF',
+                     'EC-002 b in desparate need of optimization.jpg',
+                     'EC-002 b perfectly optimized.jpg',
+                     'EC-002 optimized.jpg',
+                     'EC-002 regcognizable only with optimization.jpg',
+                     'EB unrecognizable due to bad perspective - not optimized.jpg',
+                     'EB unrecognizable due to bad perspective - optimized.jpg',
+                     'EB recognizable even without optimization.jpg',
+                     ]:
+            path_and_filename = os.path.join(p, file)
+            dt_base += datetime.timedelta(days=1)
+            kioskstdlib.set_file_date_and_time(path_and_filename, dt_base)
+
         files = [kioskstdlib.get_filename(x) for x in file_import_setup._get_sorted_files(content)]
         assert files == ['buptap-aad-008.jpg',
                          'buptap-aad-008-optimized.jpg',
+                         'DSC_0802.NEF',
+                         'EC-002 b in desparate need of optimization.jpg',
+                         'EC-002 b perfectly optimized.jpg',
                          'EC-002 optimized.jpg',
                          'EC-002 regcognizable only with optimization.jpg',
-                         'DSC_0802.NEF',
-                         'EB recognizable even without optimization.jpg',
                          'EB unrecognizable due to bad perspective - not optimized.jpg',
                          'EB unrecognizable due to bad perspective - optimized.jpg',
-                         'EC-002 b in desparate need of optimization.jpg',
-                         'EC-002 b perfectly optimized.jpg']
+                         'EB recognizable even without optimization.jpg',
+                         ]
 
     def test_get_context_from_qr_code(self, file_import_setup):
         file_import = file_import_setup
@@ -203,7 +223,7 @@ class TestFileSequenceImport(KioskPyTestHelper):
         file_import._config["file_extensions"] = ["jpg"]
         file_import.tags = ["-"]
         file_import.set_from_dict({
-            "sort_sequence_by": "FILE_CREATION_TIME",
+            "sort_sequence_by": "FILE_NUM_PART",
             "image_manipulation_set": "qr_code_sahara",
         })
 
@@ -212,49 +232,53 @@ class TestFileSequenceImport(KioskPyTestHelper):
         test_basis = {
             "description": "",
             "modified_by": "sys",
-            "tags": ["-"]
+            "tags": ["-"],
+            "accept_duplicates": True
         }
 
         test_values = [
             {
                 "path_and_filename": os.path.join(test_path, "test_files", "sequence_files_2",
-                                                  "import_1.jpg"),
+                                                  "003_import.jpg"),
                 "identifier": "NA-008",
-                "ts_file": datetime.datetime(2023, 5, 25, 1, 9, 50,
-                                             tzinfo=zoneinfo.ZoneInfo("US/Eastern")).astimezone().replace(tzinfo=None)
+                # "ts_file": datetime.datetime(2023, 5, 25, 1, 9, 50,
+                #                              tzinfo=zoneinfo.ZoneInfo("US/Eastern")).astimezone().replace(tzinfo=None)
             },
             {
                 "path_and_filename": os.path.join(test_path, "test_files", "sequence_files_2",
-                                                  "import_2.jpg"),
+                                                  "004_import.jpg"),
                 "identifier": "NA-008",
-                "ts_file": datetime.datetime(2023, 5, 25, 1, 9, 50,
-                                             tzinfo=zoneinfo.ZoneInfo("US/Eastern")).astimezone().replace(tzinfo=None)
+                # "ts_file": datetime.datetime(2023, 5, 25, 1, 9, 50,
+                #                              tzinfo=zoneinfo.ZoneInfo("US/Eastern")).astimezone().replace(tzinfo=None)
             },
             {
                 "path_and_filename": os.path.join(test_path, "test_files", "sequence_files_2",
-                                                  "import_3.jpg"),
+                                                  "005_import.jpg"),
                 "identifier": "NA-008",
-                "ts_file": datetime.datetime(2023, 5, 25, 1, 9, 50,
-                                             tzinfo=zoneinfo.ZoneInfo("US/Eastern")).astimezone().replace(tzinfo=None)
+                # "ts_file": datetime.datetime(2023, 5, 25, 1, 9, 50,
+                #                              tzinfo=zoneinfo.ZoneInfo("US/Eastern")).astimezone().replace(tzinfo=None)
             },
             {
                 "path_and_filename": os.path.join(test_path, "test_files", "sequence_files_2", "sequence_3",
-                                                  "import_2.jpg"),
+                                                  "002_import.jpg"),
                 "identifier": "NA-008",
-                "ts_file": datetime.datetime(2023, 5, 25, 2, 6, 54,
-                                             tzinfo=zoneinfo.ZoneInfo("US/Eastern")).astimezone().replace(tzinfo=None)
+                # "ts_file": datetime.datetime(2023, 5, 25, 2, 6, 54,
+                #                              tzinfo=zoneinfo.ZoneInfo("US/Eastern")).astimezone().replace(tzinfo=None)
             },
             {
                 "path_and_filename": os.path.join(test_path, "test_files", "sequence_files_2", "sequence_3",
-                                                  "import_3.jpg"),
+                                                  "003_import.jpg"),
                 "identifier": "NA-008",
-                "ts_file": datetime.datetime(2023, 5, 25, 2, 6, 54,
-                                             tzinfo=zoneinfo.ZoneInfo("US/Eastern")).astimezone().replace(tzinfo=None)
+                # "ts_file": datetime.datetime(2023, 5, 25, 2, 6, 54,
+                #                              tzinfo=zoneinfo.ZoneInfo("US/Eastern")).astimezone().replace(tzinfo=None)
             },
         ]
         call_list = []
         for val in test_values:
             test_file = {**test_basis.copy(), **val}
+            test_file["ts_file"] = kioskstdlib.get_earliest_date_from_file(test_file["path_and_filename"]).replace(
+                microsecond=0)
             call_list.append(call(**test_file))
 
         mock_add_file_to_repository.assert_has_calls(call_list)
+

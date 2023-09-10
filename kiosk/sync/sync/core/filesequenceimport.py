@@ -267,7 +267,7 @@ class FileSequenceImport(FileImport):
                             self._context = {}
                             logging.debug(f"{self.__class__.__name__}._r_add_files_to_repository: "
                                           f"imported context-independent {kioskstdlib.get_filename(f)}.")
-                            if self._import_single_file_to_repository(f):
+                            if self._import_single_file_to_repository(f, accept_duplicates=True):
                                 self.files_added += 1
 
         if current_sequence:
@@ -290,22 +290,30 @@ class FileSequenceImport(FileImport):
 
         start_file = sequence.pop(0)
         end_file = sequence.pop()
+        c_errors = 0
 
         for f in sequence:
-            if self._import_single_file_to_repository(f):
+            if self._import_single_file_to_repository(f, accept_duplicates=True):
                 self.files_added += 1
+            else:
+                c_errors += 1
+
             if self.callback_progress and \
                     not report_progress(self.callback_progress,
                                         progress=0,
                                         topic="import-local-files",
                                         extended_progress=[self.files_processed, self.files_added]):
-                logging.error("FileImport._r_add_files_to_repository: process aborted from outside "
+                logging.error("FileImport._import_sequence: process aborted from outside "
                               "in the middle of a sequence")
                 return False
 
-        if self.move_finished_files:
-            self._move_finished_file(start_file)
-            self._move_finished_file(end_file)
+        if c_errors == 0:
+            if self.move_finished_files:
+                self._move_finished_file(start_file)
+                self._move_finished_file(end_file)
+        else:
+            logging.warning(f"FileImport._import_sequence: {c_errors} files in the current sequence were not imported."
+                            f"Thus the sequence markers stay in place.")
 
         return True
 
