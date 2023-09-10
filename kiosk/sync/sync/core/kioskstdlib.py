@@ -1,3 +1,4 @@
+import datetime
 import importlib
 import os
 import stat
@@ -1239,6 +1240,16 @@ def get_latest_date_from_file(filename):
     return ts
 
 
+def set_file_date_and_time(path_and_filename: str, dt: datetime.datetime):
+    """
+    sets the time of a file to the given timestamp
+    :param path_and_filename: the file
+    :param dt: the timestamp
+    """
+    dt_epoch = dt.timestamp()
+    os.utime(path_and_filename, (dt_epoch, dt_epoch))
+
+
 def remove_kiosk_subtree(dir_to_remove: str, base_path: str = "", delay=0) -> None:
     """
     removes a directory if it is a subdirectory of the project's base_path
@@ -1477,6 +1488,7 @@ def erase_esc_seq(s: str) -> str:
     """
     return re.sub('\u001b.+?m', '', s)
 
+
 def escape_backslashs(s: str) -> str:
     """
     duplicates all backslashs
@@ -1484,6 +1496,7 @@ def escape_backslashs(s: str) -> str:
     :return: string with duplicate backslashs
     """
     return s.replace("\\", "\\\\")
+
 
 def adjust_tuple(in_tuple: tuple, length: int, default) -> tuple:
     """

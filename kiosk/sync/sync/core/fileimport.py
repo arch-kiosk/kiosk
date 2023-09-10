@@ -327,7 +327,7 @@ class FileImport:
 
             return False
         except BaseException as e:
-            logging.error(f"{self.__class__.__name__}._do_skip_file: Exception when checking {path_and_filename}: {repr(e)}")
+            logging.error(f"{self.__class__.__name__}._do_skip_file: {repr(e)}")
             raise e
 
     def _r_add_files_to_repository(self, pathname, level=0) -> bool:
@@ -419,7 +419,6 @@ class FileImport:
                         import_filter.register_identifier_evaluator(self._check_substituted_identifier)
                     else:
                         import_filter.register_identifier_evaluator(self._check_identifier)
-
                 if import_filter.is_active():
                     logging.debug(f"trying filter '{import_filter.get_display_name()}' on file {f}")
                     import_filter.set_path_and_filename(f)
