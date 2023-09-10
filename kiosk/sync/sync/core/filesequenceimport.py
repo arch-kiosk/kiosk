@@ -214,7 +214,6 @@ class FileSequenceImport(FileImport):
                 return False
 
             if not self._do_skip_file(f, suppress_dot_files=suppress_dot_files):
-                self.files_processed += 1
                 logging.info(f"{self.__class__.__name__}._r_add_files_to_repository: Trying file {f}")
                 new_context = self.get_context_from_qr_code(f)
                 self.files_processed += 1
