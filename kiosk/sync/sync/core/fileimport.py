@@ -327,7 +327,8 @@ class FileImport:
 
             return False
         except BaseException as e:
-            logging.error(f"{self.__class__.__name__}._do_skip_file: {repr(e)}")
+            logging.error(
+                f"{self.__class__.__name__}._do_skip_file: Exception when checking {path_and_filename}: {repr(e)}")
             raise e
 
     def _r_add_files_to_repository(self, pathname, level=0) -> bool:
@@ -444,7 +445,7 @@ class FileImport:
                               f"with filter {import_filter_name}: {repr(e)}")
         return context
 
-    def _import_single_file_to_repository(self, f):
+    def _import_single_file_to_repository(self, f, accept_duplicates=False):
         """
         :todo: former return_status_msg needs a new concept. The texts are still in here in comments
 
@@ -504,7 +505,8 @@ class FileImport:
                                                     modified_by=self.modified_by,
                                                     identifier=identifier,
                                                     ts_file=file_ts,
-                                                    tags=self.tags)
+                                                    tags=self.tags,
+                                                    accept_duplicates=accept_duplicates)
             else:
                 logging.warning("File " + f + " not added to repository due to missing or unknown context identifier.")
                 return False
@@ -556,7 +558,7 @@ class FileImport:
             return False
 
     def _add_file_to_repository(self, path_and_filename, identifier="", description="", modified_by="",
-                                ts_file=None, tags=None):
+                                ts_file=None, tags=None, accept_duplicates=False):
         """ adds a file to the repository
         """
         if not self.file_repository:
@@ -565,14 +567,26 @@ class FileImport:
 
         try:
             ctx_file = self.file_repository.get_contextual_file(None)
-            ctx_file.modified_by = modified_by
-            ctx_file.ts_file = ts_file
-            ctx_file.description = description
-            ctx_file.set_tags(tags)
-            if identifier:
-                ctx_file.contexts.add_context(identifier)
+            accept_this_duplicate = False
 
-            rc = self.file_repository.add_contextual_file(path_and_filename, ctx_file, override=False)
+            if accept_duplicates:
+                if ctx_file.file_hash_exists(path_and_filename):
+                    accept_this_duplicate = True
+
+            if accept_this_duplicate:
+                logging.info(f"{self.__class__.__name__}._add_file_to_repository: File {path_and_filename} "
+                             f"is a duplicate that is simply accepted as already imported.")
+                rc = True
+            else:
+                ctx_file.modified_by = modified_by
+                ctx_file.ts_file = ts_file
+                ctx_file.description = description
+                ctx_file.set_tags(tags)
+                if identifier:
+                    ctx_file.contexts.add_context(identifier)
+
+                rc = self.file_repository.add_contextual_file(path_and_filename, ctx_file, override=False)
+
             if ctx_file.last_error:
                 logging.error(f"{path_and_filename} identifier {identifier} troublesome: {ctx_file.last_error}")
             else:
