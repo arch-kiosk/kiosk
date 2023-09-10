@@ -54,6 +54,22 @@ image_manipulation_sets:
       - cv2_qrcode_thresholding_0.7_23_0
       - cv2_qrcode_thresholding_0.7_63_0
       - cv2_qrcode_thresholding_0.7_73_7
+  qr_code_sequences:
+    name: sequence qr codes
+    description: Use this strategy to optimize sequence QR Codes shot in with a high resolution camera
+    strategies:
+      - cv2_qrcode_thresholding_0.2_0_0
+      - cv2_qrcode_thresholding_0.2_63_3
+      - cv2_qrcode_thresholding_0.2_0_5
+      - cv2_qrcode_thresholding_0.2_63_5
+      - cv2_qrcode_thresholding_0.2_63_7
+      - cv2_qrcode_thresholding_0.2_0_3
+      - cv2_qrcode_thresholding_0.2_57_7
+      - cv2_qrcode_thresholding_0.2_49_5
+      - cv2_qrcode_thresholding_0.2_47_9
+      - cv2_qrcode_thresholding_0.2_43_9
+      - cv2_qrcode_thresholding_0.1_53_5
+
 strategies:
   cv2_qrcode_thresholding_0.5_63_0:
     type: CV2QrCodeThresholding
@@ -195,4 +211,59 @@ strategies:
     scale_factor: 0.5
     block_size: 43
     blur: 9
+  cv2_qrcode_thresholding_0.2_0_0:
+    type: CV2QrCodeThresholding
+    scale_factor: 0.2
+    block_size: 0
+    blur: 0
+  cv2_qrcode_thresholding_0.2_63_3:
+    type: CV2QrCodeThresholding
+    scale_factor: 0.2
+    block_size: 63
+    blur: 3
+  cv2_qrcode_thresholding_0.2_0_5:
+    type: CV2QrCodeThresholding
+    scale_factor: 0.2
+    block_size: 0
+    blur: 5
+  cv2_qrcode_thresholding_0.2_63_5:
+    type: CV2QrCodeThresholding
+    scale_factor: 0.2
+    block_size: 63
+    blur: 5
+  cv2_qrcode_thresholding_0.2_63_7:
+    type: CV2QrCodeThresholding
+    scale_factor: 0.2
+    block_size: 63
+    blur: 7
+  cv2_qrcode_thresholding_0.2_0_3:
+    type: CV2QrCodeThresholding
+    scale_factor: 0.2
+    block_size: 0
+    blur: 3
+  cv2_qrcode_thresholding_0.2_57_7:
+    type: CV2QrCodeThresholding
+    scale_factor: 0.2
+    block_size: 57
+    blur: 7
+  cv2_qrcode_thresholding_0.2_49_5:
+    type: CV2QrCodeThresholding
+    scale_factor: 0.2
+    block_size: 49
+    blur: 5
+  cv2_qrcode_thresholding_0.2_47_9:
+    type: CV2QrCodeThresholding
+    scale_factor: 0.2
+    block_size: 47
+    blur: 9
+  cv2_qrcode_thresholding_0.2_43_9:
+    type: CV2QrCodeThresholding
+    scale_factor: 0.2
+    block_size: 43
+    blur: 9
+  cv2_qrcode_thresholding_0.1_53_5:
+    type: CV2QrCodeThresholding
+    scale_factor: 0.1
+    block_size: 53
+    blur: 5
 

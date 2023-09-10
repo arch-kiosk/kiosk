@@ -537,3 +537,21 @@ class TestFileImport(KioskPyTestHelper):
         file_import.recursive = True
         file_import.execute()
         assert file_import.files_processed == 3
+
+    @mock.patch.object(FileImport, "_add_file_to_repository")
+    def test_import_single_file_to_repository_hidden(self, mock_add_file_to_repository, std_configure_filters):
+        mock_add_file_to_repository.return_value = True
+
+        file_import = std_configure_filters
+        file_import.modified_by = "lkh"
+
+        # Folder and File contexts match, File is a collected material
+
+        assert not file_import._import_single_file_to_repository(
+            os.path.join(test_path, "test_files", "hidden_files", "hidden_1.jpg"))
+
+        assert not file_import._import_single_file_to_repository(
+            os.path.join(test_path, "test_files", "hidden_files", "._0G9A2462.JPG"))
+
+        assert file_import._import_single_file_to_repository(
+            os.path.join(test_path, "test_files", "hidden_files", "_0G9A2462.JPG"))
