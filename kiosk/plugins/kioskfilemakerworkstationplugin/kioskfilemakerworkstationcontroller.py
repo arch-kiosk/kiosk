@@ -483,18 +483,16 @@ def ws_download(ws_id, cmd):
                 dest_filename = kioskglobals.cfg.filemaker_db_filename
                 resp = make_response(send_file(fm_filename,
                                                mimetype='application/octet-stream',
-                                               attachment_filename=dest_filename,
+                                               download_name=dest_filename,
                                                as_attachment=True,
-                                               cache_timeout=0,
                                                last_modified=0,
                                                max_age=0,
                                                etag=str(datetime.datetime.now().timestamp())))
 
                 resp = send_file(fm_filename,
                                  mimetype='application/octet-stream',
-                                 attachment_filename=dest_filename,
+                                 download_name=dest_filename,
                                  as_attachment=True,
-                                 cache_timeout=0,
                                  last_modified=datetime.datetime.now().timestamp(),
                                  max_age=0,
                                  etag=str(datetime.datetime.now().timestamp()))

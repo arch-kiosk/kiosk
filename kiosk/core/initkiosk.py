@@ -13,7 +13,7 @@ from flask import url_for, \
 from flask_login import current_user
 from flask_wtf.csrf import CSRFError
 from flask_wtf.csrf import CSRFProtect
-from jinja2 import Markup
+from markupsafe import Markup
 from markupsafe import escape
 from werkzeug.exceptions import BadRequest, Forbidden, NotFound, Unauthorized
 

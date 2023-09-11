@@ -10,7 +10,8 @@ from flask_login import LoginManager
 from typerepository import TypeRepository
 from generalstore.generalstore import GeneralStore
 from generalstore.generalstorekeys import gs_key_kiosk_init_counter
-from itsdangerous import TimedJSONWebSignatureSerializer as JWS
+# from itsdangerous import URLSafeTimedSerializer as JWS
+from kioskjwt import KioskJWT
 from flask_httpauth import HTTPTokenAuth
 from uic.uictree import UICTree
 from uic.uicstream import UICStream, UICKioskFile
@@ -18,7 +19,7 @@ from uic.uicstream import UICStream, UICKioskFile
 import datetime
 import threading
 
-kiosk_version = "1.5.9.3"
+kiosk_version = "1.5.10.2"
 kiosk_version_name = "queasy queries"
 kiosk_date = datetime.datetime(2023, 9, 11)
 debug = False
@@ -112,7 +113,7 @@ def get_general_store():
     return general_store
 
 
-def get_jws() -> JWS:
+def get_jws() -> KioskJWT:
     """
     returns an instantiated TimedJSONWebSignatureSerializer from itsdangerous.
     Tokens created with this instance do not use timeouts!
@@ -121,7 +122,7 @@ def get_jws() -> JWS:
     global jws
 
     if not jws:
-        jws = JWS(get_config().kiosk["SECRET_KEY"])
+        jws = KioskJWT(get_config().kiosk["SECRET_KEY"])
 
     return jws
 

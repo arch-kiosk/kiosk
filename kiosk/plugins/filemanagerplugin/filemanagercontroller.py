@@ -203,7 +203,7 @@ def filemanager_download(topic: str, file: str):
 
         resp = make_response(send_file(download_file,
                                        mimetype=mime_type,
-                                       attachment_filename=file,
+                                       download_name=file,
                                        as_attachment=True,
                                        etag=str(datetime.datetime.now().timestamp())))
         resp.headers['Last-Modified'] = str(datetime.datetime.now().timestamp())

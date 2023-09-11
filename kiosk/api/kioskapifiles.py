@@ -101,10 +101,6 @@ class ApiFile(Resource):
                 if fm_filename:
                     try:
 
-                        # resp = make_response(send_file(fm_filename,
-                        #                                mimetype='application/octet-stream',
-                        #                                attachment_filename=dest_filename,
-                        #                                as_attachment=True))
                         resp = make_response(send_from_directory(kioskstdlib.get_file_path(fm_filename),
                                                                  kioskstdlib.get_filename(fm_filename)))
                         resp.set_cookie('fileDownload', 'true')

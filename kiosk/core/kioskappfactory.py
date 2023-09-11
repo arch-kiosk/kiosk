@@ -225,7 +225,12 @@ class KioskAppFactory(AppFactory):
         app.config.from_object(cls.FlaskConfigObject(cls.cfg["Flask"]))
         app.register_event_manager(EventManager())
         app.register_plugin_manager(plugin_manager)
-        app.before_first_request_funcs.append(cls._before_first_request)
+        if hasattr(app, "before_first_request_funcs"):
+            # Flask < 2.3.0
+            app.before_first_request_funcs.append(cls._before_first_request)
+        else:
+            # Flask >= 2.3.0
+            cls._before_first_request(app)
         app.teardown_request_funcs.setdefault(None, []).append(cls._teardown_request)
         cors = CORS(app)
         app.config['CORS_HEADERS'] = 'Content-Type'
@@ -380,7 +385,7 @@ class KioskAppFactory(AppFactory):
                     time.sleep(.5)
                     assert_mcp(kioskglobals.general_store)
 
-                return   True
+                return True
             else:
                 # todo: _check_mcp only runs on local servers for the time being because it is unreliable online
                 return True
@@ -916,12 +921,16 @@ def custom_file(filename):
 
     custom_static_path = os.path.join(kioskglobals.cfg.get_custom_kiosk_modules_path(),
                                       f"{kioskglobals.cfg.get_project_id()}")
-    if current_app.send_file_max_age_default:
-        cache_timeout = datetime.timedelta.total_seconds(current_app.send_file_max_age_default)
+    if current_app.config["SEND_FILE_MAX_AGE_DEFAULT"]:
+        if isinstance(current_app.config["SEND_FILE_MAX_AGE_DEFAULT"], int):
+            cache_timeout = datetime.timedelta.total_seconds(
+                datetime.timedelta(current_app.config["SEND_FILE_MAX_AGE_DEFAULT"]))
+        else:
+            logging.error(f"kioskappfactory.custom_file: SEND_FILE_MAX_AGE_DEFAULT not an int")
     else:
         cache_timeout = None
     return send_from_directory(custom_static_path, filename,
-                               cache_timeout=cache_timeout)
+                               max_age=cache_timeout)
 
 
 #  **************************************************************
@@ -953,6 +962,7 @@ def get_progress():
                         has_warnings=kioskglobals.kiosk_thread.last_action_had_warnings(),
                         has_errors=kioskglobals.kiosk_thread.last_action_had_errors(),
                         dump=msgs))
+
 
 #  **************************************************************
 #  ****    /delete_system_message: confirms and thus deletes a system message

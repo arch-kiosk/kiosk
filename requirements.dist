@@ -3,6 +3,7 @@ apispec-flask-restful
 blinker
 blessed
 Flask
+Werkzeug
 Flask-Admin
 flask-allows
 Flask-Login
@@ -46,6 +47,7 @@ apispec
 marshmallow
 openpyxl
 semantic-version
+PyJWT
 pdfrw2
 netifaces
 flake8
