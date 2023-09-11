@@ -313,6 +313,24 @@ class FileImport:
 
         return self._r_add_files_to_repository(self.pathname)
 
+    def _do_skip_file(self, path_and_filename: str, suppress_dot_files=True):
+        try:
+            if kioskstdlib.get_filename(path_and_filename).startswith(".") and suppress_dot_files:
+                logging.debug(f"{self.__class__.__name__}._do_skip_file: "
+                              f"filename {path_and_filename} starts with a . -> skipped.")
+                return True
+
+            if os.path.islink(path_and_filename) or kioskstdlib.is_file_hidden(path_and_filename):
+                logging.debug(f"{self.__class__.__name__}._do_skip_file: "
+                              f"file {path_and_filename} is hidden -> skipped.")
+                return True
+
+            return False
+        except BaseException as e:
+            logging.error(
+                f"{self.__class__.__name__}._do_skip_file: Exception when checking {path_and_filename}: {repr(e)}")
+            raise e
+
     def _r_add_files_to_repository(self, pathname, level=0) -> bool:
         """
 
@@ -352,26 +370,32 @@ class FileImport:
             # print(f"self._file_extensions is null")
             files = sorted([x for x in content if os.path.isfile(x)])
 
+        suppress_dot_files = kioskstdlib.to_bool(
+            kioskstdlib.try_get_dict_entry(self._config,
+                                           "suppress_dot_files",
+                                           "True", True))
+
         for f in files:
-            self.files_processed += 1
+            if not self._do_skip_file(f, suppress_dot_files=suppress_dot_files):
+                self.files_processed += 1
 
-            # todo: topic should be the class or method name, not something new.
-            if self.callback_progress and \
-                    not report_progress(self.callback_progress,
-                                        progress=0,
-                                        topic="import-local-files",
-                                        extended_progress=[self.files_processed, self.files_added]):
-                logging.error("FileImport._r_add_files_to_repository: process aborted from outside")
-                return False
-
-            if self._import_single_file_to_repository(f):
-                self.files_added += 1
-            else:
-                if self._stop_import:
+                # todo: topic should be the class or method name, not something new.
+                if self.callback_progress and \
+                        not report_progress(self.callback_progress,
+                                            progress=0,
+                                            topic="import-local-files",
+                                            extended_progress=[self.files_processed, self.files_added]):
+                    logging.error("FileImport._r_add_files_to_repository: process aborted from outside")
                     return False
 
-            report_progress(self.callback_progress, progress=0, topic="import-local-files",
-                            extended_progress=[self.files_processed, self.files_added])
+                if self._import_single_file_to_repository(f):
+                    self.files_added += 1
+                else:
+                    if self._stop_import:
+                        return False
+
+                report_progress(self.callback_progress, progress=0, topic="import-local-files",
+                                extended_progress=[self.files_processed, self.files_added])
 
         if self.recursive:
             dirs = sorted([x for x in content if os.path.isdir(x) and not kioskstdlib.is_dir_hidden(x)])
@@ -421,7 +445,7 @@ class FileImport:
                               f"with filter {import_filter_name}: {repr(e)}")
         return context
 
-    def _import_single_file_to_repository(self, f):
+    def _import_single_file_to_repository(self, f, accept_duplicates=False):
         """
         :todo: former return_status_msg needs a new concept. The texts are still in here in comments
 
@@ -430,7 +454,10 @@ class FileImport:
         """
         try:
             file_description = ""
-            if os.path.islink(f) or kioskstdlib.is_file_hidden(f):
+            if self._do_skip_file(f, suppress_dot_files=kioskstdlib.to_bool(
+                    kioskstdlib.try_get_dict_entry(self._config,
+                                                   "suppress_dot_files",
+                                                   "True", True))):
                 logging.warning("import_single_file_to_repository: file {} hidden or a link -> skipped.".format(f))
                 return False
 
@@ -478,7 +505,8 @@ class FileImport:
                                                     modified_by=self.modified_by,
                                                     identifier=identifier,
                                                     ts_file=file_ts,
-                                                    tags=self.tags)
+                                                    tags=self.tags,
+                                                    accept_duplicates=accept_duplicates)
             else:
                 logging.warning("File " + f + " not added to repository due to missing or unknown context identifier.")
                 return False
@@ -530,7 +558,7 @@ class FileImport:
             return False
 
     def _add_file_to_repository(self, path_and_filename, identifier="", description="", modified_by="",
-                                ts_file=None, tags=None):
+                                ts_file=None, tags=None, accept_duplicates=False):
         """ adds a file to the repository
         """
         if not self.file_repository:
@@ -539,14 +567,26 @@ class FileImport:
 
         try:
             ctx_file = self.file_repository.get_contextual_file(None)
-            ctx_file.modified_by = modified_by
-            ctx_file.ts_file = ts_file
-            ctx_file.description = description
-            ctx_file.set_tags(tags)
-            if identifier:
-                ctx_file.contexts.add_context(identifier)
+            accept_this_duplicate = False
 
-            rc = self.file_repository.add_contextual_file(path_and_filename, ctx_file, override=False)
+            if accept_duplicates:
+                if ctx_file.file_hash_exists(path_and_filename):
+                    accept_this_duplicate = True
+
+            if accept_this_duplicate:
+                logging.info(f"{self.__class__.__name__}._add_file_to_repository: File {path_and_filename} "
+                             f"is a duplicate that is simply accepted as already imported.")
+                rc = True
+            else:
+                ctx_file.modified_by = modified_by
+                ctx_file.ts_file = ts_file
+                ctx_file.description = description
+                ctx_file.set_tags(tags)
+                if identifier:
+                    ctx_file.contexts.add_context(identifier)
+
+                rc = self.file_repository.add_contextual_file(path_and_filename, ctx_file, override=False)
+
             if ctx_file.last_error:
                 logging.error(f"{path_and_filename} identifier {identifier} troublesome: {ctx_file.last_error}")
             else:

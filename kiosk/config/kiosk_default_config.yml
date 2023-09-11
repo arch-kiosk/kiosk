@@ -134,7 +134,7 @@ file_import:
   use_coded_filenames: False  # used for sequence import
   skip_qrcodes_proper: True  # used for sequence import
   use_exif_time: False  # used for sequence import
-  image_manipulation_set: qr_code_sahara  # used for sequence import
+  image_manipulation_set: qr_code_sequences  # used for sequence import
   use_uuid: True
   log_import: True
   tags: [ ]

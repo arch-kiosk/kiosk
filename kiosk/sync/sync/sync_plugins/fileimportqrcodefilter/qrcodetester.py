@@ -23,7 +23,6 @@ class QRCodeTester:
         self.manipulation_cache_size = 10
         self.qr_code_recognized = None
 
-
     def register_strategy(self, strategy):
         """
         registers an image manipulation strategy to apply to an image before qr code detection
@@ -60,7 +59,7 @@ class QRCodeTester:
         dest_debug_path = os.path.join(self.dst_path, "debug", self._debug_info["strategy"])
         os.makedirs(dest_debug_path, exist_ok=True)
         debug_filename = f"{self._debug_counter}_{manipulation_name}" \
-            f"_{kioskstdlib.get_filename(self._debug_info['dest_file'])}"
+                         f"_{kioskstdlib.get_filename(self._debug_info['dest_file'])}"
         logging.debug(f"saving manipulation step {manipulation_name}")
         debug_path_and_filename = os.path.join(dest_debug_path, debug_filename)
 
@@ -96,6 +95,8 @@ class QRCodeTester:
         self.file_unrecognized.append(kioskstdlib.get_filename(qrcode_file))
         decoded = False
         for strategy in self._strategies:
+            # self._report_func(qrcode_file, strategy.name, {}, f"trying "
+            #                                                   f"{qrcode_file} and strategy {strategy.name}.")
             dest_file = self._get_dest_filename(qrcode_file, self.dst_path, strategy)
             debug_method = None
             if strategy.debug:
@@ -108,19 +109,24 @@ class QRCodeTester:
             if self.debug_cache:
                 manipulation_image_cache.debug_out()
 
-            if strategy.execute(qrcode_file, dest_file, debug_method=debug_method):
-                strategy_result_file = strategy.get_result_path_and_filename()
-                if self._try_decode(strategy_result_file, qrcode_file, strategy.name):
-                    decoded = True
-                    self._score_strategy(strategy.name)
-                    basename = kioskstdlib.get_filename(qrcode_file)
-                    if basename in self.file_unrecognized:
-                        self.file_unrecognized.remove(basename)
+            try:
+                if strategy.execute(qrcode_file, dest_file, debug_method=debug_method):
+                    strategy_result_file = strategy.get_result_path_and_filename()
+                    if self._try_decode(strategy_result_file, qrcode_file, strategy.name):
+                        decoded = True
+                        self._score_strategy(strategy.name)
+                        basename = kioskstdlib.get_filename(qrcode_file)
+                        if basename in self.file_unrecognized:
+                            self.file_unrecognized.remove(basename)
 
-                    if self.stop_on_recognition:
-                        break
-            else:
-                self._report_func(qrcode_file, strategy.name, {}, "strategy failed")
+                        if self.stop_on_recognition:
+                            break
+                else:
+                    self._report_func(qrcode_file, strategy.name, {}, "strategy failed")
+            except BaseException as e:
+                self._report_func(qrcode_file, strategy.name, {}, f"Error with file "
+                                                                  f"{qrcode_file} and strategy {strategy.name}: "
+                                                                  f"{repr(e)}")
 
         return decoded
 
@@ -187,19 +193,23 @@ class QRCodeTester:
         """
         c_files = 0
         c_files_decoded = 0
-        for file in self._file_source.next_file():
-            c_files += 1
-            if quick_decode:
-                decoded = self.quick_decode(file)
-            else:
-                decoded = self.decode_file(file)
+        file = ""
+        try:
+            for file in self._file_source.next_file():
+                c_files += 1
+                if quick_decode:
+                    decoded = self.quick_decode(file)
+                else:
+                    decoded = self.decode_file(file)
 
-            if decoded:
-                c_files_decoded += 1
+                if decoded:
+                    c_files_decoded += 1
 
-            if self._report_func:
-                self._report_func(file, "", None, "recognized" if decoded else "not recognized")
-
+                if self._report_func:
+                    self._report_func(file, "", None, "recognized" if decoded else "not recognized")
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.execute: Error decoding {file} {repr(e)}")
+            raise e
         return c_files, c_files_decoded
 
     def save_report(self):

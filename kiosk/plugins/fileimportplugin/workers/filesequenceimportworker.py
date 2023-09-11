@@ -6,6 +6,7 @@ from dsd.dsdyamlloader import DSDYamlLoader
 from generalstore.generalstore import GeneralStore
 from mcpinterface.mcpjob import MCPJob, MCPJobStatus
 from sync_config import SyncConfig
+from kioskuser import KioskUser
 
 
 class FileSequenceImportWorker:
@@ -28,6 +29,20 @@ class FileSequenceImportWorker:
         logging.info(f"job {self.job.job_id}: running")
         self.job.set_status_to(MCPJobStatus.JOB_STATUS_RUNNING)
         self.worker()
+
+    def get_kiosk_user(self):
+        """
+        returns a KioskUser object with the user data of the user who started the job.
+        returns None if there is no user data or that user does not exist.
+        """
+        try:
+            user_uuid = self.job.user_data["uuid"]
+            logging.info(f"WorkstationManagerWorker.get_kiosk_user: loading user {user_uuid}")
+            user = KioskUser(user_uuid, check_token=False)
+            return user
+        except BaseException as e:
+            logging.error(f"WorkstationManagerWorker.get_kiosk_user: {repr(e)}")
+            return None
 
     def worker(self):
 
@@ -70,6 +85,9 @@ class FileSequenceImportWorker:
 
             file_import = FileSequenceImport(self.cfg, sync)
             file_import.set_from_dict(self.job.job_data)
+            kiosk_user = self.get_kiosk_user()
+            logging.debug(f"filesequenceimportworker: User is {kiosk_user.repl_user_id}")
+            file_import.modified_by = kiosk_user.repl_user_id
             logging.debug(f"filesequenceimportworker: {file_import.get_wtform_values()}")
             file_import.file_repository = file_repos
             file_import.callback_progress = report_progress
