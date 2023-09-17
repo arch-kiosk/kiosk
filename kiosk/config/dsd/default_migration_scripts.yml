@@ -188,3 +188,21 @@ config:
         collected_material: 4
       flags:
         cm_remove_dangling_small_find_records: 1
+
+    kiosk_users_uppercase_repl_ids:
+#     This migration script makes sure that all repl_user_id fields are set to uppercase once
+      migration: "sql\\kiosk_users_uppercase_repl_ids.sql"
+      options: [after_table_migration]
+      preconditions:
+        kiosk_user: 3
+      flags:
+        kiosk_users_uppercase_repl_ids: 1
+
+    kiosk_file_picking_add_defaults:
+#     This migration script adds the default file picking rules all Kiosks should have - unless they are already there.
+      migration: "sql\\kiosk_file_picking_add_defaults.sql"
+      options: [after_table_migration]
+      preconditions:
+        kiosk_user: 3
+      flags:
+        kiosk_file_picking_add_defaults: 2
