@@ -22,6 +22,30 @@ class EmptyStringField(wtforms.fields.StringField):
         self.data = value or ''
 
 
+class UpperCaseField(wtforms.fields.StringField):
+    """
+    This field auto-uppercases
+    """
+
+    def process_data(self, value: str):
+        try:
+            if value.upper() == "NONE":
+                self.data = ""
+            else:
+                self.data = str(value).upper()
+        except BaseException as e:
+            self.data = ""
+
+    def _value(self):
+        return str(self.data).upper() if self.data is not None else ""
+
+    def post_validate(self, form, validation_stopped):
+        if not validation_stopped:
+            try:
+                self.data = str(self.data).upper()
+            except BaseException as e:
+                pass
+
 class KioskModelView(ModelView):
     list_template = "admin/list.html"
     create_template = "admin/create.html"
@@ -36,7 +60,8 @@ class KioskModelView(ModelView):
 
 class UserModelView(KioskModelView):
     form_overrides = {
-        'pwd_hash': EmptyStringField
+        'pwd_hash': EmptyStringField,
+        'repl_user_id': UpperCaseField
     }
     column_exclude_list = ["pwd_hash"]
     form_excluded_columns = ["pwd_hash"]
@@ -82,6 +107,7 @@ class PrivilegeModelView(KioskModelView):
             'choices': selection_of_privileges
         },
     }
+
 
 class FilePickingModelView(KioskModelView):
     form_overrides = {
