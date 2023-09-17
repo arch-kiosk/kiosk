@@ -109,6 +109,7 @@ class FileManagerDirectory(Table):
         if self.alias:
             if os.path.isdir(self.physical_directory):
                 return self._list_files(sort_by, sort_order)
+        return []
 
     def _list_files(self, sort_by: str, sort_order: str) -> List[FileManagerFile]:
         """

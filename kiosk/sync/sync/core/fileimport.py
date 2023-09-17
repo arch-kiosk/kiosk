@@ -270,6 +270,26 @@ class FileImport:
     def check_more_import_requirements(self):
         return True
 
+    def get_filter_config(self, module: str, filter_name: str):
+        """
+        returns the configuration settings for a specific filter of a certain module.
+        Takes the settings of the user config into account as they are merged with the
+        file_import config.
+
+        Looks up
+        file_import:
+          file_import_filters:
+            module:
+              filter_name:
+
+        :param module: e.g. "filesequence_import"
+        :param filter_name: e.g. "FileImportQRCodeFilter"
+        :return: dict
+        :raises: all kinds of possible Exceptions
+        """
+        module_cfg = self._config["file_import_filters"][module]
+        return module_cfg[filter_name]
+
     def execute(self, identifier_evaluator=None) -> bool:
         """
         starts the file import.

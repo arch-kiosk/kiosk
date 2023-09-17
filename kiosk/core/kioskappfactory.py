@@ -6,6 +6,7 @@ import os
 import sys
 import threading
 import time
+from inspect import signature
 
 from pprint import pprint
 
@@ -625,7 +626,8 @@ class KioskAppFactory(AppFactory):
             try:
                 plugin = plugin_manager.plugins[plugin_name]
                 if hasattr(plugin, "register_menus"):
-                    menu_entries = plugin.register_menus()
+                    menu_entries = plugin.register_menus(app)
+
                     if menu_entries:
                         for m in menu_entries:
                             # logging.debug(f"plugin {plugin.name} registers menu {m.name}->{m.endpoint}")

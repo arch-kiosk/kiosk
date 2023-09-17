@@ -672,16 +672,17 @@ def dialogsequence1():
     path_list = get_pathlist(cfg)
     sync = Synchronization()
 
+    print("fileimportcontroller.dialogsequence1")
+
     user_config = UserConfig(kioskglobals.general_store, current_user.user_id, cfg.get_project_id())
+    file_import = FileSequenceImport(cfg, sync, user_config=user_config)
     # test_cfg = user_config.get_config("file_import")
     # logging.debug(f"fileimportcontroller.dialogsequence1: user config: {test_cfg}")
-    print("fileimportcontroller.dialogsequence1")
     general_errors = []
     image_manipulation_sets = []
     filter_cfg = []
     try:
-        module_cfg = user_config.get_config("file_import")["file_import_filters"]["filesequence_import"]
-        filter_cfg = module_cfg["FileImportQRCodeFilter"]
+        filter_cfg = file_import.get_filter_config("filesequence_import", "FileImportQRCodeFilter")
 
         image_manipulation_sets = [(strategy["id"], strategy["name"]) for strategy in
                                    ImageManipulationStrategyFactory.get_image_manipulation_set_descriptors()
@@ -694,7 +695,6 @@ def dialogsequence1():
     sort_options = [("FILE_CREATION_TIME", "file's creation time"),
                     ("FILE_NUM_PART", "numerical part of file name")]
 
-    file_import = FileSequenceImport(cfg, sync, user_config=user_config)
 
     import_tags = ""
     if request.method == 'POST':

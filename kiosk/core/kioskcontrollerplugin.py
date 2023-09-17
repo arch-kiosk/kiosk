@@ -1,3 +1,4 @@
+from inspect import signature
 from typing import List, Union, Tuple
 
 from flaskappplugin import FlaskAppPlugin
@@ -74,11 +75,15 @@ class KioskControllerPlugin(FlaskAppPlugin):
         else:
             raise AttributeError (f"{self.__class__.__name__}.__get_attr__: unknown attribute {name}")
 
-    def register_menus(self):
+    def register_menus(self, app):
         if hasattr(self.package, "register_menus"):
             try:
                 logging.debug("KioskControllerPlugin: Registering menus")
-                return self.package.register_menus()
+                params = list(signature(self.package.register_menus).parameters)
+                if "app" in params:
+                    return self.package.register_menus(app)
+                else:
+                    return self.package.register_menus()
             except BaseException as e:
                 logging.error(f"KioskControllerPlugin.register_menus: "
                               f"Exception in {self.package}.register_menus: {repr(e)}")

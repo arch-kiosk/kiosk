@@ -1,3 +1,4 @@
+import logging
 import sys
 
 from flask import url_for
@@ -49,7 +50,9 @@ if "mcpcore.mcpworker" not in sys.modules:
 
     def register_menus():
         global plugin
-        url = url_for('filemanager.filemanager_show')
+
+        url = "/filemanager"
+
         return [KioskMenuItem(name="file manager",
                               onclick=f"kioskActivateFileManager('{url}')",
                               endpoint="filemanager.filemanager_show",
