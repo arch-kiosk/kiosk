@@ -190,6 +190,7 @@ def dialoglocalimport1():
     resp.set_cookie('import_type', "local")
     return resp
 
+
 #  **************************************************************
 #  ****    import-dialog local import page 2: Filters and options
 #  *****************************************************************/
@@ -672,19 +673,28 @@ def dialogsequence1():
     sync = Synchronization()
 
     user_config = UserConfig(kioskglobals.general_store, current_user.user_id, cfg.get_project_id())
-    test_cfg = user_config.get_config("file_import")
-    logging.debug(f"fileimportcontroller.dialogsequence1: user config: {test_cfg}")
+    # test_cfg = user_config.get_config("file_import")
+    # logging.debug(f"fileimportcontroller.dialogsequence1: user config: {test_cfg}")
     print("fileimportcontroller.dialogsequence1")
+    general_errors = []
+    image_manipulation_sets = []
+    filter_cfg = []
+    try:
+        module_cfg = user_config.get_config("file_import")["file_import_filters"]["filesequence_import"]
+        filter_cfg = module_cfg["FileImportQRCodeFilter"]
 
-    file_import = FileSequenceImport(cfg, sync, user_config=user_config)
+        image_manipulation_sets = [(strategy["id"], strategy["name"]) for strategy in
+                                   ImageManipulationStrategyFactory.get_image_manipulation_set_descriptors()
+                                   if strategy["id"] in filter_cfg["image_manipulation_sets"]]
 
-    general_message = ""
+    except BaseException as e:
+        logging.error(f'fileimportcontroller.dialogsequence1: Error accessing image manipulation sets: {repr(e)}')
+        general_errors += ["Access to file import strategies failed"]
 
     sort_options = [("FILE_CREATION_TIME", "file's creation time"),
                     ("FILE_NUM_PART", "numerical part of file name")]
 
-    image_manipulation_sets = [(strategy["id"], strategy["name"]) for strategy in
-                               ImageManipulationStrategyFactory.get_image_manipulation_set_descriptors()]
+    file_import = FileSequenceImport(cfg, sync, user_config=user_config)
 
     import_tags = ""
     if request.method == 'POST':
@@ -707,6 +717,8 @@ def dialogsequence1():
                                                 **ImmutableMultiDict(session["dialogsequence1"]))
         else:
             config = file_import.get_wtform_values()
+            if not kioskstdlib.try_get_dict_entry(config, "image_manipulation_set", "", True):
+                config["image_manipulation_set"] = kioskstdlib.try_get_dict_entry(filter_cfg, "recognition_strategy", "", True)
             sequenceform1 = SequenceImportForm1(sort_options, image_manipulation_sets, **ImmutableMultiDict(config))
         try:
             if sequenceform1.mif_local_path.data is None or sequenceform1.mif_local_path.data.strip() == "":
@@ -716,7 +728,6 @@ def dialogsequence1():
                           f"Benign Xception when setting default import path: {repr(e)}")
         # sequenceform1.init_lists(sort_options, image_manipulation_sets)
 
-    general_errors = []
     if not file_import.sort_import_filters():
         general_errors += ["There are no context filters installed. Please talk to your admin."]
 

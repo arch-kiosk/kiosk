@@ -330,7 +330,7 @@ function getImportTags() {
             tags = getCookie("import_tags").replaceAll("\\054", ",")
             tags = tags.replaceAll("\\073", ";")
             if (tags.charAt(0) == "\"") {
-                tags = tags.substr(1, tags.length - 3);
+                tags = tags.substring(1, tags.length - 1);
             }
         } catch (e) {
             console.log(e)

@@ -135,7 +135,7 @@ file_import:
   use_coded_filenames: False  # used for sequence import
   skip_qrcodes_proper: True  # used for sequence import
   use_exif_time: False  # used for sequence import
-  image_manipulation_set: qr_code_sequences  # used for sequence import
+#  image_manipulation_set: qr_code_sequences  # used for sequence import
   use_uuid: True
   log_import: True
   tags: [ ]
@@ -225,12 +225,10 @@ file_import:
         get_excavation_context: True
         get_date: True
         priority: 30
-        recognition_strategy: qr_code_sahara
+        recognition_strategy: qr_code_sequences
         image_manipulation_sets:
-          - qr_code_sahara
           - qr_code_black_velvet
-          - qr_code_italy
-          - qr_code_peru
+          - qr_code_sequences
       FileImportExifFilter:
         active: True
         get_context_from_exif: False
