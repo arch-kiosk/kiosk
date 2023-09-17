@@ -698,7 +698,7 @@ def dialogsequence1():
 
     import_tags = ""
     if request.method == 'POST':
-        sequenceform1 = SequenceImportForm1(sort_options, image_manipulation_sets, **request.form)
+        sequenceform1 = SequenceImportForm1(sort_options, image_manipulation_sets, formdata=request.form)
         # sequenceform1.init_lists()
         if sequenceform1.validate():
             if len(str(sequenceform1.tags.data)) == 0:
@@ -714,12 +714,14 @@ def dialogsequence1():
     else:
         if 'dialogsequence1' in session:
             sequenceform1 = SequenceImportForm1(sort_options, image_manipulation_sets,
-                                                **ImmutableMultiDict(session["dialogsequence1"]))
+                                                formdata=ImmutableMultiDict(session["dialogsequence1"]))
         else:
             config = file_import.get_wtform_values()
             if not kioskstdlib.try_get_dict_entry(config, "image_manipulation_set", "", True):
-                config["image_manipulation_set"] = kioskstdlib.try_get_dict_entry(filter_cfg, "recognition_strategy", "", True)
-            sequenceform1 = SequenceImportForm1(sort_options, image_manipulation_sets, **ImmutableMultiDict(config))
+                config["image_manipulation_set"] = kioskstdlib.try_get_dict_entry(filter_cfg, "recognition_strategy",
+                                                                                  "", True)
+            sequenceform1 = SequenceImportForm1(sort_options, image_manipulation_sets,
+                                                formdata=ImmutableMultiDict(config))
         try:
             if sequenceform1.mif_local_path.data is None or sequenceform1.mif_local_path.data.strip() == "":
                 sequenceform1.mif_local_path.data = path_list[0]
@@ -778,7 +780,8 @@ def run_sequence_import():
 
         image_manipulation_sets = [(strategy["id"], strategy["name"]) for strategy in
                                    ImageManipulationStrategyFactory.get_image_manipulation_set_descriptors()]
-        sequenceimportform1 = SequenceImportForm1(sort_options, image_manipulation_sets, **session["dialogsequence1"])
+        sequenceimportform1 = SequenceImportForm1(sort_options, image_manipulation_sets,
+                                                  formdata=ImmutableMultiDict(session["dialogsequence1"]))
         file_import = FileSequenceImport(cfg, sync, user_config=user_config)
         file_import.form_to_config(sequenceimportform1)
 

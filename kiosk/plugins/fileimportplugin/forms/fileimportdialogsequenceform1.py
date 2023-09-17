@@ -39,8 +39,8 @@ class SequenceImportForm1(FlaskForm, KioskGeneralFormErrors):
                                       f"Please double check if the list is what you want. "
                                       f"If so, just click next again.")
 
-    def __init__(self, sort_options, image_manipulation_sets, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, sort_options, image_manipulation_sets, formdata):
+        super().__init__(formdata=formdata)
         self.init_lists(sort_options, image_manipulation_sets)
 
     def init_lists(self, sort_options, image_manipulation_sets):

@@ -227,9 +227,9 @@ class FileSequenceImport(FileImport):
                         #  That's the end of the sequence or the start of a new one (because the old one was not closed)
                         if new_context["identifier"] == current_context["identifier"]:
                             # sequence closed: Import it
-                            logging.debug(f"{self.__class__.__name__}._r_add_files_to_repository: "
-                                          f"Sequence '{current_context['identifier']} "
-                                          f"closing with file {kioskstdlib.get_filename(f)}.")
+                            logging.info(f"{self.__class__.__name__}._r_add_files_to_repository: "
+                                         f"Sequence '{current_context['identifier']} "
+                                         f"closing with file {kioskstdlib.get_filename(f)}.")
                             current_sequence.append(f)
                             self._context = current_context
                             if not self._import_sequence(current_sequence):
@@ -262,7 +262,7 @@ class FileSequenceImport(FileImport):
                         current_context = new_context
                         current_sequence = []
                         current_sequence.append(f)
-                        logging.debug(f"{self.__class__.__name__}._r_add_files_to_repository: "
+                        logging.info(f"{self.__class__.__name__}._r_add_files_to_repository: "
                                       f"Sequence '{current_context['identifier']} "
                                       f"started with file {kioskstdlib.get_filename(f)}.")
                     else:

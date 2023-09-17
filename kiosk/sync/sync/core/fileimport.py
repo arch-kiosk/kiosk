@@ -90,7 +90,7 @@ class FileImport:
     @property
     def recursive(self):
         if "recursive" in self._config:
-            return self._config["recursive"]
+            return kioskstdlib.to_bool(self._config["recursive"])
         else:
             return False
 
@@ -120,7 +120,7 @@ class FileImport:
                  If the key is missing, the default is False
         """
         if "substitute_identifiers" in self._config:
-            return self._config["substitute_identifiers"]
+            return kioskstdlib.to_bool(self._config["substitute_identifiers"])
         else:
             return False
 

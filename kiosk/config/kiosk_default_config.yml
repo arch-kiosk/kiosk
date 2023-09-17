@@ -157,11 +157,11 @@ file_import:
         priority: 10
         active: True
         get_context_from_folder: True
-        get_date_from_folder: True
+        get_date_from_folder: False
       FileImportStandardFileFilter:
         active: True
         get_context_from_file: True
-        get_date_from_file: False
+        get_date_from_file: True
         priority: 20
       FileImportQRCodeFilter:
         active: True
@@ -177,8 +177,8 @@ file_import:
       FileImportExifFilter:
         active: False
         get_context_from_exif: False
-        get_date_from_exif: False
-        get_description_from_exif: True
+        get_date_from_exif: True
+        get_description_from_exif: False
         priority: 25
     upload:
       FileImportStandardValuesFilter:
@@ -203,8 +203,8 @@ file_import:
       FileImportExifFilter:
         active: False
         get_context_from_exif: False
-        get_date_from_exif: False
-        get_description_from_exif: True
+        get_date_from_exif: True
+        get_description_from_exif: False
         priority: 15
     filesequence_import:
       FileImportStandardValuesFilter:
@@ -212,11 +212,11 @@ file_import:
         priority: 0
       FileImportStandardFolderFilter:
         priority: 10
-        active: True
+        active: False
         get_context_from_folder: True
         get_date_from_folder: True
       FileImportStandardFileFilter:
-        active: True
+        active: False
         get_context_from_file: True
         get_date_from_file: False
         priority: 20
@@ -230,7 +230,7 @@ file_import:
           - qr_code_black_velvet
           - qr_code_sequences
       FileImportExifFilter:
-        active: True
+        active: False
         get_context_from_exif: False
         get_date_from_exif: False
         get_description_from_exif: True

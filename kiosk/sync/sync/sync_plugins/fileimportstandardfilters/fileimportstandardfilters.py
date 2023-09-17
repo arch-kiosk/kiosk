@@ -277,9 +277,15 @@ class FileImportStandardFolderFilter(FileImportFilter):
                 if y:
                     context["year"] = y
                 if d or m or y:
-                    logging.debug(
-                        "context date from folder is now {}.{}.{}".format(context.get("day"), context.get("month"),
-                                                                          context.get("year")))
+                    try:
+                        logging.debug(
+                            "context date from folder is now {}.{}.{}".format(context.get("day"), context.get("month"),
+                                                                              context.get("year")))
+                    except BaseException as e:
+                        logging.error(f"{self.__class__.__name__}.get_file_information: {repr(e)}")
+                        context.pop("day")
+                        context.pop("month")
+                        context.pop("year")
 
         print(f"FileImportStandardFolderFilter: File {self.path_and_filename} processed.")
         return context

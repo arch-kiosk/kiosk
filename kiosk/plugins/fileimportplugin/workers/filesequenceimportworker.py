@@ -1,4 +1,5 @@
 import logging
+import pprint
 
 import kioskstdlib
 from dsd.dsd3singleton import Dsd3Singleton
@@ -84,6 +85,7 @@ class FileSequenceImportWorker:
                                                        sync)
 
             file_import = FileSequenceImport(self.cfg, sync)
+            logging.info(pprint.pformat(self.job.job_data))
             file_import.set_from_dict(self.job.job_data)
             kiosk_user = self.get_kiosk_user()
             logging.debug(f"filesequenceimportworker: User is {kiosk_user.repl_user_id}")
