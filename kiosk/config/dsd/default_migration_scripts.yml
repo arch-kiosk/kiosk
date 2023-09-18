@@ -205,4 +205,4 @@ config:
       preconditions:
         kiosk_user: 3
       flags:
-        kiosk_file_picking_add_defaults: 2
+        kiosk_file_picking_add_defaults: 3
