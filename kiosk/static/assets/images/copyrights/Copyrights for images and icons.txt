@@ -99,3 +99,6 @@ process qc rules png (filemaker)
 
 overflowing.svg (kiosk)
 <div>Icons made by <a href="https://icon54.com/" title="Pixel perfect">Pixel perfect</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a></div>
+
+morph.svg (filemaker): Icon for changing the collected material type
+Vectors and icons by <a href="https://github.com/lusaxweb/iconsax?ref=svgrepo.com" target="_blank">Iconsax</a> in MIT License via <a href="https://www.svgrepo.com/" target="_blank">SVG Repo</a>
