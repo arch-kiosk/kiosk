@@ -1,9 +1,12 @@
 # from flask_restplus import Namespace, Resource
 import logging
 import datetime
+from typing import Callable, Union
+
 import flask
 import json
-from flask import request, jsonify
+from flask import request, jsonify, current_app, Response
+from flask.json.provider import DefaultJSONProvider, _default
 from flask_restful import Resource
 
 import kioskglobals
@@ -91,6 +94,19 @@ class ApiResultView(Schema):
     document: fields.Dict()
 
 
+class KioskApiJSONProvider(DefaultJSONProvider):
+    def __init__(self, app):
+        super().__init__(app)
+        self.default = self._json_default
+
+    @staticmethod
+    def _json_default(o):
+        if isinstance(o, datetime.date):
+            return o.isoformat()
+        else:
+            return _default(o)
+
+
 class V1QueryAndViewApiView(Resource):
     @classmethod
     def register(cls, api: KioskApi):
@@ -131,12 +147,7 @@ class V1QueryAndViewApiView(Resource):
                         application/json:
                             schema: LoginError
         '''
-        def json_serial(obj):
-            """JSON serializer for objects not serializable by default json code"""
 
-            if isinstance(obj, (datetime.datetime, datetime.date)):
-                return obj.isoformat()
-            raise TypeError("Type %s not serializable" % type(obj))
         try:
             params = ApiViewIdentifierParameter().load(request.args)
             identifier = params["identifier"]
@@ -147,11 +158,10 @@ class V1QueryAndViewApiView(Resource):
             pld_id = kioskstdlib.try_get_dict_entry(plugin_cfg, "pld", "general", True)
             view_doc = KioskViewDocument(record_type, pld_id, identifier)
             doc = view_doc.compile()
-            # todo: This cannot be the last word here. first serializing json
-            #       and then deserializing it only to have it serialized again by Flask later on?
+
             api_result = ApiResultView().dump({'document': doc})
-            json_object = json.dumps(api_result, default=json_serial)
-            return json.loads(json_object), 200
+            response = self.make_json_response(api_result)
+            return response
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.get: {repr(e)}")
             try:
@@ -161,4 +171,37 @@ class V1QueryAndViewApiView(Resource):
                 # return jsonify()
             except BaseException as e:
                 logging.error(f"{self.__class__.__name__}.post: {repr(e)}")
-                flask.abort(500)
+                flask.abort(500, description=repr(e))
+
+    def make_json_response(self, api_result: dict, json_serial: Callable = None) -> Response:
+        """
+        Takes a dict that is the api_result and turns it into a Flask JSON Response
+        :param api_result:      A Response object for Flask to return
+        :param json_serial:     an optional default json method that handles the serialization of json datatypes.
+        :return: Response object
+        :raises All kinds of Exceptions and a particular Exception if the app's current json provider
+                is not a correct json provider.
+        """
+        original_default: Union[Callable, None] = None
+
+        def _json_serial(obj):
+            """JSON serializer for objects not serializable by default json code"""
+
+            if isinstance(obj, (datetime.datetime, datetime.date)):
+                return obj.isoformat()
+            else:
+                original_default(obj)
+            raise TypeError("Type %s not serializable" % type(obj))
+
+        app = current_app
+
+        if isinstance(app.json, DefaultJSONProvider):
+            json_provider: DefaultJSONProvider = app.json
+            original_default = json_provider.default
+            json_provider.default = json_serial if json_serial else _json_serial
+            response = flask.make_response(jsonify(api_result), 200)
+            app.json.default = original_default
+        else:
+            raise Exception(f"{self.__class__.__name__}.The original json provider "
+                            f"does not seem to be of type DefaultJSONProvider.")
+        return response
