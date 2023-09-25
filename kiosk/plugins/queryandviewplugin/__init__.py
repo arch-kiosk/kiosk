@@ -33,6 +33,7 @@ if "mcpcore.mcpworker" not in sys.modules:
             queryandview.before_request(guard_entire([IsAuthorized(DOWNLOAD_WORKSTATION)]))
 
         app.register_blueprint(queryandview)
+
         print("init_app on queryandview called")
 
         if api:
