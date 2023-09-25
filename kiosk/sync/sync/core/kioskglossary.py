@@ -17,7 +17,7 @@ class KioskGlossary:
         """
         returns a glossary term for a term and its number. Make sure that the input term is lowercase!
         :param input_term: a term that might translate into a different term
-        :param number: the number that is asked for for that term. E.g. 0..1: singular, else plural
+        :param number: the number that is asked for that term. E.g. 0..1: singular, else plural
         :param auto_plural: if False, a missing input term will not be pluralized by appending an s
         :returns: if there is a glossary entry for the input term it will be returned
         """
