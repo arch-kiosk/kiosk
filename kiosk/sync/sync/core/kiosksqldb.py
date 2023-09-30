@@ -717,7 +717,7 @@ class KioskSQLDb(SqlSafeIdentMixin):
         return rc
 
     @classmethod
-    def get_records(cls, sql, params=[], max_records=0):
+    def get_records(cls, sql, params=[], max_records=0, add_column_row=False):
         result = []
         try:
             cur = cls.get_dict_cursor()
@@ -725,7 +725,9 @@ class KioskSQLDb(SqlSafeIdentMixin):
                 if max_records:
                     sql = sql + f" limit {max_records};"
                 cur.execute(sql, params)
-                # print(cur.query)
+                if add_column_row:
+                    result.append([desc[0] for desc in cur.description])
+
                 r = cur.fetchone()
                 while r:
                     result.append(r)
