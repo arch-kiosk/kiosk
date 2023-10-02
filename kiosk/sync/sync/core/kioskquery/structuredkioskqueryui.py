@@ -37,6 +37,15 @@ class StructuredKioskQueryUI(KioskQueryUI):
         except BaseException:
             return ""
 
+    def get_record_type_from_dsd(self, dsd_instruction: str):
+        parser = SimpleFunctionParser()
+        parser.parse(dsd_instruction)
+        # noinspection PyBroadException
+        try:
+            return parser.parameters[0]
+        except BaseException:
+            return ""
+
     def render_input_request(self, uic_literals: list[str] = None) -> dict:
         """
         returns a dictionary with instruction on the input that is requested by a query.
@@ -54,12 +63,17 @@ class StructuredKioskQueryUI(KioskQueryUI):
         for variable, definition in list(variable_definitions.items()):
             definition: list[str]
             text = ""
+            is_dsd_element, dsd_element = kioskstdlib.has_element_that_starts_with("dsd(", definition)
+            if is_dsd_element:
+                definition.append(self.get_record_type_from_dsd(dsd_element))
+
             _, element = kioskstdlib.has_element_that_starts_with("label(", definition)
             if element:
                 text = self.get_label_from_instruction(element)
             else:
-                _, element = kioskstdlib.has_element_that_starts_with("dsd(", definition)
-                text = self.get_label_from_dsd(element)
+                if is_dsd_element:
+                    text = self.get_label_from_dsd(dsd_element)
+
 
             if not text:
                 text = variable
