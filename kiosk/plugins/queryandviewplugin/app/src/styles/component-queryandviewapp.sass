@@ -11,6 +11,20 @@ div, p
 
 .dev-tool-bar
   background-color: $col-bg-att
+  display: flex
+  flex-direction: row
+  align-items: center
+  height: 32px
+  & > label:first-child
+    display: block
+    width: auto
+    white-space: nowrap
+  button
+    margin: 0px .5rem
+    width: 40px
+    height: 26px
+    font-size: 12px
+    font-weight: normal
 .dev-open-identifier
   display: inline-block
   padding: 0 1em
@@ -91,3 +105,8 @@ div, p
     color: $col-bg-ack
   &.disabled
     opacity: 0.3
+
+.footstep-toolbar-button
+  height: 22px
+  i
+    font-size: 22px

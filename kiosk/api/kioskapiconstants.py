@@ -15,7 +15,7 @@ class ApiResultConstant(Schema):
 
     path = fields.Str()
     key = fields.Str()
-    value = fields.Str()
+    value = fields.Raw()
 
 
 class ApiConstants(Resource):

@@ -51,76 +51,95 @@ class UICStream:
                 pass
 
     def read(self):
+        def _deal_with_yaml_block():
+            nonlocal apply_to_all
+            if selectors:
+                for selector in selectors:
+                    if selector == 'header':
+                        apply_to_all = self._parse_header(yaml_block, c)
+                    else:
+                        self._parse_block(selector, yaml_block, c)
+
         yaml_block = ""
-        selector = ""
-        s = self._stream.readline()
-        c = 1
-        while s:
+        selectors = []
+        last_line_was_selector = False
+        apply_to_all = ""
+        # s = self._stream.readline()
+        c = 0
+        for s in iter(self._stream):
+            c += 1
             s_stripped = s.strip()
             if s_stripped:
                 if s_stripped[0] == '#':
-                    if selector:
-                        self._parse_block(selector, yaml_block, c)
-
-                    yaml_block = ""
-                    selector = s_stripped.lower()
+                    if last_line_was_selector:
+                        selectors.append(s_stripped[1:].lstrip().lower() + apply_to_all)
+                    else:
+                        _deal_with_yaml_block()
+                        selectors = []
+                        yaml_block = ""
+                        selectors.append(s_stripped[1:].lstrip().lower() + apply_to_all)
+                        last_line_was_selector = True
                 else:
-                    if not selector:
+                    if not selectors:
                         raise UICError(f"{self.__class__.__name__}.read: "
                                        f"Block start without active selector in line {c}")
                     else:
+                        last_line_was_selector = False
                         yaml_block = yaml_block + s
 
-            s = self._stream.readline()
-            c += 1
+            # s = self._stream.readline()
 
         if yaml_block:
-            if selector:
-                self._parse_block(selector, yaml_block, c)
-            else:
-                raise UICError(f"{self.__class__.__name__}.read: "
-                               f"YAML block without active selector ends in line {c}")
+            _deal_with_yaml_block()
+        else:
+            raise UICError(f"{self.__class__.__name__}.read: "
+                           f"YAML block without active selector ends in line {c}")
 
     @staticmethod
     def _get_yaml_dict(yaml_block):
-        return yaml.load(yaml_block, yaml.BaseLoader)
+        return yaml.load(yaml_block, yaml.SafeLoader)
 
     @property
     def tree(self):
         return self._tree
 
-    def _parse_block(self, selector: str, yaml_block: str, line: int):
+    def _parse_block(self, selector: str, yaml_block: str, line: int) -> str:
         if not yaml_block.strip():
             raise UICError(f"{self.__class__.__name__}._parse_block: "
                            f"Empty YAML Block before line {line - 1}")
 
-        selector = selector[1:].lstrip()
-        if selector == 'header':
-            if self._header:
-                raise UICError(f"{self.__class__.__name__}.parse_block: duplicate header in line {line - 1}")
-            try:
-                self._header = self._get_yaml_dict(yaml_block)
-            except BaseException as e:
-                raise UICError(f"{self.__class__.__name__}.parse_block: "
-                               f"Error parsing yaml block before line {line - 1}: {repr(e)}")
-            self._parse_header()
-        else:
-            if not self._header:
-                raise UICError(f"{self.__class__.__name__}.parse_block: "
-                               f"Missing header before line {line - 1}")
-            try:
-                yaml_block = self._get_yaml_dict(yaml_block)
-                self._parse_selector(selector, yaml_block)
-            except BaseException as e:
-                raise UICError(f"{self.__class__.__name__}.parse_block: "
-                               f"Error parsing yaml block before line {line - 1}: {repr(e)}")
+        if not self._header:
+            raise UICError(f"{self.__class__.__name__}.parse_block: "
+                           f"Missing header before line {line - 1}")
+        try:
+            yaml_block = self._get_yaml_dict(yaml_block)
+            self._parse_selector(selector, yaml_block)
+        except BaseException as e:
+            raise UICError(f"{self.__class__.__name__}.parse_block: "
+                           f"Error parsing yaml block before line {line - 1}: {repr(e)}")
+
+        return ""
 
     def _parse_selector(self, selector, yaml_block):
         tokenized_selectors = self._tree.parse_selector(selector)
         for t_s in tokenized_selectors:
             self._tree.add_data_chunk(t_s, yaml_block)
 
-    def _parse_header(self):
+    def _parse_header(self, yaml_block, line) -> str:
+        """
+        checks the header, conducts the imports
+        and returns a uic literals string that will be applied
+        to all selectors in the current stream
+        :return: str
+        """
+        if self._header:
+            raise UICError(f"{self.__class__.__name__}.parse_block: duplicate header in line {line - 1}")
+        try:
+            self._header = self._get_yaml_dict(yaml_block)
+        except BaseException as e:
+            raise UICError(f"{self.__class__.__name__}.parse_block: "
+                           f"Error parsing yaml block before line {line - 1}: {repr(e)}")
+
         if not self._header:
             raise UICError(f"{self.__class__.__name__}._parse_header: "
                            f"Error parsing header: No header.")
@@ -130,6 +149,13 @@ class UICStream:
                            f"{CURRENT_MAX_FILE_VERSION}")
         if "imports" in self._header:
             self._do_imports()
+
+        if "apply_uic_literals" in self._header:
+            apply_to_all: str = self._header["apply_uic_literals"].strip()
+            apply_to_all = " " + (apply_to_all if apply_to_all.startswith(("&&", "||")) else "&& " + apply_to_all)
+            return apply_to_all
+        else:
+            return ""
 
     def _do_imports(self):
         # something like this:

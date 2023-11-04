@@ -26,6 +26,7 @@ dsd3_dayplan = os.path.join(data_dir, "dsd3_dayplan.yml")
 dsd3_constants = os.path.join(data_dir, "dsd3_constants.yml")
 dsd3_urap = os.path.join(data_dir, "urap_dsd3.yml")
 real_urap_dsd = os.path.join(base_path, "config", "dsd", "default_dsd3.yml")
+lookup_test_dsd3 = os.path.join(data_dir, "lookup_test_dsd3.yml")
 
 
 class TestDataSetDefinition(KioskPyTestHelper):
@@ -749,6 +750,32 @@ class TestDataSetDefinition(KioskPyTestHelper):
                 Join(root_table="unit", related_table="locus", _type="inner", root_field="replfield_uuid()",
                      related_field="uid_unit")]}
 
+    def test_list_default_joins_with_lookups(self, dsd_urap_dsd3):
+        dsd: DataSetDefinition = dsd_urap_dsd3
+        joins = dsd.list_default_joins(include_lookups=True)
+        assert joins == {'collected_material': [
+            Join(root_table="collected_material", related_table="pottery", _type="inner", root_field="replfield_uuid()",
+                 related_field="cm_uid")],
+            'locus': [Join(root_table="locus", related_table="collected_material", _type="inner",
+                           root_field="replfield_uuid()", related_field="uid_locus"),
+                      Join(root_table="locus", related_table="locus_relations", _type="inner",
+                           root_field="identifier()", related_field="uid_locus"),
+                      Join(root_table="locus", related_table="locus_types", _type="lookup",
+                           root_field="type", related_field="id")
+                      ],
+            'site': [Join(root_table="site", related_table="site_notes", _type="inner",
+                          root_field="replfield_uuid()", related_field="uid_site")],
+            'site_notes': [Join(root_table="site_notes", related_table="site_note_photo", _type="inner",
+                                root_field="replfield_uuid()", related_field="uid_site_note")],
+            'tagging': [
+                Join(root_table="tagging", related_table="locus", _type="inner", root_field="source_uid",
+                     related_field="uid")],
+            'test': [Join(root_table="test", related_table="test_photo", _type="inner", root_field="id()",
+                          related_field="id_test")],
+            'unit': [
+                Join(root_table="unit", related_table="locus", _type="inner", root_field="replfield_uuid()",
+                     related_field="uid_unit")]}
+
     def test_document_dsd3(self, dsd_urap_dsd3):
         dsd: DataSetDefinition = dsd_urap_dsd3
         assert len(dsd.pprint()) > 50
@@ -771,7 +798,7 @@ class TestDataSetDefinition(KioskPyTestHelper):
                                                                      'replfield_modified_by()',
                                                                      "default('Null')"],
                                                      'opening elevations': ['datatype(VARCHAR)'],
-                                                     'type': ['datatype(VARCHAR)'],
+                                                     'type': ['datatype(VARCHAR)', "lookup('locus_types', 'id')"],
                                                      'uid': ['datatype(UUID)', 'replfield_uuid()',
                                                              'join("tagging", "source_uid")'],
                                                      'uid_unit': ['datatype(UUID)', 'join("unit")']}
@@ -780,3 +807,12 @@ class TestDataSetDefinition(KioskPyTestHelper):
         dsd: DataSetDefinition = dsd_urap_dsd3
         assert dsd.get_unparsed_field_instructions("locus", "arch_domain") == ['datatype(VARCHAR)',
                                                                                'id_domain("arch_context")']
+
+    def test_get_lookup_joins(self):
+        dsd = DataSetDefinition()
+        dsd.register_loader("yml", DSDYamlLoader)
+        assert dsd.append_file(lookup_test_dsd3)
+        assert [(x.related_table, x.related_field) for x in dsd.get_lookup_joins("locus")] == [("locus_types", "id"),
+                                                                                               ("locus_color", "uid")]
+
+        assert dsd.get_lookup_joins("locus_architecture") == []

@@ -29,7 +29,7 @@ class TestDataSetDefinition(KioskPyTestHelper):
 
     @pytest.fixture()
     def dsd_initialized(self, cfg):
-        dsd = DataSetDefinition()        
+        dsd = DataSetDefinition()
         dsd.register_loader("yml", DSDYamlLoader)
         assert dsd.append_file(dsd3_images_file)
         assert dsd.append_file(dsd3_images_file2)
@@ -112,7 +112,7 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert "unit" in view.dsd._dsd_data.get([])
 
         view = DSDView(dsd)
-        assert view.apply_view_instructions({"tables": ["include(*)", 
+        assert view.apply_view_instructions({"tables": ["include(*)",
                                                         "exclude('images')",
                                                         "exclude('test')",
                                                         "exclude('unit')"]})
@@ -209,3 +209,81 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert "arch_domain" not in view.dsd.list_fields("locus")
         assert "id" not in view.dsd.list_fields("locus")
         assert "uid" in view.dsd.list_fields("locus")
+
+    def test__apply_exclude_all_fields(self):
+        dsd = DataSetDefinition()
+        dsd.register_loader("yml", DSDYamlLoader)
+        dsd.append_file(default_dsd3)
+        view = DSDView(dsd)
+        assert "unit" in view.dsd._dsd_data.get([])
+        assert len(view.dsd.list_fields("unit")) > 0
+        assert view.apply_view_instructions({"tables": ["include(unit)",
+                                                        "exclude_all_fields_from_table('unit')"]})
+        assert "unit" in view.dsd._dsd_data.get([])
+        assert len(view.dsd.list_fields("unit")) == 0
+
+    def test__apply_include_field(self):
+        dsd = DataSetDefinition()
+        dsd.register_loader("yml", DSDYamlLoader)
+        dsd.append_file(default_dsd3)
+        view = DSDView(dsd)
+        assert "unit" in view.dsd._dsd_data.get([])
+        assert len(view.dsd.list_fields("unit")) > 0
+        assert view.apply_view_instructions({"tables": ["include(unit)",
+                                                        "exclude_all_fields_from_table('unit')",
+                                                        "include_field('unit', 'arch_context')",
+                                                        "include_field('unit', 'arch_domain')"]
+                                             })
+        assert "unit" in view.dsd._dsd_data.get([])
+        assert len(view.dsd.list_fields("unit")) == 2
+
+    def test__apply_include_fields(self):
+        dsd = DataSetDefinition()
+        dsd.register_loader("yml", DSDYamlLoader)
+        dsd.append_file(default_dsd3)
+        view = DSDView(dsd)
+        assert "unit" in view.dsd._dsd_data.get([])
+        assert len(view.dsd.list_fields("unit")) > 0
+        assert view.apply_view_instructions({"tables": ["include(unit)",
+                                                        "exclude_all_fields_from_table('unit')",
+                                                        "include_fields('unit', 'arch_context', 'arch_domain', "
+                                                        "'purpose')"]
+                                             })
+        assert "unit" in view.dsd._dsd_data.get([])
+        assert len(view.dsd.list_fields("unit")) == 3
+
+    def test__apply_exclude_fields(self):
+        dsd = DataSetDefinition()
+        dsd.register_loader("yml", DSDYamlLoader)
+        dsd.append_file(default_dsd3)
+        view = DSDView(dsd)
+        assert "unit" in view.dsd._dsd_data.get([])
+        assert "arch_context" in view.dsd.list_fields("unit")
+        assert "arch_domain" in view.dsd.list_fields("unit")
+        assert "purpose" in view.dsd.list_fields("unit")
+
+        assert len(view.dsd.list_fields("unit")) > 0
+        assert view.apply_view_instructions({"tables": ["include(unit)",
+                                                        "exclude_fields('unit', 'arch_context', 'arch_domain', "
+                                                        "'purpose')"]
+                                             })
+        assert "unit" in view.dsd._dsd_data.get([])
+        assert len(view.dsd.list_fields("unit")) > 0
+        assert "arch_context" not in view.dsd.list_fields("unit")
+        assert "arch_domain" not in view.dsd.list_fields("unit")
+        assert "purpose" not in view.dsd.list_fields("unit")
+
+
+    def test__apply_include_fields_with_instruction(self):
+        dsd = DataSetDefinition()
+        dsd.register_loader("yml", DSDYamlLoader)
+        dsd.append_file(default_dsd3)
+        view = DSDView(dsd)
+        assert "unit" in view.dsd._dsd_data.get([])
+        assert len(view.dsd.list_fields("unit")) > 0
+        assert view.apply_view_instructions({"tables": ["include(unit)",
+                                                        "exclude_all_fields_from_table('unit')",
+                                                        "include_fields_with_instruction('unit', 'label')"]
+                                             })
+        assert "unit" in view.dsd._dsd_data.get([])
+        assert view.dsd.list_fields("unit") == ["legacy_unit_id", "arch_context"]

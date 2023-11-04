@@ -1,0 +1,9 @@
+config:
+  format_version: 3
+
+tables:
+  - include(locus)
+#  - exclude_all_fields_from_table(unit)
+  - exclude_fields('locus','uid','id','arch_domain')
+  - exclude_fields('locus','opening elevations','closing elevations')
+  - exclude_fields('locus','length')

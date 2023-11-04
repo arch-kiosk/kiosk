@@ -197,7 +197,7 @@ locus:
   structure:
     2:
       uid_unit: [datatype(UUID), join("unit")]
-      type: [datatype(VARCHAR)]
+      type: [datatype(VARCHAR), "lookup('locus_types', 'id')"]
       opening elevations: [datatype(VARCHAR)]
       closing elevations: [datatype(VARCHAR)]
       description: [datatype(VARCHAR)]

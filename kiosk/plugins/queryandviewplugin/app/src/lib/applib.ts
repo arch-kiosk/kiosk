@@ -3,7 +3,8 @@ import {FetchException} from "../../../../../static/scripts/kioskapputils.js"
 //@ts-ignore
 import {MessageData, MSG_NETWORK_ERROR, MSG_LOGGED_OUT, sendMessage} from "./appmessaging"
 import {LitElement} from "lit-element";
-//@ts-ignore
+import {DateTime} from "luxon"
+import { AnyDict, Constant } from "./apitypes";
 
 export const JOB_STATUS_GHOST = 0;
 export const JOB_STATUS_REGISTERED = 1;
@@ -15,12 +16,6 @@ export const JOB_STATUS_DONE = 20;
 export const JOB_STATUS_CANCELED = 21;
 export const JOB_STATUS_ABORTED = 22;
 
-
-export class Constant {
-    path : string
-    key: string
-    value: string
-}
 
 export function log(obj: any) {
     // @ts-ignore
@@ -128,3 +123,48 @@ export function fowlerNollVo1aHashModern(str: string, offset = 0x811c9dc5, prime
     return hashValue >>> 0
 }
 
+export function safeLocaleCompare(d1: string|undefined, d2: string|undefined) {
+    if (!d1 && d2) return 1
+    if (d1 && !d2) return -1
+    if (!d1 && !d2) return 0
+    return String(d1).localeCompare(String(d2))
+}
+export function compareISODateTime(d1: string|undefined, d2: string|undefined): number {
+    if (!d1 && d2) return (1)
+    if (d1 && !d2) return (-1)
+    if (!d1 && !d2) return (0)
+
+    const ld1 = DateTime.fromISO(d1)
+    const ld2 = DateTime.fromISO(d2)
+
+    if (ld1 < ld2)
+        return -1
+    if (ld1 > ld2)
+        return 1
+
+    return 0
+
+
+
+}
+
+export function FMDictToDict(FMDict: string): AnyDict {
+    const lines = FMDict.split("\r")
+    const rc: {[key: string]: string} = {}
+    let key, value: string
+    for (const line of lines) {
+        [key, value] = line.split("=")
+        if (key && value) {
+            rc[key] = value
+        } else {
+            return undefined
+        }
+    }
+    return rc
+}
+
+export function getLatinDate(dt: DateTime, withTime: boolean = true): string {
+    const latinMonths = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"]
+    const dtStr = `${dt.day}.${latinMonths[dt.month-1]}.${dt.year}`
+    return withTime?dtStr + " " + dt.toLocaleString(DateTime.TIME_SIMPLE):dtStr
+}

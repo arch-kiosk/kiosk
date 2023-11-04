@@ -1,11 +1,48 @@
 # header
 version: 1
 
-# dsd('unit','arch_context')
+# dsd('unit','arch_context') && query-ui
 element_type:
+  text: "#($/constants/labels/label_for_unit_on_start_page)"
   name: "selection"
   items:
     lookup_type: "table"
     topic: "unit"
     selection: ["arch_context"]
     key: "arch_context"
+
+# dsd('unit','excavator_full_name') && view-ui
+element_type:
+  visible: "."
+
+# dsd('unit','name') && view-ui
+# dsd('unit','legacy_unit_id') && view-ui
+# dsd('unit','purpose') && view-ui
+element_type:
+  visible: "."
+
+# dsd('unit','purpose') && view-ui && view_type:sheet
+layout:
+  min_width: max
+element_type:
+  multiline: true
+
+# dsd('unit_narrative','narrative') && view-ui && view_type:list
+element_type:
+  multiline: true
+
+#dsd('dayplan','uid_image')
+layout:
+  min_width: max
+  min_height: max
+element_type:
+  name: "File"
+  file_description: bottom
+  resolution: small
+  fit_content: fit
+
+#dsd('dayplan','modified_by') && orchestration_strategy:gallery
+element_type:
+  style:
+    text-align: center
+

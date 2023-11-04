@@ -1,0 +1,9 @@
+config:
+  format_version: 3
+
+tables:
+  - include(unit)
+#  - exclude_all_fields_from_table(unit)
+  - exclude_fields('unit','uid','id','arch_domain')
+  - exclude_fields('unit','identification_method_loci','identification_method_cm','identification_method_analysis')
+  - exclude_field('excavator_full_name')

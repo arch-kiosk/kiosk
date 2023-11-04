@@ -31,10 +31,7 @@ class ApiContexts(Resource):
                     description: returns a list of valid context identifiers
                     content:
                         application/json:
-                            schema:
-                                items: ApiResultContexts
-
-
+                            schema: ApiResultContexts
                 '401':
                     description: authorization failed / unauthorized access
                     content:
@@ -48,4 +45,5 @@ class ApiContexts(Resource):
         # cfg = get_config()
         cache: MemoryIdentifierCache = kioskglobals.identifier_cache
         return ApiResultContexts().dump({"identifiers": cache.get_identifiers()}), 200
+
 

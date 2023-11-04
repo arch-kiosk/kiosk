@@ -1,10 +1,11 @@
 // noinspection DuplicatedCode
-
+import { expect, test } from 'vitest'
 import SimpleFunctionParser from "../simplefunctionparser";
 
 test("finds some_func() a valid instruction", () => {
     expect(new SimpleFunctionParser().parse("some_func()")).toBe(true);
 });
+
 test("finds some_func not a valid instruction", () => {
     expect(new SimpleFunctionParser().parse("some_func")).toBe(false);
 });
@@ -159,3 +160,8 @@ test("ignores internal brackets in unquoted parameters", () => {
     expect(parser.parameters[0]).toBe("something(that has brackets)")
     expect(parser.parameters[1]).toBe("more(brackets)")
 });
+test("no parameter", () => {
+    const parser = new SimpleFunctionParser();
+    expect(parser.parse("identifier()")).toBe(true)
+
+})

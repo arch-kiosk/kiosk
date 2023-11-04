@@ -1,0 +1,28 @@
+# header
+version: 1
+
+# dsd('site','arch_context') && query-ui
+element_type:
+  name: "selection"
+  links_to: site
+  items:
+    lookup_type: "table"
+    topic: "site"
+    selection: ["arch_context"]
+    key: "arch_context"
+
+# dsd('site','purpose') && view-ui
+layout:
+  min_width: max
+element_type:
+  multiline: true
+
+# dsd('site','uid_site_map') && view-ui
+layout:
+  min_width: max
+  min_height: max
+element_type:
+  name: "File"
+  file_description: bottom
+  resolution: medium
+  fit_content: contain

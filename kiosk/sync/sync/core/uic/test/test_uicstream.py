@@ -178,3 +178,68 @@ class TestUICStream(KioskPyTestHelper):
             {'__selector': [2], '_data': {'yaml': {'key': 'value'}}, 'children': []}
         ]
 
+    def test_uic_apply_uic_literals(self, config):
+        stream = StringIO(r"""
+        # header
+          version: 1
+          apply_uic_literals: selector 3
+          imports:
+            required:
+                - an_import.uic
+        # selector 1
+        yaml:
+            key1: value1
+        """)
+
+        def _get_import_stream(path_and_filename: str) -> TextIOBase:
+            assert path_and_filename == 'an_import.uic'
+            return StringIO("""
+            # header
+              version: 1
+            # selector 1
+            yaml:
+              key2: value2
+            """)
+
+        uic = UICStream(stream, get_import_stream=_get_import_stream)
+        assert set(uic._tree.selectors) == {"selector 1", "selector 3"}
+        assert uic._tree.to_dict(include_data=True)["children"] == [
+            {'__selector': [0],
+             '_data': {'yaml': {'key2': 'value2'}},
+             'children': [{'__selector': [0, 1],
+                           '_data': {'yaml': {'key1': 'value1'}},
+                           'children': []}]}
+        ]
+
+    def test_uic_apply_uic_literals_2(self, config):
+        stream = StringIO(r"""
+        # header
+          version: 1
+          imports:
+            required:
+                - an_import.uic
+        # selector 1
+        yaml:
+            key1: value1
+        """)
+
+        def _get_import_stream(path_and_filename: str) -> TextIOBase:
+            assert path_and_filename == 'an_import.uic'
+            return StringIO("""
+            # header
+              version: 1
+              apply_uic_literals: selector 3
+            # selector 1
+            yaml:
+              key2: value2
+            """)
+
+        uic = UICStream(stream, get_import_stream=_get_import_stream)
+        assert set(uic._tree.selectors) == {"selector 1", "selector 3"}
+        assert uic._tree.to_dict(include_data=True)["children"] == [
+            {'__selector': [0],
+             '_data': {'yaml': {'key1': 'value1'}},
+             'children': [{'__selector': [0, 1],
+                           '_data': {'yaml': {'key2': 'value2'}},
+                           'children': []}]}
+        ]

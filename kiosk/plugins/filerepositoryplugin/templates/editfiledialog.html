@@ -4,7 +4,7 @@
 {% endblock %}
 {% block kiosk_modal_dialog_id %}id="fr-edit-dialog"{% endblock %}
 {% block kiosk_modal_dialog_classes %}kiosk-modal-dialog-fullscreen{% endblock %}
-{% block kiosk_modal_dialog_name %}edit file{% endblock %}
+{% block kiosk_modal_dialog_name %}{{ title }}{% endblock %}
 {% block kiosk_modal_dialog_content %}
   <div id="ef-header-right">
     <div>
@@ -57,12 +57,15 @@
                       {% for i,v in img.get_identifiers_and_recording_contexts().items() %}
                         <div class="ef-context">
                           <span class="ef-dialog-identifier">{{ i }}</span><span class="ef-record-type">({{ v }})</span>
-                          <i class="ef-cancel-context fa fa-times-circle" aria-hidden="true"></i>
-                          <i class="ef-undo-drop-context fa fa-step-backward" aria-hidden="true"></i>
+                            {% if "modify data" in authorized_to %}
+                              <i class="ef-cancel-context fa fa-times-circle" aria-hidden="true"></i>
+                              <i class="ef-undo-drop-context fa fa-step-backward" aria-hidden="true"></i>
+                            {% endif %}
                         </div>
                       {% endfor %}
                 {% endif %}
-                <div id="ef-add-context-div" class="ef-context">
+                {% if "modify data" in authorized_to %}
+                    <div id="ef-add-context-div" class="ef-context">
                   <i id="ef-new-context" class="fa fa-plus-circle" aria-hidden="true"></i>
                   <div id="ef-new-context-controls-template" style="display: none">
                     <div class="ef-new-context-controls">
@@ -73,6 +76,7 @@
                     </div>
                   </div>
                 </div>
+                {% endif %}
               </div>
             </div>
             {% if img.get_indirect_contexts() %}
@@ -126,7 +130,7 @@
           <div class="col">
             {{ ef_form.ef_export_filename.label(class="kiosk-dialog-label") }}
             {% if "modify data" not in authorized_to %}
-              <div class="kiosk-dialog-disabled-textfield"> {{ ef_form.export_filename.data }} </div>
+              <div class="kiosk-dialog-disabled-textfield"> {{ ef_form.ef_export_filename.data }} </div>
             {% else %}
               {{ ef_form.ef_export_filename(class="kiosk-dialog-textfield") }}
             {% endif %}

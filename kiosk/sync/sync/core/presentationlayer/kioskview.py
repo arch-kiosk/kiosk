@@ -9,6 +9,7 @@ from dsd.dsdview import DSDView
 from dsd.dsdyamlloader import DSDYamlLoader
 from kioskglossary import KioskGlossary
 from presentationlayer.pldloader import PLDLoader
+from presentationlayer.viewpartlist import ViewPartList
 from sync_config import SyncConfig
 from uic.uictree import UICTree
 from presentationlayer.viewpart import ViewPart
@@ -67,10 +68,10 @@ class KioskView:
                 raise Exception(f"{self.__class__.__name__}._render_part: Loading dsd failed")
 
             dsd.register_glossary(self._glossary)
-            self.uic_literals.append("view_type:" + view_type)
+            uic_literals = [*self.uic_literals, "view_type:" + view_type]
             view_part_class = self._get_view_part_class(view_type)
             try:
-                view_part = view_part_class(part, dsd, self._uic_tree, self.uic_literals, self, self._glossary)
+                view_part = view_part_class(part, dsd, self._uic_tree, uic_literals, self, self._glossary)
                 return view_part.render()
             except BaseException as e:
                 logging.error(f"{self.__class__.__name__}._render_part: Exception {repr(e)} "
@@ -84,6 +85,7 @@ class KioskView:
         try:
             self._validate()
             self._pld = self._pld_loader_class.load_pld(self.pld_name, self._cfg)
+            self.uic_literals.append("view-ui")
             compilation = self.get_compilation()
             result = {}
             result["compilation"] = copy.deepcopy(compilation)
@@ -99,6 +101,9 @@ class KioskView:
     def get_parts(self):
         return self._parts
 
+    def get_part_definition(self, part_id: str):
+        return self._pld.get_part(part_id)
+
     def get_compilation(self):
         compilations = self._pld.get_compilations_by_record_type(self.record_type)
         if len(compilations) != 1:
@@ -109,6 +114,8 @@ class KioskView:
     def _get_view_part_class(self, view_type):
         if view_type == "sheet":
             return ViewPartSheet
+        elif view_type == "list":
+            return ViewPartList
         else:
             raise ValueError(f"{self.__class__.__name__}._get_view_part_class: View type {view_type} unknown.")
 

@@ -13,6 +13,11 @@ def get_std_file_images(plugin):
         return {}
 
 
+#
+# todo: refactor / redesign
+# Plugin-specific methods
+# this needs to be available to the public
+#
 def get_file_description_priorities(plugin, priority_set=""):
     priority_sets = plugin.plugin_config("file_descriptions")
     if priority_set and priority_set in priority_sets:

@@ -369,11 +369,16 @@ def filerepository_editdialog(uid):
         ef_form.ef_tags.data = img.get_value("tags")
         ef_form.ef_export_filename.data = img.get_value("export_filename")
         authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
+        read_only = request.args.get('read_only')
+        if read_only:
+            authorized_to.remove("modify data")
+
         representations = KioskRepresentations.get_representation_labels_and_ids(cfg)
         fullscreen_representation_id = cfg.file_repository["fullscreen_representation"]
         print("\n*************** now rendering".format(uid))
         print(f"[{img.get_indirect_contexts()}]")
         return render_template('editfiledialog.html',
+                               title="edit file" if "modify data" in authorized_to else "view file",
                                img=img, ef_form=ef_form,
                                authorized_to=authorized_to,
                                contexts=img.get_arch_identifier(),

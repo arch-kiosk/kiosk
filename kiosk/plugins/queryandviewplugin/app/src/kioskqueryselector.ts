@@ -3,11 +3,17 @@ import local_css from "./styles/component-queryselector.sass?inline";
 import { html, TemplateResult, unsafeCSS } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { handleCommonFetchErrors } from "./lib/applib";
-import { ApiResultKioskQueryDescription } from "./lib/apitypes";
+import { Constant, ApiResultKioskQueryDescription } from "./lib/apitypes";
 import { FetchException } from "../kioskapplib/kioskapi";
 import { KioskAppComponent } from "../kioskapplib/kioskappcomponent";
 import { KioskQueryFactory } from "./kioskqueryfactory";
-import { SCENARIO } from "./apptypes";
+import { QUERY_UI_SCENARIO } from "./apptypes";
+import { consume } from "@lit-labs/context";
+import { constantsContext } from "./constantscontext";
+import { DataContext } from "./lib/datacontext";
+import { DictionaryAccessor } from "./lib/dictionaryAccessor";
+import { InterpreterFactory } from "./lib/interpreterfactory";
+import { InterpreterManager } from "../kioskapplib/interpretermanager";
 
 @customElement("kiosk-query-selector")
 export class KioskQuerySelector extends KioskAppComponent {
@@ -16,13 +22,20 @@ export class KioskQuerySelector extends KioskAppComponent {
     static properties = {
         ...super.properties,
     };
+    private dataContext: DataContext = new DataContext()
+    private _interpreter: InterpreterManager
 
     @state()
     protected showLocalProgress = false;
     @state()
     protected loadingMessage = "";
+
     @state()
     protected kioskQueries: ApiResultKioskQueryDescription[] = [];
+
+    @consume({context: constantsContext})
+    @state()
+    private constants?: Constant[]
 
     firstUpdated(_changedProperties: any) {
         console.log("KioskQuerySelector first updated", _changedProperties);
@@ -38,12 +51,22 @@ export class KioskQuerySelector extends KioskAppComponent {
         }
     }
 
+    private assignConstants() {
+        if (this.constants.length > 0 && !this.dataContext.hasAccessor("dictionary"))  {
+            const accessor = new DictionaryAccessor("dictionary", this.dataContext, this.constants)
+            accessor.assignEntries(this.constants)
+            this.dataContext.registerAccessor(accessor)
+            console.log("KioskQuerySelector applied constants: ", this.constants)
+            this._interpreter = InterpreterFactory(this.dataContext)
+        }
+    }
+
     loadQueries() {
         console.log(`loading queries`);
         this.loadingMessage = "loading queries ...";
         this.showLocalProgress = true;
         const urlSearchParams = new URLSearchParams();
-        urlSearchParams.append("uic_literal", SCENARIO);
+        urlSearchParams.append("uic_literal", QUERY_UI_SCENARIO);
         this.apiContext
             .fetchFromApi(
                 "",
@@ -67,10 +90,19 @@ export class KioskQuerySelector extends KioskAppComponent {
             });
     }
 
+    initQueries() {
+        for (const query of this.kioskQueries) {
+                query.name = this._interpreter.interpret(query.name,undefined,"/")
+        }
+    }
+
     showQueries(kioskQueries: ApiResultKioskQueryDescription[]) {
+        if (this.constants)
+            this.assignConstants()
         this.showLocalProgress = false;
-        kioskQueries.forEach((query) => console.log(query));
+        // kioskQueries.forEach((query) => console.log(query));
         this.kioskQueries = kioskQueries;
+        this.initQueries()
     }
 
     overlayClicked() {
@@ -100,16 +132,17 @@ export class KioskQuerySelector extends KioskAppComponent {
                 <i class="fas">${KioskQueryFactory.getTypeIcon(query.type)}</i>
                 <div class="kiosk-query-text">
                     <div>${query.name}</div>
-                    <div>${query.description}</div>
+                    <div>${this._interpreter.interpret(query.description,undefined,"/")}</div>
                 </div>
             </div>
         `;
     }
+
     apiRender(): TemplateResult {
         return html`
             <div class="query-selector-overlay" @click=${this.overlayClicked}></div>
             <div class="query-selector">
-                ${this.showLocalProgress
+                ${this.showLocalProgress || !this.constants
                     ? this.renderProgress(true)
                     : html`
                           <div class="kiosk-query-selector-title-bar" @click="${this.overlayClicked}">

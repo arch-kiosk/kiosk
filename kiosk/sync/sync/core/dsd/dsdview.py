@@ -15,6 +15,7 @@ class DSDView:
         assert "config" in dsd._dsd_data.get([])
         self.dsd = dsd.clone()
         self.include_tables = []
+        self.excluded_fields = {}
 
     @staticmethod
     def load_view_from_file(path_and_filename: str, loader=None) -> dict:
@@ -53,10 +54,16 @@ class DSDView:
                     self._apply_exclude_tables_with_flag(parser.parameters)
                 elif parser.instruction == "exclude":
                     self._apply_exclude(parser.parameters)
-                elif parser.instruction == "exclude_field":
-                    self._apply_exclude_field(parser.parameters)
+                elif parser.instruction == "exclude_all_fields_from_table":
+                    self._apply_exclude_all_fields_from_table(parser.parameters)
+                elif parser.instruction == "include_field" or parser.instruction == "include_fields":
+                    self._apply_ex_or_include_fields(parser.parameters, exclude=False)
+                elif parser.instruction == "include_fields_with_instruction":
+                    self._apply_ex_or_include_fields_with_instruction(parser.parameters, exclude=False)
+                elif parser.instruction == "exclude_field" or parser.instruction == "exclude_fields":
+                    self._apply_ex_or_include_fields(parser.parameters, exclude=True)
                 elif parser.instruction == "exclude_fields_with_instruction":
-                    self._apply_exclude_fields_with_instruction(parser.parameters)
+                    self._apply_ex_or_include_fields_with_instruction(parser.parameters, exclude=True)
                 else:
                     raise DSDUnknownInstruction(
                         f"DSDView.apply_view_instruction: instruction {parser.instruction} unknown.")
@@ -65,6 +72,7 @@ class DSDView:
                     f"DSDView.apply_view_instruction: syntax error in instruction {instruction}.")
 
         self._delete_not_included_tables()
+        self._delete_not_included_fields()
         return True
 
     def _apply_include(self, parameters: []):
@@ -82,6 +90,11 @@ class DSDView:
 
         for table in tables_to_delete:
             self.dsd.delete_table(table)
+
+    def _delete_not_included_fields(self):
+        for field in self.excluded_fields.keys():
+            table, field = field.split("\\")
+            self.dsd.delete_field(table, field)
 
     def _apply_include_tables_with_instruction(self, parameters):
         tables = self.dsd.list_tables_with_instructions([parameters[0]])
@@ -101,13 +114,27 @@ class DSDView:
         for t in tables:
             self._apply_exclude([t])
 
-    def _apply_exclude_field(self, parameters):
-        table = parameters[0]
-        field = parameters[1]
-        self.dsd.delete_field(table, field)
+    def _exclude_field(self, table, field):
+        self.excluded_fields[f"{table}\\{field}"] = True
 
-    def _apply_exclude_fields_with_instruction(self, parameters):
-        logging.debug(f"{self.__class__.__name__}._apply_exclude_fields_with_instruction: {parameters}")
+    def _include_field(self, table, field):
+        self.excluded_fields.pop(f"{table}\\{field}")
+
+    def _apply_ex_or_include_fields(self, parameters: list, exclude=True):
+        table = parameters.pop(0)
+        for field in parameters:
+            if exclude:
+                self._exclude_field(table, field)
+            else:
+                self._include_field(table, field)
+
+    def _apply_exclude_all_fields_from_table(self, parameters):
+        table = parameters[0]
+        fields = self.dsd.list_fields(table)
+        for field in fields:
+            self._exclude_field(table, field)
+
+    def _apply_ex_or_include_fields_with_instruction(self, parameters, exclude=True):
         if len(parameters) == 1:
             tables = self.dsd.list_tables()
             instruction = parameters[0]
@@ -120,4 +147,9 @@ class DSDView:
             for field in fields:
                 logging.debug(f"{self.__class__.__name__}._apply_exclude_fields_with_instruction: "
                               f"removing field {table}.{field}")
-                self.dsd.delete_field(table, field)
+                if exclude:
+                    self._exclude_field(table, field)
+                else:
+                    self._include_field(table, field)
+                # self.dsd.delete_field(table, field)
+

@@ -58,6 +58,28 @@ class MemoryIdentifierCache(IdentifierCache):
             result.append((table, id_field, uid_field, cache_entry[self.UID]))
         return result
 
+    def get_recording_contexts_with_structure(self) -> list:
+        """
+        returns the identifier, recording context and dsd identifier field of an identifier
+        as a list of IdentifierStruct objects.
+        :exception: throws exceptions, e.G. KeyError if the identifier does not exist at all.
+        """
+
+        class IdentifierStruct:
+            identifier: str
+            record_type: str
+            field: str
+        result = []
+        for identifier, cache_entries in self._identifier_cache.items():
+            for cache_entry in cache_entries:
+                identifier_info = IdentifierStruct()
+                identifier_info.identifier = identifier
+                identifier_info.record_type = self._identifiers[cache_entry[self.IDX]][self.IDENTIFIER_TABLE]
+                identifier_info.field = self._identifiers[cache_entry[self.IDX]][self.IDENTIFIER_ID_FIELD]
+                result.append(identifier_info)
+        result.sort(key=lambda x: x.identifier)
+        return result
+
     def get_recording_context(self, identifier: str, fail_on_multiple=False) -> tuple:
         """
         returns the recording context (record type) of an identifier as a 4-tuple:

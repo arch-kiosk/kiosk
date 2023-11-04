@@ -61,6 +61,22 @@ class KioskQueryResult:
         self._column_information[sql_field] = column_info
         self._include_dsd_table(dsd_table)
 
+    def _add_column_information_from_list(self, sql_field, field_instructions: list):
+        """
+        # adds a new entry to the internal _column_information dict or updates an existing entry.
+        # The _column_information dict is required to connect cql / sql - columns
+
+        :param sql_field: the name of the output column
+        :param field_instructions: list of raw dsd field instructions
+        """
+        if field_instructions:
+            if sql_field in self._column_information:
+                column_info = self._column_information[sql_field]
+            else:
+                column_info = ["", sql_field]
+            column_info.extend(field_instructions)
+            self._column_information[sql_field] = column_info
+
     # noinspection PyPep8Naming
     def get_DSD_information(self) -> dict:
         """
@@ -71,7 +87,7 @@ class KioskQueryResult:
         result = {}
         for table in self._included_dsd_tables:
             try:
-                dsd_info = self._dsd.get_table_definition("locus")
+                dsd_info = self._dsd.get_table_definition(table)
                 if dsd_info:
                     result[table] = dsd_info
             except BaseException as e:

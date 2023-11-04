@@ -37,7 +37,6 @@ unit:
       excavator_full_name: [datatype(VARCHAR)]
       spider_counter: [datatype(NUMBER)]
       coordinates: [datatype(VARCHAR)]
-      legacy_unit_id: [datatype(VARCHAR)]
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]

@@ -504,12 +504,12 @@ locus:
   structure:
     9:
       uid_unit: [datatype(UUID), join("unit")]
-      type: [datatype(VARCHAR), label('locus type')]
+      type: [datatype(VARCHAR), label('locus type'), "lookup('locus_types', 'id')"]
       opening elevations: [datatype(VARCHAR)]
       closing elevations: [datatype(VARCHAR)]
       description: [datatype(VARCHAR), record_description()]
-      date_defined: [datatype(DATE)]
-      date_closed: [datatype(DATE)]
+      date_defined: [datatype(DATE), label("opening date")]
+      date_closed: [datatype(DATE), label("closing date")]
       interpretation: [datatype(VARCHAR)]
       colour: [datatype(VARCHAR)]
       excavated_with: [datatype(VARCHAR)]
@@ -987,7 +987,7 @@ locus_relations:
   structure:
     3:
       uid_locus: [datatype(UUID), join("locus")]
-      uid_locus_2_related: [datatype(UUID)]
+      uid_locus_2_related: [datatype(UUID), "lookup('locus', 'uid')"]
       type: [datatype(VARCHAR)]
       chronology: [datatype(VARCHAR)]
       uid_sketch: [datatype(UUID), uid_file(), file_assigned_to("locus")]
@@ -1185,12 +1185,12 @@ identifier_lists:
 site:
   structure:
     3:
-      id: [datatype(VARCHAR)]
+      id: [datatype(VARCHAR), label("name of site")]
       purpose: [datatype(VARCHAR)]
       id_short: [datatype(VARCHAR), local_id("arch_context")]
-      uid_site_map: [datatype(UUID), uid_file()]
+      uid_site_map: [datatype(UUID), uid_file(), label("site map")]
       arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
-      arch_context: [datatype(VARCHAR), identifier()]
+      arch_context: [datatype(VARCHAR), identifier(), label("site")]
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
@@ -1548,10 +1548,10 @@ unit:
       name: [datatype(VARCHAR)]
       purpose: [datatype(VARCHAR)]
       type: [datatype(VARCHAR)]
-      method: [datatype(VARCHAR)]
-      id_excavator: [datatype(VARCHAR)]
-      unit_creation_date: [datatype(DATE)]
-      id_site: [datatype(VARCHAR), 'join("site","id")']
+      method: [datatype(VARCHAR), label("recording method")]
+      id_excavator: [datatype(VARCHAR), label("#($/constants/labels/label_supervisor)")]
+      unit_creation_date: [datatype(DATE), label("opened on")]
+      id_site: [datatype(VARCHAR), 'join("site","id")', label("site")]
       excavator_full_name: [datatype(VARCHAR)]
       spider_counter: [datatype(NUMBER)]
       coordinates: [datatype(VARCHAR)]
@@ -1561,8 +1561,8 @@ unit:
       identification_method_loci: [datatype(VARCHAR)]
       identification_method_cm: [datatype(VARCHAR)]
       identification_method_analysis: [datatype(VARCHAR)]
-      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
-      arch_context: [datatype(VARCHAR), identifier(), unit(), label("unit")]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context"), label("domain")]
+      arch_context: [datatype(VARCHAR), identifier(), label("#(unit/term_for_unit)")]  # there was a unit() instruction I removed.
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]

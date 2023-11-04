@@ -16,7 +16,7 @@ config_file = os.path.join(test_path, r"config", "kiosk_config.yml")
 log_file = os.path.join(test_path, r"log", "test_log.log")
 
 
-class TestKioskLogger(KioskPyTestHelper):
+class TestGlossary(KioskPyTestHelper):
 
     def test_glossary(self):
         config = Config()

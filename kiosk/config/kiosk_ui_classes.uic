@@ -3,8 +3,8 @@ version: 1
 imports:
   required:
   - ui/kiosk_general_ui_classes.uic
+  - ui/_sites.uic
   - ui/_units.uic
   - ui/_locus.uic
+  - ui/_collected_material.uic
   - ui/_tags.uic
-  optional:
-  - ui/%project_id%/_ui_classes.uic

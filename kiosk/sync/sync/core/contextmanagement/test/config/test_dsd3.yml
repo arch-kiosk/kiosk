@@ -201,7 +201,7 @@ locus:
       id: [datatype(NUMBER), local_id("arch_context")]
       arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
       arch_context: [datatype(VARCHAR), identifier(), 'skip_index_on(hidden,hidden-too)']
-      uid: [datatype(UUID), replfield_uuid(), 'join("tagging", "source_uid")']
+      uid: [datatype(UUID), replfield_uuid(), 'join("tagging", "source_uid", "n")']
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
@@ -229,7 +229,7 @@ locus:
 locus_architecture:
   structure:
     1:
-      uid_locus: [datatype(UUID)]
+      uid_locus: [datatype(UUID), join("locus")]
       material: [datatype(VARCHAR)]
       wall_thickness: [datatype(DECIMAL)]
       preserved_height: [datatype(DECIMAL)]
@@ -255,7 +255,7 @@ locus_burial:
 locus_deposit:
   structure:
     1:
-      uid_locus: [datatype(UUID)]
+      uid_locus: [datatype(UUID), join("locus")]
       material: [datatype(VARCHAR)]
       compositions: [datatype(VARCHAR)]
       gravel_prc: [datatype(DECIMAL)]
@@ -272,7 +272,7 @@ locus_deposit:
 locus_othertype:
   structure:
     1:
-      uid_locus: [datatype(UUID)]
+      uid_locus: [datatype(UUID), join("locus")]
       type: [datatype(VARCHAR)]
       description: [datatype(VARCHAR)]
       uid: [datatype(UUID), replfield_uuid()]
@@ -330,7 +330,7 @@ locus_types:
 lot:
   structure:
     1:
-      uid_locus: [datatype(UUID)]
+      uid_locus: [datatype(UUID), join("locus")]
       id: [datatype(NUMBER)]
       purpose: [datatype(VARCHAR)]
       date: [datatype(TIMESTAMP)]

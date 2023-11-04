@@ -1,9 +1,10 @@
 import copy
+import logging
 from collections import namedtuple
 
 from dsd.dsd3 import DataSetDefinition, Join
 from igraph import *
-from dsd.dsderrors import DSDError
+from dsd.dsderrors import DSDError, DSDJoinError
 from simplefunctionparser import SimpleFunctionParser
 
 
@@ -25,6 +26,7 @@ class DsdGraph:
             self.table: str = ""
 
     def __init__(self, dsd: DataSetDefinition, roots: list = None):
+        self.include_lookups = False
         self.current_search = self.CurrentSearch()
         self._dsd = dsd
         self._graph = Graph(directed=True)
@@ -40,11 +42,17 @@ class DsdGraph:
             raise DsdGraphError(f"KioskContext.from_dict: Error in \"join\" {join_statement} "
                                 f"between {root_table} and {table}")
 
+        if len(self.parser.parameters) > 2:
+            quantifier = self.parser.parameters[2]
+        else:
+            quantifier = "1"
+
         return Join(_type=self.parser.instruction,
                     root_table=root_table,
                     related_table=table,
                     root_field=self.parser.parameters[0],
-                    related_field=self.parser.parameters[1])
+                    related_field=self.parser.parameters[1],
+                    quantifier=quantifier)
 
     def is_empty(self):
         return len(self._graph.vs) == 0
@@ -91,20 +99,18 @@ class DsdGraph:
         :return: a scope dict or {}
         """
 
-        def __browse_table_scope(_table: str, level=0):
+        def __browse_table_scope(_table: str, level=0, origin_join_type=""):
             if level > 10:
                 raise DsdGraphError("DsdGraph._browse_table_scope: maximum recursion level exceeded.")
 
             scope = {}
             if _table in self._dsd_joins:
-                # if _table not in scope:
-                #     scope[_table] = {}
                 for join in self._dsd_joins[_table]:
                     join: Join
-                    if join.related_table not in exclude_tables:
-                        new_scope = __browse_table_scope(join.related_table, level + 1)
-                        scope[join.related_table] = new_scope
-
+                    if origin_join_type != "lookup" or join.type == "lookup":
+                        if join.related_table not in exclude_tables:
+                            new_scope = __browse_table_scope(join.related_table, level + 1, origin_join_type=join.type)
+                            scope[join.related_table] = new_scope
             return scope
 
         if exclude_tables is None:
@@ -125,7 +131,7 @@ class DsdGraph:
         :param refresh: set to True if you want to force refresh the _dsd_joins.
         """
         if not self._dsd_joins or refresh:
-            self._dsd_joins = self._dsd.list_default_joins()
+            self._dsd_joins = self._dsd.list_default_joins(self.include_lookups)
 
     def _parse_scope_instruction(self, command: str, table: str = "") -> dict:
         """
@@ -149,7 +155,7 @@ class DsdGraph:
                     tables = self._dsd.list_root_tables()
                     scope = {}
                     for table in tables:
-                        if table not in instruction.parameters:
+                        if table not in exclude_tables:
                             new_scope = self._browse_table_scope(table, exclude_tables=instruction.parameters)
                             scope[table] = new_scope
                     return scope
@@ -232,7 +238,11 @@ class DsdGraph:
                     else:
                         # implicit join
                         if r_depth > 0 and root_table:
-                            join = self._dsd.get_default_join(root_table, t)
+                            try:
+                                join = self._dsd.get_default_join(root_table, t)
+                            except DSDJoinError:
+                                join = self._dsd.get_lookup_join(root_table, t)
+
                         if "relates_to" in _scope[t]:
                             new_scope = _scope[t]["relates_to"]
 
@@ -290,11 +300,36 @@ class DsdGraph:
         edge = self._graph.add_edge(join.root_table, join.related_table)
         edge["join"] = copy.copy(join)
 
+    def get_joined_tables(self, table_name, limit_to_quantifier_1=True) -> (str, int):
+        """
+        returns the names of the tables the table table_name joins backward.
+        not recursive, so in a graph t1 -> t2 -> t3 get_joined_table(t3) will only return t2 and not t1!
+
+        :param table_name: the table name that has the join statement.
+        :param limit_to_quantifier_1: only tables with a join quantifier of 1 (the default)
+                                      will be regarded as legitimate predecessors. Set this to False if you want to include
+                                      quantifiers "n" as well.
+        :return: list of table names
+        """
+        vertex = self._graph.vs.find(table_name)
+        if limit_to_quantifier_1:
+            result = []
+            for p in vertex.predecessors():
+                edge = self._graph.get_eid(p, vertex)
+                if edge and self._graph.es[edge]["join"].quantifier == "1":
+                    if self._graph.es[edge]["join"].type != "lookup":
+                        result.append(p["name"])
+            return result
+        else:
+            return [p["name"] for p in vertex.predecessors()]
+
     def get_paths_to_table(self, table_name: str, start_table="") -> list:
         """
         returns a list with all paths that lead to a table
-        :param table_name:
-        :return: a list with tables that lead to the target table. e.G. ["table1", "table2", "target table"]
+        :param table_name: the target table of the paths
+        :param start_table: the root table where the path begins.
+                            If not given all root tables (tables without incoming paths) will be used
+        :return: a list with tables that lead to the table. e.G. ["table1", "table2", "target table"]
         :exception: throws exceptions
         """
         paths = []
@@ -441,7 +476,26 @@ class DsdGraph:
         """
         r_idx = self._graph.vs.find(root_table).index
         t_idx = self._graph.vs.find(target_table).index
-        edge = self._graph.es[self._graph.get_eid(r_idx, t_idx)]
+        try:
+            eid = self._graph.get_eid(r_idx, t_idx, error=False)
+            if eid == -1:
+                raise Exception("")
+            edge = self._graph.es[eid]
+        except BaseException:
+            # Todo: I am not sure about side effects of this. I introduced this code to allow for lookup relations in
+            # KioskView. But the side effects for other parts of Kiosk? That's why I will issue a warning whenever this
+            # runs. The warning should only appear in KioskView
+            logging.debug(f"DSDGraph.get_join: Warning: No directed edge between {root_table} and {target_table}. "
+                          f"This should only ever appear in KioskView and only with a lookup relation")
+            eid = -1
+            if self.include_lookups:
+                eid = self._graph.get_eid(t_idx, r_idx, error=False)
+
+            if eid == -1:
+                raise DsdGraphError(f"No relation between {root_table} and {target_table}")
+
+            edge = self._graph.es[eid]
+
         return edge["join"]
 
     def table_has_instruction(self, table: str, instruction: str):

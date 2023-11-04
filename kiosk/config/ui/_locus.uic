@@ -1,5 +1,6 @@
 # header
 version: 1
+apply_uic_literals: "&& view-ui"
 
 # dsd('locus','type')
 element_type:
@@ -10,3 +11,57 @@ element_type:
     selection: ["type_name"]
     key: "id"
 
+# dsd('locus','uid_unit')
+element_type:
+  visible: false
+# dsd('locus','alternate_id')
+# dsd('locus','depth')
+# dsd('locus','datum_point_elevation')
+# dsd('locus','elevation_closing_ct')
+# dsd('locus','elevation_closing_ne')
+# dsd('locus','elevation_closing_nw')
+# dsd('locus','elevation_closing_se')
+# dsd('locus','elevation_closing_sw')
+# dsd('locus','elevation_opening_ct')
+# dsd('locus','elevation_opening_ne')
+# dsd('locus','elevation_opening_nw')
+# dsd('locus','elevation_opening_se')
+# dsd('locus','elevation_opening_sw')
+# dsd('locus','volume')
+# dsd('locus','width')
+# dsd('locus','excavated_with')
+# dsd('locus','colour')
+element_type:
+  visible: "."
+
+# dsd('locus','description')
+# dsd('locus','interpretation')
+layout:
+  min_width: max
+element_type:
+  multiline: true
+
+#dsd('locus','arch_context') && view_type:list
+element_type:
+  text: "#(unit/term_for_locus)"
+  is_identifier: true
+
+#dsd('locus','type')
+element_type:
+  lookup:
+    lookup_type: "record"
+    record_type: "locus_types"
+    key_field: "id"
+    display_value: "type_name"
+
+#dsd('locus','type') && view_type:list
+element_type:
+  text: "#(unit/term_for_locus) type"
+
+# dsd('locus_relations','uid_locus_2_related')
+element_type:
+  visible: True
+  lookup:
+    lookup_type: "record"
+    record_type: "locus"
+    display_value: "arch_context"

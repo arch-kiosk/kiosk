@@ -51,8 +51,6 @@ export class KioskQueryLayouter extends KioskAppComponent {
     }
 
     apiRender(): TemplateResult {
-        console.log("render kioskquerylayouter")
-        console.log(this.assignedPages)
         return (this.assignedPages.length==0)?html``:html`
             <div class="kiosk-query-layouter">
                 <sl-tab-group @sl-close="${this.tryClose}">

@@ -18,4 +18,71 @@
   --ui-button-height: 42px
   --ui-button-font-size: 20px
   padding: .5em
+.local-error
+  display: flex
+  flex-direction: row
+  align-items: center
+  padding: .5rem
+  background-color: $col-bg-alert
+  color: $col-primary-bg-alert
+  min-height: 3em
 
+.missing-record-message
+  display: flex
+  flex-direction: row
+  align-items: center
+  padding: .5rem
+  background-color: $col-bg-1-darker
+  color: $col-primary-bg-1
+  min-height: 3em
+  i
+    font-style: normal
+    font-size: $font-size-h3
+    vertical-align: middle
+    font-family: $fontawesome-font-family
+    padding-right: 1em
+
+.part-header
+  background-color: $color-black
+  color: $color-white
+  padding: 0px 4px
+  transform: translateX(-8px)
+  box-shadow: rgba(0,0,0,.5) -4px 2px 5px
+  margin: .5em 0
+  width: max-content
+  i
+    margin-left: 1em
+    font-weight: normal
+
+.accordion-part-header
+  background-color: $col-bg-1-lighter
+  color: $color-white
+  padding-left: 4px
+  width: 100%
+  display: flex
+  flex-direction: row
+  justify-content: space-between
+  margin: .5em 0px
+  i
+    background-color: $col-bg-2
+    color: $color-black
+    border-style: none
+    font-weight: bold
+    margin-left: 5px
+    font-size: 1.5em
+    line-height: 1.5em
+    vertical-align: middle
+  div:nth-child(2)
+    background-color: $col-bg-2
+  div:first-child
+    background-color: $color-black
+    color: $color-white
+    padding: .3em 1em 0px 6px
+    transform: translateX(-12px)
+    box-shadow: rgba(0,0,0,.5) -4px 2px 5px
+    width: max-content
+    padding-top: .3em
+
+
+.part-body
+  overflow-y: auto

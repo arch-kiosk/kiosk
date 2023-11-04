@@ -1,4 +1,5 @@
 # from flask_restplus import Namespace, Resource
+import decimal
 import logging
 import datetime
 from typing import Callable, Union
@@ -16,6 +17,7 @@ from core.kioskapi import KioskApi
 from kioskglobals import kiosk_version, kiosk_version_name, get_global_constants, get_config, httpauth
 from marshmallow import Schema, fields, validate
 
+from makejsonresponse import make_json_response
 from presentationlayer.kioskviewdocument import KioskViewDocument
 
 API_VERSION = "0.1.0"
@@ -160,7 +162,7 @@ class V1QueryAndViewApiView(Resource):
             doc = view_doc.compile()
 
             api_result = ApiResultView().dump({'document': doc})
-            response = self.make_json_response(api_result)
+            response = make_json_response(api_result)
             return response
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.get: {repr(e)}")
@@ -173,35 +175,3 @@ class V1QueryAndViewApiView(Resource):
                 logging.error(f"{self.__class__.__name__}.post: {repr(e)}")
                 flask.abort(500, description=repr(e))
 
-    def make_json_response(self, api_result: dict, json_serial: Callable = None) -> Response:
-        """
-        Takes a dict that is the api_result and turns it into a Flask JSON Response
-        :param api_result:      A Response object for Flask to return
-        :param json_serial:     an optional default json method that handles the serialization of json datatypes.
-        :return: Response object
-        :raises All kinds of Exceptions and a particular Exception if the app's current json provider
-                is not a correct json provider.
-        """
-        original_default: Union[Callable, None] = None
-
-        def _json_serial(obj):
-            """JSON serializer for objects not serializable by default json code"""
-
-            if isinstance(obj, (datetime.datetime, datetime.date)):
-                return obj.isoformat()
-            else:
-                original_default(obj)
-            raise TypeError("Type %s not serializable" % type(obj))
-
-        app = current_app
-
-        if isinstance(app.json, DefaultJSONProvider):
-            json_provider: DefaultJSONProvider = app.json
-            original_default = json_provider.default
-            json_provider.default = json_serial if json_serial else _json_serial
-            response = flask.make_response(jsonify(api_result), 200)
-            app.json.default = original_default
-        else:
-            raise Exception(f"{self.__class__.__name__}.The original json provider "
-                            f"does not seem to be of type DefaultJSONProvider.")
-        return response

@@ -1,0 +1,118 @@
+config:
+  format_version: 1
+
+compilations:
+  unit_compilation:
+    name: unit view
+    record_type: unit
+    groups:
+      group_1:
+        type: "stacked"
+        parts:
+          unit.sheet:
+            text: '#(unit/term_for_unit) #(unit/arch_context)'
+            position: 1
+          unit_narrative.list:
+            text: 'narratives'
+            position: 2
+      group_2:
+        type: "accordion"
+        parts:
+          unit_files.list:
+            text: 'photos & files'
+            position: 1
+          unit_loci.list:
+            text: '#(unit/term_for_locus) list'
+            position: 2
+          unit_cm.list:
+            text: 'collected materials'
+            position: 3
+
+unit.sheet:
+  record_type: unit
+  view_type: sheet  # (can be list, sheet or file_list or harris_matrix)
+  fields_selection: dsd
+  dsd_view: unit.sheet.view
+  layout_settings:
+    orchestration_strategy: columns  # (the default for the sheet scenario)
+    order:
+      - id_site
+      - arch_context
+      - legacy_unit_id
+      - name
+      - line_identifiers
+      - unit_creation_date
+      - id_excavator
+      - excavator_full_name
+      - type
+      - method
+      - purpose
+  ui_elements:
+    line_identifiers:
+      element_type:
+        name: "line"
+        transparent: true
+      layout:
+        min_width: max
+
+
+unit_narrative.list:
+  record_type: unit_narrative
+  view_type: list  # (can be list, sheet or file_list or harris_matrix)
+  max_height: 20em
+  max_height_expandable: true
+  fields_selection: dsd
+  layout_settings:
+    type: list
+    orchestration_strategy: table  # (the default for the sheet scenario)
+    order_records_by: [">date", "id_excavator"]
+    allow_ordering_by: ["date", "id_excavator"]
+    order: [date, id_excavator, narrative]
+  ui_elements:
+    date:
+      layout:
+        min_width: 15%
+    id_excavator:
+      layout:
+        min_width: 20%
+    narrative:
+      layout:
+        min_width: 70%
+        max_height: max
+
+unit_files.list:
+  record_type: dayplan
+  view_type: list  # (can be list, sheet or file_list or harris_matrix)
+  max_height: auto
+  fields_selection: dsd
+  layout_settings:
+    type: list
+    orchestration_strategy: gallery
+    order_records_by: [">modified"]
+    allow_ordering_by: ["modified", "modified_by"]
+    order: [uid_image, modified, modified_by]
+
+unit_loci.list:
+  record_type: locus
+  view_type: list  # (can be list, sheet or file_list or harris_matrix)
+  dsd_view: "locus.sheet.view.yml"
+  max_height: 20em
+  fields_selection: dsd
+  layout_settings:
+    type: list
+    orchestration_strategy: table
+    order_records_by: [">arch_context"]
+    allow_ordering_by: [arch_context, type, date_defined, date_closed, recorded_by]
+    order: [arch_context, type, date_defined, date_closed, recorded_by]
+
+unit_cm.list:
+  record_type: collected_material
+  view_type: list
+  max_height: 20em
+  fields_selection: dsd
+  layout_settings:
+    type: list
+    orchestration_strategy: table
+    order_records_by: [">arch_context"]
+    allow_ordering_by: ["arch_context", "cm_type", "type", "date", "storage"]
+    order: [arch_context, cm_type, type, date, storage]

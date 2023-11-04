@@ -1,6 +1,8 @@
 import os
 import logging
 import re
+from typing import List
+
 from kioskfiletools import get_file_extension
 from dsd.dsdloader import DSDLoader
 from dsd.dsdconstants import *
@@ -14,32 +16,47 @@ from dicttools import dict_merge
 
 
 class Join:
-    def __init__(self, root_table, related_table, _type="inner", root_field="", related_field=""):
+    def __init__(self, root_table, related_table, _type="inner", root_field="", related_field="", quantifier="1",
+                 root_alias="",
+                 related_alias=""):
         self.root_table = root_table
         self.related_table = related_table
         self.type = _type
         self.root_field = root_field
         self.related_field = related_field
 
+        # usually that's 1 as we deal with 1:N relations.
+        self.quantifier = quantifier  # how many records does the root table have?
+
+        self.root_alias = ""
+        self.related_alias = ""
+
     def __repr__(self) -> str:
         return f"Join(root_table=\"{self.root_table}\"," \
                f"related_table=\"{self.related_table}\"," \
                f"type=\"{self.type}\"," \
                f"root_field=\"{self.root_field}\"," \
-               f"related_field=\"{self.related_field}\")"
+               f"related_field=\"{self.related_field}\"," \
+               f"root_alias=\"{self.root_alias}\"," \
+               f"related_alias=\"{self.related_alias}\"," \
+               f"quantifier=\"{self.quantifier}\")"
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
 
     def get_sql(self):
         sql = ""
-        if self.type != "inner":
+        if self.type not in ["inner", "lookup"]:
             raise DSDJoinError(f"Join._get_sql: join type {self.type} not supported.")
+        root_table = self.root_alias if self.root_alias else self.root_table
+        related_table = self.related_alias if self.related_alias else self.related_table
+
         sql += f" inner join"
-        sql += f" {KioskSQLDb.sql_safe_ident(self.related_table)}"
-        sql += f" on {KioskSQLDb.sql_safe_ident(self.root_table)}.{KioskSQLDb.sql_safe_ident(self.root_field)}"
+        sql += (f" {KioskSQLDb.sql_safe_ident(self.related_table)}"
+                f"{' as ' + KioskSQLDb.sql_safe_ident(self.related_alias) if self.related_alias else ''}")
+        sql += f" on {KioskSQLDb.sql_safe_ident(root_table)}.{KioskSQLDb.sql_safe_ident(self.root_field)}"
         sql += f"="
-        sql += f"{KioskSQLDb.sql_safe_ident(self.related_table)}.{KioskSQLDb.sql_safe_ident(self.related_field)}"
+        sql += f"{KioskSQLDb.sql_safe_ident(related_table)}.{KioskSQLDb.sql_safe_ident(self.related_field)}"
 
         return sql
 
@@ -478,6 +495,7 @@ class DataSetDefinition:
         :param version: the version. 0 for the most recent version.
         :return: a dictionary with the instructions as key and a list of parameters as values.
         :raises all kinds of exceptions.
+        :todo this won't work if a field can have the same instruction twice! Not a use case so far...
         """
         result = {}
         parser = SimpleFunctionParser()
@@ -761,7 +779,7 @@ class DataSetDefinition:
         except Exception as e:
             pass
 
-        return field
+        return field.replace("_", " ")
 
     def get_attribute_reference(self, table, field, attribute, version=0):
         """ returns the value given in brackets of the given attribute of the given field.
@@ -1192,9 +1210,15 @@ class DataSetDefinition:
             join_params = fields[field]["join"]
             if join_params[0] == root_table:
                 if len(join_params) > 1:
-                    join = Join(root_table, table, "inner", related_field=field, root_field=join_params[1])
+                    if len(join_params) > 2:
+                        join = Join(root_table, table, "inner", related_field=field, root_field=join_params[1],
+                                    quantifier=join_params[2])
+                    else:
+                        join = Join(root_table, table, "inner", related_field=field, root_field=join_params[1])
                 else:
                     join = Join(root_table, table, "inner", related_field=field, root_field="replfield_uuid()")
+            # if join:
+            #     break
 
         if join:
             parser = SimpleFunctionParser()
@@ -1218,7 +1242,7 @@ class DataSetDefinition:
 
         return join
 
-    def list_default_joins(self) -> dict:
+    def list_default_joins(self, include_lookups=False) -> dict:
         """
         returns a dictionary of all joins between tables.
 
@@ -1234,6 +1258,7 @@ class DataSetDefinition:
                     join = self.get_instruction_parameters(t, field, "join")
                     if join[0] not in joins:
                         joins[join[0]] = []
+
                     joins[join[0]].append(Join(root_table=join[0],
                                                related_table=t,
                                                _type="inner",
@@ -1243,7 +1268,69 @@ class DataSetDefinition:
                 except BaseException as e:
                     raise DSDError(f"{self.__class__.__name__}.list_default_joins: Exception processing field "
                                    f"{t}.{field}: {repr(e)}")
+
+        if include_lookups:
+            tables = self.list_tables_with_instructions(["lookup"])
+            for t in tables:
+                fields = self.get_fields_with_instructions(t, ["lookup"])
+                for field in fields:
+                    try:
+                        join = self.get_instruction_parameters(t, field, "lookup")
+                        if t not in joins:
+                            joins[t] = []
+                        joins[t].append(Join(root_table=t,
+                                             related_table=join[0],
+                                             _type="lookup",
+                                             root_field=field,
+                                             related_field="replfield_uuid()" if len(join) == 1 else join[1]
+                                             ))
+                    except BaseException as e:
+                        raise DSDError(f"{self.__class__.__name__}.list_default_joins: "
+                                       f"Exception processing lookup for field "
+                                       f"{t}.{field}: {repr(e)}")
+
         return joins
+
+    def get_lookup_join(self, root_table: str, table: str) -> Join:
+        fields = self.get_fields_with_instructions(root_table, ["lookup"])
+        join: Join = None
+        if not fields:
+            raise DSDJoinError(f"DataSetDefinition.get_lookup_join: Table {table} "
+                               f"has no lookup join.")
+
+        for field in fields.keys():
+            join_params = fields[field]["lookup"]
+            if join_params[0] == table:
+                if len(join_params) > 1:
+                    if len(join_params) > 2:
+                        join = Join(root_table, table, "lookup", root_field=field, related_field=join_params[1],
+                                    quantifier=join_params[2])
+                    else:
+                        join = Join(root_table, table, "lookup", root_field=field, related_field=join_params[1])
+                else:
+                    join = Join(root_table, table, "lookup", root_field=field, related_field="replfield_uuid()")
+
+        if join:
+            parser = SimpleFunctionParser()
+            parser.parse(join.related_field)
+            if parser.ok:
+                related_fields = self.get_fields_with_instructions(join.related_table, [parser.instruction])
+                if related_fields:
+                    join.related_field = list(related_fields.keys())[0]
+                else:
+                    raise DSDJoinError(f"DataSetDefinition.get_lookup_join: related table {join.related_table} "
+                                       f"has no field with instruction {parser.instruction}: "
+                                       f"Wrong lookup join in {root_table}.")
+            else:
+                if join.related_field not in self.list_fields(join.related_table):
+                    raise DSDJoinError(f"DataSetDefinition.get_lookup_join: Related table {join.related_table} "
+                                       f"has no field {join.related_field}: "
+                                       f"Wrong lookup join in {root_table}.")
+        else:
+            raise DSDJoinError(f"DataSetDefinition.get_lookup_join: Table {root_table} "
+                               f"has no lookup join to table {table}.")
+
+        return join
 
     def list_root_tables(self):
         """
@@ -1292,3 +1379,72 @@ class DataSetDefinition:
         :return:
         """
         return self._dsd_data.pprint(key=key, width=width)
+
+    def get_file_fields_with_description_fields(self):
+        """
+            returns a nested structure with table as the main-key, unveiling a dictionary with file-fields, pointing to
+            their description field.
+            A table is only in there if it actually has a file-field with a description. Accordingly, a field is only
+            in the dictionary of a table if it actually has a description field.
+        """
+        result = {}
+        fields = self.list_file_fields()
+        for t, file_flds in fields.items():
+            for file_fld in file_flds:
+                try:
+                    dsc_fields = self.get_description_field_for_file_field(t, file_fld)
+                    if dsc_fields:
+                        dsc_fld = self.get_description_field_for_file_field(t, file_fld)[0]
+                        if t in result:
+                            result[t].append((file_fld, dsc_fld))
+                        else:
+                            result[t] = [(file_fld, dsc_fld)]
+                except Exception as e:
+                    logging.error("Exception in DataSetDefinition.get_file_fields_with_description_fields: " + repr(e))
+
+        result["images"] = [("uid", "description"), ("uid", "export_filename")]
+        return result
+
+    def get_lookup_joins(self, table: str) -> List[Join]:
+        """
+        returns Join objects for all lookup joins that a table has to others
+        :param table: the root table
+        :return: a list of Join objects
+        """
+        result = []
+        fields = self.get_fields_with_instruction(table, "lookup")
+        for field in fields:
+            lookup_parameters = self.get_instruction_parameters(table, field, "lookup")
+            if not (lookup_parameters and len(lookup_parameters) > 0):
+                raise DSDError(f"{self.__class__.__name__}.get_lookup_joins: "
+                               f"{table} has wrong lookup join in field {field}")
+
+            lookup_table = lookup_parameters[0]
+            if not self.table_is_defined(lookup_table):
+                raise DSDError(f"{self.__class__.__name__}.get_lookup_joins: "
+                               f"{table} has lookup reference to unknown table {lookup_table}")
+
+            parser = SimpleFunctionParser()
+            if len(lookup_parameters) == 1:
+                lookup_field = "replfield_uuid()"
+            else:
+                lookup_field = lookup_parameters[1]
+
+            parser.parse(lookup_parameters[1])
+            if parser.ok:
+                lookup_fields = self.get_fields_with_instruction(lookup_table, parser.instruction)
+                if not (lookup_fields and len(lookup_fields) == 1):
+                    raise DSDError(f"{self.__class__.__name__}.get_lookup_joins: "
+                                   f"{table} has lookup reference to {lookup_table}/{lookup_field} but "
+                                   f"the instruction cannot be resolved or belongs to more than one field")
+                lookup_field = lookup_fields[0]
+
+            if lookup_field not in self.list_fields(lookup_table):
+                raise DSDError(f"{self.__class__.__name__}.get_lookup_joins: "
+                               f"{table} has lookup reference to {lookup_table}/{lookup_field} but "
+                               f"that field does not exist")
+
+            join = Join(root_table=table, related_table=lookup_table, root_field=field, related_field=lookup_field)
+            result.append(join)
+
+        return result

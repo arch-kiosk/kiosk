@@ -29,7 +29,16 @@ class TestDsdGraph(KioskPyTestHelper):
                                                                                        related_table="site_notes",
                                                                                        _type="inner",
                                                                                        related_field="uid_site",
-                                                                                       root_field="uid")
+                                                                                       root_field="uid",
+                                                                                       quantifier="1")
+
+        assert graph._parse_join("inner(uid, uid_site,n)", "site", "site_notes") == Join(root_table="site",
+                                                                                         related_table="site_notes",
+                                                                                         _type="inner",
+                                                                                         related_field="uid_site",
+                                                                                         root_field="uid",
+                                                                                         quantifier="n")
+
     def test_is_empty(self, dsd):
         graph = DsdGraph(dsd)
         assert graph.is_empty()
@@ -518,3 +527,36 @@ class TestDsdGraph(KioskPyTestHelper):
         assert self.sort_structure(graph.get_paths_to_table("pottery")) == self.sort_structure(
             [["unit", "locus", "collected_material", "pottery"],
              ["tagging", "locus", "collected_material", "pottery"]])
+
+    def test_get_joined_tables(self, dsd):
+        graph = DsdGraph(dsd)
+        graph.add_table("unit")
+        graph.add_table("dayplan")
+        graph.add_join(Join(root_table="unit", related_table="dayplan"))
+
+        graph.add_table("locus")
+        graph.add_join(Join(root_table="unit", related_table="locus"))
+
+        graph.add_table("locus_photo")
+        graph.add_join(Join(root_table="locus", related_table="locus_photo"))
+
+        graph.add_table("collected_material")
+        graph.add_join(Join(root_table="locus", related_table="collected_material"))
+
+        graph.add_table("collected_material_photo")
+        graph.add_join(Join(root_table="collected_material", related_table="collected_material_photo"))
+
+        graph.add_table("locus_relations")
+        graph.add_join(Join(root_table="locus", related_table="locus_relations"))
+
+        # tagging is added with quantifier "n", so that join does not count as a joined table for get_joined_tables
+        graph.add_table("tagging")
+        graph.add_join(Join(root_table="tagging", related_table="locus", quantifier="n"))
+
+        graph.add_table("site")
+        graph.add_join(Join(root_table="site", related_table="unit"))
+        assert len(graph._graph.vs) == 9
+        assert len(graph._graph.es) == 8
+        print(graph._graph)
+
+        assert graph.get_joined_tables("locus", limit_to_quantifier_1=True) == ["unit"]

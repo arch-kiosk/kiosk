@@ -44,6 +44,9 @@ def inject_current_plugin_controller():
 #
 #     return update_wrapper(no_cache, view)
 
+# @bugsandfeatures.context_processor
+# def custom_js_context():
+#     return {'custom_js': url_for('.static', filename='my_file.js')}
 
 #  **************************************************************
 #  ****    /file-repository redirecting index

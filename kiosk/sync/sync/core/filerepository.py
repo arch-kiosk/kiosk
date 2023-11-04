@@ -437,23 +437,7 @@ class FileRepository:
             A table is only in there if it actually has a file-field with a description. Accordingly, a field is only
             in the dictionary of a table if it actually has a description field.
         """
-        result = {}
-        fields = self.dsd.list_file_fields()
-        for t, file_flds in fields.items():
-            for file_fld in file_flds:
-                try:
-                    dsc_fields = self.dsd.get_description_field_for_file_field(t, file_fld)
-                    if dsc_fields:
-                        dsc_fld = self.dsd.get_description_field_for_file_field(t, file_fld)[0]
-                        if t in result:
-                            result[t].append((file_fld, dsc_fld))
-                        else:
-                            result[t] = [(file_fld, dsc_fld)]
-                except Exception as e:
-                    logging.error("Exception in get_file_fields_with_description_fields: " + repr(e))
-
-        result["images"] = [("uid", "description"), ("uid", "export_filename")]
-        return result
+        return self.dsd.get_file_fields_with_description_fields()
 
     @classmethod
     def get_repository_sub_dir_for_file(cls, repository_base_path, uid_filename: str):

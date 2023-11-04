@@ -9,6 +9,7 @@
 {% block body %}
   <div id="baf-wrapper">
     <div class="baf-filter">
+      <div>{{ custom_js }}</div>
       <form id="form-filter-baf" method="post">
         {{ buf_filter_form.csrf_token }}
         <div class="filter-element">{{buf_filter_form.buf_view.label(class="kiosk-dialog-label")}}{{buf_filter_form.buf_view(class="kiosk-dialog-textfield")}}</div>

@@ -1,3 +1,5 @@
+import logging
+
 from kioskquery.kioskquerylib import *
 from copy import copy
 
@@ -52,23 +54,29 @@ class KioskQueryResultSQL(KioskQueryResult):
 
         for field, value in kiosk_query_def["column_information"].items():
             if type(value) is str:
-                parser = SimpleFunctionParser()
-                parser.parse(value)
-                if parser.ok:
-                    if parser.instruction.lower() == 'dsd':
-                        if len(parser.parameters) in [1, 2]:
-                            self._add_column_information_from_dsd(field, *parser.parameters)
-                        else:
-                            raise KioskQueryException(f"{self.__class__.__name__}._process_column_information: "
-                                                      f"Wrong number of parameters: {value}")
+                value = [value]
+
+            instruction = value[0]
+            parser = SimpleFunctionParser()
+            parser.parse(instruction)
+            if parser.ok:
+                if parser.instruction.lower() == 'dsd':
+                    if len(parser.parameters) in [1, 2]:
+                        self._add_column_information_from_dsd(field, *parser.parameters)
+                        value.pop(0)
                     else:
                         raise KioskQueryException(f"{self.__class__.__name__}._process_column_information: "
-                                                  f"Unknown instruction: {value}")
-                else:
-                    raise KioskQueryException(f"{self.__class__.__name__}._process_column_information: "
-                                              f"Syntax Error in {value}")
+                                                  f"Wrong number of parameters in column "
+                                                  f"information for {field} : {value}")
             else:
-                self._column_information[field] = copy(value)
+                raise KioskQueryException(f"{self.__class__.__name__}._process_column_information: "
+                                          f"Syntax Error in column information for {field}: {value}")
+
+            try:
+                self._add_column_information_from_list(field, value)
+            except BaseException as e:
+                logging.error(f"{self.__class__.__name__}._process_column_information: {repr(e)}")
+                raise e
 
     def get_documents(self, page=1, new_page_size=0):
         """

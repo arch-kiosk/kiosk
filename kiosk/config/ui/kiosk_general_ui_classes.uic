@@ -9,6 +9,12 @@ element_type:
 element_type:
   name: DateTimeField
 
+# datatype(timestamp) && view-ui && view_type:list
+# datatype(datetime) && view-ui && view_type:list
+element_type:
+  style:
+    text-align: center
+
 # datatype(time)
 element_type:
   name: TimeField
@@ -21,18 +27,23 @@ element_type:
 
 # identifier()
 element_type:
-  isIdentifier: True
+  isIdentifier: true
 
-# datatype(float)
+# datatype(float) || datatype(decimal)
 element_type:
   name: TextField
   format: FLOAT
+  style:
+    text-align: right
 
 # datatype(uuid)
 element_type:
   name: TextField
+  visible: False
 
-# datatype(number)
+# datatype(number) || datatype(int)
 element_type:
   name: TextField
   format: FLOAT
+  style:
+    text-align: right

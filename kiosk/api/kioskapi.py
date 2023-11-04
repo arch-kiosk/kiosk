@@ -12,6 +12,7 @@ from core.kioskapi import KioskApi
 from kioskglobals import kiosk_version, kiosk_version_name, get_global_constants, get_config, httpauth
 from kioskuser import KioskUser
 from .kioskapiconstants import ApiConstants
+from .kioskapicontextsfull import ApiContextsFull
 from .kioskapicql import ApiCQLQuery
 from .kioskapifiles import ApiFile, ApiResolution
 from .kioskapicontexts import ApiContexts
@@ -33,6 +34,7 @@ def register_resources(api: KioskApi):
     ApiResolution.register(api)
     ApiConstants.register(api)
     ApiContexts.register(api)
+    ApiContextsFull.register(api)
     ApiKioskQuery.register(api)
     ApiLookup.register(api)
 

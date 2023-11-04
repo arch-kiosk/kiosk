@@ -28,6 +28,12 @@
     </body>
     <script type="module" src="/src/app.ts"></script>
     <script type="module" src="/kioskdevstarter.ts"></script>
+    <script>
+        ui = document.querySelector("#kiosk-app")
+        ui.addEventListener("select-image", (event) => {
+            console.log(`Selecting image ${event.detail}`)
+        })
+    </script>
     <!--suppress JSUnresolvedLibraryURL -->
     <script src="http://localhost:5000/static/scripts/kiosklastscript.js"></script>
 </html>

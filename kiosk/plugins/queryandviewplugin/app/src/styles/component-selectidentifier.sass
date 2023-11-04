@@ -1,0 +1,32 @@
+@import "./component-queryselector"
+@import "appstyles"
+@import reset
+@import icons
+
+
+.select-identifier-popup-content
+  background-color: $col-bg-1
+  max-width: 800px
+  padding: 1em
+  margin: auto
+  position: relative
+  z-index: 3
+
+.identifier-list-area
+  max-height: calc(70vh - 200px)
+  overflow-y: auto
+  display: grid
+  width: 100%
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr))
+  grid-column-gap: 1em
+  grid-row-gap: .3em
+  margin-top: .5em
+  background-color: $col-bg-2
+  color: $col-primary-bg-2
+.identifier
+  text-decoration: underline
+  text-decoration-style: dotted
+  cursor: pointer
+  color: $col-accent-bg-2
+
+

@@ -1,0 +1,28 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+variables:
+  site_id: ["dsd('site', 'arch_context')"]
+queries:
+  'sites and units':
+    name: '#:what #(/$/constants/labels/label_for_unit_on_start_page) exist per site?'
+    description: '#:Lists all the #(/$/constants/labels/label_for_unit_on_start_page) of a site'
+    type: 'SQL'
+    output_type: 'list'
+    query: "
+      select unit.arch_context unit_id, unit.type type, unit.method recording_method, unit.id_excavator id_excavator,
+      unit.unit_creation_date opened
+       from {{site}} site
+         inner join {{unit}} unit on site.id = unit.id_site
+      where site.arch_context = {{#site_id}}
+      order by site.arch_context, unit.arch_context"
+    column_information:
+      unit_id: ["DSD('unit','arch_context')","label('#(/$/constants/labels/label_for_unit_on_start_page)')"]
+      type: DSD('unit','type')
+      recording_method: DSD('unit','method')
+      id_excavator: DSD('unit','id_excavator')
+      opened: DSD('unit','unit_creation_date')
+
+
+

@@ -1,0 +1,105 @@
+config:
+  format_version: 3
+
+migration_catalog:
+  meta:
+    flags: [system_table]
+  structure:
+    1:
+      "uid": [datatype('UUID'), uuid_key()]
+      "table": [datatype('TEXT'), not_null(), unique()]
+      "table_definition": [datatype('TEXT'), not_null()]
+      "namespace": [datatype('TEXT'), default("''")]
+      "version": [datatype('INT'), not_null()]
+
+migration_flags:
+  meta:
+    flags: [system_table]
+  structure:
+    1:
+      "uid": [datatype('UUID'), uuid_key()]
+      "flag": [datatype('TEXT'), not_null(), unique()]
+      "value": [datatype('TEXT'), not_null()]
+
+locus:
+  structure:
+    1:
+      uid_unit: [datatype(UUID), join("unit")]
+      type: [datatype(VARCHAR), "lookup('locus_types', 'id')"]
+      uid_color: [datatype(UUID), "lookup('locus_color', 'replfield_uuid()')"]
+      opening elevations: [datatype(VARCHAR)]
+      closing elevations: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      date_defined: [datatype(DATE)]
+      date_closed: [datatype(DATE)]
+      interpretation: [datatype(VARCHAR)]
+      formation_process: [datatype(VARCHAR)]
+      id: [datatype(NUMBER), local_id("arch_context")]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier()]
+      uid: [datatype(UUID), replfield_uuid(), 'join("tagging", "source_uid")']
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+
+locus_color:
+  structure:
+    1:
+      color_code: [datatype(UUID)]
+      color_name: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+
+locus_relations:
+  structure:
+    1:
+      uid_locus: [datatype(UUID), "join('locus', 'identifier()')"]
+      uid_locus_2_related: [datatype(UUID)]
+      type: [datatype(VARCHAR)]
+      uid_sketch: [datatype(UUID), uid_file(), "file_assigned_to('locus', 'site')"]
+      sketch_description: [datatype(VARCHAR), describes_file(uid_sketch)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+
+locus_types:
+  meta:
+    flags: [export_dont_truncate]
+  structure:
+    1:
+      id: [datatype(VARCHAR)]
+      type_name: [datatype(VARCHAR)]
+      field_set: [datatype(VARCHAR)]
+      ask_formation_process: [datatype(NUMBER)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+
+recursion_test_1:
+  structure:
+    1:
+      id: [datatype(VARCHAR)]
+      ref: [datatype(VARCHAR), "lookup('recursion_test_1','id')"]
+
+recursion_test_2:
+  structure:
+    1:
+      id: [datatype(VARCHAR)]
+      ref: [datatype(VARCHAR), "lookup('recursion_test_1','id')"]
+
+recursion_test_3:
+  structure:
+    1:
+      id: [datatype(VARCHAR)]
+      ref: [datatype(VARCHAR), "lookup('recursion_test_2','id')"]
+
+recursion_test_4:
+  structure:
+    1:
+      id: [datatype(VARCHAR)]
+      ref: [datatype(VARCHAR), "lookup('recursion_test_3','id')"]
+      ref2: [datatype(VARCHAR), "lookup('recursion_test_1','id')"]

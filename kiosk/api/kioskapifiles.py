@@ -77,7 +77,6 @@ class ApiFile(Resource):
         cfg = get_config()
         dsd = kioskglobals.master_view.dsd
         params = ApiFileGetParameter().load(request.args)
-        print(params)
         uuid = params["uuid"]
 
         file_repos = FileRepository(kioskglobals.cfg,

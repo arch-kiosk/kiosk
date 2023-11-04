@@ -16,6 +16,7 @@ from kioskquery.kioskquerylib import KioskQueryException
 from kioskquery.kioskquerystore import KioskQueryStore
 from kiosksqldb import KioskSQLDb
 from kioskuser import KioskUser
+from makejsonresponse import make_json_response
 from .kioskapiconstants import ApiConstants
 
 
@@ -220,7 +221,8 @@ class ApiKioskQuery(Resource):
                     query_result.close()
             except BaseException as e:
                 logging.error(f"{self.__class__.__name__}.POST: Exception when closing kiosk query: {repr(e)}")
-            return api_return
+            response = make_json_response(api_return)
+            return response
         except BaseException as e:
             try:
                 if query_result is not None:

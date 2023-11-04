@@ -1,10 +1,10 @@
 // @ts-ignore
 import local_css from './styles/component-structuredkioskquery.sass?inline'
-import 'ui-component'
+import {DateTime} from "luxon"
 import { KioskAppComponent } from "../kioskapplib/kioskappcomponent";
 import { css, html, nothing, TemplateResult, unsafeCSS } from "lit";
 import { property, state, query ,customElement } from "lit/decorators.js";
-import { AnyDict, ApiResultKioskQuery, KioskQueryInstance } from "./lib/apitypes";
+import { Constant, AnyDict, ApiResultKioskQuery, KioskQueryInstance } from "./lib/apitypes";
 import {
     Dictionary,
     UISchema,
@@ -21,19 +21,34 @@ import '@vaadin/grid/vaadin-grid-sort-column.js';
 import '@vaadin/grid/vaadin-grid-tree-column.js';
 import { registerStyles } from '@vaadin/vaadin-themable-mixin/register-styles.js'
 
+// @ts-ignore
 import {ComboBoxDataProviderParams, ComboBoxDataProvider} from '@vaadin/combo-box'
+// @ts-ignore
 import { ComboBoxDataProviderCallback } from "@vaadin/combo-box/src/vaadin-combo-box-data-provider-mixin";
-import { handleCommonFetchErrors } from "./lib/applib";
+import { getLatinDate, handleCommonFetchErrors } from "./lib/applib";
 import { Grid, GridDataProviderCallback, GridDataProviderParams, GridSorterDefinition } from "@vaadin/grid";
-import { SCENARIO } from "./apptypes";
+
 import { columnBodyRenderer, columnHeaderRenderer, GridColumnBodyLitRenderer } from "@vaadin/grid/lit";
 import { FetchException } from "../kioskapplib/kioskapi";
+import { consume } from "@lit-labs/context";
+import { constantsContext } from "./constantscontext";
+import { DictionaryAccessor } from "./lib/dictionaryAccessor";
+import { DataContext } from "./lib/datacontext";
+import { InterpreterFactory } from "./lib/interpreterfactory";
+import { InterpreterManager } from "../kioskapplib/interpretermanager";
 
 @customElement('structured-kiosk-query')
 export class StructuredKioskQuery extends KioskAppComponent {
     static styles = unsafeCSS(local_css);
 
     overall_record_count: number = -1
+
+    private dataContext: DataContext = new DataContext()
+    private _interpreter: InterpreterManager
+
+    get interpreter() {
+        return this._interpreter
+    }
 
     static properties = {
         ...super.properties
@@ -54,6 +69,10 @@ export class StructuredKioskQuery extends KioskAppComponent {
     @state()
     data: ApiResultKioskQuery | null = null
 
+    @consume({context: constantsContext})
+    @state()
+    private constants?: Constant[]
+
     constructor() {
         super();
         registerStyles('vaadin-grid', css`
@@ -64,6 +83,16 @@ export class StructuredKioskQuery extends KioskAppComponent {
     }
     firstUpdated(_changedProperties: any) {
         super.firstUpdated(_changedProperties);
+    }
+
+    private assignConstants() {
+        if (this.constants) {
+            const accessor = new DictionaryAccessor("dictionary", this.dataContext, this.constants)
+            accessor.assignEntries(this.constants)
+            this.dataContext.registerAccessor(accessor)
+            console.log("applied constants: ", this.constants)
+            this._interpreter = InterpreterFactory(this.dataContext)
+        }
     }
 
     apiLookupProvider(id:string , lookupSettings: UISchemaLookupSettings, params: ComboBoxDataProviderParams, callback: ComboBoxDataProviderCallback<any>) {
@@ -114,6 +143,7 @@ export class StructuredKioskQuery extends KioskAppComponent {
                 return [null, 0]
             } else {
                 this.data = data
+                console.log(this.data)
                 return [data.records, this.data.overall_record_count]
             }
         }
@@ -151,8 +181,14 @@ export class StructuredKioskQuery extends KioskAppComponent {
 
     updated(_changedProperties: any) {
         super.updated(_changedProperties);
+        this.assignConstants()
         const ui: any = this.renderRoot.querySelector("#ui");
         (<UISchemaLookupProvider>ui.lookupProvider) = this.apiLookupProvider.bind(this)
+        ui.dataProvider = (exp: string, id: string) => {
+            console.log(`request for data: ${exp} ${id}`)
+            const i_result = this.interpreter.interpret(exp)
+            return i_result || exp
+        }
         ui.uiSchema = this.uiSchema
     }
 
@@ -217,6 +253,7 @@ export class StructuredKioskQuery extends KioskAppComponent {
         if (_changedProperties.has("queryDefinition") && this.queryDefinition) {
             //translate and amened the query definition into a correct UISchema here.
             this.getQueryUiSchema(this.queryDefinition.ui["ui_elements"])
+            console.log(this.uiSchema)
         }
     }
 
@@ -231,7 +268,6 @@ export class StructuredKioskQuery extends KioskAppComponent {
     }
 
     private isIdentifier(dsdName: string) {
-        console.log("Column", dsdName)
         const colInfo = <AnyDict>this.data.document_information.columns[dsdName]
         return ("identifier" in colInfo && colInfo["identifier"])
     }
@@ -260,24 +296,46 @@ export class StructuredKioskQuery extends KioskAppComponent {
         this.dispatchEvent(identifierEvent);
     }
 
+    private getFormattedCellValue(rowElement: any, colInfo: AnyDict) {
+        const dataType = colInfo["datatype"]
+        switch (dataType) {
+            case "date":
+                try {
+                    return getLatinDate(DateTime.fromISO(rowElement), false)
+                } catch {
+                    return ""
+                }
+            case "datetime":
+                try {
+                    return getLatinDate(DateTime.fromISO(rowElement), true)
+                } catch {
+                    return ""
+                }
+        }
+        return rowElement
+    }
+
     private cellRenderer:GridColumnBodyLitRenderer<AnyDict> = (row, model, column) => {
         const dsdName = column.getAttribute("data-column")
+        const colInfo = <AnyDict>this.data.document_information.columns[dsdName]
+        const cellValue = this.getFormattedCellValue(row[dsdName], colInfo)
+        // const format = this
         if (this.isIdentifier(dsdName)) {
             return html`
                 <div class="identifier" data-column=${dsdName} data-identifier="${row[dsdName]}" 
                      @click="${this.gotoIdentifier}">
-                    ${row[dsdName]}
+                    ${cellValue}
                 </div>`
         } else {
             return html`
                 <div>
-                    ${row[dsdName]}
+                    ${cellValue}
                 </div>`
         }
     }
 
     private headerRenderer(col: HTMLElement) {
-        return html`<div>${this.getColumnLabel(col.getAttribute("data-column"))}</div>`
+        return html`<div>${this.interpreter.interpret(this.getColumnLabel(col.getAttribute("data-column")),undefined,"/")}</div>`
     }
 
     renderQueryResult() {
@@ -312,5 +370,6 @@ export class StructuredKioskQuery extends KioskAppComponent {
             </div>
         `;
     }
+
 }
 

@@ -41,8 +41,15 @@ export abstract class KioskApp extends LitElement {
             if (this.apiContext && this.apiContext.status === API_STATE_ERROR) {
                 this.addAppError("Cannot connect to Kiosk API.");
             }
+            if (!_changedProperties["apiContext"] && this.apiContext) {
+                this.apiConnected()
+            }
         }
     }
+    apiConnected() {
+        //only for overrides
+    }
+
     abstract apiRender(): TemplateResult;
 
     render() {

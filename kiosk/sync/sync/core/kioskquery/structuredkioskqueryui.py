@@ -74,7 +74,6 @@ class StructuredKioskQueryUI(KioskQueryUI):
                 if is_dsd_element:
                     text = self.get_label_from_dsd(dsd_element)
 
-
             if not text:
                 text = variable
 

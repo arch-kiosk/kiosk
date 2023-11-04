@@ -21,7 +21,7 @@ class TestKioskCleanup(KioskPyTestHelper):
 
     @pytest.fixture(scope="module")
     def cfg(self):
-        cfg = self.get_config(config_file,log_file=log_file)
+        cfg = self.get_config(config_file, log_file=log_file)
         return cfg
 
     def test_init(self, cfg):
