@@ -22,7 +22,7 @@ queries:
       group by unit.arch_context, cm.type
       order by sum(cm.weight) desc,sum(cm.quantity) desc, cm.type"
     column_information:
-      unit_id: DSD('unit','arch_context'
+      unit_id: DSD('unit','arch_context')
       material: DSD('collected_material','type')
       weight: DSD('collected_material','weight')
       quantity: DSD('collected_material','quantity')

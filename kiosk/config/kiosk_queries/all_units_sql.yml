@@ -11,7 +11,7 @@ queries:
     type: 'SQL'
     output_type: 'list'
     query: "
-      select unit.arch_context unit_id, unit.type type, unit.method recording_method, unit.id_excavator id_excavator,
+      select unit.arch_context unit_id, unit.type {{type}}, unit.method recording_method, unit.id_excavator id_excavator,
       unit.unit_creation_date opened
        from {{site}} site
          inner join {{unit}} unit on site.id = unit.id_site
