@@ -321,26 +321,35 @@ export class KioskViewGroupPart {
         const element = this.findElement(fieldId)
         console.log("getGotoIdentifierEvent", element, identifier)
         const linksTo: string = element["element_type"]["links_to"]
-        let recordType = this.recordType
-        if (linksTo && linksTo !== this.recordType) {
-            const identifiers = dsd.get_fields_with_instruction(linksTo,"identifier")
-            if (identifiers.length > 0) {
-                identifier = this.dataContext.get(`/${linksTo}/${identifiers[0]}`)
-                recordType = linksTo
+        let recordType = linksTo || this.recordType
+
+        if (linksTo && linksTo !== this.recordType && linksTo !== this._document.compilation.record_type) {
+            const idFields = dsd.get_fields_with_instruction(linksTo,"identifier")
+            if (idFields.length > 0) {
+                identifier = ""
+
+                for (const idField of idFields) {
+                    let instruction = dsd.get_field_instruction(linksTo, idField,"identifier")
+                    if (instruction.parameters.length == 0 || instruction.parameters[0] == "primary") {
+                        identifier = this.dataContext.get(`/${linksTo}/${idField}`)
+                        break;
+                    }
+                }
             }
         }
 
-        const newEvent = new CustomEvent("goto-identifier",
-            {
-                detail: {
-                    "dsdName": fieldId,
-                    "tableName": recordType,
-                    "identifier": identifier,
-                },
-                bubbles: true,
-                composed: true
-            })
-        return newEvent
+        if (identifier && recordType) {
+            return new CustomEvent("goto-identifier",
+                {
+                    detail: {
+                        "dsdName": fieldId,
+                        "tableName": recordType,
+                        "identifier": identifier,
+                    },
+                    bubbles: true,
+                    composed: true
+                })
+        }
     }
 
     public findElement(elementId: string): AnyDict | undefined {
@@ -369,8 +378,10 @@ export class KioskViewGroupPart {
         switch(lookup_def["lookup_type"]) {
             case "record":
                 return this._lookup_record(value, element_id, lookup_def)
+            case "dictionary":
+                return this._lookup_in_dictionary(value, element_id, lookup_def)
             default:
-                console.error(`kioskviewgrouppart.lookup: Unknown lookup type in ui element ${element_id}`)
+                console.error(`kioskviewgrouppart.lookup: Unknown lookup type "${lookup_def["lookup_type"]}" in ui element "${element_id}"`)
         }
         return value
     }
@@ -398,6 +409,11 @@ export class KioskViewGroupPart {
             throw `_lookup_records: ${e}`
         }
     }
+    private _lookup_in_dictionary(value: any, element_id: string, lookup_def: AnyDict) {
+        const dictionary = this.dataContext.getAccessor("dictionary")
+        return dictionary.get(lookup_def.path, value, DataContext.GET_MODE_DEFAULT)
+    }
+
 
     public resolveDataRequest(exp: string, elementId: string) {
         const i_result = this.interpreter.interpret(exp)

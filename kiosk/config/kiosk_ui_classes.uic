@@ -6,5 +6,5 @@ imports:
   - ui/_sites.uic
   - ui/_units.uic
   - ui/_locus.uic
-  - ui/_collected_material.uic
+  - ui/_cm.uic
   - ui/_tags.uic

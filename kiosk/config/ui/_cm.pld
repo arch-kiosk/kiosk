@@ -1,0 +1,174 @@
+config:
+  format_version: 1
+compilations:
+  cm_compilation:
+    name: collected material view
+    record_type: collected_material
+    groups:
+      group_1:
+        type: "stacked"
+        parts:
+          cm.sheet:
+            text: 'collected material'
+            position: 1
+          small_find.sheet:
+            text: '#(/$/constants/collected_material_types/small_find)'
+            position: 2
+      group_2:
+        type: "accordion"
+        parts:
+          cm_files.list:
+            text: 'photos and files'
+            position: 1
+
+cm.sheet:
+  record_type: collected_material
+  view_type: sheet
+  fields_selection: dsd
+  layout_settings:
+    orchestration_strategy: columns
+    default_element_visibility: "."
+    order:
+      - qfsite
+      - qfunit
+      - qflocus
+      - uid_lot
+      - arch_context
+      - external_id
+      - line_1
+      - date
+      - modified_by
+      - collection_method
+      - cm_type
+      - line_2
+      - type
+      - is_grave_good
+      - analysis_method
+      - description
+      - weight
+      - volume
+      - quantity
+      - number_of_bags
+      - line_4
+      - coord_x
+      - coord_y
+      - coord_z
+      - ...
+      - pottery_remarks
+      - storage
+      - dearregistrar
+      - status_todo
+      - status_done
+      - modified
+      - created
+  ui_elements:
+    qfunit:
+      element_type:
+        name: "TextField"
+        text: "#(unit/term_for_unit)"
+        value: "#(unit/arch_context)"
+        is_identifier: true
+        links_to: unit
+    qfsite:
+      element_type:
+        name: "TextField"
+        text: "site"
+        value: "#(site/arch_context)"
+        is_identifier: true
+        links_to: site
+    qflocus:
+      element_type:
+        name: "TextField"
+        text: "#(unit/term_for_locus)"
+        value: "#(locus/arch_context)"
+        is_identifier: true
+        links_to: locus
+    isobject:
+      element_type:
+        visible: false
+    arch_domain:
+      element_type:
+        visible: false
+    arch_context:
+      element_type:
+        is_identifier: false
+    id:
+      element_type:
+        visible: false
+    line_1:
+      element_type:
+        visible: True
+        name: "line"
+        transparent: true
+      layout:
+        min_width: "max"
+    line_2:
+      element_type:
+        visible: True
+        name: "line"
+        transparent: true
+      layout:
+        min_width: "max"
+    line_3:
+      element_type:
+        visible: True
+        name: "line"
+        transparent: true
+      layout:
+        min_width: "max"
+    line_4:
+      element_type:
+        visible: True
+        name: "line"
+        transparent: true
+      layout:
+        min_width: "max"
+small_find.sheet:
+  record_type: small_find
+  view_type: sheet
+  fields_selection: dsd
+  layout_settings:
+    orchestration_strategy: columns
+    default_element_visibility: "."
+    order:
+      - external_id
+      - smallfindsnr
+      - id_registrar
+      - line_1
+      - material
+      - condition
+      - description
+      - colour
+      - period
+      - measured_in_situ
+      - ...
+      - line_2
+      - modified_by
+      - modified
+      - created
+  ui_elements:
+#    length:
+#      visibility: false
+    line_1:
+      element_type:
+        name: "line"
+        transparent: true
+      layout:
+        min_width: "max"
+    line_2:
+      element_type:
+        name: "line"
+        transparent: true
+      layout:
+        min_width: "max"
+cm_files.list:
+  record_type: collected_material_photo
+  view_type: list
+  max_height: auto
+  fields_selection: dsd
+  layout_settings:
+    type: list
+    orchestration_strategy: gallery
+    order_records_by: [">modified"]
+    allow_ordering_by: ["modified", "modified_by"]
+    order: [uid_photo, modified, modified_by]

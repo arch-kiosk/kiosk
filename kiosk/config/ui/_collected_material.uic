@@ -1,7 +1,0 @@
-# header
-version: 1
-apply_uic_literals: "&& view-ui"
-
-# dsd('collected_material','arch_context')
-element_type:
-  is_identifier:  true

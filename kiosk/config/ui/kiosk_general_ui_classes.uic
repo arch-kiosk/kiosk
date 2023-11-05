@@ -47,3 +47,13 @@ element_type:
   format: FLOAT
   style:
     text-align: right
+
+# uid_file()
+layout:
+  min_width: max
+  min_height: max
+element_type:
+  name: "File"
+  file_description: bottom
+  resolution: medium
+  fit_content: fit

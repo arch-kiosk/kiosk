@@ -1,0 +1,26 @@
+config:
+  format_version: 1
+compilations:
+  site_compilation:
+    name: site view
+    record_type: site
+    groups:
+      group_1:
+        type: "stacked"
+        parts:
+          site.sheet:
+            text: '#(site/arch_context)'
+            position: 1
+
+site.sheet:
+  record_type: site
+  view_type: sheet
+  fields_selection: dsd
+  layout_settings:
+    orchestration_strategy: columns
+    order:
+      - arch_context
+      - id
+      - purpose
+      - uid_site_map
+

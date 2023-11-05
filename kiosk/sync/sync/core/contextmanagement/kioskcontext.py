@@ -533,9 +533,23 @@ class KioskContext:
         this returns a list of field names which have the instruction.
         If field_or_instruction does not parse, it is considered a field name and if the field exists in the
         table it is returned.
+
+        This has a hacky exception:
+        If this leads to more than one field (which won't currently
+        be accepted by the caller) and field_and_instruction is "identifier()" it will try to return only
+        the field that has the primary identifier. So marked is as either "identifier()" or "identifier(primary)" in the
+        DSD.
+
         :param data_table: the table
         :param field_or_instruction: the field or fields with instruction wanted
         :return: a list of field names or [] if the field or instruction cannot be found.
         :exception: throws all kinds of exceptions, e.G. if no field has the requested instruction)
         """
-        return self._dsd.get_field_or_instructions(data_table, field_or_instruction)
+        data_fields = self._dsd.get_field_or_instructions(data_table, field_or_instruction)
+        if len(data_fields) > 1:
+            if field_or_instruction.lower() == "identifier()":
+                for f in data_fields:
+                    params = self._dsd.get_instruction_parameters_and_types(data_table, f, "identifier")
+                    if len(params) == 0 or params[0][0] == "primary":
+                        return [f]
+        return data_fields

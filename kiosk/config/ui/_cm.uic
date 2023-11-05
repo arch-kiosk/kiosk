@@ -1,0 +1,26 @@
+# header
+version: 1
+apply_uic_literals: "&& view-ui"
+
+# dsd('collected_material','arch_context')
+element_type:
+  is_identifier:  true
+
+# dsd('collected_material','description') && view_type:sheet
+# dsd('small_find','description') && view_type:sheet
+layout:
+  min_width: max
+element_type:
+  multiline: true
+
+# dsd('small_find','colour') && view_type:sheet
+# dsd('small_find','condition') && view_type:sheet
+layout:
+  min_width: 2
+
+# dsd('collected_material','cm_type') && view_type:sheet
+element_type:
+  lookup:
+    lookup_type: "dictionary"
+    path: "constants/collected_material_types"
+

@@ -101,4 +101,7 @@ export class DataContext {
         return this.accessors.findIndex((accessor) => accessor.id === id) > -1
     }
 
+    getAccessor(id: string): DataContextAccessor {
+        return this.accessors.find((accessor) => accessor.id === id)
+    }
 }

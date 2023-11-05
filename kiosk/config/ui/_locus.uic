@@ -65,3 +65,9 @@ element_type:
     lookup_type: "record"
     record_type: "locus"
     display_value: "arch_context"
+# dsd('locus_architecture','features')
+layout:
+  min_width: 3
+element_type:
+  multiline: true
+

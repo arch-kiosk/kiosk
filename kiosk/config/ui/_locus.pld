@@ -1,0 +1,172 @@
+config:
+  format_version: 1
+
+compilations:
+  locus_compilation:
+    name: locus view
+    record_type: locus
+    groups:
+      group_1:
+        type: "stacked"
+        parts:
+          locus.sheet:
+            text: '#(unit/term_for_locus) #(locus/arch_context)'
+            position: 1
+          locus_deposit.sheet:
+            text: '#(unit/term_for_locus) deposit'
+            position: 2
+          locus_architecture.sheet:
+            text: '#(unit/term_for_locus) architecture'
+            position: 3
+          locus_burial.sheet:
+            text: '#(unit/term_for_locus) burial'
+            position: 4
+      group_2:
+        type: "accordion"
+        parts:
+          locus_relations.list:
+              text: '#(unit/term_for_locus) relations'
+              position: 1
+          locus_cm.list:
+              text: '#(/$/file_repository/recording_context_aliases/collected_material)'
+              position: 2
+          locus_files.list:
+              text: '#(unit/term_for_locus) photos and files'
+              position: 3
+
+locus.sheet:
+  record_type: locus
+  view_type: sheet  # (can be list, sheet or file_list or harris_matrix)
+  fields_selection: dsd
+  dsd_view: locus.sheet.view
+  layout_settings:
+    default_element_visibility: "."
+    orchestration_strategy: columns  # (the default for the sheet scenario)
+    order: [qfsite, qfunit, arch_context, alternate_id, line_2, recorded_by, date_defined, date_closed, line1, description, excavated_with, colour, formation_process, ..., interpretation, created, modified, modified_by]
+  ui_elements:
+    qfunit:
+      element_type:
+        name: "TextField"
+        text: "#(unit/term_for_unit)"
+        value: "#(unit/arch_context)"
+        is_identifier: true
+        links_to: unit
+    qfsite:
+      element_type:
+        name: "TextField"
+        text: "site"
+        value: "#(site/arch_context)"
+        is_identifier: true
+        links_to: site
+
+    line_1:
+      element_type:
+        visible: True
+        name: "line"
+        transparent: true
+      layout:
+        min_width: "max"
+    line_2:
+      layout:
+        min_width: "max"
+      element_type:
+        name: "line"
+        visible: True
+        transparent: true
+
+locus_deposit.sheet:
+  record_type: locus_deposit
+  view_type: sheet  # (can be list, sheet or file_list or harris_matrix)
+  fields_selection: dsd
+  layout_settings:
+    default_element_visibility: "."
+    orchestration_strategy: columns
+    order: [...,bottom_line,created,modified,modified_by]
+  ui_elements:
+    bottom_line:
+      layout:
+        min_width: "max"
+      element_type:
+        visible: true
+        name: "line"
+        transparent: true
+
+locus_architecture.sheet:
+  record_type: locus_architecture
+  view_type: sheet  # (can be list, sheet or file_list or harris_matrix)
+  fields_selection: dsd
+  layout_settings:
+    order: [material,...,bottom_line,created,modified,modified_by]
+    default_element_visibility: "."
+    orchestration_strategy: columns  # (the default for the sheet scenario)
+  ui_elements:
+    bottom_line:
+      layout:
+        min_width: "max"
+      element_type:
+        visible: true
+        name: "line"
+        transparent: true
+
+locus_burial.sheet:
+  record_type: locus_burial
+  view_type: sheet  # (can be list, sheet or file_list or harris_matrix)
+  fields_selection: dsd
+  layout_settings:
+    default_element_visibility: "."
+    orchestration_strategy: columns  # (the default for the sheet scenario)
+
+locus_files.list:
+  record_type: locus_photo
+  view_type: list
+  max_height: auto
+  fields_selection: dsd
+  layout_settings:
+    type: list
+    orchestration_strategy: gallery
+    order_records_by: [">modified"]
+    allow_ordering_by: ["modified", "modified_by"]
+    order: [uid_image, modified, modified_by]
+
+locus_relations.list:
+  record_type: locus_relations
+  view_type: list  # (can be list, sheet or file_list or harris_matrix)
+  max_height: 20em
+  fields_selection: dsd
+  layout_settings:
+    type: list
+    orchestration_strategy: table  # (the default for the sheet scenario)
+    order_records_by: [">arch_context"]
+    allow_ordering_by: ["arch_context"]
+    order: [from_locus, type, chronology, uid_sketch, uid_locus_2_related ]
+  ui_elements:
+    from_locus:
+      element_type:
+        text: "#(unit/term_for_locus)"
+        name: "TextField"
+        value: "#(locus/arch_context)"
+    uid_locus_2_related:
+      element_type:
+        is_identifier: True
+        links_to: "locus"
+    uid_sketch:
+      layout:
+        min_width: max
+        min_height: max
+      element_type:
+        name: "File"
+        file_description: none
+        resolution: small
+        fit_content: contain
+
+locus_cm.list:
+  record_type: collected_material
+  view_type: list
+  max_height: 20em
+  fields_selection: dsd
+  layout_settings:
+    type: list
+    orchestration_strategy: table
+    order_records_by: [">arch_context"]
+    allow_ordering_by: ["arch_context", "cm_type", "type", "date", "storage"]
+    order: [arch_context, cm_type, type, date, storage]
