@@ -37,7 +37,7 @@ export class QueryAndViewApp extends KioskApp {
     // noinspection JSUnresolvedReference
     @state()
     // @ts-ignore
-    inSelectQueryMode = !import.meta.env.DEV;
+    inSelectQueryMode = false //!import.meta.env.DEV;
 
     @state()
     inGotoIdentifierMode = false
@@ -103,7 +103,7 @@ export class QueryAndViewApp extends KioskApp {
             })
             .then((json: ApiResultContextsFull) => {
                 this.identifierInfo = json.identifiers
-                console.log("identifier information fetched");
+                console.log("identifier information fetched", this.identifierInfo);
             })
             .catch((e: FetchException) => {
                 this.showProgress = false
@@ -116,15 +116,6 @@ export class QueryAndViewApp extends KioskApp {
         console.log("api is connected");
         this.fetchConstants();
     }
-
-    // updated(_changedProperties: any) {
-    //     super.updated(_changedProperties);
-    //     if (_changedProperties.has("apiContext")) {
-    //         if (this.apiContext) {
-    //
-    //         }
-    //     }
-    // }
 
     protected reloadClicked(e: Event) {
         // let el = this.shadowRoot.getElementById("workstation-list")
@@ -302,7 +293,7 @@ export class QueryAndViewApp extends KioskApp {
                 .viewDetails="${view.details}"
                 @goto-identifier="${this.onGotoIdentifier}"
                 slot="${view.viewId}">
-            </kiosk-view>`;
+            </kiosk-view}>`;
     }
 
     onCloseQuery(e: CustomEvent) {
