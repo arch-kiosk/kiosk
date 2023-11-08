@@ -55,7 +55,7 @@ class KioskViewDocument:
             result = dict()
             selects = scope_select.get_selects(self._record_type, target_types=target_record_types, add_lore=True)
             for select in selects:
-                result[select[0]] = KioskSQLDb.get_records(select[1], {"identifier": self._identifier},
+                result[select[0]] = KioskSQLDb.get_records(select[1], {"identifier": self._identifier.upper()},
                                                            add_column_row=True)
             return result
         except BaseException as e:
@@ -106,7 +106,7 @@ class KioskViewDocument:
             for select in selects:
                 if select[0] in lookup_types:
                     try:
-                        records = KioskSQLDb.get_records(select[1], {"identifier": self._identifier},
+                        records = KioskSQLDb.get_records(select[1], {"identifier": self._identifier.upper()},
                                                          add_column_row=True)
                         if records:
                             if select[0] not in result:

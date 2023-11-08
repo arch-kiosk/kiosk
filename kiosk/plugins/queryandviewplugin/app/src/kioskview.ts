@@ -91,13 +91,18 @@ export class KioskView  extends KioskAppComponent {
     updated(_changedProperties: any) {
         super.updated(_changedProperties);
         console.log("updated: ", _changedProperties)
-        if (_changedProperties.has("apiContext")) {
+        if (_changedProperties.has("apiContext") || _changedProperties.has("viewDetails")) {
+            this.viewDocument = undefined
             if (this.apiContext) {
+                this.constants = undefined
+                this.dataContext = new DataContext()
+                this._groupParts = {}
                 this.fetchViewFromApi();
             }
-        }
-        if (_changedProperties.has("viewDocument") && !!this.viewDocument) {
-            this.assignUIs()
+        } else {
+            if (_changedProperties.has("viewDocument") && !!this.viewDocument) {
+                this.assignUIs()
+            }
         }
     }
 

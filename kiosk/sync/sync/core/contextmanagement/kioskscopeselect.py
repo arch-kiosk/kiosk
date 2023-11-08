@@ -148,6 +148,9 @@ class KioskScopeSelect:
         returns a list of select statements each of which consumes a PsycoPG2 parameter %(identifier)s.
         So there has to be a variable "identifier" in the parameter dict when running the sql statement.
 
+        NOTE that the where clauses will include an identifier and expect the value for that where clause
+        to be UPPERCASE when the selects are actually executed later!
+
         :param record_type: the origin of all the sql statements.
                             This is also the record type which will be queried by the given identifier.
         :param target_types: a list of target record types.
@@ -211,8 +214,8 @@ class KioskScopeSelect:
             root_table = root_table + "1"
 
         for k in key_fields:
-            where_sql += where_or + (f"{KioskSQLDb.sql_safe_ident(root_table)}."
-                                     f"{KioskSQLDb.sql_safe_ident(k)}=%(identifier)s")
+            where_sql += where_or + (f"UPPER({KioskSQLDb.sql_safe_ident(root_table)}."
+                                     f"{KioskSQLDb.sql_safe_ident(k)})=%(identifier)s")
             where_or = " or "
         return where_sql
 
