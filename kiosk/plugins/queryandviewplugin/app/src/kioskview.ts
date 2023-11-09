@@ -94,7 +94,6 @@ export class KioskView  extends KioskAppComponent {
         if (_changedProperties.has("apiContext") || _changedProperties.has("viewDetails")) {
             this.viewDocument = undefined
             if (this.apiContext) {
-                this.constants = undefined
                 this.dataContext = new DataContext()
                 this._groupParts = {}
                 this.fetchViewFromApi();
