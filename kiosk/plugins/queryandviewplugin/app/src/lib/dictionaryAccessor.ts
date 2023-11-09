@@ -35,6 +35,11 @@ export class DictionaryAccessor extends DataContextAccessor {
     get(path: string, key: string, getMode: number = 0): any {
         path = path.substring(this.rootKey.length)
         let index: string
+        let useKeyAsDefault=true
+        if (key.endsWith("?")) {
+            useKeyAsDefault=false
+            key = key.substring(0,key.length-1)
+        }
         [key, index] = this.splitKeyAndIndex(key)
 
         let entry = undefined
@@ -63,7 +68,7 @@ export class DictionaryAccessor extends DataContextAccessor {
                 }
                 return entry.value
         } else {
-            return undefined
+            return useKeyAsDefault?key:undefined
         }
     }
 

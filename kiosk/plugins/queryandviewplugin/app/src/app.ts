@@ -73,8 +73,10 @@ export class QueryAndViewApp extends KioskApp {
     getRecordTypeAliases() {
         this.recordTypeAliases = { }
         for (const constant of this.constants) {
-            if (constant.path === "file_repository/recording_context_aliases") {
-                this.recordTypeAliases[constant.key] = constant.value
+            if (constant.path === "glossary") {
+                let v  = constant.value
+                if (Array.isArray(v)) v = v[0]
+                this.recordTypeAliases[constant.key] = v
             }
         }
     }

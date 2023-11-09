@@ -208,33 +208,33 @@
 
 /* patterns */
 .pattern-diagonal-stripes-sm {
-  background: repeating-linear-gradient(45deg, transparent, transparent 10px, currentColor 10px, currentColor calc(2 * 10px));
+  background: repeating-linear-gradient(45deg, transparent, transparent 10px, currentColor 10px, currentColor 20px);
 }
 
 .pattern-dots-lg {
   background-image: radial-gradient(currentColor 1.5px, transparent 1.5px);
-  background-size: calc(10 * 1.5px) calc(10 * 1.5px);
+  background-size: 15px 15px;
 }
 
 .pattern-dots-md {
   background-image: radial-gradient(currentColor 1px, transparent 1px);
-  background-size: calc(8 * 1px) calc(8 * 1px);
+  background-size: 8px 8px;
 }
 
 .pattern-dots-medium-dense {
   background-image: radial-gradient(currentColor 0.5px, transparent 0.5px);
-  background-size: calc(6 * .5px) calc(6 * .5px);
+  background-size: 3px 3px;
 }
 
 .pattern-dots-sm {
   background-image: radial-gradient(currentColor 0.5px, transparent 0.5px);
-  background-size: calc(10 * 0.5px) calc(10 * 0.5px);
+  background-size: 5px 5px;
 }
 
 .pattern-cross-dots-md, .imagelist-background {
   background-image: radial-gradient(currentColor 0.7px, transparent 1px), radial-gradient(currentColor 0.7px, transparent 1px);
-  background-size: calc(13 * .5px) calc(13 * .5px);
-  background-position: 0 0, calc(7 * .5px) calc(7 * .5px);
+  background-size: 6.5px 6.5px;
+  background-position: 0 0, 3.5px 3.5px;
 }
 
 .imagelist-background {

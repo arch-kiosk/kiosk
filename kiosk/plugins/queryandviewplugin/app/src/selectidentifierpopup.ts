@@ -69,7 +69,7 @@ export class SelectIdentifierPopup extends KioskAppComponent {
 
     getRecordTypeAlias(recordType: string) : string {
         const t =  this.recordTypeAliases[recordType]
-        return t?t:recordType
+        return t?t:recordType.replace("_", " ")
     }
 
     private gotoIdentifier(event: MouseEvent) {

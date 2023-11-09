@@ -2,7 +2,7 @@
   "name": "queryandviewapp",
   "description": "Kiosk Query and View App",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "main": "dist/queryandviewapp.es.js",
   "exports": {
@@ -34,7 +34,7 @@
     "@vaadin/grid": "^24.0.0",
     "lit": "^2.6.1",
     "nanoid": "^4.0.1",
-    "ui-component": "C:\\notebook_source\\kiosk\\lab\\uiwebcomponent\\npm\\uicomponent-0.4.13.tgz"
+    "ui-component": "C:\\notebook_source\\kiosk\\lab\\uiwebcomponent\\npm\\uicomponent-0.4.14.tgz"
   },
   "devDependencies": {
     "@types/ejs": "^3.1.1",
