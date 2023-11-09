@@ -18,9 +18,17 @@ element_type:
 layout:
   min_width: 2
 
-# dsd('collected_material','cm_type') && view_type:sheet
+# dsd('collected_material','cm_type')
 element_type:
   lookup:
-    lookup_type: "dictionary"
-    path: "constants/collected_material_types"
+    lookup_type: "record"
+    record_type: "collected_material_types"
+    display_value: "name"
 
+# dsd('collected_material','uid_lot')
+element_type:
+  visible: true
+  lookup:
+    lookup_type: "record"
+    record_type: "lot"
+    display_value: "id"

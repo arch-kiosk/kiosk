@@ -35,6 +35,7 @@ unit.sheet:
   dsd_view: unit.sheet.view
   layout_settings:
     orchestration_strategy: columns  # (the default for the sheet scenario)
+    default_element_visibility: "."
     order:
       - id_site
       - arch_context
@@ -47,8 +48,28 @@ unit.sheet:
       - type
       - method
       - purpose
+      - ...
+      - line_2
+      - created
+      - modified
+      - modified_by
   ui_elements:
+    term_for_locus:
+      element_type:
+        visible: false
+    term_for_unit:
+      element_type:
+        visible: false
+    coordinates:
+      layout:
+        min_width: 3
     line_identifiers:
+      element_type:
+        name: "line"
+        transparent: true
+      layout:
+        min_width: max
+    line_2:
       element_type:
         name: "line"
         transparent: true

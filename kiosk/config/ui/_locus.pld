@@ -21,18 +21,24 @@ compilations:
           locus_burial.sheet:
             text: '#(unit/term_for_locus) burial'
             position: 4
+          locus_other.sheet:
+            text: '"other" type'
+            position: 5
       group_2:
         type: "accordion"
         parts:
           locus_relations.list:
-              text: '#(unit/term_for_locus) relations'
-              position: 1
+            text: '#(unit/term_for_locus) relations'
+            position: 1
+          locus_lot.list:
+            text: 'lots'
+            position: 2
           locus_cm.list:
-              text: '#(/$/file_repository/recording_context_aliases/collected_material)'
-              position: 2
+            text: '#(/$/file_repository/recording_context_aliases/collected_material)'
+            position: 3
           locus_files.list:
-              text: '#(unit/term_for_locus) photos and files'
-              position: 3
+            text: '#(unit/term_for_locus) photos and files'
+            position: 4
 
 locus.sheet:
   record_type: locus
@@ -42,7 +48,44 @@ locus.sheet:
   layout_settings:
     default_element_visibility: "."
     orchestration_strategy: columns  # (the default for the sheet scenario)
-    order: [qfsite, qfunit, arch_context, alternate_id, line_2, recorded_by, date_defined, date_closed, line1, description, excavated_with, colour, formation_process, ..., interpretation, created, modified, modified_by]
+    order:
+      - qfsite
+      - qfunit
+      - arch_context
+      - alternate_id
+      - line_2
+      - recorded_by
+      - date_defined
+      - date_closed
+      - line1
+      - description
+      - excavated_with
+      - type
+      - formation_process
+      - colour
+      - line_3
+      - width
+      - length
+      - depth
+      - volume
+      - line_elevation
+      - ...
+      - elevation_opening_nw
+      - elevation_opening_ne
+      - elevation_opening_ct
+      - elevation_opening_se
+      - elevation_opening_sw
+      - line_4
+      - elevation_closing_nw
+      - elevation_closing_ne
+      - elevation_closing_ct
+      - elevation_closing_se
+      - elevation_closing_sw
+      - interpretation
+      - line_5
+      - created
+      - modified
+      - modified_by
   ui_elements:
     qfunit:
       element_type:
@@ -58,6 +101,12 @@ locus.sheet:
         value: "#(site/arch_context)"
         is_identifier: true
         links_to: site
+    arch_context:
+      element_type:
+        text: "#(unit/term_for_locus)"
+    type:
+      element_type:
+        text: "#(unit/term_for_locus) type"
 
     line_1:
       element_type:
@@ -73,6 +122,34 @@ locus.sheet:
         name: "line"
         visible: True
         transparent: true
+    line_3:
+      layout:
+        min_width: "max"
+      element_type:
+        name: "line"
+        visible: True
+        transparent: true
+    line_4:
+      layout:
+        min_width: "max"
+      element_type:
+        name: "line"
+        visible: True
+        transparent: true
+    line_5:
+      layout:
+        min_width: "max"
+      element_type:
+        name: "line"
+        visible: True
+        transparent: true
+    line_elevation:
+      layout:
+        min_width: "max"
+      element_type:
+        name: "line"
+        visible: True
+        transparent: true
 
 locus_deposit.sheet:
   record_type: locus_deposit
@@ -81,7 +158,7 @@ locus_deposit.sheet:
   layout_settings:
     default_element_visibility: "."
     orchestration_strategy: columns
-    order: [...,bottom_line,created,modified,modified_by]
+    order: [ ...,bottom_line,created,modified,modified_by ]
   ui_elements:
     bottom_line:
       layout:
@@ -96,7 +173,7 @@ locus_architecture.sheet:
   view_type: sheet  # (can be list, sheet or file_list or harris_matrix)
   fields_selection: dsd
   layout_settings:
-    order: [material,...,bottom_line,created,modified,modified_by]
+    order: [ material,...,bottom_line,created,modified,modified_by ]
     default_element_visibility: "."
     orchestration_strategy: columns  # (the default for the sheet scenario)
   ui_elements:
@@ -115,6 +192,40 @@ locus_burial.sheet:
   layout_settings:
     default_element_visibility: "."
     orchestration_strategy: columns  # (the default for the sheet scenario)
+    order:
+      - burial_type
+      - min_number_individuals
+      - line_1
+      - ...
+  ui_elements:
+    line_1:
+      layout:
+        min_width: "max"
+      element_type:
+        visible: true
+        name: "line"
+        transparent: true
+
+locus_other.sheet:
+  record_type: locus_othertype
+  view_type: sheet  # (can be list, sheet or file_list or harris_matrix)
+  fields_selection: dsd
+  layout_settings:
+    default_element_visibility: "."
+    orchestration_strategy: columns  # (the default for the sheet scenario)
+    order:
+      - type
+      - description
+      - line_1
+      - ...
+  ui_elements:
+    line_1:
+      layout:
+        min_width: "max"
+      element_type:
+        visible: true
+        name: "line"
+        transparent: true
 
 locus_files.list:
   record_type: locus_photo
@@ -124,9 +235,9 @@ locus_files.list:
   layout_settings:
     type: list
     orchestration_strategy: gallery
-    order_records_by: [">modified"]
-    allow_ordering_by: ["modified", "modified_by"]
-    order: [uid_image, modified, modified_by]
+    order_records_by: [ ">modified" ]
+    allow_ordering_by: [ "modified", "modified_by" ]
+    order: [ uid_image, modified, modified_by ]
 
 locus_relations.list:
   record_type: locus_relations
@@ -136,9 +247,9 @@ locus_relations.list:
   layout_settings:
     type: list
     orchestration_strategy: table  # (the default for the sheet scenario)
-    order_records_by: [">arch_context"]
-    allow_ordering_by: ["arch_context"]
-    order: [from_locus, type, chronology, uid_sketch, uid_locus_2_related ]
+    order_records_by: [ ">arch_context" ]
+    allow_ordering_by: [ "arch_context" ]
+    order: [ from_locus, type, chronology, uid_sketch, uid_locus_2_related ]
   ui_elements:
     from_locus:
       element_type:
@@ -159,6 +270,27 @@ locus_relations.list:
         resolution: small
         fit_content: contain
 
+locus_lot.list:
+  record_type: lot
+  view_type: list
+  max_height: 20em
+  fields_selection: dsd
+  layout_settings:
+    type: list
+    orchestration_strategy: table
+    order_records_by: ["date"]
+    allow_ordering_by: ["id", "date"]
+    order: [id, date, opening_elevations, closing_elevations, purpose]
+  ui_elements:
+    id:
+      element_type:
+        text: "lot"
+    purpose:
+      layout:
+        min_width: 50%
+      element_type:
+        multiline: true
+
 locus_cm.list:
   record_type: collected_material
   view_type: list
@@ -167,6 +299,8 @@ locus_cm.list:
   layout_settings:
     type: list
     orchestration_strategy: table
-    order_records_by: [">arch_context"]
-    allow_ordering_by: ["arch_context", "cm_type", "type", "date", "storage"]
-    order: [arch_context, cm_type, type, date, storage]
+    order_records_by: [ ">arch_context" ]
+    allow_ordering_by: [ "arch_context", "cm_type", "type", "date", "storage" ]
+    order: [ arch_context, uid_lot, cm_type, type, date, storage ]
+
+

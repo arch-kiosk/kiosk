@@ -11,6 +11,12 @@ compilations:
           site.sheet:
             text: '#(site/arch_context)'
             position: 1
+          site_notes.list:
+            text: '#(site/arch_context) notes'
+            position: 2
+#          site_note_photos.list:
+#            text: '#(site/arch_context) note photos'
+#            position: 3
 
 site.sheet:
   record_type: site
@@ -24,3 +30,36 @@ site.sheet:
       - purpose
       - uid_site_map
 
+site_notes.list:
+  record_type: site_notes
+  view_type: list
+  fields_selection: dsd
+  layout_settings:
+    type: list
+    orchestration_strategy: table
+    order_records_by: [ "date" ]
+    allow_ordering_by: ["date", "id_excavator"]
+    order:
+      - date
+      - id_excavator
+      - note
+  ui_elements:
+    note:
+      layout:
+        min_width: 70%
+
+#site_note_photos.list:
+#  record_type: site_note_photo
+#  view_type: list
+#  fields_selection: dsd
+#  layout_settings:
+#    type: list
+#    orchestration_strategy: table
+#    order: [ uid_image, modified, modified_by ]
+#  ui_elements:
+#    note:
+#      layout:
+#        min_width: 70%
+#    uid_image:
+#      element_type:
+#        name: "File"
