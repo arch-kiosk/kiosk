@@ -22613,33 +22613,33 @@ class Ya extends Ga {
   }
   get(e, t, r = 0) {
     e = e.substring(this.rootKey.length);
-    let s;
-    [t, s] = this.splitKeyAndIndex(t);
-    let o;
+    let s, o = !0;
+    t.endsWith("?") && (o = !1, t = t.substring(0, t.length - 1)), [t, s] = this.splitKeyAndIndex(t);
+    let n;
     if (e)
       switch (r) {
         case Re.GET_MODE_DEFAULT:
-          o = this.dictionary.find((n) => n.path === e && n.key === t);
+          n = this.dictionary.find((a) => a.path === e && a.key === t);
           break;
         case Re.GET_MODE_ENDS_WITH:
-          o = this.dictionary.find((n) => n.path.endsWith(e) && n.key === t);
+          n = this.dictionary.find((a) => a.path.endsWith(e) && a.key === t);
           break;
         default:
           throw `dictionaryAccessor.get: unknown GET_MODE ${r}`;
       }
     else
-      o = this.dictionary.find((n) => n.key === t);
-    if (o) {
-      if (Array.isArray(o.value))
-        return this.getListValue(s, o, e, t);
+      n = this.dictionary.find((a) => a.key === t);
+    if (n) {
+      if (Array.isArray(n.value))
+        return this.getListValue(s, n, e, t);
       if (s) {
-        const n = this.getFromFMDict(s, o);
-        if (n)
-          return n;
+        const a = this.getFromFMDict(s, n);
+        if (a)
+          return a;
       }
-      return o.value;
+      return n.value;
     } else
-      return;
+      return o ? t : void 0;
   }
   /**
    * returns the value for a key from an FileMaker style dictionary
@@ -23201,7 +23201,7 @@ let Le = class extends Xt {
   }
   getRecordTypeAlias(i) {
     const e = this.recordTypeAliases[i];
-    return e || i;
+    return e || i.replace("_", " ");
   }
   gotoIdentifier(i) {
     const e = i.currentTarget, t = e.getAttribute("data-identifier"), r = e.getAttribute("data-table"), s = e.getAttribute("data-field");
@@ -25339,7 +25339,7 @@ Ef([
 jt = Ef([
   Qt("kiosk-query-layouter")
 ], jt);
-const ex = `.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}*{box-sizing:border-box}.loading{display:flex;justify-content:center;align-content:center;height:5px;background-color:#000;width:100%}.loading-progress{height:5px;width:100%;border-radius:3px;background:linear-gradient(90deg,red 0%,yellow 15%,lime 30%,cyan 50%,blue 65%,magenta 80%,red 100%);background-size:200%;animation:move-gradient 2s ease-in infinite}.loading-message{font-family:var(--monospace-font);text-align:center;width:100%;color:var(--col-accent-bg-1);padding:1em}@keyframes move-gradient{0%{background-position:0 0}to{background-position:-200% 0%}}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}.fa,.fas{font-family:"Font Awesome 6 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-reload:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-bug:before{content:""}.fa-lightbulb:before{content:""}.fa-query:before{content:""}.fa-footsteps{transform:rotate(270deg)}.fa-footsteps:before{content:""}i{font-family:"Font Awesome 6 Free";font-style:normal;font-variant:normal;text-rendering:auto;-webkit-font-smoothing:antialiased;font-weight:900;font-size:.9em}:host{--lumo-font-size-s: $font-size-standard;--_lumo-grid-secondary-border-color: $col-bg-1-lighter;--_lumo-grid-border-width: 5px;--lumo-font-family: $standard-text;--lumo-size-m: $font-size-standard}:host *{-webkit-user-select:none;user-select:none}.kiosk-view{background-color:var(--col-bg-2);--ui-col-bg-1: $col-bg-2;--ui-button-width: 42px;--ui-button-height: 42px;--ui-button-font-size: 20px;padding:.5em}.local-error{display:flex;flex-direction:row;align-items:center;padding:.5rem;background-color:var(--col-bg-alert);color:var(--col-primary-bg-alert);min-height:3em}.missing-record-message{display:flex;flex-direction:row;align-items:center;padding:.5rem;background-color:var(--col-bg-1-darker);color:var(--col-primary-bg-1);min-height:3em}.missing-record-message i{font-style:normal;font-size:var(--font-size-h3);vertical-align:middle;font-family:"Font Awesome 6 Free";padding-right:1em}.part-header{background-color:#000;color:#fff;padding:0 4px;transform:translate(-8px);box-shadow:#00000080 -4px 2px 5px;margin:.5em 0;width:max-content}.part-header i{margin-left:1em;font-weight:400}.accordion-part-header{background-color:var(--col-bg-1-lighter);color:#fff;padding-left:4px;width:100%;display:flex;flex-direction:row;justify-content:space-between;margin:.5em 0}.accordion-part-header i{background-color:var(--col-bg-2);color:#000;border-style:none;font-weight:700;margin-left:5px;font-size:1.5em;line-height:1.5em;vertical-align:middle}.accordion-part-header div:nth-child(2){background-color:var(--col-bg-2)}.accordion-part-header div:first-child{background-color:#000;color:#fff;padding:.3em 1em 0 6px;transform:translate(-12px);box-shadow:#00000080 -4px 2px 5px;width:max-content}.part-body{overflow-y:auto}
+const ex = `.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}*{box-sizing:border-box}.loading{display:flex;justify-content:center;align-content:center;height:5px;background-color:#000;width:100%}.loading-progress{height:5px;width:100%;border-radius:3px;background:linear-gradient(90deg,red 0%,yellow 15%,lime 30%,cyan 50%,blue 65%,magenta 80%,red 100%);background-size:200%;animation:move-gradient 2s ease-in infinite}.loading-message{font-family:var(--monospace-font);text-align:center;width:100%;color:var(--col-accent-bg-1);padding:1em}@keyframes move-gradient{0%{background-position:0 0}to{background-position:-200% 0%}}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}.fa,.fas{font-family:"Font Awesome 6 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-reload:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-bug:before{content:""}.fa-lightbulb:before{content:""}.fa-query:before{content:""}.fa-footsteps{transform:rotate(270deg)}.fa-footsteps:before{content:""}i{font-family:"Font Awesome 6 Free";font-style:normal;font-variant:normal;text-rendering:auto;-webkit-font-smoothing:antialiased;font-weight:900;font-size:.9em}:host{--lumo-font-size-s: $font-size-standard;--_lumo-grid-secondary-border-color: $col-bg-1-lighter;--_lumo-grid-border-width: 5px;--lumo-font-family: $standard-text;--lumo-size-m: $font-size-standard}:host *{-webkit-user-select:none;user-select:none}.kiosk-view{background-color:var(--col-bg-2);--ui-col-bg-1-lighter: var(--col-bg-2-lighter);--ui-col-bg-1: var(--col-bg-2);--ui-col-bg-1-darker: var(--col-bg-2-darker);--ui-button-width: 42px;--ui-button-height: 42px;--ui-button-font-size: 20px;padding:.5em}.local-error{display:flex;flex-direction:row;align-items:center;padding:.5rem;background-color:var(--col-bg-alert);color:var(--col-primary-bg-alert);min-height:3em}.missing-record-message{display:flex;flex-direction:row;align-items:center;padding:.5rem;background-color:var(--col-bg-1-darker);color:var(--col-primary-bg-1);min-height:3em}.missing-record-message i{font-style:normal;font-size:var(--font-size-h3);vertical-align:middle;font-family:"Font Awesome 6 Free";padding-right:1em}.part-header{background-color:#000;color:#fff;padding:0 4px;transform:translate(-8px);box-shadow:#00000080 -4px 2px 5px;margin:.5em 0;width:max-content}.part-header i{margin-left:1em;font-weight:400}.accordion-part-header{background-color:var(--col-bg-1-lighter);color:#fff;padding-left:4px;width:100%;display:flex;flex-direction:row;justify-content:space-between;margin:.5em 0}.accordion-part-header i{background-color:var(--col-bg-2);color:#000;border-style:none;font-weight:700;margin-left:5px;font-size:1.5em;line-height:1.5em;vertical-align:middle}.accordion-part-header div:nth-child(2){background-color:var(--col-bg-2)}.accordion-part-header div:first-child{background-color:#000;color:#fff;padding:.3em 1em 0 6px;transform:translate(-12px);box-shadow:#00000080 -4px 2px 5px;width:max-content}.part-body{overflow-y:auto}
 `;
 /**
  * @license
@@ -39592,7 +39592,7 @@ let de = class extends _t {
     var i, e, t;
     const r = [];
     let s;
-    this.showDevelopmentInfo && r.push(te`<div class="uicomponent-version" @click="${this.hideDevelopmentInfo}">${te`${"0.4.13"}`}</div>`);
+    this.showDevelopmentInfo && r.push(te`<div class="uicomponent-version" @click="${this.hideDevelopmentInfo}">${te`${"0.4.14"}`}</div>`);
     try {
       s = this.getLayoutClass("root", (i = this.uiSchema) == null ? void 0 : i.layout_settings), s.onRequestUpdate = this.onRequestUpdate.bind(this);
     } catch {
@@ -40513,7 +40513,10 @@ const Se = class extends Jd {
   getRecordTypeAliases() {
     this.recordTypeAliases = {};
     for (const e of this.constants)
-      e.path === "file_repository/recording_context_aliases" && (this.recordTypeAliases[e.key] = e.value);
+      if (e.path === "glossary") {
+        let t = e.value;
+        Array.isArray(t) && (t = t[0]), this.recordTypeAliases[e.key] = t;
+      }
   }
   fetchConstants() {
     this.showProgress = !0, this.apiContext.fetchFromApi(
