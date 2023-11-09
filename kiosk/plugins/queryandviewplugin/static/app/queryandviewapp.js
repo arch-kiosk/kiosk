@@ -40246,7 +40246,7 @@ let ce = class extends Xt {
   willUpdate(i) {
   }
   updated(i) {
-    super.updated(i), i.has("apiContext") || i.has("viewDetails") ? (this.viewDocument = void 0, this.apiContext && (this.constants = void 0, this.dataContext = new Re(), this._groupParts = {}, this.fetchViewFromApi())) : i.has("viewDocument") && this.viewDocument && this.assignUIs();
+    super.updated(i), i.has("apiContext") || i.has("viewDetails") ? (this.viewDocument = void 0, this.apiContext && (this.dataContext = new Re(), this._groupParts = {}, this.fetchViewFromApi())) : i.has("viewDocument") && this.viewDocument && this.assignUIs();
   }
   fetchViewFromApi() {
     this.loadingMessage = "loading view ...", this.showLocalProgress = !0;
