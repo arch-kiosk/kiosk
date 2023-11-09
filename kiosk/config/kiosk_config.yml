@@ -27,7 +27,6 @@ file_repository:
     tags: 'context tags'
 glossary:
   "locus": ['locus', 'loci']
-  "collected material": ['collected material', 'collected materials']
   "unit": ["trench", "trenches"]
 
 kiosk:

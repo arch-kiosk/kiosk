@@ -19,9 +19,9 @@ from uic.uicstream import UICStream, UICKioskFile
 import datetime
 import threading
 
-kiosk_version = "1.5.13.2"
+kiosk_version = "1.5.13.3"
 kiosk_version_name = "vague views"
-kiosk_date = datetime.datetime(2023, 11, 8)
+kiosk_date = datetime.datetime(2023, 11, 9)
 debug = False
 development = {}
 

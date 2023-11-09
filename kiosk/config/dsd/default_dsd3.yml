@@ -494,7 +494,7 @@ coordinate_categories:
     1:
       category: [datatype(VARCHAR), not_null()]
       description: [datatype(VARCHAR)]
-      sketch_uid: [datatype(UUID), uid_file()]
+      sketch_uid: [datatype(UUID), uid_file(), label("sketch")]
       uid: [datatype(UUID), replfield_uuid(), default(gen_random_uuid())]
       created: [datatype(TIMESTAMP), replfield_created(), default(now())]
       modified: [datatype(TIMESTAMP), replfield_modified()]
@@ -987,10 +987,10 @@ locus_relations:
   structure:
     3:
       uid_locus: [datatype(UUID), join("locus")]
-      uid_locus_2_related: [datatype(UUID), "lookup('locus', 'uid')"]
+      uid_locus_2_related: [datatype(UUID), "lookup('locus', 'uid')", label("to locus")]
       type: [datatype(VARCHAR)]
       chronology: [datatype(VARCHAR)]
-      uid_sketch: [datatype(UUID), uid_file(), file_assigned_to("locus")]
+      uid_sketch: [datatype(UUID), uid_file(), file_assigned_to("locus"), label("sketch")]
       sketch_description: [datatype(VARCHAR), describes_file(uid_sketch)]
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]

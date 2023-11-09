@@ -32,3 +32,10 @@ element_type:
     lookup_type: "record"
     record_type: "lot"
     display_value: "id"
+
+# dsd('small_find','measured_in_situ')
+element_type:
+  name: "Bool"
+  style:
+    text-align: left
+
