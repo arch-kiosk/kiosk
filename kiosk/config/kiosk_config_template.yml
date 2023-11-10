@@ -31,6 +31,11 @@ config:
 #    pottery_images: 'pottery'
 #    tags: 'context tags'
 
+### Give singulars and plurals for record types
+#glossary:
+#  "locus": ['locus', 'loci']
+#  "unit": ["trench", "trenches"]
+
 #kiosk:
 ### state the subnet if this is a local server
 #  subnet: '192.168.1'

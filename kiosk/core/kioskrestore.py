@@ -597,37 +597,45 @@ class KioskRestore:
         return c
 
     @classmethod
-    def _transfer_only_new_records(cls, source_con, table, target_con, dst_table=""):
-        source_cur = source_con.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        source_cur.execute(f"select * from {table}")
-
-        if not dst_table:
-            dst_table = table
-
-        target_cur: psycopg2.extras.DictCursor = target_con.cursor(cursor_factory=psycopg2.extras.DictCursor)
-
+    def _transfer_only_new_records(cls, source_con, table, target_con, dst_table="", additional_unique_field=""):
         c = 0
-        r_src = source_cur.fetchone()
-        while r_src:
-            sqlfields = f'insert' + f' into "{dst_table}"('
-            sqlrecord = ' select '
-            sqlparam = []
+        try:
+            source_cur = source_con.cursor(cursor_factory=psycopg2.extras.DictCursor)
+            source_cur.execute(f"select * from {table}")
 
-            for field in source_cur.index:
-                if not r_src[field] is None:
-                    sqlfields += f'"{field}",'
-                    sqlrecord += "%s,"
-                    sqlparam.append(r_src[field])
+            if not dst_table:
+                dst_table = table
 
-            sqlfields = sqlfields[:-1] + ')'
-            sqlrecord = sqlrecord[:-1] + f' WHERE NOT EXISTS (select uid from {dst_table} where uid=%s)'
-            sqlparam.append(r_src["uid"])
-            sql = sqlfields + sqlrecord + ";"
-            target_cur.execute(sql, sqlparam)
-            q = target_cur.query
-            print(q)
-            c += target_cur.rowcount
+            target_cur: psycopg2.extras.DictCursor = target_con.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
             r_src = source_cur.fetchone()
+            while r_src:
+                sqlfields = f'insert' + f' into "{dst_table}"('
+                sqlrecord = ' select '
+                sqlparam = []
+
+                for field in source_cur.index:
+                    if not r_src[field] is None:
+                        sqlfields += f'"{field}",'
+                        sqlrecord += "%s,"
+                        sqlparam.append(r_src[field])
+
+                sqlfields = sqlfields[:-1] + ')'
+                sqlrecord = sqlrecord[:-1] + f' WHERE NOT EXISTS (select uid from {dst_table} where uid=%s'
+                sqlparam.append(r_src["uid"])
+                if additional_unique_field:
+                    sqlrecord = sqlrecord + f' or "{additional_unique_field}"=%s'
+                    sqlparam.append(r_src[additional_unique_field])
+                sqlrecord = sqlrecord + ")"
+                sql = sqlfields + sqlrecord + ";"
+                target_cur.execute(sql, sqlparam)
+                q = target_cur.query
+                print(q)
+                c += target_cur.rowcount
+                r_src = source_cur.fetchone()
+        except BaseException as e:
+            logging.error(f"{cls.__name__}._transfer_only_new_records: Error transferring new records: {repr(e)}")
+            raise e
 
         return c
 
@@ -671,16 +679,20 @@ class KioskRestore:
         source_con = None
         target_con = None
         try:
+            # this is the current data
             source_con = psycopg2.connect(f"dbname={src_db_name} user={user_id} password={user_pwd}")
+            # this is the restored data (which will become the current after the restore)
             target_con = psycopg2.connect(f"dbname={tmp_db_name} user={user_id} password={user_pwd}")
 
             for t in tables:
                 if cls._check_table_versions(t, source_con, src_table_versions, target_con, tmp_table_versions):
                     if only_new:
-                        c = cls._transfer_only_new_records(source_con, t, target_con)
+                        c = cls._transfer_only_new_records(target_con, t, source_con, additional_unique_field="user_id")
+                        c_all = cls._transfer_record_by_record(source_con, t, target_con)
+                        logging.info(f"table {t} recovered from old database: {c} new records, {c_all - c} records kept")
                     else:
                         c = cls._transfer_record_by_record(source_con, t, target_con)
-                    print(f"table {t} recovered from old database: {c} records.", flush=True)
+                        logging.info(f"table {t} recovered from old database: {c} records.")
                 else:
                     raise Exception("Restore stopped because of an earlier error.")
 
@@ -853,7 +865,7 @@ class KioskRestore:
                 cls._transfer_tables(["kiosk_user"],
                                      db_name, src_table_versions,
                                      tmp_db_name, tmp_table_versions,
-                                     user_id, user_pwd, only_new = True)
+                                     user_id, user_pwd, only_new=True)
 
 
         except BaseException as e:
@@ -901,7 +913,6 @@ class KioskRestore:
                 raise e
             logging.debug(f"{cls.__name__}.init_dsd: dsd3 initialized: {cfg.get_dsdfile()}. ")
             return master_view.dsd
-
 
         src_db = None
         tmp_db = None

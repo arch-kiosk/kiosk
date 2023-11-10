@@ -482,6 +482,7 @@ def transfer():
                            config=kioskglobals.cfg, transfer_form=transfer_form,
                            general_errors=general_errors, job_uid=job_uid)
 
+
 #  **************************************************************
 #  ****    upload catalog file for transfer
 #  *****************************************************************/
@@ -721,7 +722,7 @@ def is_local_server(cfg):
 def shutdown_local_server():
     func = request.environ.get('werkzeug.server.shutdown')
     if func is None:
-        raise RuntimeError('Not running with the Werkzeug Server')
+        raise RuntimeError('werkzeug.server.shutdown not available')
     func()
 
 
@@ -1083,7 +1084,7 @@ def patch():
         general_errors = []
         check_ajax()
         sync = Synchronization()
-
+        error_msg = ""
         cfg = kioskglobals.get_config()
         if is_local_server(cfg):
             transfer_dir = cfg.get_create_transfer_dir()
@@ -1102,10 +1103,10 @@ def patch():
                                error_msg=error_msg)
 
     except HTTPException as e:
-        logging.error(f"kioskfilemakerworkstationcontroller.install_update: {repr(e)}")
+        logging.error(f"administrationcontroller.install_update: {repr(e)}")
         abort(HTTPStatus.INTERNAL_SERVER_ERROR, repr(e))
     except Exception as e:
-        logging.error(f"kioskfilemakerworkstationcontroller.install_update: {repr(e)}")
+        logging.error(f"administrationcontroller.install_update: {repr(e)}")
         abort(HTTPStatus.INTERNAL_SERVER_ERROR, repr(e))
 
 
@@ -1163,7 +1164,6 @@ def trigger_patch():
                         logging.error(f"administrationcontroller.trigger_patch: Exception when unzipping"
                                       f"{patch_file} to {transfer_dir}: {repr(e)}")
                         raise e
-
                     try:
                         os.remove(patch_file)
                     except BaseException as e:
@@ -1249,6 +1249,11 @@ def start_install_patch(transfer_dir, cfg) -> Tuple[bool, str]:
         if error_msg or not transfer_dir:
             err_msg = f"administrationcontroller.start_install_patch: " \
                       f"the transfer directory is not properly set up: {error_msg}"
+            logging.error(err_msg)
+            return False, err_msg
+        if request.environ.get('werkzeug.server.shutdown') is None:
+            err_msg = f"administrationcontroller.start_install_patch: This Kiosk Version does not support patches run " \
+                      f"with unpackkiosk because the local Kiosk server cannot be shut down."
             logging.error(err_msg)
             return False, err_msg
 
