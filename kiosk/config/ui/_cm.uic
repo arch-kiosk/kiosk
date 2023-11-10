@@ -36,6 +36,6 @@ element_type:
 # dsd('small_find','measured_in_situ')
 element_type:
   name: "Bool"
+  visible: true
   style:
     text-align: left
-

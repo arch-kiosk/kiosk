@@ -140,6 +140,7 @@ small_find.sheet:
       - description
       - colour
       - period
+      - line_3
       - measured_in_situ
       - ...
       - line_2
@@ -156,6 +157,12 @@ small_find.sheet:
       layout:
         min_width: "max"
     line_2:
+      element_type:
+        name: "line"
+        transparent: true
+      layout:
+        min_width: "max"
+    line_3:
       element_type:
         name: "line"
         transparent: true

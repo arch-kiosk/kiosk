@@ -33,7 +33,7 @@ collected_material:
     6:
       uid_locus: [datatype(UUID), join("locus")]
       external_id: [datatype(VARCHAR), identifier("additional")]
-      uid_lot: [datatype(UUID), "lookup(lot,uid)"]
+      uid_lot: [datatype(UUID), "lookup(lot,uid)", "label(lot)"]
       type: [datatype(VARCHAR), label(material)]
       cm_type: [datatype(VARCHAR), label(type), "lookup('collected_material_types', 'id')"]
       description: [datatype(VARCHAR), record_description()]
@@ -1407,7 +1407,7 @@ survey_unit_data:
       data_field8_value: [datatype(NUMBER)]
       data_field9_value: [datatype(NUMBER)]
       data_field10_value: [datatype(NUMBER)]
-      uid_lot: [datatype(VARCHAR)]
+      uid_lot: [datatype(VARCHAR), label("lot")]
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
