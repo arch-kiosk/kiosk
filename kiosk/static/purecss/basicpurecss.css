@@ -11,3 +11,9 @@ input:-webkit-autofill {
     -webkit-animation-name: autofill;
     -webkit-animation-fill-mode: both;
 }
+
+/* for safari and iOS */
+/* This is needed to make readonly input fields not have a readonly style */
+/*input:disabled, textarea:disabled, input:disabled::placeholder, textarea:disabled::placeholder*/
+/*  -webkit-text-fill-color: currentcolor*/
+/*  opacity: 1*/
