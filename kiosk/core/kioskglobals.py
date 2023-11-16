@@ -21,7 +21,7 @@ import threading
 
 kiosk_version = "1.5.13.7"
 kiosk_version_name = "vague views"
-kiosk_date = datetime.datetime(2023, 11, 10)
+kiosk_date = datetime.datetime(2023, 11, 16)
 debug = False
 development = {}
 
