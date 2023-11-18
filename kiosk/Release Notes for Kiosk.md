@@ -30,6 +30,7 @@ If you record audio or video (don't) in FileMaker or add a file that isn't an im
 - 🪟 Windows 11: Kiosks supports field servers running Windows 11 now.
 - 🌷 Use an Opal router to access Kiosk via "http://kiosk" instead of an ip address.
 
+
 ### ☀ Release Notes for Kiosk Version 1.5.2.1 (04 June 2023) ☀
 This is an overview of the visible improvements since Version 1.5 (22. May 2023):
 This and older release notes are on https://github.com/arch-kiosk/arch-kiosk-office/issues/1434
@@ -39,10 +40,26 @@ This and older release notes are on https://github.com/arch-kiosk/arch-kiosk-off
 
 🎬 You'll find updated documentation and many new video tutorials on sites.brown.edu/kiosk 🎬 
 
-
 - ☀ brand new life-changing qr-coded file sequence import (#2138)
-     You'll find the new "file sequence" import in the file import. 
-     It will change your life in the field when the sun is glaring down on your ipad or some shrubbery is casting shadows on your screen
+          You'll find the new "file sequence" import in the file import. 
+          It will change your life in the field when the sun is glaring down on your ipad or some shrubbery is casting shadows on your screen
 - ☀ improvements to the reporting engine that support PASU reporting (#1822, #2155, #2159, #2154)
 
+### 🍎 Release notes for Kiosk 1.5.13 (Vague Views)🍎
 
+📣 Query & View is the new module in Kiosk's menu. It allows you to query your data with pre-configured queries and view your archaeological record in Kiosk itself. No FileMaker needed.
+
+You find it in the main menu
+Two buttons in the toolbar allow you to either select a query (the board icon) or go straight to a view by selecting an archaeological identifier from a list.
+wherever you see an archaeological identifier (particularly if it has 👣 ) you can click on it to open a new view.
+
+🐛 First-Version-Disclaimers
+
+- 💻 At this point this works best on larger screens. If you have the feeling your clicking didn't do anything: scroll down!
+- 🏳️ The selection of queries is pretty meagre at this point: Hit us with wishes! E.g. here: 
+
+- data analysis: What do you want to search and analyze in your data post-season? #1788
+- Currently the views are still a bit basic: Only sites, loci/contexts, unit/areas and collected materials are covered. But this is just the beginning and we wanted to share it as soon as it has value
+- 🥽 Note that this is and will stay read-only. Kiosk is a synchronizing system and allowing for live input of data is not compatible with that approach. But this is only our first step towards FileMaker independence ...
+
+🐞 If you are missing data, see your data misrepresented or have any suggestions, please let us know. E.g. by filing an issue here on GitHub: https://github.com/arch-kiosk/arch-kiosk-office/issues
