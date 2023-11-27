@@ -378,3 +378,8 @@ kiosk:
   pwastresstestplugin:
     active: false
 
+  locusrelationsapiplugin:
+    active: true
+
+  hmlabplugin:
+    active: true

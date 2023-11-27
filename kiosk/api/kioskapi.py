@@ -18,6 +18,7 @@ from .kioskapifiles import ApiFile, ApiResolution
 from .kioskapicontexts import ApiContexts
 from .kioskapikioskquery import ApiKioskQuery
 from .kioskapilookup import ApiLookup
+from .kioskapilib import PublicApiInfo
 
 
 def register_resources(api: KioskApi):
@@ -37,20 +38,6 @@ def register_resources(api: KioskApi):
     ApiContextsFull.register(api)
     ApiKioskQuery.register(api)
     ApiLookup.register(api)
-
-# ***********************************************************************
-# ******* /api-info
-# ***********************************************************************
-class PublicApiInfo(Schema):
-    class Meta:
-        fields = ("project", "project_name", "kiosk_version_name", "kiosk_version", "api_version")
-        ordered = True
-
-    project = fields.Str()
-    project_name = fields.Str()
-    kiosk_version_name = fields.Str()
-    kiosk_version = fields.Str()
-    api_version = fields.Str()
 
 
 class ApiPublic(Resource):

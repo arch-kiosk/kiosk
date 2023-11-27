@@ -10,3 +10,6 @@
 [submodule "kiosk/plugins/pwastresstestplugin"]
 	path = kiosk/plugins/pwastresstestplugin
 	url = https://github.com/arch-kiosk/pwastresstestplugin.git
+[submodule "kiosk/plugins/hmlabplugin"]
+	path = kiosk/plugins/hmlabplugin
+	url = https://github.com/arch-kiosk/hmlabplugin.git
