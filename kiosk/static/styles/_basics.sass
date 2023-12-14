@@ -280,12 +280,20 @@ button:disabled
   font-stretch: ultra-expanded
   display: flex
   flex-direction: row
+  @media #{$screen-phone-portrait}
+    line-height: 1em
+    font-size: .5em
+    padding: 2px 2px 2px 2px
+    right: 0px
+    margin-right: auto
   span
     margin-left: .5em
     margin-right: .5em
 
   .kiosk-sys-info
     opacity: .8
+.kiosk-version
+  white-space: nowrap
 .emergency-system-message
   background: $col-bg-att
   color: $col-primary-bg-att

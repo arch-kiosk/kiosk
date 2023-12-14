@@ -78,13 +78,17 @@
 
 #header
   display: flex
-  flex-wrap: wrap
+  flex-wrap: nowrap
   flex-shrink: 0
   margin-bottom: 10px
   background-color: $col-bg-1
-
+  @media #{$screen-max-600}
+    display: block
 #logogroup
   border: 0px
+  display: flex
+  flex-direction: row
+  flex-wrap: nowrap
 
 #logo
   float: left
@@ -99,7 +103,7 @@
 
   #img
     background: $header-logo-img no-repeat
-    background-size: 100%
+    background-size: cover
     background-position: center
     width: $header-logo-width
     height: $header-logo-height
@@ -177,9 +181,9 @@
   font-family: $headline-text
   font-size: 7em
   font-weight: bold
-  //color: $col-bg-1-darker
-  color: rgba(10,10,10,0.075)
-  @media #{$screen-max-500}
+  color: black
+  opacity: .06
+  @media #{$screen-max-600}
     display: none
 #subtitle
   position: relative
@@ -194,7 +198,7 @@
   z-index: 0
   @media #{$screen-max-800}
     font-size: $font-size-h3
-  @media #{$screen-max-500}
+  @media #{$screen-max-600}
     font-size: $font-size-h4
     margin-bottom: 1px
 

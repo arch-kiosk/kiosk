@@ -522,12 +522,25 @@ button:disabled, .upload-btn:disabled {
   display: flex;
   flex-direction: row;
 }
+@media only screen and (max-width : 440px) {
+  .kiosk-header-info {
+    line-height: 1em;
+    font-size: 0.5em;
+    padding: 2px 2px 2px 2px;
+    right: 0px;
+    margin-right: auto;
+  }
+}
 .kiosk-header-info span {
   margin-left: 0.5em;
   margin-right: 0.5em;
 }
 .kiosk-header-info .kiosk-sys-info {
   opacity: 0.8;
+}
+
+.kiosk-version {
+  white-space: nowrap;
 }
 
 .emergency-system-message {
