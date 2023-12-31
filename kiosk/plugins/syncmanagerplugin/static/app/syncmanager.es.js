@@ -981,8 +981,7 @@ let WorkstationCard = class extends KioskApp {
             <div
                 id="${this.workstation_id}"
                 class="workstation-card ${this.workstation_data.disabled ? "workstation-disabled" : void 0}"
-                @click="${this.cardClicked}"
-            >
+                @click="${this.cardClicked}">
                 <div class="card-header">
                     ${this.workstation_data.icon_code ? p` <div class="card-icon">
                               <i class="fas">${this.workstation_data.icon_code}</i>

@@ -192,7 +192,7 @@ class KioskFileMakerWorkstation(KioskWorkstation):
     @property
     def description(self):
         if self._sync_ws:
-            return self._sync_ws.description
+            return self._sync_ws.get_description_with_timezone_info()
         else:
             return ""
 

@@ -489,6 +489,15 @@ class Dock:
         """
         return self.description
 
+    def get_description_with_timezone_info(self):
+        """
+            returns the workstation's description and adds an info about the timezone if any (a string)
+            :returns
+                workstation description (String)
+        """
+
+        return self.description + f" ({self.gmt_time_zone})" if self.gmt_time_zone else ""
+
     def get_available_transitions(self) -> [str]:
         """ returns a list of available transitions relative to the workstation's current state.
             The list is a list with transition names (strings)
