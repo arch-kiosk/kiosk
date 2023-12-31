@@ -1839,6 +1839,21 @@ inventory:
       upgrade:
         - alter("modified_by")
 
+involved_as:
+  structure:
+    1:
+      related_record_type: [datatype(VARCHAR)]
+      related_record_uid: [datatype(UUID)]
+      user_id: [datatype(VARCHAR)]
+      role: [datatype(VARCHAR)]
+      involved_from: [datatype(DATE)]
+      involved_to: [datatype(DATE)]
+      notes: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+
 replication:
   structure:
     1:
