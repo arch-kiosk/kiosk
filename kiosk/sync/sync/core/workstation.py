@@ -496,7 +496,7 @@ class Dock:
                 workstation description (String)
         """
 
-        return self.description + f" ({self.gmt_time_zone})" if self.gmt_time_zone else ""
+        return self.description + (f" ({self.gmt_time_zone})" if self.gmt_time_zone else "")
 
     def get_available_transitions(self) -> [str]:
         """ returns a list of available transitions relative to the workstation's current state.
