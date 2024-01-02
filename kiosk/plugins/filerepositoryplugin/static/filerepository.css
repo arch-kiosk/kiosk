@@ -755,6 +755,7 @@ button:disabled, .fetch-files:disabled {
 }
 
 .fr-image-descriptor {
+  word-wrap: anywhere;
   text-align: left;
   background-color: var(--col-bg-body);
 }
