@@ -324,7 +324,7 @@ class ModelFileRepository:
 
     MAX_RECORDS_PER_CHUNK = 20
     ACCEPTED_FILTER_FIELDS = ["context", "recording_context", "tags", "description", "no_context"]
-    SORTING_OPTIONS = ["context", "oldest first", "latest first"]
+    SORTING_OPTIONS = ["context", "oldest first", "latest first", "undated, then latest first"]
 
     def __init__(self, conf, plugin_name):
         self.filter_options = {"records_per_chunk": self.MAX_RECORDS_PER_CHUNK}
@@ -423,8 +423,14 @@ class ModelFileRepository:
             return "order by identifiers, \"file_datetime\""
         elif self.sorting_option == "oldest first":
             return "order by \"file_datetime\", \"identifiers\""
-        elif self.sorting_option == "latest first":
-            return "order by \"file_datetime\" desc, \"identifiers\""
+        elif self.sorting_option == self.SORTING_OPTIONS[2]:
+            return "order by COALESCE(\"file_datetime\", '0001-01-01') desc, \"identifiers\""
+        elif self.sorting_option == self.SORTING_OPTIONS[3]:
+            return "order by \"sort_fd\" desc, \"identifiers\""
+        else:
+            logging.error(f"{self.__class__.__name__}._get_order: unknown sorting order "
+                          f"'{self.sorting_option}' selected.")
+            return "order by identifiers, \"file_datetime\""
 
     def query_image_count(self):
         cur = KioskSQLDb.get_dict_cursor()
@@ -465,8 +471,9 @@ class ModelFileRepository:
         if sql_order:
             sql_order = " " + sql_order
 
-        sql = "select " + " distinct images.*, array_to_string(identifier_array, ', ') identifiers from \"images\" " \
-                          "left outer join " \
+        sql = "select " + f" distinct images.*, COALESCE(\"file_datetime\", '0001-01-01') sort_fd, " \
+                          "array_to_string(identifier_array, ', ') identifiers from \"images\" " \
+                          f"left outer join " \
                           f"{file_identifier_cache_table_name} " \
                           f"on images.uid={file_identifier_cache_table_name}.data::uuid " + \
               f"left outer join (select {file_identifier_cache_table_name}.\"data\", " \
