@@ -44,8 +44,10 @@
           </div>
         </div>
         <div class="filter-element">{{ filter_form.description.label }}{{ filter_form.description }}</div>
-        {#        {{ localimportform1.mif_local_path(class="kiosk-dialog-textfield",#}
-        {#                data_list="#mif-volumes", errclass="kiosk-error-border") }}#}
+        <div class="filter-elements-connected">
+            <div class="filter-element date-filter-element">{{ filter_form.from_date.label }}{{ filter_form.from_date }}</div>
+            <div class="filter-element date-filter-element">{{ filter_form.to_date.label }}{{ filter_form.to_date }}</div>
+        </div>
         <div class="filter-element">{{ filter_form.tags.label }}{{ filter_form.tags(data_list="#fr-tags") }}</div>
         <datalist id="fr-tags">
           {% for tag in tag_list %}

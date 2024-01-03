@@ -11,7 +11,7 @@
       <span class="fr-arch-identifier"> {{ img.get_arch_identifier(True)|safe }}</span>
       <span class="fr-file-check"> <i class="fas fa-star"></i></span>
     </p>
-    {% if session['kiosk_fr_sorting'] == "oldest first" or session['kiosk_fr_sorting'] == "latest first" %}
+    {% if "oldest" in session['kiosk_fr_sorting'] or "latest" in session['kiosk_fr_sorting'] %}
       <p class="fr-file-datetime">{{ img.get_file_datetime() }}</p>
     {% endif %}
     <p>

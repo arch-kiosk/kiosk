@@ -209,7 +209,8 @@ class FilterForm(FlaskForm):
     recording_context = SelectField(id="frf-recording-context", label='record type')
     tags = KioskStringField(id="frf-tags", label="tags")
     description = StringField(id="frf-description", label='description')
-
+    from_date = StringField(id="frf-from-date", label='from')
+    to_date = StringField(id="frf-to-date", label='to')
 
 #  **************************************************************
 #  ****    /file-repository redirecting index
@@ -250,9 +251,14 @@ def file_repository_show():
                    "recording_context": m_file_repository.get_recording_context_from_alias(
                        filter_form.recording_context.data),
                    "description": filter_form.description.data,
+                   "from_date": filter_form.from_date.data,
+                   "to_date": filter_form.to_date.data,
                    "tags": filter_form.tags.data
                    }
-        m_file_repository.set_filter_values(options)
+        try:
+            m_file_repository.set_filter_values(options)
+        except ValueError as e:
+            return jsonify(result=f"{str(e)}")
 
     tag_list = m_file_repository.get_tags()
     sorting_options = m_file_repository.get_sorting_options()
@@ -277,7 +283,7 @@ def file_repository_show():
                 cache = kioskglobals.identifier_cache
                 logging.debug(f"filerepositorycontroller.file_repository_show: After MemoryIdentifierCache ")
                 if not cache.has_identifier(identifier):
-                    return jsonify(result="Identifier unknown.")
+                    return jsonify(result=f"The identifier {identifier} is unknown.")
             except BaseException as e:
                 logging.error(f"filerepositorycontroller.file_repository_show: {repr(e)}")
                 return jsonify(result=repr(e))

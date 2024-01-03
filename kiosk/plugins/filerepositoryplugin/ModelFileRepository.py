@@ -1,5 +1,6 @@
 import datetime
 import logging
+import pprint
 import time
 from collections import deque
 from functools import reduce
@@ -9,6 +10,7 @@ from flask import url_for
 
 import kioskglobals
 import kioskstdlib
+import urapdatetimelib
 from contextmanagement.sqlsourcecached import CONTEXT_CACHE_NAMESPACE
 from core.kioskcontrollerplugin import get_plugin_for_controller
 from sync.core.filerepository import FileRepository
@@ -323,7 +325,8 @@ class ModelFileRepository:
     """
 
     MAX_RECORDS_PER_CHUNK = 20
-    ACCEPTED_FILTER_FIELDS = ["context", "recording_context", "tags", "description", "no_context"]
+    ACCEPTED_FILTER_FIELDS = ["context", "recording_context", "tags", "description", "no_context",
+                              "from_date", "to_date"]
     SORTING_OPTIONS = ["context", "oldest first", "latest first", "undated, then latest first"]
 
     def __init__(self, conf, plugin_name):
@@ -334,13 +337,41 @@ class ModelFileRepository:
         self.sorting_option = self.SORTING_OPTIONS[0]
 
     def set_filter_values(self, options):
-        for o in options:
+        if "filter_values" not in self.filter_options:
+            self.filter_options["filter_values"] = {}
+
+        for o, value in options.items():
             if o not in self.ACCEPTED_FILTER_FIELDS:
                 logging.error("ModelFileRepository.set_filter_values: field " + o + " unknown and ignored.")
+                raise Exception("Bad Request")
             else:
-                self.filter_options["filter_values"] = options
+                self.check_filter_option(o, value)
 
-        # print(options)
+    @staticmethod
+    def guess_year(year_str) -> int:
+        if year_str.isnumeric():
+            year = int(year_str)
+            if 0 < year < 100 or 999 < year:
+                return urapdatetimelib.interpolate_year(year)
+        return 0
+
+    def check_filter_option(self, option, value):
+        if option == "from_date" and value:
+            if not kioskstdlib.guess_datetime(value):
+                year = self.guess_year(str(value))
+                if year:
+                    value = str.format('{0:4d}-01-01', year)
+                else:
+                    raise ValueError("Please enter a valid date or year in 'from'.")
+        elif option == "to_date" and value:
+            if not kioskstdlib.guess_datetime(value):
+                year = self.guess_year(str(value))
+                if year:
+                    value = str.format('{0:4d}-12-31', year)
+                else:
+                    raise ValueError("Please enter a valid date or year in 'to'.")
+
+        self.filter_options["filter_values"][option] = value
 
     def _get_where(self, file_identifier_cache_table_name):
         """
@@ -396,9 +427,18 @@ class ModelFileRepository:
                 param3 = self.filter_options["filter_values"][o]
                 param4 = param
                 param5 = param
-            elif o in ["recording_context"] and self.filter_options["filter_values"][o]:
+            elif o == "recording_context" and self.filter_options["filter_values"][o]:
                 where_part = f"{file_identifier_cache_table_name}.record_type = %s"
                 param = self.filter_options["filter_values"][o]
+            elif o == "from_date" and self.filter_options["filter_values"][o]:
+                where_part = f"date(file_datetime) >= %s"
+                param = kioskstdlib.guess_datetime(self.filter_options["filter_values"][o])
+            elif o == "to_date" and self.filter_options["filter_values"][o]:
+                where_part = f"date(file_datetime) <= %s"
+                param = kioskstdlib.guess_datetime(self.filter_options["filter_values"][o])
+            else:
+                if o != "no_context" and self.filter_options["filter_values"][o]:
+                    raise Exception(f"what is {o}?")
 
             if where_part:
                 # print(where_part)
@@ -424,9 +464,9 @@ class ModelFileRepository:
         elif self.sorting_option == "oldest first":
             return "order by \"file_datetime\", \"identifiers\""
         elif self.sorting_option == self.SORTING_OPTIONS[2]:
-            return "order by COALESCE(\"file_datetime\", '0001-01-01') desc, \"identifiers\""
-        elif self.sorting_option == self.SORTING_OPTIONS[3]:
             return "order by \"sort_fd\" desc, \"identifiers\""
+        elif self.sorting_option == self.SORTING_OPTIONS[3]:
+            return "order by \"file_datetime\" desc, \"identifiers\""
         else:
             logging.error(f"{self.__class__.__name__}._get_order: unknown sorting order "
                           f"'{self.sorting_option}' selected.")
@@ -443,6 +483,7 @@ class ModelFileRepository:
                           f"left outer join " \
                           f"{file_identifier_cache_table_name} " \
                           f"on images.uid={file_identifier_cache_table_name}.\"data\"::uuid {sql_where};"
+        pprint.pprint(sql)
         try:
             cur.execute(sql, params)
             logging.debug(f"sql: {str(cur.query)}")

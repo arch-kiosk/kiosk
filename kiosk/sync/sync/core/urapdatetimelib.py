@@ -34,6 +34,16 @@ def latin_date(ts, no_time=False):
     return s
 
 
+def interpolate_year(year: int, margin_1900=3) -> int:
+    if year > 100:
+        return year
+    year_2digits = datetime.datetime.now().year - int(datetime.datetime.now().year / 1000) * 1000
+    if year > (year_2digits + margin_1900):
+        return year + 1900
+    else:
+        return year + 2000
+
+
 def check_urap_date_time(str_ts, allow_date_only=False) -> tuple:
     """checks whether or not str_ts contains a valid date/time statement.
        If allow_date_only is False, the time part is expected.
@@ -47,12 +57,15 @@ def check_urap_date_time(str_ts, allow_date_only=False) -> tuple:
         If it is latin months, MM is actually M or MM.
         Time, if needed at all, may or may not have seconds.
 
-    """
-    ts_date = None
+        02.I.23 (LK):
+        and dd can be d and
+        yyyy can be yy (in which case the current yy plus 3 is the margin
+                        after which a year is considered a 1900 year)
 
-    ts_parts = str_ts.rsplit(" ", 1)
-    if (len(ts_parts) < 2) and (not allow_date_only):
-        return None, "Date and time are expected in the format MM.DD.YYYY HH:MM:SS"
+        In case of a latin date also allowed:
+            dd mm yyyy (so a whitespace as separator)
+
+    """
 
     try:
         iso_dt = kioskstdlib.str_to_iso8601(str_ts)
@@ -60,27 +73,57 @@ def check_urap_date_time(str_ts, allow_date_only=False) -> tuple:
     except:
         pass
 
-    date_part = ts_parts[0].strip()
+    ts_date = None
 
-    rx_latin_date = re.compile(r"^(?P<day>\d{2}).(?P<latin_month>[IVX]{1,4}).(?P<year>\d{4})$")
+    ts_parts = str_ts.split(" ")
+    if (len(ts_parts) < 2) and (not allow_date_only):
+        return None, "Date AND time are expected. There does not seem to be a time."
+
+    time_part = ""
+    if len(ts_parts) == 3:
+        date_part = str_ts
+        if not allow_date_only:
+            return None, "Date AND time are expected. There does not seem to be a time."
+    else:
+        ts_parts = str_ts.rsplit(" ", 1)
+        date_part = ts_parts[0].strip()
+        if len(ts_parts) > 1:
+            time_part = ts_parts[1].strip()
+
+    rx_latin_date = re.compile(r"^(?P<day>\d{1,2}).(?P<latin_month>[IVX]{1,4}).(?P<year>\d{2,4})$")
     p = rx_latin_date.match(date_part)
     if not p:
-        rx_latin_date = re.compile(r"^(?P<day>\d{2}) (?P<latin_month>[IVX]{1,4}) (?P<year>\d{4})$")
+        rx_latin_date = re.compile(r"^(?P<day>\d{1,2}) (?P<latin_month>[IVX]{1,4}) (?P<year>\d{2,4})$")
         p = rx_latin_date.match(date_part)
     if p:
-        latin_month = p.group("latin_month")
-        if latin_month and latin_month in latin_months:
-            date_part = "%s-%s-%s" % (p.group("year"), latin_months[latin_month], p.group("day"))
+        try:
+            latin_month = p.group("latin_month")
+            if latin_month and latin_month in latin_months:
+                date_part = str.format('{0:4d}-{1:02d}-{2:02d}',
+                                       interpolate_year(int(p.group("year"))),
+                                       int(latin_months[latin_month]), int(p.group("day")))
+        except BaseException as e:
+            pass
 
-    rx_german_date = re.compile(r"^(?P<day>\d{1,2})\.(?P<month>\d{1,2})\.(?P<year>\d{4})$")
+    rx_german_date = re.compile(r"^(?P<day>\d{1,2})\.(?P<month>\d{1,2})\.(?P<year>\d{2,4})$")
     p = rx_german_date.match(date_part)
     if p:
-        date_part = "%s-%s-%s" % (p.group("year"), p.group("month"), p.group("day"))
+        try:
+            date_part = str.format('{0:4d}-{1:02d}-{2:02d}',
+                                   interpolate_year(int(p.group("year"))),
+                                   int(p.group("month")), int(p.group("day")))
+        except BaseException as e:
+            pass
 
-    rx_us_date = re.compile(r"^(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<year>\d{4})$")
+    rx_us_date = re.compile(r"^(?P<month>\d{1,2})/(?P<day>\d{1,2})/(?P<year>\d{2,4})$")
     p = rx_us_date.match(date_part)
     if p:
-        date_part = "%s-%s-%s" % (p.group("year"), p.group("month"), p.group("day"))
+        try:
+            date_part = str.format('{0:4d}-{1:02d}-{2:02d}',
+                                   interpolate_year(int(p.group("year"))),
+                                   int(p.group("month")), int(p.group("day")))
+        except BaseException as e:
+            pass
 
     if re.match(r"^\d{4}-[01]?\d-\d{2}$", date_part):
         # might be a date in YYYY-MM-DD
@@ -92,8 +135,7 @@ def check_urap_date_time(str_ts, allow_date_only=False) -> tuple:
             return None, date_part + " is not a valid date in the format YYYY-MM-DD"
 
     if ts_date:
-        if len(ts_parts) == 2:
-            time_part = ts_parts[1].strip()
+        if time_part:
             try:
                 ts_time = datetime.time(*time.strptime(time_part, "%H:%M:%S")[3:6])
             except Exception as e:

@@ -598,6 +598,10 @@ button:disabled, .fetch-files:disabled {
     top: auto;
   }
 }
+#fr-sidebar .filter-elements-connected {
+  display: flex;
+  flex-direction: row;
+}
 #fr-sidebar .filter-element {
   align-self: flex-end;
   min-width: 12em;
@@ -613,6 +617,16 @@ button:disabled, .fetch-files:disabled {
 }
 #fr-sidebar .filter-element select, #fr-sidebar .filter-element input {
   height: 2.5em;
+}
+#fr-sidebar .date-filter-element {
+  min-width: 8em;
+  width: 8em;
+}
+@media only screen and (max-width : 440px) {
+  #fr-sidebar .date-filter-element {
+    min-width: 50%;
+    width: 50%;
+  }
 }
 #fr-sidebar input, #fr-sidebar select {
   width: 100%;

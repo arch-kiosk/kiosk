@@ -20,21 +20,28 @@
     flex-wrap: wrap
     top: auto
 
+  .filter-elements-connected
+    display: flex
+    flex-direction: row
+
   .filter-element
     align-self: flex-end
-    //width: 15vw
     min-width: 12em
 
     margin-right: 1em
     display: flex
     flex-direction: column
     flex-grow: 1
-    //@media #{$screen-max-900}
-    //  min-width: 16vw
     @media #{$screen-phone-portrait}
       min-width: 100%
     select, input
       height: 2.5em
+  .date-filter-element
+    min-width: 8em
+    width: 8em
+    @media #{$screen-phone-portrait}
+      min-width: 50%
+      width: 50%
 
   //label
   //  color: $reddish

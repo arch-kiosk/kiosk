@@ -193,17 +193,27 @@ function getFileCount() {
           $("#file-count").text("");
           $("#file-count").attr("image-count", json.result);
           maxImages = getMaxImagesPerPage();
+          $("#frf-from-date").removeClass("input-error");
+          $("#frf-to-date").removeClass("input-error");
+          $("#context-identifier-filter").removeClass("input-error");
           if (isNaN(json.result)) {
-            if (json.result === "Identifier unknown.") {
-              $("#context-identifier-filter>input").addClass("input-error");
-              $("#file-count").text("The identifier you typed in is unknown.");
-            } else {
+            if (json.result.startsWith("The identifier")) {
+              $("#context-identifier-filter").addClass("input-error");
+              $("#file-count").text(json.result);
+            } else if (json.result.indexOf("valid date or year") > -1) {
+              if (json.result.indexOf("'from'") > -1) {
+                $("#frf-from-date").addClass("input-error");
+              } else {
+                $("#frf-to-date").addClass("input-error");
+              }
+              $("#file-count").text(json.result);
+            }
+            else {
               kioskErrorToast(json.result);
             }
             frfEnableSubmitMode(false);
             // return
           } else {
-            $("#context-identifier-filter>input").removeClass("input-error");
             if (json.result > 0) {
               // if (json.result <= maxImages)  {
               if (json.result) {

@@ -5,10 +5,44 @@ import time
 
 import zoneinfo
 
+
 class TestDateTimeLib:
     def test_latin_date(self):
         assert urapdatetimelib.latin_date(datetime.datetime(day=1, month=1, year=2021), no_time=True) == "01.I.2021"
         assert urapdatetimelib.latin_date(datetime.datetime(day=1, month=12, year=2021), no_time=True) == "01.XII.2021"
+
+    def test_check_urap_date_time(self):
+        assert urapdatetimelib.check_urap_date_time(
+            "01.03.2023",
+            allow_date_only=True) == (datetime.datetime(day=1, month=3, year=2023,
+                                                        hour=0, minute=0, second=0), '')
+        assert urapdatetimelib.check_urap_date_time(
+            "01.III.2023",
+            allow_date_only=True) == (datetime.datetime(day=1, month=3, year=2023,
+                                                        hour=0, minute=0, second=0), '')
+        assert urapdatetimelib.check_urap_date_time(
+            "01 III 2023",
+            allow_date_only=True) == (datetime.datetime(day=1, month=3, year=2023,
+                                                        hour=0, minute=0, second=0), '')
+
+        assert urapdatetimelib.check_urap_date_time(
+            "01 III 2023 12:10:23",
+            allow_date_only=True) == (datetime.datetime(day=1, month=3, year=2023,
+                                                        hour=12, minute=10, second=23), '')
+        assert urapdatetimelib.check_urap_date_time(
+            "01.III.2023 12:10:23",
+            allow_date_only=True) == (datetime.datetime(day=1, month=3, year=2023,
+                                                        hour=12, minute=10, second=23), '')
+
+        assert urapdatetimelib.check_urap_date_time(
+            "01.03.2023 12:10:23",
+            allow_date_only=True) == (datetime.datetime(day=1, month=3, year=2023,
+                                                        hour=12, minute=10, second=23), '')
+
+        assert urapdatetimelib.check_urap_date_time(
+            "1 III 23 12:10:23",
+            allow_date_only=True) == (datetime.datetime(day=1, month=3, year=2023,
+                                                        hour=12, minute=10, second=23), '')
 
     def test_local_datetime_to_utc(self):
         test_array = [
@@ -76,7 +110,3 @@ class TestDateTimeLib:
             d2 = t[1].astimezone()
             if d1 != d2:
                 assert False, f"{d1} != {d2}"
-
-    def test_js_to_python_utc_datetime_str(self):
-        assert urapdatetimelib.js_to_python_utc_datetime_str("2021-01-15T02:40:40.655Z") == "2021-01-15T02:40:40.655+00:00"
-
