@@ -502,6 +502,7 @@ def update_contexts(img: FileRepositoryFile, file_repos: FileRepository, form_da
             dropped += 1
 
     if added or dropped:
+        ctx.modified_by = current_user.repl_user_id
         if not ctx.push_contexts(True):
             return f"error pushing contexts: {ctx.last_error}"
     return ""
