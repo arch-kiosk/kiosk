@@ -1,0 +1,50 @@
+@import "../../../../../static/styles/_constants"
+@import reset
+@import icons
+
+\:host
+  background-color: $col-bg-body
+  display: block
+  //min-height: 100vh
+  height: 100%
+  overflow-x: hidden
+  overflow-y: scroll
+
+div, p
+  font-family: $standard-text
+.center-div
+  display: flex
+  flex-direction: column
+  align-items: center
+  //background: $color-green
+
+.wait-for-login
+  display: grid
+  place-items: center
+  height: 100vh
+  background-color: $col-bg-body
+
+  p
+    font-family: $main-headline-text
+    font-size: 2em
+
+.logged-in-message
+  background-color: $col-bg-ack
+  color: $col-accent-bg-ack
+  display: grid
+  place-items: center
+  font-family: $standard-text
+
+.development
+  background-color: darkred
+  color: white
+  font-family: "Courier New", sans-serif
+  font-size: 18px
+  text-align: center
+
+.directors-view-frame
+  @extend .pattern-diagonal-stripes-sm
+  background-color: rgba(255,255,255,.98)
+  background-blend-mode: overlay
+  min-height: 100%
+  width: 100%

@@ -38,9 +38,10 @@ class ApiCQLQueryGetParameter(Schema):
 
 class ApiCQLQueryPostParameter(Schema):
     class Meta:
-        fields = ("page", "qc_data_context")
+        fields = ("page", "page_size", "qc_data_context")
 
     page = fields.Int(missing=1)
+    page_size = fields.Int(missing=0)
     qc_data_context = fields.Str(missing="")
 
 
@@ -233,16 +234,17 @@ class ApiCQLQuery(Resource):
                 pass
 
             dsd = kioskglobals.master_view.dsd
-            # pprint({"cql query": request.json})
+            pprint({"cql query": request.json})
 
             params = ApiCQLQueryPostParameter().load(request.args)
             # pprint({"ApiCQLQueryPostParameter": params})
             page = params["page"]
+            page_size = params['page_size']
 
             bakery = ContextQueryBakery(dsd)
             query = bakery.get_query(request.json)
 
-            query_result = query.records(formatter=self.format_row, page=page)
+            query_result = query.records(formatter=self.format_row, page=page, new_page_size=page_size)
             if KioskSQLDb.in_error_state():
                 KioskSQLDb.rollback()
                 raise Exception("query cannot be finished because database connection reports an error.")
