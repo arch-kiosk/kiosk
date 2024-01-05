@@ -338,6 +338,9 @@ class ContextQuery:
         """
         if new_page_size > 0:
             self._page_size = new_page_size
+        else:
+            self._page_size = self.DEFAULT_PAGE_SIZE
+
 
         stop = False
         self._query_active = True

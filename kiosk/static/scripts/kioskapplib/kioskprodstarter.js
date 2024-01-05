@@ -1,6 +1,7 @@
 import {ProdKioskApi} from "./prodkioskapi.js";
 
 window.addEventListener("load", () => {
+    console.log("Prodstarter starts")
     connectToApi()
 });
 
