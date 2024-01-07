@@ -6,6 +6,7 @@ from shutil import copyfile
 import time
 from os import path
 
+import kioskrepllib
 from statemachine import StateTransition, StateMachine
 from werkzeug import datastructures
 
@@ -29,6 +30,7 @@ FILES_TABLE_NAME = "images"
 class FileMakerWorkstation(RecordingWorkstation):
     IN_THE_FIELD = "IN_THE_FIELD"
 
+    # upload_download_states
     NOT_SET = -1
     UPLOAD = 1
     DOWNLOAD = 2
@@ -150,6 +152,15 @@ class FileMakerWorkstation(RecordingWorkstation):
                 except:
                     pass
 
+    def get_download_upload_status(self, status=None) -> str:
+        if status is None:
+            status = self._download_upload_status
+        if status == self.DOWNLOAD:
+            return "downloaded"
+        if status == self.UPLOAD:
+            return "uploaded"
+        return ""
+
     def set_download_upload_status(self, status, commit=False, cur=None):
         close_cur = False
         try:
@@ -164,6 +175,11 @@ class FileMakerWorkstation(RecordingWorkstation):
                 KioskSQLDb.commit()
             self._download_upload_status = status
             self._download_upload_ts = ts
+
+            if status != self.NOT_SET:
+                kioskrepllib.log_repl_event("dock changed state", f"dock now in state "
+                                                                  f"{self.get_download_upload_status(status).upper()}",
+                                            self.get_id(), commit=commit)
         except Exception as e:
             logging.error(f"{self.__class__.__name__}.set_download_upload_status: "
                           f"Exception {repr(e)}")
@@ -1679,7 +1695,11 @@ class FileMakerWorkstation(RecordingWorkstation):
         :return: result of _set_state, which is true or false.
         todo: refactor - That might be more useful as an abstract method in Workstation.
         """
-        return self._set_state(self.IDLE, commit=True)
+        rc = self._set_state(self.IDLE, commit=True)
+        if rc:
+            kioskrepllib.log_repl_event("dock changed state", "RESET to idle", self.get_id(), commit=True)
+
+        return rc
 
     def renew(self) -> bool:
         """ renews the workstation by removing database structures and recreating them
@@ -1697,9 +1717,10 @@ class FileMakerWorkstation(RecordingWorkstation):
 
         self.state_machine.state = None
 
-        return self._create()
-
-
+        rc = self._create()
+        if rc:
+            kioskrepllib.log_repl_event("dock changed state", "dock RENEWED and RESET to idle", self._id, commit=True)
+        return rc
 
     def _create_export_file_from_template(self, template_file):
         """ creates a new filemaker database file for a workstation from the given template file.
@@ -1865,6 +1886,9 @@ class FileMakerWorkstation(RecordingWorkstation):
             logging.debug(f"Trying to reset template {template_file}")
             if os.path.isfile(template_file):
                 kioskstdlib.delete_files([template_file], True)
+
+            kioskrepllib.log_repl_event("recording group", "FileMaker template RESET", recording_group,
+                                        commit=True)
         except BaseException as e:
             logging.error(f"{cls.__name__}.reset_template: {repr(e)}")
             raise e

@@ -5,6 +5,7 @@ from os import path
 from pprint import pprint, pformat
 from typing import List
 
+import kioskrepllib
 from eventmanager import EventManager
 from typerepository import TypeRepository
 
@@ -408,12 +409,18 @@ class Synchronization(PluginLoader):
                             topic="")
             if successful_run:
                 try:
+                    kioskrepllib.log_repl_event("synchronization", "core synchronization COMPLETED",
+                                                "", commit=True)
                     self.fire_event("after_synchronization")
                     logging.info("********** synchronization aftermath finished **********")
+                    kioskrepllib.log_repl_event("synchronization", "aftermath COMPLETED",
+                                                "", commit=True)
                 except BaseException as e:
                     logging.error(f"{self.__class__.__name__}.synchronize: Exception in some hooked in code "
                                   f"at after_synchronization. The main synchronization has been committed, though.")
                     logging.error(f"{self.__class__.__name__}.synchronize: {repr(e)}")
+                    kioskrepllib.log_repl_event("synchronization", "aftermath FAILED",
+                                                "", commit=True)
 
             return successful_run
         except BaseException as e:
@@ -432,6 +439,7 @@ class Synchronization(PluginLoader):
                 "Synchronization.synchronize: Exception in rollback (2): " + repr(e))
 
         logging.info("********** synchronization aborted **********")
+        kioskrepllib.log_repl_event("synchronization", "ABORTED", "", commit=True)
         try:
             fic = FileIdentifierCache(dsd_workstation_view.dsd)
             fic.build_file_identifier_cache_from_contexts()

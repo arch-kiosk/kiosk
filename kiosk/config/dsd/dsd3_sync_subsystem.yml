@@ -126,20 +126,30 @@ repl_workstation:
         - drop("file_handling")
         - add("recording_group")
 
-repl_workstation_events:
+repl_events:
   structure:
-    2: dropped
     1:
       uid: [datatype(VARCHAR), uuid_key()]
       ts: [datatype(TIMESTAMP), default("now()"), not_null()]
       event: [datatype(VARCHAR)]
       message: [datatype(VARCHAR)]
-      workstation: [datatype(VARCHAR), not_null()]
-  migration:
-    2:
-      upgrade:
-        - drop(*)
+      dock: [datatype(VARCHAR), not_null()]
+      level: [datatype(NUMBER), default(0)]
 
+#repl_workstation_events:
+#  structure:
+#    2: dropped
+#    1:
+#      uid: [datatype(VARCHAR), uuid_key()]
+#      ts: [datatype(TIMESTAMP), default("now()"), not_null()]
+#      event: [datatype(VARCHAR)]
+#      message: [datatype(VARCHAR)]
+#      workstation: [datatype(VARCHAR), not_null()]
+#  migration:
+#    2:
+#      upgrade:
+#        - drop(*)
+#
 repl_workstation_filemaker:
   structure:
     3:

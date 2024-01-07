@@ -1,5 +1,6 @@
 import logging
 
+import kioskrepllib
 import kioskstdlib
 from dsd.dsd3 import DataSetDefinition
 from filehandlingsets import get_file_handling_set
@@ -165,9 +166,10 @@ class Dock:
 
         if cur:
             try:
-                cur.execute(f'select ' + f'description, state, recording_group, gmt_time_zone, grant_access_to from "repl_workstation" '
-                                         f'where id=%s;',
-                            [self._id])
+                cur.execute(
+                    f'select ' + f'description, state, recording_group, gmt_time_zone, grant_access_to from "repl_workstation" '
+                                 f'where id=%s;',
+                    [self._id])
                 r = cur.fetchone()
                 if r is not None:
                     self.description = r[0]
@@ -200,9 +202,14 @@ class Dock:
             return False
 
         if not self._exists:
-            return self._create()
+            rc = self._create()
+            if rc:
+                kioskrepllib.log_repl_event("dock create", "CREATED", self._id, commit=True)
         else:
-            return self._update()
+            rc = self._update()
+            if rc:
+                kioskrepllib.log_repl_event("dock settings", "SETTINGS CHANGED", self._id, commit=True)
+        return rc
 
     def _on_create_workstation(self, cur):
         """
@@ -291,6 +298,7 @@ class Dock:
                 self.state_machine.set_initial_state("IDLE")
 
                 self._exists = True
+
                 return True
             else:
                 logging.error('No Model cursor in Workstation._create')
@@ -449,6 +457,7 @@ class Dock:
             new_state = self.state_machine.get_state()
             cur = KioskSQLDb.get_cursor()
             state_code = self.get_code_from_state(new_state)
+
             cur.execute("UPDATE" + " \"repl_workstation\" SET state=%s where id=%s", [state_code, self._id])
             cur.close()
             if commit:
@@ -522,7 +531,12 @@ class Dock:
                     (f"error in workstation.transition: execute_transition succeeded but _save_state failed."
                      f"State {self.get_state()} only temporarily set for workstation {self.get_id()}."))
                 result = False
-
+        if result:
+            kioskrepllib.log_repl_event(event="dock changed state",
+                                        message=f"dock now in state {self.state_machine.get_state()}",
+                                        dock=self._id,
+                                        level=1,
+                                        commit=commit)
         return result
 
     def _on_delete_workstation(self, cur, migration):
@@ -588,6 +602,8 @@ class Dock:
             if commit:
                 KioskSQLDb.commit()
                 logging.debug("deletion of " + self._id + " committed.")
+            kioskrepllib.log_repl_event("synchronization", "synchronization aftermath FAILED",
+                                        "", commit=commit)
             rc = True
         except Exception as e:
             logging.error("Exception in RecordingWorkstation.delete: " + self._id + ": " + repr(e))
