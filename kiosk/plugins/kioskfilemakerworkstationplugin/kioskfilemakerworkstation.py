@@ -202,10 +202,18 @@ class KioskFileMakerWorkstation(KioskWorkstation):
 
     @download_upload_status.setter
     def download_upload_status(self, status):
-        self._sync_ws.set_download_upload_status(status, True)
+        try:
+            user_id = current_user.user_id
+        except BaseException as e:
+            user_id = "?"
+        self._sync_ws.set_download_upload_status(status, True, user=user_id)
 
     def reset_download_upload_status(self):
-        self._sync_ws.set_download_upload_status(FileMakerWorkstation.NOT_SET, True)
+        try:
+            user_id = current_user.user_id
+        except BaseException as e:
+            user_id = "?"
+        self._sync_ws.set_download_upload_status(FileMakerWorkstation.NOT_SET, True, user=user_id)
 
     @property
     def status(self):

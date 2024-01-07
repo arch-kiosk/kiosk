@@ -523,7 +523,7 @@ def ws_download(ws_id, cmd):
                 if not ws.is_option_available("download",
                                               current_plugin_controller=get_plugin_for_controller(_plugin_name_)):
                     abort(HTTPStatus.BAD_REQUEST, "The triggered download option is not available.")
-                ws.sync_ws.set_download_upload_status(ws.sync_ws.DOWNLOAD)
+                ws.sync_ws.set_download_upload_status(ws.sync_ws.DOWNLOAD, user=current_user.user_id)
                 return KioskResult(success=True).jsonify()
             else:
                 abort(HTTPStatus.BAD_REQUEST)
@@ -598,7 +598,7 @@ def upload_file(ws_id):
                                                   current_plugin_controller=get_plugin_for_controller(_plugin_name_)):
                         abort(HTTPStatus.BAD_REQUEST, "The triggered upload option is not available.")
                     if ws.sync_ws.upload_file(file):
-                        ws.sync_ws.set_download_upload_status(ws.sync_ws.UPLOAD)
+                        ws.sync_ws.set_download_upload_status(ws.sync_ws.UPLOAD, user=current_user.user_id)
                         result.success = True
                         jobs = KioskWorkstationJobs(kioskglobals.general_store,
                                                     kioskglobals.get_config().get_project_id())

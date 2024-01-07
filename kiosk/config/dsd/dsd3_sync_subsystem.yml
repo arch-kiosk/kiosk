@@ -135,6 +135,7 @@ repl_events:
       message: [datatype(VARCHAR)]
       dock: [datatype(VARCHAR), not_null()]
       level: [datatype(NUMBER), default(0)]
+      user: [datatype(VARCHAR)]
 
 #repl_workstation_events:
 #  structure:
