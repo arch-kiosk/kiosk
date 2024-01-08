@@ -93,8 +93,17 @@ if "mcpcore.mcpworker" not in sys.modules:
                                   SYNCHRONIZE) if hasattr(current_user,
                                                           "fulfills_requirement") else True,
                               menu_cfg=plugin.get_menu_config(),
-                              parent_menu="main", order="2025")
-                ]
+                              parent_menu="main", order="2025"),
+                KioskMenuItem(name="sync & dock events",
+                              onclick="triggerEventLog('syncmanager.event_log')",
+                              endpoint="syncmanager.event_log",
+                              is_active=lambda: current_user.fulfills_requirement(
+                                  ENTER_ADMINISTRATION_PRIVILEGE) if hasattr(current_user,
+                                                                             "fulfills_requirement") else True,
+                              menu_cfg=plugin.get_menu_config(),
+                              parent_menu="hub",
+                              order="2026"),
+        ]
 
 
     def register_global_routes():

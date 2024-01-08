@@ -1,6 +1,7 @@
 import { KioskApp } from "../kioskapplib/kioskapp";
-// import { DateTime } from "luxon";
+import { DateTime } from "luxon";
 import { html, unsafeCSS } from "lit";
+import {state} from 'lit/decorators.js'
 import "./workstationlist.ts"
 
 // import local_css from "/src/static/logviewerapp.sass?inline";
@@ -10,6 +11,9 @@ import local_css from "./component-syncmanagerapp.sass?inline";
 export class SyncManagerApp extends KioskApp {
     static styles = unsafeCSS(local_css);
     _messages: {[key: string]: object} = {}
+
+    @state()
+    last_sync_date: DateTime
 
     static get properties() {
         return { ...super.properties };
@@ -42,6 +46,9 @@ export class SyncManagerApp extends KioskApp {
         return html`
             <div class="toolbar">
                 <div id="toolbar-filters"></div>
+                <div class="toolbar-info">
+                    ${this.last_sync_date?html`<label>last synchronization</label><label>${this.last_sync_date.toLocaleString(DateTime.DATETIME_MED)}</label>`:html`<label>no synchronization, yet</label>`}
+                </div>
                 <div id="toolbar-buttons">
                     <div class="toolbar-button" @click=${this.reloadClicked}>
                         <i class="fas fa-reload"></i>
@@ -49,6 +56,11 @@ export class SyncManagerApp extends KioskApp {
                 </div>
             <div>
         </div>`
+    }
+    syncManagerInfoReceived (e: CustomEvent) {
+        if (e.detail) {
+            this.last_sync_date = DateTime.fromISO(e.detail)
+        }
     }
 
     // apiRender is only called once the api is connected.
@@ -60,7 +72,7 @@ export class SyncManagerApp extends KioskApp {
         }
         let toolbar = this.render_toolbar()
         let app = html`
-            <workstation-list id="workstation-list" .apiContext=${this.apiContext}></workstation-list>`
+            <workstation-list id="workstation-list" .apiContext=${this.apiContext} @syncmanagerinfo="${this.syncManagerInfoReceived}"></workstation-list>`
         return html`${dev}${toolbar}${app}`
     }
 }

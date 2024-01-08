@@ -1,0 +1,22 @@
+{% extends "kioskbasic.html" %} {% block links %}
+  <link rel="stylesheet"
+        href="{{ url_for('syncmanager.static', filename='syncmanagerplugin.css') }}?v=1"/>{% endblock %}
+{% block title %}
+  <div id="subtitle-shadow">Kiosk</div>
+  <div id="subtitle">Sync & Dock Events</div>
+{% endblock %}
+{% block body %}
+  <hubeventlog-app id="kiosk-app" showprogress="true" {% if dock_id %}dock="{{dock_id}}"{% endif %} }}></hubeventlog-app>
+  <script type="module" crossorigin src="{{ url_for('syncmanager.static', filename='eventlogapp/hubeventlogapp.js') }}"></script>
+  <script type="module" src="{{ url_for('static', filename='scripts/kioskapplib/kioskprodstarter.js') }}"></script>
+  <script>
+        let ui = document.querySelector("#kiosk-app")
+        console.log("adding event")
+        ui.addEventListener("go-back", (event) => {
+            console.log("going back")
+            window.location.replace("{{ url_for("syncmanager.sync_manager_show") }}")
+        })
+
+  </script>
+{% endblock %}
+{#<script src="../static/app/syncmanager.es.js"></script>#}

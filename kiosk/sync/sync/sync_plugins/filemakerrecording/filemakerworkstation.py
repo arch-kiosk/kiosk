@@ -161,7 +161,7 @@ class FileMakerWorkstation(RecordingWorkstation):
             return "uploaded"
         return ""
 
-    def set_download_upload_status(self, status, commit=False, cur=None):
+    def set_download_upload_status(self, status, commit=False, cur=None, user=None):
         close_cur = False
         try:
             if not cur:
@@ -179,7 +179,7 @@ class FileMakerWorkstation(RecordingWorkstation):
             if status != self.NOT_SET:
                 kioskrepllib.log_repl_event("dock changed state", f"dock now in state "
                                                                   f"{self.get_download_upload_status(status).upper()}",
-                                            self.get_id(), commit=commit)
+                                            self.get_id(), commit=commit, user=user)
         except Exception as e:
             logging.error(f"{self.__class__.__name__}.set_download_upload_status: "
                           f"Exception {repr(e)}")

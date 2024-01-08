@@ -1,4 +1,4 @@
-@import "../../../../static/styles/_constants"
+@import "../../../../../static/styles/_constants"
 @import reset
 @import icons
 
@@ -37,37 +37,31 @@ div, p
   font-size: 18px
   text-align: center
 
-.toolbar
-  height: 3em
-  background: $col-bg-3
-  display: flex
+#log-frame
+  display: grid
+  grid-template-columns: repeat(4, max-content) auto
+  width: 100%
+  row-gap: 2px
+  column-gap: 1px
+
+.log-cell
+  padding: 0px .5em
+.log-header
+  display: inline-flex
   flex-direction: row
-  padding: 0px 1em 0px 1em
   justify-content: space-between
-.toolbar-info
-  display: flex
-  flex-direction: column
-  justify-content: center
-  margin-right: 1em
-#toolbar-filters
-  flex-grow: 1
-#toolbar-buttons
-  background-color: $col-bg-3-darker
-  height: 100%
-  display: flex
-  flex-direction: row
+  position: sticky
+  top: 0px
+  background: var(--col-bg-1)
   align-items: center
-  padding: 0px 1em 0px 1em
-  //border-left: 2px solid $col-bg-body
-.toolbar-button
-  color: $col-primary-bg-3
-  height: 28px
+  padding: .2em .5em
+  .col-btn-grey
+    opacity: 50%
+  span
+    font-weight: bold
   i
-    font-size: 28px
-    line-height: 100%
-  &:hover
-    color: $col-accent-bg-3
-  &:active
-    color: $col-bg-ack
-  &.disabled
-    opacity: 0.3
+    color: $col-accent-bg-1
+    margin-left: 1em
+
+  .dim_sort_col
+    opacity: 50%

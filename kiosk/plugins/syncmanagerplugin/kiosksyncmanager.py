@@ -1,4 +1,6 @@
 import logging
+import datetime
+import typing
 
 import kioskstdlib
 from typerepository import TypeRepository
@@ -24,6 +26,15 @@ class KioskSyncManager:
             self.sync = Synchronization()
         self.workstation_types = {}
         self._workstation_jobs = None
+
+    @property
+    def last_sync_ts(self) -> typing.Union[None, datetime.datetime]:
+        """
+        returns the last synchronization date
+        :return: datetime
+        """
+
+        return self.sync.get_sync_time()
 
     @property
     def workstation_jobs(self) -> KioskWorkstationJobs:

@@ -331,8 +331,8 @@ class KioskFileMakerWorkstation(KioskWorkstation):
         """
 
         return (grant_by_wildcard and self.sync_ws.grant_access_to == "*") or \
-               current_user.user_id == self.sync_ws.grant_access_to or \
-               "prepare workstation" in get_local_authorization_strings(self.get_privileges(), param_user=current_user)
+            current_user.user_id == self.sync_ws.grant_access_to or \
+            "prepare workstation" in get_local_authorization_strings(self.get_privileges(), param_user=current_user)
 
     def register_options(self):
         if not self._ws_options:
@@ -472,8 +472,16 @@ class KioskFileMakerWorkstation(KioskWorkstation):
                                                    "privilege": "edit workstation",
                                                    "onclick": "kfw_disable('" + self.id +
                                                               "', 'disable', false)",
-                                                   "js_key": "disable"
+                                                   "js_key": "enable"
                                                    })
+            self.register_option("event_log", {"id": "workstation.event_log",
+                                               "caption": "show event log",
+                                               "description": "Shows the past events for this dock",
+                                               "privilege": "prepare workstation",
+                                               "onclick": "kfw_event_log('" + self.id +
+                                                          "')",
+                                               "js_key": "event_log"
+                                               })
 
     def _get_option(self, option_id):
         if option_id in self._ws_options:
@@ -570,6 +578,7 @@ class KioskFileMakerWorkstation(KioskWorkstation):
             add_to_option_list(self._get_option("disable_option"), low=True)
 
         add_to_option_list(self._get_option("delete_option"), low=True)
+        add_to_option_list(self._get_option("event_log"), low=True)
 
         return option_list
 

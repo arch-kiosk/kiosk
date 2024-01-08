@@ -1,5 +1,6 @@
 # from flask_restplus import Namespace, Resource
 import logging
+import pprint
 
 from flask import url_for, request
 from flask_allows import requires
@@ -7,6 +8,7 @@ from flask_restful import Resource, abort
 from marshmallow import Schema, fields
 
 import kioskglobals
+import kioskrepllib
 import kioskstdlib
 from api.kioskapi import PublicApiInfo
 from authorization import EDIT_WORKSTATION_PRIVILEGE, \
@@ -14,6 +16,7 @@ from authorization import EDIT_WORKSTATION_PRIVILEGE, \
 from core.kioskapi import KioskApi
 from kioskglobals import kiosk_version, kiosk_version_name, get_global_constants, get_config, httpauth
 from kioskworkstation import KioskWorkstation
+from makejsonresponse import make_json_response
 from mcpinterface.mcpconstants import *
 from .kiosksyncmanager import KioskSyncManager
 from .kioskworkstationjobs import KioskWorkstationJob, JOB_META_TAG_DELETED, JOB_META_TAG_CREATED
@@ -37,6 +40,7 @@ def register_resources(api: KioskApi):
     api.spec.path(resource=V1SyncManagerWorkstationJob, api=api, app=api.flask_app)
 
     V1SyncManagerDock.register(api)
+    V1SyncManagerEvents.register(api)
 
 
 # ************************************************************************************
@@ -135,13 +139,14 @@ class SyncManagerWorkstationV1(Schema):
 
 class SyncManagerWorkstationsV1(Schema):
     class Meta:
-        fields = ("result_msg", "poll_delay", "workstations", "sync_status")
+        fields = ("result_msg", "poll_delay", "workstations", "sync_status", "last_sync_ts")
         ordered = True
 
     result_msg: fields.Str()
     workstations: fields.List(fields.Nested(SyncManagerWorkstationV1))
     poll_delay: fields.Int()
     sync_status: fields.Int()
+    last_sync_ts: fields.Str(default='')
 
 
 class V1SyncManagerWorkstations(Resource):
@@ -196,7 +201,8 @@ class V1SyncManagerWorkstations(Resource):
             'result_msg': 'ok',
             'poll_delay': poll_delay,
             'sync_status': sync_status,
-            'workstations': list(result.values())
+            'workstations': list(result.values()),
+            'last_sync_ts': sync_manager.last_sync_ts
         })
 
     @classmethod
@@ -423,3 +429,106 @@ class V1SyncManagerDock(Resource):
 
         except BaseException as e:
             return ApiDockGetError().dump({"result_msg": repr(e)}), 500
+
+
+# ************************************************************************************
+# /events
+# ************************************************************************************
+
+class SyncManagerEventV1(Schema):
+    class Meta:
+        fields = (
+            "uid", "ts", "type", "event", "message", "dock", "level", "user"
+        )
+
+    uid: fields.Str()
+    ts: fields.Str()
+    event: fields.Str()
+    message: fields.Str()
+    dock: fields.Str()
+    level: fields.Integer()
+    user: fields.Str(required=False)
+
+
+class SyncManagerEventsV1(Schema):
+    class Meta:
+        fields = ("last_sync_ts", "events")
+        ordered = True
+
+    last_sync_ts: fields.Str()
+    events: fields.List(fields.Nested(SyncManagerEventV1))
+
+
+class ApiEventsGetParameter(Schema):
+    class Meta:
+        fields = ("dock_id", "days", "lines")
+        ordered = True
+
+    dock_id = fields.Str(required=False, missing="")
+    days = fields.Str(required=False, missing=30)
+    lines = fields.Str(required=False, missing=0)
+
+
+class V1SyncManagerEvents(Resource):
+    @classmethod
+    def register(cls, api):
+        api.add_resource(cls, '/syncmanager/v1/events')
+        api.spec.components.schema("SyncManagerEventsV1", schema=SyncManagerEventsV1)
+        api.spec.path(resource=cls, api=api, app=api.flask_app)
+
+    @httpauth.login_required
+    def get(self):
+        ''' retrieves the sync manager's event list
+            ---
+            summary: retrieves the sync manager's event list
+            security:
+                - jwt: []
+            parameters:
+                - in: query
+                  name: dock_id
+                  schema:
+                    type: ApiEventsGetParameter
+                - in: query
+                  name: days
+                  schema:
+                    type: ApiEventsGetParameter
+                - in: query
+                  name: lines
+                  schema:
+                    type: ApiEventsGetParameter
+            responses:
+                '200':
+                    description: ok, events included
+                    content:
+                        application/json:
+                            schema: SyncManagerEventsV1
+                '401':
+                    description: authorization failed / unauthorized access
+                    content:
+                        application/json:
+                            schema: LoginError
+        '''
+
+        params = ApiEventsGetParameter().load(request.args)
+        cfg = get_config()
+        pprint.pprint(["API-Call: /syncmanager/v1/events", params])
+        events = kioskrepllib.get_repl_events(params["dock_id"] if "dock_id" in params else None,
+                                              days=params["days"],
+                                              lines=params["lines"])
+        for i, r in enumerate(events):
+            events[i] = { "uid": r[0],
+                          "ts": r[1],
+                          "event": r[2],
+                          "message": r[3],
+                          "dock": r[4],
+                          "level": r[5],
+                          "user": r[6]
+                          }
+
+
+        api_return= SyncManagerEventsV1().dump({
+            'events': events,
+            'last_sync_ts': '',
+        })
+        response = make_json_response(api_return)
+        return response

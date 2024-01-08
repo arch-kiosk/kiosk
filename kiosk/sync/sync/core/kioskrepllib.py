@@ -1,5 +1,6 @@
 import logging
-
+from typing import List
+import datetime
 from kiosksqldb import KioskSQLDb
 
 
@@ -21,3 +22,18 @@ def log_repl_event(event: str, message: str, dock="", level=1, commit=True, user
             KioskSQLDb.rollback_savepoint(save_point)
         if commit:
             KioskSQLDb.rollback()
+
+
+def get_repl_events(dock_id: str = "", days: int = 30, lines=0) -> List:
+    sql = f"select * from repl_events "
+    since_date = datetime.datetime.now() - datetime.timedelta(days=days)
+    where = " where ts >= %s "
+    params = [since_date, ]
+    if dock_id:
+        where += " and dock = %s"
+        params.append(dock_id)
+    sql += where
+    sql += " order by ts desc"
+    if lines:
+        sql += f" limit {lines}"
+    return KioskSQLDb.get_records(sql, params=params)

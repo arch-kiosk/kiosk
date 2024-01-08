@@ -229,6 +229,11 @@ function kfw_edit(ws_id, endpoint) {
   }
 }
 
+function kfw_event_log(ws_id) {
+  window.location.replace(`/syncmanager/event_log/${ws_id}`);
+}
+
 function kfw_upload(ws_id) {
   $("#upload-file").click();
 }
+

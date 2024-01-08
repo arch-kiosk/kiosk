@@ -1,1 +1,58 @@
-:host{--track-color: var(--col-bg-2-lighter);--indicator-color: var(--col-accent-bg-2);--stroke-width: 6px;display:inline-flex}.progress-ring{display:inline-flex;align-items:center;justify-content:center;position:relative}.progress-ring__image{transform-origin:50% 50%}.progress-ring__track{stroke:var(--track-color)}.progress-ring__indicator{stroke:var(--indicator-color);transition:.35s stroke-dashoffset,.35s stroke}.progress-ring__label{display:flex;align-items:center;justify-content:center;position:absolute;top:0;left:0;width:100%;font-size:.9em;text-align:center;user-select:none}.spinner{display:inline-block;width:100%;border-radius:50%;border:solid var(--stroke-width) var(--col-bg-2-lighter);border-top-color:var(--col-accent-bg-2);border-right-color:var(--col-accent-bg-2);animation:1s linear infinite spin}@keyframes spin{0%{transform:rotate(0)}to{transform:rotate(360deg)}}
+:host {
+    --track-color: var(--col-bg-2-lighter);
+    --indicator-color: var(--col-accent-bg-2);
+    --stroke-width: 6px;
+    display: inline-flex
+}
+
+.progress-ring {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative
+}
+
+.progress-ring__image {
+    transform-origin: 50% 50%
+}
+
+.progress-ring__track {
+    stroke: var(--track-color)
+}
+
+.progress-ring__indicator {
+    stroke: var(--indicator-color);
+    transition: .35s stroke-dashoffset, .35s stroke
+}
+
+.progress-ring__label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    font-size: .9em;
+    text-align: center;
+    user-select: none
+}
+
+.spinner {
+    display: inline-block;
+    width: 100%;
+    border-radius: 50%;
+    border: solid var(--stroke-width) var(--col-bg-2-lighter);
+    border-top-color: var(--col-accent-bg-2);
+    border-right-color: var(--col-accent-bg-2);
+    animation: 1s linear infinite spin
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0)
+    }
+    to {
+        transform: rotate(360deg)
+    }
+}

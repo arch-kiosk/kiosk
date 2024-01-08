@@ -241,6 +241,7 @@ def sychronization(job_uid):
     else:
         return render_template('synchronization.html', job_uid=job_uid)
 
+
 #  **************************************************************
 #  ****    synchronization progress
 #  *****************************************************************/
@@ -258,3 +259,33 @@ def synchronization_progress():
             abort(HTTPStatus.NOT_FOUND)
         else:
             return render_template('synchronization.html', job_uid=sync_job.job_id)
+
+
+#  **************************************************************
+#  ****    /event_log
+#  **************************************************************/
+@syncmanager.route('event_log,', defaults={'dock_id': ''}, methods=['GET'])
+@syncmanager.route('event_log/<dock_id>', methods=['GET'])
+@full_login_required
+# @nocache
+def event_log(dock_id):
+    conf = kioskglobals.get_config()
+    authorized_to = get_local_authorization_strings(LOCAL_PRIVILEGES)
+    if "prepare workstation" not in authorized_to:
+        abort(HTTPStatus.UNAUTHORIZED)
+
+    print("\n*************** syncmanager/event_log ")
+    print(f"\nGET: get_plugin_for_controller returns {get_plugin_for_controller(_plugin_name_)}")
+    print(f"\nGET: plugin.name returns {get_plugin_for_controller(_plugin_name_).name}")
+    goto_dock_id = ""
+
+    if dock_id:
+        sync_manager = KioskSyncManager(kioskglobals.type_repository)
+        ws = None
+        for existing_dock_id in sync_manager.list_workstations():
+            if dock_id == existing_dock_id:
+                goto_dock_id = existing_dock_id
+        if not goto_dock_id:
+            abort(HTTPStatus.BAD_REQUEST)
+
+    return render_template('eventlog.html', dock_id=goto_dock_id)

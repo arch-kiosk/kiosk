@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "vite --host",
-      "build": "vite build --emptyOutDir"
+    "build": "vite build --emptyOutDir"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@types/jquery": "^3.5.5",
+    "@types/luxon": "^3.4.0",
     "prettier": "2.4.1",
     "rollup-plugin-copy": "^3.4.0",
     "sass": "^1.43.2",
@@ -38,6 +39,7 @@
     "deepfreeze": "^2.0.0",
     "jquery": "^3.5.1",
     "lit": "^2.0.0",
+    "luxon": "^3.4.4",
     "nanoid": "^3.1.12"
   }
 }

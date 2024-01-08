@@ -1,4 +1,4 @@
-@import "../../../../static/styles/_constants"
+@import "../../../../../static/styles/_constants"
 @import reset
 @import icons
 
@@ -44,11 +44,15 @@ div, p
   flex-direction: row
   padding: 0px 1em 0px 1em
   justify-content: space-between
-.toolbar-info
+  align-items: center
+#toolbar-left
   display: flex
-  flex-direction: column
-  justify-content: center
-  margin-right: 1em
+  flex-direction: row
+  align-items: center
+  input
+    margin-left: 1em
+    height: 28px
+
 #toolbar-filters
   flex-grow: 1
 #toolbar-buttons
@@ -71,3 +75,20 @@ div, p
     color: $col-bg-ack
   &.disabled
     opacity: 0.3
+
+.small-list-button
+  display: block
+  margin-right: 2em
+  i
+    font-size: 2em
+    border-radius: 25px
+    box-shadow: 2px 2px 5px rgba(46,56,3,0.58)
+  &:hover
+    color: $col-bg-att
+    i
+      box-shadow: 2px 2px 5px rgba(46,56,3,0.58)
+  &:active, &:focus
+    color: $col-bg-ack
+    transform: translateY(5px)
+    i
+      box-shadow: none

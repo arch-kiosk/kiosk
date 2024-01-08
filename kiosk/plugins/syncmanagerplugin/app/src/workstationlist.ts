@@ -42,6 +42,7 @@ class WorkstationList extends KioskApp {
     timeoutId: any = null
     fetchingStopped: boolean = false
     sync_status: number = -1
+    last_sync_date: string = ''
 
     constructor() {
         super();
@@ -84,10 +85,10 @@ class WorkstationList extends KioskApp {
                         this.processData(data.workstations)
                     } finally {
                         let poll_delay = data.poll_delay
-                        console.log(`Poll delay is ${poll_delay}`)
                         this.timeoutId = setTimeout(this.fetchWorkstations.bind(this), poll_delay * 1000)
                         this.sync_status = data.sync_status
-                        console.log(`Poll delay is ${this.sync_status}`)
+                        this.last_sync_date = data.last_sync_ts?data.last_sync_ts:''
+                        this.reportLastSyncDate()
                     }
                 }
 
@@ -114,6 +115,11 @@ class WorkstationList extends KioskApp {
         })
         this.workstations = workstations
     }
+    reportLastSyncDate() {
+        this.dispatchEvent(new CustomEvent("syncmanagerinfo",
+            {bubbles: true, composed: true, detail: this.last_sync_date}));
+    }
+
 
     protected firstUpdated(_changedProperties: any) {
         super.firstUpdated(_changedProperties);

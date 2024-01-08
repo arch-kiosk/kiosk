@@ -6,6 +6,10 @@ function triggerNewWorkstation(endpoint = "") {
     triggerCreateKioskWorkstation();
 }
 
+function triggerEventLog(endpoint = "") {
+    window.location.replace(getRoutefor(endpoint));
+}
+
 function triggerCreateKioskWorkstation() {
     kioskOpenModalDialog("/syncmanager/create_workstation", {
         closeOnBgClick: false,
