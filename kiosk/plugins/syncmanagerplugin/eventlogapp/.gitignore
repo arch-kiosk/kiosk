@@ -1,0 +1,10 @@
+dist/
+node_modules/
+.*/
+*.zip
+.env.development.local
+/src/*.css
+/src/*.css.map
+**/*.css
+/src/app/store/credentials.ts
+/*.map
