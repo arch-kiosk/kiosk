@@ -280,13 +280,20 @@ class SyncConfig(Config):
                 logging.warning(
                     "No sync_plugin_directory configured. Default value is ./plugins, which will not work with kiosk!")
 
+        self.autoload_plugins = None
         if "autoload_plugins" in self.config:
             self.autoload_plugins = self.config["autoload_plugins"]
-        else:
+        if f"autoload_plugins_{self.get_project_id()}" in self.config:
+            if self.autoload_plugins:
+                self.autoload_plugins.extend(self.config[f"autoload_plugins_{self.get_project_id()}"])
+            else:
+                self.autoload_plugins = self.config[f"autoload_plugins_{self.get_project_id()}"]
+        if not self.autoload_plugins:
             self.autoload_plugins = None
             if self._log_warnings:
                 logging.warning(
-                    "No autoload plugins configured. No plugins will be loaded on instantiation of a Synchronization object")
+                    "No autoload plugins configured. "
+                    "No plugins will be loaded on instantiation of a Synchronization object")
 
         if "cache_dir" in self.config:
             self.cache_dir = self.config["cache_dir"]
@@ -312,6 +319,8 @@ class SyncConfig(Config):
             # if self._log_warnings:
             #     logging.warning("No sql script to build the file-identifier cache given!")
             self.file_identifier_cache_sql = ""
+
+
 
         return not fatal_error
 
