@@ -242,6 +242,30 @@ function init_bt_system_messages() {
     });
 }
 
+function init_bt_events() {
+    let bt = $("#bt-events");
+    bt.on("click", (e) => {
+        kioskSendAjaxCommand("POST", $(bt),
+            "/administration/after_synchronization",
+            {},
+            (json) => {
+                kioskSuccessToast(json.message,
+                    {
+                        timeout: 0,
+                    });
+            },
+            (err_code, json) => {
+                if (json && json.result) {
+                    kioskErrorToast(json.result);
+                } else {
+                    kioskErrorToast(`An Error occurred in when calling after_synchronization: ${err_code}`);
+                }
+
+            });
+    });
+
+}
+
 function initAdministration() {
     initCollapsibles();
 
@@ -265,6 +289,7 @@ function initAdministration() {
     // init_bt_dataintegrity();
     init_bt_system_messages();
     init_bt_restart_server();
+    init_bt_events();
     // kioskGetAjaxElement();
 
 }

@@ -1336,3 +1336,30 @@ def start_script(script: str, transfer_dir) -> int:
         raise Exception(f'Script {script_file} not found.')
     cmdline = ["powershell ", script_file]
     return subprocess.run(cmdline, cwd=transfer_dir).returncode
+
+
+#  **************************************************************
+#  ****    /administration/after_synchronization route
+#  *****************************************************************/
+@administration.route('/after_synchronization', methods=['POST'])
+@full_login_required
+@requires(IsAuthorized(ENTER_ADMINISTRATION_PRIVILEGE))
+# @nocache
+def after_synchronization():
+    result = {}
+    print("\n*************** administration/after_synchronization")
+    print(f"\nGET: get_plugin_for_controller returns {get_plugin_for_controller(_plugin_name_)}")
+    print(f"\nGET: plugin.name returns {get_plugin_for_controller(_plugin_name_).name}")
+
+    try:
+        dsd = Dsd3Singleton.get_dsd3()
+        sync = Synchronization()
+        # sync.load_plugins([])
+        if not sync.fire_event("after_synchronization"):
+            logging.error(f"after_synchronization: fire_event returned False")
+    except Exception as e:
+        logging.error(f"after_synchronization: Exception when handling "
+                      f"administration/after_synchronization : {repr(e)}")
+        result["result"] = "Exception thrown. Please consult the logs."
+
+    return jsonify(**result)
