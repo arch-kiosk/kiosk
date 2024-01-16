@@ -6,33 +6,28 @@ $(() => {
   $(".toolbar").hide();
   $.getScript('/static/scripts/urap_lib.js');
   kioskStartWhenReady(syncManagerStartPollSynchronization);
-
 });
 
-function syncManagerLogLinesShown(loglines_present, heading="") {
-  if (syncManagerLogLinesShown.showError) {
+function syncManagerErrorLogLinesShown(loglines_present, heading="") {
     syncManagerInsertIcon("fas fa-bug");
-    if (!loglines_present) {
-      $(".kiosk-log-line").fadeOut("slow");
-      $("#div-log-show-details").hide();
-    } else {
-      $("#log-show-details").on("click", (e) => {
-        if (e.currentTarget.checked) {
-          $(".kiosk-log-line-info").show("fast");
-        } else {
-          $(".kiosk-log-line-info").hide();
-        }
-      });
-    }
-  }
-  else {
-    syncManagerJobDownloadDetails("Synchronization successfully finished.")
-  }
+    configureLogLineView(loglines_present)
 }
 
+function syncManagerWarningLogLinesShown(loglines_present, heading="") {
+    if (!loglines_present) {
+      syncManagerJobDownloadDetails("Synchronization successfully finished.")
+    } else {
+      syncManagerInsertIcon("fas fa-check-circle");
+      configureLogLineView(loglines_present)
+    }
+}
 
 function syncManagerDetailLogLinesShown(loglines_present, heading="") {
     syncManagerInsertIcon("fas fa-check-circle");
+    configureLogLineView(loglines_present)
+}
+
+function configureLogLineView(loglines_present) {
     if (!loglines_present) {
       $(".kiosk-log-line").fadeOut("slow");
       $("#div-log-show-details").hide();
@@ -46,7 +41,6 @@ function syncManagerDetailLogLinesShown(loglines_present, heading="") {
       });
     }
 }
-
 
 function syncManagerStartPollSynchronization() {
   // installSpinner($("#sync-spinner"), "acquiring synchronization status...");
@@ -58,10 +52,7 @@ function syncManagerStartPollSynchronization() {
     let job = new KioskJob($("#dialog-workzone"), "");
     if (job) {
       job.onError = syncManagerJobError;
-      job.onSuccess = () => {
-        syncManagerLogLinesShown.showError = false;
-        syncManagerJobLookForWarnings("Synchronization successfully finished.");
-      };
+      job.onSuccess = syncManagerJobLookForWarnings
       synchronization_active_job = job;
     }
   }
@@ -77,14 +68,17 @@ function syncManagerInsertIcon(class_str) {
   $("#_kiosk-progress-view .kiosk-log-heading").prepend(`<i class=\'${class_str}\'></i> `);
 }
 
-function syncManagerJobLookForWarnings(success_msg) {
+function syncManagerJobLookForWarnings() {
   let job = synchronization_active_job;
+  success_msg = "Synchronization successfully finished."
+  // syncManagerStartPollSynchronization.showError = false;
   showMenu();
+  syncManagerInsertIcon("fas fa-check-circle");
   let rc = job.showLogLines(success_msg,
     (err_msg) => {
       kioskErrorToast(`${success_msg} But no further report could be fetched due to error <br>${err_msg}`);
     },
-    syncManagerLogLinesShown,
+    syncManagerWarningLogLinesShown,
     "warning",
     "However, please look at the warnings:");
 }
@@ -103,7 +97,7 @@ function syncManagerJobDownloadDetails(success_msg) {
 
 function syncManagerJobError(err_msg) {
   let job = synchronization_active_job;
-  syncManagerLogLinesShown.showError = true;
+  // syncManagerStartPollSynchronization.showError = true;
   showMenu();
   if (job.status === JOB_STATUS_CANCELLING || job.status === JOB_STATUS_CANCELED) {
     kioskErrorToast(err_msg);
@@ -118,7 +112,7 @@ function syncManagerJobError(err_msg) {
     (msg) => {
       kioskErrorToast(msg);
     },
-    syncManagerLogLinesShown);
+    syncManagerErrorLogLinesShown);
 
   if (!rc) {
     kioskErrorToast(err_msg + "<br>Also: The loglines could not be shown.");
