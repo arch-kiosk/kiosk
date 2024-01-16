@@ -13,3 +13,6 @@
 [submodule "kiosk/plugins/hmlabplugin"]
 	path = kiosk/plugins/hmlabplugin
 	url = https://github.com/arch-kiosk/hmlabplugin.git
+[submodule "kiosk/sync/sync/sync_plugins/buap_ancdb_bridge"]
+	path = kiosk/sync/sync/sync_plugins/buap_ancdb_bridge
+	url = https://github.com/arch-kiosk/buap_ancdb_bridge.git

@@ -195,9 +195,16 @@ def start_synchronization():
         try:
             if is_ajax_request():
                 sync_options_form = SyncOptionsForm()
-                # print(sync_options_form.so_ignore_file_issues.data)
-                # print(sync_options_form.so_drop_duplicates.data)
-                # print(sync_options_form.so_rewire_duplicates.data)
+                if len(request.form) == 0:
+                    # this is a workaround around a bug in WTForms:
+                    # if all checkboxes are empty hat means they are all false.
+                    # BUT WTForms uses the defaults in this case.
+                    sync_options_form.so_rewire_duplicates.data = False
+                    sync_options_form.so_housekeeping.data = False
+                    sync_options_form.so_ignore_file_issues.data = False
+                    sync_options_form.so_drop_duplicates.data = False
+                    sync_options_form.so_safe_mode.data = False
+
                 job = MCPJob(kioskglobals.general_store)
                 job.set_worker("plugins.syncmanagerplugin.workers.synchronizationworker",
                                "SynchronizationWorker")

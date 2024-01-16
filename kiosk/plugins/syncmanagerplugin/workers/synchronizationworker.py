@@ -1,4 +1,5 @@
 import logging
+import pprint
 import time
 
 import kioskglobals
@@ -62,7 +63,7 @@ class SynchronizationWorker(WorkstationManagerWorker):
             try:
                 logging.debug("Synchronization Worker starts")
                 self.init_dsd()
-
+                logging.debug(pprint.pformat(self.job.job_data))
                 housekeeping = self.job.job_data["housekeeping"]
                 sync = Synchronization(options=self.job.job_data)
                 rc = sync.synchronize(callback_progress=self.report_progress)
@@ -75,7 +76,7 @@ class SynchronizationWorker(WorkstationManagerWorker):
                     if housekeeping:
                         self.housekeeping(sync)
                     else:
-                        logging.warning(f"{self.__class__.__name__}.synchronize: Housekeeping skipped.")
+                        logging.info(f"{self.__class__.__name__}.synchronize: Housekeeping skipped.")
 
             except BaseException as e:
                 s = f"Exception in start_synchronization.worker: {repr(e)}"

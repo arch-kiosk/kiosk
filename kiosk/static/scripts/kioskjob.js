@@ -262,6 +262,8 @@ class KioskJob {
             jqNewLine.addClass("kiosk-log-line-error")
           else if (/warning/i.test(logline))
             jqNewLine.addClass("kiosk-log-line-warning")
+          else if (/\bnote\b/i.test(logline))
+            jqNewLine.addClass("kiosk-log-line-warning")
           else if (/success/i.test(logline) || /note/i.test(logline))
             jqNewLine.addClass("kiosk-log-line-success")
           else
@@ -284,7 +286,7 @@ class KioskJob {
       jqLogView = this._jq_progress_view.find(".kiosk-log-view");
       let jqHeading = jqLogView.find(".kiosk-log-heading");
       jqHeading.text(heading);
-      if (log_level.toLowerCase() === "warning")
+      if (log_level.toLowerCase() === "warning" || log_level.toLowerCase() === "info")
         jqHeading.addClass("log-success-heading");
       else
         jqHeading.addClass("log-error-heading");

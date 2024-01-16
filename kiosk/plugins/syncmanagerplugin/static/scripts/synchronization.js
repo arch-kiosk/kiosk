@@ -10,23 +10,41 @@ $(() => {
 });
 
 function syncManagerLogLinesShown(loglines_present, heading="") {
-  if (syncManagerLogLinesShown.showError)
+  if (syncManagerLogLinesShown.showError) {
     syncManagerInsertIcon("fas fa-bug");
-  else
-    syncManagerInsertIcon("fas fa-check-circle");
-
-  if (!loglines_present) {
-    $(".kiosk-log-line").fadeOut("slow");
-    $("#div-log-show-details").hide();
-  } else {
-    $("#log-show-details").on("click", (e) => {
-      if (e.currentTarget.checked) {
-        $(".kiosk-log-line-info").show("fast");
-      } else {
-        $(".kiosk-log-line-info").hide();
-      }
-    });
+    if (!loglines_present) {
+      $(".kiosk-log-line").fadeOut("slow");
+      $("#div-log-show-details").hide();
+    } else {
+      $("#log-show-details").on("click", (e) => {
+        if (e.currentTarget.checked) {
+          $(".kiosk-log-line-info").show("fast");
+        } else {
+          $(".kiosk-log-line-info").hide();
+        }
+      });
+    }
   }
+  else {
+    syncManagerJobDownloadDetails("Synchronization successfully finished.")
+  }
+}
+
+
+function syncManagerDetailLogLinesShown(loglines_present, heading="") {
+    syncManagerInsertIcon("fas fa-check-circle");
+    if (!loglines_present) {
+      $(".kiosk-log-line").fadeOut("slow");
+      $("#div-log-show-details").hide();
+    } else {
+      $("#log-show-details").on("click", (e) => {
+        if (e.currentTarget.checked) {
+          $(".kiosk-log-line-info").show("fast");
+        } else {
+          $(".kiosk-log-line-info").hide();
+        }
+      });
+    }
 }
 
 
@@ -69,6 +87,18 @@ function syncManagerJobLookForWarnings(success_msg) {
     syncManagerLogLinesShown,
     "warning",
     "However, please look at the warnings:");
+}
+
+function syncManagerJobDownloadDetails(success_msg) {
+  let job = synchronization_active_job;
+  // showMenu();
+  let rc = job.showLogLines(success_msg,
+    (err_msg) => {
+      kioskErrorToast(`${success_msg} But no further report could be fetched due to error <br>${err_msg}`);
+    },
+    syncManagerDetailLogLinesShown,
+    "info",
+    "");
 }
 
 function syncManagerJobError(err_msg) {
