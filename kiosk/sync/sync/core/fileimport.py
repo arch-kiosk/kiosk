@@ -459,6 +459,7 @@ class FileImport:
                                 new_context["import"] = False
                                 self._stop_import = True
                                 return new_context
+
                     context = new_context
             except BaseException as e:
                 logging.error(f"{self.__class__.__name__}.build_context: Exception "

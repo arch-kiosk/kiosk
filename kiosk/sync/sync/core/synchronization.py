@@ -399,10 +399,6 @@ class Synchronization(PluginLoader):
             # we end here no matter of synchronization suceeded or failed or wasn't necessary.
             self.check_data_integrity()
 
-            logging.info("rebuilding file-identifier-cache.")
-            fic = FileIdentifierCache(master_dsd)
-            fic.build_file_identifier_cache_from_contexts(commit=True)
-
             logging.info("********** synchronization finished **********")
             logging.info("-")
             report_progress(callback_progress, progress=100,
@@ -416,11 +412,21 @@ class Synchronization(PluginLoader):
                     kioskrepllib.log_repl_event("synchronization", "aftermath COMPLETED",
                                                 "", commit=True)
                 except BaseException as e:
-                    logging.error(f"{self.__class__.__name__}.synchronize: Exception in some hooked in code "
+                    logging.error(f"{self.__class__.__name__}.synchronize: Exception in some hooked-in code "
                                   f"at after_synchronization. The main synchronization has been committed, though.")
                     logging.error(f"{self.__class__.__name__}.synchronize: {repr(e)}")
                     kioskrepllib.log_repl_event("synchronization", "aftermath FAILED",
                                                 "", commit=True)
+
+            try:
+                fic = FileIdentifierCache(dsd_workstation_view.dsd)
+                fic.build_file_identifier_cache_from_contexts()
+                logging.info("rebuilding file-identifier-cache ok.")
+            except BaseException as e:
+                logging.error(
+                    f"{self.__class__.__name__}.synchronization: "
+                    f"exception when rebuilding file-identifier-cache."
+                    f" {repr(e)}")
 
             return successful_run
         except BaseException as e:

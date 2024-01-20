@@ -143,7 +143,7 @@ class FileImportExifFilter(FileImportFilter):
 
         if not self._exif_data_read:
             if not self._get_exif_dict():
-                return {}
+                return context
 
         if self.get_filter_configuration_value("get_context_from_exif"):
             s = self._get_identifier_from_user_comment()
