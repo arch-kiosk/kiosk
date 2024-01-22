@@ -101,7 +101,7 @@ if "mcpcore.mcpworker" not in sys.modules:
                                   ENTER_ADMINISTRATION_PRIVILEGE) if hasattr(current_user,
                                                                              "fulfills_requirement") else True,
                               menu_cfg=plugin.get_menu_config(),
-                              parent_menu="hub",
+                              parent_menu="main",
                               order="2026"),
         ]
 
