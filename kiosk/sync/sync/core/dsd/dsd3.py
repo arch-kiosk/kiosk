@@ -677,7 +677,7 @@ class DataSetDefinition:
 
            DEPRECATED!"""
 
-        logging.warning("DataSetDefinition.list_fields_with_additional_type: Deprecated, "
+        logging.info("DataSetDefinition.list_fields_with_additional_type: Deprecated, "
                         "please use list_fields_with_instructions instead.")
 
         if self.is_table_dropped(table_name=table, version=version):
@@ -788,7 +788,7 @@ class DataSetDefinition:
 
             DEPRECATED!"""
 
-        logging.warning("DataSetDefinition.get_attribute_reference: Deprecated, "
+        logging.info("DataSetDefinition.get_attribute_reference: Deprecated, "
                         "please use get_field_instructions instead.")
 
         if self.is_table_dropped(table_name=table, version=version):
@@ -865,7 +865,7 @@ class DataSetDefinition:
             D E P R E C A T E D! use get_instruction_parameters_and_types instead
         """
 
-        logging.error("DataSetDefinition.get_excavation_context_reference: Obsolete, "
+        logging.warning("DataSetDefinition.get_excavation_context_reference: Obsolete, "
                       "Use get_field_instructions instead.")
 
     def delete_table(self, table):
