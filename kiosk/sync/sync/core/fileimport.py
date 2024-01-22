@@ -408,7 +408,7 @@ class FileImport:
                     logging.error("FileImport._r_add_files_to_repository: process aborted from outside")
                     return False
 
-                if self._import_single_file_to_repository(f):
+                if self._import_single_file_to_repository(f, accept_duplicates=True):
                     self.files_added += 1
                 else:
                     if self._stop_import:
