@@ -108,7 +108,7 @@ def fetch_repository_file(file_uuid, resolution):
     filename = None
     ctx_file = None
     # just to test the error handling within javascript if an image cannot be loaded:
-    # if str(file_uuid) == "32ef2cf5-6b77-483c-b85c-f88c3de0ef6b" and resolution=="master":
+    # if str(file_uuid) == "9a2a7f7c-5b28-4424-9227-33c21dbb4b56":
     #     logging.error("32ef2cf5-6b77-483c-b85c-f88c3de0ef6b suppressed")
     #     abort(404)
     try:
@@ -130,7 +130,7 @@ def fetch_repository_file(file_uuid, resolution):
             representation_type = KioskRepresentationType(resolution)
             thumbnail_file = ctx_file.get(representation_type)
 
-            if thumbnail_file:
+            if thumbnail_file and kioskstdlib.get_file_size(thumbnail_file) > 0:
                 response = make_response(send_from_directory(kioskstdlib.get_file_path(thumbnail_file),
                                                              kioskstdlib.get_filename(thumbnail_file)))
             else:
