@@ -127,7 +127,9 @@ def interpret_param(known_param, param):
               "c": None,
               "nc": None,
               "noc": None,
-              "no_redis": None}
+              "no_redis": None,
+              "nh": None,
+              "nt": None}
     else:
         rc = {new_option: None}
 
@@ -521,9 +523,9 @@ if __name__ == '__main__':
         except BaseException as e:
             print(f"WARNING: something when wrong when deleting superfluous directories: {repr(e)}. Continuing ...")
 
-        transform_file_repository(cfg_file)
-
-        transform_file_cache(cfg_file)
+        if "patch" not in options:
+            transform_file_repository(cfg_file)
+            transform_file_cache(cfg_file)
 
         if ("fro" in options or "fr" in options) and "nt" not in options:
             KioskRestore.refresh_thumbnails(cfg_file)
