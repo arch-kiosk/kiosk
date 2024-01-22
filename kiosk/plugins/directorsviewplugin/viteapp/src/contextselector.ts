@@ -104,7 +104,6 @@ class ContextSelector extends KioskAppComponent {
             },
         )
         .then((data: any) => {
-            console.log('contexts',data)
             if (data.result_msg !== "ok") {
                 this.fetch_error = data.result_msg
             } else {

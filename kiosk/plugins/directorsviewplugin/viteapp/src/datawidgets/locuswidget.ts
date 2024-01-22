@@ -164,7 +164,8 @@ class LocusWidget extends KioskAppComponent {
         }
 
         let searchParams = new URLSearchParams({
-            page_size: "-1"
+            page_size: "-1",
+            "qc_data_context": "qc_data_context"
         })
 
         this.apiContext.fetchFromApi("", "cql/query",
@@ -219,6 +220,7 @@ class LocusWidget extends KioskAppComponent {
     load_records(records: [], qc_messages: []) {
         this.loci = {}
         this.lociList = []
+        console.log('qc_messages:', qc_messages)
         records.forEach((r: any) => {
             const locusId = r.primary_identifier
             let locus: LocusRecord

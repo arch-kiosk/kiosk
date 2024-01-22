@@ -33,7 +33,7 @@ class DateSelector extends KioskAppComponent {
         super();
         // @ts-ignore
         if (import.meta.env.DEV)
-            this.selected_date = new Date(2023,11, 29)
+            this.selected_date = new Date(2020,6, 8)
         this._init();
     }
 
