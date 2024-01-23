@@ -407,6 +407,8 @@ class ModelFileRepository:
                         where_part = f" {file_identifier_cache_table_name}.\"identifier\" ilike %s"
                         param = kioskstdlib.escape_backslashs(self.filter_options["filter_values"][o])
             elif o in ["description"] and self.filter_options["filter_values"][o]:
+                # todo: This is really horribly hardcoded and must go one day.
+                #  referring to tables with recording data by name is a no-go
                 where_part = f"""
                     (({file_identifier_cache_table_name}.\"description\" ilike %s 
                         or images.description ilike %s 
