@@ -409,6 +409,7 @@ class ModelFileRepository:
             elif o in ["description"] and self.filter_options["filter_values"][o]:
                 # todo: This is really horribly hardcoded and must go one day.
                 #  referring to tables with recording data by name is a no-go
+                #  deprecated: Throw this out once Q&V has a full text search.
                 where_part = f"""
                     (({file_identifier_cache_table_name}.\"description\" ilike %s 
                         or images.description ilike %s 
@@ -419,7 +420,7 @@ class ModelFileRepository:
                             inner join collected_material cm on cm_photo.uid_cm = cm.uid
                             left outer join small_find sf on cm_photo.uid_cm = sf.uid_cm
                             where
-                            concat(sf.description, ' ', sf.material, ' ')
+                            concat(cm.description, ' ', sf.material, ' ')
                             ilike %s                
                         )
                         or images.export_filename ilike %s   
@@ -485,7 +486,7 @@ class ModelFileRepository:
                           f"left outer join " \
                           f"{file_identifier_cache_table_name} " \
                           f"on images.uid={file_identifier_cache_table_name}.\"data\"::uuid {sql_where};"
-        pprint.pprint(sql)
+        # pprint.pprint(sql)
         try:
             cur.execute(sql, params)
             logging.debug(f"sql: {str(cur.query)}")
