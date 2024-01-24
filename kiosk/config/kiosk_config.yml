@@ -27,6 +27,10 @@ file_repository:
     site: 'site map'
     pottery_images: 'pottery'
     tags: 'context tags'
+#  representations:
+#    master:
+#      requested_manipulations: [ "FIX_ROTATION", "DROP_EXIF_DATA", "AUTO_WHITE_BALANCE"]
+
 glossary:
   "locus": ['locus', 'loci']
   "unit": ["trench", "trenches"]

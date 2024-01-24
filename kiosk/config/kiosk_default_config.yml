@@ -77,7 +77,7 @@ file_repository:
       label: "JPEG with max 4000x2000 pixel"
       format_request: "default"
       dimensions: "4000,2000"
-      requested_manipulations: [ "FIX_ROTATION", "DROP_EXIF_DATA" ]
+      requested_manipulations: [ "FIX_ROTATION", "DROP_EXIF_DATA"]
     1024x768:
       inherits: "master"
       requested_manipulations: [ "DROP_EXIF_DATA" ]
@@ -300,7 +300,8 @@ kiosk:
     menu:
       "synchronize": [ "+syncmanagerplugin" ]
       "new dock": [ "+syncmanagerplugin" ]
-      "Hubbub": [ "-syncmanagerplugin" ]
+      "Hub": [ "-syncmanagerplugin" ]
+      "sync & dock events": [ "+syncmanagerplugin" ]
     allow_operations: [ ]
 
   kioskfilemakerworkstationplugin:
