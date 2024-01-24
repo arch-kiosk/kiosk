@@ -64,9 +64,9 @@ class KioskLogicalFile:
         filename = self._get_path_and_filename()
         return os.path.isfile(filename)
 
-    def _get_representation_from_cache(self, representation_type):
+    def _get_representation_from_cache(self, representation_type, renew=False):
         if self._cache_manager:
-            return self._cache_manager.get(self._uid, representation_type)
+            return self._cache_manager.get(self._uid, representation_type, renew)
 
         return None
 
@@ -231,18 +231,19 @@ class KioskLogicalFile:
 
         return self._get_path_and_filename()
 
-    def get_representation(self, representation_type, create, create_to_file=None):
+    def get_representation(self, representation_type, create, create_to_file=None, renew=False):
         """
         Gets the filename and path of the file's required representation
-        :param representation_type:
+        :param representation_type: name of the representation type
         :param create: If the representation does not exist, "True" will try to create it.
         :param create_to_file: optional and only interpreted if create is True:
                 The representation will be created under the given path and filename
                 and it will NOT be cached.
+        :param renew: Set to True if you want to treat a cache entry marked as "renew" as invalid
         :return: path and filename of the representation or None if there is none
         """
         rc = None
-        path_and_filename = self._get_representation_from_cache(representation_type)
+        path_and_filename = self._get_representation_from_cache(representation_type, renew)
         if path_and_filename:
             return path_and_filename
 
@@ -292,8 +293,9 @@ class KioskLogicalFile:
             # to the master
             representation_type.inherits = ""
 
-        # todo: Is this line even necessary if the value isn't use subsequently?
-        manipulations = representation_type.get_specific_manipulations()
+        # todo: deprecated. I don't think this line even necessary if the value isn't used subsequently.
+        #  I leave it here as a reminder:
+        # manipulations = representation_type.get_specific_manipulations()
         try:
             factory = KioskPhysicalFileFactory(self._type_repository,
                                                plugin_loader=self._plugin_loader)
@@ -351,36 +353,49 @@ class KioskLogicalFile:
             r.image_attributes = None
             r.update()
 
+    def create_representation(self, r_name: str, log_warning_on_fail: bool = True):
+        """
+        Creates a certain representation
+        :param r_name: the name of the representation as configured under "file_repository/representations"
+        :param log_warning_on_fail: Set to False if you don't want this to log a warning on failure.
+                                    This never logs an error!
+        :return: True if the representation is there on exit of the method
+        """
+        representation = KioskRepresentations.instantiate_representation_from_config(r_name)
+        path_and_filename = self.get(representation, True)
+        if not path_and_filename:
+            if self._test_mode:
+                logging.error(f"{self.__class__.__name__}.create_auto_representations: representation {r_name} "
+                              f"could not be created for file {self.get()} ({self._uid})")
+                return False
+            else:
+                if log_warning_on_fail:
+                    logging.warning(
+                        f"{self.__class__.__name__}.create_auto_representations: representation {r_name} "
+                        f"could not be created for file {self.get()} ({self._uid})")
+                return False
+        else:
+            logging.debug(f"{self.__class__.__name__}.create_auto_representations: representation"
+                          f" {path_and_filename} created.")
+        return True
+
     def create_auto_representations(self, error_on_fail: bool = False, log_warning_on_fail: bool = True):
         """
             creates the representations for the file that are listed in config
             as auto_representations under file_repository.
-            :param error_on_fail: set to True if you want to get "false" back if any
-                                  of the representations could not be created
-            :return: true/false, where false means an Exception occurred.
-                     The method returns true even if no representation could be created.
+            :param error_on_fail:       set to True if you want to get "false" back as soon as any
+                                        of the representations fails to be created. If False
+                                        this will continue with the next representation on error.
+            :param log_warning_on_fail: unless set to False this will log a warning if a representation fails
+                                        note that it won't log an error ever
+            :return: true/false
         """
         try:
 
             for r_name in KioskRepresentations.get_auto_representations():
-                representation = KioskRepresentations.instantiate_representation_from_config(r_name)
-                path_and_filename = self.get(representation, True)
-                if not path_and_filename:
-                    if self._test_mode:
-                        logging.error(f"{self.__class__.__name__}.create_auto_representations: representation {r_name} "
-                                      f"could not be created for file {self.get()} ({self._uid})")
-                        return False
-                    else:
-                        if log_warning_on_fail:
-                            logging.warning(
-                                f"{self.__class__.__name__}.create_auto_representations: representation {r_name} "
-                                f"could not be created for file {self.get()} ({self._uid})")
-                        if error_on_fail:
-                            return False
-                else:
-                    logging.debug(f"{self.__class__.__name__}.create_auto_representations: representation"
-                                  f" {path_and_filename} created.")
-            return True
+                rc = self.create_representation(r_name, log_warning_on_fail)
+                if not rc and error_on_fail:
+                    return False
 
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.create_auto_representations: {repr(e)}")
@@ -465,5 +480,6 @@ class KioskLogicalFile:
         """
         if self._cache_manager:
             self._cache_manager.transform_cache_file(self._uid)
+
 
 KioskCachedFile = KioskLogicalFile

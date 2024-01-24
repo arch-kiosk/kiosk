@@ -278,11 +278,12 @@ class KioskFileCache:
 
         return not cache_entry.invalid
 
-    def get(self, uid, representation_type: KioskRepresentationType):
+    def get(self, uid, representation_type: KioskRepresentationType, renew=False):
         """
         gets a file's representation from the cache.
-        :param uid:
-        :param representation_type:
+        :param uid: the file's uid
+        :param representation_type: the id of the representation type
+        :param renew: set to True if you want to treat a cache entry marked as "renew" as invalid
         :return: None if the file does not exist in the cache
                  or if it is invalidated, otherwise path and filename of the representation.
         """
@@ -291,6 +292,9 @@ class KioskFileCache:
             return None
 
         if cache_entry.invalid:
+            return None
+
+        if renew and cache_entry.renew:
             return None
 
         file_path_and_name = cache_entry.path_and_filename
