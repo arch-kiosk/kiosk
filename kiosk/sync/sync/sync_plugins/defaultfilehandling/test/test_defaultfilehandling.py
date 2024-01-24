@@ -328,3 +328,24 @@ class TestKioskLogicalFile(KioskPyTestHelper):
         assert os.path.exists(dst_file)
 
 
+    def test_orange_nef(self, sync: Synchronization, shared_datadir):
+        cfg = SyncConfig.get_config()
+
+        f_class: KioskPhysicalFile = sync.type_repository.get_type(TYPE_PHYSICALFILEHANDLER,
+                                                                   "KioskPhysicalPillowNefFile")
+        assert f_class
+
+        src_file = os.path.join(shared_datadir, "orange.nef")
+        dst_file = os.path.join(shared_datadir, "orange.jpg")
+
+        representation = KioskRepresentationType("jpg")
+        representation.format_request = {"NEF": "JPEG"}
+        representation.requested_manipulations = ["DROP_EXIF_DATA", "FIX_ROTATION", "AUTO_WHITE_BALANCE"]
+
+        assert f_class.can_convert_to(src_file, representation)
+        file = f_class(src_file)
+        assert not os.path.exists(dst_file)
+
+        assert file.convert_to(representation, target_path=shared_datadir,
+                               target_filename_without_extension="orange")
+        assert os.path.exists(dst_file)
