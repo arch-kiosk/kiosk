@@ -62,7 +62,7 @@ class Housekeeping:
             :param file_tasks_only: if set only the file-related tasks will be executed.
             :return: number of files that have been checked
         """
-        print(housekeeping_tasks)
+        # print(housekeeping_tasks)
         self._cancelled = False
         self.progress_handler = progress_handler
         c = 0

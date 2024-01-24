@@ -340,9 +340,14 @@ def housekeeping(cfg_file: str):
         from housekeeping import Housekeeping
         from sync_config import SyncConfig
         from filerepository import FileRepository
+        from synchronization import Synchronization
 
         config = SyncConfig.get_config({"config_file": cfg_file})
-        file_repos = FileRepository(config)
+        sync = Synchronization()
+        file_repos = FileRepository(config,
+                                    event_manager=sync.events,
+                                    type_repository=sync.type_repository,
+                                    plugin_loader=sync)
         hk = Housekeeping(file_repos, True)
         hk.do_housekeeping(file_tasks_only=True)
     except BaseException as e:

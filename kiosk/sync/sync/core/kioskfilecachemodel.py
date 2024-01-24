@@ -12,6 +12,7 @@ class KioskFileCacheModel(Table):
                ("uid_file",),
                ("representation_type",),
                ("invalid",),
+               ("renew",),
                ("created", ",".join([Table.ATTRIBUTE_DONT_UPDATE, Table.ATTRIBUTE_DONT_INSERT])),
                ("modified", ",".join([Table.ATTRIBUTE_DONT_INSERT])),
                ("image_attributes",),
@@ -23,6 +24,7 @@ class KioskFileCacheModel(Table):
             self.uid_file = None
             self.representation_type = ""
             self.invalid = False
+            self.renew = False
             self.created = None
             self.modified = None
         else:
@@ -31,6 +33,7 @@ class KioskFileCacheModel(Table):
             self.representation_type = ""
             self.image_attributes = {}
             self.invalid = False
+            self.renew = False
             self.created = None
             self.modified = None
             self.path_and_filename = ""
