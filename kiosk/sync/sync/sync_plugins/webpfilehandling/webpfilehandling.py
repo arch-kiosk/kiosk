@@ -62,7 +62,7 @@ class KioskPhysicalWebPFile(KioskPhysicalImageFile):
                     if k.startswith('exif:'))
         return exif
 
-    def _open_image(self):
+    def _open_image(self, representation: KioskRepresentationType = None):
         img = Image(filename=self.source_path_and_filename)
         self._read_file_attributes(img)
         self._has_exif_data = bool(self.get_exif_dict(img))

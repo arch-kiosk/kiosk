@@ -52,7 +52,7 @@ class KioskPhysicalSvgFile(KioskPhysicalImageFile):
     supported_file_formats = [("SVG", "Scalable Vector Format (SVG)", ["svg"], "svg"),
                               ]
 
-    def _open_image(self):
+    def _open_image(self, representation: KioskRepresentationType = None):
         svg = KioskSVG()
         if svg.open(self.source_path_and_filename):
             if not self._file_attributes:

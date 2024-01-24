@@ -12,7 +12,7 @@ from PIL import Image, ImageColor
 from core.kioskphysicalfile import FILE_ATTR_HEIGHT, FILE_ATTR_WIDTH, FILE_ATTR_FORMAT
 from core.synchronization import Synchronization
 from kioskphysicalimagefile import KioskPhysicalImageFile
-from kioskrepresentationtype import KioskRepresentationType, MANIPULATION_FIX_ROTATION, MANIPULATION_DROP_EXIF_DATA
+from kioskrepresentationtype import KioskRepresentationType, MANIPULATION_FIX_ROTATION, MANIPULATION_DROP_EXIF_DATA, MANIPULATION_AUTO_WHITE_BALANCE
 from sync_config import SyncConfig
 from synchronizationplugin import SynchronizationPlugin
 
@@ -52,7 +52,7 @@ class KioskPhysicalPillowFile(KioskPhysicalImageFile):
                                 f" Non-fatal exception {repr(e)}")
         return self._file_attributes
 
-    def _open_image(self):
+    def _open_image(self, representation: KioskRepresentationType = None):
 
         img = Image.open(self.source_path_and_filename)
         try:
@@ -198,12 +198,15 @@ class KioskPhysicalPillowNefFile(KioskPhysicalPillowFile):
                               ("BMP", "Bitmap Image File", [], "bmp"),
                               ("PSD", "Photoshop Document", [], "psd")]
 
-    supported_manipulations = []
+    supported_manipulations = [MANIPULATION_AUTO_WHITE_BALANCE]
 
-    def _open_image(self):
+    def _open_image(self, representation: KioskRepresentationType = None):
         try:
             with rawpy.imread(self.source_path_and_filename) as raw:
-                rgb = raw.postprocess()
+                if representation and MANIPULATION_AUTO_WHITE_BALANCE in representation.get_specific_manipulations():
+                    rgb = raw.postprocess(use_auto_wb=True)
+                else:
+                    rgb = raw.postprocess(use_camera_wb=True)
                 self._read_file_attributes(raw)
             img = Image.fromarray(rgb)
         except Exception as e:

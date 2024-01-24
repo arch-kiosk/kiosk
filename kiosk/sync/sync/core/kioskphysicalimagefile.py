@@ -42,7 +42,7 @@ class KioskPhysicalImageFile(KioskPhysicalFile):
                     target_path: str = "") -> str:
         img = None
         try:
-            img = self._open_image()
+            img = self._open_image(representation)
             if not img:  # or not img.size:
                 logging.warning(f"{self.__class__} cannot open {self.source_path_and_filename}")
                 return ""
@@ -131,7 +131,7 @@ class KioskPhysicalImageFile(KioskPhysicalFile):
         """
         raise NotImplementedError
 
-    def _open_image(self):
+    def _open_image(self, representation: KioskRepresentationType = None):
         """
         subclasses must implement this. It returns an instance that handles the file and offers
         an interface to the necessary manipulations and a save method etc.

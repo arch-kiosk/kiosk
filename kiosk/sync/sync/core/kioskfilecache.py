@@ -101,7 +101,6 @@ class KioskFileCache:
             raise Exception("no handler to fetch representation classes installed.")
 
     def _invalidate_all_entries(self):
-
         return self._file_cache_model.update_many(["invalid"], [True])
 
     def install_representation_repository(self, callable):
@@ -201,6 +200,9 @@ class KioskFileCache:
             Should the cache point to a file outside of the cache directory, it will NOT be deleted.
 
         :param delete_files: deletes the physical cache files
+                            Will NOT delete physical files at all
+                            if neither uid nor representation_type are given
+
         :param uid: the cache item. If not given, the whole cache is invalidated
         :param representation_type: None or a representation type. If not given, all representations
                are invalidated, either of that uid or even the whole cache
@@ -217,6 +219,7 @@ class KioskFileCache:
                     cache_entries = self._get_cache_entries(uid)
                 else:
                     # invalidate the whole cache
+                    logging.info(f"{self.__class__.__name__}.invalidate(): invalidating the whole cache.")
                     rc = self._invalidate_all_entries()
                     KioskSQLDb.commit_savepoint(savepoint)
                     if commit:

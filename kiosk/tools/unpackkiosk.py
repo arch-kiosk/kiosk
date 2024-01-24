@@ -45,7 +45,10 @@ params = {"-fr": "fr", "--unpack_file_repository": "fr",
           "--exclude_mcp": "exclude_mcp",
           "-ncu": "no_clear_up",
           "--no_clear_up": "no_clear_up",
+          "-cfc": "clear_file_cache",
+          "--clear_file_cache": "clear_file_cache",
           "--project_id": "project_id",
+          "--skip_installation": "skip_installation",
           }
 
 
@@ -86,6 +89,7 @@ def usage():
         -ru/ --restore_users: restores users and privileges from the backup. Usually the users and privileges
                               are NOT restored. Only in connection with -db! 
         -nt/ --no_thumbnails: No thumbnails will be created for new repository files at the end of the process!
+        -cfc/ --clear_file_cache: clears the entire file cache, so all the thumbnails need to be created again!
         -na/--no_admin: run unpackkiosk without admin privileges.
         -nr/ --no_redis: Don't check and use redis.
         -sp/ --sudo_password=password: Needed to write the redis call into start.ps1. Necessary only for a new install and
@@ -93,6 +97,7 @@ def usage():
         -rm: restart machine at the end of unpackkiosk - if it was successful.
         --exclude_mcp: Does not unpack the MCPCore in order not to crash into a running MCP
         --update_custom_modules: explicitly update custom modules if -c is not set
+        --skip_installation: Skips updating files and stuff and only does the aftermath
         --patch: a short cut for patching core code files only. Does not temper with configuration, python or the db.
                 Just unpacks the core code files. Implies -c, -o, --no_custom_directories, --no_config, 
                 --no_redis, --no_migration, --no_thumbnails    
@@ -294,6 +299,42 @@ def transform_file_cache(cfg_file):
         logging.warning(f"Transform file cache reported trouble with {transform.get_errors()} files.")
 
 
+def clear_file_cache(cfg_file):
+    from sync_config import SyncConfig
+    from kiosksqldb import KioskSQLDb
+    from dsd.dsd3 import DataSetDefinition
+    from dsd.dsdyamlloader import DSDYamlLoader
+    from kioskfilecache import KioskFileCache
+    config = SyncConfig.get_config({"config_file": cfg_file})
+
+    cache_dir = os.path.join(config.get_file_repository(create_if_non_existant=True), "cache")
+    if "cache" in config.file_repository:
+        cache_dir = config.resolve_symbols(config.file_repository["cache"])
+    else:
+        logging.warning(f"clear_file_cache: file_repository_cache not set: Defaulting to {config._cache_dir}")
+
+    db = KioskSQLDb()
+    # file_repository_path = config.get_file_repository()
+    # dsd = DataSetDefinition(DSDInMemoryStore())
+    # dsd.register_loader(DSDLoaderClass=DSDYamlLoader, file_ext="yml")
+    # dsd.append_file(self.config.get_dsdfile())
+    # files_table = dsd.files_table
+    # assert files_table
+
+    file_cache = KioskFileCache(cache_base_dir=cache_dir)
+    try:
+        if file_cache.invalidate(uid=None, representation_type=None, delete_files=True, commit=True):
+            kioskstdlib.remove_kiosk_subtree(cache_dir, config.base_path)
+            os.mkdir(cache_dir)
+            return True
+        else:
+            logging.error(f"clear_file_cache was unsuccessful")
+
+    except BaseException as e:
+        logging.error(f"clear_file_cache {repr(e)}")
+
+
+
 def housekeeping(cfg_file: str):
     try:
         from housekeeping import Housekeeping
@@ -430,25 +471,26 @@ if __name__ == '__main__':
                 logging.error(f"Configuration file {cfg_file} does not seem to exist.")
                 usage()
 
-            if "noc" not in options:
-                print(f"unzipping configuration files ...", end="")
-                kiosk_zip = path.join(src_dir, "kiosk.zip")
-                KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/kiosk_default_config.yml", "-aoa")
-                KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/kiosk_local_config_template.yml", "-aoa")
-                KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/kiosk_secure_template.yml", "-aoa")
-                KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/kiosk_config_template.yml", "-aoa")
-                KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, 'config/image_manipulation_config.yml', "-aoa")
-                KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, 'config/file_handling.yml', "-aoa")
-                KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, 'config/kiosk_ui_classes.uic', "-aoa")
-                KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/dsd", "-aoa")
-                KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/ui", "-aoa")
-                KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/kiosk_queries", "-aoa")
-                print(f"ok", end="\n")
-            else:
-                print(f"skipped configuration files.", end="\n")
+            if "skip_installation" not in options:
+                if "noc" not in options:
+                    print(f"unzipping configuration files ...", end="")
+                    kiosk_zip = path.join(src_dir, "kiosk.zip")
+                    KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/kiosk_default_config.yml", "-aoa")
+                    KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/kiosk_local_config_template.yml", "-aoa")
+                    KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/kiosk_secure_template.yml", "-aoa")
+                    KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/kiosk_config_template.yml", "-aoa")
+                    KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, 'config/image_manipulation_config.yml', "-aoa")
+                    KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, 'config/file_handling.yml', "-aoa")
+                    KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, 'config/kiosk_ui_classes.uic', "-aoa")
+                    KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/dsd", "-aoa")
+                    KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/ui", "-aoa")
+                    KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/kiosk_queries", "-aoa")
+                    print(f"ok", end="\n")
+                else:
+                    print(f"skipped configuration files.", end="\n")
 
-            if "dbuser" in options or "dbpwd" in options or "dbname" in options:
-                KioskRestore.set_new_database_credentials(cfg_file, secure_file, options)
+                if "dbuser" in options or "dbpwd" in options or "dbname" in options:
+                    KioskRestore.set_new_database_credentials(cfg_file, secure_file, options)
 
             this_is_an_update = True
         else:
@@ -470,25 +512,25 @@ if __name__ == '__main__':
     print("parameters are: ")
     print(options)
 
-    KioskRestore.unpack_kiosk(src_dir, cfg_file, options)
-
-    if "patch" not in options:
-        if "db" in options:
-            if this_is_an_update:
-                if "pgdb" in options:
-                    KioskRestore.postgres_master_db = options["pgdb"]
-                    print(f"default Postgres database is set to {KioskRestore.postgres_master_db}")
-                restore_users = "ru" in options
-                restore_workstations = "w" in options
-                KioskRestore.restore_db(cfg_file, src_dir,
-                                        restore_users=KioskRestore.RESTORE_USERS_ALL,
-                                        restore_workstations=restore_workstations)
-            else:
-                if not KioskRestore.create_db_if_missing(cfg_file):
-                    print(f"create_db_if_missing returned False. Database was not created.")
-                    sys.exit(0)
+    if "skip_installation" not in options:
+        KioskRestore.unpack_kiosk(src_dir, cfg_file, options)
+        if "patch" not in options:
+            if "db" in options:
+                if this_is_an_update:
+                    if "pgdb" in options:
+                        KioskRestore.postgres_master_db = options["pgdb"]
+                        print(f"default Postgres database is set to {KioskRestore.postgres_master_db}")
+                    restore_users = "ru" in options
+                    restore_workstations = "w" in options
+                    KioskRestore.restore_db(cfg_file, src_dir,
+                                            restore_users=KioskRestore.RESTORE_USERS_ALL,
+                                            restore_workstations=restore_workstations)
                 else:
-                    print(f"database ready.")
+                    if not KioskRestore.create_db_if_missing(cfg_file):
+                        print(f"create_db_if_missing returned False. Database was not created.")
+                        sys.exit(0)
+                    else:
+                        print(f"database ready.")
 
     # this does not work:
 
@@ -525,7 +567,10 @@ if __name__ == '__main__':
 
         if "patch" not in options:
             transform_file_repository(cfg_file)
+        if "clear_file_cache" not in options:
             transform_file_cache(cfg_file)
+        else:
+            clear_file_cache(cfg_file)
 
         if ("fro" in options or "fr" in options) and "nt" not in options:
             KioskRestore.refresh_thumbnails(cfg_file)

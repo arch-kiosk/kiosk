@@ -54,7 +54,7 @@ class KioskPhysicalPdfFile(KioskPhysicalImageFile):
                               ("BMP", "Bitmap Image File", [], "bmp"),
                               ]
 
-    def _open_image(self):
+    def _open_image(self, representation: KioskRepresentationType = None):
         open_first_page = '[0]'
         img = Image(filename=self.source_path_and_filename + open_first_page)
         self._read_file_attributes(img)
