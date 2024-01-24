@@ -260,8 +260,11 @@ class Table:
             sql += f"WHERE {where}"
             sql_params.extend(where_params)
         if KioskSQLDb.execute(sql, sql_params):
-            self.get_by_key()
-            return True
+            try:
+                if self.get_by_key():
+                    return True
+            except KeyError as e:
+                return True
 
         return False
 
@@ -306,7 +309,7 @@ class Table:
                 where = where + f"{and_sep}{qi}{key_field}{qi}=%s"
                 and_sep = " and "
             else:
-                raise Exception(f"get_by_key: value for key field {key_field} missing.")
+                raise KeyError(f"get_by_key: value for key field {key_field} missing.")
         return params, where
 
     def _load_record(self, r):
