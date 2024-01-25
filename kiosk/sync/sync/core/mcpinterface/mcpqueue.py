@@ -263,3 +263,19 @@ class MCPQueue:
                 return lines
 
         return []
+
+    def has_active_non_background_job(self, project_id: str) -> bool:
+        """
+        checks if there is a running job for this project hat is not a background job
+        :param project_id:
+        :return: true/false
+        """
+        from mcpinterface.mcpjob import MCPJob
+        jobs = self.list_jobs(lock_queue=False)
+        for job_id in jobs:
+            job = MCPJob(self.gs, job_id)
+            if not job.background_job and job.project_id == project_id and job.status < MCPJobStatus.JOB_STATUS_DONE:
+                return True
+        return False
+
+

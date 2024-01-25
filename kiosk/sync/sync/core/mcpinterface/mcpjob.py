@@ -72,6 +72,7 @@ class MCPJobInfo:
     seconds_till_timeout: int = 120
     seconds_to_idle: int = 600
     os_pid: int = 0
+    background_job: bool = False
 
     def as_dict(self):
         result_dict = dict()
@@ -234,10 +235,26 @@ class MCPJob:
     def system_lock(self, value: bool):
         """
         set to true to make this job run by an exclusive process and give it priority over non-exclusive jobs.
-        The job will run as the sole exclusive process and only parallel to non-exclusive jobs from other projects.
+        The job will run as the sole exclusive process and only parallel to non-exclusive jobs from other projects
+        and background jobs.
         :param value: true/false
         """
         self._set_job_attribute("system_lock", value, max_status=MCPJobStatus.JOB_STATUS_GHOST)
+
+    @property
+    def background_job(self):
+        return self._job_info.background_job
+
+    @background_job.setter
+    def background_job(self, value: bool):
+        """
+        set to true to make this job a background job.
+        Such a job will not block any other job - Not even system_lock jobs!
+        It won't start, tough, as long as there is a system_lock job running.
+
+        :param value: true/false
+        """
+        self._set_job_attribute("background_job", value, max_status=MCPJobStatus.JOB_STATUS_GHOST)
 
     def get_job_info_attribute(self, attribute: str):
         return getattr(self._job_info, attribute)

@@ -16,7 +16,7 @@ from mcpinterface.mcpconstants import MCPJobStatus
 from mcpinterface.mcpjob import MCPJob
 from mcpinterface.mcpqueue import MCPQueue
 
-SLEEP_AFTER_SEC = 10
+SLEEP_AFTER_SEC = 60
 
 
 class MCPView:
@@ -48,6 +48,7 @@ class MCPTerminalView(MCPView):
         self.term.stream.write(self.term.enter_fullscreen)
         self.term.stream.flush()
         self.bg_green = (136, 170, 0)
+        self.bg_dkgreen = (82, 122, 0)
         self.bg_red = (191, 44, 44)
         self.bg_grey = (140, 140, 140)
         self.keys = {"quit": "[Q] to Quit",
@@ -184,7 +185,7 @@ class MCPTerminalView(MCPView):
                         result = ""
                     lines = [f"{job.project_id}-Job {job.job_id}: {MCPJobStatus.STATUS_TO_STR[job.status]}",
                              f"created: {job.get_job_info_attribute('ts_created')}",
-                             f"worker: {job.get_worker()[1]}: {result}",
+                             f"worker: {job.get_worker()[1]}{'(BG)' if job.background_job else ''}: {result}",
                              f"{progress}"]
                     max_width = self.get_max_width(lines)
                     max_width = term.width if max_width + 3 > term.width else max_width + 3
@@ -192,7 +193,11 @@ class MCPTerminalView(MCPView):
                         x = 0
                         y += max_height + 1
                     if MCPJobStatus.JOB_STATUS_RUNNING <= job.status < MCPJobStatus.JOB_STATUS_DONE:
-                        bg_color = term.on_color_rgb(*self.bg_green)
+                        if job.background_job:
+                            bg_color = term.on_color_rgb(*self.bg_dkgreen)
+                        else:
+                            bg_color = term.on_color_rgb(*self.bg_green)
+
                     elif job.status > MCPJobStatus.JOB_STATUS_DONE:
                         bg_color = term.on_color_rgb(*self.bg_red)
                     else:

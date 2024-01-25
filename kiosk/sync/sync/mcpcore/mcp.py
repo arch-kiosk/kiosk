@@ -1,6 +1,6 @@
 # Master Control Program - job scheduler for Kiosk
 
-MCP_VERSION = "0.2"
+MCP_VERSION = "0.3"
 
 import inspect
 import logging
@@ -247,24 +247,29 @@ class MCP:
                 job_candidates.append(job)
             else:
                 if MCPJobStatus.JOB_STATUS_STARTED <= job.status < MCPJobStatus.JOB_STATUS_DONE:
-                    blocking.add(job.project_id)
-                    if job.system_lock:
-                        if not exclusive_job:
-                            exclusive_job = job
-                        else:
-                            logging.error(f"{self.__class__.__name__}.next_job: running jobs {job.job_id} "
-                                          f"and {exclusive_job.job_id} both run exclusively. That must not happen!")
+                    if not job.background_job:
+                        blocking.add(job.project_id)
+                        if job.system_lock:
+                            if not exclusive_job:
+                                exclusive_job = job
+                            else:
+                                logging.error(f"{self.__class__.__name__}.next_job: running jobs {job.job_id} "
+                                              f"and {exclusive_job.job_id} both run exclusively. That must not happen!")
 
         next_job = None
         for job_candidate in job_candidates:
             if job_candidate.project_id not in blocking:
-                if job_candidate.system_lock and not exclusive_job:
-                    return job_candidate
+                if job_candidate.system_lock:
+                    if not exclusive_job:
+                        return job_candidate
                 else:
-                    if not next_job:
-                        if not job_candidate.system_lock:
-                            if job_candidate.project_id != exclusive_job:
-                                next_job = job_candidate
+                    if not next_job or (next_job.background_job and not job_candidate.background_job):
+                        if not exclusive_job or job_candidate.project_id != exclusive_job.project_id:
+                            next_job = job_candidate
+            else:
+                if job_candidate.background_job:
+                    if not exclusive_job or job_candidate.project_id != exclusive_job.project_id:
+                        next_job = job_candidate
 
         return next_job
 
