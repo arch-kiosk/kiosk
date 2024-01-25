@@ -65,9 +65,10 @@ class RefreshFileCacheWorker:
 
             refresher = FileCacheRefresh(file_repos=file_repos,
                                          type_repository=sync.type_repository,
-                                         plugin_loader=sync)
+                                         plugin_loader=sync,
+                                         general_store=self.gs)
             logging.debug("RefreshFileCacheWorker: Starting refresh_file_cache")
-            c_files = refresher.refresh_file_cache(report_progress)
+            c_files = refresher.refresh_file_cache(report_progress, pause_for_jobs_of=self.cfg.get_project_id())
 
             if self.job.fetch_status() == MCPJobStatus.JOB_STATUS_RUNNING:
                 self.job.set_status_to(MCPJobStatus.JOB_STATUS_DONE)

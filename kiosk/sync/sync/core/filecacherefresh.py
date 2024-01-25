@@ -1,12 +1,15 @@
 import logging
+import time
 
 import kioskstdlib
 from dsd.dsd3singleton import Dsd3Singleton
 from dsd.dsdyamlloader import DSDYamlLoader
 from filerepository import FileRepository
+from generalstore.generalstore import GeneralStore
 from kioskabstractclasses import PluginLoader
 from kiosklogicalfile import KioskLogicalFile
 from kioskrepresentationtype import KioskRepresentations
+from mcpinterface.mcpqueue import MCPQueue
 from sync_config import SyncConfig
 from typerepository import TypeRepository
 from kiosksqldb import KioskSQLDb
@@ -14,7 +17,7 @@ from kiosksqldb import KioskSQLDb
 
 class FileCacheRefresh:
     def __init__(self, file_repos: FileRepository, type_repository: TypeRepository,
-                 plugin_loader: PluginLoader, console: bool = False):
+                 plugin_loader: PluginLoader, console: bool = False, general_store: GeneralStore = None):
         """
 
             :param console: True prints out status messages to the console.
@@ -30,6 +33,8 @@ class FileCacheRefresh:
         self.c_reprs = 0
         self.c_renewed = 0
         self.c_errors = 0
+        self.general_store = general_store
+        self.queue = None
 
     def _report_progress(self, progress_prc: int = 0, msg=""):
         if self.progress_handler:
@@ -40,7 +45,20 @@ class FileCacheRefresh:
 
         return True
 
-    def refresh_file_cache(self, progress_handler=None, max_files=0):
+    def check_for_active_job(self, project_id: str):
+        if not self.queue:
+            self.queue = MCPQueue(self.general_store)
+        return self.queue.has_active_non_background_job(project_id)
+
+    def refresh_file_cache(self, progress_handler=None, max_files=0, pause_for_jobs_of=""):
+        """
+        steps through the existing file cache records and tries to recreate thumbnails for all records that
+        are either invalid or marked with renew.
+        :param progress_handler: a call back to report the process
+        :param max_files:maximum number of files to renew (for test purposes)
+        :param pause_for_jobs_of: set this to the current project-id to pause (sleep) for other non-background jobs
+        :return: number of checked file cache records
+        """
         self._cancelled = False
         self.progress_handler = progress_handler
         self.c_all_reprs = 0
@@ -61,7 +79,19 @@ class FileCacheRefresh:
                                                               "where renew=True or invalid=True")
         r = files_in_cache_cur.fetchone()
         while r:
+            if pause_for_jobs_of and self.general_store:
+                if self.check_for_active_job(pause_for_jobs_of):
+                    if self.c_all_reprs:
+                        if not self._report_progress(int(self.c_reprs * 100 / self.c_all_reprs),"paused"):
+                            logging.info(f"{self.__class__.__name__}.refresh_file_cache: User cancelled.")
+                            self._cancelled = True
+                            break
+                    logging.debug(f"{self.__class__.__name__}.refresh_file_cache: "
+                                  f"Sleeping for 20 seconds because there is another job.")
+                    time.sleep(20)
+                    continue
 
+            time.sleep(1)
             uid = r["uid_file"]
             if self.c_all_reprs:
                 if not self._report_progress(int(self.c_reprs * 100 / self.c_all_reprs)):
@@ -111,6 +141,7 @@ class FileCacheRefresh:
             logging.info(f"{self.c_errors} files could not be renewed due to errors.")
 
         return self.c_reprs
+
 
 # *******************************************************************************+
 # MAIN
@@ -255,6 +286,7 @@ if __name__ == '__main__':
             console_log_level = -1
             file_log_level = -1
 
+
     def console_progress(progress: dict):
         global old_prc
         if "progress" in progress:
@@ -263,6 +295,7 @@ if __name__ == '__main__':
                 old_prc = prc
                 print(f".", end="" if old_prc % 10 != 0 else "\n")
         return True
+
 
     startup()
 
@@ -290,9 +323,9 @@ if __name__ == '__main__':
 
     sync = Synchronization()
     file_repository = filerepository.FileRepository(cfg,
-                                               sync.events,
-                                               sync.type_repository,
-                                               sync)
+                                                    sync.events,
+                                                    sync.type_repository,
+                                                    sync)
 
     refresher = FileCacheRefresh(file_repository, type_repository=sync.type_repository, plugin_loader=sync)
     c_files = refresher.refresh_file_cache(console_progress)

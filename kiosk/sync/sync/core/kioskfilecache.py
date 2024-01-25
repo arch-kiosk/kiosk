@@ -35,9 +35,15 @@ class KioskFileCache:
         else:
             return None
 
+    def get_cache_entries_for_file(self, uid):
+        return self._get_cache_entries(uid)
+
     def _get_cache_entries(self, uid):
         records = self._file_cache_model.get_many("uid_file=%s", [uid])
         return list(records)
+
+    def iterate_cache_entries(self):
+        return self._file_cache_model.get_many()
 
     def get_old_style_cache_filename(self, uid, representation_type: KioskRepresentationType,
                                      src_file_extension) -> str:
@@ -157,7 +163,7 @@ class KioskFileCache:
             return self.get_cache_dir(uid_file, representation_type)
 
     def validate(self, uid_file, representation_type: KioskRepresentationType,
-                 path_and_filename: str = "", commit=False) -> str:
+                 path_and_filename: str = "", commit=False, reset_renew=False) -> str:
         """
             Validates a cache entry. Only a validated cache file is returned by get_one.
             The method checks whether the file does indeed exist or fails otherwise
@@ -188,6 +194,8 @@ class KioskFileCache:
         cache_entry.path_and_filename = path_and_filename
         cache_entry.modified = datetime.datetime.now()
         cache_entry.invalid = False
+        if reset_renew:
+            cache_entry.renew = False
         if not cache_entry.update(commit=commit):
             raise CacheDatabaseError(f"update of cache-entry for file {uid_file} failed.")
 

@@ -77,6 +77,7 @@ administration_controller = Blueprint(_controller_name_, __name__)
 print(f"{_controller_name_} loaded")
 
 SysInfo = namedtuple('SysInfo', ['kiosk_ver', 'kiosk_date', 'kiosk_name', 'dsd_format', 'python_ver', 'flask_ver'])
+JOB_SUFFIX_REFRESH_CACHE_FILE = "RF"
 
 
 class UserError(Exception):
@@ -300,7 +301,7 @@ def administration_show():
 
         local_server = is_local_server(conf)
 
-        file_cache_refresh_running = False
+        file_cache_refresh_running = is_file_cache_refresh_running()
 
         return render_template('administration.html',
                                authorized_to=authorized_to,
@@ -1413,9 +1414,9 @@ def start_mcp_refresh_file_cache():
     job_uid = ""
     try:
         job_data = {}
-
-        job = MCPJob(kioskglobals.general_store)
+        job = MCPJob(kioskglobals.general_store, job_type_suffix=JOB_SUFFIX_REFRESH_CACHE_FILE)
         job.set_worker("plugins.administrationplugin.refreshfilecacheworker", "RefreshFileCacheWorker")
+        job.background_job = True
         job.job_data = job_data
         job.queue()
         job_uid = job.job_id
@@ -1426,3 +1427,15 @@ def start_mcp_refresh_file_cache():
         job_uid = ""
 
     return errors, job_uid
+
+
+def is_file_cache_refresh_running():
+    queue = MCPQueue(kioskglobals.general_store)
+    jobs = queue.list_jobs(suffix=JOB_SUFFIX_REFRESH_CACHE_FILE)
+    if len(jobs) > 0:
+        for jobid in jobs:
+            job = MCPJob(kioskglobals.general_store, jobid, lock_queue=False, job_type_suffix=JOB_SUFFIX_REFRESH_CACHE_FILE)
+            job.fetch_status()
+            if job.status < MCPJobStatus.JOB_STATUS_DONE:
+                return True
+    return False
