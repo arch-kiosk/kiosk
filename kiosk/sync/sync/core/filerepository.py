@@ -66,6 +66,9 @@ class FileRepository:
         """
         return self.repository_path
 
+    def get_cache_manager(self):
+        return self._cache_manager
+
     def get_history_path(self):
         """
         returns the path of the file repository history directory
@@ -588,3 +591,4 @@ class FileRepository:
         r = KioskSQLDb.get_first_record(files_table, "export_filename", filename)
         if r:
             return r["uid"]
+

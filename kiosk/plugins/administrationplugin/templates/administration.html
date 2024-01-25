@@ -51,28 +51,35 @@
       {% endif %}
       <li>
         <button id="bt-housekeeping"
-                class="admin-action kiosk-btn-128">
+                class="admin-action kiosk-btn-128" disabled>
           housekeeping
         </button>
       </li>
     {% if not is_local_server %}
       <li>
         <button id="bt-restart"
-                class="admin-action kiosk-btn-128 disabled">
+                class="admin-action kiosk-btn-128" disabled>
           restart server
         </button>
       </li>
     {% endif %}
       <li>
         <button id="bt-clear"
-                class="admin-action kiosk-btn-128 disabled">
+                class="admin-action kiosk-btn-128" disabled>
           clear database
         </button>
       </li>
       <li>
         <button id="bt-events"
-                class="admin-action kiosk-btn-128 disabled">
-          trigger after synchronization
+                class="admin-action kiosk-btn-128" disabled>
+          trigger sync aftermath
+        </button>
+      </li>
+      <li>
+        <button id="bt-refresh-file-cache"
+                class="admin-action kiosk-btn-128" disabled
+                {% if file_cache_refresh_running %}data-disable="true"{% endif %}>
+          trigger file cache refresh
         </button>
       </li>
     </ul>

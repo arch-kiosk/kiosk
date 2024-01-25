@@ -251,7 +251,7 @@ class KioskLogicalFile:
             savepoint = "get_representation"
             KioskSQLDb.begin_savepoint(savepoint)
             try:
-                rc = self._create_representation(representation_type, create_to_file=create_to_file)
+                rc = self._create_representation(representation_type, create_to_file=create_to_file, renew=renew)
                 KioskSQLDb.commit_savepoint(savepoint)
             except BaseException as e:
                 logging.error(f"{self.__class__.__name__}.get_representation(), File {self._uid}: {repr(e)}")
@@ -260,7 +260,7 @@ class KioskLogicalFile:
 
         return rc
 
-    def _create_representation(self, representation_type, create_to_file=None):
+    def _create_representation(self, representation_type, create_to_file=None, renew=False):
         """
         tries to create a certain representation of the file
         :param representation_type:
@@ -275,7 +275,7 @@ class KioskLogicalFile:
             master_representation = KioskRepresentations.instantiate_representation_from_config(
                 representation_type.inherits)
             if master_representation:
-                source_file = self._get_representation_from_cache(master_representation)
+                source_file = self._get_representation_from_cache(master_representation, renew=renew)
                 if source_file:
                     logging.debug(f"{self.__class__.__name__}._create_representation: "
                                   f"Using master-representation {representation_type.inherits}: {source_file}. ")
@@ -332,7 +332,7 @@ class KioskLogicalFile:
             if path_and_filename:
                 if not create_to_file:
                     self._cache_manager.validate(self._uid, representation_type,
-                                                 path_and_filename=path_and_filename)
+                                                 path_and_filename=path_and_filename, reset_renew=renew)
 
         return path_and_filename
 

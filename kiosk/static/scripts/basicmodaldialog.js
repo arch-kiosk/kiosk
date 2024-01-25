@@ -336,7 +336,7 @@ function kioskSendAjaxCommand(type, jqBt, url, jsonData, onSuccess, onFailure) {
   })
     .done((json) => {
       if (jqBt) remove_button_loader(jqBt);
-      if (json.result === "ok" || json.success) {
+      if (json && ((json.result && json.result === "ok") || json.success)) {
         if (onSuccess) onSuccess(json);
       } else {
         if (onFailure) onFailure(null,  json);

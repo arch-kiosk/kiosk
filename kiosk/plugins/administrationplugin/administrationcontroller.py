@@ -297,7 +297,11 @@ def administration_show():
             messages = []
         else:
             messages = kioskglobals.system_messages.get_messages(-10).all_messages()
+
         local_server = is_local_server(conf)
+
+        file_cache_refresh_running = False
+
         return render_template('administration.html',
                                authorized_to=authorized_to,
                                config=kioskglobals.cfg,
@@ -311,7 +315,8 @@ def administration_show():
                                mcp_version=mcp_version,
                                mcp_alive=mcp_alive,
                                redis_version=redis_version,
-                               is_local_server=local_server)
+                               is_local_server=local_server,
+                               file_cache_refresh_running=file_cache_refresh_running)
     except BaseException as e:
         logging.error(f"administrationcontroller.administration_show : {repr(e)}")
         abort(500, repr(e))
@@ -1363,3 +1368,61 @@ def after_synchronization():
         result["result"] = "Exception thrown. Please consult the logs."
 
     return jsonify(**result)
+
+
+#  **************************************************************
+#  ****    /administration/refresh_file_cache route
+#  *****************************************************************/
+@administration.route('/refresh_file_cache', methods=['POST'])
+@full_login_required
+@requires(IsAuthorized(ENTER_ADMINISTRATION_PRIVILEGE))
+# @nocache
+def refresh_file_cache():
+    result = {}
+    print("\n*************** administration/refresh_file_cache")
+    print(f"\nGET: get_plugin_for_controller returns {get_plugin_for_controller(_plugin_name_)}")
+    print(f"\nGET: plugin.name returns {get_plugin_for_controller(_plugin_name_).name}")
+
+    try:
+        assert_mcp(kioskglobals.general_store)
+        errors, job = start_mcp_refresh_file_cache()
+
+        if not errors:
+            if job:
+                result["result"] = "ok"
+                result["message"] = ("The refresh process was successfully started. "
+                                     "You can monitor it in process management.")
+            else:
+                raise Exception("The job was not started correctly.")
+        else:
+            raise Exception(errors[0])
+
+    except Exception as e:
+        logging.error(f"refresh_file_cache: Exception when handling "
+                      f"administration/refresh_file_cache : {repr(e)}")
+        result["result"] = repr(e)
+
+    return jsonify(**result)
+
+
+def start_mcp_refresh_file_cache():
+    #
+    # main function
+    #
+    errors = []
+    job_uid = ""
+    try:
+        job_data = {}
+
+        job = MCPJob(kioskglobals.general_store)
+        job.set_worker("plugins.administrationplugin.refreshfilecacheworker", "RefreshFileCacheWorker")
+        job.job_data = job_data
+        job.queue()
+        job_uid = job.job_id
+
+    except Exception as e:
+        logging.error("Exception in administrationcontroller.start_mcp_refresh_file_cache: " + repr(e))
+        errors.append("The server wouldn't start the refresh process: " + repr(e))
+        job_uid = ""
+
+    return errors, job_uid

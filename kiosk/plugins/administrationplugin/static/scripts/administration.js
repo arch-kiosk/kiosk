@@ -16,24 +16,23 @@ function triggerBackup() {
 }
 
 function triggerUploadPatch(endpoint) {
-  const route = getRoutefor(endpoint)
-  kioskOpenModalDialog(route, {
-    closeOnBgClick: false,
-    showCloseBtn: true,
-    callbacks: {
-      open: () => {
-      },
-      close: () => {
-      },
-      ajaxFailed: () => {
-        //@ts-ignore
-        $.magnificPopup.close();
-        kioskErrorToast("Sorry, it was not possible to start this feature.");
-      }
-    }
-  })
+    const route = getRoutefor(endpoint)
+    kioskOpenModalDialog(route, {
+        closeOnBgClick: false,
+        showCloseBtn: true,
+        callbacks: {
+            open: () => {
+            },
+            close: () => {
+            },
+            ajaxFailed: () => {
+                //@ts-ignore
+                $.magnificPopup.close();
+                kioskErrorToast("Sorry, it was not possible to start this feature.");
+            }
+        }
+    })
 }
-
 
 
 function init_bt_backup() {
@@ -179,7 +178,10 @@ function init_bt_restart_server() {
 }
 
 function init_bt_clear() {
-    $("#bt-clear").on("click", function () {
+    let bt = $("#bt-clear");
+    bt.prop("disabled", false);
+
+    bt.on("click", function () {
 
         kioskYesNoToast("DANGER! Do you really intend to wipe all your data in the master database? Your data will be lost " +
             "unless you have a backup. Do this only if you really know what you are doing! This is not a standard operation.",
@@ -244,15 +246,19 @@ function init_bt_system_messages() {
 
 function init_bt_events() {
     let bt = $("#bt-events");
+    bt.prop("disabled", false);
     bt.on("click", (e) => {
         kioskSendAjaxCommand("POST", $(bt),
             "/administration/after_synchronization",
             {},
             (json) => {
-                kioskSuccessToast(json.message,
-                    {
+                if (json && json.result) {
+                    kioskSuccessToast(json.message, {
                         timeout: 0,
                     });
+                } else {
+                    kioskErrorToast(json.result);
+                }
             },
             (err_code, json) => {
                 if (json && json.result) {
@@ -263,6 +269,39 @@ function init_bt_events() {
 
             });
     });
+
+}
+
+function init_bt_refresh_file_cache() {
+    let bt = $("#bt-refresh-file-cache");
+    if (typeof bt.data('disable') == 'undefined') {
+        bt.prop("disabled", false);
+        bt.on("click", (e) => {
+            kioskSendAjaxCommand("POST", $(bt),
+                "/administration/refresh_file_cache",
+                {},
+                (json) => {
+                    if (json && json.result && json.result === "ok") {
+                        bt.prop("disabled", true);
+                        if (json.message) {
+                            kioskSuccessToast(json.message, {
+                                timeout: 0,
+                            });
+                        }
+                    } else {
+                        kioskErrorToast(json.result);
+                    }
+                },
+                (err_code, json) => {
+                    if (json && json.result) {
+                        kioskErrorToast(json.result);
+                    } else {
+                        kioskErrorToast(`An Error occurred in when triggering a file cache refresh: ${err_code}`);
+                    }
+
+                });
+        });
+    }
 
 }
 
@@ -290,6 +329,7 @@ function initAdministration() {
     init_bt_system_messages();
     init_bt_restart_server();
     init_bt_events();
+    init_bt_refresh_file_cache();
     // kioskGetAjaxElement();
 
 }
@@ -364,10 +404,10 @@ function startBackupOrRestore(event = null) {
                                 let result_html = `<div class="backup-result"><span class="backup-label">Backup saved successfully as </span>` +
                                     `<span id="backup-file">${result['backup_file']}</span>` +
                                     `<button id="backup-clipboard" class="kiosk-btn-32"><i class="mdi mdi-content-copy"></i></button></div>`
-                                if('backup_file_repository_dir' in result) {
+                                if ('backup_file_repository_dir' in result) {
                                     result_html += `<div class="backup-result"><span class="backup-label">${result['files_copied']} files copied to </span>` +
-                                    `<span id="file-repos-dir">${result['backup_file_repository_dir']}</span>` +
-                                    `<button id="file-repos-clipboard" class="kiosk-btn-32"><i class="mdi mdi-content-copy"></i></button></div>`
+                                        `<span id="file-repos-dir">${result['backup_file_repository_dir']}</span>` +
+                                        `<button id="file-repos-clipboard" class="kiosk-btn-32"><i class="mdi mdi-content-copy"></i></button></div>`
                                 }
                                 $("#dlg-spinner-wrapper").html(result_html);
                                 $("#backup-clipboard").click(() => {
