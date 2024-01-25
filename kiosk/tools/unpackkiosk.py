@@ -89,7 +89,8 @@ def usage():
         -ru/ --restore_users: restores users and privileges from the backup. Usually the users and privileges
                               are NOT restored. Only in connection with -db! 
         -nt/ --no_thumbnails: No thumbnails will be created for new repository files at the end of the process!
-        -cfc/ --clear_file_cache: clears the entire file cache, so all the thumbnails need to be created again!
+        -cfc[=force]/ --clear_file_cache[=force]: sets all the file cache entries to "renew". The "refresh file cache" tool does the work.
+                                  use =force to actually invalidate the file cache entries and remove the files  
         -na/--no_admin: run unpackkiosk without admin privileges.
         -nr/ --no_redis: Don't check and use redis.
         -sp/ --sudo_password=password: Needed to write the redis call into start.ps1. Necessary only for a new install and
@@ -114,6 +115,12 @@ def interpret_param(known_param, param):
     elif new_option == "dbpwd":
         userpwd = param.split("=")[1]
         rc = {new_option: userpwd}
+    elif new_option == "clear_file_cache":
+        option_params = param.split("=")
+        if len(option_params) > 1 and option_params[1] == "force":
+            rc = {new_option: "force"}
+        else:
+            rc = {new_option: ""}
     elif new_option == "sudo_password":
         sudopwd = param.split("=")[1]
         rc = {new_option: sudopwd}
@@ -299,7 +306,7 @@ def transform_file_cache(cfg_file):
         logging.warning(f"Transform file cache reported trouble with {transform.get_errors()} files.")
 
 
-def clear_file_cache(cfg_file):
+def clear_file_cache(cfg_file, force=False):
     from sync_config import SyncConfig
     from kiosksqldb import KioskSQLDb
     from dsd.dsd3 import DataSetDefinition
@@ -323,16 +330,22 @@ def clear_file_cache(cfg_file):
 
     file_cache = KioskFileCache(cache_base_dir=cache_dir)
     try:
-        if file_cache.invalidate(uid=None, representation_type=None, delete_files=True, commit=True):
-            kioskstdlib.remove_kiosk_subtree(cache_dir, config.base_path)
-            os.mkdir(cache_dir)
-            return True
+        if force:
+            if file_cache.invalidate(uid=None, representation_type=None, delete_files=True, commit=True):
+                kioskstdlib.remove_kiosk_subtree(cache_dir, config.base_path)
+                os.mkdir(cache_dir)
+                return True
+            else:
+                logging.error(f"clear_file_cache with force was unsuccessful")
         else:
-            logging.error(f"clear_file_cache was unsuccessful")
+            if file_cache.renew(commit=True):
+                return True
+
+            logging.error(f"clear_file_cache: flagging with renew was unsuccessful")
 
     except BaseException as e:
         logging.error(f"clear_file_cache {repr(e)}")
-
+    return False
 
 
 def housekeeping(cfg_file: str):
@@ -575,7 +588,8 @@ if __name__ == '__main__':
         if "clear_file_cache" not in options:
             transform_file_cache(cfg_file)
         else:
-            clear_file_cache(cfg_file)
+            if clear_file_cache(cfg_file, force=True if options["clear_file_cache"] == "force" else False):
+                print("file cache successfully cleared", flush=True)
 
         if ("fro" in options or "fr" in options) and "nt" not in options:
             KioskRestore.refresh_thumbnails(cfg_file)

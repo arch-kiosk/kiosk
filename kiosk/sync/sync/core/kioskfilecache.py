@@ -42,6 +42,10 @@ class KioskFileCache:
         records = self._file_cache_model.get_many("uid_file=%s", [uid])
         return list(records)
 
+    def _get_cache_entries_per_type(self, representation_type: KioskRepresentationType):
+        records = self._file_cache_model.get_many("representation_type=%s", [representation_type.unique_nam])
+        return records
+
     def iterate_cache_entries(self):
         return self._file_cache_model.get_many()
 
@@ -108,6 +112,9 @@ class KioskFileCache:
 
     def _invalidate_all_entries(self):
         return self._file_cache_model.update_many(["invalid"], [True])
+
+    def _renew_all_entries(self):
+        return self._file_cache_model.update_many(["renew"], [True])
 
     def install_representation_repository(self, callable):
         """
@@ -193,13 +200,47 @@ class KioskFileCache:
 
         cache_entry.path_and_filename = path_and_filename
         cache_entry.modified = datetime.datetime.now()
-        cache_entry.invalid = False
-        if reset_renew:
+        if cache_entry.invalid or reset_renew:
             cache_entry.renew = False
+        cache_entry.invalid = False
         if not cache_entry.update(commit=commit):
             raise CacheDatabaseError(f"update of cache-entry for file {uid_file} failed.")
 
         return path_and_filename
+
+    def renew(self, representation_type=None, commit=False):
+        savepoint = KioskSQLDb.begin_savepoint()
+        try:
+            if representation_type:
+                cache_entries = self._get_cache_entries_per_type(representation_type)
+            else:
+                # invalidate the whole cache
+                logging.info(f"{self.__class__.__name__}.renew(): flagging the whole cache to be renewed.")
+                rc = self._renew_all_entries()
+                KioskSQLDb.commit_savepoint(savepoint)
+                if commit:
+                    KioskSQLDb.commit()
+                return rc
+
+            if not cache_entries:
+                return False
+
+            for cache_entry in cache_entries:
+                cache_entry.renew = True
+                cache_entry.update()
+                logging.debug(f"{self.__class__.__name__}.renew(): flagged {cache_entry.uid} for renewal.")
+
+            KioskSQLDb.commit_savepoint(savepoint)
+            if commit:
+                KioskSQLDb.commit()
+            return True
+
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.renew() : {repr(e)}")
+            logging.error(f"{self.__class__.__name__}.renew() : rolling back to savepoint {savepoint}")
+            KioskSQLDb.rollback_savepoint(savepoint)
+
+        return False
 
     def invalidate(self, uid=None, representation_type=None, delete_files=False, commit=False):
         """
