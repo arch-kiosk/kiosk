@@ -425,7 +425,7 @@ class MCPJob:
             if not self.pulse():
                 logging.warning(f"could not pulse job {self.job_id}")
             # else:
-            #     logging.debug(f"renewed lock for job {self.uid}")
+            #     logging.debug(f"renewed lock for job {self.job_id}")
 
     def pulse(self, start=False):
         """
@@ -441,7 +441,10 @@ class MCPJob:
                 self.gs.put_int(key, 0)
             self.gs.inc_int(key, 1)
             self.gs.set_timeout(f"pulse_{self.job_id}", self.seconds_till_timeout)
+            # logging.debug(f"{self.__class__.__name__}.pulse: pulsed job {self.job_id} ")
         except KeyError:
+            logging.warning(f"{self.__class__.__name__}.pulse: Could not pulse job {self.job_id} "
+                            f"because the key does not exist.")
             return False
 
         return True
@@ -455,7 +458,6 @@ class MCPJob:
             return self.set_status_to(MCPJobStatus.JOB_STATUS_CANCELLING)
         else:
             return self.set_status_to(MCPJobStatus.JOB_STATUS_CANCELLED)
-
 
     def reload(self, lock_queue=True):
         return self._fetch(lock_queue)
@@ -488,7 +490,7 @@ class MCPJob:
         :param progress: int
         :return: bool, can throw exception
         """
-        if progress or message:
+        if (progress is not None) or message:
             _progress = {"progress": progress,
                          "message": message
                          }

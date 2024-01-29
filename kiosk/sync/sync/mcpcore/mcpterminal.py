@@ -11,6 +11,7 @@ from threading import Thread
 
 from blessed import Terminal
 
+import kioskstdlib
 from mcpcore.mcp import MCP, MCP_VERSION, MCPCancelledError
 from mcpinterface.mcpconstants import MCPJobStatus
 from mcpinterface.mcpjob import MCPJob
@@ -18,6 +19,11 @@ from mcpinterface.mcpqueue import MCPQueue
 
 SLEEP_AFTER_SEC = 60
 
+
+def get_file_logger_file():
+    for handler in logger.handlers:
+        if isinstance(handler, logging.FileHandler):
+            return handler.baseFilename
 
 class MCPView:
 
@@ -113,11 +119,13 @@ class MCPTerminalView(MCPView):
                                       width=self.term.width - pulse_width))
                 print(self.term.on_color_rgb(*self.bg_grey) +
                       self.term.ljust(f"using {config_file}", width=self.term.width - pulse_width))
+            print(self.term.on_color_rgb(*self.bg_grey) +
+                  self.term.ljust(f"logging to {get_file_logger_file()}", width=self.term.width))
 
         self.menu()
 
     def menu(self):
-        with self.term.location(y=2):
+        with self.term.location(y=3):
             print(self.term.black + self.term.on_color_rgb(*self.bg_green) + "Press", end=self.term.on_black + " ")
             spacer = ""
             for key_id, menu in self.keys.items():
@@ -165,7 +173,7 @@ class MCPTerminalView(MCPView):
     def job_list(self):
         term = self.term
         if self.queue:
-            y = 4
+            y = 5
             x = 0
             max_height = 4
             with term.location(y=y):
@@ -335,9 +343,13 @@ def init_logging(cfg):
 
 
 def create_new_file_log(root_path, cfg, logger: logging.Logger):
-    if cfg.get_logfile():
+    log_path = kioskstdlib.get_file_path(cfg.get_logfile())
+    if not log_path or not os.path.isdir(log_path):
+        log_path = os.path.join(root_path, "log")
+
+    if log_path:
         close_all_file_loggers(logger)
-        log_file = os.path.join(root_path, "log", "MCP_#a_#d#m#y-#H#M.log")
+        log_file = os.path.join(log_path, "MCPCORE_#a_#d#m#y-#H#M.log")
         log_pattern = log_file.replace("#", "%")
 
         # todo: This is such a hack. But it makes sure, that two processes do not produce two different logs if

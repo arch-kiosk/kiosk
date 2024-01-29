@@ -33,18 +33,28 @@ class RefreshFileCacheWorker:
         self.worker()
 
     def worker(self):
+        last_ts = int(time.time())
 
         def report_progress(prg) -> bool:
             # #########
             # progress function
             # #########
-            if self.job.fetch_status() >= MCPJobStatus.JOB_STATUS_CANCELLING:
-                return False
+            nonlocal last_ts
+            try:
+                status = self.job.fetch_status()
+                if self.job.fetch_status() >= MCPJobStatus.JOB_STATUS_CANCELLING:
 
-            new_progress = int(prg["progress"])
-            if new_progress >= self.job.progress.get_progress():
-                self.job.publish_progress(new_progress, kioskstdlib.try_get_dict_entry(prg, "extended_progress",
-                                                                                       None, True))
+                    logging.info(f"refreshfilecacheworker.report_progress: job "
+                                 f"cancelled because job status is {status}")
+                    return False
+
+                new_progress = int(prg["progress"])
+                if new_progress > int(self.job.progress.get_progress()) or int(time.time()) - last_ts > 5:
+                    last_ts = int(time.time())
+                    self.job.publish_progress(new_progress, kioskstdlib.try_get_dict_entry(prg, "extended_progress",
+                                                                                           None, True))
+            except BaseException as e:
+                logging.error(f"{self.__class__.__name__}.report_progress: {repr(e)}")
 
             return True
 

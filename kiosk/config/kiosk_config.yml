@@ -53,5 +53,8 @@ kiosk:
   pwastresstestplugin:
     active: true
 
+  hmlabplugin:
+    active: true
+
 
 

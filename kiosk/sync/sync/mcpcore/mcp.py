@@ -1,6 +1,6 @@
 # Master Control Program - job scheduler for Kiosk
 
-MCP_VERSION = "0.3"
+MCP_VERSION = "0.3.1"
 
 import inspect
 import logging

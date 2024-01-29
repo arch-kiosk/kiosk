@@ -383,4 +383,4 @@ kiosk:
     active: true
 
   hmlabplugin:
-    active: true
+    active: false
