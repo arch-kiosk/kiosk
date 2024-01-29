@@ -38,3 +38,13 @@ This and older release notes are on https://github.com/arch-kiosk/arch-kiosk-off
 - 🌹 the search function can now search for fragments (#2114)
 - 🌹 improved registration: You can now filter and sort my material (#2141)
 - 🌹 bug fixes (#1184, #2075, #2123, #2152)
+
+### ❄️ Release Notes for the Recording App 15.14 (January 2024) ❄️
+- ☀ Month and day get so easily confused in date fields, particularly when inputting legacy data. That's why Kiosk has always shown a Latin representation of your input. NOW it allows you to enter dates in the Latin format almost everywhere where you find a date / date time field. You can even type something short like 2IV89 to get April 2nd 1989 (#2416)
+- ☀ For units/trenches you can record a list of involved people (they don't even have to be team members) and their roles. So far there was only a supervisor. (#2415) 
+- ☀ Lots can be highly customized. E.g. they can be automatically numbered either according to locus or unit.You can even allow duplicates (#2490)
+- ☀ Registration can be configured to show not only the bulk number but also the locus/context and unit/trench (#2472)
+- ☀ Collected materials can have a second field for "material" to further specify the material. (#2464)
+- ☀ The Gallery now shows the time when a photo was shot (which can differ from the time of recording) and allows manipulating it. Image popups in dayplans and loci/context photos allow this, too. (#2441)
+- ☀ Site notes got the identifier navigation that we introduced for other description fields. (#2413)
+- 🐞Full text search got fixed (#2485)

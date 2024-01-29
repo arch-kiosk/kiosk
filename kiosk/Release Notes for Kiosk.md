@@ -31,7 +31,7 @@ If you record audio or video (don't) in FileMaker or add a file that isn't an im
 - 🌷 Use an Opal router to access Kiosk via "http://kiosk" instead of an ip address.
 
 
-### ☀ Release Notes for Kiosk Version 1.5.2.1 (04 June 2023) ☀
+### ❄️ Release Notes for Kiosk Version 1.5.2.1 (04 June 2023) ❄️
 This is an overview of the visible improvements since Version 1.5 (22. May 2023):
 This and older release notes are on https://github.com/arch-kiosk/arch-kiosk-office/issues/1434
 
@@ -40,10 +40,10 @@ This and older release notes are on https://github.com/arch-kiosk/arch-kiosk-off
 
 🎬 You'll find updated documentation and many new video tutorials on sites.brown.edu/kiosk 🎬 
 
-- ☀ brand new life-changing qr-coded file sequence import (#2138)
+- ❄️ brand new life-changing qr-coded file sequence import (#2138)
           You'll find the new "file sequence" import in the file import. 
           It will change your life in the field when the sun is glaring down on your ipad or some shrubbery is casting shadows on your screen
-- ☀ improvements to the reporting engine that support PASU reporting (#1822, #2155, #2159, #2154)
+- ❄️ improvements to the reporting engine that support PASU reporting (#1822, #2155, #2159, #2154)
 
 ### 🍎 Release notes for Kiosk 1.5.13 (Vague Views)🍎
 
@@ -63,3 +63,34 @@ wherever you see an archaeological identifier (particularly if it has 👣 ) you
 - 🥽 Note that this is and will stay read-only. Kiosk is a synchronizing system and allowing for live input of data is not compatible with that approach. But this is only our first step towards FileMaker independence ...
 
 🐞 If you are missing data, see your data misrepresented or have any suggestions, please let us know. E.g. by filing an issue here on GitHub: https://github.com/arch-kiosk/arch-kiosk-office/issues
+
+### ❄️ Release notes for Kiosk 1.5.21 and the Recording App 15.14 ❄️
+
+📣 With the first rollout of 2024 all projects got updated with the latest improvements in Kiosk and its recording app. While the major new features are still in the making, we have been improving usability and added useful details that we want to share with all of you. These are the major news you might want to know about: 
+
+✏️ As always: The release notes are best viewed on GitHub https://github.com/arch-kiosk/arch-kiosk-office/issues/1434
+
+#### ❄️ News for the Recording App ❄️
+- ❄️ Month and day get so easily confused in date fields, particularly when inputting legacy data. That's why Kiosk has always shown a Latin representation of your input. NOW it allows you to enter dates in the Latin format almost everywhere where you find a date / date time field. You can even type something short like 2IV89 to get April 2nd 1989 (#2416)
+- ❄️ For units/trenches you can record a list of involved people (they don't even have to be team members) and their roles. So far there was only a supervisor. (#2415) 
+- ❄️ Lots can be highly customized. E.g. they can be automatically numbered either according to locus or unit.You can even allow duplicates (#2490)
+- ❄️ Registration can be configured to show not only the bulk number but also the locus/context and unit/trench (#2472)
+- ❄️ Collected materials can have a second field for "material" to further specify the material. (#2464)
+- ❄️ The Gallery now shows the time when a photo was shot (which can differ from the time of recording) and allows manipulating it. Image popups in dayplans and loci/context photos allow this, too. (#2441)
+- ❄️ Site notes got the identifier navigation that we introduced for other description fields. (#2413)
+- 🐞Full text search got fixed (#2485)
+ 
+#### ❄️ News for Kiosk ❄️
+- 👺 Orange alert: All images in the file repository that came from importing raw SLR photos had a more or less pronounced orange hue, depending on your camera and environment. While the original files were always unaffected (Kiosk stores but never touches the originals) all other versions of a file would have this colour aberration. It is fixed and all thumbnails for all project's got re-rendered.   
+The good side: We can offer now an option to render your thumbnails with a brighter white-balance if you find your thumbnails still too warm. (#2440)  
+- ❄️ In the file repository you can find collected materials by their description or material type (#2502)   
+- ❄️ The file repository allows you to search photos by date and date range (#2439)
+- ❄️ The file repository now sorts undated images to the end unless you sort using the new option "undated, then latest first" (#2404)
+- ❄️ Synchronization offers you a more detailed log now even if the run was simply successful. (#2470)   
+- ❄️ The Hub shows you when the last synchronization took place (#2445)
+- ❄️ The Hub offers a history of events with the new "sync & dock events" menu item (#2445)
+- ❄️ The Hub shows a dock's TimeZone whenever there is an explicit TimeZone set (#2442)
+
+#### 🔭 Coming soon: Harris Matrix Generator 🔭
+Just to whet your appetites: Coming soon is a Harris Matrix generator built right into Kiosk that will finally allow you to check and visualize your locus relations and phasing. And visualization will be just the first step! Stay tuned!   
+ 
