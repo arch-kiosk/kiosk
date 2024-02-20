@@ -1,0 +1,208 @@
+label
+  font-family: $monospace
+  font-size: .9em
+input, select
+  -webkit-user-select: text
+  -moz-user-select: text
+  -ms-user-select: text
+  box-sizing: border-box
+  border-radius: 0px
+  user-select: text
+  font-family: $standard-text
+  background-color: $col-bg-1-input
+  border: none
+  color: $col-primary-bg-1
+  &:focus
+    outline: none
+  padding: 2px
+  margin-bottom: 2px
+  width: 100%
+  &:focus
+    margin-bottom: 0px
+    border-bottom: 2px solid rgba(0, 0, 0, 1)
+
+h1
+  font-size: $font-size-h1
+h2
+  font-size: $font-size-h2
+h3
+  font-size: $font-size-h3
+h4
+  font-size: $font-size-h4
+small, .font-small
+  font-size: $font-size-small
+
+button
+  width: 60px
+  height: 60px
+  border-radius: 35px
+  border-style: solid
+  border-width: 2px
+  background-color: $col-bg-btn
+  color: $col-primary-bg-btn
+  border-color: $col-bg-btn-darker
+  font-family: $headline-text
+  font-size: $font-size-h4
+  font-weight: bold
+  //padding-bottom: 3px
+  //margin-bottom: 2px
+  &:hover, &:focus
+    outline: none
+    background-color: $col-bg-btn-lighter
+  &:active
+    padding-top: 3px
+    color: $col-primary-bg-btn
+    background-color: $col-bg-btn-darker
+    border-color: $col-bg-btn-darker
+
+.kiosk-btn-128
+  width: 128px
+  height: 128px
+
+.kiosk-btn-32
+  width: 32px
+  height: 32px
+
+.kiosk-dropdown-btn
+  box-sizing: content-box
+  border-radius: 0px
+  background-color: $col-bg-btn
+  border-color: $col-bg-btn-darker
+  color: $col-primary-bg-btn
+  height: 30px
+  width: 30px
+  .drop-down-btn
+    float: left
+
+  .caret
+    color: $col-primary-bg-btn
+    display: inline-block
+    width: 0
+    height: 0
+    margin-left: 2px
+    vertical-align: middle
+    border-color: $col-primary-bg-btn
+    border-top: 4px solid
+    border-right: 4px solid transparent
+    border-left: 4px solid transparent
+
+button:disabled
+  opacity: .3
+
+.modal-round-button
+  box-sizing: border-box
+  //background-repeat: no-repeat
+  //background-position: center
+  //background-size: 25px 25px
+  margin-left: 25px
+  background-image: none
+  display: inline-block
+  font-style: normal
+  font-variant: normal
+  text-rendering: auto
+  -webkit-font-smoothing: antialiased
+  font-family: $fontawesome-font-family
+  //padding-top: 4px
+  font-weight: 900
+  font-size: 24px
+  line-height: 24px
+  vertical-align: center
+  text-align: center
+
+.modal-button
+  @extend .modal-round-button
+
+.modal-ok
+  @extend .modal-round-button
+  &:after
+    content: var(--icon-bt-ok)
+
+.modal-next
+  @extend .modal-round-button
+  &:after
+    padding-left: 2px
+    content: var(--icon-bt-next)
+
+.modal-back
+  @extend .modal-round-button
+  &:after
+    padding-right: 2px
+    content: var(--icon-bt-back)
+
+.modal-cancel
+  @extend .modal-round-button
+  &:after
+    content: var(--icon-bt-cancel)
+
+.modal-close
+  @extend .modal-round-button
+  &:before
+    content: var(--icon-bt-close)
+
+.modal-delete
+  @extend .modal-round-button
+  background-color: $col-bg-alert
+  color: $col-primary-bg-alert
+  &:before
+    content: var(--icon-bt-trash)
+  &:hover, &:focus
+    border-color: $col-bg-alert
+    background-color: $col-bg-alert-lighter
+    background-size: 75%
+  &:active
+    border-color: $col-bg-alert
+    background-color: $col-bg-alert-darker
+    color: $col-primary-bg-alert
+
+//.kiosk-centered
+//  position: absolute
+//  display: flex
+//  align-items: center
+//  justify-content: center
+//  margin: auto
+//  top: 0
+//  right: 0
+//  bottom: 0
+//  left: 0
+//  max-width: 20em
+//  max-height: 2em
+//  background: $sand
+//  padding: 23px
+
+.kiosk-rounded
+  border-radius: 15px
+
+.kiosk-shaded
+  box-shadow: 2px 2px 10px rgba(46,56,3,0.58)
+
+.kiosk-margin-bottom
+  margin-bottom: 1em
+
+.flex-line-break
+  width: 100%
+  height: 0px
+
+.kiosk-align-flex-end
+  align-items: flex-end
+
+.kiosk-align-flex-start
+  align-items: flex-start
+
+.full-background-bg-1
+  background: $col-bg-1-gradient
+  height: 100%
+  width: 100%
+
+.small-list-button
+  i
+    border-radius: 25px
+    box-shadow: 2px 2px 5px rgba(46,56,3,0.58)
+  &:hover
+    color: $col-bg-att
+    i
+      box-shadow: 2px 2px 5px rgba(46,56,3,0.58)
+  &:active, &:focus
+    color: $col-bg-ack
+    transform: translateY(5px)
+    i
+      box-shadow: none
