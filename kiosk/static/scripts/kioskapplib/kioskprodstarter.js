@@ -9,10 +9,11 @@ function connectToApi() {
     setTimeout(() => {
         // check if the main kiosk scripts are present
         if (window.getRoutefor !== undefined) {
+            console.log("kioskprodstarter: about to be initializing...")
             let api = new ProdKioskApi();
             api.initApi()
                 .catch((e) => {
-                    console.log(`Exception when intializing: ${e}`);
+                    console.log(`Exception when initializing in Kiosk Production starter: `, e);
                 })
                 .finally(() => {
                     let app = document.querySelector("#kiosk-app");

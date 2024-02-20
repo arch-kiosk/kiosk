@@ -38,22 +38,26 @@ export class ProdKioskApi extends KioskApi {
         console.log("address: " + address)
         let response;
         try {
+            console.log(`prodkioskapi.InitApi: fetching from ${address} now`)
             response = await fetch(address, {
                 headers: headers,
                 method: "GET",
             });
         } catch (e) {
             // console.log(`throwing FetchException after caught ${e}`)
+            console.log("prodkioskapi.InitApi: Exception ", e)
             this.status = API_STATE_ERROR;
             this.lastErrorMessage = e.message;
             throw new FetchException(e, null);
         }
         if (response.ok) {
+            console.log(`prodkioskapi.InitApi: fetching from ${address} was okay`)
             let data = await response.json();
             this.token = data["token"];
             this.status = API_STATE_READY;
         } else {
             // console.log(`throwing FetchException ${response.statusText}`)
+            console.log(`prodkioskapi.InitApi: fetching from ${address} was not okay:`, response)
             this.status = API_STATE_ERROR;
             this.lastErrorMessage = response.statusText;
             throw new FetchException(response.statusText, response);
