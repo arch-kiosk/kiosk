@@ -14,6 +14,8 @@ from kiosksqldb import KioskSQLDb
 
 class LocusRelations:
     def __init__(self, record_type: str, identifier: str, dsd: DataSetDefinition):
+        self.loci = []
+        self.relations = []
         self._record_type = record_type
         self._identifier = identifier
         self._dsd = dsd
@@ -44,6 +46,8 @@ class LocusRelations:
     def get_all_relations(self):
         select = self._get_direct_relations_sql()
         temp_table = nanoid.generate()
+        self.loci = []
+        self.relations = []
         try:
             sql = f"""{'CREATE'} TEMP TABLE {KioskSQLDb.sql_safe_ident(temp_table)} AS
             SELECT {KioskSQLDb.sql_safe_ident("uid")}, {KioskSQLDb.sql_safe_ident("uid_locus_2_related")} 
@@ -70,8 +74,6 @@ class LocusRelations:
 
             sql = "SELECT " + f""" 
                                    locus.uid, locus.arch_context, 
-                                   locus.alternate_id, 
-                                   locus.description, locus.type,
                                    locus_relations.uid_locus_2_related, 
                                    locus_relations.type relation_type,
                                    locus_relations.chronology, 
@@ -83,9 +85,27 @@ class LocusRelations:
                                    from {KioskSQLDb.sql_safe_ident(temp_table)} tmp 
                    INNER JOIN locus_relations on tmp.uid = locus_relations.uid 
                    INNER JOIN locus on locus_relations.uid_locus = locus.uid"""
-            return list(KioskSQLDb.get_records(sql, raise_exception=True))
+            self.relations = list(KioskSQLDb.get_records(sql, raise_exception=True))
+
+            sql = "SELECT DISTINCT" + f""" 
+                                   locus.uid, locus.arch_context, 
+                                   locus.alternate_id, 
+                                   locus.description, 
+                                   locus.type,
+                                   string_agg(distinct tagging.tag, '#') AS tags,
+                                   locus.created,
+                                   locus.modified, 
+                                   locus.modified_by
+                                   from {KioskSQLDb.sql_safe_ident(temp_table)} tmp 
+                   INNER JOIN locus_relations on tmp.uid = locus_relations.uid 
+                   INNER JOIN locus on locus_relations.uid_locus = locus.uid
+                   LEFT OUTER JOIN tagging on locus.uid = tagging.source_uid 
+                   GROUP BY locus.uid"""
+            self.loci = list(KioskSQLDb.get_records(sql, raise_exception=True))
 
         except BaseException as e:
+            self.loci = []
+            self.relations = []
             logging.error(f"{self.__class__.__name__}.get_all_relations: {repr(e)}")
 
             raise e

@@ -24,6 +24,7 @@ def register_resources(api: KioskApi):
     api.spec.path(resource=V1LocusRelationsApiInfo, api=api, app=api.flask_app)
     V1LocusRelationsApiRelations.register(api)
 
+
 # ************************************************************************************
 # /api-info
 # ************************************************************************************
@@ -87,11 +88,13 @@ class ApiLocusRelationsRecordTypeParameter(Schema):
 
 class ApiResultLocusRelations(Schema):
     class Meta:
-        fields = ("result", "headers", "relations")
+        fields = ("result", "relation_headers", "locus_headers", "loci", "relations")
         ordered = True
 
     result: fields.Str()
-    headers: fields.List(fields.Str())
+    relation_headers: fields.List(fields.Str())
+    locus_headers: fields.List(fields.Str())
+    loci: fields.List(fields.List(fields.Field()))
     relations: fields.List(fields.List(fields.Field()))
 
 
@@ -132,6 +135,16 @@ class V1LocusRelationsApiRelations(Resource):
                         application/json:
                             schema: KioskApiError
         '''
+
+        def get_headers(lst: list):
+            headers = []
+            if len(lst) > 0:
+                rec1 = lst[0]
+                for k in rec1.keys():
+                    headers.append(k)
+
+            return headers
+
         try:
             params = request.args
             identifier = params["identifier"]
@@ -142,15 +155,15 @@ class V1LocusRelationsApiRelations(Resource):
             plugin_cfg = conf.kiosk["locusrelationsapiplugin"]
             dsd = Dsd3Singleton.get_dsd3()
             lr = LocusRelations(record_type, identifier, dsd)
-            relations = lr.get_all_relations()
-            headers = []
-            if len(relations) > 0:
-                relation = relations[0]
-                headers = []
-                for k in relation.keys():
-                    headers.append(k)
+            lr.get_all_relations()
+            relation_headers = get_headers(lr.relations)
+            locus_headers = get_headers(lr.loci)
 
-            api_result = ApiResultLocusRelations().dump({'result': True, 'headers': headers, 'relations': relations})
+            api_result = ApiResultLocusRelations().dump({'result': True,
+                                                         'relation_headers': relation_headers,
+                                                         'locus_headers': locus_headers,
+                                                         'loci': lr.loci,
+                                                         'relations': lr.relations})
             response = make_json_response(api_result)
             return response
         except BaseException as e:
