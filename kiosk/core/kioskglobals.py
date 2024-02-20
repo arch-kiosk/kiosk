@@ -19,9 +19,9 @@ from uic.uicstream import UICStream, UICKioskFile
 import datetime
 import threading
 
-kiosk_version = "1.5.23.1"
+kiosk_version = "1.5.24.2"
 kiosk_version_name = "vague views"
-kiosk_date = datetime.datetime(2024, 2, 5)
+kiosk_date = datetime.datetime(2024, 2, 19)
 debug = False
 development = {}
 
@@ -56,7 +56,6 @@ init_counter = 0
 jws = None
 
 uic_tree = None
-
 
 def get_global_constants():
     """
