@@ -242,43 +242,6 @@
   background-blend-mode: overlay;
 }
 
-.pretty * {
-  line-height: 1em;
-}
-
-.pretty .state label:before,
-.pretty .state label:after {
-  border-width: 2px;
-}
-
-* {
-  padding: 0px 0px 0px 0px;
-  margin: 0px 0px 0px 0px;
-}
-
-*:not(textarea) {
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
-html {
-  font-family: var(--standard-text-font);
-  font-size: var(--font-size-standard, 1rem);
-  line-height: 1.5em;
-}
-
-body {
-  height: 100%;
-  width: 100%;
-}
-body a {
-  text-decoration: none;
-}
-
 label {
   font-family: var(--monospace-font);
   font-size: 0.9em;
@@ -390,37 +353,6 @@ button:disabled, .fetch-files:disabled {
   opacity: 0.3;
 }
 
-#outer-wrapper {
-  position: absolute;
-  display: flex;
-  height: 100vh;
-  width: 100vw;
-  flex-flow: column;
-  flex-wrap: nowrap;
-}
-
-.content {
-  position: relative;
-  margin-left: 20px;
-  margin-right: 20px;
-  margin-bottom: 1em;
-  overflow-x: auto;
-  overflow-y: auto;
-  flex-grow: 1;
-}
-@media only screen and (max-width : 500px) {
-  .content {
-    margin-left: 0px;
-    margin-right: 0px;
-  }
-}
-
-.footer {
-  display: none;
-  background-color: var(--col-bg-body);
-  height: 10px;
-}
-
 .modal-round-button, .modal-delete, .modal-close, .modal-cancel, .modal-back, .modal-next, .modal-ok, .modal-button {
   box-sizing: border-box;
   margin-left: 25px;
@@ -503,6 +435,98 @@ button:disabled, .fetch-files:disabled {
   align-items: flex-start;
 }
 
+.full-background-bg-1 {
+  background: linear-gradient(to right bottom, var(--col-bg-1-darker), var(--col-bg-1-lighter));
+  height: 100%;
+  width: 100%;
+}
+
+.small-list-button i {
+  border-radius: 25px;
+  box-shadow: 2px 2px 5px rgba(46, 56, 3, 0.58);
+}
+.small-list-button:hover {
+  color: var(--col-bg-att);
+}
+.small-list-button:hover i {
+  box-shadow: 2px 2px 5px rgba(46, 56, 3, 0.58);
+}
+.small-list-button:active, .small-list-button:focus {
+  color: var(--col-bg-ack);
+  transform: translateY(5px);
+}
+.small-list-button:active i, .small-list-button:focus i {
+  box-shadow: none;
+}
+
+.pretty * {
+  line-height: 1em;
+}
+
+.pretty .state label:before,
+.pretty .state label:after {
+  border-width: 2px;
+}
+
+* {
+  padding: 0px 0px 0px 0px;
+  margin: 0px 0px 0px 0px;
+}
+
+*:not(textarea) {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+html {
+  font-family: var(--standard-text-font);
+  font-size: var(--font-size-standard, 1rem);
+  line-height: 1.5em;
+}
+
+body {
+  height: 100%;
+  width: 100%;
+}
+body a {
+  text-decoration: none;
+}
+
+#outer-wrapper {
+  position: absolute;
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  flex-flow: column;
+  flex-wrap: nowrap;
+}
+
+.content {
+  position: relative;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 1em;
+  overflow-x: auto;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+@media only screen and (max-width : 500px) {
+  .content {
+    margin-left: 0px;
+    margin-right: 0px;
+  }
+}
+
+.footer {
+  display: none;
+  background-color: var(--col-bg-body);
+  height: 10px;
+}
+
 .dlg-spinner-wrapper {
   display: flex;
   flex-direction: column;
@@ -551,30 +575,6 @@ button:disabled, .fetch-files:disabled {
 }
 .emergency-system-message p:first-child {
   font-weight: bold;
-}
-
-.full-background-bg-1 {
-  background: linear-gradient(to right bottom, var(--col-bg-1-darker), var(--col-bg-1-lighter));
-  height: 100%;
-  width: 100%;
-}
-
-.small-list-button i {
-  border-radius: 25px;
-  box-shadow: 2px 2px 5px rgba(46, 56, 3, 0.58);
-}
-.small-list-button:hover {
-  color: var(--col-bg-att);
-}
-.small-list-button:hover i {
-  box-shadow: 2px 2px 5px rgba(46, 56, 3, 0.58);
-}
-.small-list-button:active, .small-list-button:focus {
-  color: var(--col-bg-ack);
-  transform: translateY(5px);
-}
-.small-list-button:active i, .small-list-button:focus i {
-  box-shadow: none;
 }
 
 #fr-wrapper {
