@@ -47,6 +47,7 @@ class KioskBackup:
         r"tools\import_files.py",
         r"tools\transfer_kiosk_cli.py",
         r"tools\kiosktoolslib.py",
+        r"tools\ps",
     ]
 
     KIOSK_CONFIG_ONLY_FILES = [
@@ -183,13 +184,14 @@ class KioskBackup:
                           "-xr!kiosk_secure.yml",
                           "-xr!kiosk_config.yml",
                           "-xr!secure.js", "-xr!*.fmp12"]])
-            zips.append([path.join(dst_dir, "kiosk.zip"),
-                         [
-                             kioskstdlib.get_relative_path(kiosk_dir, config.custom_sync_modules),
-                             kioskstdlib.get_relative_path(kiosk_dir, config.get_custom_kiosk_modules_path()),
-                         ],
-                         kiosk_dir,
-                         None])
+            # Not doing that anymore. Custom modules have to be transferred separately.
+            # zips.append([path.join(dst_dir, "kiosk.zip"),
+            #              [
+            #                  kioskstdlib.get_relative_path(kiosk_dir, config.custom_sync_modules),
+            #                  kioskstdlib.get_relative_path(kiosk_dir, config.get_custom_kiosk_modules_path()),
+            #              ],
+            #              kiosk_dir,
+            #              None])
         else:
             zips.append([path.join(dst_dir, "kiosk.zip"),
                          cls.KIOSK_CONFIG_ONLY_FILES,
