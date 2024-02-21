@@ -395,8 +395,11 @@ class KioskLogicalFile:
             for r_name in KioskRepresentations.get_auto_representations():
                 rc = self.create_representation(r_name, log_warning_on_fail)
                 if not rc and error_on_fail:
+                    logging.debug(f"{self.__class__.__name__}.create_auto_representations: "
+                                  f"failed for representation {r_name}")
                     return False
 
+            return True
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.create_auto_representations: {repr(e)}")
 

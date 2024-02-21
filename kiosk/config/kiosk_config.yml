@@ -4,7 +4,7 @@ import_configurations:
   - kiosk_secure.yml
 
 config:
-  project_id: 'test'
+  project_id: 'urap'
   filemaker_template: '%sync%\filemaker\pvd_recording_template.fmp12'
   filemaker_db_filename: test_recording.fmp12
   autoload_plugins_buap:
