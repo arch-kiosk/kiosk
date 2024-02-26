@@ -73,7 +73,8 @@ class LocusRelations:
                                     f"for {self._record_type}/{self._identifier}")
 
             sql = "SELECT " + f""" 
-                                   locus.uid, locus.arch_context, 
+                                   locus.uid, 
+                                   locus.arch_context, 
                                    locus_relations.uid_locus_2_related, 
                                    locus_relations.type relation_type,
                                    locus_relations.chronology, 
