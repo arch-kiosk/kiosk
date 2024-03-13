@@ -126,6 +126,7 @@ export class KioskQuerySelector extends KioskAppComponent {
         let kioskQuery = this.kioskQueries.find((q) => q.id === element.id);
         this.tryClose(kioskQuery);
     }
+
     protected renderQueryItem(query: ApiResultKioskQueryDescription) {
         return html`
             <div id="${query.id}" class="kiosk-query" @click="${this.selectQuery}">
