@@ -94,3 +94,28 @@ The good side: We can offer now an option to render your thumbnails with a brigh
 #### 🔭 Coming soon: Harris Matrix Generator 🔭
 Just to whet your appetites: Coming soon is a Harris Matrix generator built right into Kiosk that will finally allow you to check and visualize your locus relations and phasing. And visualization will be just the first step! Stay tuned!   
  
+### ❄️ All Field Projects: Release notes for Kiosk 1.5.26 and the Recording App 15.15 ❄️
+
+📣 Our Pre-Spring rollout in 2024 is all about Harris Matrices! 
+
+✏️ As always: The release notes are best viewed on GitHub https://github.com/arch-kiosk/arch-kiosk-office/issues/1434
+
+#### 🪻 News for Kiosk 🪻
+- 🪻 There is a new module in the menu: Stratigraphic Studio. That's where you can marvel at your stratigraphy VISUALLY!     
+- 🪻 Stratigraphic Studio will also analyze your stratigraphic relations and tell you about cycles, contradictions, excess relations and other issues in your archaeological record that you should look into
+- 🪻 You can look at whole units or at single loci. In the latter case you get the same results as in the recoding app (see below) 
+- 🪻 you have access to a bunch of "layout" options. Try them and find your preferred view on your archaeological data. 
+- 🪻 you can colour the stratigraphic units in the matrix according to tags you applied to loci in the recording.   
+
+#### 🪻️ News for the Recording App 🪻
+- 🪻 We can even offer the same Harris Matrix view in FileMaker! Simply click on the new button next to the stratigraphic relations.
+- 🪻 In the Recording App you get the immediate relations of the current locus (context, SU) so that you can check your results during recording in the trench
+ 
+
+#### 🪻️ Outlook 🪻
+Wilhelm Busch once said "Ein jeder Wunsch wenn er erfüllt, kriegt augenblicklich Junge", which literally means: Each desire once fulfilled will soon have offspring.
+That's for sure true for Stratigraphic Studio as well. This is work in progress, and we simply could not wait any longer to share this first version with you. 
+Now you might want phasing, adding relations, jumping to the loci, etc.
+
+Let us know! 
+
