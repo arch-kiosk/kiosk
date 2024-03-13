@@ -176,6 +176,8 @@ export class QueryAndViewApp extends KioskApp {
                 let layouter = <KioskQueryLayouter>this.shadowRoot.getElementById("query-layout");
                 layouter.selectPage(query.uid);
             });
+        } else {
+            console.error("Kiosk Query type not supported: " + kioskQuery.type);
         }
     }
 

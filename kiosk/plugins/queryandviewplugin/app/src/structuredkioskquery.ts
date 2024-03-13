@@ -258,7 +258,6 @@ export class StructuredKioskQuery extends KioskAppComponent {
     }
 
     queryUIChanged(event: CustomEvent) {
-
         if (event.detail.srcElement === "start") {
             this.overall_record_count = -1
             this._inputData = event.detail.newData

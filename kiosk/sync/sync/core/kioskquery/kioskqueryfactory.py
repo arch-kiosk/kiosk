@@ -1,4 +1,5 @@
 from dsd.dsd3singleton import Dsd3Singleton
+from kioskquery.fulltextkioskquery import FullTextKioskQuery
 from kioskquery.kioskquery import KioskQuery
 from kioskquery.structuredkioskquery import StructuredKioskQuery, KioskQueryException
 
@@ -22,5 +23,7 @@ class KioskQueryFactory:
         query_type = query_def["meta"]["query_type"].lower()
         if query_type == "structuredkioskquery":
             return StructuredKioskQuery(query_def, Dsd3Singleton.get_dsd3())
+        elif query_type == "fulltextkioskquery":
+            return FullTextKioskQuery(query_def, Dsd3Singleton.get_dsd3())
         else:
             raise KioskQueryException(f"{cls.__name__}.load : Query type {query_type} unknown.")
