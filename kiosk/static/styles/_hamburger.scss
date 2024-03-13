@@ -45,21 +45,22 @@ $scale: .8;			  // icon scale 68/68 default
   height: 51px;
 }
 
-// what this does is create a small square that I then rotate behind an svg mask, giving the apparence of the line animating
+// what this does is create a small square that I then rotate behind an svg mask, giving the appearance of the line animating
 .path-rotation {
   height: 34px;
   width: 34px;
   margin: 34px 34px 0 0;
   transform: rotate(0deg);
   transform-origin: 100% 0;
-  &:before {
-    content: '';
-    display: block;
-    width: 30px;
-    height: 34px;
-    margin: 0 4px 0 0;
-    background: $color;
-  }
+  //This made a block: So I simply deleted it and it seems it is fine now?
+  //&:before {
+  //  content: '';
+  //  display: block;
+  //  width: 30px;
+  //  height: 34px;
+  //  margin: 0 4px 0 0;
+  //  background: $color;
+  //}
 }
 
 // box rotation animation
@@ -186,9 +187,6 @@ $scale: .8;			  // icon scale 68/68 default
 .burger-filling {
   top: 12px;
 }
-
-
-
 
 
 // burger ring container
