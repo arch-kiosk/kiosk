@@ -377,7 +377,10 @@ def filerepository_editdialog(uid):
         authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
         read_only = request.args.get('read_only')
         if read_only:
-            authorized_to.remove("modify data")
+            try:
+                authorized_to.remove("modify data")
+            except BaseException as e:
+                pass
 
         representations = KioskRepresentations.get_representation_labels_and_ids(cfg)
         fullscreen_representation_id = cfg.file_repository["fullscreen_representation"]
