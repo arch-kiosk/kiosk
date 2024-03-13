@@ -383,4 +383,7 @@ kiosk:
     active: true
 
   hmlabplugin:
-    active: false
+    active: true
+    is_main_index: false
+    menu:
+      "stratigraphy studio": [ "-hmlabplugin" ]
