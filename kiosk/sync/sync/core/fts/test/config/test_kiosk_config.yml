@@ -1,0 +1,167 @@
+'Flask':
+  SOME_OPERATION: 'Something'
+  SECRET_KEY: "A normal Key"
+  EXPLAIN_TEMPLATE_LOADING: True
+
+config:
+  project_id: 'urap'
+  base_path: '%base_path%'
+  sync: '%base_path%\sync\sync'
+  sync_plugin_directory: '%sync%\sync_plugins'
+  logfile: '%base_path%\sync\sync\core\transpile\test\log\urap_dev.log'
+  log_to_screen: False
+  autoload_plugins: ["filemakerrecording"]
+  dataset_definition: '%base_path%\config\dsd\default_dsd3.yml'
+  filemaker_export_dir: '%sync%\filemaker\to_work_station'
+  filemaker_import_dir: '%sync%\filemaker\from_work_station'
+  filemaker_template: '%sync%\filemaker\urap2019_template.fmp12'
+  expected_filemaker_template_version: "D.6"
+  filemaker_db_filename: URAP2019.fmp12
+  filemaker_encoding: UTF-8
+  odbc_ini_dsn: urap
+  database_name: urap_test
+  file_repository: '%sync%\file_repository'
+  thumbnail_dir: '%file_repository%\thumbnails'
+  default_resolution: high
+  file_handling_definition: '%base_path%\config\file_handling.yml'
+  default_file_handling: local_computer
+  fork_ignore_missing_files: True
+  log_level: 'DEBUG'
+  static_image_path: '%base_path%\static\assets\images'
+  thumbnail_sets:
+    'small': 128,128
+    'medium': 256,256
+
+file_import:
+  file_extensions: ["jpg"]
+  recursive: True
+  use_uuid: True
+  log_import: True
+  tags: []
+  add_only_with_excavation_context: True
+  folder_encodings: []
+  filename_encodings: []
+  load_plugins:
+    - "fileimportstandardfilters"
+    - "fileimportqrcodefilter"
+    - "fileimportexiffilter"
+    - "fileimporturaphook"
+  file_import_filters:
+    local_import:
+      FileImportStandardValuesFilter:
+        active: False
+        priority: 0
+      FileImportStandardFolderFilter:
+        priority: 10
+        active: True
+        get_context_from_folder: True
+        get_date_from_folder: True
+      FileImportStandardFileFilter:
+        active: True
+        get_context_from_file: True
+        get_date_from_file: False
+        priority: 20
+      FileImportQRCodeFilter:
+        active: True
+        get_excavation_context: True
+        get_date: True
+        priority: 30
+      FileImportExifFilter:
+        active: False
+        get_context_from_exif: False
+        get_date_from_exif: False
+        get_description_from_exif: True
+        priority: 25
+    upload:
+      FileImportStandardValuesFilter:
+        active: False
+        priority: 0
+      FileImportStandardFileFilter:
+        active: False
+        get_context_from_file: True
+        get_date_from_file: False
+        priority: 20
+      FileImportQRCodeFilter:
+        active: True
+        get_excavation_context: True
+        get_date: True
+        priority: 30
+      FileImportExifFilter:
+        active: False
+        get_context_from_exif: False
+        get_date_from_exif: False
+        get_description_from_exif: True
+        priority: 15
+
+kiosk:
+  SECRET_KEY: fd82303c-6852-48c1-8165-9e60d4b25b94
+  base_path: '%base_path%'
+  template_path: '%base_path%\templates'
+  local_importpaths: ['d:\', 'd:\import', 'd:\aalles', 'f:\', 'f:\urap_vm\shared', 'f:\URAP_backup']
+  static_image_path: '%base_path%\static\assets\images'
+  temporary_upload_path: '%base_path%\sync\sync\file_repository\temp'
+  plugin_path: '%base_path%\plugins'
+  global_constants:
+    project_name: 'Uronarti Regional Archaeological Project'
+    project_short: 'URAP'
+    project_logo_top: ''
+    project_logo_main: 'Uronarti'
+    project_logo_bottom: 'Regional Archaeological Project'
+
+  login_plugin:
+    active: true
+
+
+  filerepositoryplugin:
+    active: true
+    is_main_index: true
+    menu:
+      "file repository": ["-filerepositoryplugin"]
+
+    file_icons:
+      general: 'dummyfile.svg'
+      nef: 'std_nef_image.svg'
+      pdf: 'std_pdf_image.svg'
+      svg: 'egyptian-walk.svg'
+
+    file_descriptions:
+      set1:
+       name: full description
+       primary: [["pottery", "collected_material_photo", "locus_photo"], ["dayplan"], ["locus_relations"]]
+       secondary: [["images"]]
+      set2:
+       name: single description
+       primary: [["pottery","collected_material_photo", "locus_photo", "dayplan", "locus_relations"]]
+
+  workstation_manager_plugin:
+    active: true
+    is_main_index: false
+    menu:
+      "synchronize": ["+workstation_manager_plugin"]
+      "workstations": ["-workstation_manager_plugin"]
+    allow_operations: []
+
+  fileimportplugin:
+    active: true
+    is_main_index: false
+    allow_operations: ['local filesystem']
+    menu:
+      "import files": ["+filerepositoryplugin"]
+
+  bugsandfeaturesplugin:
+    active: true
+    is_main_index: false
+    menu:
+      "import files": ["-bugsandfeaturesplugin"]
+
+  dailyreviewplugin:
+    active: true
+    is_main_index: false
+    menu:
+      "import files": ["-dailyreviewplugin"]
+
+  queryandviewplugin:
+    active: true
+    is_main_index: false
+    menu:
+      "query and view data": [ "-queryandviewplugin" ]

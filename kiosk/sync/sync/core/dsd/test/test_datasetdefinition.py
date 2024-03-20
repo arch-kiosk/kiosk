@@ -816,3 +816,20 @@ class TestDataSetDefinition(KioskPyTestHelper):
                                                                                                ("locus_color", "uid")]
 
         assert dsd.get_lookup_joins("locus_architecture") == []
+
+    def test_assert_raw(self, dsd_urap_dsd3):
+        dsd: DataSetDefinition = dsd_urap_dsd3
+        assert dsd.assert_raw(["locus"])
+        assert dsd.assert_raw(["locus"], "structure")
+        assert not dsd.assert_raw(["locus"], "meta")
+
+    def test_append_field(self, dsd_urap_dsd3):
+        dsd: DataSetDefinition = dsd_urap_dsd3
+        assert "new_field" not in dsd.list_fields("locus")
+        dsd.append_field("locus", "new_field", ["datatype(VARCHAR)", "default('Null')"])
+        assert "new_field" in dsd.list_fields("locus")
+
+    def test_table_can_sync(self, dsd_real_urap_dsd):
+        dsd: DataSetDefinition = dsd_real_urap_dsd
+        assert dsd.table_can_sync("locus")
+        assert not dsd.table_can_sync("kiosk_user")

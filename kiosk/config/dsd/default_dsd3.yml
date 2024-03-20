@@ -5,6 +5,7 @@ config:
     - dsd3_kiosk_tables.yml
 #    - wc_pottery_dsd3.yml
     - contexts.yml
+    - fts_contexts.yml
     - default_migration_scripts.yml
 #    - su_ceramics_dsd3.yml
 
@@ -1506,10 +1507,12 @@ tags:
         - drop("table_contexts")
 
 tagging:
+#  meta:
+#    flags: [no_fts]
   structure:
     3:
       tag: [datatype(VARCHAR), not_null(), join("tags")]
-      description: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR), fts("-")]
       source_uid: [datatype(UUID), not_null()]
       source_table: [datatype(VARCHAR), not_null()]
       uid: [datatype(UUID), replfield_uuid()]

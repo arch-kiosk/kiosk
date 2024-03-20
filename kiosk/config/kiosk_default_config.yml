@@ -288,6 +288,8 @@ kiosk:
     is_main_index: false
     menu:
       "query and view data": [ "-queryandviewplugin" ]
+    fts:
+      language: "english"
 
   syncmanagerplugin:
     active: true

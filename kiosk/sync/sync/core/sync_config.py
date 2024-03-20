@@ -1,3 +1,4 @@
+from __future__ import annotations
 import sys
 import os
 import logging
@@ -33,7 +34,7 @@ class SyncConfig(Config):
     _config = None
 
     @classmethod
-    def get_config(cls, default_config: dict = {}, log_warnings=True):
+    def get_config(cls, default_config: dict = {}, log_warnings=True) -> SyncConfig:
         """This is the singleton call. Use this and not __init__ !
            default_config may contain the key "config_file"
         """
@@ -115,7 +116,7 @@ class SyncConfig(Config):
         else:
             self.temp_dir = os.path.join(self.base_path, 'temp')
             self.config["temp_dir"] = self.temp_dir
-            logging.info(f"No temp_dir configured. Defaulting to {self.temp_dir}.")
+            logging.debug(f"No temp_dir configured. Defaulting to {self.temp_dir}.")
 
         self.config["custom_path"] = self.resolve_symbols(self._config["custom_path"])
         self.custom_path = self.config["custom_path"]
@@ -299,7 +300,7 @@ class SyncConfig(Config):
             self.cache_dir = self.config["cache_dir"]
         else:
             self.cache_dir = None
-            logging.info("No cache_dir configured. The cache dir will be cache in the file repository")
+            logging.debug("No cache_dir configured. The cache dir will be cache in the file repository")
 
         if "custom_sync_modules" in self.config:
             self.custom_sync_modules = self.resolve_symbols(self.config["custom_sync_modules"])
@@ -564,3 +565,11 @@ class SyncConfig(Config):
 
     def get_dsd_path(self):
         return kioskstdlib.get_file_path(self.dsdfile)
+
+    def get_fts_config(self) -> dict:
+        try:
+            return self._config["kiosk"]["queryandviewplugin"]["fts"]
+        except BaseException as e:
+            logging.info(f"{self.__class__.__name__}.get_fts_config: "
+                         f"full text search not configured in queryandviewplugin.")
+            return {}

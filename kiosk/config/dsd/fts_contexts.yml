@@ -1,0 +1,8 @@
+config:
+  format_version: 3
+  contexts:
+    fts_site_to_cm:
+      type: full_text_search
+      scope:
+        site: browse()
+        unit: browse()

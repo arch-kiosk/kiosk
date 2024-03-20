@@ -151,6 +151,36 @@ class DataSetDefinition:
     def register_glossary(self, glossary):
         self._glossary = glossary
 
+    def assert_raw(self, path: list, key: str = ""):
+        """
+        checks if a path or a key within a path exists in the raw dsd data.
+        :param path: a list of keys
+        :param key: an optional key to check in the path
+        :return: true or false
+        """
+
+        try:
+            raw_path = self._dsd_data.get(path)
+            if key:
+                return key in raw_path
+            else:
+                return True
+        except BaseException as e:
+            return False
+
+    def append_field(self, table: str, field: str, instructions: list, version: int = 0) -> None:
+        """
+        appends a field to a table in the dsd. (This is not permanent).
+        If the field is already there, it will be replaced.
+        :param table: the table with the field
+        :param field: the name of the field
+        :param instructions: a list of instructions
+        :param version: if not given the field is appended to the current version
+        :returns: nothing. But can throw Exceptions.
+        """
+        version = version if version else self.get_current_version(table)
+        self._dsd_data.set([table, KEY_TABLE_STRUCTURE, version, field], instructions)
+
     def _read_dsd_data_from_file(self, path_and_filename: str):
         if not os.path.isfile(path_and_filename):
             raise FileNotFoundError
@@ -656,14 +686,15 @@ class DataSetDefinition:
             return next(iter(fields.keys()))
         return ""
 
-    def get_uuid_field(self, table) -> str:
+    def get_uuid_field(self, table, version: int = 0) -> str:
         """
             returns the field with instruction REPLFIELD_UUID from the given table of the DSD.
             :param table: the table
+            :param version: optional
             :returns: the field name or ""
         """
 
-        fields = self.get_fields_with_instructions(table, ["replfield_uuid"])
+        fields = self.get_fields_with_instructions(table, ["replfield_uuid"], version)
         if len(fields) == 1:
             return next(iter(fields.keys()))
         return ""
@@ -678,7 +709,7 @@ class DataSetDefinition:
            DEPRECATED!"""
 
         logging.info("DataSetDefinition.list_fields_with_additional_type: Deprecated, "
-                        "please use list_fields_with_instructions instead.")
+                     "please use list_fields_with_instructions instead.")
 
         if self.is_table_dropped(table_name=table, version=version):
             raise DSDTableDropped(f"{table}, version {version} dropped.")
@@ -789,7 +820,7 @@ class DataSetDefinition:
             DEPRECATED!"""
 
         logging.info("DataSetDefinition.get_attribute_reference: Deprecated, "
-                        "please use get_field_instructions instead.")
+                     "please use get_field_instructions instead.")
 
         if self.is_table_dropped(table_name=table, version=version):
             raise DSDTableDropped(f"{table}, version {version} dropped.")
@@ -866,7 +897,7 @@ class DataSetDefinition:
         """
 
         logging.warning("DataSetDefinition.get_excavation_context_reference: Obsolete, "
-                      "Use get_field_instructions instead.")
+                        "Use get_field_instructions instead.")
 
     def delete_table(self, table):
         """ deletes a whole table definition from the dsd. If the definition did not exist
@@ -1448,3 +1479,16 @@ class DataSetDefinition:
             result.append(join)
 
         return result
+
+    def table_can_sync(self, table: str, version: int = 0) -> bool:
+        """
+        checks if a table has a replfield_uuid field.
+        :param table: the table
+        :param version: optional version (an int)
+        :return: true or false
+        :raises DSDTableDropped if the table is dropped in the given version and other exceptions
+        """
+        if self.get_uuid_field(table, version):
+            return True
+
+        return False
