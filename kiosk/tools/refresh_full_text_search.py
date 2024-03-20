@@ -3,7 +3,7 @@ import sys
 from os import path
 
 from dsd.dsd3singleton import Dsd3Singleton
-from fts.fts import FTS
+from fts.kioskfulltextsearch import FTS
 from fts.ftstableindexer import FTSTableIndexer
 from fts.ftsview import FTSView
 from sync_config import SyncConfig
