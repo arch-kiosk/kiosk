@@ -365,6 +365,8 @@ class KioskBackup:
 
             user_id = config.database_usr_name
             user_pwd = config.database_usr_pwd
+            port = config.database_port
+
             db_name = config.database_name
             try:
                 filename_template = kioskstdlib.get_datetime_template_filename(filename_template, datetime.now())
@@ -390,7 +392,7 @@ class KioskBackup:
             if path.isfile(dest_file):
                 os.remove(dest_file)
             cls._print_if_console(f"backing up database to {dest_file}...", end="", flush=True)
-            rc = subprocess.run(f"pg_dump {parameters} --username={user_id} "
+            rc = subprocess.run(f"pg_dump {parameters} -p {port} --username={user_id} "
                                 f"--dbname={db_name} --file={dest_file}", stdout=subprocess.PIPE)
 
             sys.stdout.flush()

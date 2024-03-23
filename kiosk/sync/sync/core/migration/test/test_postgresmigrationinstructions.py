@@ -14,7 +14,8 @@ class TestAlterMigrationInstruction(KioskPyTestHelper):
     def db(self):
         config = self.get_standard_test_config(__file__)
 
-        con = psycopg2.connect(f"dbname=urap_test user={config.database_usr_name} password={config.database_usr_pwd}")
+        con = psycopg2.connect(f"dbname=urap_test user={config.database_usr_name} "
+                               f"password={config.database_usr_pwd} port={config.database_port}")
         con.autocommit = True
         yield con
         con.close()

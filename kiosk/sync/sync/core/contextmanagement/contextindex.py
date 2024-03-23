@@ -6,8 +6,18 @@ from .sqlsourceinmemory import SqlSourceInMemory
 
 
 class ContextIndex:
-    def __init__(self, dsd: DataSetDefinition, name=""):
+    def __init__(self, dsd: DataSetDefinition, name="", include_primary_record_type=False):
+        """
+        A ContextIndex is a collection of contexts that can be queried together as one.
+
+        :param dsd: DataSetDefinition
+        :param name: name being used to instantiate the SQLSourceClass.
+                     Only necessary if you want to use a SQLSourceClass makes use of a name.
+        :param include_primary_record_type: includes the field "primary_record_type" in the result set.
+                                            By default, (and for legacy reasons) this is not the case.
+        """
         self._contexts: [KioskContext] = []
+        self._include_primary_record_type = include_primary_record_type
         self._dsd = dsd
         self._name = name
 
@@ -45,6 +55,7 @@ class ContextIndex:
         :param context_scope_def: a valid scope definition of a context.
         """
         context = KioskContext("", self._dsd)
+        context.include_primary_record_type = self._include_primary_record_type
         context.from_dict(context_scope_def, scope_only=True)
         self._contexts.append(context)
 
@@ -54,6 +65,7 @@ class ContextIndex:
         :param context_id: a valid scope definition of a context.
         """
         context = KioskContext(context_id, self._dsd)
+        context.include_primary_record_type = self._include_primary_record_type
         context.read_from_dsd()
         self._contexts.append(context)
 

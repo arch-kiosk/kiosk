@@ -24,6 +24,7 @@ params = {"-fr": "fr", "--unpack_file_repository": "fr",
           "-dbuser": "dbuser",
           "-dbpwd": "dbpwd",
           "-dbname": "dbname",
+          "-dbport": "dbport",
           "-pgdb": "pgdb",
           "-nt": "nt",
           "-nomg": "nomg", "--no_migration": "nomg",
@@ -84,6 +85,7 @@ def usage():
         -dbuser=user-id: This sets a new database user in the config.yml
         -dbpwd=password: This sets a new database password for the user in the config.yml
         -dbname=database name: This sets a different database to use in the config.yml
+        -dbport=database port: This sets a different port for postgres to use in the config.yml
         -pgdb=database name: sets a postgres master database (which is used as a fallback) other than the default 'postgres'.    
         -nomg/--no_migration: suppresses the database migration at the end of unpackkiosk 
         -ru/ --restore_users: restores users and privileges from the backup. Usually the users and privileges
@@ -130,6 +132,9 @@ def interpret_param(known_param, param):
     elif new_option == "dbname":
         dbname = param.split("=")[1]
         rc = {new_option: dbname}
+    elif new_option == "dbport":
+        dbport = param.split("=")[1]
+        rc = {new_option: dbport}
     elif new_option == "project_id":
         project_id = param.split("=")[1]
         rc = {new_option: project_id}
@@ -507,7 +512,7 @@ if __name__ == '__main__':
                 else:
                     print(f"skipped configuration files.", end="\n")
 
-                if "dbuser" in options or "dbpwd" in options or "dbname" in options:
+                if "dbuser" in options or "dbpwd" in options or "dbname" in options or "dbport" in options:
                     KioskRestore.set_new_database_credentials(cfg_file, secure_file, options)
 
             this_is_an_update = True

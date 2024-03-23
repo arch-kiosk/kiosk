@@ -216,3 +216,13 @@ class TestFTSTableIndexer(KioskPyTestHelper):
 
         assert not indexer.table_has_fts("tagging")
 
+    def test_get_sql_document_column_from_table(self, dsd):
+        indexer = FTSTableIndexer()
+        sql = indexer.get_sql_document_column_from_table("collected_material")
+        assert sql == ('coalesce("external_id", \'\') || coalesce("type", \'\') || '
+                       'coalesce("material_specified", \'\') || coalesce("cm_type", \'\') || '
+                       'coalesce("description", \'\') || coalesce("storage", \'\') || '
+                       'coalesce("pottery_remarks", \'\') || coalesce("status_done", \'\') || '
+                       'coalesce("status_todo", \'\') || coalesce("dearregistrar", \'\') || '
+                       'coalesce("period", \'\') || coalesce("collection_method", \'\') || '
+                       'coalesce("analysis_method", \'\') || coalesce("arch_context", \'\') doc')

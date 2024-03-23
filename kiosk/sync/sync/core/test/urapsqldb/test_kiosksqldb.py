@@ -54,8 +54,12 @@ class TestKioskSQLDb(KioskPyTestHelper):
 
                     """
             )
-            KioskSQLDb.execute("insert into test_execute(uid, something) values('4f9883c9-39c8-4dd7-8550-ca530a92a057', 'something 1')", commit=commit)
-            KioskSQLDb.execute("insert into test_execute(uid, something) values('8f8070f9-4947-4be1-bbfd-d4cbf743914a','something 2')", commit=commit)
+            KioskSQLDb.execute(
+                "insert into test_execute(uid, something) values('4f9883c9-39c8-4dd7-8550-ca530a92a057', 'something 1')",
+                commit=commit)
+            KioskSQLDb.execute(
+                "insert into test_execute(uid, something) values('8f8070f9-4947-4be1-bbfd-d4cbf743914a','something 2')",
+                commit=commit)
 
         KioskSQLDb.execute("drop table if exists \"test_execute\";", commit=True)
         execute_sql()
@@ -102,3 +106,20 @@ class TestKioskSQLDb(KioskPyTestHelper):
         KioskSQLDb.rollback()
         assert KioskSQLDb.set_autocommit(True)
 
+    def test_does_view_exist(self, cfg):
+        try:
+            KioskSQLDb.execute("drop view if exists test_view")
+        except BaseException as e:
+            KioskSQLDb.execute("drop materialized view if exists test_view")
+
+        assert not KioskSQLDb.does_view_exist("test_view")
+
+        KioskSQLDb.execute("create view test_view as select 1")
+        assert KioskSQLDb.does_view_exist("test_view")
+        KioskSQLDb.execute("drop view if exists test_view")
+
+        KioskSQLDb.execute("create materialized view test_view as select 1")
+        assert not KioskSQLDb.does_view_exist("test_view")
+        assert KioskSQLDb.does_view_exist("test_view", materialized_view=True)
+        KioskSQLDb.execute("drop materialized view if exists test_view")
+        assert not KioskSQLDb.does_view_exist("test_view", materialized_view=True)

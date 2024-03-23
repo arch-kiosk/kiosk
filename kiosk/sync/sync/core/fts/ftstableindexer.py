@@ -102,6 +102,29 @@ class FTSTableIndexer:
         else:
             return "", []
 
+    def get_sql_document_column_from_table(self, table: str) -> str:
+        """
+        get a document column sql statement that contains all the information of a record that has been
+        indexed in the full text search index. Used to build an excerpt after a full text search hit.
+
+        :param table: the table to get the sql for
+        :return: the part of the sql statement that builds the "doc" column
+        """
+        sql_doc = ""
+        fields_and_weights = self._get_fts_fields(table)
+        params = []
+        for f, _ in fields_and_weights:
+            sql_doc += (" || ' ' || " if sql_doc else "") + \
+                       f"CASE WHEN coalesce({KioskSQLDb.sql_safe_ident(f)}, '') != '' " \
+                       f"THEN '[{f}##]' || coalesce({KioskSQLDb.sql_safe_ident(f)}, '') " \
+                       f"ELSE '' END"
+
+                       # f"THEN '<span class=\"fts-seg\">{f}: </span>' || coalesce({KioskSQLDb.sql_safe_ident(f)}, '') " \
+
+        sql_doc = (sql_doc if sql_doc else "''")
+
+        return sql_doc
+
     @staticmethod
     def _get_drop_fts_column_sql(table):
         return f"alter table {KioskSQLDb.sql_safe_ident(table)} drop column if exists fts;"

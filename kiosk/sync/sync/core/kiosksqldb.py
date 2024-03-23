@@ -46,7 +46,8 @@ class KioskSQLDb(SqlSafeIdentMixin):
             else:
                 timeout = ""
 
-            cls._dsn = "dbname=" + db_name + " user=" + usr + " password=" + pwd + timeout
+            cls._dsn = ("dbname=" + db_name + " user=" + usr + " password=" + pwd +
+                        f" port={cfg.database_port}" + timeout)
 
         return cls._dsn
 
@@ -114,29 +115,6 @@ class KioskSQLDb(SqlSafeIdentMixin):
         except BaseException as e:
             logging.error(f"{cls.__name__}.release_thread_con: Exception {repr(e)}")
             raise e
-
-    # @classmethod
-    # def get_con(cls, autocommit=False):
-    #     if cls._con_ is None:
-    #         psycopg2.extensions.register_adapter(dict, psycopg2.extras.Json)
-    #         try:
-    #             dsn = cls._get_psycopg_dsn()
-    #             logging.debug(
-    #                 "Trying to connect with " + dsn)
-    #             cls._con_ = psycopg2.connect(dsn)
-    #             if autocommit:
-    #                 cls._con_.autocommit = True
-    #                 logging.info("\nconnected to " + cls.get_connection_info() + "\n")
-    #         except Exception as e:
-    #             logging.error("exception when trying to connect to postgres Model" + repr(e))
-    #
-    #             try:
-    #                 cls._con_.close()
-    #             except:
-    #                 pass
-    #             cls._con_ = None
-    #
-    #     return cls._con_
 
     @classmethod
     def get_con(cls, establish=True, autocommit=None):
@@ -231,7 +209,8 @@ class KioskSQLDb(SqlSafeIdentMixin):
 
         con = None
         try:
-            con = psycopg2.connect(dsn="dbname=" + db_name + " user=" + usr + " password=" + pwd + timeout)
+            con = psycopg2.connect(
+                dsn="dbname=" + db_name + " user=" + usr + " password=" + pwd + f" port={cfg.database_port}" + timeout)
             con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
             cur = None
             try:
@@ -276,7 +255,8 @@ class KioskSQLDb(SqlSafeIdentMixin):
         else:
             timeout = ""
         try:
-            con = psycopg2.connect("dbname=" + db_name + " user=" + usr + " password=" + pwd + timeout)
+            con = psycopg2.connect(
+                "dbname=" + db_name + " user=" + usr + " password=" + pwd + f" port={cfg.database_port}" + timeout)
             con.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
             cur = None
             try:
@@ -332,6 +312,24 @@ class KioskSQLDb(SqlSafeIdentMixin):
         con = cls.get_con()
         if con:
             return con.info.transaction_status >= TRANSACTION_STATUS_ACTIVE
+
+    @classmethod
+    def get_postgres_version(cls):
+        """
+        returns the version of the connected postgres database
+        :return: string
+        """
+        ver = 0
+        try:
+            con = cls.get_con()
+            ver = con.server_version
+            major_ver = ver // 10000
+            minor_ver = (ver - major_ver * 10000) // 100
+            patch_ver = ver - major_ver * 10000 - minor_ver * 100
+            return f"{major_ver}.{minor_ver}.{patch_ver}"
+        except BaseException as e:
+            logging.error(f"{cls.__name__}.get_postgres_version: {repr(e)}")
+            return f"{ver if ver else 'unknown'}"
 
     @classmethod
     def get_cursor(cls, cursortype=None):
@@ -594,6 +592,28 @@ class KioskSQLDb(SqlSafeIdentMixin):
                     #         cls.commit_savepoint(savepoint)
                     #     except BaseException as e:
                     #         pass
+            finally:
+                cur.close()
+        return exists
+
+    @classmethod
+    def does_view_exist(cls, viewname, materialized_view=False, schema="public"):
+        exists = False
+        cur = cls.get_cursor()
+        if cur:
+            try:
+                sql = f"""
+                    SELECT count(*) > 0
+                    FROM pg_catalog.pg_class c
+                    JOIN pg_namespace n ON n.oid = c.relnamespace
+                    WHERE c.relkind = '{'m' if materialized_view else 'v'}'
+                    AND n.nspname = %s
+                    AND c.relname = %s;
+                    """
+
+                cur.execute(sql, [schema, viewname])
+                r = cur.fetchone()
+                exists = r[0]
             finally:
                 cur.close()
         return exists

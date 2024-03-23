@@ -63,6 +63,7 @@ class KioskRestore:
     RESTORE_USERS_NONE = 0
     RESTORE_USERS_ALL = 1
     RESTORE_USERS_NEW = 2
+    db_port = '5432'
 
     @classmethod
     def _print_if_console(cls, *args, **kwargs):
@@ -530,11 +531,16 @@ class KioskRestore:
 
             print("ok", flush=True)
 
-            if "dbname" in options:
-                print("setting new database name ... ", end=" ", flush=True)
+            if "dbname" in options or "dbport" in options:
+
                 with open(kiosk_configfile, "r", encoding='utf8') as ymlfile:
                     cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
-                cfg["config"]["database_name"] = options["dbname"]
+                if "dbname" in options :
+                    print("setting new database name ... ", end=" ", flush=True)
+                    cfg["config"]["database_name"] = options["dbname"]
+                if "dbport" in options :
+                    print("setting new database port ... ", end=" ", flush=True)
+                    cfg["config"]["database_port"] = options["dbport"]
                 with open(kiosk_configfile, "w") as ymlfile:
                     yaml.dump(cfg, ymlfile, default_flow_style=False)
 
@@ -680,16 +686,17 @@ class KioskRestore:
         target_con = None
         try:
             # this is the current data
-            source_con = psycopg2.connect(f"dbname={src_db_name} user={user_id} password={user_pwd}")
+            source_con = psycopg2.connect(f"dbname={src_db_name} user={user_id} password={user_pwd} port={cls.db_port}")
             # this is the restored data (which will become the current after the restore)
-            target_con = psycopg2.connect(f"dbname={tmp_db_name} user={user_id} password={user_pwd}")
+            target_con = psycopg2.connect(f"dbname={tmp_db_name} user={user_id} password={user_pwd} port={cls.db_port}")
 
             for t in tables:
                 if cls._check_table_versions(t, source_con, src_table_versions, target_con, tmp_table_versions):
                     if only_new:
                         c = cls._transfer_only_new_records(target_con, t, source_con, additional_unique_field="user_id")
                         c_all = cls._transfer_record_by_record(source_con, t, target_con)
-                        logging.info(f"table {t} recovered from old database: {c} new records, {c_all - c} records kept")
+                        logging.info(
+                            f"table {t} recovered from old database: {c} new records, {c_all - c} records kept")
                     else:
                         c = cls._transfer_record_by_record(source_con, t, target_con)
                         logging.info(f"table {t} recovered from old database: {c} records.")
@@ -1034,6 +1041,7 @@ class KioskRestore:
             user_id = config.database_usr_name
             user_pwd = config.database_usr_pwd
             db_name = config.database_name
+            cls.db_port = config.database_port
 
             unique_id = hashlib.md5(str(uuid.uuid4()).encode('utf-8')).hexdigest()
             tmp_db_name = f"tmp{unique_id}"
@@ -1200,12 +1208,12 @@ class KioskRestore:
             if path.isfile(dump_file):
                 if native_format:
                     rc = subprocess.run(f"pg_restore --no-owner -w --username={user_id} "
-                                        f"--dbname={db_name} {dump_file}")  # , stdout=subprocess.PIPE
+                                        f"--dbname={db_name} {dump_file} -p {cls.db_port}")  # , stdout=subprocess.PIPE
                 else:
                     logging.debug(f"pg_restore_database: calling psql -U{user_id} "
                                   f"--file={dump_file} {db_name}")
                     rc = subprocess.run(f"psql -U{user_id} "
-                                        f"--file={dump_file} {db_name}",
+                                        f"--file={dump_file} {db_name} -p {cls.db_port}",
                                         stdout=subprocess.PIPE)  # , stdout=subprocess.PIPE
 
                 rc = rc.returncode
@@ -1228,11 +1236,13 @@ class KioskRestore:
         connected_to = ""
         con = None
         try:
-            con = psycopg2.connect("dbname=" + db_name + " user=" + user_id + " password=" + user_pwd)
+            con = psycopg2.connect(
+                "dbname=" + db_name + " user=" + user_id + " password=" + user_pwd + " port=" + cls.db_port)
             connected_to = db_name
         except psycopg2.OperationalError as e:
             try:
-                con = psycopg2.connect(f"dbname={cls.postgres_master_db} user={user_id} password={user_pwd}")
+                con = psycopg2.connect(
+                    f"dbname={cls.postgres_master_db} user={user_id} password={user_pwd} port=" + cls.db_port)
                 connected_to = {cls.postgres_master_db}
             except psycopg2.Error as e:
                 logging.error(f"Cannot use db {cls.postgres_master_db} to execute sql statements: " + repr(e))

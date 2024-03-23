@@ -39,6 +39,7 @@ class KioskContext:
         self._graph: DsdGraph = None
         self._type: str = ""
         self._dsd: DataSetDefinition = None
+        self._include_primary_record_type = False
 
         self.identifier_table = ""
         self.identifier_field = ""
@@ -69,6 +70,22 @@ class KioskContext:
                 additional_field = kioskstdlib.adjust_tuple(additional_field, 5, "")
                 additional_fields[idx] = additional_field
         return additional_fields
+
+    @property
+    def include_primary_record_type(self):
+        """
+        returns if the resulting sql statements have the primary_record_type field included.
+        :return: bool
+        """
+        return self._include_primary_record_type
+
+    @include_primary_record_type.setter
+    def include_primary_record_type(self, value: bool):
+        """
+        sets if the resulting sql statements should have the primary_record_type field included.
+        :param value: bool
+        """
+        self._include_primary_record_type = value
 
     def register_output_formatter(self, name: str, formatter: SqlFieldFormatter):
         """
@@ -271,6 +288,10 @@ class KioskContext:
                                                       self.closest_identifier_field, "primary_identifier")
         sql += "," + self._get_formatted_output_field(self.closest_identifier_table,
                                                       self.closest_identifier_uid_field, "primary_identifier_uuid")
+        if self._include_primary_record_type:
+            sql += f",'{self.closest_identifier_table}' \"primary_record_type\""
+            self._type_info.add_data_type("primary_record_type", "varchar")
+
         for additional_field in self._additional_fields:
             # additional_field:
             # 5 - tuple(field_or_instruction, field_name, default_value, output - format, substitute)

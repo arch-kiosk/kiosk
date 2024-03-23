@@ -12,6 +12,7 @@ class FTSView:
     This class is used to create and manage the kiosk_fts_view materialized view.
     Don't instantiate it. All methods are static.
     """
+
     @staticmethod
     def create_or_replace_fts_view(master_dsd: DataSetDefinition, commit=True):
         """
@@ -26,7 +27,7 @@ class FTSView:
         """
 
         dsd = FTSDSD(master_dsd).dsd  # that dsd only has tables with fts columns
-        context = ContextIndex(dsd)
+        context = ContextIndex(dsd, include_primary_record_type=True)
         context.add_context_type("full_text_search")
         store = context.select_all(field_or_instruction="fts", sql_source_class=SqlSourceInMemory)
         union_sql = ""
@@ -37,8 +38,9 @@ class FTSView:
             union_sql += ("\n UNION " if union_sql else "") + sql
 
         FTSView.drop(commit)
-        sql += "CREATE " + "MATERIALIZED VIEW kiosk_fts_view AS select record_type, primary_identifier, " \
-                           "primary_identifier_uuid, data, data_uuid from (" + union_sql + ") as records;"
+        sql += "CREATE " + f"MATERIALIZED VIEW kiosk_fts_view AS select record_type, primary_identifier, " \
+                           f"primary_identifier_uuid, primary_record_type, data, data_uuid from ({union_sql}) " \
+                           f"as records;"
         KioskSQLDb.execute(sql, commit=commit)
         sql = "CREATE " + " INDEX kiosk_fts_view_idx on kiosk_fts_view using gin(\"data\");"
         KioskSQLDb.execute(sql, commit=commit)
@@ -69,3 +71,11 @@ class FTSView:
         except BaseException as e:
             logging.error(f"FTSView.refresh: {repr(e)}")
             return False
+
+    @staticmethod
+    def exists():
+        """
+        checks if the full text search view exists.
+        :return: bool
+        """
+        return KioskSQLDb.does_view_exist("kiosk_fts_view", materialized_view=True)

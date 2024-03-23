@@ -211,6 +211,11 @@ class SyncConfig(Config):
             if self._log_warnings:
                 logging.warning("No database_usr_pwd in configuration file. Looks suspicious!")
 
+        if "database_port" in self.config:
+            self.database_port = str(self.config["database_port"])
+        else:
+            self.database_port = "5432"
+
         if "database_timeout_sec" in self.config:
             self.database_timeout_sec = self.config["database_timeout_sec"]
         else:
