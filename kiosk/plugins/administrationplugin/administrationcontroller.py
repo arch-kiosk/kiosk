@@ -76,7 +76,8 @@ print(f"{_controller_name_} module loaded")
 administration_controller = Blueprint(_controller_name_, __name__)
 print(f"{_controller_name_} loaded")
 
-SysInfo = namedtuple('SysInfo', ['kiosk_ver', 'kiosk_date', 'kiosk_name', 'dsd_format', 'python_ver', 'flask_ver'])
+SysInfo = namedtuple('SysInfo', ['kiosk_ver', 'kiosk_date', 'kiosk_name', 'dsd_format', 'python_ver',
+                                 'flask_ver', "postgresql_ver"])
 JOB_SUFFIX_REFRESH_CACHE_FILE = "RF"
 
 
@@ -218,7 +219,8 @@ def administration_show():
                           kiosk_date=kioskglobals.kiosk_date.date(),
                           dsd_format=Dsd3Singleton.get_dsd3().format,
                           python_ver=sys.version.split(' ')[0],
-                          flask_ver=__version__)
+                          flask_ver=__version__,
+                          postgresql_ver=KioskSQLDb.get_postgres_version())
         dsd = Dsd3Singleton.get_dsd3()
         plugin_manager = current_app.plugin_manager
         plugins = [{"subsystem": "kiosk", "name": p.name, "type": type(p).__name__,

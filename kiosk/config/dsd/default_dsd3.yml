@@ -550,7 +550,7 @@ locus:
       interpretation: [datatype(VARCHAR)]
       colour: [datatype(VARCHAR)]
       excavated_with: [datatype(VARCHAR)]
-      formation_process: [datatype(VARCHAR)]
+      formation_process: [datatype(VARCHAR), fts(D)]
       elevation_opening_nw: [datatype(FLOAT)]
       elevation_opening_ne: [datatype(FLOAT)]
       elevation_opening_se: [datatype(FLOAT)]

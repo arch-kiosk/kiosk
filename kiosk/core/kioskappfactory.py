@@ -182,6 +182,8 @@ class KioskAppFactory(AppFactory):
         # cls.cfg = cls._load_config_from_yaml_file(config_file)
         cls.init_dsd()
 
+        print(f"PostgreSQL version {KioskSQLDb.get_postgres_version()} on port {kioskglobals.cfg.database_port}")
+
         # Load all the plugins:
         plugin_manager = cls.load_plugins()
 

@@ -1,4 +1,5 @@
 @import "../../../../../static/styles/_constants"
+@import "component-structuredkioskquery"
 @import "appstyles"
 @import reset
 @import icons
@@ -20,7 +21,7 @@
   padding: .5em
 
 .search-term
-  padding: 1em 1em
+  padding: 1em 1em 0 1em
   display: flex
   align-items: center
   input
@@ -42,3 +43,55 @@
     vertical-align: middle
     margin-right: 2px
 
+.fts-header
+  top: 0px
+  background-color: $col-bg-2
+  border-top: 1px solid $col-bg-body
+  font-weight: bold
+  padding: .5em 0
+  width: 150%
+  position: sticky
+  z-index: 1
+  &:first-child
+    transform: translateX(-.5em)
+    padding-left: 1em
+.fts-meta
+  padding: .5em
+.fts-results
+  display: grid
+  grid-template-columns: max-content auto
+  grid-column-gap: 1em
+  grid-row-gap: 1em
+  background-color: $col-bg-body
+  padding: 0em .5em
+  max-height: 400px
+  overflow-x: hidden
+  overflow-y: auto
+.fts-excerpt
+  user-select: text
+  span
+    font-weight: bold
+    font-family: $monospace
+    letter-spacing: 1px
+    user-select: text
+span.fts-excerpt-field
+  display: inline-block
+  font-weight: normal
+  letter-spacing: normal
+  font-family: $standard-text
+  background-color: rgba(0,0,0,.01)
+  font-variant-caps: all-petite-caps
+  border-radius: 5px
+  padding: 0 5px
+  margin-right: 5px
+  line-height: 120%
+
+.result-count
+  background-color: $col-bg-2
+  padding-left: 3em
+  padding-bottom: .5em
+
+.fts-identifier
+  span
+    margin-right: .5em
+    font-weight: bold

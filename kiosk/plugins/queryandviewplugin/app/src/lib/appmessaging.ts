@@ -9,6 +9,8 @@ export const MSG_SEVERITY_DEBUG = -10
 
 export const MSG_LOGGED_OUT = "MSG_LOGGED_OUT"
 export const MSG_NETWORK_ERROR = "MSG_NETWORK_ERROR"
+export const MSG_ERROR = "MSG_ERROR"
+
 
 class MESSAGE_DETAIL {
     severity: number
@@ -23,6 +25,9 @@ let MESSAGE_ID_DETAILS: { [key: string]: MESSAGE_DETAIL } = {
         "severity": 10
     },
     "MSG_NETWORK_ERROR": {
+        "severity": 10
+    },
+    "MSG_ERROR": {
         "severity": 10
     },
 }

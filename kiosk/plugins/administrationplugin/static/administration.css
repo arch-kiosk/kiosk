@@ -284,7 +284,6 @@
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: space-between;
   margin-left: -2rem;
 }
 .admin-gridded-info div {

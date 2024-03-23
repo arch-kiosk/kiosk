@@ -68,6 +68,12 @@ export function name2RecordType(recordTypeNames: {[key:string]: string}, name: s
     return ""
 }
 
+export function handleErrorInApp(handlerInstance: LitElement, msgType: string,
+                                 msg: string, messagePrefix="") {
+    sendMessage(handlerInstance, msgType,
+        `${messagePrefix?messagePrefix + ": ":""} An Error occurred:`, `(${msg}).`)
+}
+
 export function handleCommonFetchErrors(handlerInstance: LitElement,
                                         e: FetchException, messagePrefix="",
                                         onUnhandledError: CallableFunction=null) {

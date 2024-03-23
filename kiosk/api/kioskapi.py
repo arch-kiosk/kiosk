@@ -16,6 +16,7 @@ from .kioskapicontextsfull import ApiContextsFull
 from .kioskapicql import ApiCQLQuery
 from .kioskapifiles import ApiFile, ApiResolution
 from .kioskapicontexts import ApiContexts
+from .kioskapifts import ApiFTS
 from .kioskapikioskquery import ApiKioskQuery
 from .kioskapilookup import ApiLookup
 from .kioskapilib import PublicApiInfo
@@ -38,6 +39,7 @@ def register_resources(api: KioskApi):
     ApiContextsFull.register(api)
     ApiKioskQuery.register(api)
     ApiLookup.register(api)
+    ApiFTS.register(api)
 
 
 class ApiPublic(Resource):
