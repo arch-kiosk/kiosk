@@ -1208,12 +1208,12 @@ class KioskRestore:
             if path.isfile(dump_file):
                 if native_format:
                     rc = subprocess.run(f"pg_restore --no-owner -w --username={user_id} "
-                                        f"--dbname={db_name} {dump_file} -p {cls.db_port}")  # , stdout=subprocess.PIPE
+                                        f"--dbname={db_name} -p {cls.db_port} {dump_file}")  # , stdout=subprocess.PIPE
                 else:
                     logging.debug(f"pg_restore_database: calling psql -U{user_id} "
                                   f"--file={dump_file} {db_name}")
                     rc = subprocess.run(f"psql -U{user_id} "
-                                        f"--file={dump_file} {db_name} -p {cls.db_port}",
+                                        f"--file={dump_file} -p {cls.db_port} {db_name}",
                                         stdout=subprocess.PIPE)  # , stdout=subprocess.PIPE
 
                 rc = rc.returncode

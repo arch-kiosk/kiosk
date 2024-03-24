@@ -78,7 +78,7 @@ export class FullTextKioskQuery extends KioskAppComponent {
                             this.prepareFTSResults(data)
                             this.ftsResults = data.records
                         } else {
-                            console.log(`Error in fetchFtsResults: Kiosk was not able to come up with a search result`)
+                            console.log(`Error in fetchFtsResults: Kiosk was not able to come up with a search result   `)
                             handleErrorInApp(this, MSG_ERROR, "Kiosk was not able to come up with a search result", "fulltextKioskQuery.fetchFtsResults")
                         }
                     }
