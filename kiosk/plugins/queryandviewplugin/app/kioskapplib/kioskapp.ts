@@ -1,6 +1,9 @@
 // import { html, css, LitElement } from '/node_modules/lit';
 import { html, LitElement, TemplateResult } from "lit";
 import { API_STATE_ERROR, API_STATE_READY } from "./kioskapi";
+import {unsafeHTML} from 'lit/directives/unsafe-html.js';
+import { nanoid } from "nanoid";
+import { deleteHtmlAndSpecialCharacters } from "../src/lib/applib";
 
 export abstract class KioskApp extends LitElement {
     // @ts-ignore
@@ -71,7 +74,14 @@ export abstract class KioskApp extends LitElement {
                     margin-bottom: 10px;
                     background: linear-gradient(135deg, #882501, #bb3302);
                     color: #fabc02;
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
                 }
+                i:hover {
+                    color: #ffffff
+                }
+                
                 .loading {
                     display: flex;
                     justify-content: center;
@@ -121,13 +131,22 @@ export abstract class KioskApp extends LitElement {
 
     renderErrors(): TemplateResult {
         if (this.appErrors.length > 0) {
-            return html` ${this.appErrors.map((error) => html`<div class="system-message" @click="${this.errorClicked}">${error}</div>`)} `;
+            const errors = this.appErrors.map((error) => this.splitAppError(error))
+            return html` ${errors.map((error) => html`
+                <div class="system-message"
+                     data-error-id="${error.id}"
+                     @click="${this.errorClicked}">
+                    <span>
+                        ${unsafeHTML(error.message)}
+                    </span>
+                    <i class="fas fa-close"></i>
+                </div>`)} `;
         } else return undefined;
     }
 
     errorClicked(e: MouseEvent) {
         console.log(e)
-        this.deleteError((<HTMLDivElement>e.target).textContent)
+        this.deleteErrorById((<HTMLDivElement>e.target).dataset.dataErrorId)
     }
 
     renderProgress(force = false): TemplateResult {
@@ -139,14 +158,38 @@ export abstract class KioskApp extends LitElement {
     }
 
     addAppError(error: string) {
-        this.appErrors.push(error);
+        this.appErrors.push(`${nanoid()}:${error}`);
         this.requestUpdate();
+    }
+
+    splitAppError(error: string) {
+        const idx = error.indexOf(':');
+        if (idx > -1) {
+            return {id: error.substring(0,idx), message: error.substring(idx+1)};
+        } else {
+            return {id: '', message: error};
+        }
     }
 
     deleteError(error: string) {
         let foundIndex = -1;
+        const sanitizedError = deleteHtmlAndSpecialCharacters(error)
         this.appErrors.find((apiErr, index) => {
-            if (apiErr === error) {
+            if (deleteHtmlAndSpecialCharacters(apiErr) === sanitizedError) {
+                foundIndex = index;
+                return true;
+            } else return false;
+        });
+        if (foundIndex > -1) {
+            this.appErrors.splice(foundIndex, 1);
+            this.appErrors = [...this.appErrors];
+            // this.requestUpdate();
+        }
+    }
+    deleteErrorById(id: string) {
+        let foundIndex = -1;
+        this.appErrors.find((apiErr, index) => {
+            if (apiErr.startsWith(id) + ":") {
                 foundIndex = index;
                 return true;
             } else return false;

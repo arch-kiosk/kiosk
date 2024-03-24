@@ -174,3 +174,17 @@ export function getLatinDate(dt: DateTime, withTime: boolean = true): string {
     const dtStr = `${dt.day}.${latinMonths[dt.month-1]}.${dt.year}`
     return withTime?dtStr + " " + dt.toLocaleString(DateTime.TIME_SIMPLE):dtStr
 }
+
+
+/**
+ * This function removes HTML tags and special characters from a given text.
+ * It first removes any HTML tags found in the text by replacing them with an empty string.
+ * Then it removes any character that is not a letter or a number (special characters) by replacing them with an empty string as well.
+ *
+ * @param {string} text - The text from which HTML tags and special characters will be removed.
+ * @returns {string} The text after HTML tags and special characters have been removed.
+ */
+export function deleteHtmlAndSpecialCharacters(text: string|null) {
+    if (!text) return ""
+    return text.replace(/<[^>]*>?/gm, '').replace(/[^a-zA-Z0-9]/gm, '');
+}
