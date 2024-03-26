@@ -797,6 +797,7 @@ class KioskRestore:
         from dsd.dsdview import DSDView
         from migration.postgresdbmigration import PostgresDbMigration
         from migration.migration import Migration
+
         def init_dsd(cfg):
             master_dsd = Dsd3Singleton.get_dsd3()
             master_dsd.register_loader("yml", DSDYamlLoader)
