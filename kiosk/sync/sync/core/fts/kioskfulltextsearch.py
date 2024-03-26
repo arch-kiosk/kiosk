@@ -89,15 +89,17 @@ class FTS:
 
         sql_uid_list = ",".join(["%s" for _ in rt_hits])
         params = [x.id for x in rt_hits]
-        sql = "select " + (f"uid, ts_headline({doc_col_sql}, websearch_to_tsquery('english', '{search_prompt}'), "
+        sql = "select " + (f"uid, ts_headline({doc_col_sql}, websearch_to_tsquery('english', %s), "
                            f"'MaxFragments=3,StartSel=<span>,StopSel=</span>') doc "
                            f"from {KioskSQLDb.sql_safe_ident(record_type)} "
                            f"where uid in ({sql_uid_list}) order by uid")
+        cur = None
         try:
-            cur = KioskSQLDb.execute_return_cursor(sql, params)
+            cur = KioskSQLDb.execute_return_cursor(sql, [search_prompt, *params])
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}._get_excerpts_for_record_type: {repr(e)}")
-            print(cur.query)
+            if cur:
+                logging.debug(cur.query)
             return
 
         c = -1
