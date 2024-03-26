@@ -385,6 +385,24 @@ def install_default_queries(cfg_file: str):
                       f"Continuing, though ...")
 
 
+def refresh_full_text_index(cfg_file: str):
+    try:
+        from sync_config import SyncConfig
+        from fts.kioskfulltextsearch import FTS
+        from dsd.dsd3 import DataSetDefinition
+        from dsd.dsd3singleton import Dsd3Singleton
+
+        cfg = SyncConfig.get_config({'config_file': cfg_file})
+        dsd = Dsd3Singleton.get_dsd3()
+        assert dsd.append_file(cfg.dsdfile)
+        fts = FTS(dsd, cfg)
+        fts.rebuild_fts(console_output=True)
+
+    except BaseException as e:
+        logging.error(f"refresh_full_text_index: Exception in refresh_full_text_index: {repr(e)}. "
+                      f"Continuing, though ...")
+
+
 def delete_old_directories():
     dirs = [os.path.join(kiosk_dir, "sync", "sync", "sync_plugin", "fileimporturaphook")]
     for dir in dirs:
@@ -499,7 +517,8 @@ if __name__ == '__main__':
                     print(f"unzipping configuration files ...", end="")
                     kiosk_zip = path.join(src_dir, "kiosk.zip")
                     KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/kiosk_default_config.yml", "-aoa")
-                    KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/kiosk_local_config_template.yml", "-aoa")
+                    KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/kiosk_local_config_template.yml",
+                                                   "-aoa")
                     KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/kiosk_secure_template.yml", "-aoa")
                     KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, "config/kiosk_config_template.yml", "-aoa")
                     KioskRestore.zip_extract_files(kiosk_dir, kiosk_zip, 'config/image_manipulation_config.yml', "-aoa")
@@ -610,6 +629,9 @@ if __name__ == '__main__':
 
     install_default_queries(cfg_file)
 
+    if this_is_an_update:
+        refresh_full_text_index(cfg_file)
+
     logging.info("unpackkiosk is done.")
     if "rm" in options:
         try:
@@ -627,4 +649,3 @@ if __name__ == '__main__':
         print("====                                                    ====")
         print("============================================================")
         print("\u001b[0m")
-

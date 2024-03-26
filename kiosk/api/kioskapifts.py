@@ -20,9 +20,9 @@ MAX_MAX_FTS_HITS = 500
 
 class ApiResultFTSError(Schema):
     class Meta:
-        fields = ("err",)
+        fields = ("result_msg",)
 
-    err = fields.Str()
+    result_msg = fields.Str()
 
 
 class ApiResultKioskFTSHit(Schema):
@@ -147,9 +147,9 @@ class ApiFTS(Resource):
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.get: {repr(e)}")
             try:
-                result = {'err': e,
+                result = {'result_msg': e,
                           }
                 return ApiResultFTSError().dump(result), 500
             except BaseException as e:
-                logging.error(f"{self.__class__.__name__}.get: {repr(e)}")
+                logging.error(f"{self.__class__.__name__}.get: A second exception occured: {repr(e)}")
                 flask.abort(500)

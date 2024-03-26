@@ -7,6 +7,8 @@ from typing import List
 
 import kioskrepllib
 from eventmanager import EventManager
+from fts.ftsview import FTSView
+from fts.kioskfulltextsearch import FTS
 from typerepository import TypeRepository
 
 import filerepository
@@ -427,6 +429,16 @@ class Synchronization(PluginLoader):
                     f"{self.__class__.__name__}.synchronization: "
                     f"exception when rebuilding file-identifier-cache."
                     f" {repr(e)}")
+
+            if FTSView.refresh():
+                KioskSQLDb.commit()
+                logging.info("full text search index refreshed.")
+            else:
+                logging.error(
+                    f"{self.__class__.__name__}.synchronization: "
+                    f"Error when refreshing full text search index."
+                    f" {repr(e)}")
+                KioskSQLDb.rollback()
 
             return successful_run
         except BaseException as e:
