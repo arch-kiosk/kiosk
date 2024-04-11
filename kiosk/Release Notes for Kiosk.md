@@ -119,3 +119,15 @@ Now you might want phasing, adding relations, jumping to the loci, etc.
 
 Let us know! 
 
+### 🌷 All Field Projects: Release notes for Kiosk 1.5.29 🌷
+✏️ As always: The release notes are best viewed on GitHub https://github.com/arch-kiosk/arch-kiosk-office/issues/1434
+
+📣 **Full Text Search** allows you to search your entire data in a search-engine kind of way IN KIOSK:  
+
+- 🌷 Query And View has a new query "Full Text Search". It allows you to search your entire archaeological record.
+- 🌷 Instead of just searching for a single word you can search for phrases and even for records that don't contain a certain word.
+- 🌷 Search results are presented with excerpts of the match, and they are sorted by relevance.
+- 🌷 You can jump from a search result straight to the View that shows the record in Kiosk.
+- 🔧 A more technical point: Kiosk now uses the latest PostgreSQL Version 16. That's the database engine that powers Kiosk. Please tell us if you encounter any oddities in your data.
+#### 📅 Kiosk will be on the **ARCE conference in Pittsburgh**
+- 💐 Meet us at the Kiosk booth in the Exhibitor's Hall.  
