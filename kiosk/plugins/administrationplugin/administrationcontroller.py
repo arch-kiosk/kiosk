@@ -812,6 +812,7 @@ def housekeeping():
         housekeeping_form.hk_rewrite_images_record.data = False
         housekeeping_form.hk_lowercase_filenames.data = False
         housekeeping_form.hk_quality_check.data = False
+        housekeeping_form.hk_fts.data = False
 
     return render_template('housekeepingdialog.html',
                            config=kioskglobals.cfg, housekeeping_form=housekeeping_form,
@@ -838,6 +839,8 @@ def start_mcp_housekeeping(params):
             job_data["tasks"].append("housekeeping_lowercase_filenames")
         if params.hk_quality_check.data:
             job_data["tasks"].append("housekeeping_quality_check")
+        if params.hk_fts.data:
+            job_data["tasks"].append("housekeeping_fts")
 
         job = MCPJob(kioskglobals.general_store)
         job.set_worker("plugins.administrationplugin.housekeepingworker", "HouseKeepingWorker")

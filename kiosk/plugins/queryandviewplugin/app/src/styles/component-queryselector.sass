@@ -62,9 +62,10 @@
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr))
   grid-column-gap: 1em
   grid-row-gap: .3em
+
 .kiosk-query
   display: flex
-  align-items: center
+  align-items: flex-start
   padding-bottom: .2em
   margin-bottom: .2em
   color: $col-primary-bg-1
@@ -75,6 +76,7 @@
     background-color: $col-bg-1-darker
 
   i
+    margin-top: .5em
     font-size: $font-size-h3
   .kiosk-query-text
     margin-left: 1em
@@ -89,3 +91,9 @@
       //&:nth-child(2)
       //  color: $col-primary-bg-1
 
+.kiosk-query-category
+  font-family: $monospace
+  grid-column: 1 / -1
+  border-bottom: 1px solid $col-bg-1-darker
+  margin-bottom: .25em
+  margin-top: .5em

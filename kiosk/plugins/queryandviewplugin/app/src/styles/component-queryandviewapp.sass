@@ -72,6 +72,9 @@ div, p
   flex-direction: row
   justify-content: space-between
   padding: 0
+  position: sticky
+  top: 0px
+  z-index: 2
 
 .toolbar-section
   height: 100%
@@ -96,17 +99,46 @@ div, p
   color: $col-primary-bg-3
   height: 28px
   border: None
+
   i
     font-size: 28px
     line-height: 100%
-  &:hover
-    color: $col-accent-bg-3
-  &:active
-    color: $col-bg-ack
-  &.disabled
-    opacity: 0.3
+    color: $col-primary-bg-3
+    &:hover
+      color: $col-accent-bg-3
+    &:active
+      color: $col-bg-ack
+    &.disabled
+      opacity: 0.3
+    &.disabled:hover
+      color: $col-primary-bg-3
+    &.disabled:active
+      color: $col-primary-bg-3
 
 .footstep-toolbar-button
   height: 22px
   i
     font-size: 22px
+
+.invisible-marker
+  height: 1px
+  background-color: rgba(0,0,0,0)
+  //opacity: 0
+
+//#back-to-top
+#back-to-top:not(.disabled)
+  border-radius: 50%
+  box-shadow: 0 0 0 rgba(255,255,255, 0.4)
+  text-shadow: 2px 2px rgba(0,0,0, 0.2)
+  animation: pulse .5s
+
+@keyframes pulse
+  0%
+    //-moz-box-shadow: 0 0 0 0 rgba(255, 255, 255, 1)
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 1)
+  70%
+    //-moz-box-shadow: 0 0 0 25px rgba(255, 255, 255, 0)
+    box-shadow: 0 0 0 35px rgba(255, 255, 255, 0)
+  100%
+    //-moz-box-shadow: 0 0 0 0 rgba(255, 255, 255, 0)
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0)

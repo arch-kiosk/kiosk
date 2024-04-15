@@ -36,9 +36,12 @@ export class KioskQueryLayouter extends KioskAppComponent {
 
     public selectPage(queryId: string) {
         let tabGroup = <SlTabGroup> this.shadowRoot.querySelector("sl-tab-group")
-
-        console.log("showing tab ", queryId)
-        setTimeout(()=>tabGroup.show(queryId), 100)
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                tabGroup.show(queryId)
+                resolve(true)
+            }, 100)
+        })
     }
 
     tryClose(e: Event) {

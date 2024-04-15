@@ -8,20 +8,32 @@ class KioskQueryDefinition:
     @property
     def raw_query_definition(self):
         raise NotImplementedError
-        return self._raw_query_definition
 
     @property
     def query_id(self):
         raise NotImplementedError
-        return "fulltextquery"
 
     @property
     def query_name(self):
         raise NotImplementedError
-        return "Full Text Search"
 
     @property
     def query_description(self):
         raise NotImplementedError
-        return ("Query all places in the archaeological record that match a text or statement "
-                "and have them sorted by relevance")
+
+    @property
+    def category(self):
+        raw_query_definition = self.raw_query_definition
+        return raw_query_definition["meta"]["category"] if (
+                    "meta" in raw_query_definition and "category" in raw_query_definition["meta"]) else "-"
+
+    @property
+    def order_priority(self):
+        raw_query_definition = self.raw_query_definition
+        return raw_query_definition["meta"]["order_priority"] if (
+                    "meta" in raw_query_definition and "order_priority" in raw_query_definition["meta"]) else "Z"
+
+    @property
+    def charts(self):
+        return None
+

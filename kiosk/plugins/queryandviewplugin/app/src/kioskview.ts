@@ -7,7 +7,7 @@ import { customElement, state } from "lit/decorators.js";
 import { KioskAppComponent } from "../kioskapplib/kioskappcomponent";
 import { css, html, nothing, TemplateResult, unsafeCSS } from "lit";
 import {constantsContext} from "./constantscontext";
-import {consume} from "@lit-labs/context";
+import {consume} from "@lit/context";
 
 import { ApiKioskViewListLayout, ApiResultKioskView, Constant } from "./lib/apitypes";
 import { property } from "lit/decorators.js";
@@ -53,6 +53,9 @@ export class KioskView  extends KioskAppComponent {
     @property()
     public viewDetails: KioskViewDetails
 
+    @property()
+    public stickyTop: number = 50
+
     @state()
     loadingMessage = "";
 
@@ -69,6 +72,8 @@ export class KioskView  extends KioskAppComponent {
     private dataContext: DataContext = new DataContext()
 
     private _groupParts: { [groupName: string]: KioskViewGroupPart[] } = {}
+
+    private _intersectionObserver: IntersectionObserver;
 
 
     constructor() {
@@ -101,7 +106,59 @@ export class KioskView  extends KioskAppComponent {
         } else {
             if (_changedProperties.has("viewDocument") && !!this.viewDocument) {
                 this.assignUIs()
+                this.observeMainGroupHeader();
+            } else {
+                if (_changedProperties.has("_intersectionObserver")) {
+                    console.log("intersection observer changed")
+                    this.observeMainGroupHeader();
+                }
             }
+        }
+    }
+
+    private observeMainGroupHeader() {
+        const mainGroup = this.findPartByRecordType(this.viewDocument.recordType);
+        if (mainGroup) {
+            const groupHeaderElement = this.shadowRoot.querySelector(`.part-header[data-part-id="${mainGroup.partId}"]`);
+            console.log("main group is ", mainGroup, groupHeaderElement);
+            if (this._intersectionObserver) {
+                this._intersectionObserver.disconnect();
+                this._intersectionObserver = undefined;
+            }
+            if (!this._intersectionObserver && groupHeaderElement) {
+                this._intersectionObserver = new IntersectionObserver((entries) => {
+                    let el: HTMLElement = this.shadowRoot.querySelector(`.fixed-part-header[data-part-id="${mainGroup.partId}"]`);
+                    if (el) {
+                        if (entries[0].isIntersecting) {
+                            el.style.display = "none";
+                        } else {
+                            if (entries[0].boundingClientRect.top < this.stickyTop) {
+                                el.style.display = "block";
+                                el.style.top = `${this.stickyTop}px`;
+                            } else {
+                                console.log(`fixed-part-header: boundingClientRect.top > ${this.stickyTop}`, entries[0]);
+                            }
+                        }
+                    } else {
+                        console.warn("observeMainGroupHeader: fixed-part-header not found")
+                    }
+                }, {
+                    root: null,
+                    rootMargin: "20px",
+                    threshold: 1.0,
+                });
+                this._intersectionObserver.observe(groupHeaderElement);
+            }
+        } else {
+            console.warn("observeMainGroupHeader: main group not found")
+        }
+    }
+
+    disconnectedCallback() {
+        super.disconnectedCallback();
+        if (this._intersectionObserver) {
+            this._intersectionObserver.disconnect()
+            this._intersectionObserver = undefined
         }
     }
 
@@ -223,9 +280,84 @@ export class KioskView  extends KioskAppComponent {
         }
     }
 
+    public async goto(options: {recordType?: string, uid?:string} = {}) {
+        let targetElement = this.parentElement
+        let navDone = false
+        await this.updateComplete
+        setTimeout(() => {
+            if (options.hasOwnProperty("recordType") && options["recordType"] != "") {
+                this.gotoRecordType(options).then((result) => {
+                    if (!result) {
+                        console.log("gotoRecordType failed")
+                        var rect = this.getBoundingClientRect();
+                        if (!(
+                            rect.top >= 0 &&
+                            rect.top <= (window.innerHeight || document.documentElement.clientHeight)
+                        )) {
+                            this.parentElement.style.scrollMarginTop = "100px"
+                            this.parentElement.scrollIntoView({ behavior: "smooth" })
+                        }
+                    }
+                })
+            }
+            this.requestUpdate("_intersectionObserver")
+        },500)
+    }
+
+    public async gotoRecordType(options: any): Promise<boolean> {
+        let scrollTo: Element
+        let partUIElement: UIComponent
+        const part = this.findPartByRecordType(options.recordType)
+
+        if (part) {
+            const partElement = this.renderRoot.querySelector(`#part-body-${part.cssPartId}`)
+            if (partElement) {
+                scrollTo = partElement
+
+                if (part.expandable) {
+                    console.log("gotoRecordType, opening ", part)
+                    if (!part.opened)
+                        part.toggleOpen()
+                    this.requestUpdate("_intersectionObserver")
+                }
+                if (options.hasOwnProperty("uid")) {
+                    partUIElement = partElement.querySelector("ui-component")
+                }
+            }
+        }
+        if (scrollTo) {
+            await this.updateComplete
+            if (partUIElement) {
+                try {
+                    if (partUIElement.gotoRecord(options.uid)) {
+                        console.log("gotoRecordType, UIComponent.gotoRecord succeeded")
+                        return true
+                    } else {
+                        console.log("gotoRecordType, UIComponent.gotoRecord failed")
+                    }
+                } catch (e) {
+                    console.log("gotoRecordType, error in gotoRecord: ", e)
+                }
+            }
+            scrollTo.scrollIntoView({ behavior: "smooth" })
+            return true
+        } else {
+            return false
+        }
+    }
+
     private findPart(partId: string) {
         for (const g of Object.values(this._groupParts)) {
             const idx = g.findIndex(x => x.partId === partId)
+            if (idx > -1)
+                return g[idx]
+        }
+        return undefined
+    }
+
+    findPartByRecordType(recordType: string) {
+        for (const g of Object.values(this._groupParts)) {
+            const idx = g.findIndex(x => x.recordType === recordType)
             if (idx > -1)
                 return g[idx]
         }
@@ -338,6 +470,15 @@ export class KioskView  extends KioskAppComponent {
         }
     }
 
+    scrollToViewTop(event: Event) {
+        this.parentElement.style.scrollMarginTop="100px"
+        this.parentElement.scrollIntoView({ behavior: "smooth" })
+        // const header = event.currentTarget as HTMLDivElement
+        // const partId = header.dataset["partId"]
+        // const elHeader = this.shadowRoot.querySelector(`.part-header[data-part-id="${partId}"]`)
+        // elHeader.parentElement.scrollIntoView({ behavior: "smooth" })
+    }
+
     renderStackedPartHeader(part: KioskViewGroupPart) {
         let { maxHeight, buttonMode } = part.getPartExpansionSettings();
         let expandIcon = undefined
@@ -347,6 +488,9 @@ export class KioskView  extends KioskAppComponent {
         return html`<div data-part-id=${part.partId} class="part-header" @click="${part.expandable?this.expandHeader:nothing}">
             <span>${part.text}</span>
             ${part.expandable?expandIcon:nothing}
+        </div>
+        <div data-part-id=${part.partId} class="fixed-part-header" @click="${this.scrollToViewTop}">
+            <i class="fas fa-angles-up"></i><span>${part.text}</span>
         </div>`
     }
 

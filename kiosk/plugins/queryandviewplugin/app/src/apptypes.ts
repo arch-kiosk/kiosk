@@ -5,9 +5,12 @@ export interface KioskViewDetails {
     tableName: string
     dsdIdentifierFieldName: string
     identifier: string
+    subRecordType: string
+    subRecordUid: string
 }
 export interface KioskViewInstance {
     viewId: string
+    elementId: string
     details: KioskViewDetails
 }
 
@@ -17,7 +20,8 @@ export type ApiResultKioskFTSHit = {
     identifier_record_type: string
     record_type: string,
     excerpt: string,
-    rank: string
+    rank: string,
+    displayRecordType: string  //dynamically added in the app
 }
 
 export type APIResultFTS = {

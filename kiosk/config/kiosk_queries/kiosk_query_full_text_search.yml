@@ -2,5 +2,7 @@ header:
   version: 1
 meta:
   query_type: FullTextKioskQuery
+  category: "favourites"
+  order_priority: "A"
 
 

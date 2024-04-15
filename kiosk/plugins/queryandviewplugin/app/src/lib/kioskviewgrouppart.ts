@@ -280,7 +280,7 @@ export class KioskViewGroupPart {
         } else {
             rowIndex = parseInt(lastUID)
             if (Number.isNaN(rowIndex)) {
-                // That's when I would actually have to find th UID. But I am not sure if that is ever necessary
+                // That's when I would actually have to find the UID. But I am not sure if that is ever necessary
                 rowIndex = -1
             }
         }

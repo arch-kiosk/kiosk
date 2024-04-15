@@ -18,6 +18,8 @@ class KioskQueryStoreModel(Table):
                ("created", ",".join([Table.ATTRIBUTE_DONT_UPDATE])),
                ("modified", ),
                ("modified_by", ),
+               ("category", ),
+               ("order_priority", ),
                ("uid", ",".join([Table.ATTRIBUTE_KEY, Table.ATTRIBUTE_DONT_UPDATE, Table.ATTRIBUTE_DONT_INSERT])),
                ]
 
@@ -26,6 +28,8 @@ class KioskQueryStoreModel(Table):
         self.created = None
         self.modified = None
         self.modified_by = ""
+        self.category = ""
+        self.order_priority = ""
         self.description = ""
         self.name = ""
         self.id = ""

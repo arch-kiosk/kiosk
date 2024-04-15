@@ -69,4 +69,4 @@ def query_and_view_show():
     print(f"\nGET: plugin.name returns {get_plugin_for_controller(_plugin_name_).name}")
 
     conf = kioskglobals.get_config()
-    return render_template('queryandview.html')
+    return render_template('queryandview.html', no_third_party_js=True)

@@ -4,7 +4,7 @@ import { html, nothing, PropertyValues, TemplateResult, unsafeCSS } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { ApiResultKioskQueryDescription, ApiResultContextsFullIdentifierInformation, AnyDict } from "./lib/apitypes";
 import { KioskAppComponent } from "../kioskapplib/kioskappcomponent";
-import { consume } from "@lit-labs/context";
+import { consume } from "@lit/context";
 import { DataContext } from "./lib/datacontext";
 import { InterpreterManager } from "../kioskapplib/interpretermanager";
 import { identifierInfoContext } from "./identifierinfocontext";

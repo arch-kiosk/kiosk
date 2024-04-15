@@ -1,0 +1,44 @@
+'Flask':
+  SECRET_KEY: "fd82303c-6852-48c1-8165-9e60d4b25b94"
+#  EXPLAIN_TEMPLATE_LOADING: False
+  THREADED: False
+  SEND_FILE_MAX_AGE_DEFAULT: 43200
+#  WTF_CSRF_ENABLED: False
+
+#development:
+#  webapp_development: true
+#  print_raw_requests: false
+#  generate_system_message: false
+#  show_system_informaton: true
+#  suppress_system_messages: false
+#  test_patch: true
+
+config:
+  base_path: #kiosk base path
+  transfer_dir: #kiosk transfer directory
+  no_console: true
+  odbc_ini_dsn: #FileMaker odbc entry (e.g. kiosk_odbc)
+#  server_type: 'local'
+#  log_level: 'DEBUG'
+#  database_port: 5432 #only if different from default 5432
+
+
+kiosk:
+  security_token_timeout_seconds: 3600
+#  reset_file: '%base_path%\reset.yml' # reset file for online server
+#  subnet: '192.168.1' #subnet of local server
+  terminal_accent_color_ansi: '[30;41;1m'
+#  backup_reminder_days: 0
+#  local_import_paths: [ 'z:\file_import', 'z:\backup' ]
+#  suppress_messages:
+#    sys_msg_id_mcp_not_up: true
+#  administrationplugin:
+#    backup_filename_template: "%project_id%_#a_#d#m#y-#h#m#s.dmp"
+#    defaults:
+#      backup_directory: 'z:\backup'
+#      restore_file: 'z:\backup'
+#      backup_workstation_directories: false
+
+#reportingdock:
+#  debug_sql: True
+

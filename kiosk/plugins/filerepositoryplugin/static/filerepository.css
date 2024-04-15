@@ -538,7 +538,7 @@ body a {
   background: var(--col-bg-kiosk-version, var(--col-bg-2));
   color: var(--col-primary-bg-2);
   text-align: right;
-  z-index: 100;
+  z-index: 2;
   padding-left: 1em;
   padding-right: 0.5em;
   font-size: var(--font-size-small);

@@ -2,12 +2,15 @@ from datetime import datetime
 
 import kioskstdlib
 from dsd.dsd3singleton import Dsd3Singleton
+from fts.kioskfulltextsearch import FTS
 from kioskcontextualfile import KioskContextualFile
 from qualitycontrol.qualitycontrol import QualityControl
 from kiosksqldb import KioskSQLDb
 import logging
 from filerepository import FileRepository
 import os
+
+from sync_config import SyncConfig
 from sync_constants import FILES_TABLE_NAME
 import re
 
@@ -31,7 +34,8 @@ class Housekeeping:
                                           "housekeeping_rewrite_image_record": self.housekeeping_rewrite_image_record,
                                           "housekeeping_lowercase_filenames": self.housekeeping_lowercase_filenames,
                                           }
-        self.housekeeping_standalone_methods = {"housekeeping_quality_check": self.housekeeping_quality_check
+        self.housekeeping_standalone_methods = {"housekeeping_quality_check": self.housekeeping_quality_check,
+                                                "housekeeping_fts": self.housekeeping_fts
                                                 }
 
     def _report_progress(self, progress_prc: int = 0, msg=""):
@@ -163,7 +167,7 @@ class Housekeeping:
             cur.close()
         else:
             logging.error(f"{self.__class__.__name__}.do_housekeeping: "
-                          f"That's nice housekeeping: No tasks have been ordered.")
+                          f"That's nice housekeeping: No tasks on file repository files have been ordered.")
         logging.info(f"File repository housekeeping has checked {c} files")
         if self.console:
             print(f"Done: {c} files checked.", flush=True)
@@ -328,3 +332,14 @@ class Housekeeping:
         logging.info(f"{self.__class__.__name__}.housekeeping_quality_check done")
         if console:
             print(f"{self.__class__.__name__}.housekeeping_quality_check done")
+
+    def housekeeping_fts(self, console, parameters: dict):
+        logging.info(f"{self.__class__.__name__}.housekeeping_fts starts")
+        if console:
+            print(f"{self.__class__.__name__}.housekeeping_fts starts")
+        dsd = Dsd3Singleton.get_dsd3()
+        fts = FTS(dsd, SyncConfig.get_config())
+        fts.rebuild_fts(console_output=True)
+        logging.info(f"{self.__class__.__name__}.housekeeping_fts done")
+        if console:
+            print(f"{self.__class__.__name__}.housekeeping_fts done")

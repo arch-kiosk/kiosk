@@ -1,7 +1,7 @@
 import { KioskApp } from "../kioskapplib/kioskapp";
 import { nothing, unsafeCSS } from "lit";
 import { html, literal } from "lit/static-html.js";
-import {provide} from '@lit-labs/context'
+import {provide} from '@lit/context'
 import {constantsContext} from './constantscontext'
 import { property, state } from "lit/decorators.js";
 import "./kioskqueryselector.ts";
@@ -60,6 +60,7 @@ export class QueryAndViewApp extends KioskApp {
     private identifierInfo: Array<ApiResultContextsFullIdentifierInformation> = [];
 
     private recordTypeAliases: {[key: string]: string} = { }
+    private _intersectionObserver: IntersectionObserver;
 
     constructor() {
         super();
@@ -79,6 +80,38 @@ export class QueryAndViewApp extends KioskApp {
                 this.recordTypeAliases[constant.key] = v
             }
         }
+    }
+
+    updated(_changedProperties: any) {
+        super.updated(_changedProperties);
+        let e = this.shadowRoot.querySelector("#marker-below-toolbar")
+        if (!this._intersectionObserver && e) {
+            this._intersectionObserver = new IntersectionObserver((entries) => {
+                let el: HTMLElement = this.shadowRoot.getElementById("back-to-top")
+                if (entries[0].isIntersecting)
+                    el.classList.add("disabled")
+                else
+                    el.classList.remove("disabled")
+            }, {
+                root: null,
+                rootMargin: "0px",
+                threshold: 1.0
+            })
+            this._intersectionObserver.observe(e)
+        }
+        let toolbar = this.shadowRoot.querySelector(".toolbar")
+        if (toolbar) {
+            let y = toolbar.getBoundingClientRect().bottom
+            this.shadowRoot.querySelectorAll("kiosk-view").forEach((el: KioskView) => {
+                console.log("setting sticky top to ", y)
+                el.stickyTop = y
+            })
+        }
+    }
+
+    disconnectedCallback() {
+        if (this._intersectionObserver)
+            this._intersectionObserver.disconnect()
     }
 
     fetchConstants() {
@@ -181,7 +214,7 @@ export class QueryAndViewApp extends KioskApp {
         }
     }
 
-    private gotoIdentifier(event: MouseEvent) {
+    private devGotoIdentifier(event: MouseEvent) {
         const idClicked = (event.currentTarget as HTMLElement).id
         if (idClicked === "btGoto") {
             var exp = this.renderRoot.querySelector("#devIdentifier") as HTMLInputElement
@@ -209,24 +242,53 @@ export class QueryAndViewApp extends KioskApp {
         this.onGotoIdentifier(identifierEvent);
     }
 
-    private onGotoIdentifier(event: CustomEvent) {
+    private getViewElementId(tableName: string, viewId: string) {
+        return tableName + String(fowlerNollVo1aHashModern(viewId))
+    }
 
-        let viewDetails = <KioskViewDetails>event.detail;
-        // @ts-ignore
-        // if (import.meta.env.DEV) {
-        //     alert(viewDetails.tableName + "." + viewDetails.dsdIdentifierFieldName + ": " + viewDetails.identifier);
-        // }
+    private async loadNewView(viewId: string, viewDetails: KioskViewDetails) {
+        let view: KioskViewInstance = {
+            viewId: viewId,
+            elementId: this.getViewElementId(viewDetails.tableName, viewId),
+            details: { ...viewDetails }
+        };
+        this.views.set(viewId, view);
+        this.requestUpdate();
+        await this.updateComplete;
+        await this.activateView(viewId);
+    }
 
-        const viewId = KioskView.getViewId(viewDetails);
-        if (!this.views.has(viewId)) {
-            let view: KioskViewInstance = { viewId: viewId, details: { ...viewDetails } };
-            this.views.set(viewId, view);
-            this.requestUpdate();
-            this.updateComplete.then(() => {
-                let layouter = <KioskQueryLayouter>this.shadowRoot.getElementById("view-layout");
-                layouter.selectPage(view.viewId);
-            });
+    private async activateView(viewId: string) {
+        let layouter = <KioskQueryLayouter>this.shadowRoot.getElementById("view-layout");
+        await layouter.selectPage(viewId);
+    }
+
+    private async gotoIdentifier(viewDetails:KioskViewDetails) {
+        const viewTabId = KioskView.getViewId(viewDetails);
+        if (!this.views.has(viewTabId)) {
+            await this.loadNewView(viewTabId, viewDetails);
+        } else {
+            await this.activateView(viewTabId)
         }
+        const view = this.views.get(viewTabId)
+        let viewElement = <KioskView>this.shadowRoot.getElementById(view.elementId);
+        if (viewElement) {
+            console.log(`gotoIdentifier: view element ${viewElement} found`)
+            viewElement.goto({"recordType": viewDetails.subRecordType, "uid": viewDetails.subRecordUid});
+        } else {
+            console.log(`gotoIdentifier: view element for view ${view.elementId} not found`)
+        }
+    }
+
+    private onGotoIdentifier(event: CustomEvent) {
+        let viewDetails = <KioskViewDetails>event.detail;
+        this.gotoIdentifier(viewDetails).catch((e) => {
+            console.error("Error in onGotoIdentifier: ", e);
+        })
+    }
+
+    protected backToTopClicked(e: Event) {
+        this.scrollIntoView({behavior: "smooth"});
     }
 
     protected renderToolbar() {
@@ -245,12 +307,14 @@ export class QueryAndViewApp extends KioskApp {
                     <div style="display:none" class="toolbar-button" @click="${this.reloadClicked}">
                         <i class="fas fa-window-restore"></i>
                     </div>
-                    <div class="toolbar-button" @click="${this.reloadClicked}">
-                        <i class="fas fa-reload"></i>
+                    <div class="toolbar-button" @click="${this.backToTopClicked}">
+                        <i id="back-to-top" class="fas fa-angles-up disabled"></i>
                     </div>
                 </div>
                 <div></div>
-            </div>`;
+            </div>
+            <div id="marker-below-toolbar" class="invisible-marker"></div>`
+
     }
 
     renderQueryMode() {
@@ -292,7 +356,7 @@ export class QueryAndViewApp extends KioskApp {
     renderView(view: KioskViewInstance) {
         return html`
             <kiosk-view
-                id="${view.details.tableName}${String(fowlerNollVo1aHashModern(view.viewId))}"
+                id="${view.elementId}"
                 .apiContext="${this.apiContext}"
                 .viewDetails="${view.details}"
                 @goto-identifier="${this.onGotoIdentifier}"
@@ -351,19 +415,19 @@ export class QueryAndViewApp extends KioskApp {
                               data-identifier="LA"
                               data-table-name="unit"
                               data-field-name="arch-context"
-                              @click="${this.gotoIdentifier}">LA</span>
+                              @click="${this.devGotoIdentifier}">LA</span>
                         <span class="dev-open-identifier"
                               data-identifier="D"
                               data-table-name="unit"
                               data-field-name="arch-context"
-                              @click="${this.gotoIdentifier}">D</span>
+                              @click="${this.devGotoIdentifier}">D</span>
                         <span class="dev-open-identifier"
                               data-identifier="PVD"
                               data-table-name="site"
                               data-field-name="arch-context"
-                              @click="${this.gotoIdentifier}">PVD</span>
+                              @click="${this.devGotoIdentifier}">PVD</span>
                         <label for="identifier">identifier:</label><input class="dev-open-identifier-input" id="devIdentifier" name="devIdentifier" type="text"/>
-                        <button id="btGoto" @click="${this.gotoIdentifier}">Go</button>
+                        <button id="btGoto" @click="${this.devGotoIdentifier}">Go</button>
                     </div>
                 </div>`;
         }

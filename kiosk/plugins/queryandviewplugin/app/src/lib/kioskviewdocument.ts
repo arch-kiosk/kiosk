@@ -119,6 +119,7 @@ export class KioskViewDocument {
         return groupParts
     }
 
+
     getDSD() {
         return this._data["kioskview.dsd"]
     }

@@ -93,7 +93,13 @@
     {% endif %}
   </div>
 </div>
-<script src="{{ url_for('static', filename='scripts/kiosk_main.js') }}"></script>
+
+{% if no_third_party_js %}
+    <script src="{{ url_for('static', filename='scripts/kiosk_main_no_third_party.js') }}"></script>
+{% else %}
+    <script src="{{ url_for('static', filename='scripts/kiosk_main.js') }}"></script>
+{% endif %}
+
 {{ global_sync_scripts |safe }}
 {{ global_async_scripts |safe }}
 {{ published_routes |safe }}

@@ -64,6 +64,8 @@ class KioskBackup:
         [r"tools", "analyzefilerepository.py"],
         [r"tools", "packkiosk.py"],
         [r"tools", "update_default_kiosk_queries.py"],
+        [r"tools", "copy_images_from_directory.py"],
+        [r"tools", "refresh_full_text_search.py"],
         [r"sync\sync\core", "config.py"],
         [r"sync\sync\core", "dicttools.py"],
         [r"sync\sync\core", "yamlconfigreader.py"],
@@ -183,6 +185,7 @@ class KioskBackup:
                          ["-xr!qrcoderecognitiontests", "-xr!node_modules", "-xr!.env.development.local",
                           "-xr!kiosk_secure.yml",
                           "-xr!kiosk_config.yml",
+                          "-xr!kiosk_local_config.yml",
                           "-xr!secure.js", "-xr!*.fmp12"]])
             # Not doing that anymore. Custom modules have to be transferred separately.
             # zips.append([path.join(dst_dir, "kiosk.zip"),
@@ -198,6 +201,7 @@ class KioskBackup:
                          kiosk_dir,
                          ['-xr!qrcoderecognitiontests',
                           "-xr!kiosk_config.yml",
+                          "-xr!kiosk_local_config.yml",
                           '-xr!kiosk_secure.yml']])
 
         if "w" in options:

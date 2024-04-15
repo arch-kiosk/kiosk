@@ -41,7 +41,14 @@ class KioskQueryStore:
         store_entry = KioskQueryStoreModel()
         store_entry.uid = kioskstdlib.uuid4()
         store_entry.id = query_definition.query_id
+        store_entry.category = query_definition.category
+        store_entry.order_priority = query_definition.order_priority
         store_entry.query_type = query.__class__.__name__
+        if hasattr(query_definition, "category"):
+            store_entry.category = query_definition.category
+        if hasattr(query_definition, "order_priority"):
+            store_entry.category = query_definition.order_priority
+
         cls._update_definition(store_entry, query_definition)
         store_entry.add(commit=True)
 
@@ -50,6 +57,8 @@ class KioskQueryStore:
         logging.info(f"{cls.__name__}._update_definition: update '{query_definition.query_name}'")
         store_entry.name = query_definition.query_name
         store_entry.description = query_definition.query_description
+        store_entry.category = query_definition.category
+        store_entry.order_priority = query_definition.order_priority
         store_entry.query = query_definition.raw_query_definition
         store_entry.created = datetime.datetime.now()
         store_entry.modified = datetime.datetime.now()
@@ -104,11 +113,11 @@ class KioskQueryStore:
     def list(cls):
         """
         lists available queries from the store
-        :return: list of tuple (id, type, name, description)
+        :return: list of tuple (id, type, name, description, r.category, r.order_priority)
         """
         result = []
         store_entry = KioskQueryStoreModel()
         for r in store_entry.all():
-            result.append((r.id, r.query_type, r.name, r.description))
+            result.append((r.id, r.query_type, r.name, r.description, r.category, r.order_priority))
 
         return result

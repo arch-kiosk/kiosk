@@ -1,4 +1,5 @@
-@import "../../../../../static/styles/_constants"
+//@import "../../../../../static/styles/_constants"
+@import "component-queryandviewapp"
 @import "appstyles"
 @import reset
 @import icons
@@ -35,9 +36,51 @@ vaadin-grid::part(header-cell)
   text-decoration: underline
   text-decoration-style: dotted
   cursor: pointer
+.kiosk-query-result-area
+  display: grid
+  grid-template-columns: 50px 1fr
+.result-toolbar
+  display: flex
+  flex-direction: column
+  background-color: $col-bg-2
+  margin-right: 2px
+  align-items: center
+  i
+    font-size: 1.4rem
+.result-toolbar-button
+  @extend .toolbar-button
+  padding: 5px 5px
+  font-size: $font-size-small
+  color: $col-primary-bg-2
+  margin-top: .5rem
+  height: 34px
+  svg
+    fill: $col-primary-bg-2
+    &:hover
+      fill: $col-accent-bg-2
+    &:active
+      fill: $col-success-bg-2
+.pressed
+  background-color: $col-bg-3
+  border: $col-bg-2-darker solid 1px
+  color: $col-accent-bg-2
+  fill: $col-accent-bg-2
+  i
+    color: $col-accent-bg-2
+  svg
+    fill: $col-accent-bg-2
+
+
+
+//.export-drop-down
+//  width: 10em
+
+
+
 .kiosk-query-results
   position: relative
-  min-height: 400px
+  min-height: 10dvh
+  max-height: 70dvh
 
 .no-records
   position: absolute
@@ -59,3 +102,18 @@ vaadin-grid::part(header-cell)
     vertical-align: middle
     font-family: $fontawesome-font-family
     padding-right: 1em
+.toastui-chart-tooltip-container
+  display: none
+.toastui-chart-export-menu
+  width: 130px!important
+  transform: translate(450px, -470px)!important
+.toastui-chart-export-menu-btn#xls
+  display: none
+.toastui-chart-export-menu-btn
+  border-radius: 0
+  background-color: $col-bg-1
+  color: $col-accent-bg-1
+.toastui-chart-export-menu-btn#csv
+  display: none
+.toastui-chart-wrapper
+  background-color: $col-bg-body

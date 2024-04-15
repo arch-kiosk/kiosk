@@ -76,7 +76,6 @@ unit.sheet:
       layout:
         min_width: max
 
-
 unit_narrative.list:
   record_type: unit_narrative
   view_type: list  # (can be list, sheet or file_list or harris_matrix)

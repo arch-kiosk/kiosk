@@ -1,14 +1,14 @@
 // @ts-ignore
 import local_css from "./styles/component-queryselector.sass?inline";
-import { html, TemplateResult, unsafeCSS } from "lit";
+import { html, nothing, TemplateResult, unsafeCSS } from "lit";
 import { customElement, state } from "lit/decorators.js";
 import { handleCommonFetchErrors } from "./lib/applib";
-import { Constant, ApiResultKioskQueryDescription } from "./lib/apitypes";
+import { Constant, ApiResultKioskQueryDescription, ApiResultKioskQuery } from "./lib/apitypes";
 import { FetchException } from "../kioskapplib/kioskapi";
 import { KioskAppComponent } from "../kioskapplib/kioskappcomponent";
 import { KioskQueryFactory } from "./kioskqueryfactory";
 import { QUERY_UI_SCENARIO } from "./apptypes";
-import { consume } from "@lit-labs/context";
+import { consume } from "@lit/context";
 import { constantsContext } from "./constantscontext";
 import { DataContext } from "./lib/datacontext";
 import { DictionaryAccessor } from "./lib/dictionaryAccessor";
@@ -94,6 +94,20 @@ export class KioskQuerySelector extends KioskAppComponent {
         for (const query of this.kioskQueries) {
                 query.name = this._interpreter.interpret(query.name,undefined,"/")
         }
+        this.kioskQueries.sort(function (a: ApiResultKioskQueryDescription, b: ApiResultKioskQueryDescription) {
+            let rc =  a.category.localeCompare(b.category);
+            if (!rc) {
+                rc = a.order_priority.localeCompare(b.order_priority);
+                if (!rc) {
+                    rc = a.name.localeCompare(b.name)
+                }
+            } else {
+                if (a.category === "-") rc = 1
+                if (b.category === "-") rc = -1
+            }
+
+            return rc
+        })
     }
 
     showQueries(kioskQueries: ApiResultKioskQueryDescription[]) {
@@ -127,8 +141,15 @@ export class KioskQuerySelector extends KioskAppComponent {
         this.tryClose(kioskQuery);
     }
 
-    protected renderQueryItem(query: ApiResultKioskQueryDescription) {
+    protected renderQueryItem(query: ApiResultKioskQueryDescription, index: number) {
+        let newCategory = ""
+        if (index > 0 && this.kioskQueries[index-1].category !== query.category) {
+            newCategory = query.category === "-"? "more queries": query.category
+        } else if (index == 0) {
+            newCategory = "most wanted"
+        }
         return html`
+            ${newCategory ? html`<div class="kiosk-query-category">${newCategory}</div>` : nothing}
             <div id="${query.id}" class="kiosk-query" @click="${this.selectQuery}">
                 <i class="fas">${KioskQueryFactory.getTypeIcon(query.type)}</i>
                 <div class="kiosk-query-text">
@@ -154,7 +175,7 @@ export class KioskQuerySelector extends KioskAppComponent {
                               <h3>Choose your way to search and query</h3>
                           </div>
                       `}
-                <div id="kiosk-query-list">${this.kioskQueries.map((query) => this.renderQueryItem(query))}</div>
+                <div id="kiosk-query-list">${this.kioskQueries.map((query, index) => this.renderQueryItem(query, index))}</div>
             </div>
         `;
     }

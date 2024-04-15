@@ -7,7 +7,12 @@ export default defineConfig(({ command, mode }) => {
     const env = loadEnv(mode, "env");
     return {
         plugins: [
-            createHtmlPlugin(),
+            createHtmlPlugin({
+                inject: {
+                    ...env,
+                },
+
+            }),
             // copy({
             //   targets: [ { src: '../../kioskfilemakerworkstationplugin/static/kioskfilemakerworkstation.css',
             //     dest:'./kioskfilemakerworkstation/static'
@@ -26,12 +31,16 @@ export default defineConfig(({ command, mode }) => {
                   }
                 : {},
         build: {
+            // commonjsOptions: {
+            //   dynamicRequireTargets: "node_modules/"
+            // },
             outDir: "../static/app",
             lib: {
                 entry: "src/app.ts",
                 formats: ["es"],
             },
             // rollupOptions: {
+            //
             //   external: /^lit/,
             // },
         },
@@ -43,10 +52,5 @@ export default defineConfig(({ command, mode }) => {
             },
         },
         publicDir: "/static",
-        html: {
-            injectData: {
-                ...env,
-            },
-        },
     };
 });

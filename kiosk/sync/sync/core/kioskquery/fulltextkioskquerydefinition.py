@@ -55,4 +55,3 @@ class FullTextKioskQueryDefinition(KioskQueryDefinition):
     @property
     def variables(self):
         return self._variables
-

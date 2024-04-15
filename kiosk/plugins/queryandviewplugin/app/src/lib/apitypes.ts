@@ -31,6 +31,9 @@ export interface ApiResultKioskQueryDescription {
     name: string
     description: string
     ui: ApiResultKioskQueryDescriptionUI
+    category: string
+    order_priority: string
+    charts?: AnyDict
 }
 
 export interface KioskQueryInstance extends ApiResultKioskQueryDescription {

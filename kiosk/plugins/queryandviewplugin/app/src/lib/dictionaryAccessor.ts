@@ -6,11 +6,14 @@ import { DataContext } from "./datacontext";
 export class DictionaryAccessor extends DataContextAccessor {
     private dictionary: Constant[]
 
-
     public constructor(id: string, dataContext: DataContext, dictionary: Constant[]=undefined) {
         super(id, dataContext);
         this.rootKey = '/$/'
         this.assignEntries(dictionary)
+    }
+
+    public setRootKey(key: string): void {
+        this.rootKey = key
     }
 
     /**

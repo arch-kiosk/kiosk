@@ -356,7 +356,7 @@ class KioskRestore:
                 pass
             template_config = os.path.join(config_dir, 'kiosk_config_template.yml')
             if os.path.exists(template_config):
-                shutil.move(template_config, kiosk_configfile)
+                shutil.copy(template_config, kiosk_configfile)
             else:
                 print("\nWarning: There was no template configuration 'kiosk_config_template.yml' to use.\n")
                 with open(kiosk_configfile, "w", encoding='utf8') as ymlfile:
@@ -370,11 +370,16 @@ class KioskRestore:
             if not cfg:
                 cfg = {}
             if "import_configurations" not in cfg:
-                cfg["import_configurations"] = ["kiosk_default_config.yml", "kiosk_local_config.yml",
+                cfg["import_configurations"] = ["kiosk_default_config.yml",
+                                                "kiosk_local_config.yml",
                                                 "kiosk_secure.yml"]
             if "config" not in cfg:
                 cfg["config"] = {}
-            cfg["config"] = {"project_id": options["project_id"]}
+
+            if "project_id" not in cfg["config"]:
+                cfg["config"] = {"project_id": options["project_id"]}
+            else:
+                cfg["config"]["project_id"] = options["project_id"]
 
             with open(kiosk_configfile, "w") as ymlfile:
                 yaml.dump(cfg, ymlfile, default_flow_style=False)

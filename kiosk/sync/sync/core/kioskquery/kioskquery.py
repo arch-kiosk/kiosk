@@ -9,6 +9,8 @@ class KioskQuery:
     _id: str
     _name: str
     _description: str
+    _category: str
+    _sort_priority: str
 
     def __init__(self, query_definition: dict, dsd: DataSetDefinition):
         self._dsd = dsd

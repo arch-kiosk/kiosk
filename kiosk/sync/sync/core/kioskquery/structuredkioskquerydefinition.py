@@ -19,6 +19,7 @@ class StructuredKioskQueryDefinition(KioskQueryDefinition):
         self._name = ""
         self._id = ""
         self._description = ""
+        self._charts = {}
 
         if "header" not in query_definition:
             raise KioskQueryException("no header found.")
@@ -56,6 +57,8 @@ class StructuredKioskQueryDefinition(KioskQueryDefinition):
                                                                "", null_defaults=True)
             self._name = kioskstdlib.try_get_dict_entry(self.queries[self._id], "name",
                                                         "", null_defaults=True)
+            self._charts = kioskstdlib.try_get_dict_entry(self.queries[self._id], "charts",
+                                                          None, null_defaults=True)
 
     @property
     def raw_query_definition(self):
@@ -83,3 +86,8 @@ class StructuredKioskQueryDefinition(KioskQueryDefinition):
 
     def get_variables(self):
         return self._variables
+
+    @property
+    def charts(self):
+        self._retrieve_query_description()
+        return self._charts

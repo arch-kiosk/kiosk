@@ -21,6 +21,20 @@ queries:
       where unit.arch_context = {{#unit_id}}
       group by unit.arch_context, cm.type
       order by sum(cm.weight) desc,sum(cm.quantity) desc, cm.type"
+    charts:
+      chart1:
+        type: "pie"
+        title: "#: % material in #(/$/constants/labels/unit) #(/variables/inputs/unit_id) by quantity"
+        categories: "material"
+        values: "quantity"
+      chart2:
+        type: "pie"
+        title: "% material in unit {{#unit}} by weight"
+        categories: "material"
+        values: "weight"
+      chart3:
+        type: "bar"
+        title: "materials and their weights in unit {{#unit}}"
     column_information:
       unit_id: DSD('unit','arch_context')
       material: DSD('collected_material','type')

@@ -606,4 +606,10 @@
   text-align: right;
 }
 
+#housekeeping-form {
+  max-width: 600px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
 /*# sourceMappingURL=administration.css.map */
