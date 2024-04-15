@@ -109,5 +109,5 @@ if __name__ == '__main__':
         else:
             logging.error(f"Image {uid} has no filename.")
         row = cur.fetchone()
-
     logging.info(f"Done.")
+
