@@ -122,6 +122,7 @@ def pack_delta():
             tolerated_errors = int(options["tolerated-errors"])
         else:
             tolerated_errors = 0
+        transfer_kiosk.set_progress_handler(lambda prg: True)
         transfer_kiosk.pack_delta(options['target-dir'], fake_it=True if "fake" in options else False,
                                   max_errors=tolerated_errors)
 
