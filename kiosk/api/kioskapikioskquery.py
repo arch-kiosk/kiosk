@@ -191,7 +191,7 @@ class ApiKioskQuery(Resource):
             dsd = kioskglobals.master_view.dsd
 
             params = ApiKioskQueryPostParameter().load(request.args)
-            pprint.pprint({"ApiCQLQueryPostParameter": params})
+            # pprint.pprint({"ApiCQLQueryPostParameter": params})
             page = params["page"]
             page_size = params["page_size"]
 
@@ -219,7 +219,7 @@ class ApiKioskQuery(Resource):
                       'document_information': query_result.get_document_information(),
                       'records': documents,
                       }
-            pprint.pprint(result)
+            # pprint.pprint(result)
             api_return = ApiResultKioskQuery().dump(result)
             # pprint.pprint(api_return)
             try:
@@ -233,7 +233,7 @@ class ApiKioskQuery(Resource):
             try:
                 if query_result is not None:
                     query_result.close()
-                pprint.pprint(repr(e))
+                # pprint.pprint(repr(e))
             except BaseException as e_close:
                 logging.error(f"{self.__class__.__name__}.POST: Exception when closing kiosk query: {repr(e_close)}")
 

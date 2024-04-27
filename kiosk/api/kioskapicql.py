@@ -165,7 +165,7 @@ class ApiCQLQuery(Resource):
             if additional_fields:
                 columns["additional_datum"] = {"source_field": "additional_datum"}
             query.columns = columns
-            pprint(columns)
+            # pprint(columns)
 
             query.distinct = True
 
@@ -234,7 +234,7 @@ class ApiCQLQuery(Resource):
                 pass
 
             dsd = kioskglobals.master_view.dsd
-            pprint({"cql query": request.json})
+            # pprint({"cql query": request.json})
 
             params = ApiCQLQueryPostParameter().load(request.args)
             # pprint({"ApiCQLQueryPostParameter": params})

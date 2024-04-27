@@ -126,7 +126,7 @@ class ApiFTS(Resource):
                        "uid": hit.id, "excerpt": hit.excerpt}
                 documents.append(doc)
 
-            pprint.pprint(documents)
+            # pprint.pprint(documents)
             result = {'result_msg': "ok",
                       'record_count': len(documents),
                       'overall_record_count': len(documents),
@@ -134,7 +134,7 @@ class ApiFTS(Resource):
                       'page_size': len(documents),
                       'records': documents,
                       }
-            pprint.pprint(result)
+            # pprint.pprint(result)
             api_return = ApiResultFTS().dump(result)
             # try:
             #     if query_result is not None:
