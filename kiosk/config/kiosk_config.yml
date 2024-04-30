@@ -4,7 +4,7 @@ import_configurations:
   - kiosk_secure.yml
 
 config:
-  project_id: 'demo'
+  project_id: 'elri'
   filemaker_template: '%sync%\filemaker\pvd_recording_template.fmp12'
   filemaker_db_filename: test_recording.fmp12
   autoload_plugins_buap:
@@ -38,10 +38,10 @@ glossary:
 kiosk:
   global_constants:
     project_name: ''
-    project_short: 'BUAP'
+    project_short: 'ELRI'
     project_logo_top: ''
-    project_logo_main: 'Brown University Abydos Project'
-    project_logo_bottom: ''
+    project_logo_main: 'ELRI'
+    project_logo_bottom: 'Economic Landscapes of Roman Istria'
 
   administrationplugin:
     fake_transfer: True
@@ -52,6 +52,4 @@ kiosk:
 
   pwastresstestplugin:
     active: true
-
-
 

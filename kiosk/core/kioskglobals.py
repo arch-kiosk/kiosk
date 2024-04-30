@@ -19,9 +19,9 @@ from uic.uicstream import UICStream, UICKioskFile
 import datetime
 import threading
 
-kiosk_version = "1.5.31"
+kiosk_version = "1.5.32.1"
 kiosk_version_name = "slippery search"
-kiosk_date = datetime.datetime(2024, 4, 14)
+kiosk_date = datetime.datetime(2024, 4, 23)
 debug = False
 development = {}
 

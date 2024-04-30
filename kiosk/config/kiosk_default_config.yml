@@ -129,7 +129,7 @@ file_handlers:
              "webpfilehandling", "jp2filehandling" ]
 
 file_import:
-  file_extensions: [ "jpg" ]
+  file_extensions: ["jpg"]
   recursive: True
   sort_sequence_by: "FILE_CREATION_TIME"
   use_coded_filenames: False  # used for sequence import

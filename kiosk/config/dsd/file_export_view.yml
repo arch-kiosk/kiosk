@@ -8,3 +8,4 @@ tables:
   - exclude_fields_with_instruction("local_id")
   - exclude_fields_with_instruction("id_domain")
   - exclude_fields_with_instruction("no_file_export")
+

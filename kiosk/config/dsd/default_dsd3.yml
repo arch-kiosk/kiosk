@@ -1582,6 +1582,31 @@ tickets:
 
 unit:
   structure:
+    6:
+      id: [datatype(NUMBER), local_id("arch_context")]
+      name: [datatype(VARCHAR)]
+      purpose: [datatype(VARCHAR)]
+      type: [datatype(VARCHAR)]
+      method: [datatype(VARCHAR), label("recording method")]
+      id_excavator: [datatype(VARCHAR), "label(#(/$/constants/labels/label_supervisor))"]
+      unit_creation_date: [datatype(DATE), label("opened on")]
+      id_site: [datatype(VARCHAR), 'join("site","id")']
+      excavator_full_name: [datatype(VARCHAR)]
+      spider_counter: [datatype(NUMBER)]
+      coordinates: [datatype(VARCHAR)]
+      legacy_unit_id: [datatype(VARCHAR), "label(#(/$/constants/labels/label_legacy_unit_id))"]
+      term_for_unit: [datatype(VARCHAR)]
+      term_for_locus: [datatype(VARCHAR)]
+      identification_method_loci: [datatype(VARCHAR)]
+      identification_method_cm: [datatype(VARCHAR)]
+      identification_method_analysis: [datatype(VARCHAR)]
+      sector: [datatype(VARCHAR), "label(#(/$/constants/labels/label_sector))"]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier(), label("#(unit/term_for_unit)")]  # there was a unit() instruction I removed.
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
     5:
       id: [datatype(NUMBER), local_id("arch_context")]
       name: [datatype(VARCHAR)]
@@ -1696,6 +1721,9 @@ unit:
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
   migration:
+    6:
+      upgrade:
+        - add("sector")
     5:
       upgrade:
         - alter("modified_by")
