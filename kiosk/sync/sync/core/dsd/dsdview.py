@@ -16,6 +16,7 @@ class DSDView:
         self.dsd = dsd.clone()
         self.include_tables = []
         self.excluded_fields = {}
+        self._conditions = {}
 
     @staticmethod
     def load_view_from_file(path_and_filename: str, loader=None) -> dict:
@@ -39,6 +40,7 @@ class DSDView:
         :param instructions: the dictionary with the instructions
         :return: True if successful. Otherwise it would throw exceptions.
         """
+        self._read_conditions(instructions)
         self.include_tables = []
         parser = SimpleFunctionParser()
         for instruction in instructions["tables"]:
@@ -74,6 +76,11 @@ class DSDView:
         self._delete_not_included_tables()
         self._delete_not_included_fields()
         return True
+
+    def _read_conditions(self, instructions: dict):
+        """ note / todo: currently condition definitions are not being used anywhere. """
+        if "conditions" in instructions:
+            self._conditions = instructions["conditions"]
 
     def _apply_include(self, parameters: []):
         if parameters[0] == "*":
@@ -153,3 +160,18 @@ class DSDView:
                     self._include_field(table, field)
                 # self.dsd.delete_field(table, field)
 
+    def get_condition_for_table(self, table):
+        """
+            Get the condition definition for a specific table. A condition statement is meant to
+            limit the records of a master table.
+
+            Note/todo: This is currently not used anywhere!
+
+            Args:
+                table (str): The name of the table.
+
+            Returns:
+                str: The condition definition or an empty string if no condition is set.
+            """
+
+        return self._conditions.get(table, "")
