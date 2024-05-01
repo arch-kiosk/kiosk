@@ -29,12 +29,19 @@ queries:
         values: "quantity"
       chart2:
         type: "pie"
-        title: "% material in unit {{#unit}} by weight"
+        title: "#: % material in #(/$/constants/labels/unit) #(/variables/inputs/unit_id) by weight"
         categories: "material"
         values: "weight"
       chart3:
         type: "bar"
-        title: "materials and their weights in unit {{#unit}}"
+        title: "#: materials and their quantities in #(/$/constants/labels/unit) #(/variables/inputs/unit_id)"
+        categories: "material"
+        values: "quantity"
+      chart4:
+        type: "bar"
+        title: "#: materials and their weights in #(/$/constants/labels/unit) #(/variables/inputs/unit_id)"
+        categories: "material"
+        values: "weight"
     column_information:
       unit_id: DSD('unit','arch_context')
       material: DSD('collected_material','type')

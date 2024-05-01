@@ -24,6 +24,11 @@ export type ApiResultKioskQueryDescriptionUI={
     [key:string]: AnyDict
 }
 
+export interface ApiResultKioskQueryChartDefinition {
+    type: string
+    title: string
+    interpretedTitle?: string
+}
 
 export interface ApiResultKioskQueryDescription {
     id: string
@@ -33,7 +38,7 @@ export interface ApiResultKioskQueryDescription {
     ui: ApiResultKioskQueryDescriptionUI
     category: string
     order_priority: string
-    charts?: AnyDict
+    charts?: {[key: string]: ApiResultKioskQueryChartDefinition}
 }
 
 export interface KioskQueryInstance extends ApiResultKioskQueryDescription {

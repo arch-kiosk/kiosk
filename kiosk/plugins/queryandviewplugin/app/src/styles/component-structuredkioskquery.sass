@@ -39,6 +39,7 @@ vaadin-grid::part(header-cell)
 .kiosk-query-result-area
   display: grid
   grid-template-columns: 50px 1fr
+  overflow-x: hidden
 .result-toolbar
   display: flex
   flex-direction: column
@@ -116,14 +117,28 @@ vaadin-grid::part(header-cell)
 .toastui-chart-export-menu-btn#csv
   display: none
 .toastui-chart-wrapper
-  background-color: $col-bg-body
-.chart-selector
-  background-color: $col-bg-body
-  width: 100%
+  background-color: $col-bg-2
+  padding-right: 4px
+.chart-background
+  background-color: $col-bg-2
+  margin-right: 2px
+.chart-selector, .chart-title
+  background-color: $col-bg-1
+  color: $col-accent-bg-1
+  width: calc(100%)
   margin-left: 0px
-  margin-bottom: 2px
+  border-bottom: solid 4px $col-bg-2
   padding-bottom: 2px
+.chart-title
+  width: calc(100% - 4px)
+  padding: 2px 5px 2px 4px
+  color: $col-accent-bg-1
+  font-size: 1.2em
+
+
 vaadin-select-item::part(content)
-  text-align: right
-  padding-right: 1em
+  color: $col-accent-bg-1
+  font-size: 1.2em
+  //text-align: right
+  //padding-right: 1em
 

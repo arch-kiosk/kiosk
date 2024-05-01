@@ -50,7 +50,7 @@ import {
     refreshPieChart,
     RESULT_VIEW_TYPE_PIECHART,
     RESULT_VIEW_TYPE_BARCHART,
-    getChartsByType, chartType2String,
+    getChartsByType, chartType2String, refreshBarChart2,
 } from "./structuredkioskquerycharts";
 
 const RESULT_VIEW_TYPE_DATA = 1;
@@ -188,12 +188,21 @@ export class StructuredKioskQuery extends KioskAppComponent {
                 return [null, 0];
             } else {
                 this.data = data;
+                this._amendData()
                 console.log(this.data);
                 return [data.records, this.data.overall_record_count];
             }
         } catch (e) {
             handleCommonFetchErrors(this, e, "structuredKioskQuery.fetchQueryResults", null);
             return [[], 0];
+        }
+    }
+
+    private _amendData() {
+        if (this.queryDefinition.hasOwnProperty("charts")) {
+            Object.values(this.queryDefinition.charts).forEach((chart) => {
+                chart.interpretedTitle=this.interpreter.interpret(chart.title, undefined, "/")
+            })
         }
     }
 
@@ -246,7 +255,7 @@ export class StructuredKioskQuery extends KioskAppComponent {
                 refreshPieChart(graphDiv, this.data, `${parseInt(width) - 50}px`, "400px",chartDefinition);
             } else {
                 if (this.activeView === RESULT_VIEW_TYPE_BARCHART) {
-                    refreshBarChart(graphDiv, this.data, `${parseInt(width) - 50}px`, "400px",chartDefinition);
+                    refreshBarChart2(graphDiv, this.data, `${parseInt(width) - 50}px`, "400px",chartDefinition);
                 }
             }
 
@@ -487,8 +496,8 @@ export class StructuredKioskQuery extends KioskAppComponent {
                     <vaadin-grid-column></vaadin-grid-column>`}
 
             </vaadin-grid>
-            <div style="${this.activeView == RESULT_VIEW_TYPE_DATA ? "display:none" : "display: block"}">
-                ${this.renderChartSelector()}
+            <div class="chart-background" style="${this.activeView == RESULT_VIEW_TYPE_DATA ? "display:none" : "display: block"}">
+                ${this.renderChartTitleOrSelector()}
                 <div id="chart">
 
                 </div>
@@ -511,15 +520,13 @@ export class StructuredKioskQuery extends KioskAppComponent {
         }
     }
 
-    renderChartSelector() {
+    renderChartTitleOrSelector() {
         if (this.activeView != RESULT_VIEW_TYPE_DATA) {
             const chartType = chartType2String(this.activeView)
             const charts = getChartsByType(this.activeView, this.queryDefinition.charts)
             const items: any[] = charts.map(chartId => {
-                let chartDefinition = this.queryDefinition.charts[chartId]
-                chartDefinition.title=this.interpreter.interpret(chartDefinition.title, undefined, "/")
                 return {
-                    label: chartDefinition.title,
+                    label: this.queryDefinition.charts[chartId].interpretedTitle,
                     value: chartId
                 }
             })
@@ -532,16 +539,28 @@ export class StructuredKioskQuery extends KioskAppComponent {
                 this.activeChart = {...this.activeChart}
                 activeChart = charts[0]
             }
-            if (charts.length < 2)
-                return html``
-
-            console.log("select items", items)
-            return html`
-                <vaadin-select .items="${items}" class="chart-selector"
-                               @change="${this.chartSelectionChanged}"
-                .value="${activeChart}">
-                </vaadin-select>
-            `
+            if (charts.length > 1) {
+                console.log("select items", items)
+                return html`
+                    <vaadin-select .items="${items}" class="chart-selector"
+                                   @change="${this.chartSelectionChanged}"
+                                   .value="${activeChart}">
+                    </vaadin-select>
+                `
+            } else {
+                if (items.length > 0) {
+                    return html`
+                        <div class="chart-title">
+                            ${items[0].label}                                   
+                        </div>
+                    `
+                } else {
+                    return html`
+                        <div class="chart-title">
+                        </div>
+                    `
+                }
+            }
         }
     }
     getChartTypes():Array<string> {
