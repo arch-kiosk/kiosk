@@ -57,3 +57,13 @@ element_type:
   file_description: bottom
   resolution: medium
   fit_content: fit
+
+# dsd('locus','arch_context') && query-ui
+element_type:
+  text: "#($/constants/labels/locus)"
+  name: "selection"
+  items:
+    lookup_type: "table"
+    topic: "locus"
+    selection: ["arch_context"]
+    key: "arch_context"

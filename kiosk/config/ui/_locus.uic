@@ -2,15 +2,6 @@
 version: 1
 apply_uic_literals: "&& view-ui"
 
-# dsd('locus','type')
-element_type:
-  name: "selection"
-  items:
-    lookup_type: "table"
-    topic: "locus_types"
-    selection: ["type_name"]
-    key: "id"
-
 # dsd('locus','uid_unit')
 element_type:
   visible: false

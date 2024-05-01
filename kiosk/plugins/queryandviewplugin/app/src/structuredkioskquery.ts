@@ -1,5 +1,7 @@
 // @ts-ignore
 // @ts-ignore
+// noinspection CssUnresolvedCustomProperty
+
 import local_css from "./styles/component-structuredkioskquery.sass?inline";
 import { DateTime } from "luxon";
 import { KioskAppComponent } from "../kioskapplib/kioskappcomponent";
@@ -24,6 +26,7 @@ import { registerStyles } from "@vaadin/vaadin-themable-mixin/register-styles.js
 import "@shoelace-style/shoelace/dist/components/menu/menu.js";
 import "@shoelace-style/shoelace/dist/components/menu-item/menu-item.js";
 import "@shoelace-style/shoelace/dist/components/dropdown/dropdown.js";
+import '@vaadin/select'
 
 // @ts-ignore
 import { ComboBoxDataProviderParams, ComboBoxDataProvider } from "@vaadin/combo-box";
@@ -42,11 +45,15 @@ import { InterpreterFactory } from "./lib/interpreterfactory";
 import { InterpreterManager } from "../kioskapplib/interpretermanager";
 import { SheetExport } from "./exporter";
 // import { BarChart, PieChart } from "@toast-ui/chart";
-import { refreshBarChart, refreshPieChart } from "./structuredkioskquerycharts";
+import {
+    refreshBarChart,
+    refreshPieChart,
+    RESULT_VIEW_TYPE_PIECHART,
+    RESULT_VIEW_TYPE_BARCHART,
+    getChartsByType, chartType2String,
+} from "./structuredkioskquerycharts";
 
 const RESULT_VIEW_TYPE_DATA = 1;
-const RESULT_VIEW_TYPE_PIECHART = 2;
-const RESULT_VIEW_TYPE_BARCHART = 3;
 type ResultViewType = typeof RESULT_VIEW_TYPE_DATA | typeof RESULT_VIEW_TYPE_PIECHART | typeof RESULT_VIEW_TYPE_BARCHART
 
 @customElement("structured-kiosk-query")
@@ -88,6 +95,9 @@ export class StructuredKioskQuery extends KioskAppComponent {
 
     @state()
     private activeView: ResultViewType = RESULT_VIEW_TYPE_DATA;
+
+    @state()
+    private activeChart: AnyDict = {}
 
     constructor() {
         super();
@@ -203,7 +213,7 @@ export class StructuredKioskQuery extends KioskAppComponent {
             };
             ui.uiSchema = this.uiSchema;
         }
-        if (_changedProperties.has("activeView") || _changedProperties.has("data") && this.data) {
+        if (_changedProperties.has("activeChart") || _changedProperties.has("activeView") || _changedProperties.has("data") && this.data) {
             if (this.data && this.activeView != RESULT_VIEW_TYPE_DATA) {
                 if (this.data.page_size <= this.overall_record_count) {
                     this.fetchAllData().then(data => {
@@ -217,10 +227,6 @@ export class StructuredKioskQuery extends KioskAppComponent {
         }
     }
 
-    refreshBarChart(graphDiv: HTMLElement) {
-
-    }
-
     refreshGraph(data: ApiResultKioskQuery) {
         const graphDiv = this.shadowRoot.getElementById("chart");
         const queryResultContainer = this.shadowRoot.querySelector(".kiosk-query-result-area");
@@ -230,16 +236,20 @@ export class StructuredKioskQuery extends KioskAppComponent {
             graphDiv.removeChild(graphDiv.firstElementChild);
         }
         console.log("refreshing graph", graphDiv);
-        let chartDefinition = this.queryDefinition.charts[Object.keys(this.queryDefinition.charts)[0]]
-        chartDefinition.title=this.interpreter.interpret(chartDefinition.title, undefined, "/")
-        // chartDefinition.title=
-        if (this.activeView === RESULT_VIEW_TYPE_PIECHART) {
-            console.log("inputs", this._inputData)
-            refreshPieChart(graphDiv, this.data, `${parseInt(width) - 50}px`, "400px",chartDefinition);
-        } else {
-            if (this.activeView === RESULT_VIEW_TYPE_BARCHART) {
-                refreshBarChart(graphDiv, this.data, `${parseInt(width) - 50}px`, "400px",chartDefinition);
+        if (this.activeView != RESULT_VIEW_TYPE_DATA) {
+            let chartType = chartType2String(this.activeView)
+            // let chartDefinition = this.queryDefinition.charts[Object.keys(this.queryDefinition.charts)[0]]
+            let chartDefinition = this.queryDefinition.charts[this.activeChart[chartType]]
+            console.log("chartDefinition", chartDefinition)
+            // chartDefinition.title=
+            if (this.activeView === RESULT_VIEW_TYPE_PIECHART) {
+                refreshPieChart(graphDiv, this.data, `${parseInt(width) - 50}px`, "400px",chartDefinition);
+            } else {
+                if (this.activeView === RESULT_VIEW_TYPE_BARCHART) {
+                    refreshBarChart(graphDiv, this.data, `${parseInt(width) - 50}px`, "400px",chartDefinition);
+                }
             }
+
         }
     }
 
@@ -478,40 +488,117 @@ export class StructuredKioskQuery extends KioskAppComponent {
 
             </vaadin-grid>
             <div style="${this.activeView == RESULT_VIEW_TYPE_DATA ? "display:none" : "display: block"}">
+                ${this.renderChartSelector()}
                 <div id="chart">
 
                 </div>
             </div>`;
     }
+    chartSelectionChanged(e: Event) {
+        // if (e instanceof KeyboardEvent) {
+        //     if (e.key === "Enter" && this._default?.["ENTER"]) {
+        //     }
+        // } else if (e instanceof MouseEvent) {
+        //
+        // }
+        if (this.activeView != RESULT_VIEW_TYPE_DATA) {
+            const chartType = chartType2String(this.activeView)
+            let selectedChart = (<HTMLInputElement>e.target).value
+            if (selectedChart) {
+                this.activeChart[chartType] = selectedChart
+                this.activeChart = { ...this.activeChart }
+            }
+        }
+    }
+
+    renderChartSelector() {
+        if (this.activeView != RESULT_VIEW_TYPE_DATA) {
+            const chartType = chartType2String(this.activeView)
+            const charts = getChartsByType(this.activeView, this.queryDefinition.charts)
+            const items: any[] = charts.map(chartId => {
+                let chartDefinition = this.queryDefinition.charts[chartId]
+                chartDefinition.title=this.interpreter.interpret(chartDefinition.title, undefined, "/")
+                return {
+                    label: chartDefinition.title,
+                    value: chartId
+                }
+            })
+            let activeChart = ""
+            if (this.activeChart.hasOwnProperty(chartType) && charts.find(x => x === this.activeChart[chartType])) {
+                activeChart = this.activeChart[chartType]
+            }
+            if (!activeChart) {
+                this.activeChart[chartType] = charts[0]
+                this.activeChart = {...this.activeChart}
+                activeChart = charts[0]
+            }
+            if (charts.length < 2)
+                return html``
+
+            console.log("select items", items)
+            return html`
+                <vaadin-select .items="${items}" class="chart-selector"
+                               @change="${this.chartSelectionChanged}"
+                .value="${activeChart}">
+                </vaadin-select>
+            `
+        }
+    }
+    getChartTypes():Array<string> {
+        const chartTypes:Set<string> = new Set()
+        if (this.queryDefinition.hasOwnProperty("charts")) {
+            Object.values(this.queryDefinition.charts).forEach(chart => chartTypes.add(chart["type"]))
+        }
+        console.log(chartTypes)
+        return [...chartTypes]
+    }
+
+    renderChartTypeButton(chartType: string): TemplateResult {
+        switch (chartType) {
+            case "pie":
+                return html`
+                    <div id="pieChart"
+                         class="result-toolbar-button ${this.activeView == RESULT_VIEW_TYPE_PIECHART ? "pressed" : ""}"
+                         aria-description="chart view"
+                         @click="${this.switchResultView}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <path
+                                d="M13 2.051V11h8.949c-.47-4.717-4.232-8.479-8.949-8.949zm4.969 17.953c2.189-1.637 3.694-4.14 3.98-7.004h-8.183l4.203 7.004z"></path>
+                            <path
+                                d="M11 12V2.051C5.954 2.555 2 6.824 2 12c0 5.514 4.486 10 10 10a9.93 9.93 0 0 0 4.255-.964s-5.253-8.915-5.254-9.031A.02.02 0 0 0 11 12z"></path>
+                        </svg>
+                    </div>`
+            case "bar":
+                return html`
+                    <div id="barChart"
+                         class="result-toolbar-button ${this.activeView == RESULT_VIEW_TYPE_BARCHART ? "pressed": ""}"
+                         aria-description="chart view"
+                         @click="${this.switchResultView}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                            <path
+                                d="M6 21H3a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1zm7 0h-3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v17a1 1 0 0 1-1 1zm7 0h-3a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1z"></path>
+                        </svg>
+                    </div>`
+            default: return html``
+        }
+    }
 
     renderGraphButtons() : TemplateResult {
-        const result = html``
-        if (this.queryDefinition.hasOwnProperty("charts")) {
-            return html`
-                <div id="pieChart"
-                     class="result-toolbar-button ${this.activeView == RESULT_VIEW_TYPE_PIECHART ? "pressed" : ""}"
-                     aria-description="chart view"
-                     @click="${this.switchResultView}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                        <path
-                            d="M13 2.051V11h8.949c-.47-4.717-4.232-8.479-8.949-8.949zm4.969 17.953c2.189-1.637 3.694-4.14 3.98-7.004h-8.183l4.203 7.004z"></path>
-                        <path
-                            d="M11 12V2.051C5.954 2.555 2 6.824 2 12c0 5.514 4.486 10 10 10a9.93 9.93 0 0 0 4.255-.964s-5.253-8.915-5.254-9.031A.02.02 0 0 0 11 12z"></path>
-                    </svg>
-                </div>
-                <div id="barChart"
-                     class="result-toolbar-button ${this.activeView == RESULT_VIEW_TYPE_BARCHART ? "pressed": ""}"
-                     aria-description="chart view"
-                     @click="${this.switchResultView}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                        <path
-                            d="M6 21H3a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1zm7 0h-3a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v17a1 1 0 0 1-1 1zm7 0h-3a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v11a1 1 0 0 1-1 1z"></path>
-                    </svg>
-                </div>`
-        } else {
-            console.log(this.queryDefinition)
-            return html``;
+        if (!this.queryDefinition.hasOwnProperty("charts")) return html``
+
+        let result: Array<TemplateResult> = []
+        try {
+            for (const chartType of this.getChartTypes()) {
+                result.push(this.renderChartTypeButton(chartType))
+            }
+        } catch {
         }
+        return result.length > 0?html`${result}`:html`
+                <div class="result-toolbar-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" 
+                         style="fill: var(--col-error-bg-1);transform: ;msFilter:;"><path d="M12.884 2.532c-.346-.654-1.422-.654-1.768 0l-9 17A.999.999 0 0 0 3 21h18a.998.998 0 0 0 .883-1.467L12.884 2.532zM13 18h-2v-2h2v2zm-2-4V9h2l.001 5H11z"></path></svg>                
+                </div>
+            `
     }
 
     exportClicked(event: CustomEvent) {

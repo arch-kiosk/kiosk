@@ -1,0 +1,51 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+variables:
+  locus_id: ["dsd('locus', 'arch_context')"]
+queries:
+  'ceramics_type_and_weight_per_locus':
+    name: '#:How much pottery has been found per #(/$/constants/labels/locus) in each ceramic category?'
+    description: '#:Lists the ceramic categories of a #(/$/constants/labels/locus) and calculates weight and quantity'
+    type: 'SQL'
+    output_type: 'list'
+    query: "
+      select locus.arch_context locus_id,
+       su.category_1 category,
+       sum(su.weight)::float weight,
+       sum(su.count)::float quantity
+       from {{locus}} locus
+         inner join {{collected_material}} cm on locus.uid = cm.uid_locus
+         inner join {{su_ceramics_preprocessing_entry}} su on cm.uid = su.cm_uid
+      where locus.arch_context = {{#locus_id}}
+      group by locus.arch_context, su.category_1
+      order by sum(su.weight) desc,sum(su.count) desc, su.category_1"
+    charts:
+      chart1:
+        type: "pie"
+        title: "#: ceramic categories in #(/$/constants/labels/locus) #(/variables/inputs/locus_id) by weight"
+        categories: "category"
+        values: "weight"
+      chart2:
+        type: "pie"
+        title: "#: ceramic categories in #(/$/constants/labels/locus) #(/variables/inputs/locus_id) by quantity"
+        categories: "category"
+        values: "quantity"
+      chart3:
+        type: "bar"
+        title: "#: ceramic categories by weight in #(/$/constants/labels/locus) #(/variables/inputs/locus_id)"
+        categories: "category"
+        values: "weight"
+      chart4:
+        type: "bar"
+        title: "#: ceramic categories by quantity in #(/$/constants/labels/locus) #(/variables/inputs/locus_id)"
+        categories: "category"
+        values: "quantity"
+    column_information:
+      locus_id: DSD('locus','arch_context')
+      category: DSD('su_ceramics_preprocessing_entry','category_1')
+      weight: DSD('su_ceramics_preprocessing_entry','weight')
+      quantity: DSD('su_ceramics_preprocessing_entry','count')
+
+

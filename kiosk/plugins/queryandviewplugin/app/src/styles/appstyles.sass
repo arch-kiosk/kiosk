@@ -1,5 +1,12 @@
 @import "../../../../../static/styles/_constants"
 
+\:host
+  --lumo-contrast-10pct: rgba(0,0,0,0)
+  --lumo-contrast-60pct: var(--col-accent-body)
+  --lumo-text-field-size: 1em
+  --lumo-font-size: var(--font-size-standard)
+  --lumo-font-family: var(--standard-text-font)
+
 *
   box-sizing: border-box
 .loading
@@ -30,3 +37,26 @@
     background-position: 0 0
   100%
     background-position: -200% 0%
+
+.text-field-div
+  margin-left: .5em
+  margin-right: .5em
+
+.combobox-div
+  @extend .text-field-div
+  margin-bottom: 0em
+
+vaadin-date-picker
+  padding: 0px
+vaadin-date-picker, vaadin-time-picker, vaadin-combo-box, vaadin-select
+  margin-left: calc(-1 * (0.375em + var(--lumo-border-radius-m) / 4 - 1px))
+  margin-right: calc(-1 * (0.375em + var(--lumo-border-radius-m) / 4 - 1px))
+  padding-top: 0px
+vaadin-date-picker > input, vaadin-time-picker > input, vaadin-combo-box  > input, vaadin-select  > input
+  --_lumo-text-field-overflow-mask-image: white
+  --lumo-text-field-size: 22px
+  background-color: white
+  max-height: 30px
+vaadin-date-picker > input:disabled, vaadin-time-picker > input:disabled, vaadin-combo-box > input:disabled, vaadin-select > input:disabled
+  background-color: $col-bg-1-lighter
+  --lumo-disabled-text-color: $col-primary-bg-1

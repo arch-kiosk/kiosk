@@ -1,0 +1,23 @@
+# header
+version: 1
+apply_uic_literal: "&& query-ui"
+
+# dsd('locus','type')
+element_type:
+  name: "selection"
+  items:
+    lookup_type: "table"
+    topic: "locus_types"
+    selection: ["type_name"]
+    key: "id"
+
+# dsd('locus','arch_context')
+element_type:
+  text: "#($/constants/labels/locus)"
+  name: "selection"
+  items:
+    lookup_type: "table"
+    topic: "locus"
+    selection: ["arch_context"]
+    key: "arch_context"
+

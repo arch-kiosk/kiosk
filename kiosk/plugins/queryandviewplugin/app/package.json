@@ -33,6 +33,7 @@
     "@shoelace-style/shoelace": "^2.15.0",
     "@toast-ui/chart": "^4.6.1",
     "@vaadin/grid": "^24.3.10",
+    "@vaadin/select": "^24.3.11",
     "install": "^0.13.0",
     "lit": "^3.1.2",
     "nanoid": "^4.0.1",

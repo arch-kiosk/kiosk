@@ -3,6 +3,26 @@ import { BarChart, ColumnChart, PieChart } from "@toast-ui/chart";
 import { types } from "sass";
 import String = types.String;
 
+export const RESULT_VIEW_TYPE_PIECHART = 2;
+export const RESULT_VIEW_TYPE_BARCHART = 3;
+
+// export const renderChartSelector = ()
+
+export function chartType2String (chartType: typeof RESULT_VIEW_TYPE_BARCHART | typeof RESULT_VIEW_TYPE_PIECHART): string {
+    switch(chartType) {
+        case RESULT_VIEW_TYPE_BARCHART:
+            return "bar";
+        case RESULT_VIEW_TYPE_PIECHART:
+            return "pie";
+    }
+}
+
+export const getChartsByType = (chartType: typeof RESULT_VIEW_TYPE_BARCHART | typeof RESULT_VIEW_TYPE_PIECHART,
+                                charts: AnyDict):Array<string> => {
+    let filterType = ""
+    filterType = chartType2String(chartType)
+    return [...Object.keys(charts).filter(chartId => charts[chartId].type === filterType)]
+}
 
 export const refreshPieChart = (graphDiv: HTMLElement, queryResult: ApiResultKioskQuery,
                                 width: string, height: string, chartDef: AnyDict) => {
