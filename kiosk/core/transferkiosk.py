@@ -7,19 +7,19 @@ from zipfile import ZipFile
 
 import kioskstdlib
 from filerepository import FileRepository
-from kioskconfig import KioskConfig
 from dsd.dsd3singleton import Dsd3Singleton
 from dsd.dsdview import DSDView
 from dsd.dsdyamlloader import DSDYamlLoader
 from kioskfilesmodel import KioskFilesModel
 from kiosksqldb import KioskSQLDb
 from databasedrivers import DatabaseDriver
+from sync_config import SyncConfig
 
 
 class TransferKiosk:
     transfer_progress = None
 
-    def __init__(self, cfg: KioskConfig):
+    def __init__(self, cfg: SyncConfig):
         self.cfg = cfg
         self.enable_console = False
         self.master_view = self._init_dsd(cfg)
@@ -199,7 +199,9 @@ class TransferKiosk:
         sql = f"""select {KioskSQLDb.sql_safe_ident('from_kiosk')}.{KioskSQLDb.sql_safe_ident('uid')} 
                     from {from_kiosk} from_kiosk 
                     left outer join {to_kiosk} to_kiosk on from_kiosk.uid = to_kiosk.uid
-                    where to_kiosk.uid is null or to_kiosk.modified < from_kiosk.modified
+                    where to_kiosk.uid is null 
+                        or (to_kiosk.modified < from_kiosk.modified 
+                            and coalesce(to_kiosk.md5_hash,'X')::VARCHAR != coalesce(from_kiosk.md5_hash, 'Y')::VARCHAR)
                     """
         cur = KioskSQLDb.execute_return_cursor(sql)
         c = 0
@@ -229,7 +231,7 @@ class TransferKiosk:
                 raise Exception(f"{self.__class__.__name__}.pack_delta: "
                                 f"Progress cancelled by user")
 
-        cError = 0
+        c_error = 0
 
         try:
             kfm = KioskFilesModel()
@@ -284,9 +286,9 @@ class TransferKiosk:
 
                 else:
                     if not kfm.get_one("uid=%s", [f]) or not kfm.tags or "BROKEN_FILE" not in kfm.tags:
-                        cError += 1
+                        c_error += 1
                         logging.error(f"{self.__class__.__name__}.pack_delta: Delta file '{f} not found'")
-                        if 0 < max_errors <= cError:
+                        if 0 < max_errors <= c_error:
                             raise Exception("Too many missing files")
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.pack_delta: Exception occurred: {repr(e)}")
@@ -295,7 +297,7 @@ class TransferKiosk:
                 zip_file.close()
 
         self.console_log(f"\nokay")
-        self.console_log(f"\n{c - cError} files packed, {cError} files missing.")
+        self.console_log(f"\n{c - c_error} files packed, {c_error} files missing.")
         return True
 
     def unpack(self, source_dir, file_repos_path="") -> bool:

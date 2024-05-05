@@ -225,7 +225,7 @@ class Housekeeping:
                                 f"File {ctx_file.uid} does not exist -> tagged as broken.")
                 if console:
                     print(f"\nFile {ctx_file.uid} is broken.", flush=True)
-                ctx_file.add_tag("BROKEN_FILE", save=False)
+                ctx_file.add_tag("BROKEN_FILE")
                 # todo: contexts
                 # if not ctx_file.are_contexts_ok():
                 #     ctx_file.add_tag("BROKEN_CONTEXT", save=False)
