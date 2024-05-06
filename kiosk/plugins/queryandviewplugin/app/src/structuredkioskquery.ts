@@ -542,10 +542,13 @@ export class StructuredKioskQuery extends KioskAppComponent {
             if (charts.length > 1) {
                 console.log("select items", items)
                 return html`
-                    <vaadin-select .items="${items}" class="chart-selector"
-                                   @change="${this.chartSelectionChanged}"
-                                   .value="${activeChart}">
-                    </vaadin-select>
+                    <div class="chart-selector-wrapper">
+                        <label for="chart-selector">select chart:</label>
+                        <vaadin-select id="chart-selector" .items="${items}" class="chart-selector"
+                                       @change="${this.chartSelectionChanged}"
+                                       .value="${activeChart}">
+                        </vaadin-select>
+                    </div>
                 `
             } else {
                 if (items.length > 0) {
