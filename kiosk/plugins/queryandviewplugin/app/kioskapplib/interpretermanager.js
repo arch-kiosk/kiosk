@@ -22,7 +22,7 @@ export class InterpreterManager {
         }
         this.interpreters.set(interpreter.symbol, interpreter)
     }
-    interpret(expr, quantifier="n", substCRLF="\r") {
+    interpret(expr, quantifier="n", substCRLF="\r", substUnderscore=" ") {
         if (!!!expr || typeof expr !== "string") return expr
         if (expr[0] !== this.INTERPRETER_SYMBOL) return expr
 
@@ -58,7 +58,10 @@ export class InterpreterManager {
                 }
         }
         if (substCRLF !== "\r") {
-            expr = expr.replace("\n", "").replace("\r", substCRLF)
+            expr = expr.replaceAll("\n", "").replace("\r", substCRLF)
+        }
+        if (substUnderscore !== "") {
+            expr = expr.replaceAll("_", substUnderscore)
         }
         return expr
     }

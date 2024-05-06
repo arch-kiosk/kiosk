@@ -12,6 +12,7 @@ queries:
     output_type: 'list'
     query: "
       select unit.arch_context unit_id,
+       cm.cm_type type, 
        cm.type material,
        sum(cm.weight)::float weight,
        sum(cm.quantity)::float quantity
@@ -19,7 +20,7 @@ queries:
          inner join {{locus}} locus on unit.uid = locus.uid_unit
          inner join {{collected_material}} cm on locus.uid = cm.uid_locus
       where unit.arch_context = {{#unit_id}}
-      group by unit.arch_context, cm.type
+      group by unit.arch_context, cm.cm_type, cm.type
       order by sum(cm.weight) desc,sum(cm.quantity) desc, cm.type"
     charts:
       chart1:
@@ -32,6 +33,16 @@ queries:
         title: "#: % material in #(/$/constants/labels/unit) #(/variables/inputs/unit_id) by weight"
         categories: "material"
         values: "weight"
+      chart2a:
+        type: "pie"
+        title: "#: #(/$/glossary/collected_material_type) in #(/$/constants/labels/unit) #(/variables/inputs/unit_id) by quantity"
+        categories: "type"
+        values: "quantity"
+      chart2b:
+        type: "pie"
+        title: "#: #(/$/glossary/collected_material_type) in #(/$/constants/labels/unit) #(/variables/inputs/unit_id) by weight"
+        categories: "type"
+        values: "weight"
       chart3:
         type: "bar"
         title: "#: materials and their quantities in #(/$/constants/labels/unit) #(/variables/inputs/unit_id)"
@@ -42,10 +53,21 @@ queries:
         title: "#: materials and their weights in #(/$/constants/labels/unit) #(/variables/inputs/unit_id)"
         categories: "material"
         values: "weight"
+      chart5:
+        type: "bar"
+        title: "#: #(/$/glossary/collected_material_type) and quantity in #(/$/constants/labels/unit) #(/variables/inputs/unit_id)"
+        categories: "type"
+        values: "quantity"
+      chart6:
+        type: "bar"
+        title: "#: #(/$/glossary/collected_material_type) and weight in #(/$/constants/labels/unit) #(/variables/inputs/unit_id)"
+        categories: "type"
+        values: "weight"
     column_information:
       unit_id: DSD('unit','arch_context')
       material: DSD('collected_material','type')
       weight: DSD('collected_material','weight')
       quantity: DSD('collected_material','quantity')
+      type: DSD('collected_material', 'cm_type')
 
 

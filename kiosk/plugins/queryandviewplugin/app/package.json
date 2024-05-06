@@ -2,7 +2,7 @@
   "name": "queryandviewapp",
   "description": "Kiosk Query and View App",
   "private": true,
-  "version": "0.5.0",
+  "version": "0.5.1",
   "type": "module",
   "main": "dist/queryandviewapp.es.js",
   "exports": {

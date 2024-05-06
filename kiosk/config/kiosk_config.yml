@@ -32,7 +32,7 @@ file_repository:
 #      requested_manipulations: [ "FIX_ROTATION", "DROP_EXIF_DATA", "AUTO_WHITE_BALANCE"]
 
 glossary:
-  "locus": ['locus', 'loci']
+  "locus": ["SU", "SUs"]
   "unit": ["trench", "trenches"]
 
 kiosk:
