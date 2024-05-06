@@ -4,7 +4,7 @@ import { html, literal } from "lit/static-html.js";
 import {provide} from '@lit/context'
 import {constantsContext} from './constantscontext'
 import { property, state } from "lit/decorators.js";
-import "./kioskqueryselector.ts";
+import "./kioskqueryselector";
 import "./selectidentifierpopup.ts";
 import { setBasePath } from "@shoelace-style/shoelace/dist/utilities/base-path.js";
 

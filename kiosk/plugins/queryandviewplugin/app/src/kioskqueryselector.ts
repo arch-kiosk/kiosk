@@ -2,7 +2,7 @@
 import local_css from "./styles/component-queryselector.sass?inline";
 import { html, nothing, TemplateResult, unsafeCSS } from "lit";
 import { customElement, state } from "lit/decorators.js";
-import { handleCommonFetchErrors } from "./lib/applib";
+import { handleCommonFetchErrors, handleErrorInApp } from "./lib/applib";
 import { Constant, ApiResultKioskQueryDescription, ApiResultKioskQuery } from "./lib/apitypes";
 import { FetchException } from "../kioskapplib/kioskapi";
 import { KioskAppComponent } from "../kioskapplib/kioskappcomponent";
@@ -14,6 +14,7 @@ import { DataContext } from "./lib/datacontext";
 import { DictionaryAccessor } from "./lib/dictionaryAccessor";
 import { InterpreterFactory } from "./lib/interpreterfactory";
 import { InterpreterManager } from "../kioskapplib/interpretermanager";
+import { MSG_ERROR } from "./lib/appmessaging";
 
 @customElement("kiosk-query-selector")
 export class KioskQuerySelector extends KioskAppComponent {
@@ -80,9 +81,13 @@ export class KioskQuerySelector extends KioskAppComponent {
             )
             .then((data: any) => {
                 if ("result_msg" in data && data.result_msg !== "ok") {
-                    console.log(`Error: `, data);
+                    handleErrorInApp(this, MSG_ERROR, "Kiosk reported an error when loading available queries", "KioskQuerySelector.loadQueries")
                 } else {
-                    this.showQueries(data);
+                    try {
+                        this.showQueries(data);
+                    } catch(e) {
+                        handleErrorInApp(this, MSG_ERROR, `Error on the client side when preparing available queries: ${e}`, "KioskQuerySelector.loadQueries")
+                    }
                 }
             })
             .catch((e: FetchException) => {
@@ -95,11 +100,12 @@ export class KioskQuerySelector extends KioskAppComponent {
                 query.name = this._interpreter.interpret(query.name,undefined,"/")
         }
         this.kioskQueries.sort(function (a: ApiResultKioskQueryDescription, b: ApiResultKioskQueryDescription) {
-            let rc =  a.category.localeCompare(b.category);
+            let rc = 0
+            rc = (a.hasOwnProperty("category") && b.hasOwnProperty("category")) ? (a.category??"").localeCompare(b.category??"") : 0;
             if (!rc) {
-                rc = a.order_priority.localeCompare(b.order_priority);
+                rc = (a.order_priority??"").localeCompare(b.order_priority??"");
                 if (!rc) {
-                    rc = a.name.localeCompare(b.name)
+                    rc = (a.name??"").localeCompare(b.name??"")
                 }
             } else {
                 if (a.category === "-") rc = 1
@@ -116,7 +122,11 @@ export class KioskQuerySelector extends KioskAppComponent {
         this.showLocalProgress = false;
         // kioskQueries.forEach((query) => console.log(query));
         this.kioskQueries = kioskQueries;
-        this.initQueries()
+        try {
+            this.initQueries()
+        } catch(e) {
+            throw `Cannot init queries: ${e}`
+        }
     }
 
     overlayClicked() {
