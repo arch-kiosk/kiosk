@@ -185,7 +185,7 @@ def add_caching_headers_to_response(response, timestamp=None, etag=None):
     """
     cache_control = "max-age=3600,must-revalidate,no-cache"
     if etag:
-        logging.debug(f"add_caching_headers_to_response: adding ETAG {etag}")
+        # logging.debug(f"add_caching_headers_to_response: adding ETAG {etag}")
         response.headers['ETag'] = etag
     else:
         if not timestamp:

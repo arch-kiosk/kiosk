@@ -1,0 +1,54 @@
+{% extends "kioskbasic.html" %}
+{% block links %}
+    <link rel="stylesheet"
+          href="{{ url_for(load_dynamic_app["controller_name"] + '.static',
+          filename=load_dynamic_app["controller_name"] + 'plugin.css') }}?v=1"/>
+{% endblock %}
+{% block title %}
+    <div id="subtitle-shadow">Kiosk</div>
+    <div id="subtitle">Query & View</div>
+{% endblock %}
+{% block body %}
+    <script>
+        var retries = 0
+
+        function loadAppHtml() {
+            let address = `{{ url_for(load_dynamic_app["controller_name"] + "." + load_dynamic_app["load_from_address"]) }}`
+            let module = `url_for(load_dynamic_app["controller_name"]`
+            console.log(`Loading kiosk app from ${address}`)
+            kioskAjaxGetPartial(
+                address,
+                {"mainModule": true},
+                'kiosk-dynamic-app-container',
+                (target_id, textStatus, jqXHR, statusData) => {
+                    console.log("fetching app html ... success")
+                },
+                (err_msg, textStatus, jqXHR, statusData) => {
+                    retries++;
+                    if (retries > 5) {
+                        kioskErrorToast(`the app ${module} cannot be fetched from the server. <br/>
+                                The server returned status ${jqXHR.status}: ${err_msg}. Refresh page to try again.`);
+                        return
+                    } else {
+                        console.log(`Error ${jqXHR.status} in ${module}.html.loadAppHtml: trying again (${retries}).`)
+                    }
+                    loadAppHtml()
+                }
+            )
+        }
+
+        function tryInsertScript() {
+            if (window.jQuery && typeof $.magnificPopup != 'undefined') {
+                console.log("initializing app html ...")
+                document.querySelector("#content-wrapper").insertAdjacentHTML("afterbegin", '<div id="kiosk-dynamic-app-container"></div>');
+                loadAppHtml()
+            } else {
+                console.log("main script cannot yet be initialized")
+                setTimeout(tryInsertScript, 500)
+            }
+        }
+
+        tryInsertScript()
+    </script>
+{% endblock %}
+{#<script src="../dynamic-app-loader.html.js"></script>#}

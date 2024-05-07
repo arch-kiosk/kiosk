@@ -1,0 +1,17 @@
+<div id="kiosk-dynamic-app-container">
+    <{{ load_dynamic_app["controller_name"] + "-app" }} id="kiosk-app" showprogress="true"></{{ load_dynamic_app["controller_name"] + "-app" }}>
+
+    {% with load_dynamic_app=load_dynamic_app %}
+            {% include "_kioskdynamicapploader_include.html" %}
+    {% endwith %}
+
+    <script>
+        const app = document.querySelector('{{ load_dynamic_app["controller_name"] }}' + "-app")
+        app.addEventListener("select-image", (event) => {
+            console.log(`Selecting image ${event.detail}`)
+            onViewImageClicked(event)
+        })
+        console.log("main script was executed")
+    </script>
+</div>
+

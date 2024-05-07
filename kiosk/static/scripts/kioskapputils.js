@@ -82,7 +82,7 @@ export async function fetchSomething(address, apiToken) {
   if (response.ok) {
     return await response.text()
   } else {
-    console.log(`caught ${response.status} in fetchFromApi`)
+    console.log(`caught ${response.status} in fetchSomething`)
     throw new FetchException(response.statusText, response)
   }
 

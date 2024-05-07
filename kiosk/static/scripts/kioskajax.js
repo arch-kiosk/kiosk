@@ -122,7 +122,7 @@ function getKioskError(msg, jqXHR) {
  *
  */
 function kioskAjaxGetPartial(url, ajaxData, target, onSuccess, onError, stateData = {}, ajaxOptions = {},
-                             onJSON = null, sourceId = "") {
+                             onJSON = null, sourceId = "", method="POST") {
   //used in administration.js.startBackup, bugsandfeaturesplugin.editbugdialog.html.saveDialog
   //and all the fileimport templates
 
@@ -178,7 +178,7 @@ function kioskAjaxGetPartial(url, ajaxData, target, onSuccess, onError, stateDat
     }
   );
 
-  kioskAjax(url, ajaxData, "POST", kioskAjaxOptions, stateData);
+  kioskAjax(url, ajaxData, method, kioskAjaxOptions, stateData);
 
 }
 

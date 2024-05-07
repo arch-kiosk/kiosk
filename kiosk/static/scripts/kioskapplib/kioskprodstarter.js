@@ -1,9 +1,15 @@
 import {ProdKioskApi} from "./prodkioskapi.js";
 
-window.addEventListener("load", () => {
-    console.log("Prodstarter starts")
+const dynamicAppContainer = document.querySelector("#kiosk-dynamic-app-container")
+if (!dynamicAppContainer) {
+    window.addEventListener("load", () => {
+        console.log("Prodstarter starts for statically loaded app")
+        connectToApi()
+    });
+} else {
+    console.log("Prodstarter starts for dynamically loaded app")
     connectToApi()
-});
+}
 
 function connectToApi() {
     setTimeout(() => {

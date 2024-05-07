@@ -1,0 +1,20 @@
+    <script>
+        if ('{{ load_dynamic_app["controller_name"] }}') {
+
+            function loadAppScripts() {
+                const appScript = document.createElement("script")
+                appScript.type = "module"
+                appScript.crossOrigin = "crossorigin"
+                appScript.src = "{{ url_for(load_dynamic_app["controller_name"] + '.static', filename='app/' + load_dynamic_app["controller_name"] +'app.js') }}"
+                const target = document.querySelector("body")
+                target.appendChild(appScript)
+
+                const prodStarterScript = document.createElement("script")
+                prodStarterScript.type = "module"
+                prodStarterScript.src = "{{ url_for('static', filename='scripts/kioskapplib/kioskprodstarter.js') }}"
+                target.appendChild(prodStarterScript)
+            }
+
+            loadAppScripts()
+        }
+    </script>

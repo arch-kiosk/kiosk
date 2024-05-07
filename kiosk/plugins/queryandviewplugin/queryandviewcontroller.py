@@ -1,5 +1,6 @@
 import datetime
 import logging
+from pprint import pprint
 
 from flask import Blueprint, request, render_template, session, redirect, url_for, abort
 from flask_login import current_user
@@ -68,5 +69,22 @@ def query_and_view_show():
     print(f"\nGET: get_plugin_for_controller returns {get_plugin_for_controller(_plugin_name_)}")
     print(f"\nGET: plugin.name returns {get_plugin_for_controller(_plugin_name_).name}")
 
+    main_module = False
+    try:
+        pprint(request)
+        if request.method == "POST":
+            main_module = request.form['mainModule']
+            if main_module:
+                print("client is requesting main module")
+    except KeyError:
+        pass
+
     conf = kioskglobals.get_config()
-    return render_template('queryandview.html', no_third_party_js=True)
+    load_dynamic_app = {
+            "controller_name": _controller_name_,
+            "load_from_address": "query_and_view_show"
+        }
+    if not main_module:
+        return render_template('queryandview.html', load_dynamic_app=load_dynamic_app)
+    else:
+        return render_template('queryandview_main.html', load_dynamic_app=load_dynamic_app)
