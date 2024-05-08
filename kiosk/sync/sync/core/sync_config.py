@@ -344,8 +344,10 @@ class SyncConfig(Config):
 
     def truncate_log(self):
         try:
-            with open(self.get_logfile(), 'w'):
-                pass
+            for handler in logging.getLogger().handlers:
+                if hasattr(handler, "baseFilename"):
+                    with open(handler.baseFilename, 'w'):
+                        pass
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.truncate_log: Exception {repr(e)}")
 
