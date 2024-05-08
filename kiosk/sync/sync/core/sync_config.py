@@ -558,7 +558,7 @@ class SyncConfig(Config):
             return transfer_dir
         if not transfer_dir:
             transfer_dir = os.path.join(kioskstdlib.get_parent_dir(self.base_path), "transfer")
-            logging.warning(f"administrationcontroller.get_create_transfer_dir: transfer dir not configured: "
+            logging.warning(f"SyncConfig.get_create_transfer_dir: transfer dir not configured: "
                             f"defaulting to {transfer_dir}")
 
         if transfer_dir:
@@ -567,7 +567,7 @@ class SyncConfig(Config):
                     os.mkdir(transfer_dir)
                 return transfer_dir
             except BaseException as e:
-                logging.error(f"administrationcontroller.get_create_transfer_dir: {repr(e)}")
+                logging.error(f"SyncConfig.get_create_transfer_dir: {repr(e)}")
                 return ""
 
     def get_dsd_path(self):
