@@ -51,7 +51,7 @@ def get_kiosk_base_path_from_test_path(test_path) -> str:
     return base_path
 
 
-def init_tool(config_file) -> bool:
+def init_tool(config_file, logfile_prefix="") -> bool:
     KioskConfig.release_config()
     if not os.path.exists(config_file):
         logging.error(f"Kiosk configuration file {config_file} does not exist.")
@@ -67,7 +67,12 @@ def init_tool(config_file) -> bool:
     if cfg.get_logfile():
         log_pattern = cfg.get_logfile().replace("#", "%")
         log_file = datetime.datetime.strftime(datetime.datetime.now(), log_pattern)
-        ch = logging.FileHandler(filename=cfg.resolve_symbols(log_file))
+        if logfile_prefix:
+            log_file_name = logfile_prefix + "_" + kioskstdlib.get_filename(log_file)
+            log_file = os.path.join(kioskstdlib.get_file_path(log_file), log_file_name)
+
+        ch = logging.FileHandler(
+            filename=cfg.resolve_symbols(log_file))
         ch.setLevel(logging.INFO)
         formatter = logging.Formatter('>[%(module)s.%(levelname)s at %(asctime)s]: %(message)s')
         ch.setFormatter(formatter)
