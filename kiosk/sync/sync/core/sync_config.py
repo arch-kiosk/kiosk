@@ -567,7 +567,8 @@ class SyncConfig(Config):
                     os.mkdir(transfer_dir)
                 return transfer_dir
             except BaseException as e:
-                logging.error(f"SyncConfig.get_create_transfer_dir: {repr(e)}")
+                logging.error(f"SyncConfig.get_create_transfer_dir: "
+                              f"Error validating or creating transfer dir {transfer_dir}: {repr(e)}")
                 return ""
 
     def get_dsd_path(self):
