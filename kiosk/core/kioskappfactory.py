@@ -10,6 +10,8 @@ from inspect import signature
 
 from pprint import pprint
 
+import yaml
+
 import kioskstdlib
 from concurrent.futures.thread import ThreadPoolExecutor
 from threading import current_thread
@@ -27,7 +29,8 @@ from kioskuser import KioskUser
 from messaging.systemmessagecatalog import SYS_MSG_ID_STORE_NOT_READY, MSG_SEVERITY_INFO, \
     SYS_MSG_ID_CHECKUP_EXCEPTION, SYS_MSG_ID_ADMIN_CREATED, SYS_MSG_ID_ADMIN_GROUP_CREATED, \
     SYS_MSG_ID_MIGRATION_FAILED, SYS_MSG_ID_REBUILD_FIC_FAILED, SYS_MSG_ID_TEMP_DIR_MISSING, \
-    SYS_MSG_ID_DEVELOPMENT_ENVIRONMENT_ACTIVE, SYS_MSG_ID_MCP_NOT_UP, SYS_MSG_ID_DEVELOPMENT_GENERATE_SYSTEM_MESSAGE
+    SYS_MSG_ID_DEVELOPMENT_ENVIRONMENT_ACTIVE, SYS_MSG_ID_MCP_NOT_UP, SYS_MSG_ID_DEVELOPMENT_GENERATE_SYSTEM_MESSAGE, \
+    SYS_MSG_ID_PATCH_SUCCESSFUL, SYS_MSG_ID_PATCH_FAILED
 from messaging.systemmessagelist import SystemMessageList
 from messaging.systemmessagestore import SystemMessageStore
 from messaging.systemmessagestorepostgres import SystemMessageStorePostgres
@@ -186,6 +189,8 @@ class KioskAppFactory(AppFactory):
 
         # Load all the plugins:
         plugin_manager = cls.load_plugins()
+
+        cls.check_for_failed_patch()
 
         # todo: Every plugin that has something to contribute to the dsd, has to do it now:
 
@@ -902,6 +907,50 @@ class KioskAppFactory(AppFactory):
         # app.template_context_processors[None].append(inject_global_scripts)
         # app.template_context_processors[None].append(inject_routes)
         pass
+
+    @classmethod
+    def check_for_failed_patch(cls):
+        patch_log = log_file = os.path.join(kioskstdlib.get_file_path(kioskglobals.cfg.logfile), "patches.yml")
+        if not os.path.exists(log_file):
+            return
+
+        with open(log_file, "r", encoding='utf8') as ymlfile:
+            log = yaml.load(ymlfile, Loader=yaml.FullLoader)
+
+        patch_to_check = kioskstdlib.try_get_dict_entry(log, 'check_on_startup', '', True)
+        if not patch_to_check:
+            return
+
+        try:
+            patch_result = kioskstdlib.to_bool(log[patch_to_check]["success"])
+            if patch_result:
+                dispatch_system_message("Patch was successfully installed.",
+                                        SYS_MSG_ID_PATCH_SUCCESSFUL,
+                                        body="The patch you uploaded recently was successfully "
+                                             "applied during Kiosk's startup phase. You are all set.",
+                                        sender=f"kioskpatcher")
+            else:
+                error_messages = log[patch_to_check]["log"]
+                error_message = error_messages[-1]
+        except BaseException as e:
+            logging.error(f"{cls.__name__}.check_for_failed_patch : {repr(e)}")
+            patch_result = False
+            error_message = f"Error checking for a failed patch: {repr(e)}"
+
+        if not patch_result:
+            dispatch_system_message("Patch installation failed.",
+                                    SYS_MSG_ID_PATCH_FAILED,
+                                    body=f"Kiosk failed to apply the patch you uploaded recently. "
+                                         f"The error message was \n"
+                                         f"'{error_message}'.\n"
+                                         f"That can have rather severe consequences, so please call for help ASAP.",
+                                    sender=f"kioskpatcher")
+        try:
+            log["check_on_startup"] = ""
+            with open(log_file, "w") as ymlfile:
+                yaml.dump(log, ymlfile, default_flow_style=False)
+        except BaseException as e:
+            logging.error(f"{cls.__name__}.check_for_failed_patch: Error when resetting 'check_on_startup': {repr(e)}")
 
 
 #  **************************************************************
