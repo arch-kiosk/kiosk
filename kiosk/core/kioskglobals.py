@@ -3,6 +3,7 @@ import os
 from concurrent.futures.thread import ThreadPoolExecutor
 from typing import Union
 
+import kioskstdlib
 from messaging.systemmessagelist import SystemMessageList
 from urlforjavascript import UrlForPublisher
 from scriptmanager import ScriptManager
@@ -137,6 +138,14 @@ def get_development_option(key: str) -> str:
         return ""
 
 
+def is_development_system() -> bool:
+    """
+    checks if the config key "development\development_system" is set to True
+    :return:
+    """
+    return kioskstdlib.to_bool(get_development_option("development_system"))
+
+
 def get_uic_tree() -> UICTree:
     global uic_tree
     try:
@@ -148,4 +157,3 @@ def get_uic_tree() -> UICTree:
         logging.error(f"kioskglobals.get_uic_tree: {repr(e)}")
 
     return uic_tree
-
