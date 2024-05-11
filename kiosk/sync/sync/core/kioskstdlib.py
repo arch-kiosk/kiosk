@@ -1602,3 +1602,39 @@ def force_positive_int_from_string(param: str, ignore_non_digit_strings=True) ->
     if not ignore_non_digit_strings and not result:
         raise ValueError(f'{param} does not have a single digit')
     return int(result) if result else -1
+
+
+def get_printable_chars(s: Union[str, bytes]) -> str:
+    """
+    Returns a list of printable characters in the given string or byte array.
+
+    :param s: The input string or byte array.
+
+    :return: list: A list of printable characters.
+    """
+    if not isinstance(s, str) and not isinstance(s, bytes):
+        raise TypeError("Input must be a string")
+    return "".join([chr(c) for c in s if chr(c).isprintable()])
+
+
+def load_python_module(source, module_name):
+    """
+    reads file source and loads it as a module
+
+    :param source: file to load
+    :param module_name: name of module to register in sys.modules
+    :return: loaded module
+    """
+
+    if module_name is None:
+        return None
+
+    if module_name in sys.modules:
+        del sys.modules[module_name]
+
+    spec = importlib.util.spec_from_file_location(module_name, source)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+
+    return module
