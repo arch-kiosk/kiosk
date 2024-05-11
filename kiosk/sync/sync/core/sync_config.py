@@ -34,7 +34,7 @@ class SyncConfig(Config):
     _config = None
 
     @classmethod
-    def get_config(cls, default_config: dict = {}, log_warnings=True) -> SyncConfig:
+    def get_config(cls, default_config: dict = {}, log_warnings=True):
         """This is the singleton call. Use this and not __init__ !
            default_config may contain the key "config_file"
         """
