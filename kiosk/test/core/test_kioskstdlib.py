@@ -205,3 +205,31 @@ class Testkioskstdlib(KioskPyTestHelper):
         assert kioskstdlib.cmp_semantic_version("1.5", "1.5.0.1") == -1
 
         assert kioskstdlib.cmp_semantic_version("1.4.8", "1.5") == -1
+
+    #  The function returns a list of printable characters in the input string.
+    def test_returns_list_of_printable_chars(self):
+        # Arrange
+        input_string = "Hello World!"
+        expected_output = "Hello World!"
+
+        # Act
+        result = get_printable_chars(input_string)
+
+        # Assert
+        assert result == expected_output
+
+        input_string = 123
+
+        # Act & Assert
+        with pytest.raises(TypeError):
+            get_printable_chars(input_string)
+
+        # Arrange
+        input_string = "\n\rHello World!"
+        expected_output = "Hello World!"
+
+        # Act
+        result = get_printable_chars(input_string)
+
+        # Assert
+        assert result == expected_output

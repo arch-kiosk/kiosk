@@ -449,7 +449,7 @@ class KioskRestore:
             kiosk_parent_dir = kioskstdlib.get_parent_dir(kiosk_dir)
             app_folder = os.path.basename(os.path.normpath(kiosk_dir))
             cls.write_start_ps1(app_folder, kiosk_dir, kiosk_parent_dir, options)
-            cls.write_start_mcp_ps1(app_folder, kiosk_dir, kiosk_parent_dir, options)
+            # cls.write_start_mcp_ps1(app_folder, kiosk_dir, kiosk_parent_dir, options)
 
             with open(path.join(sync_dir, "start_console.ps1"), "w") as f:
                 f.write(f'$env:PYTHONPATH="{kiosk_dir};{path.join(kiosk_dir, "core")};{path.join(kiosk_dir, "sync")};')
@@ -497,25 +497,34 @@ class KioskRestore:
             f.write('\n')
             if "no_redis" not in options and "sudo_password" in options:
                 f.write(f"""bash -c "echo {options["sudo_password"]} | sudo -S /etc/init.d/redis_6379 start"\n""")
+                f.write(f"Start-Sleep -Seconds 2")
+            f.write(f'cd "{os.path.join(kiosk_dir, "tools")}"')
+            f.write(f'python ".\kioskpatcher-cli.py"')
+            f.write(f'cd "{os.path.join(kiosk_dir, "sync", "sync", "mcpcore")}"')
+            f.write(
+                f'start-process python -ArgumentList "./mcpterminal.py '
+                f'{os.path.join(kiosk_dir, "config", "kiosk_config.yml")} -Verb runAs -WindowStyle Minimized &')
+            f.write(f"Start-Sleep -Seconds 5")
+            f.write(f'cd "{kioskstdlib.get_parent_dir(kiosk_dir)}"')
             f.write('flask run --host 0.0.0.0')
 
-    @classmethod
-    def write_start_mcp_ps1(cls, app_folder, kiosk_dir, kiosk_parent_dir, options):
-        with open(path.join(kiosk_parent_dir, "start_mcp.ps1"), "w") as f:
-            f.write(f'''$env:FLASK_APP = "{app_folder}"\n
-    # uncomment the following line for debugging purposes, but never on live online systems!\n
-    # $env:FLASK_DEBUG = 1\n
-    # use "development" if you want autostart when sources are change.\n
-    $env:FLASK_ENVIRONMENT="production"\n''')
-            f.write(f'$env:PYTHONPATH="{kiosk_dir};{path.join(kiosk_dir, "core")};'
-                    f'{path.join(kiosk_dir, "core", "sqlalchemy_models")};'
-                    f'{path.join(kiosk_dir, "sync")};')
-            f.write(f'{path.join(kiosk_dir, "sync", "sync")};{path.join(kiosk_dir, "sync", "sync", "core")};"')
-            f.write('\n')
-            if "no_redis" not in options and "sudo_password" in options:
-                f.write(f"""bash -c "echo {options["sudo_password"]} | sudo -S /etc/init.d/redis_6379 start"\n""")
-            f.write(fr'cd {path.join(kiosk_dir, "sync", "sync", "mcpcore")}')
-            f.write(fr'python ./mcpterminal.py {path.join(kiosk_dir, "config", "kiosk_config.yml")}')
+    # @classmethod
+    # def write_start_mcp_ps1(cls, app_folder, kiosk_dir, kiosk_parent_dir, options):
+    #     with open(path.join(kiosk_parent_dir, "start_mcp.ps1"), "w") as f:
+    #         f.write(f'''$env:FLASK_APP = "{app_folder}"\n
+    # # uncomment the following line for debugging purposes, but never on live online systems!\n
+    # # $env:FLASK_DEBUG = 1\n
+    # # use "development" if you want autostart when sources are change.\n
+    # $env:FLASK_ENVIRONMENT="production"\n''')
+    #         f.write(f'$env:PYTHONPATH="{kiosk_dir};{path.join(kiosk_dir, "core")};'
+    #                 f'{path.join(kiosk_dir, "core", "sqlalchemy_models")};'
+    #                 f'{path.join(kiosk_dir, "sync")};')
+    #         f.write(f'{path.join(kiosk_dir, "sync", "sync")};{path.join(kiosk_dir, "sync", "sync", "core")};"')
+    #         f.write('\n')
+    #         if "no_redis" not in options and "sudo_password" in options:
+    #             f.write(f"""bash -c "echo {options["sudo_password"]} | sudo -S /etc/init.d/redis_6379 start"\n""")
+    #         f.write(fr'cd {path.join(kiosk_dir, "sync", "sync", "mcpcore")}')
+    #         f.write(fr'python ./mcpterminal.py {path.join(kiosk_dir, "config", "kiosk_config.yml")}')
 
     @classmethod
     def set_new_database_credentials(cls, kiosk_configfile, kiosk_secure_file, options):
@@ -540,10 +549,10 @@ class KioskRestore:
 
                 with open(kiosk_configfile, "r", encoding='utf8') as ymlfile:
                     cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
-                if "dbname" in options :
+                if "dbname" in options:
                     print("setting new database name ... ", end=" ", flush=True)
                     cfg["config"]["database_name"] = options["dbname"]
-                if "dbport" in options :
+                if "dbport" in options:
                     print("setting new database port ... ", end=" ", flush=True)
                     cfg["config"]["database_port"] = options["dbport"]
                 with open(kiosk_configfile, "w") as ymlfile:

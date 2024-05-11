@@ -14,7 +14,7 @@ config:
   sync_plugin_directory: '%base_path%\sync\sync\sync_plugins'
   dataset_definition: '%base_path%\config\dsd\%project_id%_dsd3.yml'
   custom_sync_modules: '%sync%\custom'
-  logfile: '%base_path%\log\kiosk_#a_#d#m#y-#H#M.log'
+  logfile: '%base_path%\log\%project_id%_#a_#d#m#y-#H#M.log'
   log_level: 'INFO'
   werkzeug_log_level: 'WARNING'
   log_to_screen: False

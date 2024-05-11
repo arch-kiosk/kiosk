@@ -3,7 +3,6 @@ import logging
 import os
 import pprint
 import string
-import subprocess
 import sys
 import time
 import zipfile
@@ -35,6 +34,7 @@ from core.kioskcontrollerplugin import get_plugin_for_controller
 # from kioskthread import KioskThread
 from dsd.dsd3singleton import Dsd3Singleton
 from kioskconfig import KioskConfig
+from kioskpatcher import KioskPatcher
 from kioskrestore import KioskRestore
 from kioskresult import KioskResult
 from kiosksqldb import KioskSQLDb
@@ -58,7 +58,6 @@ _plugin_name_ = "administrationplugin"
 _controller_name_ = "administration"
 _url_prefix_ = '/' + _controller_name_
 plugin_version = 1.1
-CURRENT_PATCH_FILE_VERSION = 0.2
 
 LOCAL_ADMINISTRATION_PRIVILEGES = {
     ENTER_ADMINISTRATION_PRIVILEGE: "enter administration",
@@ -1186,34 +1185,49 @@ def trigger_patch():
                     except BaseException as e:
                         logging.warning(f"administrationcontroller.trigger_patch: Could not delete {patch_file} "
                                         f"because: {repr(e)}")
-                    rc, err_msg = start_install_patch(transfer_dir, cfg)
+                    kiosk_patcher = KioskPatcher(cfg, transfer_dir)
+                    rc, err_msg = kiosk_patcher.read_patch_file()
                     if rc:
-                        result.success = True
-                        result.message = "The patch has been prepared and is currently being installed. <br><br>" \
-                                         "To allow for that the server has shut down and presumably your machine " \
-                                         "will shut down soon, too. Please pay some" \
-                                         " attention to the screen of the server machine and have some patience."
+                        rc, err_msg = kiosk_patcher.patch_can_run()
+
+                    if rc:
+                        if kiosk_patcher.needs_restart():
+                            try:
+                                if kiosk_patcher.is_close_mcp_requested():
+                                    shutdown_mcp()
+                            except BaseException as e:
+                                logging.warning(f"administrationcontroller.trigger_patch: "
+                                                f"Noncritical Exception when handling mcp shutdown: {repr(e)}")
+
+                            result.success = True
+                            result.message = f"The patch has been successfully prepared but in order to apply it " \
+                                             f"Kiosk needs to be restarted. " \
+                                             f"Please restart you Kiosk Server, Computer or Virtual Machine"
+                        else:
+                            rc, err_msg = kiosk_patcher.apply_patch()
+                            if rc:
+                                result.success = True
+                                result.message = "The patch has been successfully applied."
+                            else:
+                                result.success = False
+                                result.message = f"The patch had been successfully prepared but " \
+                                                 f"failed during application.<br>Reason: {err_msg}"
                     else:
                         result.success = False
-                        result.message = f"The patch had been saved and extracted successfully but the installation " \
-                                         f"of it would not start. <br> Reason: {err_msg}"
+                        result.message = f"The patch had been saved and extracted successfully but it" \
+                                         f"cannot be installed.<br>Reason: {err_msg}"
                 else:
                     result.success = False
                     result.message = "Either file or filename is empty."
             else:
                 result.success = False
                 result.message = "No uploaded file detected."
+
         except UserError as e:
             raise e
         except BaseException as e:
             raise UserError(repr(e))
 
-        if result.success:
-            try:
-                time.sleep(5)
-                shutdown_local_server()
-            except BaseException as e:
-                logging.error(f"administrationcontroller.trigger_patch: could not shut down local server: {repr(e)}")
         return result.jsonify()
     except UserError as e:
         logging.error(f"administrationcontroller.trigger_patch: {repr(e)}")
@@ -1229,130 +1243,6 @@ def trigger_patch():
         abort(HTTPStatus.INTERNAL_SERVER_ERROR)
 
 
-def start_install_patch(transfer_dir, cfg) -> Tuple[bool, str]:
-    patch_filename = ""
-    try:
-        patch_filename = os.path.join(transfer_dir, 'patch.yml')
-        patch_file = yamlconfigreader.YAMLConfigReader(patch_filename).read_file(patch_filename)
-    except BaseException as e:
-        err_msg = f"administrationcontroller.start_install_patch: Error when opening {patch_filename}: {repr(e)}"
-        logging.error(err_msg)
-        return False, err_msg
-
-    version = patch_file['header']['version']
-    if version > CURRENT_PATCH_FILE_VERSION:
-        err_msg = f"administrationcontroller.start_install_patch: " \
-                  f"Patch file version of {patch_filename} is {version}, " \
-                  f"expected was max {CURRENT_PATCH_FILE_VERSION}"
-        logging.error(err_msg)
-        return False, err_msg
-
-    max_version = kioskstdlib.try_get_dict_entry(patch_file['patch'], 'kiosk_version', '')
-    if max_version:
-        if kioskstdlib.cmp_semantic_version(kioskglobals.kiosk_version, max_version) > -1:
-            err_msg = f"administrationcontroller.start_install_patch: " \
-                      f"Patch file lifts kiosk to version {max_version}, " \
-                      f"But Kiosk is already on version {kioskglobals.kiosk_version}."
-            logging.error(err_msg)
-            return False, err_msg
-    else:
-        err_msg = f"administrationcontroller.start_install_patch: " \
-                  f"Patch file has not target version. That is not allowed anymore."
-        logging.error(err_msg)
-        return False, err_msg
-
-    if kioskstdlib.to_bool(kioskstdlib.try_get_dict_entry(patch_file['patch'], 'unpackkiosk', 'False')):
-        error_msg, transfer_dir = cfg.get_transfer_dir(check_unpack_kiosk=True)
-        if error_msg or not transfer_dir:
-            err_msg = f"administrationcontroller.start_install_patch: " \
-                      f"the transfer directory is not properly set up: {error_msg}"
-            logging.error(err_msg)
-            return False, err_msg
-        if request.environ.get('werkzeug.server.shutdown') is None:
-            err_msg = f"administrationcontroller.start_install_patch: This Kiosk Version does not support patches run " \
-                      f"with unpackkiosk because the local Kiosk server cannot be shut down."
-            logging.error(err_msg)
-            return False, err_msg
-
-    if kioskstdlib.to_bool(kioskstdlib.try_get_dict_entry(patch_file['patch'], 'close_mcp', 'False')):
-        shutdown_mcp()
-
-    script = kioskstdlib.try_get_dict_entry(patch_file['patch'], 'start_script', '')
-    if script:
-        start_script(script, transfer_dir)
-
-    if kioskstdlib.to_bool(kioskstdlib.try_get_dict_entry(patch_file['patch'], 'unpackkiosk', 'False')):
-        unpackkiosk_parameters: list[str] = kioskstdlib.try_get_dict_entry(patch_file['patch'],
-                                                                           'unpackkiosk_parameters', '').split(" ")
-        unpackkiosk_parameters = [x for x in unpackkiosk_parameters if x]
-        if unpackkiosk_parameters:
-            logging.info(f"using parameters from patch.yml: {unpackkiosk_parameters}")
-        else:
-            unpackkiosk_parameters = ['--patch', '-nt', '-na', '-nr']
-
-        unpackkiosk_parameters.append('--guided')
-        if not kioskstdlib.to_bool(kioskstdlib.try_get_dict_entry(patch_file['patch'], 'close_mcp', 'False')):
-            unpackkiosk_parameters.append('--exclude_mcp')
-        if kioskstdlib.to_bool(kioskstdlib.try_get_dict_entry(patch_file['patch'], 'restart_machine', 'False')):
-            unpackkiosk_parameters.append('-rm')
-
-        unpackkiosk_dir = os.path.join(transfer_dir, 'unpackkiosk')
-        unpackkiosk_file = os.path.join(unpackkiosk_dir, 'unpackkiosk.py')
-        if not os.path.isfile(unpackkiosk_file):
-            err_msg = f"administrationcontroller.start_install_patch: " \
-                      f"unpackkiosk not installed in {transfer_dir}"
-            logging.error(err_msg)
-            return False, err_msg
-
-        cmdline_str = "python " + os.path.join(unpackkiosk_file) + " " + transfer_dir + " " + \
-                      cfg.base_path + " " + " ".join(unpackkiosk_parameters)
-        if not kioskstdlib.to_bool(kioskglobals.get_development_option("test_patch").lower() == "true"):
-            if kioskstdlib.in_virtual_env():
-                err_msg = f"administrationcontroller.start_install_patch: " \
-                          f"attempt to install the patch on a system with virtual environment. " \
-                          f"That is most likely a development system. Cmdline would have been: {cmdline_str}"
-                logging.error(err_msg)
-                return False, err_msg
-
-            if kioskglobals.development:
-                err_msg = f"administrationcontroller.start_install_patch: " \
-                          f"attempt to install the patch on a development system. Cmdline would have been " \
-                          f"{cmdline_str}"
-                logging.error(err_msg)
-                return False, err_msg
-        else:
-            unpackkiosk_parameters.append("--test_drive")
-            logging.warning(f"administrationcontroller.start_install_patch: "
-                            f"test drive with command line {cmdline_str} --test_drive")
-
-        cmdline = []
-        try:
-            cmdline = ["python", os.path.join(unpackkiosk_file), transfer_dir, cfg.base_path]
-            cmdline.extend(unpackkiosk_parameters)
-            DETACHED_PROCESS = 0x00000008
-            CREATE_NEW_CONSOLE = 0x00000010
-            processs = subprocess.Popen(cmdline, cwd=unpackkiosk_dir, shell=True,
-                                        creationflags=DETACHED_PROCESS & CREATE_NEW_CONSOLE)  # stdout=subprocess.PIPE
-            # if rc.returncode != 0:
-            #     raise Exception(f"process returned an unexpected return code {rc.returncode}")
-
-        except BaseException as e:
-            cmdline_str = " ".join(cmdline)
-            err_msg = f"administrationcontroller.start_install_patch: " \
-                      f"Error running unpackkiosk: {repr(e)}." \
-                      f"Cmdline was: {cmdline_str}"
-            logging.error(err_msg)
-            return False, err_msg
-
-    return True, ""
-
-
-def start_script(script: str, transfer_dir) -> int:
-    script_file = os.path.join(transfer_dir, script)
-    if not os.path.isfile(script_file):
-        raise Exception(f'Script {script_file} not found.')
-    cmdline = ["powershell ", script_file]
-    return subprocess.run(cmdline, cwd=transfer_dir).returncode
 
 
 #  **************************************************************
@@ -1445,7 +1335,8 @@ def is_file_cache_refresh_running():
     jobs = queue.list_jobs(suffix=JOB_SUFFIX_REFRESH_CACHE_FILE)
     if len(jobs) > 0:
         for jobid in jobs:
-            job = MCPJob(kioskglobals.general_store, jobid, lock_queue=False, job_type_suffix=JOB_SUFFIX_REFRESH_CACHE_FILE)
+            job = MCPJob(kioskglobals.general_store, jobid, lock_queue=False,
+                         job_type_suffix=JOB_SUFFIX_REFRESH_CACHE_FILE)
             job.fetch_status()
             if job.status < MCPJobStatus.JOB_STATUS_DONE:
                 return True

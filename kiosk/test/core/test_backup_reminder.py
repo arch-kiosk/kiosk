@@ -18,7 +18,7 @@ sql = os.path.join(test_path, "sql", "add_users.sql")
 log_file = os.path.join(test_path, r"log", "test_log.log")
 
 
-class Testkioskstdlib(KioskPyTestHelper):
+class TestBackupReminder(KioskPyTestHelper):
 
     @pytest.fixture(scope="module")
     def cfg(self):
