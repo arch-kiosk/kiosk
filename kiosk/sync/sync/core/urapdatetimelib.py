@@ -90,20 +90,9 @@ def check_urap_date_time(str_ts, allow_date_only=False) -> tuple:
         if len(ts_parts) > 1:
             time_part = ts_parts[1].strip()
 
-    rx_latin_date = re.compile(r"^(?P<day>\d{1,2}).(?P<latin_month>[IVX]{1,4}).(?P<year>\d{2,4})$")
-    p = rx_latin_date.match(date_part)
-    if not p:
-        rx_latin_date = re.compile(r"^(?P<day>\d{1,2}) (?P<latin_month>[IVX]{1,4}) (?P<year>\d{2,4})$")
-        p = rx_latin_date.match(date_part)
+    p = guess_latin_date(date_part)
     if p:
-        try:
-            latin_month = p.group("latin_month")
-            if latin_month and latin_month in latin_months:
-                date_part = str.format('{0:4d}-{1:02d}-{2:02d}',
-                                       interpolate_year(int(p.group("year"))),
-                                       int(latin_months[latin_month]), int(p.group("day")))
-        except BaseException as e:
-            pass
+        date_part = p
 
     rx_german_date = re.compile(r"^(?P<day>\d{1,2})\.(?P<month>\d{1,2})\.(?P<year>\d{2,4})$")
     p = rx_german_date.match(date_part)
@@ -150,6 +139,40 @@ def check_urap_date_time(str_ts, allow_date_only=False) -> tuple:
         return ts_date, ""
     else:
         return ts_date, str_ts + " is not a valid date and time"
+
+
+def guess_latin_date(date_part) -> str:
+    """
+        Takes a string representing a date in a Latin format and converts it to a standard ISO date format (YYYY-MM-DD).
+
+        note: Does not check if the latin date is a correct date! It could return something like 23-XIII-1 or so!
+
+        :param date_part: either a latin date with its part being separated by "." or " " or no separator at all.
+        :return: The converted date in the ISO format (YYYY-MM-DD) or an empty string if the guess failed.
+    """
+    latin_dates_regexes = [
+        r"^(?P<day>\d{1,2})\.(?P<latin_month>[IVX]{1,4})\.(?P<year>\d{2,4})$",
+        r"^(?P<day>\d{1,2}) (?P<latin_month>[IVX]{1,4}) (?P<year>\d{2,4})$",
+        r"^(?P<day>\d{1,2})(?P<latin_month>[IVX]{1,4})(?P<year>\d{2,4})$"
+    ]
+    result = ""
+    p = None
+    for latin_date_regex in latin_dates_regexes:
+        rx_latin_date = re.compile(latin_date_regex)
+        p = rx_latin_date.match(date_part)
+        if p:
+            break
+
+    if p:
+        try:
+            latin_month = p.group("latin_month")
+            if latin_month and latin_month in latin_months:
+                result = str.format('{0:4d}-{1:02d}-{2:02d}',
+                                    interpolate_year(int(p.group("year"))),
+                                    int(latin_months[latin_month]), int(p.group("day")))
+        except BaseException as e:
+            pass
+    return result
 
 
 def remove_prefix(text, prefix):
