@@ -11,7 +11,7 @@ if "mcpcore.mcpworker" not in sys.modules:
     from flask_allows import guard_entire
 
     from core.authorization import IsAuthorized, ENTER_ADMINISTRATION_PRIVILEGE, DOWNLOAD_WORKSTATION, \
-        SYNCHRONIZE, CREATE_WORKSTATION
+        SYNCHRONIZE, CREATE_WORKSTATION, MANAGE_SERVER_PRIVILEGE
     from core.kioskcontrollerplugin import KioskControllerPlugin
     from kioskmenuitem import KioskMenuItem
     from .queryandviewapi import register_resources
@@ -78,12 +78,24 @@ if "mcpcore.mcpworker" not in sys.modules:
                               #     ENTER_ADMINISTRATION_PRIVILEGE) if hasattr(current_user,
                               #                                                "fulfills_requirement") else True,
                               menu_cfg=plugin.get_menu_config()),
+                KioskMenuItem(name="install or update queries",
+                              onclick="triggerUploadPatch('queryandview.update_query')",
+                              endpoint="queryandview.update_query",
+                              menu_cfg=plugin.get_menu_config(),
+                              is_active=lambda: current_user.fulfills_requirement(
+                                  MANAGE_SERVER_PRIVILEGE) if hasattr(current_user,
+                                                                      "fulfills_requirement") else True,
+                              parent_menu='query and view data'
+                              ),
                 ]
 
 
     def register_global_routes():
         global plugin
-        return ["queryandview.static", ]
+        return ["queryandview.static",
+                "queryandview.update_query",
+                "queryandview.upload_query",
+                "queryandview.install_queries"]
 
 
     def register_global_scripts():

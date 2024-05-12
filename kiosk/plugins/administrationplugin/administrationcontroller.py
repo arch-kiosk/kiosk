@@ -84,12 +84,6 @@ class UserError(Exception):
     pass
 
 
-def check_ajax():
-    if not (kioskglobals.get_development_option("webapp_development").lower() == "true" or kiosklib.is_ajax_request()):
-        logging.error(f"administrationcontroller.check_ajax: "
-                      f"attempt to access endpoint other than by ajax")
-
-
 @administration.context_processor
 def inject_current_plugin_controller():
     return dict(current_plugin_controller=get_plugin_for_controller(_plugin_name_))
@@ -1098,7 +1092,13 @@ def patch():
     logging.info(f"administrationcontroller.patch triggered.")
     try:
         general_errors = []
-        check_ajax()
+
+        if not (kioskglobals.get_development_option(
+                "webapp_development").lower() == "true" or kiosklib.is_ajax_request()):
+            err = f"administrationcontroller.check_ajax: attempt to access endpoint other than by ajax"
+            logging.error(err)
+            abort(HTTPStatus.BAD_REQUEST, err)
+
         sync = Synchronization()
         error_msg = ""
         cfg = kioskglobals.get_config()

@@ -1,3 +1,68 @@
 @import "../../../static/purecss/shoelace/light.css"
 @import "../../../static/styles/kioskshoelacetheme"
+@import "../../../static/styles/_constants"
 
+.kiosk-general-form-error
+  background-color: $col-bg-alert
+  border: 2px solid $col-bg-alert-darker
+  padding: 2px
+  color: $col-primary-bg-alert
+  margin-top: 2px
+
+#drop-area-div
+  position: relative
+
+#file-upload
+  opacity: 0
+  background-color: red
+  width: 100%
+  height: 100%
+  top: -2px
+  left: -2px
+  position: absolute
+
+.upload-zone
+  margin: 5px 0px 5px 0px
+  padding: .5em 5px 0px 0px
+  box-sizing: border-box
+  background-color: $col-bg-btn
+  //box-shadow: 3px 3px 4px -2px $col-bg-2-darker
+  border: 3px solid $col-bg-btn-lighter
+  min-height: 5em
+  width: 100%
+
+  h3
+    width: 100%
+    text-align: center
+    margin-bottom: 1em
+    margin-top: 5px
+    cursor: default
+    color: $col-primary-bg-btn
+  p
+    width: 100%
+    line-height: 1.5em
+    font-size: $font-size-h4
+    color: $col-primary-bg-btn
+    cursor: default
+    text-align: center
+
+#dialog-workzone
+  margin-top: 1em
+
+#drop-area-div.workstation-option
+  margin-top: 1em
+  padding-top: 1em
+  min-height: 6em
+
+.uq-workstation-header
+  display: flex
+  flex-direction: row
+  align-items: center
+
+.uq-workstation-icon
+  font-size: 32px
+  line-height: 36px
+  color: $col-primary-bg-1
+  width: 36px
+  height: 36px
+  margin-right: .5em

@@ -1,0 +1,184 @@
+{% from 'dialogmacros.html' import kiosk_error_div, kiosk_error_span, kiosk_general_form_errors %}
+{% extends "basicmodaldialog.html" %}
+{% block dialog_css %}
+{% endblock %}
+{% block kiosk_modal_dialog_id %}id="install-query-dialog"{% endblock %}
+{% block kiosk_modal_dialog_classes %}.kiosk-modal-dialog-medium{% endblock %}
+{% block kiosk_modal_dialog_header %}
+    <div class="uq-workstation-header">
+        <div class="uq-workstation-icon">
+            <i class="fas fa-tools"></i>
+        </div>
+        <div class="workstation-name workstation-title-color">
+            <h3 id="dialog-subtitle">Install Query</h3>
+        </div>
+    </div>
+{% endblock %}
+{% block kiosk_modal_dialog_content %}
+    <div id="dialog-ajax-part" class="pagecontrol-content kiosk-modal-dialog-griddy">
+        {{ kiosk_general_form_errors(general_errors, "display: block; margin-top: 1em") }}
+    </div>
+    {% if not general_errors %}
+        <div id="dialog-workzone">
+            <div>This feature allows you to update or install new queries.<br>
+                You can upload more than one query definition at once here.<br><br>
+            </div>
+            <div id="drop-area-div" class="upload-zone installer">
+                <input id="file-upload" type="file" name="files[]">
+                <h3>Please click here <br> or drop the query file(s) here.</h3>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
+{% block kiosk_modal_dialog_after %}
+    <script>
+        ensureLibrariesAndinitDialog();
+
+        function ensureLibrariesAndinitDialog() {
+            kioskStartWhenReady(() => {
+                initCollapsibles();
+                kioskActivateButton($("#bt-next"), null);
+                kioskActivateButton($("#bt-back"), null);
+                kioskActivateButton($("#bt-ok"), null);
+                kioskActivateButton($("#bt-close"), () => {
+                    $.magnificPopup.close()
+                });
+                kioskActivateButton($("#bt-delete"), null);
+                kioskActivateButton($("#bt-cancel"), null);
+                uploadQueryInitUploader();
+            })
+        }
+
+        function uploadQueryInitUploader() {
+            const MAX_FILE_SIZE_MB = 1
+
+            const uploadRoute = getRoutefor("queryandview.upload_query")
+            const successfulUploads = []
+            const failedUploads = []
+            const files = {}
+            let timeoutHandler = null
+
+            function showAllValidationErrors() {
+                if (Object.keys(files).length === 0) {
+                    const err = failedUploads.join("<br>")
+                    kioskErrorToast(`None of the files met the necessary criteria for an upload:<br>${err}`)
+                    $.magnificPopup.close();
+                }
+            }
+
+            function triggerInstallQueries() {
+                const installRoute = getRoutefor("queryandview.install_queries")
+                console.log("installRoute", installRoute)
+                kioskAjax(installRoute,
+                    JSON.stringify({
+                        files: files
+                    }),
+                    "POST",
+                    {
+                        dataType: "json",
+                        contentType: "application/json",
+                        onSuccess: function (data, textStatus, jqXHR, stateData) {
+                            $.magnificPopup.close()
+                            if (isHTMLResponse(jqXHR)) {
+                                kioskErrorToast("The server responded with an unspecific Error. Are you logged in properly?")
+                            } else {
+                                if (data.success) {
+                                    kioskSuccessToast("All files were successfully processed.")
+                                } else {
+                                    kioskErrorToast(`Not all files could be successfully processed: <br>${data.message}`)
+                                }
+                            }
+                        },
+                        onError: function (msg, textStatus, jqXHR, stateData) {
+                            $.magnificPopup.close()
+                            kioskErrorToast("A transmission error occurred during the process. " +
+                                "Are you properly logged in?")
+                        }
+                    })
+            }
+
+            $('#drop-area-div').dmUploader({
+                url: uploadRoute,
+                auto: true,
+                queue: true,
+                multiple: true,
+                extFilter: ["yml"],
+                dataType: 'json',
+                maxFileSize: MAX_FILE_SIZE_MB * 1024 * 1024,
+                // extraData: {"uid": efGetCurrentImageUID()},
+                // onInit: function () {
+                // },
+                // onNewFile: function (id, file) {
+                //   console.log("adding file " + file)
+                //   return false
+                // },
+                onNewFile: function (id, file) {
+                    files[id] = file.name
+                    console.log(file)
+                },
+                onBeforeUpload: function (id) {
+                    addSpinner($("#drop-area-div"), "hold on ...")
+                    setqueryInstallUploadProgress(id, 0);
+                },
+                onUploadProgress: function (id, percent) {
+                    setqueryInstallUploadProgress(id, percent);
+                },
+                onUploadSuccess: function (id, data) {
+                    $("#dlg-spinner-wrapper").remove()
+                    if (data.success) {
+                        successfulUploads.push(id)
+
+                    } else {
+                        failedUploads.push(`The upload of file ${files[id]} failed: (${data.message}).`)
+                    }
+                },
+                onComplete: function () {
+                    if (successfulUploads.length > 0) {
+                        triggerInstallQueries()
+                    } else {
+                        const err = failedUploads.join("<br>")
+                        kioskErrorToast(`None of the files could be uploaded successfully:<br>${err}<br><br>
+                        Are you properly logged in?`)
+                        $.magnificPopup.close();
+                    }
+                },
+                onUploadError: function (id, xhr, status, errorThrown) {
+                    // console.log(xhr)
+                    // console.log(status)
+                    // console.log(errorThrown)
+                    failedUploads.push(`The upload of file ${files[id]} failed: (${data.message}).`)
+                },
+                onFallbackMode: function (message) {
+                    kioskErrorToast('The upload failed because your Browser does not support it: ' + message);
+                },
+                onFileExtError: function (file) {
+                    if (timeoutHandler) {
+                        clearTimeout(timeoutHandler)
+                    }
+                    failedUploads.push(`The upload of file ${file.name} failed because
+                    only files with the extension .yml can be uploaded here. Please select a proper file.`)
+                    timeoutHandler = setTimeout(showAllValidationErrors, 500)
+                },
+                onFileSizeError: function (file) {
+                    if (timeoutHandler) {
+                        clearTimeout(timeoutHandler)
+                    }
+                    failedUploads.push(`The upload of file ${file.name} failed because
+                    it exceeds the file size limit of ${MAX_FILE_SIZE_MB} MBytes`)
+                    timeoutHandler = setTimeout(showAllValidationErrors, 500)
+                }
+
+            });
+        }
+
+        function setqueryInstallUploadProgress(id, percent) {
+            if (percent !== 100)
+                $("#ws-message-div").html(`${percent} % done`)
+            else
+                $("#ws-message-div").html(`Installing queries ...`);
+        }
+
+    </script>
+{% endblock %}
+
+

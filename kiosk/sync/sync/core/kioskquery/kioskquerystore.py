@@ -28,10 +28,9 @@ def install_default_kiosk_queries(config: SyncConfig):
     def_base_path = config.default_kiosk_queries
     if os.path.isdir(def_base_path):
         KioskQueryStore.add_or_update_from_path(def_base_path, "*.yml")
-        def_project_path = os.path.join(def_base_path, project_id)
+        def_project_path = str(os.path.join(def_base_path, project_id))
         if os.path.isdir(def_project_path):
             KioskQueryStore.add_or_update_from_path(def_project_path, "*.yml")
-
 
 class KioskQueryStore:
 
@@ -80,6 +79,7 @@ class KioskQueryStore:
                                       f"File does not exist ({path_and_filename})")
         with open(path_and_filename, "r", encoding='utf8') as ymlfile:
             query_def = yaml.load(ymlfile, Loader=yaml.FullLoader)
+
         return cls.add_or_update_from_raw_definition(query_def)
 
     @classmethod

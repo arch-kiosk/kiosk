@@ -288,6 +288,7 @@ kiosk:
     is_main_index: false
     menu:
       "query and view data": [ "-queryandviewplugin" ]
+      "install or update queries": [ "+queryandviewplugin" ]
     fts:
       language: "english"
 

@@ -30,7 +30,7 @@ class ReportingEngine:
         try:
             reporting_path = config.resolve_symbols(config["reportingdock"]["base_path"])
         except BaseException as e:
-            logging.warning(f"kioskreportingdock.trigger_upload: Reporting path not configured ({repr(e)})")
+            logging.warning(f"ReportingEngine.get_reporting_path: Reporting path not configured ({repr(e)})")
             reporting_path = os.path.join(config.base_path, "reporting")
         if reporting_path:
             if not os.path.isdir(reporting_path):
