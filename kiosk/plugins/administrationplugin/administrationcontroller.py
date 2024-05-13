@@ -35,6 +35,7 @@ from core.kioskcontrollerplugin import get_plugin_for_controller
 from dsd.dsd3singleton import Dsd3Singleton
 from kioskconfig import KioskConfig
 from kioskpatcher import KioskPatcher
+from kioskquery.kioskquerystore import install_default_kiosk_queries
 from kioskrestore import KioskRestore
 from kioskresult import KioskResult
 from kiosksqldb import KioskSQLDb
@@ -1341,3 +1342,26 @@ def is_file_cache_refresh_running():
             if job.status < MCPJobStatus.JOB_STATUS_DONE:
                 return True
     return False
+
+
+#  **************************************************************
+#  ****    /administration/reload_all_kiosk_queries route
+#  *****************************************************************/
+@administration.route('/reload_all_kiosk_queries', methods=['POST'])
+@full_login_required
+@requires(IsAuthorized(ENTER_ADMINISTRATION_PRIVILEGE))
+# @nocache
+def reload_all_kiosk_queries():
+    result = {}
+    print("\n*************** administration/reload_all_kiosk_queries")
+
+    try:
+        install_default_kiosk_queries(kioskglobals.get_config())
+        result["result"] = "ok"
+        result["message"] = "Kiosk Queries have been successfully reloaded."
+    except Exception as e:
+        logging.error(f"reload_all_kiosk_queries: Exception when handling "
+                      f"administration/reload_all_kiosk_queries : {repr(e)}")
+        result["result"] = "Exception thrown. Please consult the logs."
+
+    return jsonify(**result)

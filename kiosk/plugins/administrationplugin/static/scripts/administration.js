@@ -305,6 +305,32 @@ function init_bt_refresh_file_cache() {
 
 }
 
+function init_bt_reload_kiosk_queries() {
+    let bt = $("#bt-reload-kiosk-queries");
+    bt.prop("disabled", false);
+    bt.on("click", (e) => {
+        kioskSendAjaxCommand("POST", $(bt),
+            "/administration/reload_all_kiosk_queries",
+            {},
+            (json) => {
+                if (json && json.result) {
+                    kioskSuccessToast(json.message, {
+                        timeout: 0,
+                    });
+                } else {
+                    kioskErrorToast(json.result);
+                }
+            },
+            (err_code, json) => {
+                if (json && json.result) {
+                    kioskErrorToast(json.result);
+                } else {
+                    kioskErrorToast(`An Error occurred in when calling init_bt_reload_kiosk_queries: ${err_code}`);
+                }
+            });
+    });
+}
+
 function initAdministration() {
     initCollapsibles();
 
@@ -330,6 +356,7 @@ function initAdministration() {
     init_bt_restart_server();
     init_bt_events();
     init_bt_refresh_file_cache();
+    init_bt_reload_kiosk_queries();
     // kioskGetAjaxElement();
 
 }
