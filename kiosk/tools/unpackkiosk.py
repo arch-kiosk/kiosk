@@ -640,12 +640,3 @@ if __name__ == '__main__':
         except BaseException as e:
             logging.error(f"unpackkiosk: {repr(e)}")
             options.pop("rm")
-    if "guided" in options and "rm" not in options:
-        print("\u001b[2J")
-        print("\u001b[33;1m")
-        print("============================================================")
-        print("====                                                    ====")
-        print("==== please restart Master Control and the Kiosk Server ====")
-        print("====                                                    ====")
-        print("============================================================")
-        print("\u001b[0m")

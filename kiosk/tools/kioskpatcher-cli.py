@@ -8,7 +8,7 @@ from kioskconfig import KioskConfig
 from kiosklib import dispatch_system_message
 from kioskpatcher import KioskPatcher
 from kiosktoolslib import get_kiosk_base_path_from_test_path, init_tool, interpret_all_params, check_required_options, \
-    split_param, get_kiosk_dir_param, init_dsd
+    split_param, get_kiosk_dir_param
 from kiosksqldb import KioskSQLDb
 from messaging.systemmessagecatalog import SYS_MSG_ID_MCP_NOT_UP, SYS_MSG_ID_PATCH_SUCCESSFUL, SYS_MSG_ID_PATCH_FAILED
 from transferkiosk import TransferKiosk
@@ -43,9 +43,9 @@ def usage():
     Usage of kioskpatcher-cli.py:
     ===================
       kioskpatcher command [command-specific parameters][--kiosk-dir] [--transfer-dir]   
-      <kiosk-dir> points to the local kiosk base directory on which to perform the command. 
+      <kiosk-dir>=points to the local kiosk base directory on which to perform the command. 
         If omitted kioskpatcher expects to run in a subdirectory of kiosk and will try to find the kiosk root. 
-      <transfer-dir> points to the directory that contains the patch. Usually not necessary because if omitted
+      <transfer-dir>=points to the directory that contains the patch. Usually not necessary because if omitted
        kioskpatcher reads the transfer-dir from the Kiosk's config or expects the transfer dir to be at ..\transfer
        relative to the kiosk dir.  
 

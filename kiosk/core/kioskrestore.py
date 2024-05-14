@@ -431,6 +431,7 @@ class KioskRestore:
             cfg["import_configurations"] = [kiosk_configfile]
             cfg["config"]["redirect_to"] = kiosk_configfile
             cfg["config"]["logfile"] = path.join(sync_dir, r"log\sync.log")
+            cfg["config"]["transfer_dir"] = src_dir
 
             try:
                 cfg["development"] = {}
@@ -448,7 +449,7 @@ class KioskRestore:
 
             kiosk_parent_dir = kioskstdlib.get_parent_dir(kiosk_dir)
             app_folder = os.path.basename(os.path.normpath(kiosk_dir))
-            cls.write_start_ps1(app_folder, kiosk_dir, kiosk_parent_dir, options)
+            cls.write_start_ps1(app_folder, kiosk_dir, kiosk_parent_dir, options, src_dir)
             # cls.write_start_mcp_ps1(app_folder, kiosk_dir, kiosk_parent_dir, options)
 
             with open(path.join(sync_dir, "start_console.ps1"), "w") as f:
@@ -469,7 +470,7 @@ class KioskRestore:
             cls._abort_with_error(-1, f"Exception in create_kiosk: {repr(e)}")
 
     @classmethod
-    def write_start_ps1(cls, app_folder, kiosk_dir, kiosk_parent_dir, options):
+    def write_start_ps1(cls, app_folder, kiosk_dir, kiosk_parent_dir, options, transfer_dir):
         with open(path.join(kiosk_parent_dir, "start.ps1"), "w") as f:
             f.write(r'''
                 $env:HostIP = (
@@ -498,8 +499,9 @@ class KioskRestore:
             if "no_redis" not in options and "sudo_password" in options:
                 f.write(f"""bash -c "echo {options["sudo_password"]} | sudo -S /etc/init.d/redis_6379 start"\n""")
                 f.write(f"Start-Sleep -Seconds 2")
-            f.write(f'cd "{os.path.join(kiosk_dir, "tools")}"')
-            f.write(f'python ".\kioskpatcher-cli.py"')
+            f.write(f"{transfer_dir[0]}:")
+            f.write(f'cd "{os.path.join(transfer_dir, "unpackkiosk")}"')
+            f.write(fr'python ".\kioskpatcher-cli.py" --kiosk-dir="{kiosk_dir}" --transfer-dir="{transfer_dir}"')
             f.write(f'cd "{os.path.join(kiosk_dir, "sync", "sync", "mcpcore")}"')
             f.write(
                 f'start-process python -ArgumentList "./mcpterminal.py '

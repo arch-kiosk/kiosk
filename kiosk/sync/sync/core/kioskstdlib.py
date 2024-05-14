@@ -26,7 +26,6 @@ from glob import iglob
 from ntpath import basename
 from PIL import Image
 
-import kioskstdlib
 from urapdatetimelib import *
 from semantic_version import Version
 

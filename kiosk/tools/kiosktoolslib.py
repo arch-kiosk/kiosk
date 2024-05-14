@@ -1,9 +1,5 @@
 # tools library: Only used by the tools in kiosk\tools
-from dsd.dsd3singleton import Dsd3Singleton
-from dsd.dsdview import DSDView
-from dsd.dsdyamlloader import DSDYamlLoader
 import sys
-
 import kioskstdlib
 import os
 from kioskconfig import KioskConfig
@@ -137,6 +133,11 @@ def check_required_options(options, required_options):
 
 
 def init_dsd(cfg):
+    # needs to be imported locally because kioskpatcher is using this library but must not load dsd stuff.
+    from dsd.dsd3singleton import Dsd3Singleton
+    from dsd.dsdview import DSDView
+    from dsd.dsdyamlloader import DSDYamlLoader
+
     master_dsd = Dsd3Singleton.get_dsd3()
     master_dsd.register_loader("yml", DSDYamlLoader)
     if not master_dsd.append_file(cfg.get_dsdfile()):
