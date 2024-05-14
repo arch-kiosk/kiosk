@@ -18,11 +18,14 @@ from uic.uictree import UICTree
 from uic.uicstream import UICStream, UICKioskFile
 
 import datetime
+import kioskversion
 import threading
 
-kiosk_version = "1.5.35"
-kiosk_version_name = "slippery search"
-kiosk_date = datetime.datetime(2024, 5, 12)
+# for backward compatibility
+kiosk_version = kioskversion.kiosk_version
+kiosk_version_name = kioskversion.kiosk_version_name
+kiosk_date = kioskversion.kiosk_date
+
 debug = False
 development = {}
 
