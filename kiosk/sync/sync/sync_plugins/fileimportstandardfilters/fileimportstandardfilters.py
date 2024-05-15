@@ -269,7 +269,7 @@ class FileImportStandardFolderFilter(FileImportFilter):
 
             if self.get_filter_configuration_value("get_date_from_folder"):
                 fmt = self.get_filter_configuration_value("folder-encodings")
-                d, m, y = self.context_utils._get_date_from_string(current_dir, fmt)
+                d, m, y = self.context_utils.get_date_from_string(current_dir, fmt)
                 if d:
                     context["day"] = d
                 if m:

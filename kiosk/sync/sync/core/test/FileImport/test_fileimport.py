@@ -1,10 +1,14 @@
 import datetime
 import os
 import unittest.mock as mock
+import win32con
+import win32api
 from unittest.mock import call
 
 import pytest
+from win32api import SetFileAttributes, GetFileAttributes
 
+import filecontextutils
 import sync_plugins.fileimportstandardfilters.fileimportstandardfilters as stdfilters
 import synchronization
 from fileimport import FileImport
@@ -303,7 +307,7 @@ class TestFileImport(KioskPyTestHelper):
         rc = std_file_filter.get_file_information({})
         assert std_file_filter.is_active()
         assert "day" in rc and "month" in rc and "year" in rc
-        assert rc["day"] == 4 and rc["month"] == 7 and rc["year"] == 2019
+        assert rc["day"] == 14 and rc["month"] == 9 and rc["year"] == 2022
 
     def test_build_context_1(self, file_import_setup):
         file_import = file_import_setup
@@ -546,12 +550,17 @@ class TestFileImport(KioskPyTestHelper):
         file_import.modified_by = "lkh"
 
         # Folder and File contexts match, File is a collected material
+        # hide the file
 
-        assert not file_import._import_single_file_to_repository(
-            os.path.join(test_path, "test_files", "hidden_files", "hidden_1.jpg"))
+        file = os.path.join(test_path, "test_files", "hidden_files", "hidden_1.jpg")
+
+        SetFileAttributes(file, GetFileAttributes(file) | win32con.FILE_ATTRIBUTE_HIDDEN)
+
+        assert not file_import._import_single_file_to_repository(file)
 
         assert not file_import._import_single_file_to_repository(
             os.path.join(test_path, "test_files", "hidden_files", "._0G9A2462.JPG"))
 
         assert file_import._import_single_file_to_repository(
             os.path.join(test_path, "test_files", "hidden_files", "_0G9A2462.JPG"))
+

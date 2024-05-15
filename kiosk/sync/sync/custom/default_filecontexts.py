@@ -1,4 +1,6 @@
 def register_custom_rgx(caller):
+    caller.register_string2date_rgx("guess",
+                                    r"""\s*(?P<guess>.*)\s*""")
     caller.register_string2date_rgx("ddmm(yyyy)",
                                     r"""\s*(?P<day>[0-9]{1,2})\s*[-_./\s]\s*(?P<month>[0-9]{1,2})(\s*[-_./\s]\s*(?P<year>[0-9]{2,4}))?\s*""")
     caller.register_string2date_rgx("ddXX(yyyy)",

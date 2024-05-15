@@ -41,8 +41,8 @@ class FileContextUtils:
         :param cfg: a SyncConfig object
         """
         custom_contexts = kioskstdlib.load_custom_module(cfg, "filecontexts",
-                                                        subsystem="SYNC",
-                                                        method="PREFIX", fallback=True)
+                                                         subsystem="SYNC",
+                                                         method="PREFIX", fallback=True)
         if custom_contexts:
             custom_contexts.register_custom_rgx(self)
             rgx_list = [r for r in list(self.STRING2IDENTIFIER_RGX.values())]
@@ -96,7 +96,7 @@ class FileContextUtils:
                         break
         return description
 
-    def _get_date_from_string(self, current_dir, regex_patterns):
+    def get_date_from_string(self, current_dir, regex_patterns):
         latin_numbers = {"I": 1, "II": 2, "III": 3, "IV": 4, "V": 5, "VI": 6, "VII": 7, "VIII": 8, "IX": 9, "X": 10,
                          "XI": 11, "XII": 12}
         rgx_list = []
@@ -107,19 +107,26 @@ class FileContextUtils:
 
         if rgx_list:
             for r in rgx_list:
-                r_result = re.match(r, current_dir)
-                if r_result:
-                    m = kioskstdlib.get_regex_group_or_default(r_result, "month", 0)
-                    if str(m) in latin_numbers:
-                        m = latin_numbers[m]
-                    else:
-                        m = int(m)
-                    d = int(kioskstdlib.get_regex_group_or_default(r_result, "day", 0))
-                    y = int(kioskstdlib.get_regex_group_or_default(r_result, "year", 0))
-                    return d, m, y
+                try:
+                    r_result = re.match(r, current_dir)
+                    if r_result:
+                        if kioskstdlib.get_regex_group_or_default(r_result, "guess", ""):
+                            guessed_date = kioskstdlib.guess_datetime(current_dir)
+                            if guessed_date:
+                                return guessed_date.day, guessed_date.month, guessed_date.year
+                        else:
+                            m = kioskstdlib.get_regex_group_or_default(r_result, "month", 0)
+                            if str(m) in latin_numbers:
+                                m = latin_numbers[m]
+                            else:
+                                m = int(m)
+                            d = int(kioskstdlib.get_regex_group_or_default(r_result, "day", 0))
+                            y = int(kioskstdlib.get_regex_group_or_default(r_result, "year", 0))
+                            return d, m, y
+                except BaseException as e:
+                    logging.debug(f"{self.__class__.__name__}._get_date_from_string: non critical exception: {repr(e)}")
 
         return 0, 0, 0
-
 
     def get_date_from_file(self, filename):
         """

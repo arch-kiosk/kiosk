@@ -220,7 +220,7 @@ class FileImportExifFilter(FileImportFilter):
                 # ff.close()
                 if "Exif" in self._exif_dict:
                     date_and_time = str(self._exif_dict["Exif"][kioskpiexif.ExifIFD.DateTimeOriginal])[2:-1]
-                    d, m, y = self.context_utils._get_date_from_string(date_and_time, "")
+                    d, m, y = self.context_utils.get_date_from_string(date_and_time, "")
                     if d and m and y:
                         return datetime.datetime(year=y, day=d, month=m)
                     ts = datetime.datetime.strptime(date_and_time, "%Y:%m:%d %H:%M:%S")

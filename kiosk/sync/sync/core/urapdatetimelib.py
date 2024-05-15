@@ -2,6 +2,7 @@ import datetime
 import time
 import logging
 import re
+from typing import Union
 
 import kioskstdlib
 
@@ -181,7 +182,7 @@ def remove_prefix(text, prefix):
     return text
 
 
-def guess_datetime(str_datetime):
+def guess_datetime(str_datetime) -> Union[None, datetime.datetime]:
     """
        Guesses a correct date (and time, if part of it) from the given string.
        returns None or a valid date.
