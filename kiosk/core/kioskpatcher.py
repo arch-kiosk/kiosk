@@ -314,9 +314,11 @@ class KioskPatcher:
         :param script_file: path and filename of the script file
         :return: (bool to indicate success, error message in case of an error)
         """
-        logging.debug(f"{self.__class__.__name__}.start_pythonl_script: loading python script {script_file}.")
+        logging.debug(f"{self.__class__.__name__}.start_python_script: loading python script {script_file}.")
         try:
             module = kioskstdlib.load_python_module(script_file, 'patch_script')
+            logging.debug(f"{self.__class__.__name__}.start_python_script: "
+                          f"loading python script {script_file} successful.")
             if hasattr(module, "patch_script_main"):
                 return module.patch_script_main(self.cfg, self.transfer_dir, self.kiosk_version)
             else:
