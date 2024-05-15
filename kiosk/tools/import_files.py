@@ -60,13 +60,26 @@ def show_yaml_help():
     file_import:
       recursive: True
       add_needs_context: False
-    #  file_extensions: "jpg,nef"
-    #  tags: "import_091256"
+      file_extensions: "jpg,nef"
+      tags: "import_091256"
+      substitute_identifiers (optional).
     file_import_filters:
       fileimportqrcodefilter:
-        get_identifier: True
-        get_date: True
+        get_identifier: Bool
+        get_date: Bool
         recognition_strategy: "qr_code_peru"
+      standard_folder_filter:
+        get_identifier_from_folder: Bool
+        get_date_from_folder: Bool
+      standard_values_filter:
+        identifier:
+        day:
+        month:
+        year:
+      standard_file_filter:
+        get_identifier_from_filename: Bool
+        get_description_from_filename: Bool
+        get_date_from_file: Bool  
     """)
     sys.exit(0)
 
@@ -149,8 +162,6 @@ def report_progress(prg):
     return True
 
 
-
-
 if __name__ == '__main__':
     this_path = os.path.dirname(os.path.abspath(__file__))
     kiosk_dir = get_kiosk_base_path_from_test_path(this_path)
@@ -161,6 +172,9 @@ if __name__ == '__main__':
     if not os.path.isdir(cfg.get_file_repository()):
         logging.error(f"file repository {cfg.file_repository} does not point to a valid path.")
         exit(-1)
+
+    if len(sys.argv) == 2 and sys.argv[1] == "-?":
+        show_yaml_help()
 
     if len(sys.argv) < 2:
         logging.error(f"No file import directory given.")
