@@ -38,7 +38,7 @@
     "lit": "^3.1.2",
     "nanoid": "^4.0.1",
     "npm": "^10.5.2",
-    "ui-component": "C:\\notebook_source\\kiosk\\lab\\uiwebcomponent\\npm\\uicomponent-0.5.8.tgz",
+    "ui-component": "C:\\notebook_source\\kiosk\\lab\\uiwebcomponent\\npm\\uicomponent-0.5.9.tgz",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {

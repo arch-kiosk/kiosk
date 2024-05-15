@@ -419,6 +419,7 @@ export class KioskView  extends KioskAppComponent {
                                 console.log("FetchFileProvider",params)
                                 this.fetchFileFromApi(params.uuid, params.resolution)
                                     .then((blob: Blob) => {
+                                        console.log(`file back for uuid ${params.uuid}`)
                                         params.reportURL(URL.createObjectURL(blob))
                                     })
                                     .catch((e: FetchException) => {

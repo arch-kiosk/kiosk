@@ -27,7 +27,7 @@ element_type:
 
 # identifier()
 element_type:
-  isIdentifier: true
+  is_identifier: true
 
 # datatype(float) || datatype(decimal)
 element_type:

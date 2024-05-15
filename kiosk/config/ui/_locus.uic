@@ -32,10 +32,9 @@ layout:
 element_type:
   multiline: true
 
-#dsd('locus','arch_context') && view_type:list
+#dsd('locus','arch_context')
 element_type:
   text: "#(unit/term_for_locus)"
-  is_identifier: true
 
 #dsd('locus','type')
 element_type:

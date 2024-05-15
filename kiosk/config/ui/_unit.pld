@@ -37,7 +37,7 @@ unit.sheet:
     orchestration_strategy: columns  # (the default for the sheet scenario)
     default_element_visibility: "."
     order:
-      - id_site
+      - qfsite
       - arch_context
       - legacy_unit_id
       - name
@@ -54,6 +54,13 @@ unit.sheet:
       - modified
       - modified_by
   ui_elements:
+    qfsite:
+      element_type:
+        name: "TextField"
+        text: "site"
+        value: "#(site/arch_context)"
+        is_identifier: true
+        links_to: site
     term_for_locus:
       element_type:
         visible: false
@@ -114,7 +121,7 @@ unit_files.list:
 
 unit_loci.list:
   record_type: locus
-  view_type: list  # (can be list, sheet or file_list or harris_matrix)
+  view_type: list
   dsd_view: "locus.sheet.view.yml"
   max_height: 20em
   fields_selection: dsd
