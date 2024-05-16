@@ -28,6 +28,7 @@ KIOSK_FILES = [
     r"__init__.py",
     r"this_is_the_kiosk_root.md",
     r"sync\sync\console.py",
+    r"sync\sync\custom\default_filecontexts.py",
     r"sync\sync\sync_plugins",
     r"sync\sync\core",
     r"sync\sync\tools",
