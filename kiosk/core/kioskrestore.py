@@ -224,23 +224,23 @@ class KioskRestore:
             else:
                 logging.info("excluding MCP Core files")
 
-            if "nc" not in options:
-                unzips.append([path.join(src_dir, "kiosk.zip"),
-                               [
-                                   kioskstdlib.get_relative_path(kiosk_dir, config.custom_sync_modules),
-                                   kioskstdlib.get_relative_path(kiosk_dir, config.get_custom_kiosk_modules_path()),
-                               ],
-                               kiosk_dir,
-                               "-aoa"])
+            # if "nc" not in options:
+            #     unzips.append([path.join(src_dir, "kiosk.zip"),
+            #                    [
+            #                        kioskstdlib.get_relative_path(kiosk_dir, config.custom_sync_modules),
+            #                        kioskstdlib.get_relative_path(kiosk_dir, config.get_custom_kiosk_modules_path()),
+            #                    ],
+            #                    kiosk_dir,
+            #                    "-aoa"])
 
-        if "ucm" in options:
-            unzips.append([path.join(src_dir, "kiosk.zip"),
-                           [
-                               kioskstdlib.get_relative_path(kiosk_dir, config.custom_sync_modules),
-                               kioskstdlib.get_relative_path(kiosk_dir, config.get_custom_kiosk_modules_path()),
-                           ],
-                           kiosk_dir,
-                           "-aoa"])
+        # if "ucm" in options:
+        #     unzips.append([path.join(src_dir, "kiosk.zip"),
+        #                    [
+        #                        kioskstdlib.get_relative_path(kiosk_dir, config.custom_sync_modules),
+        #                        kioskstdlib.get_relative_path(kiosk_dir, config.get_custom_kiosk_modules_path()),
+        #                    ],
+        #                    kiosk_dir,
+        #                    "-aoa"])
 
         if "fr" in options or "fro" in options:
             if "fro" in options:

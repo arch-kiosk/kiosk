@@ -68,18 +68,17 @@ def show_yaml_help():
         get_identifier: Bool
         get_date: Bool
         recognition_strategy: "qr_code_peru"
-      standard_folder_filter:
+      fileimportstandardfolderfilter:
         get_identifier_from_folder: Bool
         get_date_from_folder: Bool
-      standard_values_filter:
-        identifier:
-        day:
-        month:
-        year:
-      standard_file_filter:
+      fileimportstandardfilefilter:
         get_identifier_from_filename: Bool
         get_description_from_filename: Bool
-        get_date_from_file: Bool  
+        get_date_from_file: Bool
+      fileimportexiffilter:
+        get_context_from_exif: Bool
+        get_date_from_exif: Bool
+        get_description_from_exif: Bool
     """)
     sys.exit(0)
 
@@ -225,6 +224,8 @@ if __name__ == '__main__':
         logging.error(f"The file with parameters does not contain the required keys.")
         usage()
 
+    if "file_extensions" in import_params["file_import"]:
+        import_params["file_import"]["file_extensions"] = import_params["file_import"]["file_extensions"].lower()
     sync = Synchronization()
     file_repos = FileRepository(cfg, sync.events, sync.type_repository, sync)
     # files = file_repos.do_housekeeping(console=True)
