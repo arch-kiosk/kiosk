@@ -1,0 +1,7 @@
+header:
+  version: 0.3
+patch:
+  id: "quickfix_2701"
+  max_kiosk_version: '1.5.36'
+  needs_restart: False
+  start_script: quickfix_2701.py
