@@ -40,6 +40,7 @@ class FileMakerWorkstation(RecordingWorkstation):
     IMPORT_ERROR_LATER = 'LATER'
     IMPORT_ERROR_NOT_OPENED = 'NOT_OPENED'
     IMPORT_ERROR_FM_PREPARE = 'FM_PREPARE'
+    IMPORT_ERROR_FM_IMPORT_RECORD = 'FM_IMPORT_RECORD'
 
     debug_fork_sync_time = None
     debug_dont_check_open_state = False
@@ -515,7 +516,8 @@ class FileMakerWorkstation(RecordingWorkstation):
                                     report_progress(self.interruptable_callback_progress, 94, None,
                                                     "finalizing ...")
                                     images_with_recent_modified_date_after = fm.count_images_modified_recently()
-                                    diff = int(images_with_recent_modified_date_after - images_with_recent_modified_date)
+                                    diff = int(
+                                        images_with_recent_modified_date_after - images_with_recent_modified_date)
                                     if diff >= 1:
                                         logging.warning(f"{self.__class__.__name__}.export: {diff} image records "
                                                         f"have a very recent modification time. This is usually not "
@@ -1253,7 +1255,14 @@ class FileMakerWorkstation(RecordingWorkstation):
                             logging.info(("FileMakerWorkstation._import_from_filemaker: "
                                           "import of fm-database %s successful." % fm.opened_filename))
                             rc = True
-
+                    else:
+                        if self.x_state_info[self.XSTATE_IMPORT_ERROR] == self.IMPORT_ERROR_FM_IMPORT_RECORD:
+                            logging.error(f"{self.__class__.__name__}._import_from_filemaker: "
+                                          f"The import was stopped because of a suspicious record. "
+                                          f"Should this error persist, the only way out might be running the import"
+                                          f"in repair mode. Please contact your admin who should consult the Q&A "
+                                          f"on how to do that.")
+                            self.save()
 
         except BaseException as e:
             logging.error(f"FileMakerWorkstation._import_from_filemaker: {repr(e)}")
@@ -1585,21 +1594,29 @@ class FileMakerWorkstation(RecordingWorkstation):
                                        '_import_table_from_filemaker: Update or insert caused an exception for record ' +
                                        uid + ' in table ' + dsd_table_name + ': ' + repr(e)))
 
-                    if ok:
-                        try:
-                            fm_rec = fm_cur.fetchone()
-                            record_counter += 1
-                        except Exception as e:
-                            logging.error("FileMakerWorkstation._import_table_from_filemaker: Exception " + repr(e))
-                            logging.error(
-                                "Exception data: table is " + dsd_table_name + ", uid is " + uid + ". It was record# " +
-                                str(record_counter))
-                            ok = False
                 else:
-                    logging.error(("FileMakerWorkstation._import_table_from_filemaker: "
-                                   '_import_table_from_filemaker: Filemaker returned a record in table ' +
-                                   dsd_table_name + ' with an empty UID'))
-                    ok = False
+                    if self.fix_import_errors:
+                        logging.warning(("FileMakerWorkstation._import_table_from_filemaker: "
+                                         '_import_table_from_filemaker: Filemaker returned a record in table ' +
+                                         dsd_table_name + ' with an empty UID. The record gets skipped due to '
+                                                          'importing in repair mode.'))
+                        ok = True
+                    else:
+                        logging.error(("FileMakerWorkstation._import_table_from_filemaker: "
+                                       '_import_table_from_filemaker: Filemaker returned a record in table ' +
+                                       dsd_table_name + ' with an empty UID. '))
+                        self.x_state_info[self.XSTATE_IMPORT_ERROR] = self.IMPORT_ERROR_FM_IMPORT_RECORD
+                        ok = False
+                if ok:
+                    try:
+                        fm_rec = fm_cur.fetchone()
+                        record_counter += 1
+                    except Exception as e:
+                        logging.error("FileMakerWorkstation._import_table_from_filemaker: Exception " + repr(e))
+                        logging.error(
+                            "Exception data: table is " + dsd_table_name + ", uid is " + uid + ". It was record# " +
+                            str(record_counter))
+                        ok = False
 
         if ok:
             logging.debug(f"{self.__class__.__name__}._import_table_from_filemaker: "
