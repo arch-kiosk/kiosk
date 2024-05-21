@@ -551,6 +551,9 @@ class FileMakerWorkstation(RecordingWorkstation):
                         else:
                             logging.error(
                                 "FileMakerWorkstation.export: fm.process_images_transfer_table failed.")
+                    else:
+                        logging.error(
+                            "FileMakerWorkstation.export: fm._sync_file_tables_in_filemaker failed.")
             else:
                 logging.error(
                     "FileMakerWorkstation.export: setting constant TRANSACTION_STATE to CORRUPT failed")
@@ -782,6 +785,11 @@ class FileMakerWorkstation(RecordingWorkstation):
                     logging.debug(f"{self.__class__.__name__}._transfer_tables_to_filemaker: "
                                   f"No replication data colleted for {table}. Table did not need transfer.")
 
+                # if self.debug_mode and table.lower() == "qc_rules":
+                #     logging.error(f"{self.__class__.__name__}._transfer_tables_to_filemaker: "
+                #                   f"Stopping after {table} for debugging purposes.")
+                #     return False
+
             c += 1
             report_progress(callback_progress, c * 100 / c_tables, "transfer_tables",
                             f"transferring image metadata ...")
@@ -814,11 +822,26 @@ class FileMakerWorkstation(RecordingWorkstation):
         dsd = self._get_workstation_dsd()
         columns = dsd.list_fields(dsd.files_table)
         if self._table_didnt_need_transfer(dsd.files_table):
-            logging.debug(f"{self.__class__.__name__}._sync_file_tables_in_filemaker: "
-                          f"step skipped because table {dsd.files_table} has not been updated.")
-            return True
-        else:
-            return fm.sync_internal_files_tables(dsd.files_table, columns)
+            cur = KioskSQLDb.get_dict_cursor()
+            if cur is None:
+                logging.error("FileMakerWorkstation._sync_file_tables_in_filemaker: KioskSQLDb.get_cursor() failed.")
+                return False
+            try:
+                src_table_name = self._id + "_" + dsd.files_table
+                latest_record_data = self._get_up_to_date_markers_from_table(cur, dsd, src_table_name, dsd.files_table)
+                if fm.check_is_table_already_up_to_date(dsd.files_table, latest_record_data):
+                    logging.debug(f"{self.__class__.__name__}._sync_file_tables_in_filemaker: "
+                                  f"step 'sync_internal_files_tables' skipped because table {dsd.files_table} does not need an update.")
+                    return True
+                else:
+                    logging.debug(f"{self.__class__.__name__}._sync_file_tables_in_filemaker: "
+                                  f"step cannot be skipped because Kiosk's table '{dsd.files_table}' "
+                                  f"differs from the one in FileMaker.")
+
+            finally:
+                cur.close()
+
+        return fm.sync_internal_files_tables(dsd.files_table, columns)
 
     def _transfer_image_transfer_table(self, cur, fm) -> bool:
         """ transfers the contents of the table id_fm_image_transfer from the master-Model to the

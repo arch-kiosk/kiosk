@@ -417,6 +417,16 @@ class FileMakerControlWindows(FileMakerControl):
             pass
         return rc
 
+    def check_is_table_already_up_to_date(self, tablename, latest_record_data):
+        fm_cur = None
+        try:
+            fm_cur = self.cnxn.cursor()
+            return self._is_table_already_up_to_date(tablename, fm_cur, latest_record_data[0],
+                                                     latest_record_data[1], latest_record_data[2])
+        finally:
+            if fm_cur:
+                fm_cur.close()
+
     def transfer_table_data_to_filemaker(self, db_cur, dsd: DataSetDefinition, tablename,
                                          fieldlist=[], dest_tablename="", latest_record_data=None):
         """ Transfers data from a table in an open odbc database to the same table in the filemaker database

@@ -92,3 +92,15 @@ class FileMakerControl:
            specific database interface used for accessing data, this wrapper helps."""
         logging.error("Access to getfieldvalue of the abstract class UrapFileMakerControl is illegal.")
         return (None)
+
+    def check_is_table_already_up_to_date(self, tablename, latest_record_data) -> bool:
+        """
+        exposes the internal _check_is_table_already_up_to_date for outside use.
+        Opens a FM cursor and checks if the table's data matches the provided latest_record_data.
+        For details see _check_is_table_already_up_to_date
+
+        :param tablename: the name  of the table
+        :param latest_record_data: a Tuple (see _check_is_table_already_up_to_date)
+        :return: bool
+        """
+        raise NotImplementedError
