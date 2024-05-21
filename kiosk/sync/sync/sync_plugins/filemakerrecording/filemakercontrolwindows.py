@@ -298,10 +298,27 @@ class FileMakerControlWindows(FileMakerControl):
             if self.cnxn is not None:
                 logging.error("Attempt to use start_fm_database when there is still a connection open. "
                               "Please close FileMaker first!")
-                self.cnxn.close()
+                try:
+                    self.cnxn.close()
+                except:
+                    pass
                 self.cnxn = None
                 return None
-        except:
+        except BaseException as e:
+            err_str = repr(e)
+            if "Unable to open file (802)" in err_str:
+                logging.error("Attempt to use start_fm_database when there is "
+                              "still a connection to a different database open. "
+                              "Please close FileMaker first!")
+                try:
+                    self.cnxn.close()
+                except:
+                    pass
+                self.cnxn = None
+                return None
+
+            logging.debug(f"{self.__class__.__name__}.start_fm_database: Expected Exception {err_str} "
+                          f"when testing for open FM instance")
             pass
 
         self.fm_doc = self._start_fm_db_with_com(filename, usrname, usrpwd)
