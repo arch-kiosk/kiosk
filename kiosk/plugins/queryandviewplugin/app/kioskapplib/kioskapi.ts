@@ -111,7 +111,7 @@ export class KioskApi {
             return await response.json();
         } else {
             const json_response = await response.json();
-            console.log(`caught ${response.status} in fetchFromApi`);
+            console.log(`caught ${response.status} in fetchFromApi`, json_response);
             if (json_response && 'result_msg' in json_response) {
                 throw new FetchException(json_response.result_msg, response);
             } else {

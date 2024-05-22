@@ -163,6 +163,7 @@ export class KioskView  extends KioskAppComponent {
     }
 
     fetchViewFromApi() {
+
         console.log(`loading view ${this.viewDetails.tableName} / ${this.viewDetails.identifier}`);
         this.loadingMessage = "loading view ...";
         this.showLocalProgress = true;
@@ -184,6 +185,7 @@ export class KioskView  extends KioskAppComponent {
                 this.showLocalProgress = false;
                 if ("result_msg" in data && data.result_msg !== "ok") {
                     console.log(`Error fetching view data in fetchViewFromApi: `, data);
+                    this.localError = data.result_msg
                 } else {
                     this.loadViewDocument(data)
                 }

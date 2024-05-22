@@ -2,10 +2,13 @@
 import decimal
 import logging
 import datetime
+from http import HTTPStatus
 from typing import Callable, Union
 
 import flask
 import json
+
+import werkzeug.http
 from flask import request, jsonify, current_app, Response
 from flask.json.provider import DefaultJSONProvider, _default
 from flask_restful import Resource
@@ -75,9 +78,9 @@ class V1QueryAndViewApiInfo(Resource):
 # ************************************************************************************
 class ApiResultViewError(Schema):
     class Meta:
-        fields = ("err",)
+        fields = ("result_msg",)
 
-    err: fields.Str()
+    result_msg: fields.Str()
 
 
 class ApiViewIdentifierParameter(Schema):
@@ -90,9 +93,10 @@ class ApiViewIdentifierParameter(Schema):
 
 class ApiResultView(Schema):
     class Meta:
-        fields = ("document",)
+        fields = ("result_msg", "document")
         ordered = True
 
+    result_msg: fields.Str()
     document: fields.Dict()
 
 
@@ -159,17 +163,30 @@ class V1QueryAndViewApiView(Resource):
             plugin_cfg = conf.kiosk["queryandviewplugin"]
             pld_id = kioskstdlib.try_get_dict_entry(plugin_cfg, "pld", "general", True)
             view_doc = KioskViewDocument(record_type, pld_id, identifier)
-            doc = view_doc.compile()
+            try:
+                doc = view_doc.compile()
+                api_result = ApiResultView().dump({'result_msg': 'ok',
+                                                   'document': doc})
+            except Exception as e:
+                if "No compilation" in repr(e):
+                    api_result = ApiResultView().dump({'result_msg': f'The record type "{record_type}" '
+                                                                     f'has no defined view and cannot be shown '
+                                                                     f'with the current Kiosk configuration. '
+                                                                     f'Please ask '
+                                                                     f'your admin to install a view.',
+                                                       'document': {}})
+                else:
+                    raise e
 
-            api_result = ApiResultView().dump({'document': doc})
             response = make_json_response(api_result)
             return response
+
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.get: {repr(e)}")
             try:
-                result = {'err': repr(e),
+                result = {'result_msg': repr(e),
                           }
-                return ApiResultViewError().dump(result), 500
+                return ApiResultViewError().dump(result), HTTPStatus.NOT_FOUND
                 # return jsonify()
             except BaseException as e:
                 logging.error(f"{self.__class__.__name__}.post: {repr(e)}")
