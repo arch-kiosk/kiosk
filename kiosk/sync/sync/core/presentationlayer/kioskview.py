@@ -106,10 +106,14 @@ class KioskView:
 
     def get_compilation(self):
         compilations = self._pld.get_compilations_by_record_type(self.record_type)
-        if len(compilations) != 1:
+        if len(compilations) == 1:
+            return compilations[0]
+        if len(compilations) == 0:
             raise KeyError(f"{self.__class__.__name__}.render: "
-                           f"No or more than one compilation for record type {self.record_type}")
-        return compilations[0]
+                           f"No compilation for record type {self.record_type}")
+        else:
+            raise KeyError(f"{self.__class__.__name__}.render: "
+                           f"More than one compilation for record type {self.record_type}")
 
     def _get_view_part_class(self, view_type):
         if view_type == "sheet":

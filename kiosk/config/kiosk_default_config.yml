@@ -8,6 +8,14 @@
   THREADED: False
   SEND_FILE_MAX_AGE_DEFAULT: 43200
 
+glossary:
+  "site": ["site", "sites"]
+  "locus": ["locus", "loci"]
+  "unit": ["unit", "units"]
+  "collected_material": ["collected material", "collected materials"]
+  "small_find": ["small find", "small finds"]
+  "pottery": ["pottery", "pottery"]
+
 config:
   no_console: True
   sync: '%base_path%\sync\sync'

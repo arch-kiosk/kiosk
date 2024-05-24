@@ -14,6 +14,10 @@ compilations:
           site_notes.list:
             text: '#(site/arch_context) notes'
             position: 2
+          site_unit.list:
+            text: '#(/$/constants/labels/label_for_unit_on_start_page) list'
+            position: 3
+
 #          site_note_photos.list:
 #            text: '#(site/arch_context) note photos'
 #            position: 3
@@ -29,6 +33,36 @@ site.sheet:
       - id
       - purpose
       - uid_site_map
+
+site_unit.list:
+  record_type: unit
+  view_type: list  # (can be list, sheet or file_list or harris_matrix)
+  max_height: 20em
+  max_height_expandable: true
+  fields_selection: dsd
+  layout_settings:
+    type: list
+    orchestration_strategy: table  # (the default for the sheet scenario)
+    order_records_by: ["arch_context"]
+    allow_ordering_by: ["arch_context", "term_for_unit", "unit_creation_date"]
+    order: [arch_context, term_for_unit, unit_creation_date, id_excavator, purpose]
+  ui_elements:
+    arch_context:
+      layout:
+        min_width: 15%
+    term_for_unit:
+      layout:
+        min_width: 15%
+    unit_creation_date:
+      layout:
+        min_width: 15%
+    id_excavator:
+      layout:
+        min_width: 15%
+    purpose:
+      layout:
+        min_width: 40%
+        max_height: 4
 
 site_notes.list:
   record_type: site_notes

@@ -271,10 +271,11 @@ export class QueryAndViewApp extends KioskApp {
             await this.activateView(viewTabId)
         }
         const view = this.views.get(viewTabId)
+
         let viewElement = <KioskView>this.shadowRoot.getElementById(view.elementId);
         if (viewElement) {
             console.log(`gotoIdentifier: view element ${viewElement} found`)
-            viewElement.goto({"recordType": viewDetails.subRecordType, "uid": viewDetails.subRecordUid});
+            await viewElement.goto({"recordType": viewDetails.subRecordType, "uid": viewDetails.subRecordUid});
         } else {
             console.log(`gotoIdentifier: view element for view ${view.elementId} not found`)
         }

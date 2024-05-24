@@ -47,7 +47,7 @@ class RestoreJob:
                 if c % 10 == 0:
                     filename = kioskstdlib.get_filename(prg)
                     if len(filename) == 2:
-                        self.job.publish_progress(0, f"backing up files from branch {filename}")
+                        self.job.publish_progress(0, f"restoring files from branch {filename}")
 
             return True
 

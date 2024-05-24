@@ -1,9 +1,12 @@
 # header
 version: 1
 
-# dsd('unit','arch_context') && query-ui
+# dsd('unit','arch_context')
 element_type:
   text: "#($/constants/labels/label_for_unit_on_start_page)"
+
+# dsd('unit','arch_context') && query-ui
+element_type:
   name: "selection"
   items:
     lookup_type: "table"

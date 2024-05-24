@@ -6,8 +6,8 @@ variables:
   site_id: ["dsd('site', 'arch_context')"]
 queries:
   'sites and units':
-    name: '#:what #(/$/constants/labels/label_for_unit_on_start_page) exist per site?'
-    description: '#:Lists all the #(/$/constants/labels/label_for_unit_on_start_page) of a site'
+    name: '#:What #(/$/glossary/unit:2) exist per site?'
+    description: '#:Lists all the #(/$/glossary/unit:2) of a site'
     type: 'SQL'
     output_type: 'list'
     query: "

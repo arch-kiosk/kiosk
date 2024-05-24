@@ -7,7 +7,8 @@ from importlib import import_module, invalidate_caches
 from kiosklogger import KioskLogger
 from mcpinterface.mcpconstants import MCPJobStatus
 
-def create_new_file_log(log_file):
+
+def create_new_file_log(log_file, log_level=logging.INFO):
     logging.basicConfig(format='>[%(process)d/%(thread)d: %(module)s.%(levelname)s at %(asctime)s]: %(message)s',
                         level=logging.ERROR)
     logger = logging.getLogger()
@@ -17,7 +18,7 @@ def create_new_file_log(log_file):
     log_file = log_file.replace("#", "%")
     log_file = datetime.datetime.strftime(datetime.datetime.now(), log_file)
     ch = logging.FileHandler(filename=log_file, delay=True)
-    ch.setLevel(logging.DEBUG)
+    ch.setLevel(log_level)
 
     formatter = logging.Formatter(
         '>[%(process)d/%(thread)d: %(module)s.%(levelname)s at %(asctime)s]: %(message)s')
@@ -117,11 +118,12 @@ def init_config(config_file, job_id, kiosk_base_path):
     if not cfg:
         raise Exception(f"  PID({os.getpid()}): Configuration file {config_file} cannot be loaded.")
     log_file = cfg.get_logfile()
+    log_level = cfg.get_log_level()
     if log_file:
         log_path = kioskstdlib.get_file_path(log_file)
         log_file = f"MCP_{os.getpid()}_" + kioskstdlib.get_filename(log_file)
         log_file = os.path.join(log_path, log_file)
-        create_new_file_log(log_file)
+        create_new_file_log(log_file, log_level)
     logging.info(sys.path)
     logging.info(f"  PID({os.getpid()}): worker starting job {job_id}")
     logging.info(f"  PID({os.getpid()}): in {kiosk_base_path}")

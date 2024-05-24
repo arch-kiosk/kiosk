@@ -75,6 +75,8 @@ export class KioskView  extends KioskAppComponent {
 
     private _intersectionObserver: IntersectionObserver;
 
+    private _onNextViewUpdate: Function = undefined
+
 
     constructor() {
         super();
@@ -113,6 +115,11 @@ export class KioskView  extends KioskAppComponent {
                     this.observeMainGroupHeader();
                 }
             }
+        }
+        if (this._onNextViewUpdate && this.viewDocument !== undefined) {
+            const func = this._onNextViewUpdate.bind(this)
+            this._onNextViewUpdate = undefined
+            func()
         }
     }
 
@@ -286,24 +293,27 @@ export class KioskView  extends KioskAppComponent {
         let targetElement = this.parentElement
         let navDone = false
         await this.updateComplete
-        setTimeout(() => {
-            if (options.hasOwnProperty("recordType") && options["recordType"] != "") {
-                this.gotoRecordType(options).then((result) => {
-                    if (!result) {
-                        console.log("gotoRecordType failed")
-                        var rect = this.getBoundingClientRect();
-                        if (!(
-                            rect.top >= 0 &&
-                            rect.top <= (window.innerHeight || document.documentElement.clientHeight)
-                        )) {
-                            this.parentElement.style.scrollMarginTop = "100px"
-                            this.parentElement.scrollIntoView({ behavior: "smooth" })
+        this._onNextViewUpdate = () => {
+            setTimeout(() => {
+                if (options.hasOwnProperty("recordType") && options["recordType"] != "") {
+                    this.gotoRecordType(options).then((result) => {
+                        if (!result) {
+                            console.log("gotoRecordType failed")
+                            var rect = this.getBoundingClientRect();
+                            if (!(
+                                rect.top >= 0 &&
+                                rect.top <= (window.innerHeight || document.documentElement.clientHeight)
+                            )) {
+                                this.parentElement.style.scrollMarginTop = "100px"
+                                this.parentElement.scrollIntoView({ behavior: "smooth" })
+                            }
                         }
-                    }
-                })
-            }
-            this.requestUpdate("_intersectionObserver")
-        },500)
+                    })
+                }
+                this.requestUpdate("_intersectionObserver")
+            },200)
+        }
+        this.requestUpdate()
     }
 
     public async gotoRecordType(options: any): Promise<boolean> {

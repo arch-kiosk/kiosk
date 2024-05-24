@@ -9,7 +9,8 @@
     "allowJs": true,
     "moduleResolution": "bundler",
     "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
+//    "allowImportingTsExtensions": true,
+    "allowSyntheticDefaultImports": true
 //    "typeRoots": [
 //      "./node_modules/@types",
 //      "./types/common"

@@ -5,7 +5,7 @@ apply_uic_literals: "&& query-ui"
 # dsd('locus','arch_context')
 element_type:
   text: "#($/constants/labels/locus)"
-  name: "selectionX"
+  name: "selection"
   items:
     lookup_type: "table"
     topic: "locus"

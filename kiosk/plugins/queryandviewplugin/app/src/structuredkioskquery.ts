@@ -142,7 +142,7 @@ export class StructuredKioskQuery extends KioskAppComponent {
     }
 
     apiLookupProvider(id: string, lookupSettings: UISchemaLookupSettings, params: ComboBoxDataProviderParams, callback: ComboBoxDataProviderCallback<any>) {
-        console.log(id, lookupSettings);
+        console.log("lookup", id, lookupSettings);
         this.apiContext.fetchFromApi("", "lookup", {
             method: "POST",
             caller: "structuredKioskQuery.apiLookupProvider",

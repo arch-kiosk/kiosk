@@ -249,7 +249,7 @@ locus_relations.list:
     orchestration_strategy: table  # (the default for the sheet scenario)
     order_records_by: [ ">arch_context" ]
     allow_ordering_by: [ "arch_context" ]
-    order: [ from_locus, type, chronology, uid_sketch, uid_locus_2_related ]
+    order: [ from_locus, type, uid_locus_2_related, chronology, uid_sketch ]
   ui_elements:
     from_locus:
       element_type:

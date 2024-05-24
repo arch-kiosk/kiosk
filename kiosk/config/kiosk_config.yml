@@ -33,7 +33,7 @@ file_repository:
 
 glossary:
   "locus": ["SU", "SUs"]
-  "unit": ["trench", "trenches"]
+#  "unit": ["trench", "trenches"]
 
 kiosk:
   global_constants:
