@@ -58,7 +58,8 @@ class CMWidget extends KioskAppComponent {
     sort_by: { [key: string]: Array<string> }= {
         "identifier": ["identifier", "modified"],
         "creation": ["created", "identifier"],
-        "small find": ["isSmallFind", "created", "identifier"]
+        "type": ["cm_type", "created", "identifier"],
+        "material": ["type", "created", "identifier"]
     }
 
     constructor() {
@@ -308,7 +309,7 @@ class CMWidget extends KioskAppComponent {
                 "standard_term_for_cm", false, this.term_for_cm)
             this.plural_for_cm = getStandardTerm(state.constants,
                 "standard_term_for_cm", true, this.term_for_cm)
-
+            console.log("standard term for cm is", this.term_for_cm, this.plural_for_cm)
             for (let i = 0; i < state.constants.length; i++) {
                 let constant = state.constants[i]
                 if (constant["path"] === "constants/collected_material_types")

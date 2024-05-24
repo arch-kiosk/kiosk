@@ -391,12 +391,13 @@ class FileWidget extends KioskAppComponent {
     }
 
     apiRender() {
+        const filteredCount = this.files.filter(x => (this.show_record_types === "" || x.record_type === this.show_record_types)).length
         return html`
                     <div class="file-widget">
                         <div class="headline">
                             <p>${this.record_count > this.page_size 
-                                    ? html`${this.page_size} of ${this.record_count}` 
-                                    : html`${this.record_count}`} Files</p>
+                                    ? html`${this.page_size} of ${filteredCount}` 
+                                    : html`${filteredCount}`} Files</p>
                         </div>
                         <div class="controls">
                             <div class="controls-left">

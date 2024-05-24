@@ -15454,10 +15454,11 @@ var gg = Qn((Ug, go) => {
       r.constants.length > 0 && !this.record_type_names && (this.record_type_names = _a(r.constants), e || this.requestUpdate());
     }
     apiRender() {
+      const r = this.narratives.filter((e) => this.show_record_types === "" || e.record_type === this.show_record_types).length;
       return h`
                     <div class="narrative-widget">
                         <div class="headline">
-                            <p>${this.narratives.length} ${this.record_count ? " of " + this.record_count : void 0} Narrative(s)</p>
+                            <p>${r} ${this.record_count ? " of " + this.record_count : void 0} Narrative(s)</p>
                         </div>
                         <div class="controls">
                             <div class="controls-left">
@@ -16758,7 +16759,8 @@ var gg = Qn((Ug, go) => {
       super(), this.selected_date = null, this.selected_context = "", this.selected_context_uid = "", this.selected_member = "", this.cm = [], this.fetching = !1, this.fetch_error = "", this.cmCount = 0, this.selected_sort = "identifier", this.term_for_cm = "collected material", this.plural_for_cm = "collected materials", this.cm_types = {}, this.sort_by = {
         identifier: ["identifier", "modified"],
         creation: ["created", "identifier"],
-        "small find": ["isSmallFind", "created", "identifier"]
+        type: ["cm_type", "created", "identifier"],
+        material: ["type", "created", "identifier"]
       };
     }
     get_conditions(r, e, t) {
@@ -17568,10 +17570,11 @@ var gg = Qn((Ug, go) => {
       this.selected_image = e, this.viewMode = "image";
     }
     apiRender() {
+      const r = this.files.filter((e) => this.show_record_types === "" || e.record_type === this.show_record_types).length;
       return h`
                     <div class="file-widget">
                         <div class="headline">
-                            <p>${this.record_count > this.page_size ? h`${this.page_size} of ${this.record_count}` : h`${this.record_count}`} Files</p>
+                            <p>${this.record_count > this.page_size ? h`${this.page_size} of ${r}` : h`${r}`} Files</p>
                         </div>
                         <div class="controls">
                             <div class="controls-left">

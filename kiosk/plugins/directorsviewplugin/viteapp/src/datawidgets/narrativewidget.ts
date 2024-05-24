@@ -263,10 +263,11 @@ class NarrativeWidget extends KioskAppComponent {
     }
 
     apiRender() {
+        const filteredCount = this.narratives.filter(x => (this.show_record_types === "" || x.record_type === this.show_record_types)).length
         return html`
                     <div class="narrative-widget">
                         <div class="headline">
-                            <p>${this.narratives.length} ${this.record_count?' of ' + this.record_count:undefined} Narrative(s)</p>
+                            <p>${filteredCount} ${this.record_count?' of ' + this.record_count:undefined} Narrative(s)</p>
                         </div>
                         <div class="controls">
                             <div class="controls-left">
