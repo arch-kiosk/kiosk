@@ -155,7 +155,7 @@ class CMWidget extends KioskAppComponent {
                 },
                 "meta": {
                     "version": 0.1,
-                    "comment": "cmwidget"
+                    // "comment": "cmwidget"
                 },
                 "query": {
                     "type": "DirectSqlQuery",

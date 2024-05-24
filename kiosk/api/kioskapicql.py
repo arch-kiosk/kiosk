@@ -226,12 +226,12 @@ class ApiCQLQuery(Resource):
             KioskSQLDb.commit()
             # KioskSQLDb.set_autocommit(True)
             logging.debug(f"{self.__class__.__name__}.POST: {request.json}")
-            try:
-                comment = request.json["cql"]["meta"]["comment"]
-                if comment == "cmwidget":
-                    print("cmwidget")
-            except:
-                pass
+            # try:
+            #     comment = request.json["cql"]["meta"]["comment"]
+            #     if comment == "cmwidget":
+            #         print("cmwidget")
+            # except:
+            #     pass
 
             dsd = kioskglobals.master_view.dsd
             # pprint({"cql query": request.json})
