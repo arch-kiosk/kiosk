@@ -26,8 +26,8 @@ export default defineConfig(({ command, mode }) => {
         esbuild:
             command == "build"
                 ? {
-                      //No console.logs in the distribution
-                      // drop: ["console", "debugger"],
+                      // No console.logs in the distribution
+                      drop: ["console", "debugger"],
                   }
                 : {},
         build: {

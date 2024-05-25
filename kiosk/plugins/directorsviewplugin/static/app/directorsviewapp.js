@@ -16833,8 +16833,8 @@ var gg = Qn((Ug, go) => {
             }
           },
           meta: {
-            version: 0.1,
-            comment: "cmwidget"
+            version: 0.1
+            // "comment": "cmwidget"
           },
           query: {
             type: "DirectSqlQuery",

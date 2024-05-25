@@ -148,6 +148,7 @@ export class FullTextKioskQuery extends KioskAppComponent {
             {
                 "detail": {
                     "dsdName": fieldName,
+                    "dsdIdentifierFieldName": fieldName,
                     "tableName": tableName,
                     "identifier": identifier,
                     "subRecordType": subRecordType,

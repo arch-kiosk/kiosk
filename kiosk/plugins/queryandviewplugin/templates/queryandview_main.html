@@ -11,6 +11,15 @@
             console.log(`Selecting image ${event.detail}`)
             onViewImageClicked(event)
         })
+        app.addEventListener("scrolled-into-view", (event) => {
+            console.log(`scrolled into view ${event.detail}`)
+            let wrapper = document.getElementById("content-wrapper")
+            wrapper.scrollBy(0,-60)
+            {#setTimeout(() => {#}
+            {#    console.log("wrapper scrolling", wrapper)#}
+            {#    wrapper.scrollBy(0,-60)}#}
+            {#    , 200)#}
+        })
         console.log("main script was executed")
     </script>
 </div>

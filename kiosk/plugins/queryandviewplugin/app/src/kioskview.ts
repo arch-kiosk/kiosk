@@ -37,7 +37,8 @@ export class KioskView  extends KioskAppComponent {
     static styles = unsafeCSS(local_css);
 
     static getViewId(viewDetails: KioskViewDetails): string {
-        return `view:${viewDetails.tableName}|${viewDetails.dsdIdentifierFieldName}|${viewDetails.identifier}`
+        const dsdIdentifierFieldName = (viewDetails.hasOwnProperty("dsdIdentifierFieldName") && viewDetails.dsdIdentifierFieldName !== "")?viewDetails.dsdIdentifierFieldName:"arch_context"
+        return `view:${viewDetails.tableName}|${dsdIdentifierFieldName}|${viewDetails.identifier}`
     }
 
     static properties = {
@@ -304,7 +305,7 @@ export class KioskView  extends KioskAppComponent {
                                 rect.top >= 0 &&
                                 rect.top <= (window.innerHeight || document.documentElement.clientHeight)
                             )) {
-                                this.parentElement.style.scrollMarginTop = "100px"
+                                this.parentElement.style.scrollMarginTop = "200px"
                                 this.parentElement.scrollIntoView({ behavior: "smooth" })
                             }
                         }
