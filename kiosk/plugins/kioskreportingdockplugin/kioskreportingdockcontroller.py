@@ -476,17 +476,21 @@ def variables(dock_id: str, base_query: str):
 
         variable_errors = {}
         rdv_form = None
+        variable_definitions = reporting_engine.variable_definitions
         if request.method == 'POST':
             form_variables = request.form.to_dict()
             for variable in reporting_engine.get_required_variables(base_query):
-                if not form_variables[variable]:
-                    variable_errors[variable] = f"Please enter a value for '{variable}'."
-                    variable_dict[variable] = ""
+                if variable_definitions.get_variable_type(variable) == "BOOLEAN":
+                    variable_dict[variable] = (variable in form_variables and form_variables[variable].lower() == "on")
                 else:
-                    err = reporting_engine.get_variable_error(variable, form_variables[variable])
-                    if err:
-                        variable_errors[variable] = err
-                    variable_dict[variable] = form_variables[variable]
+                    if variable not in form_variables or not form_variables[variable]:
+                        variable_errors[variable] = f"Please enter a value for '{variable_definitions.get_variable_label(variable)}'."
+                        variable_dict[variable] = ""
+                    else:
+                        err = reporting_engine.get_variable_error(variable, form_variables[variable])
+                        if err:
+                            variable_errors[variable] = err
+                        variable_dict[variable] = form_variables[variable]
 
             if not general_errors and not variable_errors:
                 rdv_form = KioskReportingVariablesForm()
@@ -519,6 +523,7 @@ def variables(dock_id: str, base_query: str):
                                base_query=base_query,
                                dock_id=dock_id,
                                variables=variable_dict,
+                               variable_definitions=reporting_engine.variable_definitions,
                                rdv_form=rdv_form)
 
     except HTTPException as e:

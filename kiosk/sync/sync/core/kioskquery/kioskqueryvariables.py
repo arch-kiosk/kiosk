@@ -4,6 +4,7 @@ import logging
 
 import kioskstdlib
 import urapdatetimelib
+from databasedrivers.postgres import Postgres
 from dsd.dsd3singleton import Dsd3Singleton
 from kioskquery.kioskquerylib import *
 from simplefunctionparser import SimpleFunctionParser
@@ -80,8 +81,17 @@ class KioskQueryVariables:
             raise KioskQueryException(f"{self.__class__.__name__}._parse_variable_declaration: "
                                       f"syntax error in datatype instruction resulting from {decl}.")
 
-        result["datatype"] = parser.parameters[0].lower()
+        result["datatype"] = Postgres.convert_dsd_datatype(parser.parameters[0].lower())
         result["instructions"] = list(field_instructions.values())
+        result["label"] = vname
+
+        if "label" in field_instructions.keys():
+            parser.parse(field_instructions["label"])
+            if not parser.ok or len(parser.parameters) != 1:
+                logging.warning(f"{self.__class__.__name__}._parse_variable_declaration: "
+                                f"syntax error in label instruction of variable {vname}: {decl}.")
+            else:
+                result["label"] = parser.parameters[0].lower()
 
         return result
 
@@ -122,6 +132,21 @@ class KioskQueryVariables:
             raise KioskQueryException(f"{self.__class__.__name__}.get_variable_raw: Variable {key} "
                                       f"not declared in reporting definition")
         return self._variable_definitions[key]["datatype"]
+
+    def get_variable_label(self, key: str):
+        """
+        returns the label for a variable if set by the label() instruction. If no such instruction exists,
+        the variable name itself will be returned, but with underscores turned into spaces.
+        :param key: the variable name
+        :return: the label
+        """
+        if key not in self._variable_definitions:
+            raise KioskQueryException(f"{self.__class__.__name__}.get_variable_raw: Variable {key} "
+                                      f"not declared in reporting definition")
+        if "label" in self._variable_definitions[key]:
+            return self._variable_definitions[key]["label"]
+        else:
+            return key.replace("_", " ")
 
     def transform_variable_value(self, key: str, value: str) -> str:
         """
@@ -164,7 +189,6 @@ class KioskQueryVariables:
                           f"Variable {key} transformed from {self._variables[key]} to {new_value}")
             self._variables[key] = new_value
 
-
     def get_variable_raw(self, key: str):
         if key not in self._variable_definitions:
             raise KioskQueryException(f"{self.__class__.__name__}.get_variable_raw: Variable {key} "
@@ -194,7 +218,8 @@ class KioskQueryVariables:
     def get_variable_definitions(self):
         result = {}
         for k, v in self._variable_definitions.items():
-            result[k] = copy.copy(v["instructions"])
+            if "instructions" in result[k]:
+                copy.copy(v["instructions"])
         return result
 
     def add_constants(self, settings: dict):

@@ -1,3 +1,4 @@
+import copy
 import logging
 import os
 from typing import Union, Iterator, Tuple, Callable
@@ -71,6 +72,10 @@ class ReportingEngine:
         self._output_driver: Union[ReportingOutputDriver, None] = None
         self._file_repos: Union[FileRepository, None] = file_repos
         self._has_key_value_store = False
+
+    @property
+    def variable_definitions(self):
+        return self._variables
 
     def _interruptable_callback_progress(self, *args, **kwargs):
         if self._callback_progress and not self._callback_progress(*args, **kwargs):

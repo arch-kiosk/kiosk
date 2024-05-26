@@ -14,12 +14,19 @@
       </div>
       {% for variable_name, variable in variables.items() %}
         <div class="col-12">
-          <label class="kiosk-dialog-label" for="{{ variable_name }}">{{ variable_name }}</label>
-          <input type="text" class="kiosk-dialog-textfield" name="{{ variable_name }}" id="{{ variable_name }}"
-                 value="{{ variable }}">
-          {% if variable_name in variable_errors %}
-          <span class="kiosk-error-line">{{ variable_errors[variable_name] }}</span>
-          {% endif %}
+            {% if variable_definitions.get_variable_type(variable_name) == "BOOLEAN" %}
+              <div>
+                  <input type="checkbox" class="kiosk-dialog-checkbox" name="{{ variable_name }}" id="{{ variable_name }}"{% if variable %} checked{% endif %}>
+                  <label class="kiosk-dialog-checkbox-label" for="{{ variable_name }}">{{ variable_definitions.get_variable_label(variable_name) }}</label>
+              </div>
+            {% else %}
+              <label class="kiosk-dialog-label" for="{{ variable_name }}">{{ variable_definitions.get_variable_label(variable_name) }}</label>
+              <input type="text" class="kiosk-dialog-textfield" name="{{ variable_name }}" id="{{ variable_name }}"
+                     value="{{ variable }}">
+            {% endif %}
+            {% if variable_name in variable_errors %}
+                <span class="kiosk-error-line">{{ variable_errors[variable_name] }}</span>
+            {% endif %}
         </div>
       {% endfor %}
       <div class="col-12">
