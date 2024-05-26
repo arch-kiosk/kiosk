@@ -306,7 +306,7 @@ export class KioskView  extends KioskAppComponent {
                                 rect.top <= (window.innerHeight || document.documentElement.clientHeight)
                             )) {
                                 this.parentElement.style.scrollMarginTop = "200px"
-                                this.parentElement.scrollIntoView({ behavior: "smooth" })
+                                this.parentElement.scrollIntoView()
                             }
                         }
                     })
@@ -352,7 +352,7 @@ export class KioskView  extends KioskAppComponent {
                     console.log("gotoRecordType, error in gotoRecord: ", e)
                 }
             }
-            scrollTo.scrollIntoView({ behavior: "smooth" })
+            scrollTo.scrollIntoView()
             return true
         } else {
             return false

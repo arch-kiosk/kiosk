@@ -395,7 +395,7 @@ class FileWidget extends KioskAppComponent {
         return html`
                     <div class="file-widget">
                         <div class="headline">
-                            <p>${this.record_count > this.page_size 
+                            <p>${filteredCount > this.page_size 
                                     ? html`${this.page_size} of ${filteredCount}` 
                                     : html`${filteredCount}`} Files</p>
                         </div>
