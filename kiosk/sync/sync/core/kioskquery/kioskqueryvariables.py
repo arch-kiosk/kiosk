@@ -218,8 +218,8 @@ class KioskQueryVariables:
     def get_variable_definitions(self):
         result = {}
         for k, v in self._variable_definitions.items():
-            if "instructions" in result[k]:
-                copy.copy(v["instructions"])
+            if "instructions" in v:
+               result[k] = copy.copy(v["instructions"])
         return result
 
     def add_constants(self, settings: dict):
