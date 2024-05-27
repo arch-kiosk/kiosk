@@ -20,7 +20,7 @@ class PresentationLayerDefinition:
         self._file_reader_class = file_reader_class
         self.file_reader = None
 
-    def load(self, pld_path_and_filename: str, filename_resolver: collections.abc.Callable[[str], str]):
+    def load(self, pld_path_and_filename: str, filename_resolver: collections.abc.Callable[[str, str], str]):
         """
         loads a presentation layer definition file.
 
@@ -42,7 +42,7 @@ class PresentationLayerDefinition:
         self._load(self.pld_path_and_filename, filename_resolver)
         self._validate()
 
-    def _load(self, pld_path_and_filename, filename_resolver: collections.abc.Callable[[str], str]):
+    def _load(self, pld_path_and_filename, filename_resolver: collections.abc.Callable[[str, str], str]):
         if not self.file_reader:
             raise Exception(f"{self.__class__.__name__}._load: "
                             f"no file_reader instance available.")
@@ -64,7 +64,7 @@ class PresentationLayerDefinition:
             pld_imports = new_pld.pop('imports')
 
             for pld_import in pld_imports:
-                import_path_and_filename = filename_resolver(pld_import)
+                import_path_and_filename = filename_resolver(pld_path_and_filename, pld_import)
                 if import_path_and_filename:
                     self._load(import_path_and_filename, filename_resolver)
 
