@@ -15,6 +15,7 @@ glossary:
   "collected_material": ["collected material", "collected materials"]
   "small_find": ["small find", "small finds"]
   "pottery": ["pottery", "pottery"]
+  "fragment": ["fragment", "fragments"]
 
 config:
   no_console: True
