@@ -1,0 +1,131 @@
+config:
+  format_version: 1
+
+compilations:
+  fragment_compilation:
+    name: fragment analysis view
+    record_type: su_ceramics
+    groups:
+      group_1:
+        type: "stacked"
+        parts:
+          fragment.sheet:
+            text: '#:#(/$/glossary/fragment) #(su_ceramics/arch_context)'
+            position: 1
+      group_2:
+        type: "accordion"
+        parts:
+          fragment_files.list:
+            text: 'photos & files'
+            position: 1
+fragment.sheet:
+  record_type: su_ceramics
+  view_type: sheet
+  fields_selection: dsd
+#  dsd_view: su_ceramics.sheet.view
+  layout_settings:
+    orchestration_strategy: columns
+    default_element_visibility: "."
+    order:
+      - qfunit
+      - qfcm
+      - arch_context
+      - line_identifiers
+      - object
+      - func_cat
+      - func_sub_cat
+      - form_and_comparisons
+      - line_2
+      - drawn
+      - photographed
+      - coarseness
+      - line_3
+      - fabric
+      - manufacture
+      - finish_and_decoration
+      - other_observations
+      - measurements
+      - line_4
+      - created
+      - modified
+      - modified_by
+  ui_elements:
+    qfcm:
+      element_type:
+        name: "TextField"
+        text: "#(/$/constants/labels/label_bulk_number)"
+        value: "#(collected_material/arch_context)"
+        is_identifier: true
+        links_to: collected_material
+    qfunit:
+      element_type:
+        name: "TextField"
+        text: "#(unit/term_for_unit)"
+        value: "#(unit/arch_context)"
+        is_identifier: true
+        links_to: unit
+    arch_context:
+      element_type:
+        is_identifier: false
+    form_and_comparisons:
+      layout:
+        min_width: 2
+    fabric:
+      layout:
+        min_width: 2
+    manufacture:
+      layout:
+        min_width: 2
+    finish_and_decoration:
+      layout:
+        min_width: 2
+    other_observations:
+      layout:
+        min_width: 2
+    measurements:
+      layout:
+        min_width: 2
+    photographed:
+      element_type:
+        visible: true
+        name: "Bool"
+    drawn:
+      element_type:
+        visible: true
+        name: "Bool"
+    line_identifiers:
+      element_type:
+        name: "line"
+        transparent: true
+      layout:
+        min_width: max
+    line_2:
+      element_type:
+        name: "line"
+        transparent: true
+      layout:
+        min_width: max
+    line_3:
+      element_type:
+        name: "line"
+        transparent: true
+      layout:
+        min_width: max
+    line_4:
+      element_type:
+        name: "line"
+        transparent: true
+      layout:
+        min_width: max
+
+fragment_files.list:
+  record_type: pottery_images
+  view_type: list
+  max_height: auto
+  fields_selection: dsd
+  layout_settings:
+    type: list
+    orchestration_strategy: gallery
+    order_records_by: [">modified"]
+    allow_ordering_by: ["modified", "modified_by"]
+    order: [uid_image, modified, modified_by]
