@@ -83,6 +83,9 @@ cm.sheet:
         value: "#(locus/arch_context)"
         is_identifier: true
         links_to: locus
+    uid_lot:
+      element_type:
+        visible: .
     isobject:
       element_type:
         visible: false
