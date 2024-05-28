@@ -14,7 +14,7 @@ from authorization import full_login_required, IsAuthorized, MANAGE_REPORTING, O
 from authorization import get_local_authorization_strings
 from core.kioskcontrollerplugin import get_plugin_for_controller
 from kioskfilemanagerbridge import KioskFileManagerBridge
-from kiosklib import is_ajax_request
+from kiosklib import is_ajax_request, nocache
 from kioskresult import KioskResult
 from kioskwtforms import kiosk_validate
 from mcpinterface.mcpjob import MCPJob
@@ -568,6 +568,7 @@ def assert_export_directory() -> bool:
 
 @kioskreportingdock.route('view/<string:dock_id>', methods=['GET'])
 @full_login_required
+@nocache
 def view(dock_id: str):
     try:
         if not dock_id.strip():

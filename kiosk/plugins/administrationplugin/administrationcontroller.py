@@ -1203,7 +1203,7 @@ def trigger_patch():
                             result.success = True
                             result.message = f"The patch has been successfully prepared but in order to apply it " \
                                              f"Kiosk needs to be restarted. " \
-                                             f"Please restart you Kiosk Server, Computer or Virtual Machine"
+                                             f"Please restart the computer or virtual machine"
                         else:
                             rc, err_msg = kiosk_patcher.apply_patch()
                             if rc:
