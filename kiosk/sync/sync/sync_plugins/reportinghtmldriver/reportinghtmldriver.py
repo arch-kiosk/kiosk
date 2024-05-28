@@ -53,9 +53,9 @@ class ReportingHTMLDriver(ReportingOutputDriver):
     def _get_mapper_class(self):
         return ReportingMapperHTML
 
-    def _prepare_file(self):
+    def _prepare_file(self) -> str:
         target_filename = os.path.join(self.target_dir, self.target_file_name_without_extension + ".html")
-        return target_filename
+        return str(target_filename)
 
     def execute(self, _on_load_records: Union[Callable[[str, List[str]], Iterator[Tuple]], None]) -> str:
         """
@@ -69,7 +69,6 @@ class ReportingHTMLDriver(ReportingOutputDriver):
 
         target_filename = self._prepare_file()
         reporting_sub_dir = kioskstdlib.get_filename(kioskstdlib.get_file_path(target_filename))
-
 
         env = Environment(loader=FileSystemLoader(kioskstdlib.get_file_path(self.template_file)),
                           autoescape=select_autoescape())
