@@ -131,3 +131,25 @@ Let us know!
 - 🔧 A more technical point: Kiosk now uses the latest PostgreSQL Version 16. That's the database engine that powers Kiosk. Please tell us if you encounter any oddities in your data.
 #### 📅 Kiosk will be on the **ARCE conference in Pittsburgh**
 - 💐 Meet us at the Kiosk booth in the Exhibitor's Hall.  
+
+### 🍸 All Field Projects: Release notes for Kiosk 1.6 and the recording app 15.20 🍸
+✏️ As always: The release notes are best viewed on GitHub https://github.com/arch-kiosk/arch-kiosk-office/issues/1434
+
+The highlights of this year's summer release:
+- 🍸 Charts in Query and View: Look at the pie and bar charts in query "What materials were found in ... " to explore Q&Vs new chart feature. Export chars in situ. 
+- 🍸 You can have mutliple charts per query, depending on what you want to focus on. 
+- 📈 That just the beginning: What charts and queries would you want for your project? 
+- 🍸 Excel and CSV export in Query and View: Look at the query "What materials were found in ... " to explore Q&Vs new graph feature. 
+- 🍸 Query and View improved navigation: Quick scroll up to the results or view header, navigation from full text search match to the match in the view   
+- 🍸 Stratigraphy Studio: Now better in finding and erasing erroneous records in the recording data
+- 🍸 Maintenance: Even when in the field you can now easily install new queries, reports and even whole new Kiosk versions.
+- ✏️ recording app: sortable headers for collected material lists everywhere
+- ✏️ smaller sequence qr codes for object photography and easier focus 
+
+🍸 And there is so much more: About 200 little and not so little improvements and bug fixes throughout the system.
+
+Happy field seasons for all of you who go out this summer!
+
+ 
+
+
