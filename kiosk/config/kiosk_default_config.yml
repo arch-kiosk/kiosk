@@ -7,6 +7,7 @@
   EXPLAIN_TEMPLATE_LOADING: False
   THREADED: False
   SEND_FILE_MAX_AGE_DEFAULT: 43200
+  TEMPLATES_AUTO_RELOAD: True
 
 glossary:
   "site": ["site", "sites"]

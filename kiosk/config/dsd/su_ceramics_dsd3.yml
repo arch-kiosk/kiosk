@@ -42,8 +42,8 @@ su_ceramics_preprocessing_entry:
   structure:
     2:
       cm_uid: [datatype(UUID), join("collected_material")]
-      category_1: [datatype(VARCHAR)]
-      category_2: [datatype(VARCHAR)]
+      category_1: [datatype(VARCHAR), label("functional category")]
+      category_2: [datatype(VARCHAR), label("component part")]
       count: [datatype(NUMBER),default(0)]
       weight: [datatype(NUMBER),default(0)]
       uid: [datatype(UUID), replfield_uuid()]

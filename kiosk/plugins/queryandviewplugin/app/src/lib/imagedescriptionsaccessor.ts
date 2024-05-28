@@ -33,7 +33,7 @@ export class ImageDescriptionAccessor extends DataContextAccessor {
         if (entry) {
             return entry
         } else {
-            return undefined
+            return ""
         }
     }
 }

@@ -52,7 +52,7 @@ export class DataContext {
                 }
             }
             const v = accessor.get(pathAndKey.path, pathAndKey.key, mode);
-            if (v) return v;
+            if (typeof v !== "undefined") return v;
         }
         return undefined
     }
