@@ -130,7 +130,7 @@ unit_loci.list:
     orchestration_strategy: table
     order_records_by: [">arch_context"]
     allow_ordering_by: [arch_context, type, date_defined, date_closed, recorded_by]
-    order: [arch_context, type, date_defined, date_closed, recorded_by]
+    order: [arch_context, type, date_defined, date_closed, recorded_by, description]
 
 unit_cm.list:
   record_type: collected_material
