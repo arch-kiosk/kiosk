@@ -99,6 +99,9 @@ export class StructuredKioskQuery extends KioskAppComponent {
     @state()
     private activeChart: AnyDict = {}
 
+    @state()
+    private isChartMaximized = false
+
     constructor() {
         super();
         registerStyles("vaadin-grid", css`
@@ -222,7 +225,7 @@ export class StructuredKioskQuery extends KioskAppComponent {
             };
             ui.uiSchema = this.uiSchema;
         }
-        if (_changedProperties.has("activeChart") || _changedProperties.has("activeView") || _changedProperties.has("data") && this.data) {
+        if (_changedProperties.has("activeChart") || _changedProperties.has("activeView") || _changedProperties.has("isChartMaximized") || _changedProperties.has("data") && this.data) {
             if (this.data && this.activeView != RESULT_VIEW_TYPE_DATA) {
                 if (this.data.page_size <= this.overall_record_count) {
                     this.fetchAllData().then(data => {
@@ -239,11 +242,13 @@ export class StructuredKioskQuery extends KioskAppComponent {
     refreshGraph(data: ApiResultKioskQuery) {
         const graphDiv = this.shadowRoot.getElementById("chart");
         const queryResultContainer = this.shadowRoot.querySelector(".kiosk-query-result-area");
-        const styles = window.getComputedStyle(queryResultContainer, null)
-        const width = styles.width
+        // const styles = window.getComputedStyle(queryResultContainer, null)
+        const width = this.isChartMaximized ? screen.width : queryResultContainer.getBoundingClientRect().width - 50
         if (graphDiv.firstElementChild) {
             graphDiv.removeChild(graphDiv.firstElementChild);
         }
+        let height = graphDiv.getBoundingClientRect().height
+        height = height > 10 ? height-20 : 400
         console.log("refreshing graph", graphDiv);
         if (this.activeView != RESULT_VIEW_TYPE_DATA) {
             let chartType = chartType2String(this.activeView)
@@ -252,10 +257,10 @@ export class StructuredKioskQuery extends KioskAppComponent {
             console.log("chartDefinition", chartDefinition)
             // chartDefinition.title=
             if (this.activeView === RESULT_VIEW_TYPE_PIECHART) {
-                refreshPieChart(graphDiv, this.data, `${parseInt(width) - 50}px`, "400px",chartDefinition);
+                refreshPieChart(graphDiv, this.data, `${width}px`, `${height}px`,chartDefinition);
             } else {
                 if (this.activeView === RESULT_VIEW_TYPE_BARCHART) {
-                    refreshBarChart2(graphDiv, this.data, `${parseInt(width) - 50}px`, "400px",chartDefinition);
+                    refreshBarChart2(graphDiv, this.data, `${width}px`, `${height}px`,chartDefinition);
                 }
             }
 
@@ -453,6 +458,24 @@ export class StructuredKioskQuery extends KioskAppComponent {
         return rowElement;
     }
 
+    private alternateChartSize(e: Event) {
+        let overlay: HTMLElement = this.shadowRoot.querySelector(".chart-background")
+        if (overlay) {
+            if (this.isChartMaximized) {
+                this.isChartMaximized = false
+                overlay.classList.remove("chart-maximized")
+            } else {
+                this.isChartMaximized = true
+                overlay.classList.add("chart-maximized")
+                let appElement = window.document.querySelector("#kiosk-app")
+                let rect = appElement.getBoundingClientRect()
+                const y = rect.top
+                console.log(`y is ${y}`)
+                overlay.style.top = `${y}px`
+            }
+        }
+    }
+
     private cellRenderer: GridColumnBodyLitRenderer<AnyDict> = (row, model, column) => {
         const dsdName = column.getAttribute("data-column");
         const colInfo = <AnyDict>this.data.document_information.columns[dsdName];
@@ -498,6 +521,9 @@ export class StructuredKioskQuery extends KioskAppComponent {
             </vaadin-grid>
             <div class="chart-background" style="${this.activeView == RESULT_VIEW_TYPE_DATA ? "display:none" : "display: block"}">
                 ${this.renderChartTitleOrSelector()}
+                <div id="chart-size-button">
+                    <i class="${this.isChartMaximized ?"fa fa-minimize":"fa fa-maximize"}" @click="${this.alternateChartSize}"></i>
+                </div>
                 <div id="chart">
 
                 </div>
