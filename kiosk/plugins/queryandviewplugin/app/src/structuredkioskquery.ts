@@ -242,13 +242,15 @@ export class StructuredKioskQuery extends KioskAppComponent {
     refreshGraph(data: ApiResultKioskQuery) {
         const graphDiv = this.shadowRoot.getElementById("chart");
         const queryResultContainer = this.shadowRoot.querySelector(".kiosk-query-result-area");
+        const app = window.document.querySelector("#kiosk-app");
+
         // const styles = window.getComputedStyle(queryResultContainer, null)
-        const width = this.isChartMaximized ? screen.width : queryResultContainer.getBoundingClientRect().width - 50
+        const width = this.isChartMaximized ? app.getBoundingClientRect().width : queryResultContainer.getBoundingClientRect().width - 50
         if (graphDiv.firstElementChild) {
             graphDiv.removeChild(graphDiv.firstElementChild);
         }
         let height = graphDiv.getBoundingClientRect().height
-        height = height > 10 ? height-20 : 400
+        height = height > 10 ? height-50 : 400
         console.log("refreshing graph", graphDiv);
         if (this.activeView != RESULT_VIEW_TYPE_DATA) {
             let chartType = chartType2String(this.activeView)
@@ -464,14 +466,20 @@ export class StructuredKioskQuery extends KioskAppComponent {
             if (this.isChartMaximized) {
                 this.isChartMaximized = false
                 overlay.classList.remove("chart-maximized")
+                overlay.style.top = `auto`
+                overlay.style.left = `auto`
+                overlay.style.height = `auto`
             } else {
                 this.isChartMaximized = true
                 overlay.classList.add("chart-maximized")
                 let appElement = window.document.querySelector("#kiosk-app")
                 let rect = appElement.getBoundingClientRect()
                 const y = rect.top
-                console.log(`y is ${y}`)
+                const x = rect.left
                 overlay.style.top = `${y}px`
+                overlay.style.left = `${x}px`
+                overlay.style.height = `${window.innerHeight - y}px`
+                console.log(`y is ${y}, x is ${x}, bottom is ${screen.availHeight}`)
             }
         }
     }
