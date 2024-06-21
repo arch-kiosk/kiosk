@@ -26,12 +26,47 @@ export const getChartsByType = (chartType: typeof RESULT_VIEW_TYPE_BARCHART | ty
     return [...Object.keys(charts).filter(chartId => charts[chartId].type === filterType)]
 }
 
+function reduceDataByCategory(dataByCategory: Map<string, number>, sum: number, chartDef: AnyDict) {
+    function addToOther(v: number) {
+        let others:number = dataByCategory.get("others")
+        if (typeof others === "undefined") others = 0
+        dataByCategory.set("others", others + v)
+    }
+    let threshold = chartDef.hasOwnProperty("category_threshold")?chartDef.category_threshold:0
+    let maxCategories = chartDef.hasOwnProperty("max_categories")?chartDef.max_categories:0
+
+    if (threshold + maxCategories == 0) return
+
+    if (threshold > 0) {
+        let categories = [...dataByCategory.keys()]
+        for (let category of categories) {
+            const v = dataByCategory.get(category)
+            if (v * 100 / sum < threshold) {
+                addToOther(v)
+                dataByCategory.delete(category)
+            }
+        }
+    }
+    if (maxCategories > 0 && dataByCategory.size > maxCategories) {
+        let sortedCategories = [...dataByCategory.keys()]
+        sortedCategories.sort((a, b) => dataByCategory.get(b) - dataByCategory.get(a))
+        for (let i=maxCategories;i < sortedCategories.length;i++) {
+            const v = dataByCategory.get(sortedCategories[i])
+            addToOther(v)
+            dataByCategory.delete(sortedCategories[i])
+        }
+    }
+}
+
 export const refreshPieChart = (graphDiv: HTMLElement, queryResult: ApiResultKioskQuery,
                                 width: string, height: string, chartDef: AnyDict) => {
 
     console.log("ChartDef", chartDef)
     let categoryField = chartDef.categories
     let dataField = chartDef.values
+    let operation = chartDef.hasOwnProperty("operation")?chartDef.operation:"sum"
+    let sortBy = chartDef.hasOwnProperty("sort_by")?chartDef.sort_by:"category"
+    let sortOrder = chartDef.hasOwnProperty("sort_order")?chartDef.sort_order:"asc"
     let sum = 0
     const dataByCategory: Map<string, number> = new Map()
 
@@ -41,15 +76,23 @@ export const refreshPieChart = (graphDiv: HTMLElement, queryResult: ApiResultKio
             dataByCategory.set(category, 0)
         }
         if (record[dataField]) {
-            sum += record[dataField]
-            dataByCategory.set(category, record[dataField] + dataByCategory.get(category))
+            let v = operation === "count"?1:record[dataField]
+            sum += v
+            dataByCategory.set(category, v + dataByCategory.get(category))
         }
     })
     console.log(dataByCategory)
 
+    reduceDataByCategory(dataByCategory, sum, chartDef)
+
     const series: Array<{name: string, data: number}> = []
     let sortedCategories = [...dataByCategory.keys()]
-    sortedCategories.sort()
+    if (sortBy === "category") {
+        sortedCategories.sort()
+    } else {
+        sortedCategories.sort((a,b) => dataByCategory.get(a) - dataByCategory.get(b))
+    }
+    if (sortOrder === "desc") sortedCategories = sortedCategories.reverse()
 
     for (const k of sortedCategories) {
         if (dataByCategory.get(k) > 0) {
@@ -139,6 +182,8 @@ export const refreshBarChart = (graphDiv: HTMLElement, queryResult: ApiResultKio
     })
     console.log(dataByCategory)
 
+    reduceDataByCategory(dataByCategory, sum, chartDef)
+
     // const series: Array<{name: string, data: Array<number>}> = []
     const dataPoints: Array<number> = []
     const categories: Array<string> = []
@@ -211,6 +256,9 @@ export const refreshBarChart2 = (graphDiv: HTMLElement, queryResult: ApiResultKi
 
     let categoryField = chartDef.categories
     let dataField = chartDef.values
+    let operation = chartDef.hasOwnProperty("operation")?chartDef.operation:"sum"
+    let sortBy = chartDef.hasOwnProperty("sort_by")?chartDef.sort_by:"category"
+    let sortOrder = chartDef.hasOwnProperty("sort_order")?chartDef.sort_order:"asc"
     let sum = 0
     const dataByCategory: Map<string, number> = new Map()
 
@@ -220,14 +268,22 @@ export const refreshBarChart2 = (graphDiv: HTMLElement, queryResult: ApiResultKi
             dataByCategory.set(category, 0)
         }
         if (record[dataField]) {
-            sum += record[dataField]
-            dataByCategory.set(category, record[dataField] + dataByCategory.get(category))
+            let v = operation === "count"?1:record[dataField]
+            sum += v
+            dataByCategory.set(category, v + dataByCategory.get(category))
         }
     })
 
+    reduceDataByCategory(dataByCategory, sum, chartDef)
+
     const series = []  // Array<BoxSeriesType<BoxSeriesDataType>> = []
     let sortedCategories = [...dataByCategory.keys()]
-    sortedCategories.sort()
+    if (sortBy === "category") {
+        sortedCategories.sort()
+    } else {
+        sortedCategories.sort((a,b) => dataByCategory.get(a) - dataByCategory.get(b))
+    }
+    if (sortOrder === "desc") sortedCategories = sortedCategories.reverse()
     for (const k of sortedCategories) {
         if (dataByCategory.get(k) > 0) {
             // series.push({name: k, data: [dataByCategory.get(k)]})

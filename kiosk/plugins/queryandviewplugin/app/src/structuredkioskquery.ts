@@ -6,14 +6,16 @@ import local_css from "./styles/component-structuredkioskquery.sass?inline";
 import { DateTime } from "luxon";
 import { KioskAppComponent } from "../kioskapplib/kioskappcomponent";
 import { css, html, nothing, TemplateResult, unsafeCSS } from "lit";
-import { property, state, query, customElement } from "lit/decorators.js";
-import { Constant, AnyDict, ApiResultKioskQuery, KioskQueryInstance } from "./lib/apitypes";
+import { customElement, property, query, state } from "lit/decorators.js";
+import { AnyDict, ApiResultKioskQuery, Constant, KioskQueryInstance } from "./lib/apitypes";
+
 import {
     Dictionary,
     UISchema,
     UISchemaLayoutElement,
     UISchemaLookupProvider,
-    UISchemaLookupSettings, UISchemaUIElement,
+    UISchemaLookupSettings,
+    UISchemaUIElement,
 // @ts-ignore
 } from "ui-component";
 import "@vaadin/grid";
@@ -26,10 +28,10 @@ import { registerStyles } from "@vaadin/vaadin-themable-mixin/register-styles.js
 import "@shoelace-style/shoelace/dist/components/menu/menu.js";
 import "@shoelace-style/shoelace/dist/components/menu-item/menu-item.js";
 import "@shoelace-style/shoelace/dist/components/dropdown/dropdown.js";
-import '@vaadin/select'
+import "@vaadin/select";
 
 // @ts-ignore
-import { ComboBoxDataProviderParams, ComboBoxDataProvider } from "@vaadin/combo-box";
+import { ComboBoxDataProvider, ComboBoxDataProviderParams } from "@vaadin/combo-box";
 // @ts-ignore
 import { ComboBoxDataProviderCallback } from "@vaadin/combo-box/src/vaadin-combo-box-data-provider-mixin";
 import { getLatinDate, handleCommonFetchErrors } from "./lib/applib";
@@ -46,11 +48,12 @@ import { InterpreterManager } from "../kioskapplib/interpretermanager";
 import { SheetExport } from "./exporter";
 // import { BarChart, PieChart } from "@toast-ui/chart";
 import {
-    refreshBarChart,
+    chartType2String,
+    getChartsByType,
+    refreshBarChart2,
     refreshPieChart,
-    RESULT_VIEW_TYPE_PIECHART,
     RESULT_VIEW_TYPE_BARCHART,
-    getChartsByType, chartType2String, refreshBarChart2,
+    RESULT_VIEW_TYPE_PIECHART,
 } from "./structuredkioskquerycharts";
 
 const RESULT_VIEW_TYPE_DATA = 1;
@@ -211,23 +214,32 @@ export class StructuredKioskQuery extends KioskAppComponent {
 
     updated(_changedProperties: any) {
         super.updated(_changedProperties);
-        console.log("updated fired");
+        console.log("updated fired for ", _changedProperties);
         if (_changedProperties.has("constants")) {
             this.assignConstants();
         }
-        if (_changedProperties.has("uiSchema") && this.uiSchema) {
+        if (_changedProperties.has("uiSchema")) {
             const ui: any = this.renderRoot.querySelector("#ui");
-            (<UISchemaLookupProvider>ui.lookupProvider) = this.apiLookupProvider.bind(this);
-            ui.dataProvider = (exp: string, id: string) => {
-                console.log(`request for data: ${exp} ${id}`);
-                const i_result = this.interpreter.interpret(exp);
-                return i_result || exp;
-            };
-            ui.uiSchema = this.uiSchema;
+            if (this.uiSchema && Object.keys(this.uiSchema).length > 0)
+            {
+                (<HTMLElement>ui).style.removeProperty("display");
+                (<UISchemaLookupProvider>ui.lookupProvider) = this.apiLookupProvider.bind(this);
+                ui.dataProvider = (exp: string, id: string) => {
+                    console.log(`request for data: ${exp} ${id}`);
+                    const i_result = this.interpreter.interpret(exp);
+                    return i_result || exp;
+                };
+                ui.uiSchema = this.uiSchema;
+            } else {
+                (<HTMLElement>ui).style.display = "None";
+                this._inputData = {}
+                this.fetchAllData()
+
+            }
         }
         if (_changedProperties.has("activeChart") || _changedProperties.has("activeView") || _changedProperties.has("isChartMaximized") || _changedProperties.has("data") && this.data) {
             if (this.data && this.activeView != RESULT_VIEW_TYPE_DATA) {
-                if (this.data.page_size <= this.overall_record_count) {
+                if (this.data.record_count < this.overall_record_count) {
                     this.fetchAllData().then(data => {
                         this.refreshGraph(this.data);
                     });
@@ -309,6 +321,11 @@ export class StructuredKioskQuery extends KioskAppComponent {
     };
 
     getQueryUiSchema(elements: Dictionary<UISchemaUIElement>) {
+        if (!elements || elements.length == 0) {
+            this.uiSchema = {}
+            return
+        }
+
         this.uiSchema = {
             header: { version: 1 },
             dsd: <any>this.queryDefinition.ui["dsd"],
@@ -369,10 +386,19 @@ export class StructuredKioskQuery extends KioskAppComponent {
     willUpdate(_changedProperties: any) {
         if (_changedProperties.has("queryDefinition") && this.queryDefinition) {
             //translate and amened the query definition into a correct UISchema here.
-            this.getQueryUiSchema(this.queryDefinition.ui["ui_elements"]);
-            console.log(this.uiSchema);
+            this.getQueryUiSchema(this.queryDefinition.ui["ui_elements"])
+            console.log("uiSchema", this.uiSchema)
+            if (!this.queryDefinition.show_rows) {
+                if (this.queryDefinition.charts && Object.keys(this.queryDefinition.charts).length > 0) {
+                    const activeChartId = Object.keys(this.queryDefinition.charts)[0]
+                    this.activeChart =  this.queryDefinition.charts[activeChartId]
+                    this.activeView = this.activeChart.type === "pie"?RESULT_VIEW_TYPE_PIECHART:RESULT_VIEW_TYPE_BARCHART
+                }
+            }
         }
     }
+
+
 
     queryUIChanged(event: CustomEvent) {
         if (event.detail.srcElement === "start") {
@@ -413,12 +439,12 @@ export class StructuredKioskQuery extends KioskAppComponent {
 
     private isIdentifier(dsdName: string) {
         const colInfo = <AnyDict>this.data.document_information.columns[dsdName];
-        return ("identifier" in colInfo && colInfo["identifier"]);
+        return (colInfo && colInfo.hasOwnProperty("identifier") && colInfo["identifier"]);
     }
 
     private getColumnLabel(dsdName: string) {
         const colInfo = <AnyDict>this.data.document_information.columns[dsdName];
-        return "label" in colInfo ? colInfo["label"] : dsdName;
+        return (colInfo && colInfo.hasOwnProperty("label")) ? colInfo["label"] : dsdName;
     }
 
     private gotoIdentifier(event: MouseEvent) {
@@ -442,7 +468,7 @@ export class StructuredKioskQuery extends KioskAppComponent {
     }
 
     private getFormattedCellValue(rowElement: any, colInfo: AnyDict) {
-        const dataType = colInfo["datatype"];
+        const dataType = (colInfo && colInfo.hasOwnProperty("datatype"))?colInfo["datatype"]:"varchar"
         switch (dataType) {
             case "date":
                 try {
@@ -697,29 +723,31 @@ export class StructuredKioskQuery extends KioskAppComponent {
                 <div class="kiosk-query-result-area">
                     <div class="result-toolbar">
                         ${this.overall_record_count > 0 ? html`
-                                <div id="tableView"
-                                     class="result-toolbar-button ${this.activeView == RESULT_VIEW_TYPE_DATA ? "pressed" : ""}"
-                                     @click="${this.switchResultView}">
-                                    <i class="fas fa-table-columns" aria-description="table view"></i>
-                                </div>
+                                ${this.queryDefinition.show_rows? html`
+                                    <div id="tableView"
+                                         class="result-toolbar-button ${this.activeView == RESULT_VIEW_TYPE_DATA ? "pressed" : ""}"
+                                         @click="${this.switchResultView}">
+                                        <i class="fas fa-table-columns" aria-description="table view"></i>
+                                    </div>`:nothing}
                                 ${this.renderGraphButtons()}
                                 
-                                <sl-dropdown @sl-select="${this.exportClicked}">
-                                    <div class="result-toolbar-button" slot="trigger" aria-description="export menu">
-                                        <i class="fas fa-file-export"></i>
-                                    </div>
-                                    <sl-menu class="export-drop-down">
-                                        <sl-menu-item value="excel" aria-description="export as Excel file">Export to
-                                            Excel
-                                        </sl-menu-item>
-                                        <sl-menu-item value="csv" aria-description="export as CSV file">Export CSV File
-                                        </sl-menu-item>
-                                        <sl-menu-item value="clipboard" aria-description="export to Clipboard">Copy to
-                                            Clipboard
-                                        </sl-menu-item>
-                                    </sl-menu>
-                                </sl-dropdown>`
-                            : nothing}
+                                ${this.queryDefinition.show_rows?html`
+                                    <sl-dropdown @sl-select="${this.exportClicked}">
+                                        <div class="result-toolbar-button" slot="trigger" aria-description="export menu">
+                                            <i class="fas fa-file-export"></i>
+                                        </div>
+                                        <sl-menu class="export-drop-down">
+                                            <sl-menu-item value="excel" aria-description="export as Excel file">Export to
+                                                Excel
+                                            </sl-menu-item>
+                                            <sl-menu-item value="csv" aria-description="export as CSV file">Export CSV File
+                                            </sl-menu-item>
+                                            <sl-menu-item value="clipboard" aria-description="export to Clipboard">Copy to
+                                                Clipboard
+                                            </sl-menu-item>
+                                        </sl-menu>
+                                    </sl-dropdown>`:nothing}
+                                `: nothing}
                     </div>
                     <div class="kiosk-query-results">
                         ${(!this._inputData) ? nothing : this.renderQueryResult()}

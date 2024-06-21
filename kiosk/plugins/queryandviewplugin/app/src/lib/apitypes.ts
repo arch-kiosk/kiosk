@@ -38,6 +38,7 @@ export interface ApiResultKioskQueryDescription {
     ui: ApiResultKioskQueryDescriptionUI
     category: string
     order_priority: string
+    show_rows?: boolean
     charts?: {[key: string]: ApiResultKioskQueryChartDefinition}
 }
 

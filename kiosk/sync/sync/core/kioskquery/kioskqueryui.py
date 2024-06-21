@@ -17,6 +17,9 @@ class KioskQueryUI:
         returns a dictionary with instruction on the input that is requested by a query.
         :returns: {}
         """
+        if not self._variables:
+            return {}
+
         if not uic_literals:
             uic_literals = []
 

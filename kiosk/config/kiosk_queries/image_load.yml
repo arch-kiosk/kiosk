@@ -1,0 +1,116 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+#variables:
+#  unit_id: ["dsd('unit', 'arch_context')"]
+queries:
+  image_load:
+    name: 'Image load distribution'
+    description: 'Analyze how the overall image load distributes across units, record types and years'
+    type: 'CQL'
+    output_type: 'list'
+    show_rows: false
+    query:
+      meta:
+        version: 0.1
+      base:
+        scope:
+          unit: browse()
+        target:
+          field_or_instruction: uid_file()
+        additional_fields:
+          unit_type:
+            field_or_instruction: unit.type
+            default: null
+#            format: string
+          modified:
+            field_or_instruction: modified
+            default: null
+            format: datetime(year)
+      query:
+        type: raw
+        distinct: true
+        columns:
+          "record type":
+            source_field: record_type
+          "unit id":
+            source_field: identifier
+          "unit type":
+            source_field: unit_type
+          "year":
+            source_field: modified
+          "file":
+            source_field: data
+    charts:
+      chart1:
+        type: "pie"
+        title: "#: image load by #(/$/constants/labels/unit)"
+        categories: "unit id"
+        values: "file"
+        sort_by: "value"
+        operation: "count"
+        max_categories: 25
+        category_threshold: 1.5
+      chart1b:
+        type: "pie"
+        title: "#: image load by #(/$/constants/labels/unit) type"
+        categories: "unit type"
+        values: "file"
+        sort_by: "value"
+        operation: "count"
+      chart2:
+        type: "pie"
+        title: "#: image load by year"
+        categories: "year"
+        values: "file"
+        operation: "count"
+      chart32:
+        type: "pie"
+        title: "#: image load by record type"
+        categories: "record type"
+        values: "file"
+        sort_by: "value"
+        operation: "count"
+#      chart2:
+#        type: "pie"
+#        title: "#: % material in #(/$/constants/labels/unit) #(/variables/inputs/unit_id) by weight"
+#        categories: "material"
+#        values: "weight"
+#      chart2a:
+#        type: "pie"
+#        title: "#: #(/$/glossary/collected_material_type) in #(/$/constants/labels/unit) #(/variables/inputs/unit_id) by quantity"
+#        categories: "type"
+#        values: "quantity"
+#      chart2b:
+#        type: "pie"
+#        title: "#: #(/$/glossary/collected_material_type) in #(/$/constants/labels/unit) #(/variables/inputs/unit_id) by weight"
+#        categories: "type"
+#        values: "weight"
+#      chart3:
+#        type: "bar"
+#        title: "#: materials and their quantities in #(/$/constants/labels/unit) #(/variables/inputs/unit_id)"
+#        categories: "material"
+#        values: "quantity"
+#      chart4:
+#        type: "bar"
+#        title: "#: materials and their weights in #(/$/constants/labels/unit) #(/variables/inputs/unit_id)"
+#        categories: "material"
+#        values: "weight"
+#      chart5:
+#        type: "bar"
+#        title: "#: #(/$/glossary/collected_material_type) and quantity in #(/$/constants/labels/unit) #(/variables/inputs/unit_id)"
+#        categories: "type"
+#        values: "quantity"
+#      chart6:
+#        type: "bar"
+#        title: "#: #(/$/glossary/collected_material_type) and weight in #(/$/constants/labels/unit) #(/variables/inputs/unit_id)"
+#        categories: "type"
+#        values: "weight"
+#    column_information:
+#      "record_type": datatype(varchar), label("record type")
+#      "identifier": datatype(varchar), label("base identifier")
+#      "modified": datatype(number), label("year")
+#      "file": datatype(varchar), label("file")
+
+

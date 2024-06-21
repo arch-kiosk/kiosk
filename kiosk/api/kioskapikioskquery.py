@@ -10,6 +10,7 @@ from flask_wtf.csrf import generate_csrf
 from marshmallow import Schema, fields, ValidationError
 
 import kioskglobals
+import kioskstdlib
 from core.kioskapi import KioskApi
 from kioskglobals import kiosk_version, kiosk_version_name, get_global_constants, get_config, httpauth
 from kioskquery.kioskquerylib import KioskQueryException
@@ -29,7 +30,7 @@ class ApiResultKioskQueryError(Schema):
 
 class ApiResultKioskQueryDescription(Schema):
     class Meta:
-        fields = ("id", "type", "name", "description", "ui", "category", "order_priority", "charts")
+        fields = ("id", "type", "name", "description", "ui", "category", "order_priority", "charts", "show_rows")
         ordered = True
 
     id: fields.Str()
@@ -40,6 +41,7 @@ class ApiResultKioskQueryDescription(Schema):
     category: fields.Str()
     order_priority: fields.Str()
     charts: fields.Dict()
+    show_rows: fields.Bool()
 
 
 class ApiKioskQueryPostParameter(Schema):
@@ -123,21 +125,31 @@ class ApiKioskQuery(Resource):
             api_queries = []
             store_queries = KioskQueryStore.list()
             for store_query in store_queries:
-                store_query: tuple
-                api_query = ApiResultKioskQueryDescription()
-                (api_query.id, api_query.type, api_query.name, api_query.description,
-                 api_query.category, api_query.order_priority) = store_query
-                kiosk_query = KioskQueryStore.get(api_query.id)
-                uic_tree = kioskglobals.get_uic_tree()
-                if not uic_tree:
-                    raise KioskQueryException("Kiosk has no ui classes configured or "
-                                              "the class definitions have errors. Please consult the Kiosk log for"
-                                              "details")
-                ui = kiosk_query.get_query_ui(uic_tree)
-                api_query.ui = ui.render_input_request(uic_literals=uic_literals)
-                if kiosk_query.query_definition.charts:
-                    api_query.charts = kiosk_query.query_definition.charts
-                api_queries.append(api_query)
+                try:
+                    store_query: tuple
+                    api_query = ApiResultKioskQueryDescription()
+                    (api_query.id, api_query.type, api_query.name, api_query.description,
+                     api_query.category, api_query.order_priority) = store_query
+                    kiosk_query = KioskQueryStore.get(api_query.id)
+                    uic_tree = kioskglobals.get_uic_tree()
+                    if not uic_tree:
+                        raise KioskQueryException("Kiosk has no ui classes configured or "
+                                                  "the class definitions have errors. Please consult the Kiosk log for"
+                                                  "details")
+                    ui = kiosk_query.get_query_ui(uic_tree)
+                    api_query.ui = ui.render_input_request(uic_literals=uic_literals)
+                    if kiosk_query.query_definition.charts:
+                        api_query.charts = kiosk_query.query_definition.charts
+                    try:
+                        api_query.show_rows = kioskstdlib.to_bool(kioskstdlib.try_get_dict_entry(
+                            kiosk_query.query_definition.raw_query_definition["queries"][api_query.id],
+                            "show_rows", "True", True))
+                    except BaseException as e:
+                        logging.warning(f"{self.__class__.__name__}.get: {repr(e)}")
+                        api_query.show_rows = True
+                    api_queries.append(api_query)
+                except BaseException as e:
+                    logging.error(f"{self.__class__.__name__}.get: Could not load query {store_query[0]}: {repr(e)}")
 
             return ApiResultKioskQueryDescription(many=True).dump(api_queries), 200
         except BaseException as e:

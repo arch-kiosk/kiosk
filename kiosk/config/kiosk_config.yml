@@ -4,7 +4,7 @@ import_configurations:
   - kiosk_secure.yml
 
 config:
-  project_id: 'ustp'
+  project_id: 'ibasa'
   filemaker_template: '%sync%\filemaker\pvd_recording_template.fmp12'
   filemaker_db_filename: test_recording.fmp12
   autoload_plugins_buap:
@@ -38,9 +38,9 @@ glossary:
 kiosk:
   global_constants:
     project_logo_bottom: ' '
-    project_logo_main: 'Upper Sabina Tiberina Project'
+    project_logo_main: 'Investigaciones BioArqueologicas en la Selva Alta'
     project_logo_top: ''
-    project_name: Upper Sabina Tiberina Project
+    project_name: 'Investigaciones BioArqueologicas en la Selva Alta'
     project_short: USTP
 
   administrationplugin:
