@@ -487,7 +487,10 @@ class FileMakerWorkstation(RecordingWorkstation):
                 logging.debug(f"{self.__class__.__name__}.export: "
                               f"{images_with_recent_modified_date} image records have a "
                               f"recent modification timestamp in the filemaker db at the beginning of export")
+
+                # todo: time zone
                 self.ws_fork_sync_time = fm.get_ts_constant("fork_sync_time")
+
                 report_progress(self.interruptable_callback_progress, 20, None, "Transferring data to FileMaker...")
                 if self._transfer_tables_to_filemaker(fm, self.interruptable_callback_progress):
                     report_progress(self.interruptable_callback_progress, 50, None,
@@ -971,6 +974,7 @@ class FileMakerWorkstation(RecordingWorkstation):
         src_table_name = self._id + "_" + tablename
         sql_select = 'SELECT '
         comma = ""
+        # todo time zone: must include both the Zulu and the _tz timestamps
         for f in dsd.list_fields(tablename):
             sql_select = sql_select + comma + '"' + f + '"'
             comma = ", "
@@ -1551,7 +1555,7 @@ class FileMakerWorkstation(RecordingWorkstation):
 
             LK: deleted records also get their modification timestamp set 2 seconds forward.
 
-            todo: refactor, it is longish
+            todo: refactor, it is longish and not the most efficient.
 
         """
         ok = False
@@ -1561,7 +1565,11 @@ class FileMakerWorkstation(RecordingWorkstation):
         cur.execute(sql)
         update_counter = 0
         insert_counter = 0
+
+        # this is being used e.g. to suppress records from the "constant" table in FileMaker.
+        # Some of those constants are not supposed to be synchronized
         import_filter = dsd.get_import_filter(dsd_table_name, "fm12")
+
         # delete_counter = 0
         fm_cur = fm.select_table_data(dsd, dsd_table_name, version=dsd_version, import_filter=import_filter)
         record_counter = -1
@@ -1581,11 +1589,14 @@ class FileMakerWorkstation(RecordingWorkstation):
                 value_list = []
                 uid = fm.getfieldvalue(fm_rec, "uid")
                 if uid:
+                    # refactor: Is it really necessary to build the update and insert statements time and time again?
                     sql_update = f'UPDATE {dest_table_name} SET '
                     sql_insert = 'INSERT' + f' INTO {dest_table_name}('
                     sql_insert_values = "VALUES("
 
                     comma = ""
+                    # todo time zone: this is where the wrist watch timestamps from FileMaker need to be
+                    #  transformed back into absolute time and time zones
                     for f in dsd.list_fields(dsd_table_name, version=dsd_version):
                         sql_update = sql_update + comma + '"' + f + '" = %s'
                         value_list.append(fm.getfieldvalue(fm_rec, f))
@@ -1598,7 +1609,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                     sql_insert_values = sql_insert_values + comma + "1"
                     # comma = ", "
 
-                    sql_update = sql_update + ' where uid=\'' + uid + "\';"
+                    sql_update = sql_update + ' where uid=\'' + uid + "\';"  # refactor: not safe
                     sql_insert = sql_insert + ')'
                     sql_insert_values = sql_insert_values + ")"
                     sql_insert = sql_insert + " " + sql_insert_values

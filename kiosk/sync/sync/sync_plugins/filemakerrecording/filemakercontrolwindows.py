@@ -505,6 +505,8 @@ class FileMakerControlWindows(FileMakerControl):
 
             for f in fieldlist:
                 fm_sql_insert = fm_sql_insert + comma + '"' + f + '"'
+                # todo time zone: here the TIMESTAMP fields need to be identified
+
                 fm_sql_insert_values = fm_sql_insert_values + comma + "?"
                 comma = ", "
                 if dsd and dsd.get_field_datatype(tablename, f).upper() in ["VARCHAR", "TEXT"]:
@@ -530,6 +532,7 @@ class FileMakerControlWindows(FileMakerControl):
 
                 params = []
                 for f in fieldlist:
+                    # todo time zone: here the TIMESTAMPS need to be manipulated
                     field_value = row[f]
                     # noinspection PyComparisonWithNone
                     if field_value is not None and f in varchar_fields:
@@ -602,7 +605,11 @@ class FileMakerControlWindows(FileMakerControl):
         :param record_count: this is the value count(modified_field_name) needs to meet
         :return: True if the dest table fulfills the requirements.
         """
+
+        # todo time zone: this needs time zone thinking
+
         rc = False
+
         modified_field = modified_field_name
         if modified_field:
             fm_cur = fm_cur.execute(f"select max(\"{modified_field}\") \"max_modified\", "
@@ -850,6 +857,7 @@ class FileMakerControlWindows(FileMakerControl):
         try:
             sql_select = 'SELECT '
             comma = ""
+            #todo time zone: this should only return the Zulu timestamp fields but not the _tz fields
             for f in dsd.list_fields(tablename, version=version):
                 sql_select = sql_select + comma + '"' + f + '"'
                 comma = ", "

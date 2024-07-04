@@ -14,6 +14,7 @@ class AddMigrationInstruction(MigrationInstruction):
         migration: postgresdbmigration.PostgresDbMigration = table_migration.migration
         table_name = migration.sql_safe_namespaced_table(namespace=table_migration.namespace,
                                                          db_table=table_migration.db_table)
+        # todo time zone: in case of a timestamp add two colums
         sql = f"ALTER TABLE {table_name} "
 
         field_name = parameters[0]
@@ -43,6 +44,9 @@ class AlterMigrationInstruction(MigrationInstruction):
         sql_alter = f"ALTER TABLE {table_name}"
         sql = ""
         field_name = parameters[0]
+
+        # todo time zone: in case of a timestamp potentially alter two colums
+
 
         new_field_instructions = table_migration.migration.dsd.get_field_instructions(
             table=table_migration.dsd_table,
@@ -169,6 +173,8 @@ class RenameMigrationInstruction(MigrationInstruction):
 
         table_name = migration.sql_safe_namespaced_table(namespace=table_migration.namespace,
                                                          db_table=table_migration.db_table)
+        # todo time zone: in case of a timestamp rename two colums
+
         sql = f"ALTER TABLE {table_name} "
         old_field_name = parameters[0]
         new_field_name = parameters[1]

@@ -123,21 +123,21 @@ class DataSetDefinition:
             pass
         return ""
 
-    # ********************************************************
-    #  deprecated stuff
-    # ********************************************************
-    def list_externally_bound_fields(self, table, version=0):
-        """ returns a list of the fields of a given version of a table definition
-            in the DataSetDefinition that have a FILE_FOR attribute, which indicates that the
-            field refers to an external file.
-
-            In fact that should only be the images / files table
-            :todo: This should not be needed any longer!
-                    Get rid of it when working on the next version of the DSD
-
-        """
-
-        raise DeprecationWarning("call to DataSetDefinition.list_externally_bound_fields is obsolete.")
+    # # ********************************************************
+    # #  deprecated stuff
+    # # ********************************************************
+    # def list_externally_bound_fields(self, table, version=0):
+    #     """ returns a list of the fields of a given version of a table definition
+    #         in the DataSetDefinition that have a FILE_FOR attribute, which indicates that the
+    #         field refers to an external file.
+    #
+    #         In fact that should only be the images / files table
+    #         :todo: This should not be needed any longer!
+    #                 Get rid of it when working on the next version of the DSD
+    #
+    #     """
+    #
+    #     raise DeprecationWarning("call to DataSetDefinition.list_externally_bound_fields is obsolete.")
 
     # ********************************************************
     #  end deprecated stuff
@@ -322,6 +322,9 @@ class DataSetDefinition:
                 self._append_imports(dsddata=dsddata, external_file_path=external_file_path)
                 self._resolve_externals(dsddata, base_path=external_file_path)
             rc = self._dsd_data.merge([], dsddata)
+
+            # todo time zone: it is here that the additional _ts field would have to be added
+            #  to all occurences of a TIMESTAMP
             if rc:
                 if self._identify_files_table() <= 1:
                     return rc

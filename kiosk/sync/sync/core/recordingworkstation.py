@@ -343,7 +343,7 @@ class RecordingWorkstation(Dock):
     def fork(self):
         """forks the data in the master database and all the files needed by a workstation
         by creating a copy of it in
-        the shadow tables of the given workstation. Afterwards the workstation will
+        the shadow tables of the given workstation. Afterward the workstation will
         turn to state "READY_FOR_EXPORT" \n
 
         :return: True or False, commits the data or makes a rollback
