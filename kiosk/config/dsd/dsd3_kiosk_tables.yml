@@ -168,3 +168,12 @@ kiosk_queries:
       upgrade:
         - add(category)
         - add(order_priority)
+
+kiosk_time_zones:
+  structure:
+    1:
+      id: [datatype(INT), unique(), not_null()]
+      tz_long: [datatype(VARCHAR)]
+      tz_IANA: [datatype(VARCHAR)]
+      deprecated: [datatype(BOOLEAN)]
+      version: [datatype(INT), not_null()]

@@ -8,6 +8,7 @@ from kioskbackup import KioskBackup
 from os import path
 from kioskconfig import KioskConfig
 from kioskrequirements import KioskRequirements
+from tz.kiosktimezone import KioskTimeZones
 
 params = {"-fr": "fr", "--pack_file_repository": "fr",
           "-fd": "fd", "--file_repository_date": "fd",
@@ -136,5 +137,8 @@ if __name__ == '__main__':
     if "c" in options:
         KioskBackup.copy_libraries(dst_dir, kiosk_dir=kiosk_dir)
 
+    tz_dir = os.path.join(kiosk_dir, "tools", "tz")
+    kiosk_tz = KioskTimeZones(os.path.join(tz_dir, "backward"))
+    kiosk_tz.generate_kiosk_time_zone_dist(os.path.join(tz_dir, "kiosk_tz.json"))
     KioskBackup.pack_kiosk(cfg, dst_dir, options)
     print("Done.")

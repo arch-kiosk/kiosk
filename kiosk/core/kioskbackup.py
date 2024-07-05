@@ -52,6 +52,7 @@ class KioskBackup:
         r"tools\refresh_full_text_search.py",
         r"tools\kiosktoolslib.py",
         r"tools\ps",
+        r"tools\tz",
     ]
 
     KIOSK_CONFIG_ONLY_FILES = [

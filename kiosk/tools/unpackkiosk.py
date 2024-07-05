@@ -39,6 +39,7 @@ params = {"-fr": "fr", "--unpack_file_repository": "fr",
           "--patch": "patch",
           "--no_housekeeping": "nh",
           "-nh": "nh",
+          "--no_timezones": "ntz",
           "--guided": "guided",
           "--test_drive": "test_drive",
           "-rm": "rm",
@@ -95,6 +96,7 @@ def usage():
                                   use =force to actually invalidate the file cache entries and remove the files  
         -na/--no_admin: run unpackkiosk without admin privileges.
         -nr/ --no_redis: Don't check and use redis.
+        -no_timezones: Don't update the time zone catalog.
         -sp/ --sudo_password=password: Needed to write the redis call into start.ps1. Necessary only for a new install and
                                        if redis is being used at all (--no_redis is not set)
         -rm: restart machine at the end of unpackkiosk - if it was successful.
@@ -594,12 +596,26 @@ if __name__ == '__main__':
                 sys.exit(0)
             else:
                 print("Database Migration successful")
+                if "ntz" not in options:
+                    try:
+                        from tz.kiosktimezone import KioskTimeZones
+                        tz_dir = os.path.join(kiosk_dir, "tools", "tz")
+                        kiosk_tz = KioskTimeZones()
+                        kiosk_tz.update_local_kiosk_time_zones("kiosk_tz.json")
+                    except BaseException as e:
+                        print(f"ERROR when updating time zones: {repr(e)}. This is not critical. "
+                              f"But you will have to update the time zone catalog manually")
+                else:
+                    print("Skipped updating the time zone catalog")
+
         except BaseException as e:
             print(f"ERROR: migrate_database threw Exception {repr(e)}: STOPPING.")
             sys.exit(0)
     else:
         if not this_is_an_update:
             print("Migration skipped because this is a new installation that might need configuration first.")
+            print("NOTE that after Kiosk has been through the first migration "
+                  "you need to update the time zone catalog manually.")
 
     if this_is_an_update:
         try:
