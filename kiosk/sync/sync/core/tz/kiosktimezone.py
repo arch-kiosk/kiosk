@@ -14,6 +14,11 @@ from sync_config import SyncConfig
 
 
 class KioskTimeZones:
+    """
+    Class representing a utility for managing and retrieving time zones in Kiosk.
+
+    """
+
     def __init__(self, iana_backward_file: str = ""):
         self.iana_backward_file = iana_backward_file
         self.deprecated_aliases: Set = set()
@@ -103,7 +108,7 @@ class KioskTimeZones:
         :param console_output: set to False if you don't want any printouts to the console
         """
 
-        def get_tz_index(lst: List[Tuple[int, str, str, bool,int]], tz_hash):
+        def get_tz_index(lst: List[Tuple[int, str, str, bool, int]], tz_hash):
             for i, tz_found in enumerate(lst):
                 if tz_found[0] == tz_hash:
                     return i
@@ -131,7 +136,8 @@ class KioskTimeZones:
                 if idx > -1:  # hash already exists
                     json_tz = json_tz_info[idx]
                     if tz[2] == json_tz[2]:  # is it the same IANA time zone?
-                        json_tz_info[idx] = (tz[0], tz[1], tz[2], tz[3], json_tz[4])  # update tz information, but keep version
+                        json_tz_info[idx] = (
+                            tz[0], tz[1], tz[2], tz[3], json_tz[4])  # update tz information, but keep version
                         tz_updated += 1
                     else:  # duplicate hash: make a new hash and try again
                         if console_output:
@@ -155,7 +161,7 @@ class KioskTimeZones:
         if console_output:
             print(f"generate_kiosk_time_zone_dist updated {tz_updated} time zones")
 
-    def update_local_kiosk_time_zones(self, source_json_file: str, commit=True) -> None:
+    def update_local_kiosk_time_zones(self, source_json_file: str, commit=True) -> int:
         """
         Loads the time zones from a json file into the local database's time_zones table.
         Note that the target able "kiosk_time_zones" must be created and migrated to the current version.
@@ -164,7 +170,7 @@ class KioskTimeZones:
                                   with generate_kiosk_time_zone_dist
         :param commit: set to False if this runs withing an external transaction.
 
-        :return: none. throws exceptions on failure.
+        :return: number of imported time zones. throws exceptions on failure.
         """
         if not KioskSQLDb.does_table_exist("kiosk_time_zones"):
             raise Exception(f"{self.__class__.__name__}.update_local_kiosk_time_zones: "
@@ -181,17 +187,50 @@ class KioskTimeZones:
                             f"File {source_json_file} does not contain time zones")
 
         KioskSQLDb.truncate_table("kiosk_time_zones")
-        sql_insert = "insert into kiosk_time_zones VALUES(%s,%s,%s,%s,%s)"
+        sql_insert = "insert" + " into kiosk_time_zones VALUES(%s,%s,%s,%s,%s)"
+        c = 0
         for c, tz in enumerate(json_tz_info):
             KioskSQLDb.execute(sql_insert, tz)
         if commit:
             KioskSQLDb.commit()
         logging.info(f"{self.__class__.__name__}.update_local_kiosk_time_zones: {c} time zones inserted.")
+        return c
+
+    def list_time_zones(self, after_version=0, include_deprecated=False):
+        """
+        Retrieve a list of time zones from the 'kiosk_time_zones' table based on certain criteria.
+
+        :param after_version: An integer representing the version after which time zones should be listed.
+        :param include_deprecated: A boolean indicating whether deprecated time zones should be included in the list.
+
+        :return: A list of time zone records retrieved from the 'kiosk_time_zones' table
+                  based on the specified criteria.
+
+        :raises: Any exception that occurs.
+        """
+        try:
+            sql = "select * from kiosk_time_zones"
+            sql_where = ""
+            sql_parameter = []
+            if not include_deprecated:
+                sql_where += " WHERE not deprecated"
+            if after_version > 0:
+                sql_where += (" AND " if sql_where else " WHERE ") + f"version > %s"
+                sql_parameter.append(after_version)
+            time_zone_records = KioskSQLDb.get_records(sql + sql_where, params=sql_parameter)
+            return time_zone_records
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.list_time_zones: {repr(e)}")
+            raise e
 
 
 # if __name__ == '__main__':
-#     # kiosk_tz = KioskTimeZones("backward")
-#     # kiosk_tz.generate_kiosk_time_zone_dist("kiosk_tz.json")
 #     cfg = SyncConfig.get_config({'config_file': r'C:\notebook_source\kiosk\server\kiosk\kiosk\config\kiosk_config.yml'})
 #     kiosk_tz = KioskTimeZones()
-#     kiosk_tz.update_local_kiosk_time_zones("kiosk_tz.json")
+#     pprint(kiosk_tz.list_time_zones())
+#
+# #     # kiosk_tz = KioskTimeZones("backward")
+# #     # kiosk_tz.generate_kiosk_time_zone_dist("kiosk_tz.json")
+# #     cfg = SyncConfig.get_config({'config_file': r'C:\notebook_source\kiosk\server\kiosk\kiosk\config\kiosk_config.yml'})
+# #     kiosk_tz = KioskTimeZones()
+# #     kiosk_tz.update_local_kiosk_time_zones("kiosk_tz.json")

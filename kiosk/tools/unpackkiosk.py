@@ -601,7 +601,7 @@ if __name__ == '__main__':
                         from tz.kiosktimezone import KioskTimeZones
                         tz_dir = os.path.join(kiosk_dir, "tools", "tz")
                         kiosk_tz = KioskTimeZones()
-                        kiosk_tz.update_local_kiosk_time_zones("kiosk_tz.json")
+                        kiosk_tz.update_local_kiosk_time_zones(os.path.join(tz_dir, "kiosk_tz.json"))
                     except BaseException as e:
                         print(f"ERROR when updating time zones: {repr(e)}. This is not critical. "
                               f"But you will have to update the time zone catalog manually")

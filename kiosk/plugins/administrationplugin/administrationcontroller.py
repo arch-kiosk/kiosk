@@ -50,6 +50,7 @@ from pluggableflaskapp import current_app
 from sqlalchemy_models.adminmodel import KioskUser
 
 from synchronization import Synchronization
+from tz.kiosktimezone import KioskTimeZones
 from .forms.backupform import BackupForm
 from .forms.housekeepingform import HousekeepingForm
 from .forms.restoreform import RestoreForm
@@ -1244,8 +1245,6 @@ def trigger_patch():
         abort(HTTPStatus.INTERNAL_SERVER_ERROR)
 
 
-
-
 #  **************************************************************
 #  ****    /administration/after_synchronization route
 #  *****************************************************************/
@@ -1362,6 +1361,32 @@ def reload_all_kiosk_queries():
     except Exception as e:
         logging.error(f"reload_all_kiosk_queries: Exception when handling "
                       f"administration/reload_all_kiosk_queries : {repr(e)}")
+        result["result"] = "Exception thrown. Please consult the logs."
+
+    return jsonify(**result)
+
+
+#  **************************************************************
+#  ****    /administration/import_kiosk_tz route
+#  *****************************************************************/
+@administration.route('/import_kiosk_tz', methods=['POST'])
+@full_login_required
+@requires(IsAuthorized(ENTER_ADMINISTRATION_PRIVILEGE))
+# @nocache
+def import_kiosk_tz():
+    result = {}
+    logging.info("\nadministrationcontroller.import_kiosk_tz triggered")
+
+    try:
+        tz_dir = os.path.join(kioskglobals.get_config().base_path, "tools", "tz")
+        kiosk_tz = KioskTimeZones()
+        c_time_zones = kiosk_tz.update_local_kiosk_time_zones(os.path.join(tz_dir, "kiosk_tz.json"))
+
+        result["result"] = "ok"
+        result["message"] = f"{c_time_zones} Time Zones have been successfully imported."
+    except Exception as e:
+        logging.error(f"import_kiosk_tz: Exception when importing "
+                      f"time zones : {repr(e)}")
         result["result"] = "Exception thrown. Please consult the logs."
 
     return jsonify(**result)

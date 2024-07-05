@@ -739,6 +739,7 @@ class KioskSQLDb(SqlSafeIdentMixin):
     @classmethod
     def get_records(cls, sql, params=[], max_records=0, add_column_row=False, raise_exception=False):
         result = []
+        cur = None
         try:
             cur = cls.get_dict_cursor()
             if cur:
@@ -754,7 +755,7 @@ class KioskSQLDb(SqlSafeIdentMixin):
                     r = cur.fetchone()
 
         except Exception as e:
-            logging.error(f"Exception in get_records, sql= {cur.query}: {repr(e)}")
+            logging.error(f"Exception in get_records, sql= {cur.query if cur else ''}: {repr(e)}")
             KioskSQLDb.rollback()
             if raise_exception:
                 try:
