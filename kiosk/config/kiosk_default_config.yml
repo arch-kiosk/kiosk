@@ -18,6 +18,22 @@ glossary:
   "pottery": ["pottery", "pottery"]
   "fragment": ["fragment", "fragments"]
 
+preferred_time_zones:
+  - "US\\/Eastern"
+  - "US\\/Central"
+  - "US\\/Pacific"
+  - "US\\/Alaska"
+  - "US\\/Mountain"
+  - "Europe\\/London"
+  - "Europe\\/Dublin"
+  - "Central European Time"
+  - "Sudan Time"
+  - "Türkiye Time"
+  - "Egypt"
+  - "Africa\\/Cairo"
+  - "Asia\\/Amman"
+  - "Canada"
+
 config:
   no_console: True
   sync: '%base_path%\sync\sync'

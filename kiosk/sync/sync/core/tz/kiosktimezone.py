@@ -196,12 +196,13 @@ class KioskTimeZones:
         logging.info(f"{self.__class__.__name__}.update_local_kiosk_time_zones: {c} time zones inserted.")
         return c
 
-    def list_time_zones(self, after_version=0, include_deprecated=False):
+    def list_time_zones(self, after_version=0, include_deprecated=False, filter_text=""):
         """
         Retrieve a list of time zones from the 'kiosk_time_zones' table based on certain criteria.
 
         :param after_version: An integer representing the version after which time zones should be listed.
         :param include_deprecated: A boolean indicating whether deprecated time zones should be included in the list.
+        :param filter_text: an optional string to filter by tz_long
 
         :return: A list of time zone records retrieved from the 'kiosk_time_zones' table
                   based on the specified criteria.
@@ -217,6 +218,10 @@ class KioskTimeZones:
             if after_version > 0:
                 sql_where += (" AND " if sql_where else " WHERE ") + f"version > %s"
                 sql_parameter.append(after_version)
+            if filter_text:
+                sql_where += (" AND " if sql_where else " WHERE ") + f"tz_long ILIKE %s"
+                sql_parameter.append(f'%{filter_text}%')
+            print(sql + sql_where)
             time_zone_records = KioskSQLDb.get_records(sql + sql_where, params=sql_parameter)
             return time_zone_records
         except BaseException as e:
