@@ -1,5 +1,5 @@
 from flask import Blueprint, request, redirect, render_template, jsonify, \
-    flash, url_for
+    flash, url_for, Response
 from flask_login import current_user, login_user, logout_user, login_required
 from authorization import full_login_required
 from flask_wtf import FlaskForm
@@ -10,6 +10,7 @@ import logging
 
 from kiosksqldb import KioskSQLDb
 from kioskuser import KioskUser
+from tz.kiosktimezone import KioskTimeZones
 
 _plugin_name_ = "login_plugin"
 _controller_name_ = "login_controller"
@@ -29,14 +30,53 @@ def login():
         user = KioskUser.authenticate(request.form['user-id'], request.form['user-pwd'])
         if user:
             login_user(user)
-            if str(request.form['user-pwd']).strip() == "" or user.must_change_pwd:
-                return render_template('login.html', no_burger_menu=True, change_password=True)
-            else:
-                return redirect(url_for('get_index'))
+            try:
+                if str(request.form['user-pwd']).strip() == "" or user.must_change_pwd:
+                    return render_template('login.html', no_burger_menu=True, change_password=True)
+                else:
+                    response = redirect(url_for('get_index'))
+                    return process_client_time_zone(response, user)
+            except BaseException as e:
+                logging.error(f"login_controller.login: Error when logging you in: {repr(e)}")
+                flash(repr(e))
         else:
             logout_user()
             flash('Authentication failed')
     return render_template('login.html', no_burger_menu=True)
+
+
+def process_client_time_zone(response: Response, user: KioskUser):
+    """
+    processes the client_iana_time_zone cookie with the client browser's time zone and
+    sets the cookies client_tz_index and client_tz_name and kiosk_tz_index and kiosk_tz_name
+    :param response: the Flask Response that is about to be sent back to the Browser
+    :param user: The logged in Kiosk User
+    """
+    if "client_iana_time_zone" in request.cookies:
+        client_iana_tz = request.cookies.get("client_iana_time_zone")
+        kiosk_time_zones = KioskTimeZones()
+        client_tz_index = kiosk_time_zones.get_time_zone_index(client_iana_tz)
+        client_tz_name = ""
+        if client_tz_index:
+            client_tz_name = kiosk_time_zones.get_time_zone_info(client_tz_index)[1]
+            response.set_cookie("client_tz_index", str(client_tz_index))
+            response.set_cookie("client_tz_name", client_tz_name)
+        else:
+            logging.warning(f"login_controller.process_client_time_zone: "
+                            f"could not get a tz index for the client's time zone {client_iana_tz}")
+
+        kiosk_tz_index = client_tz_index
+        kiosk_tz_name = client_tz_name
+        user_tz_index = user.get_tz_index()
+        if user_tz_index:
+            kiosk_tz_index = user_tz_index
+            kiosk_tz_name = kiosk_time_zones.get_time_zone_info(kiosk_tz_index)[1]
+
+        response.set_cookie("kiosk_tz_index", str(kiosk_tz_index))
+        response.set_cookie("kiosk_tz_name", kiosk_tz_name)
+        return response
+    else:
+        raise Exception("It is not possible to determine your Browser's time zone. Please contact support.")
 
 
 @login_plugin.route('/logout', methods=['GET', 'POST'])

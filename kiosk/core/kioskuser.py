@@ -20,6 +20,7 @@ class KioskUser(UserMixin):
         self.must_change_pwd = False
         self.repl_user_id = ""
         self._token = ""
+        self.force_tz_index = 0
         self._group_threshold = MSG_SEVERITY_INFO
         self._user_threshold = MSG_SEVERITY_INFO
 
@@ -140,6 +141,7 @@ class KioskUser(UserMixin):
                 self.user_id = r["user_id"]
                 self.user_name = r["user_name"]
                 self.must_change_pwd = r["must_change_pwd"]
+                self.force_tz_index = r["force_tz_index"]
                 if "groups" in r and r["groups"]:
                     self._groups = [x.strip() for x in r["groups"].split(",")]
                 self.repl_user_id = r["repl_user_id"]
@@ -242,7 +244,7 @@ class KioskUser(UserMixin):
         try:
             pwd_hash = generate_password_hash(password)
             rc = KioskSQLDb.execute("update" + "\"kiosk_user\" set pwd_hash=%s, "
-                                              "\"must_change_pwd\"=%s where \"uid\"=%s;",
+                                               "\"must_change_pwd\"=%s where \"uid\"=%s;",
                                     [pwd_hash, temporary, self.id])
             if commit:
                 KioskSQLDb.commit()
@@ -296,3 +298,6 @@ class KioskUser(UserMixin):
             pass
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}._load_message_thresholds: Outer Exception {repr(e)}")
+
+    def get_tz_index(self):
+        return self.force_tz_index

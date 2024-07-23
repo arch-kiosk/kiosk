@@ -86,7 +86,13 @@ class UserModelView(KioskModelView):
             'validators': [InputRequired()],
             'description': 'The user id recorded when user modifies recording records. '
                            'If in doubt, repeat the short user id'
+        },
+        'force_tz_index': {
+            'label': 'override time zone index with',
+            'description': "Set this to a valid Kiosk Time Zone Index only if you want to override the"
+                           "Browser's default"
         }
+
     }
 
 

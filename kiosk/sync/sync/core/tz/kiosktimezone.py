@@ -228,6 +228,36 @@ class KioskTimeZones:
             logging.error(f"{self.__class__.__name__}.list_time_zones: {repr(e)}")
             raise e
 
+    def get_time_zone_info(self, tz_index):
+        """
+        return the time zone information for a tz index (the id of a kiosk_time_zone record).
+        :param tz_index:
+        :return: a list that corresponds with the structure of the kiosk_time_zone table:
+                 [id, tz_long, tz_IANA, deprecated, version] or None in terms of an error
+         :raises no exceptions. They all get caught and logged.
+        """
+        try:
+            r = KioskSQLDb.get_records("select" + " * from kiosk_time_zones where \"id\"=%s", params=[tz_index])
+            if len(r) == 1:
+                return r[0]
+            return None
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}. : {repr(e)}")
+            return None
+
+    def get_time_zone_index(self, iana_name: str):
+        """
+        returns the tz_index for a IANA time zone
+        :param iana_name: the name of a IANA time zone (case sensitive)
+        :return:
+        """
+        try:
+            r = KioskSQLDb.get_first_record("kiosk_time_zones", "tz_IANA", iana_name)
+            if r:
+                return r[0]
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.get_time_zone_index: {repr(e)}")
+        return None
 
 # if __name__ == '__main__':
 #     cfg = SyncConfig.get_config({'config_file': r'C:\notebook_source\kiosk\server\kiosk\kiosk\config\kiosk_config.yml'})
