@@ -69,8 +69,13 @@ def process_client_time_zone(response: Response, user: KioskUser):
         kiosk_tz_name = client_tz_name
         user_tz_index = user.get_tz_index()
         if user_tz_index:
-            kiosk_tz_index = user_tz_index
-            kiosk_tz_name = kiosk_time_zones.get_time_zone_info(kiosk_tz_index)[1]
+            try:
+                kiosk_tz_name = kiosk_time_zones.get_time_zone_info(kiosk_tz_index)[1]
+                kiosk_tz_index = user_tz_index
+            except BaseException as e:
+                logging.warning(f"login_controller.process_client_time_zone: "
+                                f"Error when forcing the user's time zone name: {repr(e)}. "
+                                f"Falling back to the client's time zone")
 
         response.set_cookie("kiosk_tz_index", str(kiosk_tz_index))
         response.set_cookie("kiosk_tz_name", kiosk_tz_name)
