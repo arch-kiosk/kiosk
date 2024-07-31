@@ -1,97 +1,111 @@
 <!doctype html>
 <html>
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}?v=1"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}?v=1"/>
 
 
-  <link rel="apple-touch-icon" sizes="180x180"
-        href="{{ url_for('static', filename='assets/images/favicon/apple-touch-icon.png') }}">
-  <link rel="icon" type="image/png" sizes="32x32"
-        href="{{ url_for('static', filename='assets/images/favicon/favicon-32x32.png') }}">
-  <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/images/favicon/favicon-16x16.png">
-  <link rel="manifest" href="/static/assets/images/favicon/site.webmanifest">
-  <link rel="shortcut icon" href="/static/assets/images/favicon/favicon.ico">
-  <meta name="msapplication-TileColor" content="#2b5797">
-  <meta name="msapplication-config" content="/static/assets/images/favicon/browserconfig.xml">
-  <meta name="theme-color" content="#ffffff">
+    <link rel="apple-touch-icon" sizes="180x180"
+          href="{{ url_for('static', filename='assets/images/favicon/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32"
+          href="{{ url_for('static', filename='assets/images/favicon/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/images/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/static/assets/images/favicon/site.webmanifest">
+    <link rel="shortcut icon" href="/static/assets/images/favicon/favicon.ico">
+    <meta name="msapplication-TileColor" content="#2b5797">
+    <meta name="msapplication-config" content="/static/assets/images/favicon/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
 
-  {% block links %}
-  {% endblock %}
-  <script src="{{ url_for('static', filename='scripts/thirdparty/jquery-3.7.1.min.js') }}"></script>
-  <script src="{{ url_for('static', filename='scripts/urap_lib.js') }}"></script>
+    {% block links %}
+    {% endblock %}
+    <script src="{{ url_for('static', filename='scripts/thirdparty/jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/urap_lib.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/kioskapiutils.js') }}" type="module"></script>
+    <script src="{{ url_for('static', filename='scripts/kioskuicomponents.js') }}" type="module"></script>
+    <script>
+        //this is a Polymer hack to address "DOMException: Failed to execute 'define' on 'CustomElementRegistry'" "
+        //It makes sure that the custom element 'dom-module' does not get registered again.
+        // See https://stackoverflow.com/q/51661041/11150752
 
-  <!--<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro:600,700|Roboto|Ceviche+One|Cutive+Mono|Dosis|Noto+Sans|Ubuntu"
-        rel="stylesheet"/>
-  -->
-  <!-- <link href="static/purecss/fonts.css" rel="stylesheet"/>
+        const _customElementsDefine = window.customElements.define;
+        window.customElements.define;
+        window.customElements.define = (name, cl, conf) => {
+                if (name !== "dom-module" || !customElements.get(name)) {
+                    _customElementsDefine.call(window.customElements, name, cl, conf);
+                }
+        };
+    </script>
+    <!--<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro:600,700|Roboto|Ceviche+One|Cutive+Mono|Dosis|Noto+Sans|Ubuntu"
+          rel="stylesheet"/>
+    -->
+    <!-- <link href="static/purecss/fonts.css" rel="stylesheet"/>
   <link rel="stylesheet" href="static/purecss/awesomplete.css" />
   <script src="{{ url_for('static', filename='scripts/awesomplete.js') }}" async></script> -->
 
-  <title>{{ global_constants["project_short"] }} Kiosk</title>
+    <title>{{ global_constants["project_short"] }} Kiosk</title>
 
 </head>
 
 <body>
 <div id="outer-wrapper">
-  <div id="headers">
-    <div id="header">
-      <div id="logogroup">
-        <a href="{{ url_for("refresh_config") }}">
-          <div id="logo">
-            <div id="img"></div>
-            <!-- <svg id="img" xmlns="http://www.w3.org/2000/svg" width="120" height="80" viewBox="10 9 103 58">
-            <path d="M76.124 2.754l-2.86-.234-3.148.7-3.147 1.167-3.434 4.898-.86 3.5-2.288 6.532-.572 7.932-.858 41.058v.933-.232l2.003 3.033 1.43.934 2.862.933h1.43l2.576-1.633 1.716-2.1 1.144-2.333 1.145-2.33 3.147-9.1.858-3.5.858-3.032 2.003-2.333.858-.933 1.43-1.633-.286-6.3v-2.8l-2.29-9.564-.285-2.566-.572-2.1-.86-3.966v-4.2L77.84 9.52V5.085z" fill="#8a0"/><g fill="#a05a2c">
-            <path d="M90 0h30v79.858H90z"/><path d="M90 79.858l-9.146.14c6.098.08 9.29-2.973 9.375-9.374z"/></g><g fill="#fea"><path d="M0 0h50v79.856H0z"/><path d="M50 79.856l9.146.142c-6.098.082-9.29-3.026-9.375-9.54z"/></g></svg>
-            -->
-          </div>
-        </a>
-        <div id="logotext">
-          <div id="maintitlegroup">
-            {% if global_constants["project_logo_top"] %}
-              <div id="logo-top">{{ global_constants["project_logo_top"] }}</div>
-            {% endif %}
-            <div id="maintitle">{{ global_constants["project_logo_main"] }}</div>
-            {% if global_constants["project_logo_bottom"] %}
-              <div id="logo-bottom">{{ global_constants["project_logo_bottom"] }}</div>
-            {% else %}
-              <div id="smalltitle">{{ global_constants["project_name"] }}</div>
-            {% endif %}
-          </div>
-          {% block title %}{% endblock %}
-        </div>
-      </div>
-      <div id="menus">
-        <div class="kiosk-header-info">
-          <div class="kiosk-version">
-            <span>kiosk {{ global_constants["kiosk_version"] }} ({{ global_constants["kiosk_nickname"] }})</span>
-          </div>
-          {% if sys_info %}
-            <div class="kiosk-sys-info">
-              {% for key, value in sys_info.items() %}
-                <span>{{ key }}:{{ value }}</span>
-              {% endfor %}
+    <div id="headers">
+        <div id="header">
+            <div id="logogroup">
+                <a href="{{ url_for("refresh_config") }}">
+                    <div id="logo">
+                        <div id="img"></div>
+                        <!-- <svg id="img" xmlns="http://www.w3.org/2000/svg" width="120" height="80" viewBox="10 9 103 58">
+                        <path d="M76.124 2.754l-2.86-.234-3.148.7-3.147 1.167-3.434 4.898-.86 3.5-2.288 6.532-.572 7.932-.858 41.058v.933-.232l2.003 3.033 1.43.934 2.862.933h1.43l2.576-1.633 1.716-2.1 1.144-2.333 1.145-2.33 3.147-9.1.858-3.5.858-3.032 2.003-2.333.858-.933 1.43-1.633-.286-6.3v-2.8l-2.29-9.564-.285-2.566-.572-2.1-.86-3.966v-4.2L77.84 9.52V5.085z" fill="#8a0"/><g fill="#a05a2c">
+                        <path d="M90 0h30v79.858H90z"/><path d="M90 79.858l-9.146.14c6.098.08 9.29-2.973 9.375-9.374z"/></g><g fill="#fea"><path d="M0 0h50v79.856H0z"/><path d="M50 79.856l9.146.142c-6.098.082-9.29-3.026-9.375-9.54z"/></g></svg>
+                        -->
+                    </div>
+                </a>
+                <div id="logotext">
+                    <div id="maintitlegroup">
+                        {% if global_constants["project_logo_top"] %}
+                            <div id="logo-top">{{ global_constants["project_logo_top"] }}</div>
+                        {% endif %}
+                        <div id="maintitle">{{ global_constants["project_logo_main"] }}</div>
+                        {% if global_constants["project_logo_bottom"] %}
+                            <div id="logo-bottom">{{ global_constants["project_logo_bottom"] }}</div>
+                        {% else %}
+                            <div id="smalltitle">{{ global_constants["project_name"] }}</div>
+                        {% endif %}
+                    </div>
+                    {% block title %}{% endblock %}
+                </div>
             </div>
-          {% endif %}
+            <div id="menus">
+                <div class="kiosk-header-info">
+                    <div class="kiosk-version">
+                        <span>kiosk {{ global_constants["kiosk_version"] }} ({{ global_constants["kiosk_nickname"] }})</span>
+                    </div>
+                    {% if sys_info %}
+                        <div class="kiosk-sys-info">
+                            {% for key, value in sys_info.items() %}
+                                <span>{{ key }}:{{ value }}</span>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+                {% include "_menus.html" %}
+            </div>
+        </div> <!-- header -->
+        <div>
+            {% block system_messages %}
+                {% include "_system_messages.html" %}
+            {% endblock %}
         </div>
-        {% include "_menus.html" %}
-      </div>
-    </div> <!-- header -->
-    <div>
-      {% block system_messages %}
-        {% include "_system_messages.html" %}
-      {% endblock %}
+    </div> <!-- headers -->
+    <div id="content-wrapper" class="content">
+        {% block body %}
+        {% endblock %}
     </div>
-  </div> <!-- headers -->
-  <div id="content-wrapper" class="content">
-    {% block body %}
-    {% endblock %}
-  </div>
-  <div class="footer">
-    {% if current_plugin_controller %}
-      current plugin controller is: {{ current_plugin_controller.name }}
-    {% endif %}
-  </div>
+    <div class="footer">
+        {% if current_plugin_controller %}
+            current plugin controller is: {{ current_plugin_controller.name }}
+        {% endif %}
+    </div>
 </div>
 
 <script src="{{ url_for('static', filename='scripts/kiosk_main.js') }}"></script>

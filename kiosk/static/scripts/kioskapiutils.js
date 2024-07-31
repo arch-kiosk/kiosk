@@ -1,64 +1,28 @@
-//This is horrible. I can't see a way around duplicating this code from 'kioskapputils.js' because
-//import cannot be mixed with global functions
+//This is horrible. But I was not able to find a different way to have a few methods globally accessible that
+// themselves need an import clause.
+// And as per now: "import" cannot be used in a script that itself is not loaded as a module with global functions
 //Huge refactoring needed one day that gets rid of all the global javascript -> Not in v1
 
-function globalGetApiUrl(apiAddress) {
-  if (apiAddress) {
-    return `${getRoutefor("api")}/v1/${apiAddress}`;
-  } else {
-    return getRoutefor("api");
-  }
+import {ProdKioskApi} from "./kioskapplib/prodkioskapi.js";
+import {getApiUrl, getKioskToken, fetchFromApi, FetchException} from "./kioskapputils.js"
+
+window.FetchException = FetchException;
+
+window.getKioskApiContext = async function() {
+  let api = new ProdKioskApi();
+  await api.initApi()
+  return api
 }
 
-async function globalGetKioskToken() {
-  let headers = new Headers()
-  headers.append('Content-Type', 'application/json');
-  headers.append('Accept', 'application/json');
-
-  let address = globalGetApiUrl('login');
-  let response = await fetch(address, {headers: headers, method: "GET"});
-  let data = await response.json();
-  return data["token"];
+window.globalGetApiUrl = function(apiAddress) {
+  return getApiUrl(apiAddress)
 }
 
-class FetchException {
-    constructor(msg, response=null) {
-      this.msg = msg
-      this.response=response
-    }
+window.globalGetKioskToken = async function() {
+  return getKioskToken()
 }
 
-async function globalFetchFromApi(apiUrl, apiToken, apiMethod, fetchParams,
+window.globalFetchFromApi = async function(apiUrl, apiToken, apiMethod, fetchParams,
                                    apiVersion="v1", urlSearchParams="", mimetype="application/json") {
-  let headers = new Headers()
-  headers.append('Content-Type', mimetype);
-  headers.append('Accept', mimetype);
-  headers.append("Authorization", `Bearer ${apiToken}`)
-  // headers.append('Origin', 'http://locahost:5000');
-  // console.log(headers.get("Authorization"))
-  // console.log(headers.get("Content-Type"))
-  let address = `${apiUrl}/${apiVersion}/${apiMethod}`;
-  if ("caller" in fetchParams)
-    console.log(`${fetchParams.caller} fetching from ${address}`)
-  else
-    console.log("fetching from " + address)
-  let init = {...fetchParams}
-  init["headers"] = headers
-  if (urlSearchParams) {
-    address += "?" + urlSearchParams
-  }
-  let response
-  try {
-    console.log("fetching " + address)
-    response = await fetch(address, init);
-  } catch(err) {
-    console.log(`caught ${err} in fetchFromApi after fetch`)
-    throw new FetchException(err)
-  }
-  if (response.ok) {
-    return await response.json();
-  } else {
-    console.log(`caught ${response.status} in fetchFromApi`)
-    throw new FetchException(response.statusText, response)
-  }
+  return fetchFromApi(apiUrl, apiToken, apiMethod, fetchParams, apiVersion, urlSearchParams, mimetype)
 }

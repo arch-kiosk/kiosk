@@ -1,5 +1,5 @@
 from flask import Blueprint, request, redirect, render_template, jsonify, \
-    flash, url_for, Response
+    flash, url_for, Response, abort
 from flask_login import current_user, login_user, logout_user, login_required
 from authorization import full_login_required
 from flask_wtf import FlaskForm
@@ -8,14 +8,21 @@ from wtforms.validators import DataRequired
 
 import logging
 
+from kiosklib import is_ajax_request
 from kiosksqldb import KioskSQLDb
 from kioskuser import KioskUser
 from tz.kiosktimezone import KioskTimeZones
 
 _plugin_name_ = "login_plugin"
 _controller_name_ = "login_controller"
+_url_prefix_ = '/' + _controller_name_
+plugin_version = 0.1
 
-login_plugin = Blueprint(_controller_name_, __name__)
+login_plugin = Blueprint(_controller_name_, __name__,
+                         template_folder='templates',
+                         static_folder="static",
+                         # url_prefix=_url_prefix_
+                         )
 
 
 @login_plugin.route("/login", methods=['GET', 'POST'])
@@ -67,7 +74,7 @@ def process_client_time_zone(response: Response, user: KioskUser):
 
         kiosk_tz_index = client_tz_index
         kiosk_tz_name = client_tz_name
-        user_tz_index = user.get_tz_index()
+        user_tz_index = user.get_force_tz_index()
         if user_tz_index:
             try:
                 kiosk_tz_name = kiosk_time_zones.get_time_zone_info(kiosk_tz_index)[1]
@@ -94,7 +101,6 @@ def logout():
 @login_plugin.route('/userprofile/<string:uuid>', methods=['GET', 'POST'])
 @login_required
 def user_profile(uuid):
-
     class WtfUserProfile(FlaskForm):
         user_uuid = StringField('id')
         user_id = StringField('User-Id', id="mup-user-id", validators=[DataRequired()])
@@ -135,7 +141,8 @@ def user_profile(uuid):
             if user.save():
                 if user_profile_form.set_password.data:
                     if not user.set_password(user_profile_form.user_password.data):
-                        logging.warning("user_profile: user with user-id {}: Password could not be set".format(user.user_id))
+                        logging.warning(
+                            "user_profile: user with user-id {}: Password could not be set".format(user.user_id))
                         logging.debug("user_profile: KioskSQLDb.Rollback!")
                         KioskSQLDb.rollback()
                         return jsonify(result="exception", msg="Password could not be set.")
@@ -149,3 +156,81 @@ def user_profile(uuid):
                 logging.info("user_profile: KioskSQLDb.Rollback!")
                 KioskSQLDb.rollback()
                 return jsonify(result="exception", msg="User could not be saved.")
+
+
+@login_plugin.route('/manage_time_zone/<string:uuid>', methods=['GET', 'POST'])
+@login_required
+def manage_time_zone(uuid):
+    # class WtfUserTimeZone(FlaskForm):
+    #     user_uuid = StringField('id')
+    #
+    #     # user_id = StringField('User-Id', id="mup-user-id", validators=[DataRequired()])
+    #     # user_name = StringField('Name', id="mup-user-name", validators=[DataRequired()])
+    #     # set_password = BooleanField('set password', id="mup-set-password")
+    #     # user_password = PasswordField('Password', id="mup-user-password", validators=[])
+    #     # user_password_check = PasswordField('Repeat password', id="mup-user-password-check", validators=[])
+    #
+    #     def load_data(self, user):
+    #         self.user_uuid.data = user.id
+    #
+    #     def save_data(self, user):
+    #         return user
+
+    print("\n*************** login_controller/manage_time_zones for user {}".format(uuid))
+    # user_tz_form = WtfUserTimeZone()
+
+    if uuid == current_user.id:
+        user = current_user
+    else:
+        user = KioskUser.get(uuid)
+
+    if not user:
+        logging.error(f"login_controller.manage_time_zone: user with uuid ${uuid} unknown.")
+        abort(403, "cannot authorize user")
+
+    if request.method == 'GET':
+        client_tz_name = request.cookies.get("client_iana_time_zone")
+        return render_template('usertimezone.html', user=user, client_tz_name=client_tz_name)
+    else:
+        if not is_ajax_request():
+            logging.error(f"login_controller.manage_time_zone: user with uuid ${uuid} tried a POST without Ajax.")
+            abort(400, "Bad Request")
+
+        force_tz_index = request.json["force_tz_index"]
+        if force_tz_index == 0:
+            force_tz_index = None
+            print(force_tz_index, user.force_tz_index)
+        if force_tz_index != user.force_tz_index:
+            user.force_tz_index = force_tz_index
+            if not user.save():
+                return jsonify(result="error", message="For some reason the new time zone settings could not be saved")
+            else:
+                return jsonify(result="ok", message="The changes will take effect when you next log in again.")
+        return jsonify(result="ok")
+
+
+    # else:
+    #     if not user_tz_form.validate():
+    #         return jsonify(result=user_tz_form.errors)
+    #     else:
+    #         print(user_tz_form.set_password.data)
+    #         user = KioskUser.get(uuid)
+    #         user = user_tz_form.save_data(user)
+    #         if user.save():
+    #             if user_tz_form.set_password.data:
+    #                 if not user.set_password(user_tz_form.user_password.data):
+    #                     logging.warning(
+    #                         "user_profile: user with user-id {}: Password could not be set".format(user.user_id))
+    #                     logging.debug("user_profile: KioskSQLDb.Rollback!")
+    #                     KioskSQLDb.rollback()
+    #                     return jsonify(result="exception", msg="Password could not be set.")
+    #                 else:
+    #                     logging.info("user_profile: user with user-id {}: Password set".format(user.user_id))
+    #
+    #             KioskSQLDb.commit()
+    #             logging.info("user_profile: user with user-id {}: profile data updated".format(user.user_id))
+    #             return jsonify(result="ok")
+    #         else:
+    #             logging.info("user_profile: KioskSQLDb.Rollback!")
+    #             KioskSQLDb.rollback()
+    #             return jsonify(result="exception", msg="User could not be saved.")

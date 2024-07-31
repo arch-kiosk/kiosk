@@ -4,12 +4,18 @@
     <div id="currentuser">
       <!--<img src="{{ url_for('static', filename='assets/images/pharaoh-white.svg') }}"/>-->
       <div id="current-user-image"></div>
-      <p>{{ current_user.user_name }}</p>
+      <p>{{ current_user.user_name|truncate(16,True) }}</p>
+      <p{% if current_user.is_time_zone_forced() %} class="time-zone-forced"{% endif %}>{{ current_user.get_active_time_zone_name()|truncate(16,True) }}</p>
+
     </div>
     <div class="dropdown-content" id="user-menu">
-      <a href="#" onclick="userMenuClick('logout','{{ url_for('login_controller.logout') }}')">logout</a>
+      {% if current_user.is_time_zone_forced() %}
+          <div class="warning-time-zone-differs"><i class="fas fa-exclamation-circle"></i><span>{{ current_user.get_active_time_zone_name() }} differs from your operating system's time zone</span></div>
+      {% endif %}
+      <a href="#" onclick="userMenuClick('manage_time_zone','{{ url_for('login_controller.manage_time_zone',uuid=current_user.id) }}')">manage time zone</a>
       <a href="#"
          onclick="userMenuClick('profile','{{ url_for('login_controller.user_profile',uuid=current_user.id) }}')">profile</a>
+      <a href="#" onclick="userMenuClick('logout','{{ url_for('login_controller.logout') }}')">logout</a>
     </div>
   </div>
 {% endif %}

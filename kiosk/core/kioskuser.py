@@ -1,6 +1,7 @@
 import logging
 
 from flask_login import UserMixin
+from flask import request
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from generalstore.generalstorekeys import kiosk_core_security_tokens, kiosk_core_security_user_tokens
@@ -8,6 +9,7 @@ from kioskconfig import KioskConfig
 from kioskglobals import get_general_store, get_config, get_jws
 from messaging.systemmessagecatalog import *
 from kiosksqldb import KioskSQLDb
+from tz.kiosktimezone import KioskTimeZones
 
 
 class KioskUser(UserMixin):
@@ -23,6 +25,7 @@ class KioskUser(UserMixin):
         self.force_tz_index = 0
         self._group_threshold = MSG_SEVERITY_INFO
         self._user_threshold = MSG_SEVERITY_INFO
+        self.active_tz_name = ""
 
         if not self.load_user(user_uuid, check_token):
             raise Exception('kiosk user not found or an exception occurred. Please consult the logs')
@@ -196,9 +199,10 @@ class KioskUser(UserMixin):
                 sql = "update kiosk_user set "
                 sql += "\"user_id\"=%s"
                 sql += ", \"user_name\"=%s"
-                sql += "where \"uid\"=%s"
+                sql += ", \"force_tz_index\"=%s"
+                sql += " where \"uid\"=%s"
 
-                KioskSQLDb.execute(sql, [self.user_id, self.user_name, self.id])
+                KioskSQLDb.execute(sql, [self.user_id, self.user_name, self.force_tz_index, self.id])
                 return True
             else:
                 logging.error("KioskUser.save: user {} does not exist.".format(self.id))
@@ -299,5 +303,42 @@ class KioskUser(UserMixin):
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}._load_message_thresholds: Outer Exception {repr(e)}")
 
-    def get_tz_index(self):
+    def get_force_tz_index(self):
+        """
+        returns the value of the force_tz_index field
+        :return: the value or 0 (which is simply the default)
+        """
         return self.force_tz_index
+
+    def get_active_time_zone_name(self):
+        """
+        returns the user's currently active time zone in Kiosk.
+        !Needs an active request object in Flask.
+        :return: the time zone's name or ""
+        :raises nothing: catches all Exceptions
+        """
+        if self.active_tz_name:
+            return self.active_tz_name
+        try:
+            if "kiosk_tz_index" in request.cookies:
+                kiosk_tz = KioskTimeZones()
+                return kiosk_tz.get_time_zone_info(int(request.cookies.get("kiosk_tz_index")))[1]
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.get_active_time_zone_name: Error resolving "
+                          f"active kiosk timezone: {repr(e)}")
+
+        return ""
+
+    def is_time_zone_forced(self):
+        """
+        checks if the active time zone differs from the Browser's time zone.
+        !Needs access to a current flask request!
+
+        :return: boolean.
+        :raises: nothing. Returns True if any exception occurs.
+        """
+        try:
+            return int(request.cookies.get("kiosk_tz_index")) != int(request.cookies.get("client_tz_index"))
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.is_time_zone_forced: {repr(e)}")
+            return True

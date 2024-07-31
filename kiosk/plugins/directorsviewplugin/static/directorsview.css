@@ -247,7 +247,7 @@ label {
   font-size: 0.9em;
 }
 
-input, select {
+input:not([type=radio], [type=checkbox]), select {
   -webkit-user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;
@@ -262,12 +262,10 @@ input, select {
   margin-bottom: 2px;
   width: 100%;
 }
-input:focus, select:focus {
-  outline: none;
-}
-input:focus, select:focus {
+input:not([type=radio], [type=checkbox]):focus, select:focus {
   margin-bottom: 0px;
   border-bottom: 2px solid rgb(0, 0, 0);
+  outline: none;
 }
 
 h1 {
@@ -457,6 +455,14 @@ button:disabled {
 }
 .small-list-button:active i, .small-list-button:focus i {
   box-shadow: none;
+}
+
+.dialog-radio-div {
+  display: flex;
+  flex-direction: row;
+}
+.dialog-radio-div input[type=radio] {
+  margin-right: 0.5em;
 }
 
 .pretty * {

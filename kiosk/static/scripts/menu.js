@@ -56,5 +56,8 @@ function userMenuClick(item, param) {
     case "profile":
         triggerUserProfile(param);
         break;
+    case "manage_time_zone":
+        triggerManageTimeZone(param);
+        break;
   }
 }

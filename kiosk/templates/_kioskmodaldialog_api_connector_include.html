@@ -1,0 +1,52 @@
+<script>
+
+    function connectToApi() {
+        setTimeout(() => {
+            // check if the main kiosk scripts are present
+            if (window.getRoutefor !== undefined) {
+                console.log("kioskprodstarter: about to be initializing...")
+                let api = new ProdKioskApi();
+                api.initApi()
+                    .catch((e) => {
+                        console.log(`Exception when initializing in Kiosk Production starter: `, e);
+                    })
+                    .finally(() => {
+                        let app = document.querySelector("kiosk-tz-combo-box")[0];
+                        if (app !== undefined) {
+                            app.apiContext = api;
+                            console.log(app.apiContext);
+                        } else {
+                            console.log("there is no app.");
+                        }
+                    });
+            } else {
+                connectToApi()
+            }
+        }, 200)
+    }
+
+    function tryInsertScript() {
+        if (window.jQuery &&
+            typeof $.magnificPopup != 'undefined' &&
+            typeof getKioskApiContext != 'undefined' &&
+            customElements.get("kiosk-tz-combo-box")) {
+            {#console.log("initializing app html ...")#}
+            {#document.querySelector("#content-wrapper").insertAdjacentHTML("afterbegin",#}
+            {#    '<div id="kiosk-dynamic-app-container">' +#}
+            {#    '   <kiosk-tz-combo-box id="popup-tz-combo-box"></kiosk-tz-combo-box>' +#}
+            {#    '</div>');#}
+            getKioskApiContext().then((api) => {
+                popupApiConnected(api)
+            }).catch(() => {
+                popupApiFailed()
+            })
+            {#loadAppHtml()#}
+        } else {
+            console.log("main script cannot yet be initialized")
+            setTimeout(tryInsertScript, 500)
+        }
+    }
+
+    tryInsertScript()
+
+</script>

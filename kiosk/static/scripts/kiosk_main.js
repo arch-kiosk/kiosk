@@ -31,7 +31,8 @@ function import_scripts() {
   $.getScript('/static/scripts/basicmodaldialog.js');
   $.getScript('/static/scripts/menu.js');
   $.getScript('/static/scripts/user.js');
-  $.getScript('/static/scripts/kioskapiutils.js');
+  // $.getScript('/static/scripts/kioskapiutils.js'); //Note that this still gets loaded BUT as a module,
+  // so there is a static script import in kioskbasic.html
   //$.getScript('/static/scripts/urap_lib.js');
   $.getScript('/static/scripts/thirdparty/awesomplete.min.js');
   $.getScript('/static/scripts/thirdparty/exif.js');
