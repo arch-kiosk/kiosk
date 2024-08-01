@@ -160,15 +160,15 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert dsd.append_file(dsd3_dropped_table_file)
 
         fields = dsd.list_fields("test")
-        assert len(fields) == 7
+        assert len(fields) == 10
         assert "description" in fields
 
         fields = dsd.list_fields("test", 2)
-        assert len(fields) == 6
+        assert len(fields) == 8
         assert "test_description" in fields
 
         fields = dsd.list_fields("test", 1)
-        assert len(fields) == 5
+        assert len(fields) == 7
 
         with pytest.raises(DSDTableDropped):
             fields = dsd.list_fields("dropped_table")
@@ -230,7 +230,7 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert dsd.append_file(dsd3_dropped_table_file)
 
         fields = dsd.get_fields_with_instructions("test")
-        assert len(fields) == 7
+        assert len(fields) == 10
 
         field = fields["description"]
         assert len(field) == 1
@@ -288,10 +288,11 @@ class TestDataSetDefinition(KioskPyTestHelper):
                                                                    fail_on_many=True)
         assert len(fields) == 2
 
-    def test_list_externally_bound_fields(self, dsd_images_and_units_and_test):
-        dsd: DataSetDefinition = dsd_images_and_units_and_test
-        with pytest.raises(DeprecationWarning):
-            dsd.list_externally_bound_fields("images")
+    # gone because of a deprecation
+    # def test_list_externally_bound_fields(self, dsd_images_and_units_and_test):
+    #     dsd: DataSetDefinition = dsd_images_and_units_and_test
+    #     with pytest.raises(DeprecationWarning):
+    #         dsd.list_externally_bound_fields("images")
 
     def test_get_fields_with_certain_instructions(self, dsd_images_and_units_and_test):
         dsd: DataSetDefinition = dsd_images_and_units_and_test
@@ -436,7 +437,7 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert len(dsddata["table2"]["structure"][1]) == 4
         assert len(dsddata["repl_deleted_uids"]["structure"][1]) == 5
         assert len(dsddata["repl_deleted_uids_2"]["structure"][2]) == 5
-        assert len(dsddata["test"]["structure"][3]) == 7
+        assert len(dsddata["test"]["structure"][3]) == 8
 
     def test_delete_table(self, dsd_images_and_units_and_test):
         dsd: DataSetDefinition = dsd_images_and_units_and_test
@@ -787,6 +788,7 @@ class TestDataSetDefinition(KioskPyTestHelper):
                                                      'closing elevations': ['datatype(VARCHAR)'],
                                                      'colour': ['datatype(VARCHAR)'],
                                                      'created': ['datatype(TIMESTAMP)', 'replfield_created()'],
+                                                     'created_tz': ['datatype(TZ)'],
                                                      'date_closed': ['datatype(DATE)'],
                                                      'date_defined': ['datatype(DATE)'],
                                                      'description': ['datatype(VARCHAR)'],
@@ -794,6 +796,7 @@ class TestDataSetDefinition(KioskPyTestHelper):
                                                      'id': ['datatype(NUMBER)', 'local_id("arch_context")'],
                                                      'interpretation': ['datatype(VARCHAR)'],
                                                      'modified': ['datatype(TIMESTAMP)', 'replfield_modified()'],
+                                                     'modified_tz': ['datatype(TZ)'],
                                                      'modified_by': ['datatype(VARCHAR)',
                                                                      'replfield_modified_by()',
                                                                      "default('Null')"],
@@ -833,3 +836,21 @@ class TestDataSetDefinition(KioskPyTestHelper):
         dsd: DataSetDefinition = dsd_real_urap_dsd
         assert dsd.table_can_sync("locus")
         assert not dsd.table_can_sync("kiosk_user")
+
+    def test_get_virtual_fields(self):
+        dsd: DataSetDefinition = DataSetDefinition()
+        assert dsd.get_virtual_fields({"config": {
+            "format_version": 3
+        },
+            "table1": {
+                "structure": {
+                    1: {
+                        "feld1": ["datatype(VARCHAR)"],
+                        "feld2": ["datatype(TIMESTAMP)"],
+                    }
+                }
+            }
+        }) == {"table1": {1:{
+            "feld2_tz": ["datatype(TZ)"]
+        }}}
+

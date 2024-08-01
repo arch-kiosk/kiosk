@@ -93,7 +93,8 @@ class DataSetDefinition:
         "JSON": "JSON",
         "DATE": "DATE",
         "TIME": "TIME",
-        "SERIAL": "SERIAL"
+        "SERIAL": "SERIAL",
+        "TZ": "INT",
     }
 
     def __init__(self, dsd_store=None):
@@ -181,6 +182,54 @@ class DataSetDefinition:
         version = version if version else self.get_current_version(table)
         self._dsd_data.set([table, KEY_TABLE_STRUCTURE, version, field], instructions)
 
+    @staticmethod
+    def get_virtual_fields(raw_dsd: dict):
+        """
+        adds fields that are not explicitly defined in the dsd file like the tz fields for datatimes and timestamps
+        :param raw_dsd: a complete dsd structure
+        :return: a dictionary with table: version: fields: parameters to add
+        """
+        def _append_virtual_fields_to_table(raw_dsd_table: dict):
+            new_fields = {}
+            for ver in raw_dsd_table:
+                if isinstance(ver, int):
+                    structure = raw_dsd_table[ver]
+                    if isinstance(structure, dict):
+                        for field, params in structure.items():
+                            try:
+                                for param in params:
+                                    p = param.lower()
+                                    if p.startswith("datatype") and ("datetime" in p or "timestamp" in p):
+                                        if ver not in new_fields:
+                                            new_fields[ver] = {}
+                                        new_fields[ver][field + "_tz"] = ['datatype(TZ)', ]
+                                        break
+                            except BaseException as e:
+                                raise DSDStructuralIssue(f"version {ver} field definition for {field} not correct")
+                # else:
+                #     raise DSDStructuralIssue(f"numeric version expected, got {ver}")
+            return new_fields
+
+        structural_modifications = {}
+        for top_level in raw_dsd.keys():
+            if top_level not in ['config', 'migration_catalog', 'migration_flags']:
+                if 'structure' in raw_dsd[top_level]:
+                    try:
+                        added_fields = _append_virtual_fields_to_table(raw_dsd[top_level]["structure"])
+                        if added_fields:
+                            structural_modifications[top_level] = added_fields
+
+                    except DSDStructuralIssue as e:
+                        raise DSDStructuralIssue(f"Structural issue detected in table {top_level}: {e}")
+
+        return structural_modifications
+
+    @staticmethod
+    def _add_virtual_fields_to_raw_dsd(raw_dsd, virtual_fields):
+        for table, structure in virtual_fields.items():
+            for ver, fields in structure.items():
+                raw_dsd[table]["structure"][ver].update(fields)
+
     def _read_dsd_data_from_file(self, path_and_filename: str):
         if not os.path.isfile(path_and_filename):
             raise FileNotFoundError
@@ -188,6 +237,9 @@ class DataSetDefinition:
         if ext in self._loaders:
             loader: DSDLoader = self._loaders[ext]()
             dsddata = loader.read_dsd_file(file_path_and_name=path_and_filename)
+            if not self._check_version(dsddata):
+                raise DSDWrongVersionError
+
             return dsddata
         else:
             logging.debug(f"DataSetDefinition._read_dsd_data_from_file: no loader for dsd file {path_and_filename}")
@@ -237,8 +289,6 @@ class DataSetDefinition:
                 if external_dsd_part:
                     external_dsd_part_file = os.path.join(base_path, external_dsd_part)
                     more_dsd_data = self._read_dsd_data_from_file(external_dsd_part_file)
-                    if not self._check_version(more_dsd_data):
-                        raise DSDWrongVersionError
 
                     key_to_copy = _copy_dict_key(more_dsd_data, [*key_path, k])
                     dsddata[k] = key_to_copy
@@ -276,8 +326,6 @@ class DataSetDefinition:
                 try:
                     file_path_and_name = os.path.join(external_file_path, file_name)
                     more_dsd_data: dict = self._read_dsd_data_from_file(file_path_and_name)
-                    if not self._check_version(more_dsd_data):
-                        raise DSDWrongVersionError
                     self._append_imports(dsddata=more_dsd_data, external_file_path=external_file_path,
                                          recursion_counter=recursion_counter + 1)
                     # if KEY_CONFIG in more_dsd_data:
@@ -318,6 +366,11 @@ class DataSetDefinition:
         if not self._check_version(dsddata):
             raise DSDWrongVersionError
         try:
+
+            virtual_fields = self.get_virtual_fields(dsddata)
+            if virtual_fields:
+                self._add_virtual_fields_to_raw_dsd(dsddata, virtual_fields)
+
             if external_file_path:
                 self._append_imports(dsddata=dsddata, external_file_path=external_file_path)
                 self._resolve_externals(dsddata, base_path=external_file_path)
