@@ -227,6 +227,16 @@ class PostgresDbMigration(DatabaseMigration):
         if sync_tools:
             fields["repl_workstation_id"] = {"datatype": ["VARCHAR"], "not_null": []}
 
+        # add tz fields
+        date_fields = []
+        for field_name, field_params in fields.items():
+            if ("datatype" in field_params.keys() and
+                    self.dsd.translate_datatype(field_params["datatype"][0]) == "timestamp"):
+                date_fields.append(field_name)
+
+        for f in date_fields:
+            fields[f + "_tz"] = {"datatype": ["TZ"], "default": ["NULL"]}
+
         primary_key_field = ""
         for field_name in fields.keys():
             try:

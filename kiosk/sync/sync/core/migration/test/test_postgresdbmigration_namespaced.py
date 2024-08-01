@@ -966,3 +966,21 @@ class TestPostgresDbMigrationNamespaced(KioskPyTestHelper):
             assert pgm.migrate_table(dsd_table="test", namespace="test_schema", one_step_only=True) == (2, 2)
         assert pgm.get_table_structure_version("test", namespace="test_schema") == 2
         helper.assert_table("test", "test_schema")
+
+    def test_create_with_schema_and_tz_field(self, db, pg_migration_with_test_table, capsys):
+
+        self.db_execute(db, "drop table if exists \"migration_catalog\";")
+        self.db_execute(db, "drop table if exists \"test_schema\".\"test\";")
+        self.db_execute(db, "drop table if exists \"test\";")
+        pgm = pg_migration_with_test_table
+
+        assert not pgm._adapter_table_exists("test", namespace="test_schema")
+        with capsys.disabled():
+            assert pgm.create_table(dsd_table="test", db_table="test",
+                                    namespace="test_schema", version=1, sync_tools=True)
+        assert pgm._adapter_table_exists("test", namespace="test_schema")
+        self.db_execute(db, "drop table test_schema.test;")
+        with capsys.disabled():
+            with pytest.raises(Exception):
+                assert pgm.create_temporary_table(dsd_table="test", db_table="test",
+                                                  namespace="test_schema", version=1)

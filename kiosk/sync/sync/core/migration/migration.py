@@ -28,7 +28,6 @@ class Migration:
             self.self_check()
         self._db_adapter.delete_namespace(prefix, namespace)
 
-
     def migrate_dataset(self, prefix="", namespace=""):
         """
         Migrates the current database to the recent structure defined by the dsd.

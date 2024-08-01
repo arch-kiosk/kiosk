@@ -209,7 +209,7 @@ class TestPostgresDbMigration(KioskPyTestHelper):
         assert pg_migration.create_table("test", 1)
         assert mock_sql == 'CREATE TABLE "test"("uid" UUID UNIQUE PRIMARY KEY NOT NULL DEFAULT ' \
                            'gen_random_uuid(),"created" TIMESTAMP NOT NULL,"repl_deleted" BOOLEAN ' \
-                           'DEFAULT False,"repl_tag" INTEGER DEFAULT NULL);'
+                           'DEFAULT False,"repl_tag" INTEGER DEFAULT NULL,"created_tz" INTEGER DEFAULT NULL);'
 
     def test_no_repluuid(self, db, pg_migration, monkeypatch):
         mock_sql = ""
