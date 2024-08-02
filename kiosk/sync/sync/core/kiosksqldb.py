@@ -1,4 +1,5 @@
 from typing import Union
+import os
 
 import nanoid
 import psycopg2
@@ -37,6 +38,7 @@ class KioskSQLDb(SqlSafeIdentMixin):
     @classmethod
     def _get_psycopg_dsn(cls):
         if not cls._dsn:
+            os.environ["PGTZ"] = "UTC"
             cfg = SyncConfig.get_config()
             db_name = cfg.database_name
             usr = cfg.database_usr_name
