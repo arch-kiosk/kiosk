@@ -1,19 +1,11 @@
-import time
+import os
 
 import pytest
-import psycopg2
-import os
-import logging
 
 from dsd.dsd3singleton import Dsd3Singleton
-from test import testhelpers
 from kiosksqldb import KioskSQLDb
-from test.testhelpers import KioskPyTestHelper
-
-from dsd.dsd3 import DataSetDefinition
 from migration.tzmigration import TZMigration
-from migration.postgresdbmigration import PostgresDbMigration
-from dsd.dsdyamlloader import DSDYamlLoader
+from test.testhelpers import KioskPyTestHelper
 
 test_path = os.path.dirname(os.path.abspath(__file__))
 config_file = os.path.join(test_path, r"config", "kiosk_config.yml")
@@ -67,7 +59,7 @@ class TestTZMigration(KioskPyTestHelper):
             
         """
         assert KioskSQLDb.execute(create_sql)
-        tz_migration = TZMigration(config, dsd)
+        tz_migration = TZMigration(dsd)
         fields = tz_migration.dbAdapter._adapter_get_database_table_field_names("unit_narrative")
         for field in ["date", "created", "modified"]:
             record = KioskSQLDb.get_first_record_from_sql(f"""select data_type 
@@ -111,7 +103,8 @@ class TestTZMigration(KioskPyTestHelper):
 
         """
         assert KioskSQLDb.execute(create_sql)
-        tz_migration = TZMigration(config, dsd)
+        tz_migration = TZMigration(dsd)
+        tz_migration.dbAdapter.set_migration_flag("TZMIGRATION", "")
         fields = tz_migration.dbAdapter._adapter_get_database_table_field_names("unit_narrative")
         for field in ["date", "created", "modified"]:
             record = KioskSQLDb.get_first_record_from_sql(f"""select data_type 
@@ -119,7 +112,7 @@ class TestTZMigration(KioskPyTestHelper):
             assert record[0] == "timestamp without time zone"
             assert f"{field}_tz" not in fields
 
-        tz_migration.run()
+        assert tz_migration.run()
 
         fields = tz_migration.dbAdapter._adapter_get_database_table_field_names("unit_narrative")
         for field in ["date", "created", "modified"]:

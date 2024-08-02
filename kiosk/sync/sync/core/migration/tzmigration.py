@@ -3,16 +3,19 @@ import logging
 from dsd.dsd3 import DataSetDefinition
 from kiosksqldb import KioskSQLDb
 from migration.postgresdbmigration import PostgresDbMigration
-from sync_config import SyncConfig
 
 
 class TZMigration:
-    def __init__(self, config: SyncConfig, dsd: DataSetDefinition):
-        self.config = config
+    def __init__(self, dsd: DataSetDefinition):
+        # self.config = config
         self.dsd: DataSetDefinition = dsd
         self.dbAdapter: PostgresDbMigration = PostgresDbMigration(dsd, KioskSQLDb.get_con())
 
-    def run(self, ) -> bool:
+    def run(self) -> bool:
+        """
+        runs the pre-migration
+        :return: boolean if successful (or unnecessary)
+        """
         if self.dbAdapter.get_migration_flag("TZMIGRATION") == "ok":
             return True
         try:

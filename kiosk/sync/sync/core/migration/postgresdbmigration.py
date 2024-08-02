@@ -15,6 +15,7 @@ from kioskstdlib import get_file_extension
 from migration.postgresmigrationfieldinstructions import *
 
 
+
 class PostgresDbMigration(DatabaseMigration):
 
     def __init__(self, dsd, psycopg2_con, migration_catalog_name="migration_catalog"):

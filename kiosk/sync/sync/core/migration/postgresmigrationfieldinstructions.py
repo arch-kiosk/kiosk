@@ -42,6 +42,10 @@ class MiPgDataType(MigrationFieldInstruction):
         if not datatype:
             raise DSDDataTypeError(f"MiPgDataType.execute_during_migration:"
                                    f"Unknown datatype {new_parameters[0]} for field {field_name}.")
+        old_datatype = cls._get_sql_datatype(old_parameters)
+        if datatype.upper() == "TIMESTAMP WITH TIME ZONE" or old_datatype.upper() == "TIMESTAMP WITH TIME ZONE":
+            raise DSDDataTypeError(f"MiPgDataType.execute_during_migration:"
+                                   f"Data type timestamp cannot be used in an alter migration. (field: {field_name})")
 
         # potential security risk, I know. But how to get the bloody psycopg sanitizing in here, I do not know.
         using = ""

@@ -1,6 +1,7 @@
 from migration import postgresdbmigration
 from migration.migrationinstruction import MigrationInstruction
 from migration.tablemigration import _TableMigration
+from dsd.dsderrors import *
 
 
 class AddMigrationInstruction(MigrationInstruction):
@@ -27,6 +28,9 @@ class AddMigrationInstruction(MigrationInstruction):
         sql += f"ADD COLUMN {migration.sql_safe_ident(field_name)} "
         sql += " ".join(field_attributes)
 
+        if field_attributes[0] == "TIMESTAMP WITH TIME ZONE":
+            sql += f",ADD COLUMN {migration.sql_safe_ident(field_name + '_tz')} INTEGER DEFAULT NULL"
+
         return [sql]
 
 
@@ -44,9 +48,6 @@ class AlterMigrationInstruction(MigrationInstruction):
         sql_alter = f"ALTER TABLE {table_name}"
         sql = ""
         field_name = parameters[0]
-
-        # todo time zone: in case of a timestamp potentially alter two colums
-
 
         new_field_instructions = table_migration.migration.dsd.get_field_instructions(
             table=table_migration.dsd_table,
@@ -156,7 +157,19 @@ class DropMigrationInstruction(MigrationInstruction):
         sql = f"ALTER TABLE {table_name} "
         field_name = parameters[0]
 
+        try:
+            old_field_instructions = table_migration.migration.dsd.get_field_instructions(
+                table=table_migration.dsd_table,
+                fieldname=field_name,
+                version=table_migration.from_version)
+        except KeyError:
+            raise DSDInstructionValueError(
+                f"Cannot drop field {field_name} from version {table_migration.from_version}.")
+
         sql += f"DROP COLUMN {migration.sql_safe_ident(field_name)}"
+        if table_migration.migration.dsd.translate_datatype(
+                old_field_instructions["datatype"][0]).lower() == "timestamp":
+            sql += f",DROP COLUMN {migration.sql_safe_ident(field_name + '_tz')}"
 
         return [sql]
 
@@ -173,13 +186,25 @@ class RenameMigrationInstruction(MigrationInstruction):
 
         table_name = migration.sql_safe_namespaced_table(namespace=table_migration.namespace,
                                                          db_table=table_migration.db_table)
-        # todo time zone: in case of a timestamp rename two colums
-
         sql = f"ALTER TABLE {table_name} "
         old_field_name = parameters[0]
         new_field_name = parameters[1]
 
         sql += f"RENAME COLUMN {migration.sql_safe_ident(old_field_name)} TO {migration.sql_safe_ident(new_field_name)}"
+
+        try:
+            old_field_instructions = table_migration.migration.dsd.get_field_instructions(
+                table=table_migration.dsd_table,
+                fieldname=old_field_name,
+                version=table_migration.from_version)
+        except KeyError:
+            raise DSDInstructionValueError(f"Cannot rename field {old_field_name} from version "
+                                           f"{table_migration.from_version}. There is no such field!")
+
+        if table_migration.migration.dsd.translate_datatype(
+                old_field_instructions["datatype"][0]).lower() == "timestamp":
+            sql += (f",RENAME COLUMN {migration.sql_safe_ident(old_field_name + '_tz')} "
+                    f"TO {migration.sql_safe_ident(new_field_name + '_tz')}")
 
         return [sql]
 

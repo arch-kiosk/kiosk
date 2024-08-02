@@ -168,6 +168,61 @@ class TestAlterMigrationInstruction(KioskPyTestHelper):
         assert result == [
             "ALTER TABLE \"test_schema\".\"test\" ALTER \"description\" SET NOT NULL, ALTER \"description\" SET DEFAULT 'description'"]
 
+    def test_get_sql_instructions_modify_time_stamp_fields(self, pg_migration):
+        pgm: PostgresDbMigration = pg_migration
+        pgm.dsd.append({"config": {
+            "format_version": 3},
+            "test": {
+                "structure": {
+                    2: {
+                        "date": ["datatype('VARCHAR')", "not_null()"],
+                        "description": ["datatype('TEXT')", "default('description')", "not_null()"],
+                        "uid": ["datatype('UUID')", "replfield_uuid()"],
+                        "created": ["datatype('DATETIME')", "replfield_created()"],
+                    },
+                    1: {
+                        "date": ["datatype('TIMESTAMP')", "not_null()"],
+                        "description": ["datatype('VARCHAR')", "default('description')", "not_null()"],
+                        "uid": ["datatype('UUID')", "replfield_uuid()"],
+                        "created": ["datatype('DATETIME')", "replfield_created()"],
+                    }
+                }
+            }
+        })
+
+        tablemigration = _PostgresTableMigration(migration=pgm, dsd_table="test", from_version=1, to_version=2,
+                                                 namespace="test_schema")
+        with pytest.raises(DSDDataTypeError):
+            result = AlterMigrationInstruction.create_sql_instructions(table_migration=tablemigration,
+                                                                       parameters=["date"])
+
+        pgm: PostgresDbMigration = pg_migration
+        pgm.dsd.append({"config": {
+            "format_version": 3},
+            "test": {
+                "structure": {
+                    2: {
+                        "date": ["datatype('TIMESTAMP')", "not_null()"],
+                        "description": ["datatype('TEXT')", "default('description')", "not_null()"],
+                        "uid": ["datatype('UUID')", "replfield_uuid()"],
+                        "created": ["datatype('DATETIME')", "replfield_created()"],
+                    },
+                    1: {
+                        "date": ["datatype('VARCHAR')", "not_null()"],
+                        "description": ["datatype('VARCHAR')", "default('description')", "not_null()"],
+                        "uid": ["datatype('UUID')", "replfield_uuid()"],
+                        "created": ["datatype('DATETIME')", "replfield_created()"],
+                    }
+                }
+            }
+        })
+
+        tablemigration = _PostgresTableMigration(migration=pgm, dsd_table="test", from_version=1, to_version=2,
+                                                 namespace="test_schema")
+        with pytest.raises(DSDDataTypeError):
+            result = AlterMigrationInstruction.create_sql_instructions(table_migration=tablemigration,
+                                                                       parameters=["date"])
+
     def test_get_sql_instructions_drop_field_attributes(self, pg_migration):
         pgm: PostgresDbMigration = pg_migration
         pgm.dsd.append({"config": {
@@ -266,6 +321,36 @@ class TestAddMigrationInstruction(KioskPyTestHelper):
         assert result == [
             "ALTER TABLE \"test_schema\".\"test\" ADD COLUMN \"description\" TEXT NOT NULL DEFAULT 'description'"]
 
+    def test_get_sql_instructions_add_time_zone_field(self, pg_migration):
+        pgm: PostgresDbMigration = pg_migration
+        pgm.dsd.append({"config": {
+            "format_version": 3},
+            "test": {
+                "structure": {
+                    2: {
+                        "name": ["datatype('TEXT')", "default('name')", "not_null()", "unique()"],
+                        "date": ["datatype('TIMESTAMP')", "not_null()"],
+                        "uid": ["datatype('UUID')", "replfield_uuid()"],
+                        "created": ["datatype('DATETIME')", "replfield_created()"],
+                    },
+                    1: {
+                        "name": ["datatype('TEXT')"],
+                        "uid": ["datatype('UUID')", "replfield_uuid()"],
+                        "created": ["datatype('DATETIME')", "replfield_created()"],
+                    }
+                }
+            }
+        })
+
+        tablemigration = _PostgresTableMigration(migration=pgm, dsd_table="test", from_version=1, to_version=2,
+                                                 namespace="test_schema")
+
+        result = AddMigrationInstruction.create_sql_instructions(table_migration=tablemigration,
+                                                                 parameters=["date"])
+        assert result[0].lower() == ("ALTER TABLE \"test_schema\".\"test\" "
+                                     "ADD COLUMN \"date\" TIMESTAMP WITH TIME ZONE NOT NULL,"
+                                     "ADD COLUMN \"date_tz\" INTEGER DEFAULT NULL").lower()
+
 
 class TestDropMigrationInstruction(KioskPyTestHelper):
     @pytest.fixture(scope="module")
@@ -329,6 +414,43 @@ class TestDropMigrationInstruction(KioskPyTestHelper):
         result = DropMigrationInstruction.create_sql_instructions(table_migration=tablemigration,
                                                                   parameters=["description"])
         assert result == ["ALTER TABLE \"test_schema\".\"test\" DROP COLUMN \"description\""]
+
+    def test_get_sql_instructions_drop_time_stamp_fields(self, pg_migration):
+        pgm: PostgresDbMigration = pg_migration
+        pgm.dsd.append({"config": {
+            "format_version": 3},
+            "test": {
+                "structure": {
+                    2: {
+                        "description": ["datatype('TEXT')", "default(\"'description'\")", "not_null()"],
+                        "uid": ["datatype('UUID')", "replfield_uuid()"],
+                        "created": ["datatype('DATETIME')", "replfield_created()"],
+                    },
+                    1: {
+                        "date": ["datatype('DATETIME')"],
+                        "date_2": ["datatype('TIMESTAMP')"],
+                        "description": ["datatype('TEXT')", "default(\"'description'\")", "not_null()"],
+                        "uid": ["datatype('UUID')", "replfield_uuid()"],
+                        "created": ["datatype('DATETIME')", "replfield_created()"],
+                    }
+                }
+            }
+        })
+
+        tablemigration = _PostgresTableMigration(migration=pgm, dsd_table="test", from_version=1, to_version=2,
+                                                 namespace="test_schema")
+
+        result = DropMigrationInstruction.create_sql_instructions(table_migration=tablemigration,
+                                                                  parameters=["date"])
+        assert result == ["ALTER TABLE \"test_schema\".\"test\" DROP COLUMN \"date\",DROP COLUMN \"date_tz\""]
+
+        result = DropMigrationInstruction.create_sql_instructions(table_migration=tablemigration,
+                                                                  parameters=["date_2"])
+        assert result == ["ALTER TABLE \"test_schema\".\"test\" DROP COLUMN \"date_2\",DROP COLUMN \"date_2_tz\""]
+
+        with pytest.raises(DSDInstructionValueError):
+            result = DropMigrationInstruction.create_sql_instructions(table_migration=tablemigration,
+                                                                      parameters=["date_3"])
 
     def test_get_sql_instructions_drop_table(self, pg_migration):
         pgm: PostgresDbMigration = pg_migration
@@ -418,6 +540,40 @@ class TestRenameMigrationInstruction(KioskPyTestHelper):
         result = RenameMigrationInstruction.create_sql_instructions(table_migration=tablemigration,
                                                                     parameters=["old_description", "description"])
         assert result == ["ALTER TABLE \"test_schema\".\"test\" RENAME COLUMN \"old_description\" TO \"description\""]
+
+    def test_get_sql_instructions_rename_time_stamp_fields(self, pg_migration):
+        pgm: PostgresDbMigration = pg_migration
+        pgm.dsd.append({"config": {
+            "format_version": 3},
+            "test": {
+                "structure": {
+                    2: {
+                        "name": ["datatype('TEXT')", "default('name')", "not_null()", "unique()"],
+                        "date": ["datatype('TIMESTAMP')", "not_null()"],
+                        "uid": ["datatype('UUID')", "replfield_uuid()"],
+                        "created": ["datatype('DATETIME')", "replfield_created()"],
+                    },
+                    1: {
+                        "name": ["datatype('TEXT')"],
+                        "old_date": ["datatype('TIMESTAMP')", "not_null()"],
+                        "uid": ["datatype('UUID')", "replfield_uuid()"],
+                        "created": ["datatype('DATETIME')", "replfield_created()"],
+                    }
+                }
+            }
+        })
+
+        tablemigration = _PostgresTableMigration(migration=pgm, dsd_table="test", from_version=1, to_version=2,
+                                                 namespace="test_schema")
+
+        result = RenameMigrationInstruction.create_sql_instructions(table_migration=tablemigration,
+                                                                    parameters=["old_date", "date"])
+        assert result == ["ALTER TABLE \"test_schema\".\"test\" RENAME COLUMN \"old_date\" TO \"date\","
+                          "RENAME COLUMN \"old_date_tz\" TO \"date_tz\""]
+
+        with pytest.raises(DSDInstructionValueError):
+            result = RenameMigrationInstruction.create_sql_instructions(table_migration=tablemigration,
+                                                                        parameters=["old_date_1", "date_1"])
 
     def test_get_sql_instructions_rename_table(self, pg_migration):
         pgm: PostgresDbMigration = pg_migration

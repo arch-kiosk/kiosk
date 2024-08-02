@@ -20,7 +20,7 @@ class TestPostgresFieldMigrationInstructions(KioskPyTestHelper):
         assert MiPgDataType.execute_during_creation("", ["VARCHAR", 10]) == "VARCHAR(10)"
         assert MiPgDataType.execute_during_creation("", ["TEXT"]) == "TEXT"
         assert MiPgDataType.execute_during_creation("", ["INT"]) == "INTEGER"
-        assert MiPgDataType.execute_during_creation("", ["DATETIME"]) == "TIMESTAMP"
+        assert MiPgDataType.execute_during_creation("", ["DATETIME"]) == "TIMESTAMP WITH TIME ZONE"
 
         with pytest.raises(DSDDataTypeError):
             assert MiPgDataType.execute_during_creation("", ["NOTKNOWN"]) == "NOTKNOWN"
