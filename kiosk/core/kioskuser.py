@@ -26,6 +26,7 @@ class KioskUser(UserMixin):
         self._group_threshold = MSG_SEVERITY_INFO
         self._user_threshold = MSG_SEVERITY_INFO
         self.active_tz_name = ""
+        self.active_iana_tz_name = ""
 
         if not self.load_user(user_uuid, check_token):
             raise Exception('kiosk user not found or an exception occurred. Please consult the logs')
@@ -310,19 +311,23 @@ class KioskUser(UserMixin):
         """
         return self.force_tz_index
 
-    def get_active_time_zone_name(self):
+    def get_active_time_zone_name(self, iana=False):
         """
         returns the user's currently active time zone in Kiosk.
         !Needs an active request object in Flask.
+        :param iana: set to True of you want the IANA time zone name instead of the long name
         :return: the time zone's name or ""
         :raises nothing: catches all Exceptions
         """
-        if self.active_tz_name:
-            return self.active_tz_name
         try:
-            if "kiosk_tz_index" in request.cookies:
-                kiosk_tz = KioskTimeZones()
-                return kiosk_tz.get_time_zone_info(int(request.cookies.get("kiosk_tz_index")))[1]
+            if not self.active_tz_name:
+                if "kiosk_tz_index" in request.cookies:
+                    kiosk_tz = KioskTimeZones()
+                    kiosk_tz_info = kiosk_tz.get_time_zone_info(int(request.cookies.get("kiosk_tz_index")))
+                    self.active_tz_name = kiosk_tz_info[1]
+                    self.active_iana_tz_name = kiosk_tz_info[2]
+            return self.active_iana_tz_name if iana else self.active_tz_name
+
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.get_active_time_zone_name: Error resolving "
                           f"active kiosk timezone: {repr(e)}")

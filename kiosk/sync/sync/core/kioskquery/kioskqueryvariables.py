@@ -3,7 +3,7 @@ import datetime
 import logging
 
 import kioskstdlib
-import urapdatetimelib
+import kioskdatetimelib
 from databasedrivers.postgres import Postgres
 from dsd.dsd3singleton import Dsd3Singleton
 from kioskquery.kioskquerylib import *

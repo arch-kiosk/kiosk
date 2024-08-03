@@ -1,4 +1,4 @@
-import urapdatetimelib
+import kioskdatetimelib
 import logging
 import datetime
 

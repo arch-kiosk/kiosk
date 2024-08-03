@@ -3,7 +3,7 @@ import logging
 import os
 
 import kiosklib
-import urapdatetimelib
+import kioskdatetimelib
 
 from flask_login import current_user
 

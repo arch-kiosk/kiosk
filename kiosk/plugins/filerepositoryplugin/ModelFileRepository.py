@@ -10,7 +10,7 @@ from flask import url_for
 
 import kioskglobals
 import kioskstdlib
-import urapdatetimelib
+import kioskdatetimelib
 from contextmanagement.sqlsourcecached import CONTEXT_CACHE_NAMESPACE
 from core.kioskcontrollerplugin import get_plugin_for_controller
 from sync.core.filerepository import FileRepository
@@ -553,7 +553,7 @@ class ModelFileRepository:
             KioskSQLDb.rollback()
         return []
 
-    def get_image(self, uuid):
+    def get_image(self, uuid) -> FileRepositoryFile:
         cur = KioskSQLDb.get_dict_cursor()
         # sql = "select " + " distinct images.*, array_to_string(identifier_array, ',') identifiers from \"images\" " \
         #                   "left outer join file_identifier_cache on images.uid=file_identifier_cache.uid_file " \

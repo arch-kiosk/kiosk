@@ -3,7 +3,7 @@ from __future__ import annotations
 import datetime
 import nanoid
 import json
-from urapdatetimelib import local_datetime_to_utc, utc_to_local_datetime
+from kioskdatetimelib import local_datetime_to_utc, utc_to_local_datetime
 from .systemmessagecatalog import *
 
 

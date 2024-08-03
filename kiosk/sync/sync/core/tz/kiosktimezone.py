@@ -3,12 +3,15 @@ import logging
 import os
 import zoneinfo
 import time
+import datetime
 from pprint import pprint
-from typing import Tuple, List, Set
+from typing import Tuple, List, Set, Union
 from babel import dates
 import re
 import hashlib
 
+import kioskstdlib
+from kioskdatetimelib import utc_ts_to_timezone_ts
 from kiosksqldb import KioskSQLDb
 from sync_config import SyncConfig
 
@@ -237,6 +240,8 @@ class KioskTimeZones:
          :raises no exceptions. They all get caught and logged.
         """
         try:
+            if tz_index == 0:
+                return [0, "UTC", "UTC", False, 1]
             r = KioskSQLDb.get_records("select" + " * from kiosk_time_zones where \"id\"=%s", params=[tz_index])
             if len(r) == 1:
                 return r[0]
@@ -251,6 +256,8 @@ class KioskTimeZones:
         :param iana_name: the name of a IANA time zone (case sensitive)
         :return:
         """
+        if iana_name.lower() == "utc":
+            return 0
         try:
             r = KioskSQLDb.get_first_record("kiosk_time_zones", "tz_IANA", iana_name)
             if r:
@@ -259,13 +266,64 @@ class KioskTimeZones:
             logging.error(f"{self.__class__.__name__}.get_time_zone_index: {repr(e)}")
         return None
 
+    def kiosk_timestamp_to_display_timestamp(self, utc_timestamp: Union[datetime, str],
+                                             tz_field: Union[int, None],
+                                             target_tz: Union[int, str] = None) -> (datetime.datetime, int):
+        """
+        returns the correct display value for a time stamp according to the timestamp's _tz-field
+        and the expected target time zone
+        :param utc_timestamp: utc date and time either as datetime or iso8601 string
+        :param tz_field: the assigned _tz field
+        :param target_tz: optional. Can be tz index or IANA time zone.
+                If not given the tz_field defines the target time zone.
+        :returns: a tuple consisting of the resulting timestamp and an integer that determines the time zone:
+                    0: legacy time stamp, unknown time zone
+                    1: time zone according to source (_tz field)
+                    2: target time zone
+        """
+
+        if not utc_timestamp:
+            raise ValueError("empty parameter in kiosk_timestamp_to_display_timestamp")
+
+        if isinstance(utc_timestamp, str):
+            dt = kioskstdlib.str_to_iso8601(utc_timestamp)
+        else:
+            dt = utc_timestamp
+
+        if tz_field is None:
+            # time stamp is a legacy date
+            # in this case the utc date time stays what it is, independent of the target time zone
+            return dt.astimezone(zoneinfo.ZoneInfo("UTC")).replace(tzinfo=None), 0
+
+        if target_tz:
+            if isinstance(target_tz, str):
+                target_time_zone = target_tz
+            else:
+                tz_info = self.get_time_zone_info(target_tz)
+                if not tz_info:
+                    raise ValueError(f"target time zone {target_tz} unknown")
+
+                target_time_zone = tz_info[2]
+
+            return utc_ts_to_timezone_ts(dt, target_time_zone), 2
+        else:
+            if tz_field == 0:
+                source_time_zone = "UTC"
+            else:
+                tz_info = self.get_time_zone_info(tz_field)
+                if not tz_info:
+                    raise ValueError(f"source time zone {tz_field} unknown")
+                source_time_zone = tz_info[2]
+
+            return utc_ts_to_timezone_ts(dt, source_time_zone), 1
+
 # if __name__ == '__main__':
-#     cfg = SyncConfig.get_config({'config_file': r'C:\notebook_source\kiosk\server\kiosk\kiosk\config\kiosk_config.yml'})
-#     kiosk_tz = KioskTimeZones()
-#     pprint(kiosk_tz.list_time_zones())
-#
+#     # cfg = SyncConfig.get_config({'config_file': r'C:\notebook_source\kiosk\server\kiosk\kiosk\config\kiosk_config.yml'})
+#     # kiosk_tz = KioskTimeZones()
+#     # pprint(kiosk_tz.list_time_zones())
+#     #
 # #     # kiosk_tz = KioskTimeZones("backward")
 # #     # kiosk_tz.generate_kiosk_time_zone_dist("kiosk_tz.json")
-# #     cfg = SyncConfig.get_config({'config_file': r'C:\notebook_source\kiosk\server\kiosk\kiosk\config\kiosk_config.yml'})
-# #     kiosk_tz = KioskTimeZones()
-# #     kiosk_tz.update_local_kiosk_time_zones("kiosk_tz.json")
+#     cfg = SyncConfig.get_config({'config_file': r'C:\notebook_source\kiosk\server\kiosk\kiosk\config\kiosk_config.yml'})
+#     kiosk_tz = KioskTimeZones()
+#     kiosk_tz.update_local_kiosk_time_zones(r"C:\notebook_source\kiosk\server\kiosk\kiosk\tools\tz\kiosk_tz.json")

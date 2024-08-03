@@ -26,7 +26,7 @@ from glob import iglob
 from ntpath import basename
 from PIL import Image
 
-from urapdatetimelib import *
+from kioskdatetimelib import *
 from semantic_version import Version
 
 if os.name == 'nt':

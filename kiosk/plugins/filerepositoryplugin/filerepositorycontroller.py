@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import kioskdatetimelib
 import time
 from pprint import pprint
 
@@ -23,6 +24,7 @@ from kioskcontextualfile import KioskContextualFile
 from kioskrepresentationtype import KioskRepresentationType, KioskRepresentations
 from kioskresult import KioskResult
 from kiosksqldb import KioskSQLDb
+from kioskuser import KioskUser
 from plugins.filerepositoryplugin.forms.editform import ModalFileEditForm
 from core.kioskwtforms import KioskStringField, KioskLabeledBooleanField
 from core.kiosklib import nocache
@@ -371,7 +373,10 @@ def filerepository_editdialog(uid):
         # ef_form.ef_recording_context.choices.extend([(t, t) for t in image_field_tables])
 
         ef_form.ef_description.data = img.get_value("description")
-        ef_form.ef_file_datetime.data = kioskstdlib.latin_date(img.get_value("file_datetime"))
+        file_datetime = img.get_value("file_datetime")
+        file_datetime_tz = urapdatetimelib.utc_ts_to_timezone_ts(file_datetime,
+                                                                 current_user.get_active_time_zone_name(iana=True))
+        ef_form.ef_file_datetime.data = kioskstdlib.latin_date(file_datetime_tz)
         ef_form.ef_tags.data = img.get_value("tags")
         ef_form.ef_export_filename.data = img.get_value("export_filename")
         authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)

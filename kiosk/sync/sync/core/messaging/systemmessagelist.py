@@ -6,7 +6,7 @@ import threading
 
 import nanoid
 
-import urapdatetimelib
+import kioskdatetimelib
 from generalstore.generalstore import GeneralStore
 from generalstore.generalstorekeys import messaging_change_mark
 from .systemmessage import SystemMessage

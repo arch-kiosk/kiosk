@@ -7,7 +7,7 @@ import datetime
 from openpyxl import load_workbook
 
 import kioskstdlib
-import urapdatetimelib
+import kioskdatetimelib
 from dsd.dsd3singleton import Dsd3Singleton
 from kiosksqldb import KioskSQLDb
 from reportingdock import ReportingDock

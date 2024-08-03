@@ -7,6 +7,7 @@ from sync_config import SyncConfig
 from test.testhelpers import KioskPyTestHelper
 from kiosksqldb import KioskSQLDb
 import os
+import datetime
 
 test_path = os.path.dirname(os.path.abspath(__file__))
 config_file = os.path.join(test_path, r"config", "test_kiosk_config.yml")
@@ -123,3 +124,8 @@ class TestKioskSQLDb(KioskPyTestHelper):
         assert KioskSQLDb.does_view_exist("test_view", materialized_view=True)
         KioskSQLDb.execute("drop materialized view if exists test_view")
         assert not KioskSQLDb.does_view_exist("test_view", materialized_view=True)
+
+    def test_time_zone(self, cfg):
+        assert KioskSQLDb.get_first_record_from_sql("select '2023-08-01 16:06:01.000000 +00:00'::timestamptz"
+                                                    "")[0] == datetime.datetime(2023, 8, 1, 16, 6, 1,
+                                                                                tzinfo=datetime.timezone.utc)

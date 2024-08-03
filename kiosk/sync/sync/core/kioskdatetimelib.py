@@ -2,6 +2,8 @@ import datetime
 import time
 import logging
 import re
+import zoneinfo
+
 from typing import Union
 
 import kioskstdlib
@@ -309,3 +311,27 @@ def js_to_python_utc_datetime_str(utc_datetime_str):
         return str(utc_datetime_str).replace('Z', '+00:00')
     else:
         return utc_datetime_str
+
+
+def utc_ts_to_timezone_ts(utc_datetime: Union[datetime, str], time_zone: str) -> datetime.datetime:
+    """
+    converts a utc timestamp to the local time of the time zone and drops the time zone information
+    :param utc_datetime: either a datetime object or a string in iso8601 format
+    :param time_zone: a IANA time zone string
+    :returns: a datetime with local time of the time zone and the time zone information dropped.
+    """
+    if not time_zone or not utc_datetime:
+        raise ValueError("empty parameter in utc_datetime_to_timezone")
+
+    if isinstance(utc_datetime, str):
+        dt = kioskstdlib.str_to_iso8601(utc_datetime)
+    else:
+        dt = utc_datetime
+    tz = zoneinfo.ZoneInfo(time_zone)
+    if not tz:
+        raise ValueError(f"{time_zone} is not a valid IANA time zone ")
+
+    dt_tz = dt.astimezone(tz)
+
+    return dt_tz.replace(tzinfo=None)
+

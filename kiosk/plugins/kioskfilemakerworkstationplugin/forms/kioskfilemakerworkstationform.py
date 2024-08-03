@@ -4,7 +4,7 @@ from wtforms.fields import HiddenField
 from wtforms.validators import DataRequired, Length, ValidationError
 from core.kioskwtforms import KioskLabeledBooleanField, KioskStringField, \
     KioskLabeledStringField, KioskGeneralFormErrors, KioskLabeledSelectField
-from urapdatetimelib import local_time_offset_str
+from kioskdatetimelib import local_time_offset_str
 
 
 class KioskFileMakerWorkstationForm(FlaskForm, KioskGeneralFormErrors):
