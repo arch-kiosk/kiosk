@@ -79,7 +79,7 @@ class KioskBackup:
         [r"sync\sync\core", "logginglib.py"],
         [r"sync\sync\core", "sync_config.py"],
         [r"sync\sync\core", "kioskstdlib.py"],
-        [r"sync\sync\core", "urapdatetimelib.py"],
+        [r"sync\sync\core", "kioskdatetimelib.py"],
         [r"sync\sync\core", "kioskrequirements.py"],
         [r"sync\sync\core", "kioskpiexif.py"],
     ]

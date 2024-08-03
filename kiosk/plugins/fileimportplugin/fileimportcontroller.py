@@ -545,7 +545,7 @@ def uploadimage():
         file_utc_datetimes = {}
         for t in request.form:
             file_utc_datetimes[t] = datetime.datetime.fromisoformat(
-                urapdatetimelib.js_to_python_utc_datetime_str(request.form[t]))
+                kioskdatetimelib.js_to_python_utc_datetime_str(request.form[t]))
 
         if 'file' not in request.files:
             logging.error('repository_upload_image: No file part')

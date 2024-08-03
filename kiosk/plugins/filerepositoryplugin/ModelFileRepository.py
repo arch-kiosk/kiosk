@@ -352,7 +352,7 @@ class ModelFileRepository:
         if year_str.isnumeric():
             year = int(year_str)
             if 0 < year < 100 or 999 < year:
-                return urapdatetimelib.interpolate_year(year)
+                return kioskdatetimelib.interpolate_year(year)
         return 0
 
     def check_filter_option(self, option, value):

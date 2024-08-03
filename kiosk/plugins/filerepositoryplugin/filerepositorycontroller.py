@@ -374,7 +374,7 @@ def filerepository_editdialog(uid):
 
         ef_form.ef_description.data = img.get_value("description")
         file_datetime = img.get_value("file_datetime")
-        file_datetime_tz = urapdatetimelib.utc_ts_to_timezone_ts(file_datetime,
+        file_datetime_tz = kioskdatetimelib.utc_ts_to_timezone_ts(file_datetime,
                                                                  current_user.get_active_time_zone_name(iana=True))
         ef_form.ef_file_datetime.data = kioskstdlib.latin_date(file_datetime_tz)
         ef_form.ef_tags.data = img.get_value("tags")
