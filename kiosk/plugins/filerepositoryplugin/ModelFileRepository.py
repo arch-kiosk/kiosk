@@ -98,14 +98,18 @@ class FileRepositoryFile:
         else:
             return url_for('static', filename='assets/images/no_file.svg')
 
-    def get_value(self, key):
+    def get_value(self, key, default=""):
         if key == "tags":
             return self.get_tags_without_parantheses()
         if key in self.r:
-            if self.r[key]:
-                return self.r[key]
+            result = self.r[key]
+            if self.r[key] is not None:
+                if isinstance(result, datetime.datetime):
+                    return result.replace(tzinfo=None)
+                else:
+                    return self.r[key]
             else:
-                return ""
+                return default
         else:
             return ""
 
@@ -231,7 +235,7 @@ class FileRepositoryFile:
             pf = resolution
         return pf
 
-    def update(self, modified_by="sys"):
+    def update(self, modified_by="sys", user_time_zone_index=0):
         """
         todo: This is really not great because it sidestep KioskContextualFile!
         :param modified_by:
@@ -245,8 +249,10 @@ class FileRepositoryFile:
         sql += "description=%s, "
         sql += "tags=%s, "
         sql += "file_datetime=%s, "
+        sql += "file_datetime_tz=%s, "
         sql += "export_filename=%s, "
         sql += "modified=%s, "
+        sql += "modified_tz=%s, "
         sql += "modified_by=%s "
         sql += "where uid=%s"
 
@@ -255,8 +261,10 @@ class FileRepositoryFile:
             params = [self.r["description"],
                       self.r["tags"],
                       self.r["file_datetime"],
+                      self.r["file_datetime_tz"],
                       self.r["export_filename"],
-                      datetime.datetime.fromtimestamp(time.time()),
+                      kioskdatetimelib.get_utc_now(),
+                      user_time_zone_index,
                       modified_by,
                       self.r["uid"]]
             # print(sql, params)

@@ -247,7 +247,7 @@ label {
   font-size: 0.9em;
 }
 
-input:not([type=radio], [type=checkbox]), select {
+input, select {
   -webkit-user-select: text;
   -moz-user-select: text;
   -ms-user-select: text;
@@ -260,12 +260,19 @@ input:not([type=radio], [type=checkbox]), select {
   color: var(--col-primary-bg-1);
   padding: 2px;
   margin-bottom: 2px;
+  outline: none;
+}
+
+textarea {
+  outline: none;
+}
+
+input:not([type=radio], [type=checkbox]), select, textarea {
   width: 100%;
 }
-input:not([type=radio], [type=checkbox]):focus, select:focus {
+input:not([type=radio], [type=checkbox]):focus, select:focus, textarea:focus {
   margin-bottom: 0px;
   border-bottom: 2px solid rgb(0, 0, 0);
-  outline: none;
 }
 
 h1 {

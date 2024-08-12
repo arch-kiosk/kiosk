@@ -2,7 +2,7 @@ label
   font-family: $monospace
   font-size: .9em
 
-input:not([type="radio"], [type="checkbox"]), select
+input, select
   -webkit-user-select: text
   -moz-user-select: text
   -ms-user-select: text
@@ -15,12 +15,18 @@ input:not([type="radio"], [type="checkbox"]), select
   color: $col-primary-bg-1
   padding: 2px
   margin-bottom: 2px
-  width: 100%
+  outline: none
 
+
+textarea
+  outline: none
+
+input:not([type="radio"], [type="checkbox"]), select, textarea
+  width: 100%
   &:focus
     margin-bottom: 0px
     border-bottom: 2px solid rgba(0, 0, 0, 1)
-    outline: none
+
 
 h1
   font-size: $font-size-h1

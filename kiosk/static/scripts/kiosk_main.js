@@ -36,6 +36,7 @@ function import_scripts() {
   //$.getScript('/static/scripts/urap_lib.js');
   $.getScript('/static/scripts/thirdparty/awesomplete.min.js');
   $.getScript('/static/scripts/thirdparty/exif.js');
+  // $.getScript('/static/scripts/kioskdatetime.js');
   $.getScript('/static/scripts/kiosklastscript.js');
 }
 

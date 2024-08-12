@@ -4,6 +4,7 @@ from flask_login import UserMixin
 from flask import request
 from werkzeug.security import generate_password_hash, check_password_hash
 
+import kioskglobals
 from generalstore.generalstorekeys import kiosk_core_security_tokens, kiosk_core_security_user_tokens
 from kioskconfig import KioskConfig
 from kioskglobals import get_general_store, get_config, get_jws
@@ -322,7 +323,7 @@ class KioskUser(UserMixin):
         try:
             if not self.active_tz_name:
                 if "kiosk_tz_index" in request.cookies:
-                    kiosk_tz = KioskTimeZones()
+                    kiosk_tz = kioskglobals.kiosk_time_zones if kioskglobals else KioskTimeZones()
                     kiosk_tz_info = kiosk_tz.get_time_zone_info(int(request.cookies.get("kiosk_tz_index")))
                     self.active_tz_name = kiosk_tz_info[1]
                     self.active_iana_tz_name = kiosk_tz_info[2]
@@ -333,6 +334,15 @@ class KioskUser(UserMixin):
                           f"active kiosk timezone: {repr(e)}")
 
         return ""
+
+    @staticmethod
+    def get_active_tz_index():
+        """
+        returns the user's currently active time zone index in Kiosk.
+        !Needs an active request object in Flask.
+        :return: the time zone index
+        """
+        return int(request.cookies.get("kiosk_tz_index"))
 
     def is_time_zone_forced(self):
         """

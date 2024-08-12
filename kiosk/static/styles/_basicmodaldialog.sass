@@ -154,12 +154,12 @@ body
   padding: 4px
   border: none
   //If you change this you need to change the kiosk-combobox-container button as well:
-  margin-bottom: 5px
-  margin-top: 2px
-  width: 100%
-  &:focus
-    margin-bottom: 3px
-    border-bottom: 2px solid rgba(0, 0, 0, 1)
+  //margin-bottom: 5px
+  //margin-top: 2px
+  //width: 100%
+  //&:focus
+  //  margin-bottom: 3px
+  //  border-bottom: 2px solid rgba(0, 0, 0, 1)
 
 .kiosk-dialog-disabled-textfield
   height: 2rem
@@ -294,8 +294,8 @@ body
   padding-left: 2px
   padding-right: 2px
 
-.kiosk-error-border
-  border: 2px dashed $reddish
+input:not([type="radio"], [type="checkbox"]).kiosk-error-border, select.kiosk-error-border
+    border: 2px dashed $reddish
 
 .kiosk-success-line,
 .kiosk-success-div

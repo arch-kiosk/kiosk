@@ -534,6 +534,24 @@ function initEFDialog() {
   efInitUploader();
   efInitAddContext();
   efInitDropContext();
+  efInitDateTimeFields();
+
+}
+
+function efInitDateTimeFields() {
+  // init the ef-file-datetime input field
+  let dt = new KioskDateTime()
+  const efFileDateTimeInput = document.getElementById("ef-file-datetime")
+  if (efFileDateTimeInput) {
+    dt.initKioskDateTimeTzField("ef-file-datetime")
+    efFileDateTimeInput.addEventListener("blur", () => {
+      onEFFileDateTimeValidate(false)
+    })
+  }
+
+  const dialog = document.getElementById("fr-edit-dialog")
+  dt.initKioskDateTimeSpans(dialog, false)
+
 }
 
 function efInitUploader() {
@@ -703,12 +721,52 @@ function onEFUploadError(errorThrown) {
   kioskErrorToast('An error occured during upload: ' + errorThrown);
 }
 
-function onEFDialogOk() {
+function onEFFileDateTimeValidate(toasts=false) {
+  const kdt = new KioskDateTime()
+  try {
+    return kdt.validateDateTimeField("ef-file-datetime")
+  } catch(e) {
+      if (toasts) {
+        kioskModalErrorToast(`The date and time of creation is not a valid date or time: ${e.message}`)
+      }
+      return "-"
+  }
 
+  // const dtElement = document.getElementById("ef-file-datetime")
+  // let dt = dtElement.value
+  // if (dtElement.classList.contains("kiosk-error-border")) dtElement.classList.remove("kiosk-error-border")
+  // let result = ""
+  // if (dt && dt.trim()) {
+  //   const tz = getCookie("kiosk_iana_time_zone")
+  //   const kdt = new KioskDateTime()
+  //   try {
+  //     result = kdt.guessDateTime(dt, false, tz).toISO({includeOffset: false, suppressMilliseconds: true})
+  //   } catch (e) {
+  //     result = "-"
+  //     dtElement.classList.add("kiosk-error-border")
+  //     if (e instanceof KioskDateTimeError) {
+  //     }
+  //   }
+  // }
+  // return result
+}
+
+
+function onEFDialogOk() {
+  const fdt = onEFFileDateTimeValidate(true)
+  if (fdt === "-") {
+    return
+  }
   $("#ef-ok").prop("disabled", true);
   $(".dialog-error").remove();
   let uuid = $("#uid").text();
+  
   let formData = $("#ef-form").serializeArray();
+  setJSONFormData(formData, "ef_file_datetime", fdt)
+  if (fdt !== document.getElementById("ef-file-datetime").dataset.utcDate) {
+    setJSONFormData(formData, "ef_file_datetime_tz", getCookie("kiosk_iana_time_zone"))
+  }
+  console.log(formData)
   let droppedContextMarkers = $("#ef-context-list").find(".drop-context-marker");
   if (droppedContextMarkers) {
     // let droppedContexts = []

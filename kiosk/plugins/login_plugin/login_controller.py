@@ -74,10 +74,13 @@ def process_client_time_zone(response: Response, user: KioskUser):
 
         kiosk_tz_index = client_tz_index
         kiosk_tz_name = client_tz_name
+        kiosk_iana_time_zone = client_iana_tz
         user_tz_index = user.get_force_tz_index()
         if user_tz_index:
             try:
-                kiosk_tz_name = kiosk_time_zones.get_time_zone_info(kiosk_tz_index)[1]
+                tz_info = kiosk_time_zones.get_time_zone_info(user_tz_index)
+                kiosk_tz_name = tz_info[1]
+                kiosk_iana_time_zone = tz_info[2]
                 kiosk_tz_index = user_tz_index
             except BaseException as e:
                 logging.warning(f"login_controller.process_client_time_zone: "
@@ -86,6 +89,7 @@ def process_client_time_zone(response: Response, user: KioskUser):
 
         response.set_cookie("kiosk_tz_index", str(kiosk_tz_index))
         response.set_cookie("kiosk_tz_name", kiosk_tz_name)
+        response.set_cookie("kiosk_iana_time_zone", kiosk_iana_time_zone)
         return response
     else:
         raise Exception("It is not possible to determine your Browser's time zone. Please contact support.")

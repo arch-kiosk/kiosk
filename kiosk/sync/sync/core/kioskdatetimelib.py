@@ -335,3 +335,10 @@ def utc_ts_to_timezone_ts(utc_datetime: Union[datetime, str], time_zone: str) ->
 
     return dt_tz.replace(tzinfo=None)
 
+
+def get_utc_now() -> datetime.datetime:
+    """
+    returns the current date and time in the UTC time zone
+    :return: a datetime
+    """
+    return datetime.datetime.now(datetime.timezone.utc)

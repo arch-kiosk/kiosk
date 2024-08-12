@@ -315,7 +315,7 @@ function undefint(arg, default_value = 0) {
 
 // Cookies
 //as found in https://www.w3schools.com/js/js_cookies.asp
-function setCookie(cname, cvalue, exdays) {
+function setCookie(cname, cvalue, exdays=1) {
   let d = new Date();
   d.setTime(d.getTime() + (exdays*24*60*60*1000));
   let expires = "expires="+ d.toUTCString();

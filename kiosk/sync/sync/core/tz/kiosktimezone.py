@@ -1,19 +1,18 @@
+import datetime
+import hashlib
 import json
 import logging
 import os
-import zoneinfo
-import time
-import datetime
-from pprint import pprint
-from typing import Tuple, List, Set, Union
-from babel import dates
 import re
-import hashlib
+import time
+import zoneinfo
+from typing import Tuple, List, Set, Union
+
+from babel import dates
 
 import kioskstdlib
 from kioskdatetimelib import utc_ts_to_timezone_ts
 from kiosksqldb import KioskSQLDb
-from sync_config import SyncConfig
 
 
 class KioskTimeZones:
@@ -22,9 +21,12 @@ class KioskTimeZones:
 
     """
 
-    def __init__(self, iana_backward_file: str = ""):
+    def __init__(self, iana_backward_file: str = "", cache_time_zones=False):
         self.iana_backward_file = iana_backward_file
         self.deprecated_aliases: Set = set()
+        self._time_zone_cache = {}
+        self._iana_2_index = {}
+        self._cache_time_zones = cache_time_zones
 
     def read_deprecated_aliases(self) -> Set[str]:
         """
@@ -199,6 +201,19 @@ class KioskTimeZones:
         logging.info(f"{self.__class__.__name__}.update_local_kiosk_time_zones: {c} time zones inserted.")
         return c
 
+    def update_cache(self, time_zone_records: list):
+        if not self._cache_time_zones:
+            return
+
+        if not time_zone_records:
+            return
+
+        r = time_zone_records if isinstance(time_zone_records[0], list) else [time_zone_records, ]
+        for tz_info in r:
+            logging.debug(f"{self.__class__.__name__}.update_cache: caching time zone {tz_info[0]}")
+            self._time_zone_cache[tz_info[0]] = tz_info
+            self._iana_2_index[tz_info[2]] = tz_info[0]
+
     def list_time_zones(self, after_version=0, include_deprecated=False, filter_text=""):
         """
         Retrieve a list of time zones from the 'kiosk_time_zones' table based on certain criteria.
@@ -213,7 +228,7 @@ class KioskTimeZones:
         :raises: Any exception that occurs.
         """
         try:
-            sql = "select * from kiosk_time_zones"
+            sql = "select " + "* from kiosk_time_zones"
             sql_where = ""
             sql_parameter = []
             if not include_deprecated:
@@ -226,6 +241,7 @@ class KioskTimeZones:
                 sql_parameter.append(f'%{filter_text}%')
             print(sql + sql_where)
             time_zone_records = KioskSQLDb.get_records(sql + sql_where, params=sql_parameter)
+            self.update_cache(time_zone_records)
             return time_zone_records
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.list_time_zones: {repr(e)}")
@@ -234,34 +250,70 @@ class KioskTimeZones:
     def get_time_zone_info(self, tz_index):
         """
         return the time zone information for a tz index (the id of a kiosk_time_zone record).
-        :param tz_index:
+        :param tz_index: if None -> [None, "-", "-", False, 1], if 0 -> info for UTC,
+                otherwise info for the time zone
         :return: a list that corresponds with the structure of the kiosk_time_zone table:
                  [id, tz_long, tz_IANA, deprecated, version] or None in terms of an error
          :raises no exceptions. They all get caught and logged.
         """
         try:
+            if tz_index is None:
+                return [None, "-", "-", False, 1]
+
             if tz_index == 0:
                 return [0, "UTC", "UTC", False, 1]
+
+            r = self._time_zone_cache.get(tz_index, None)
+            if r:
+                logging.debug(f"{self.__class__.__name__}.get_time_zone_info: "
+                              f"got time zone info for {tz_index} from cache")
+                return r
+            else:
+                logging.debug(f"{self.__class__.__name__}.get_time_zone_info: "
+                              f"{tz_index} not in cache")
+
             r = KioskSQLDb.get_records("select" + " * from kiosk_time_zones where \"id\"=%s", params=[tz_index])
             if len(r) == 1:
+                self.update_cache(r)
                 return r[0]
             return None
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}. : {repr(e)}")
             return None
 
-    def get_time_zone_index(self, iana_name: str):
+    def get_iana_time_zone(self, tz_index) -> str:
+        """
+        returns the iana time zone name for a kiosk time zone index.
+        If the index does not exist, the result will be an empty string.
+        :param tz_index: Kiosk Time Zone Index
+        :return: str
+        """
+        tz_info = self.get_time_zone_info(tz_index)
+        return tz_info[2] if tz_info else "-"
+
+    def get_time_zone_index(self, iana_name: str) -> Union[int, None]:
         """
         returns the tz_index for a IANA time zone
         :param iana_name: the name of a IANA time zone (case sensitive)
-        :return:
+        :return: the kiosk time zone index for the iana_name or None (explicitly as 0 is UTC) if unknown
         """
         if iana_name.lower() == "utc":
             return 0
         try:
-            r = KioskSQLDb.get_first_record("kiosk_time_zones", "tz_IANA", iana_name)
-            if r:
-                return r[0]
+            tz_index = self._iana_2_index.get(iana_name, None)
+            if tz_index is not None:
+                logging.debug(f"{self.__class__.__name__}.get_time_zone_index: "
+                              f"got time zone index for {iana_name} from cache")
+                return tz_index
+
+            r = KioskSQLDb.get_records("select " + "* from kiosk_time_zones where \"tz_IANA\"=%s", [iana_name, ])
+            if len(r) == 1:
+                return r[0][0]
+            if len(r) > 1:
+                logging.warning(f"{self.__class__.__name__}.get_time_zone_index: iana name {iana_name} "
+                                f"exists more than once!")
+                return r[0][0]
+            return None
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.get_time_zone_index: {repr(e)}")
         return None
@@ -316,6 +368,18 @@ class KioskTimeZones:
                 source_time_zone = tz_info[2]
 
             return utc_ts_to_timezone_ts(dt, source_time_zone), 1
+
+    def get_recording_timestamp_with_time_zone(self, kiosk_time_stamp: datetime.datetime, tz_field, latin=True):
+        record_ts, ts_type = self.kiosk_timestamp_to_display_timestamp(
+            kiosk_time_stamp,
+            tz_field)
+        if ts_type == 1:
+            time_zone = self.get_time_zone_info(tz_field)[1]
+        else:
+            time_zone = "(legacy)"
+        return (kioskstdlib.latin_date(record_ts) if latin else f"{record_ts}") + " " + time_zone
+
+
 
 # if __name__ == '__main__':
 #     # cfg = SyncConfig.get_config({'config_file': r'C:\notebook_source\kiosk\server\kiosk\kiosk\config\kiosk_config.yml'})

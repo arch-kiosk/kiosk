@@ -12,8 +12,8 @@
       {% if img.get_arch_identifier() %}
         identifiers: <span id="uid">{{ img.get_arch_identifier() }}</span><br>
       {% endif %}
-      created: {{ img.get_value('created') }}<br>
-      modified: {{ img.get_value('modified') }}<br>
+      created: <span class="kiosk-tz-span" data-display-mode="recording" data-recording-iana-tz="{{ created_tz }}">{{ created }}</span><br>
+      modified: <span class="kiosk-tz-span" data-display-mode="recording" data-recording-iana-tz="{{ modified_tz }}">{{ modified }}</span><br>
       modified by {{ img.get_value('modified_by') }}<br>
       file type/size: {{ file_extension }} / {{ file_size }}<br>
     </div>
@@ -121,9 +121,14 @@
             {{ ef_form.ef_file_datetime.label(class="kiosk-dialog-label") }}
             <!-- Next line had formerly: "(contexts and ef_form.ef_file_datetime.data) or" See #960  -->
             {% if ("modify data" not in authorized_to ) %}
-              <div class="kiosk-dialog-disabled-textfield"> {{ ef_form.ef_file_datetime.data }} </div>
+              <div class="kiosk-dialog-disabled-textfield">
+                  <span class="kiosk-tz-span" data-recording-iana-tz="{{ ef_form.ef_file_datetime_tz.data }}">
+                      {{ ef_form.ef_file_datetime.data }}
+                  </span>
+              </div>
             {% else %}
               {{ ef_form.ef_file_datetime(class="kiosk-dialog-textfield") }}
+              {{ ef_form.ef_file_datetime_tz() }}
             {% endif %}
           </div>
 

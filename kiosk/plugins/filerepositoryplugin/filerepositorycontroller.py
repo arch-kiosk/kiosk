@@ -214,6 +214,7 @@ class FilterForm(FlaskForm):
     from_date = StringField(id="frf-from-date", label='from')
     to_date = StringField(id="frf-to-date", label='to')
 
+
 #  **************************************************************
 #  ****    /file-repository redirecting index
 #  *****************************************************************/
@@ -373,10 +374,12 @@ def filerepository_editdialog(uid):
         # ef_form.ef_recording_context.choices.extend([(t, t) for t in image_field_tables])
 
         ef_form.ef_description.data = img.get_value("description")
-        file_datetime = img.get_value("file_datetime")
-        file_datetime_tz = kioskdatetimelib.utc_ts_to_timezone_ts(file_datetime,
-                                                                 current_user.get_active_time_zone_name(iana=True))
-        ef_form.ef_file_datetime.data = kioskstdlib.latin_date(file_datetime_tz)
+
+        ef_form.ef_file_datetime.data = kioskstdlib.iso8601_to_str(img.get_value("file_datetime", default=None))
+        ef_form.ef_file_datetime_tz.tz_index = img.get_value("file_datetime_tz", default=None)
+        ef_form.ef_file_datetime_tz.data = kioskglobals.kiosk_time_zones.get_iana_time_zone(
+            ef_form.ef_file_datetime_tz.tz_index)
+
         ef_form.ef_tags.data = img.get_value("tags")
         ef_form.ef_export_filename.data = img.get_value("export_filename")
         authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
@@ -387,13 +390,22 @@ def filerepository_editdialog(uid):
             except BaseException as e:
                 pass
 
+        created = kioskstdlib.iso8601_to_str(img.get_value("created"))
+        created_tz = kioskglobals.kiosk_time_zones.get_iana_time_zone(img.get_value("created_tz", default=None))
+
+        modified = kioskstdlib.iso8601_to_str(img.get_value("modified"))
+        modified_tz = kioskglobals.kiosk_time_zones.get_iana_time_zone(img.get_value("modified_tz", default=None))
+
         representations = KioskRepresentations.get_representation_labels_and_ids(cfg)
         fullscreen_representation_id = cfg.file_repository["fullscreen_representation"]
-        print("\n*************** now rendering".format(uid))
-        print(f"[{img.get_indirect_contexts()}]")
+        # print("\n*************** now rendering".format(uid))
+        # print(f"[{img.get_indirect_contexts()}]")
         return render_template('editfiledialog.html',
                                title="edit file" if "modify data" in authorized_to else "view file",
-                               img=img, ef_form=ef_form,
+                               img=img,
+                               created=created, created_tz=created_tz,
+                               modified=modified, modified_tz=modified_tz,
+                               ef_form=ef_form,
                                authorized_to=authorized_to,
                                contexts=img.get_arch_identifier(),
                                fullscreen_representation_id=fullscreen_representation_id,
@@ -413,8 +425,10 @@ def filerepository_editdialog(uid):
                            msg="you do not have the necessary privileges to modify images and their data.")
 
         form_data = MultiDict(request.form)
-        if "ef_file_datetime" not in form_data.keys():
-            form_data["ef_file_datetime"] = kioskstdlib.latin_date(img.get_value("file_datetime"))
+        pprint(form_data)
+
+        # if "ef_file_datetime" not in form_data.keys():
+        #     form_data["ef_file_datetime"] = kioskstdlib.iso8601_to_str(img.get_value("file_datetime"))
 
         ef_form = ModalFileEditForm(file_repos, formdata=form_data)
 
@@ -432,15 +446,24 @@ def filerepository_editdialog(uid):
             rc = False
             try:
                 recording_user = current_user.repl_user_id if current_user.repl_user_id else current_user.user_id
-                file_datetime, msg = kioskstdlib.check_urap_date_time(ef_form.ef_file_datetime.data, True)
 
                 do_update = -1
                 if img.get_value("description") != ef_form.ef_description.data:
                     do_update = int(img.set_value("description", ef_form.ef_description.data))
+
+                file_datetime_tz = ef_form.ef_file_datetime_tz.data
+                file_datetime = kioskstdlib.str_to_iso8601(
+                    ef_form.ef_file_datetime.data) if ef_form.ef_file_datetime.data else None
                 img_file_datetime = img.get_value("file_datetime")
+
                 if do_update != 0 and img_file_datetime != file_datetime:
                     if img_file_datetime or file_datetime:  # they can have different kinds false values
-                        do_update = int(img.set_value("file_datetime", file_datetime))
+                        do_update = int(img.set_value("file_datetime_tz",
+                                                      kioskglobals.kiosk_time_zones.get_time_zone_index(
+                                                          file_datetime_tz)))
+                        if do_update != 0:
+                            do_update = int(img.set_value("file_datetime", file_datetime))
+
                 if do_update != 0:
                     if img.get_value("tags") != ef_form.ef_tags.data:
                         do_update = int(img.set_value("tags", ef_form.ef_tags.data))
@@ -449,7 +472,7 @@ def filerepository_editdialog(uid):
 
                 if do_update == 1:
                     logging.info(f"User {current_user.repl_user_id} modified image record {img.r['uid']}")
-                    rc = img.update(recording_user)
+                    rc = img.update(recording_user, current_user.get_active_tz_index())
                 elif do_update == -1:
                     rc = True
                 else:
@@ -466,6 +489,168 @@ def filerepository_editdialog(uid):
                 return jsonify(result="exception", msg=repr(e))
 
             return jsonify(result="ok")
+
+
+# #  **************************************************************
+# #  ****    edit image dialog
+# #  *****************************************************************/
+#
+# @filerepository.route('/editdialog/<uid>', methods=['GET', 'POST'])
+# @full_login_required
+# def filerepository_editdialog(uid):
+#     # todo: refactor. This is too long.
+#
+#     def get_latin_file_datetime(img):
+#         file_datetime_display, _ = kioskglobals.kiosk_time_zones.kiosk_timestamp_to_display_timestamp(
+#             img.get_value("file_datetime"),
+#             img.get_value("file_datetime_tz", default=None),
+#             current_user.get_active_time_zone_name(
+#                 iana=True))
+#         fd = kioskstdlib.latin_date(file_datetime_display)
+#         return fd
+#
+#     cfg = kioskglobals.cfg
+#     m_file_repos = ModelFileRepository(cfg, _plugin_name_)
+#     file_repos = FileRepository(kioskglobals.cfg,
+#                                 event_manager=None,
+#                                 type_repository=kioskglobals.type_repository,
+#                                 plugin_loader=current_app
+#                                 )
+#
+#     img = m_file_repos.get_image(uid)
+#     # reference_tables = [x[0] for x in file_repos.get_actual_file_references(uid)]
+#     # reference_tables_str = ", ".join(reference_tables)
+#     # image_field_tables = file_repos.get_file_field_tables()
+#     recorded_description = img.get_description_summary(include_image_description=False)
+#
+#     file_extension = "?"
+#     file_size = "?"
+#     try:
+#         ctx_file = file_repos.get_contextual_file(uid)
+#         if ctx_file:
+#             file_name = ctx_file.get()
+#             file_extension = kioskstdlib.get_file_extension(file_name)
+#             byte_size = kioskstdlib.get_file_size(file_name)
+#             file_size = kioskstdlib.byte_size_to_string(byte_size) if byte_size > 0 else "?"
+#     except BaseException as e:
+#         logging.error(f"filerepositorycontroller.filerepository_editdialog: "
+#                       f"Error when accessing file size of {file_name}: {repr(e)}. Byte_size is {byte_size}.")
+#
+#     if request.method == "GET":
+#         print("\n*************** Edit file dialog for image {} requested".format(uid))
+#         ef_form = ModalFileEditForm(file_repos)
+#         # ef_form.ef_recording_context.choices = [("", "")]
+#         # ef_form.ef_recording_context.choices.extend([(t, t) for t in image_field_tables])
+#
+#         ef_form.ef_description.data = img.get_value("description")
+#
+#         ef_form.ef_file_datetime.data = get_latin_file_datetime(img)
+#         ef_form.ef_tags.data = img.get_value("tags")
+#         ef_form.ef_export_filename.data = img.get_value("export_filename")
+#         authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
+#         read_only = request.args.get('read_only')
+#         if read_only:
+#             try:
+#                 authorized_to.remove("modify data")
+#             except BaseException as e:
+#                 pass
+#
+#         created = kioskglobals.kiosk_time_zones.get_recording_timestamp_with_time_zone(img.get_value("created"),
+#                                                                                        img.get_value("created_tz",
+#                                                                                                      default=None))
+#         modified = kioskglobals.kiosk_time_zones.get_recording_timestamp_with_time_zone(img.get_value("modified"),
+#                                                                                         img.get_value("modified_tz",
+#                                                                                                       default=None))
+#         representations = KioskRepresentations.get_representation_labels_and_ids(cfg)
+#         fullscreen_representation_id = cfg.file_repository["fullscreen_representation"]
+#         # print("\n*************** now rendering".format(uid))
+#         # print(f"[{img.get_indirect_contexts()}]")
+#         return render_template('editfiledialog.html',
+#                                title="edit file" if "modify data" in authorized_to else "view file",
+#                                img=img, created=created, modified=modified, ef_form=ef_form,
+#                                authorized_to=authorized_to,
+#                                contexts=img.get_arch_identifier(),
+#                                fullscreen_representation_id=fullscreen_representation_id,
+#                                recorded_description=recorded_description,
+#                                file_extension=file_extension,
+#                                file_size=file_size,
+#                                representations=representations,
+#                                )
+#
+#     elif request.method == "POST":
+#         print("\n*************** Edit file dialog for image {} sent".format(uid))
+#         # if the image record is connected to recording data not all form fields are present
+#         # so they need to be initialized with the current data before saving the image again.
+#         authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
+#         if "modify data" not in authorized_to:
+#             return jsonify(result="exception",
+#                            msg="you do not have the necessary privileges to modify images and their data.")
+#
+#         form_data = MultiDict(request.form)
+#         if "ef_file_datetime" not in form_data.keys():
+#             form_data["ef_file_datetime"] = get_latin_file_datetime(img)
+#
+#         ef_form = ModalFileEditForm(file_repos, formdata=form_data)
+#
+#         if not ef_form.validate():
+#             return jsonify(result=ef_form.errors)
+#         else:
+#             errors = validate_identifiers(img, form_data)
+#             if form_data["ef_export_filename"]:
+#                 uid_file = file_repos.export_filename_exists(form_data["ef_export_filename"])
+#                 if uid_file and uid != uid_file:
+#                     errors["ef_export_filename"] = ["This filename is already in use by another file."]
+#             if errors:
+#                 return jsonify(result=errors)
+#
+#             rc = False
+#             try:
+#                 recording_user = current_user.repl_user_id if current_user.repl_user_id else current_user.user_id
+#
+#                 do_update = -1
+#                 if img.get_value("description") != ef_form.ef_description.data:
+#                     do_update = int(img.set_value("description", ef_form.ef_description.data))
+#
+#                 current_tz = current_user.get_active_tz_index()
+#                 file_datetime, msg = kioskstdlib.check_urap_date_time(ef_form.ef_file_datetime.data, True)
+#                 file_datetime_utc, _ = kioskglobals.kiosk_time_zones.kiosk_timestamp_to_display_timestamp(
+#                     file_datetime,
+#                     current_tz,
+#                     target_tz="UTC")
+#
+#                 img_file_datetime = img.get_value("file_datetime").replace(tzinfo=None)
+#
+#                 if do_update != 0 and img_file_datetime != file_datetime_utc:
+#                     if img_file_datetime or file_datetime:  # they can have different kinds false values
+#                         do_update = int(img.set_value("file_datetime_tz", current_tz))
+#                         if do_update != 0:
+#                             do_update = int(img.set_value("file_datetime", file_datetime_utc))
+#
+#                 if do_update != 0:
+#                     if img.get_value("tags") != ef_form.ef_tags.data:
+#                         do_update = int(img.set_value("tags", ef_form.ef_tags.data))
+#                     if img.get_value("export_filename") != ef_form.ef_export_filename.data:
+#                         do_update = int(img.set_value("export_filename", ef_form.ef_export_filename.data))
+#
+#                 if do_update == 1:
+#                     logging.info(f"User {current_user.repl_user_id} modified image record {img.r['uid']}")
+#                     rc = img.update(recording_user)
+#                 elif do_update == -1:
+#                     rc = True
+#                 else:
+#                     rc = False
+#
+#                 if rc:
+#                     err_str = update_contexts(img, file_repos, form_data)
+#                     if err_str:
+#                         return jsonify(result={"ef-context-list": [err_str]})
+#                 else:
+#                     raise Exception("file data or context changes could not be saved.")
+#             except Exception as e:
+#                 logging.error("Exception in repository_edit_dialog: " + repr(e))
+#                 return jsonify(result="exception", msg=repr(e))
+#
+#             return jsonify(result="ok")
 
 
 def validate_identifiers(img: FileRepositoryFile, form_data: dict) -> dict:

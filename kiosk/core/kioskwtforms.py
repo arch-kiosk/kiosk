@@ -221,7 +221,7 @@ class KioskLabeledPrettyCheckboxFieldWidget(wtforms.widgets.Input):
 @kiosk_wtforms_widget
 class KioskLabeledBooleanFieldWidget(wtforms.widgets.Input):
     """
-    Render a basic checkbox field with a a label
+    Render a basic checkbox field with a label
 
     """
     html_params = staticmethod(html_params)
@@ -357,6 +357,55 @@ class KioskLabeledSelectFieldWidget(wtforms.widgets.Select, KioskWtFormsFieldExt
 
         return Markup(f'<label {self.html_params(**label_kwargs)}>'
                       f'{label_text}</label>') + markup_super
+
+
+@kiosk_wtforms_widget
+class KioskDateTimeTzFieldWidget(wtforms.widgets.TextInput):
+    """
+    An ordinary StringField, but with data-utc-date and data-tz instead of value
+    """
+
+    def __call__(self, field, **kwargs):
+        kwargs.setdefault('id', field.id)
+        kwargs.setdefault('type', self.input_type)
+        kwargs["data-utc-date"] = field.data
+        kwargs["value"] = ""
+
+        markup_super = super().__call__(field, **kwargs)
+        return markup_super
+
+
+@kiosk_wtforms_field
+class KioskDateTimeTzField(StringField, KioskWtFormsFieldExtras):
+    widget = KioskDateTimeTzFieldWidget()
+
+    def __init__(self, *args, **kwargs):
+        self.init_kiosk_field(args, kwargs)
+        super().__init__(*args, **kwargs)
+
+
+@kiosk_wtforms_widget
+class KioskTzFieldWidget(wtforms.widgets.HiddenInput):
+    """
+    An ordinary hidden input field with an additional attribute "data-tz-index"
+    """
+
+    def __call__(self, field, **kwargs):
+        kwargs.setdefault('id', field.id)
+        kwargs.setdefault('type', self.input_type)
+        kwargs["data-tz-index"] = field.tz_index if hasattr(field, "tz_index") else ""
+
+        markup_super = super().__call__(field, **kwargs)
+        return markup_super
+
+
+@kiosk_wtforms_field
+class KioskTzField(StringField, KioskWtFormsFieldExtras):
+    widget = KioskTzFieldWidget()
+
+    def __init__(self, *args, **kwargs):
+        self.init_kiosk_field(args, kwargs)
+        super().__init__(*args, **kwargs)
 
 
 @kiosk_wtforms_field
