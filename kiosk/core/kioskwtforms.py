@@ -360,6 +360,52 @@ class KioskLabeledSelectFieldWidget(wtforms.widgets.Select, KioskWtFormsFieldExt
 
 
 @kiosk_wtforms_widget
+class KioskTimeZoneSelectorFieldWidget(wtforms.widgets.Input, KioskWtFormsFieldExtras):
+    """
+    Render a kiosk-tz-combo-box field with a label
+
+    """
+    html_params = staticmethod(html_params)
+
+    input_type = 'text'
+
+    def __call__(self, field, **kwargs):
+
+        kwargs.setdefault('id', field.id)
+        kwargs.setdefault('type', self.input_type)
+        kwargs.setdefault('value', field.data)
+
+        if field.label.text:
+            label_text = field.label.text
+        else:
+            label_text = field.name
+
+        label_kwargs = {'for': field.id}
+        if 'labelclass' in kwargs:
+            label_kwargs['class'] = kwargs.pop('labelclass')
+            # kwargs = {key: kwargs[key] for key in kwargs.keys() if key != 'labelclass'}
+
+        if field.errors and 'errclass' in kwargs:
+            if 'class' not in label_kwargs:
+                label_kwargs['class'] = kwargs['errclass']
+            else:
+                label_kwargs['class'] = label_kwargs['class'] + " " + kwargs['errclass']
+
+        rc = Markup(f'<label {self.html_params(**label_kwargs)}>{label_text}</label>'
+                      f'<kiosk-tz-combo-box {self.html_params(name=field.name, **kwargs)}></kiosk-tz-combo-box>')
+        return rc
+
+
+@kiosk_wtforms_field
+class KioskTimeZoneSelectorField(StringField, KioskWtFormsFieldExtras):
+    widget = KioskTimeZoneSelectorFieldWidget()
+
+    def __init__(self, *args, **kwargs):
+        self.init_kiosk_field(args, kwargs)
+        super().__init__(*args, **kwargs)
+
+
+@kiosk_wtforms_widget
 class KioskDateTimeTzFieldWidget(wtforms.widgets.TextInput):
     """
     An ordinary StringField, but with data-utc-date and data-tz instead of value

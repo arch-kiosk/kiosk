@@ -212,10 +212,13 @@ def local_time_offset(t=None):
 
 def local_time_offset_str(gmt_time_zone: str = "") -> str:
     """
+    ! deprecated !
+
     :param gmt_time_zone: a string consisting of hour and minute like "12" or "12:00" or "-12:00".
                           "GMT+12:00" is also accepted, as is "UTC+12:00"
     :returns: str of the format {-}00:00:00
     """
+    logging.warning(f"kioskdatetimelib.local_time_offset_str: call to this function is deprecated.")
     mm = 0
     if gmt_time_zone:
         try:

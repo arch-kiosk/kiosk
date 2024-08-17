@@ -222,6 +222,12 @@ class KioskAppFactory(AppFactory):
         assert os.path.isdir(root_path)
 
         plugin_manager = cls._before_app_creation(config_file=config_file, root_path=root_path)
+        tz = KioskSQLDb.get_default_time_zone()
+        if tz != "UTC":
+            raise Exception(f"The default time zone setting for PostgreSQL is currently {tz}. "
+                            f"It must be UTC to run Kiosk. "
+                            "Please make sure that either the environment variable 'PGTZ' is set to 'UTC' or "
+                            "that PostgreSQL is configured to use UTC as the default time zone.")
         #
         # Create the actual app object
         #

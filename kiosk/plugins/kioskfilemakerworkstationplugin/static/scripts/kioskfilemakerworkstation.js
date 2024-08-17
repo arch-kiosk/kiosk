@@ -15,7 +15,16 @@ function confirmPage() {
 }
 
 function submitPage() {
-  document.getElementById("new-workstation-form").submit();
+  const form = document.getElementById("new-workstation-form")
+  const timeZone = document.getElementById("time-zone-index").value
+  if (timeZone && timeZone !== "") {
+    const hidden = document.createElement("input")
+    hidden.setAttribute("name", "time_zone_index")
+    hidden.setAttribute("value", timeZone)
+    hidden.setAttribute("type", "hidden")
+    form.appendChild(hidden)
+  }
+  form.submit();
 }
 
 function cancelPage(event) {

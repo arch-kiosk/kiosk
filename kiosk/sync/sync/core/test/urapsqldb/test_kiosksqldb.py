@@ -129,3 +129,6 @@ class TestKioskSQLDb(KioskPyTestHelper):
         assert KioskSQLDb.get_first_record_from_sql("select '2023-08-01 16:06:01.000000 +00:00'::timestamptz"
                                                     "")[0] == datetime.datetime(2023, 8, 1, 16, 6, 1,
                                                                                 tzinfo=datetime.timezone.utc)
+
+    def test_get_default_time_zone(self, cfg):
+        assert KioskSQLDb.get_default_time_zone() == "UTC"

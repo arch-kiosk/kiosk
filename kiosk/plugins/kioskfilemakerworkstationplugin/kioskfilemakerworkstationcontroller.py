@@ -164,7 +164,7 @@ def create_filemaker_workstation(form: KioskFileMakerWorkstationForm, general_er
             job.job_data = {"workstation_id": kioskstdlib.delete_any_of(workstation_id, " *%\"'"),
                             "description": form.description.data,
                             "recording_group": form.recording_group.data,
-                            "gmt_time_zone": form.gmt_time_zone.data,
+                            "time_zone_index": form.time_zone_index.data,
                             "grant_access_to": form.grant_access_to.data,
                             "options": form.options.data
                             }
@@ -895,7 +895,7 @@ def kfw_edit(ws_id):
             if not general_errors:
                 sync_ws.description = kfw_form.description.data
                 sync_ws.recording_group = kfw_form.recording_group.data
-                sync_ws.gmt_time_zone = kfw_form.gmt_time_zone.data
+                sync_ws.time_zone_index = kfw_form.time_zone_index.data
                 sync_ws.grant_access_to = kfw_form.grant_access_to.data
                 sync_ws.options = kfw_form.options.data
                 if sync_ws.save():
@@ -907,7 +907,7 @@ def kfw_edit(ws_id):
             kfw_form.recording_group.data = sync_ws.recording_group
             kfw_form.workstation_id.data = sync_ws.get_id()
             kfw_form.description.data = sync_ws.description
-            kfw_form.gmt_time_zone.data = sync_ws.gmt_time_zone
+            kfw_form.time_zone_index.data = sync_ws.time_zone_index
             kfw_form.grant_access_to.data = sync_ws.grant_access_to
             kfw_form.options.data = sync_ws.options
 

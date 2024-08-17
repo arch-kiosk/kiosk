@@ -1,4 +1,5 @@
 import logging
+import textwrap
 from typing import List
 
 from werkzeug import datastructures
@@ -192,9 +193,25 @@ class KioskFileMakerWorkstation(KioskWorkstation):
     @property
     def description(self):
         if self._sync_ws:
-            return self._sync_ws.get_description_with_timezone_info()
+            return self.get_description_with_timezone_info()
         else:
             return ""
+
+    def get_description_with_timezone_info(self):
+        """
+            returns the workstation's description and adds an info about the timezone if any (a string)
+            :returns
+                workstation description (String)
+        """
+
+        result = self._sync_ws.description
+        if self._sync_ws.time_zone_index:
+            time_zone = kioskglobals.kiosk_time_zones.get_time_zone_info(self._sync_ws.time_zone_index)
+            if time_zone:
+                result += f"\n({textwrap.shorten(time_zone[1],width=30,placeholder='...')})"
+            else:
+                result += f" (invalid time zone)"
+        return result
 
     @property
     def download_upload_status(self):
@@ -266,13 +283,13 @@ class KioskFileMakerWorkstation(KioskWorkstation):
     def sync_ws(self):
         return self._sync_ws
 
-    def create_workstation(self, ws_name, recording_group, gmt_time_zone: str = "",
+    def create_workstation(self, ws_name, recording_group, time_zone_index: int = None,
                            options: str = "", grant_access_to: str = "") -> bool:
         """
         creates a FileMakerWorkstation by creating the corresponding FileMakerWorkstation class of the sync subsystem
         :param ws_name:  the workstation's description
         :param recording_group:  the workstation's recording group
-        :param gmt_time_zone: the workstation's time zone or empty
+        :param time_zone_index: the workstation's time zone or None
         :param options: special options for the workstation. A ;-separated string
         :param grant_access_to: empty string or a user-id the workstation will be restricted to
         :return: True if the workstation was successfully created and loaded.
@@ -282,7 +299,7 @@ class KioskFileMakerWorkstation(KioskWorkstation):
             self.sync = Synchronization()
 
         ws = self.sync.create_workstation("FileMakerWorkstation", self._id, ws_name, recording_group=recording_group)
-        ws.gmt_time_zone = gmt_time_zone
+        ws.time_zone_index = time_zone_index
         ws.options = options
         ws.grant_access_to = grant_access_to
         if ws:

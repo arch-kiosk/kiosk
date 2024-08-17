@@ -382,6 +382,15 @@ form {
   margin-top: 2px;
 }
 
+#recording-group-dropdown {
+  height: 24px;
+  width: 21px;
+}
+
+kiosk-tz-combo-box {
+  --col-bg-2: var(--col-bg-btn);
+}
+
 #filemaker-workstation-actions-dialog {
   max-width: 700px;
 }

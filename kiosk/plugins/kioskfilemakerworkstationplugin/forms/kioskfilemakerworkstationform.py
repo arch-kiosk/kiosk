@@ -2,8 +2,10 @@ from flask_wtf import FlaskForm
 
 from wtforms.fields import HiddenField
 from wtforms.validators import DataRequired, Length, ValidationError
+
+import kioskglobals
 from core.kioskwtforms import KioskLabeledBooleanField, KioskStringField, \
-    KioskLabeledStringField, KioskGeneralFormErrors, KioskLabeledSelectField
+    KioskLabeledStringField, KioskGeneralFormErrors, KioskLabeledSelectField, KioskTimeZoneSelectorField
 from kioskdatetimelib import local_time_offset_str
 
 
@@ -30,7 +32,7 @@ class KioskFileMakerWorkstationForm(FlaskForm, KioskGeneralFormErrors):
                                                       "A recording group is mandatory")]
                                               )
     grant_access_to = KioskLabeledStringField(label="grant access to")
-    gmt_time_zone = KioskLabeledStringField(label="time zone")
+    time_zone_index = KioskTimeZoneSelectorField(label="time zone")
 
     options = KioskLabeledStringField(label="workstation options")
 
@@ -39,10 +41,7 @@ class KioskFileMakerWorkstationForm(FlaskForm, KioskGeneralFormErrors):
         if mode == "edit":
             self.workstation_id.render_kw = {'disabled': ''}
 
-    def validate_gmt_time_zone(self, field):
+    def validate_time_zone_index(self, field):
         if field.data:
-            try:
-                offset = local_time_offset_str(field.data)
-            except:
-                raise ValidationError(f"That is not a valid time zone. "
-                                      f"You want something like GMT+1 or UTC-2 if at all. ")
+            if not kioskglobals.kiosk_time_zones.get_time_zone_info(int(field.data)):
+                raise ValidationError(f"That is not a valid time zone. Please select a valid time zone from the list.")

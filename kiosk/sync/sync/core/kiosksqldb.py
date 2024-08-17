@@ -1116,3 +1116,12 @@ class KioskSQLDb(SqlSafeIdentMixin):
             psycopg2.sql.SQL("CREATE SCHEMA IF NOT EXISTS {0}").format(psycopg2.sql.Identifier(namespace)))
         if commit:
             cls.commit()
+
+    @classmethod
+    def get_default_time_zone(cls):
+        """
+        returns the default time zone setting of the current session (or PostgreSQL in general) as uppercase.
+        :return: uppercase default time zone
+        """
+        r = cls.get_records("show time zone")[0]
+        return r[0].upper()

@@ -50,7 +50,7 @@ class Dock:
         self._db_namespace = workstation_id.lower()
         self._sync = sync
         self.recording_group = ""
-        self.gmt_time_zone = ""
+        self.time_zone_index = ""
         self.grant_access_to = ""
 
         try:
@@ -167,14 +167,15 @@ class Dock:
         if cur:
             try:
                 cur.execute(
-                    f'select ' + f'description, state, recording_group, gmt_time_zone, grant_access_to from "repl_workstation" '
+                    f'select ' + f'description, state, recording_group, time_zone_index, '
+                                 f'grant_access_to from "repl_workstation" '
                                  f'where id=%s;',
                     [self._id])
                 r = cur.fetchone()
                 if r is not None:
                     self.description = r[0]
                     self.recording_group = r[2]
-                    self.gmt_time_zone = r[3]
+                    self.time_zone_index = r[3]
                     self.grant_access_to = r[4] if r[4] else "*"
                     state = self.get_state_from_code(r[1])
                     self.state_machine.set_initial_state(state)
@@ -284,7 +285,7 @@ class Dock:
 
                 cur.execute("DELETE " + "FROM \"repl_workstation\" where \"id\" = %s", [self._id])
                 sql = "INSERT " + "INTO \"repl_workstation\"(\"id\",\"description\",\"recording_group\", \"state\", " \
-                                  "\"workstation_type\", \"gmt_time_zone\", \"grant_access_to\") " \
+                                  "\"workstation_type\", \"time_zone_index\", \"grant_access_to\") " \
                                   "VALUES(%s, %s, %s, %s, %s, %s, %s)"
 
                 cur.execute(sql, [self._id,
@@ -292,7 +293,7 @@ class Dock:
                                   self.recording_group,
                                   self.get_code_from_state("IDLE"),
                                   self.get_workstation_type(),
-                                  self.gmt_time_zone,
+                                  self.time_zone_index,
                                   self.grant_access_to])
                 KioskSQLDb.commit()
                 self.state_machine.set_initial_state("IDLE")
@@ -349,10 +350,10 @@ class Dock:
                 self._on_update_workstation(cur)
 
                 sql = f"\"repl_workstation\" set \"description\"=%s, \"recording_group\"=%s, " \
-                      f"\"gmt_time_zone\"=%s, \"grant_access_to\"=%s where \"id\"=%s"
+                      f"\"time_zone_index\"=%s, \"grant_access_to\"=%s where \"id\"=%s"
 
                 cur.execute("Update " + sql, [self.description, self.recording_group,
-                                              self.gmt_time_zone, self.grant_access_to,
+                                              self.time_zone_index, self.grant_access_to,
                                               self._id])
                 KioskSQLDb.commit()
 
@@ -497,15 +498,6 @@ class Dock:
                 workstation description (String)
         """
         return self.description
-
-    def get_description_with_timezone_info(self):
-        """
-            returns the workstation's description and adds an info about the timezone if any (a string)
-            :returns
-                workstation description (String)
-        """
-
-        return self.description + (f" ({self.gmt_time_zone})" if self.gmt_time_zone else "")
 
     def get_available_transitions(self) -> [str]:
         """ returns a list of available transitions relative to the workstation's current state.

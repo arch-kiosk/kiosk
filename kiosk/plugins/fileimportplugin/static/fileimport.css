@@ -498,7 +498,7 @@ button:disabled, .upload-btn:disabled {
 html {
   font-family: var(--standard-text-font);
   font-size: var(--font-size-standard, 1rem);
-  line-height: 1.5em;
+  line-height: 1.5;
 }
 
 body {

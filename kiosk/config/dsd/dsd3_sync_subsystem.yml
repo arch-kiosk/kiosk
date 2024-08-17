@@ -60,6 +60,18 @@ repl_file_picking_rules:
 
 repl_workstation:
   structure:
+    6:
+      id: ["datatype(VARCHAR, 20)", primary()]
+      workstation_type: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      state: [datatype(SMALLINT), default(0), not_null()]
+      uid: [datatype(UUID), default('gen_random_uuid()'), not_null()]
+      fork_time: [datatype(TIMESTAMP)]
+      fork_sync_time: [datatype(TIMESTAMP)]
+      dsd_version: [datatype(VARCHAR)]
+      recording_group: [datatype(VARCHAR)]
+      time_zone_index: [datatype(INTEGER)]
+      grant_access_to: [datatype(VARCHAR), default("'*'")]
     5:
       id: ["datatype(VARCHAR, 20)", primary()]
       workstation_type: [datatype(VARCHAR)]
@@ -112,6 +124,10 @@ repl_workstation:
       dsd_version: [datatype(VARCHAR)]
       file_handling: [datatype(VARCHAR)]
   migration:
+    6:
+      upgrade:
+        - add("time_zone_index")
+        - drop("gmt_time_zone")
     5:
       upgrade:
         - add("grant_access_to")
