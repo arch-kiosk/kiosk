@@ -48,7 +48,11 @@
           {% endfor %}
         </datalist>
 {#        <kiosk-tz-combo-box class="kiosk-dialog-selectfield" id="popup-tz-combo-box" ></kiosk-tz-combo-box>#}
-        {{ new_fm_ws_form.time_zone_index(class="kiosk-dialog-textfield",
+        {{ new_fm_ws_form.user_time_zone_index(class="kiosk-dialog-textfield",
+                          labelclass="kiosk-dialog-label",
+                          errclass="kiosk-error-border",
+                          placeholder="leave empty or select a time zone") }}
+        {{ new_fm_ws_form.recording_time_zone_index(class="kiosk-dialog-textfield",
                           labelclass="kiosk-dialog-label",
                           errclass="kiosk-error-border",
                           placeholder="leave empty or select a time zone") }}

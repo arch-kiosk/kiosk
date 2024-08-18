@@ -13,8 +13,8 @@ class KioskFileMakerWorkstationForm(FlaskForm, KioskGeneralFormErrors):
     page_initialized = HiddenField()
     workstation_id = KioskLabeledStringField(label="unique workstation id",
                                              validators=[Length(min=3, max=20, message="Please enter a workstation id "
-                                                                               "with at least 3 and not more "
-                                                                               "than 20 characters"),
+                                                                                       "with at least 3 and not more "
+                                                                                       "than 20 characters"),
                                                          DataRequired(
                                                              "A workstation id is really required")],
 
@@ -32,7 +32,8 @@ class KioskFileMakerWorkstationForm(FlaskForm, KioskGeneralFormErrors):
                                                       "A recording group is mandatory")]
                                               )
     grant_access_to = KioskLabeledStringField(label="grant access to")
-    time_zone_index = KioskTimeZoneSelectorField(label="time zone")
+    user_time_zone_index = KioskTimeZoneSelectorField(label="user's time zone")
+    recording_time_zone_index = KioskTimeZoneSelectorField(label="time zone of recorded data")
 
     options = KioskLabeledStringField(label="workstation options")
 
@@ -41,7 +42,14 @@ class KioskFileMakerWorkstationForm(FlaskForm, KioskGeneralFormErrors):
         if mode == "edit":
             self.workstation_id.render_kw = {'disabled': ''}
 
-    def validate_time_zone_index(self, field):
+    def validate_user_time_zone_index(self, field):
         if field.data:
             if not kioskglobals.kiosk_time_zones.get_time_zone_info(int(field.data)):
-                raise ValidationError(f"That is not a valid time zone. Please select a valid time zone from the list.")
+                raise ValidationError(f"The users's time zone is not a valid time zone. "
+                                      f"Please select something valid from the list.")
+
+    def validate_recording_time_zone_index(self, field):
+        if field.data:
+            if not kioskglobals.kiosk_time_zones.get_time_zone_info(int(field.data)):
+                raise ValidationError(f"The time zone for the recording data is not a valid time zone. "
+                                      f"Please select something valid from the list.")

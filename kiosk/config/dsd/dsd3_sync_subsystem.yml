@@ -70,7 +70,8 @@ repl_workstation:
       fork_sync_time: [datatype(TIMESTAMP)]
       dsd_version: [datatype(VARCHAR)]
       recording_group: [datatype(VARCHAR)]
-      time_zone_index: [datatype(INTEGER)]
+      user_time_zone_index: [datatype(INTEGER)]
+      recording_time_zone_index: [datatype(INTEGER)]
       grant_access_to: [datatype(VARCHAR), default("'*'")]
     5:
       id: ["datatype(VARCHAR, 20)", primary()]
@@ -126,7 +127,8 @@ repl_workstation:
   migration:
     6:
       upgrade:
-        - add("time_zone_index")
+        - add("recording_time_zone_index")
+        - add("user_time_zone_index")
         - drop("gmt_time_zone")
     5:
       upgrade:

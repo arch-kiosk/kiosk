@@ -1045,7 +1045,7 @@ class FileMakerWorkstation(RecordingWorkstation):
         if rc:
             rc = fm.set_constant("developer_mode", "false")
         if rc:
-            if self.time_zone_index:
+            if self.user_time_zone_index:
                 raise NotImplementedError("filemaker needs a new time zone constant")
                 time_offset_str = kioskstdlib.local_time_offset_str(self.gmt_time_zone)
                 if time_offset_str:

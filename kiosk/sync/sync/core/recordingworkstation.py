@@ -165,7 +165,7 @@ class RecordingWorkstation(Dock):
 
         """
         if not get_file_handling_set(recording_group):
-            logging.error(f"{self.__class__.__name__}._update: Cannot update RecordingWorkstation "
+            logging.error(f"{self.__class__.__name__}.set_recording_group: Cannot update RecordingWorkstation "
                           f"because there is no file handling set defined"
                           f" for recording group {self.recording_group}")
             return False

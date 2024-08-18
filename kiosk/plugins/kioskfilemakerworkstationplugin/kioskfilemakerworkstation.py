@@ -205,13 +205,23 @@ class KioskFileMakerWorkstation(KioskWorkstation):
         """
 
         result = self._sync_ws.description
-        if self._sync_ws.time_zone_index:
-            time_zone = kioskglobals.kiosk_time_zones.get_time_zone_info(self._sync_ws.time_zone_index)
+        time_zone_info = ""
+        if self._sync_ws.user_time_zone_index:
+            time_zone = kioskglobals.kiosk_time_zones.get_time_zone_info(self._sync_ws.user_time_zone_index)
             if time_zone:
-                result += f"\n({textwrap.shorten(time_zone[1],width=30,placeholder='...')})"
+                time_zone_info = f"\n({textwrap.shorten(time_zone[1],width=30,placeholder='...')})"
             else:
-                result += f" (invalid time zone)"
-        return result
+                time_zone_info = f" (invalid time zone)"
+
+        if self._sync_ws.recording_time_zone_index:
+            time_zone = kioskglobals.kiosk_time_zones.get_time_zone_info(self._sync_ws.recording_time_zone_index)
+            if time_zone:
+                time_zone_info_2 = f"\n({textwrap.shorten(time_zone[1],width=30,placeholder='...')})"
+            else:
+                time_zone_info_2 = f" (invalid time zone)"
+            time_zone_info += ("/" + time_zone_info_2) if time_zone_info else time_zone_info_2
+
+        return result + time_zone_info
 
     @property
     def download_upload_status(self):
@@ -283,15 +293,17 @@ class KioskFileMakerWorkstation(KioskWorkstation):
     def sync_ws(self):
         return self._sync_ws
 
-    def create_workstation(self, ws_name, recording_group, time_zone_index: int = None,
-                           options: str = "", grant_access_to: str = "") -> bool:
+    def create_workstation(self, ws_name, recording_group, user_time_zone_index: int = None,
+                           options: str = "", grant_access_to: str = "",
+                           recording_time_zone_index: int = None) -> bool:
         """
         creates a FileMakerWorkstation by creating the corresponding FileMakerWorkstation class of the sync subsystem
         :param ws_name:  the workstation's description
         :param recording_group:  the workstation's recording group
-        :param time_zone_index: the workstation's time zone or None
+        :param user_time_zone_index: the workstation's time zone or None
         :param options: special options for the workstation. A ;-separated string
         :param grant_access_to: empty string or a user-id the workstation will be restricted to
+        :param recording_time_zone_index: the recording time zone index if any
         :return: True if the workstation was successfully created and loaded.
                  Raises Exceptions on failure
         """
@@ -299,7 +311,8 @@ class KioskFileMakerWorkstation(KioskWorkstation):
             self.sync = Synchronization()
 
         ws = self.sync.create_workstation("FileMakerWorkstation", self._id, ws_name, recording_group=recording_group)
-        ws.time_zone_index = time_zone_index
+        ws.user_time_zone_index = user_time_zone_index
+        ws.recording_time_zone_index = recording_time_zone_index
         ws.options = options
         ws.grant_access_to = grant_access_to
         if ws:
