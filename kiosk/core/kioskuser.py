@@ -325,6 +325,16 @@ class KioskUser(UserMixin):
         """
         return self.recording_tz_index
 
+    def get_active_recording_tz_index(self):
+        """
+        returns the tz index that is set to be used for recording data (archaeological data).
+        If nothing explicit is set here the active user tz_index is returned.
+        !Needs an active request object in Flask
+
+        :return: the tz index
+        """
+        return self.recording_tz_index if self.recording_tz_index else self.get_active_tz_index()
+
     def get_active_time_zone_name(self, iana=False):
         """
         returns the user's currently active time zone in Kiosk.

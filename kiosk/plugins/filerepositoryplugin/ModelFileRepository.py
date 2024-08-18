@@ -239,6 +239,8 @@ class FileRepositoryFile:
         """
         todo: This is really not great because it sidestep KioskContextualFile!
         :param modified_by:
+        :param user_time_zone_index: the user's time zone index (don't use recordig time zone because this is being used
+                                     only for the modified field)
         :return:
         """
         if not self.r or not self.r["uid"]:

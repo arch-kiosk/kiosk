@@ -764,7 +764,7 @@ function onEFDialogOk() {
   let formData = $("#ef-form").serializeArray();
   setJSONFormData(formData, "ef_file_datetime", fdt)
   if (fdt !== document.getElementById("ef-file-datetime").dataset.utcDate) {
-    setJSONFormData(formData, "ef_file_datetime_tz", getCookie("kiosk_iana_time_zone"))
+    setJSONFormData(formData, "ef_file_datetime_tz", KioskDateTime.getActiveRecordingTimeZone().ianaName)
   }
   console.log(formData)
   let droppedContextMarkers = $("#ef-context-list").find(".drop-context-marker");

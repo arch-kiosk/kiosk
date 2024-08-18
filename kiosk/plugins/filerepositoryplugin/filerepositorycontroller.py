@@ -422,7 +422,7 @@ def filerepository_editdialog(uid):
         authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
         if "modify data" not in authorized_to:
             return jsonify(result="exception",
-                           msg="you do not have the necessary privileges to modify images and their data.")
+                           msg="you do not have the necessary privileges to modify images or related data.")
 
         form_data = MultiDict(request.form)
         pprint(form_data)
