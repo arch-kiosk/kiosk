@@ -13,8 +13,8 @@
     margin-right: 0px
 
 #system-messages
-  //background-color: $color-background-light
-  //padding: 10px
+//background-color: $color-background-light
+//padding: 10px
 
 .system-message
   border-style: solid
@@ -27,6 +27,7 @@
     font-family: $headline-text
     font-weight: bold
     line-height: 2em
+
   .message-body
     font-family: $standard-text
 
@@ -51,6 +52,7 @@
   background: $col-bg-alert-gradient
   border-color: $col-bg-alert-darker
   color: $col-primary-bg-alert
+
   .message-headline
     color: $col-accent-bg-alert
 
@@ -58,6 +60,7 @@
   background: $col-bg-att-gradient
   border-color: $col-bg-att-darker
   color: $col-primary-bg-att
+
   .message-headline
     color: $col-accent-bg-att
 
@@ -65,6 +68,7 @@
   background: $col-bg-ack-gradient
   border-color: $col-bg-ack-darker
   color: $col-primary-bg-ack
+
   .message-headline
     color: $col-accent-bg-ack
 
@@ -84,6 +88,7 @@
   background-color: $col-bg-1
   @media #{$screen-max-600}
     display: block
+
 #logogroup
   border: 0px
   display: flex
@@ -188,6 +193,7 @@
   opacity: .06
   @media #{$screen-max-600}
     display: none
+
 #subtitle
   position: relative
   bottom: 0
@@ -237,6 +243,8 @@
     padding-top: 5px
 
   /* Change the background color of the dropdown button when the dropdown content is shown */
+
+
   .dropbtn
     background-color: #3e8e41
 
@@ -247,7 +255,7 @@
   background-color: $col-bg-1
   min-width: 250px
   margin-left: -230px
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2)
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2)
   z-index: 10
 
   a
@@ -255,6 +263,7 @@
     padding: 12px 16px
     display: block
     font-size: 1.2em
+
     &:hover
       background-color: $col-bg-1-lighter
 
@@ -274,13 +283,14 @@
   align-items: center
   margin-top: .7em
   font-family: $main-headline-text
-  max-height: 80px
+  max-height: 82px
   overflow-y: hidden
   height: 100%
   //width: 96px
   //padding-right: 20px
   @media #{$screen-phone-portrait}
     font-size: $font-small
+
   #current-user-image
     //position: absolute
     background-image: $current-user-image
@@ -299,6 +309,7 @@
     @media #{$screen-phone-portrait}
       width: 36px
       height: 36px
+
   p
     display: block
     text-align: center
@@ -311,17 +322,31 @@
     z-index: 1
     transition: all 500ms ease
     line-height: 1em
-    &:nth-child(3)
-      font-weight: normal
-      font-size: 8pt
+  //&:nth-child(3)
   &:hover
     cursor: context-menu
+
   &:active
     cursor: context-menu
     border-radius: 42px
+
     p
       background-color: $col-bg-att
       color: $col-primary-bg-att
+
+  .time-zone-indicator
+    vertical-align: middle
+    padding: 2px
+    font-weight: normal
+    font-size: 8pt
+    min-height: 1em
+
+    i
+      margin-right: 4px
+  .time-zone-indicator:last-child
+    margin-top: 2px
+
+
 .time-zone-forced
   background-color: $col-bg-alert
   color: $col-accent-bg-alert
@@ -335,16 +360,21 @@
 .main-menu-separator
   background-color: $col-accent-bg-1
   height: 2px
-  //margin: 15px 1em
+//margin: 15px 1em
 
 .main-menu-sub-menus
   background-color: $col-bg-2
 
 .warning-time-zone-differs
+  display: inline-flex
+  align-items: center
   background-color: $col-bg-alert
   color: $col-primary-bg-alert
   font-size: 10px
   padding: .5em
+
+
   i
     font-size: 18px
     padding-right: .5em
+

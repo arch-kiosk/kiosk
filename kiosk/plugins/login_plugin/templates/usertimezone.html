@@ -10,109 +10,132 @@
 {% block kiosk_modal_dialog_name %}Time Zone Settings{% endblock %}
 {% block kiosk_modal_dialog_image %}
     <div class="dialog-image img-user-profile" style="position:relative; margin-top:0px"></div>
-{#  <i class="fas fa-tags header-icon"></i>#}
+    {#  <i class="fas fa-tags header-icon"></i>#}
 {% endblock %}{% block kiosk_modal_dialog_content %}
 
-<div id="mfp-user-time-zone-dialog" class="dialog mfp-with-anim">
-    {#    <script src="{{ url_for('static', filename='scripts/kioskuicomponents.js') }}" type="module"></script>#}
-    {#    <script src="{{ url_for('static', filename='scripts/kioskapplib/kioskprodstarter.js') }}" type="module"></script>#}
-    {#    <script src="{{ url_for('static', filename='scripts/kioskapplib/prodkioskapi.js') }}" type="module"></script>;#}
+    <div id="mfp-user-time-zone-dialog" class="dialog mfp-with-anim">
+        {#    <script src="{{ url_for('static', filename='scripts/kioskuicomponents.js') }}" type="module"></script>#}
+        {#    <script src="{{ url_for('static', filename='scripts/kioskapplib/kioskprodstarter.js') }}" type="module"></script>#}
+        {#    <script src="{{ url_for('static', filename='scripts/kioskapplib/prodkioskapi.js') }}" type="module"></script>;#}
 
-{#    <div class="dialog-inner">#}
-{#        <div class="dialog-header">#}
-{#            <div class="dialog-image img-user-profile"></div>#}
-{#            <div class="dialog-name"><h3>User Time Zone Settings</h3></div>#}
-{#        </div>#}
+        {#    <div class="dialog-inner">#}
+        {#        <div class="dialog-header">#}
+        {#            <div class="dialog-image img-user-profile"></div>#}
+        {#            <div class="dialog-name"><h3>User Time Zone Settings</h3></div>#}
+        {#        </div>#}
         <div id="content-wrapper">
             <div id="mtz-outer-wrapper">
                 <div id="dialog-alert"></div>
                 {#                <form id="mtz-form" autocomplete="off"#}
                 {#                      action="{{ url_for('login_controller.manage_time_zone', uuid=form.user_uuid.data) }}">#}
                 {#                    {{ form.hidden_tag() }}#}
-                <div class="dialog-radio-div">
-                    <input type="radio" id="mtz-auto-tz" name="mtz-tz-mode"
-                           value="mtz-auto-tz" {{ "checked" if not user.force_tz_index else None }}/>
-                    <label for="mtz-auto-tz">use operating system time zone</label>
-                </div>
-                <div class="mtz-client-tz">(currently {{ client_tz_name }})</div>
-                <div class="dialog-radio-div">
-                    <input type="radio" id="mtz-force-tz" name="mtz-tz-mode"
-                           value="mtz-force-tz" {{ "checked" if user.force_tz_index else None }}/>
-                    <label for="mtz-force-tz">always use this time zone</label>
-                </div>
                 <div>
-                    <kiosk-tz-combo-box id="popup-tz-combo-box" value={{ user.force_tz_index }}></kiosk-tz-combo-box>
+                    <p class="sub-heading"><i class="fas fa-location-dot"></i>in which time zone are you?</p>
+                    <div class="dialog-radio-div">
+                        <input type="radio" id="mtz-auto-tz" name="mtz-tz-mode"
+                               value="mtz-auto-tz" {{ "checked" if not user.force_tz_index else None }}/>
+                        <label for="mtz-auto-tz">in operating system's time zone</label>
+                    </div>
+                    <div class="mtz-client-tz">(currently {{ client_tz_name }})</div>
+                    <div class="dialog-radio-div">
+                        <input type="radio" id="mtz-force-tz" name="mtz-tz-mode"
+                               value="mtz-force-tz" {{ "checked" if user.force_tz_index else None }}/>
+                        <label for="mtz-force-tz">I am always in this time zone:</label>
+                    </div>
+                    <div>
+                        <kiosk-tz-combo-box id="popup-tz-combo-box" tabindex="1"
+                                            value={{ user.force_tz_index }}></kiosk-tz-combo-box>
+                    </div>
                 </div>
-{#                <div class="dialog-button-bar">#}
-{#                    <div class="dialog-standard-buttons">#}
-{#                        <button id="mtz-cancel" class="modal-cancel"></button>#}
-{#                        <button id="mtz-ok" class="modal-ok"></button>#}
-{#                    </div>#}
-{#                </div>#}
-                {#                </form>#}
+                <div style="margin-top:2em">
+                    <p class="sub-heading"><i class="fas fa-pen"></i>to which time zone does the archaeological<br>data you intend to enter belong?</p>
+                    <div class="dialog-radio-div">
+                        <input type="radio" id="mtz-auto-recording-tz" name="mtz-recording-tz-mode"
+                               value="mtz-auto-recording-tz" {{ "checked" if not user.recording_tz_index else None }}/>
+                        <label for="mtz-auto-recording-tz">to the same time zone as above
+                            <br>(this is the usual setting)</label>
+                    </div>
+                    {#                    <div class="mtz-client-tz">(currently {{ client_tz_name }})</div>#}
+                    <div class="dialog-radio-div">
+                        <input type="radio" id="mtz-force-recording-tz" name="mtz-recording-tz-mode"
+                               value="mtz-force-recording-tz" {{ "checked" if user.recording_tz_index else None }}/>
+                        <label for="mtz-force-recording-tz">always to this time zone:</label>
+                    </div>
+                    <div>
+                        <kiosk-tz-combo-box id="popup-recording-tz-combo-box" tabindex="2"
+                                            value={{ user.recording_tz_index }}></kiosk-tz-combo-box>
+                    </div>
+                </div>
             </div>
         </div>
-{#    </div>#}
-    {% include "_kioskmodaldialog_api_connector_include.html" %}
+        {#    </div>#}
+        {% include "_kioskmodaldialog_api_connector_include.html" %}
 
-    <script>
-        function updateDialog() {
-            const opt = document.getElementById("mtz-auto-tz")
-            const tzComboBox = document.getElementById("popup-tz-combo-box")
-            if (!tzComboBox.disabled && opt.checked) {
-                tzComboBox.disabled = true
-            } else {
-                if (tzComboBox.disabled) tzComboBox.disabled = false
-
-            }
-            console.log(opt.checked)
-        }
-
-        function popupApiConnected(api) {
-            for (const cb of document.querySelectorAll("kiosk-tz-combo-box")) {
-                cb.apiContext = api
-            }
-        }
-
-        function popupApiFailed() {
-            $.magnificPopup.close();
-            kioskErrorToast("Sorry, it was not possible to connect to Kiosk's Api. " +
-                "That's why this feature can't run. You can try again, but most likely " +
-                "you'll have to report this as a bug ");
-        }
-
-        function initUserTimeZoneDialog() {
-            let tz = document.getElementById("popup-tz-combo-box")
-            let options = document.getElementsByName("mtz-tz-mode")
-            for (const opt of options) {
-                opt.addEventListener("change", updateDialog)
+        <script>
+            function configureTzCombobox(optGroup, popUpId) {
+                const opt = document.getElementById(optGroup)
+                const tzComboBox = document.getElementById(popUpId)
+                tzComboBox.disabled = opt.checked
             }
 
-            kioskShowFooter(true);
-            bindReturnKeyToButtons("time-zone-dialog", "bt-ok", ["bt-cancel"]);
-            kioskActivateButton($("#bt-next"), null);
-            kioskActivateButton($("#bt-back"), null);
-            //kioskActivateButton($("#bt-ok"), null);
-            //kioskDisableButton($("#bt-ok"), true);
-            kioskActivateButton($("#bt-close"), null);
-            kioskActivateButton($("#bt-delete"), null);
+            function updateDialog() {
+                configureTzCombobox("mtz-auto-tz", "popup-tz-combo-box");
+                configureTzCombobox("mtz-auto-recording-tz", "popup-recording-tz-combo-box");
+            }
 
-            kioskActivateButton($("#bt-cancel"), () => {
-              $.magnificPopup.close();
-            });
-            kioskActivateButton($("#bt-ok"), e => {
-                const tzComboBox = document.getElementById("popup-tz-combo-box")
-                let json = {"force_tz_index": 0}
-                const opt = document.getElementById("mtz-force-tz")
-                if (opt.checked) {
-                    console.log(tzComboBox.value)
-                    if (isNaN(tzComboBox.value) || tzComboBox.value === null || !tzComboBox.value) {
-                        kioskModalErrorToast("Please select a time zone or switch to 'use operating system time zone'. ")
-                        return
-                    } else {
-                        json = {"force_tz_index": tzComboBox.value}
+            function popupApiConnected(api) {
+                for (const cb of document.querySelectorAll("kiosk-tz-combo-box")) {
+                    cb.apiContext = api
+                }
+            }
+
+            function popupApiFailed() {
+                $.magnificPopup.close();
+                kioskErrorToast("Sorry, it was not possible to connect to Kiosk's Api. " +
+                    "That's why this feature can't run. You can try again, but most likely " +
+                    "you'll have to report this as a bug ");
+            }
+
+            function saveDialog(e) {
+                class EmptyTzError extends Error {
+                    constructor(id) {
+                        super();
+                        this.id = id
                     }
                 }
+
+                function getTzValue(optId, popUpId) {
+                    const tzComboBox = document.getElementById(popUpId)
+                    const opt = document.getElementById(optId)
+                    if (opt.checked) {
+                        if (isNaN(tzComboBox.value) || tzComboBox.value === null || !tzComboBox.value) {
+                            throw new EmptyTzError(popUpId)
+                        } else {
+                            return tzComboBox.value
+                        }
+                    }
+                    return 0
+                }
+
+                let json = {
+                    "force_tz_index": 0,
+                    "recording_tz_index": 0
+                }
+                try {
+                    json.force_tz_index = getTzValue("mtz-force-tz", "popup-tz-combo-box")
+                    json.recording_tz_index = getTzValue("mtz-force-recording-tz", "popup-recording-tz-combo-box")
+                } catch (e) {
+                    if (e instanceof EmptyTzError) {
+                        if (e.id === "popup-tz-combo-box") {
+                            kioskModalErrorToast("Please select a time zone or switch to 'operating system\'s time zone'. ")
+                        } else {
+                            kioskModalErrorToast("Please select a time zone or switch to 'same time zone as above'. ")
+                        }
+                        document.getElementById(e.id).focus()
+                    } else throw e
+                    return
+                }
+
                 kioskSendAjaxCommand("POST",
                     $("#bt-ok"),
                     "{{ url_for('login_controller.manage_time_zone', uuid=user.id) }}", json,
@@ -131,16 +154,41 @@
                         kioskModalErrorToast(`It was not possible to save the time zone settings: ${message}. Please try again.`);
                         {#kioskDisableButton(btClose, false)#}
                     })
-            });
+            }
+
+            function initUserTimeZoneDialog() {
+                {#let tz = document.getElementById("popup-tz-combo-box")#}
+                let options = document.getElementsByName("mtz-tz-mode")
+                for (const opt of options) {
+                    opt.addEventListener("change", updateDialog)
+                }
+
+                {#let recording_tz = document.getElementById("popup-recording-tz-combo-box")#}
+                let recording_options = document.getElementsByName("mtz-recording-tz-mode")
+                for (const opt of recording_options) {
+                    opt.addEventListener("change", updateDialog)
+                }
+
+                kioskShowFooter(true);
+                bindReturnKeyToButtons("time-zone-dialog", "bt-ok", ["bt-cancel"]);
+                kioskActivateButton($("#bt-next"), null);
+                kioskActivateButton($("#bt-back"), null);
+                //kioskActivateButton($("#bt-ok"), null);
+                //kioskDisableButton($("#bt-ok"), true);
+                kioskActivateButton($("#bt-close"), null);
+                kioskActivateButton($("#bt-delete"), null);
+
+                kioskActivateButton($("#bt-cancel"), () => {
+                    $.magnificPopup.close();
+                });
+                kioskActivateButton($("#bt-ok"), saveDialog);
 
 
+            }
 
+            initUserTimeZoneDialog()
+            updateDialog()
 
-        }
-
-        initUserTimeZoneDialog()
-        updateDialog()
-
-    </script>
-</div>
-{% endblock%}
+        </script>
+    </div>
+{% endblock %}

@@ -24,6 +24,7 @@ class KioskUser(UserMixin):
         self.repl_user_id = ""
         self._token = ""
         self.force_tz_index = 0
+        self.recording_tz_index = 0
         self._group_threshold = MSG_SEVERITY_INFO
         self._user_threshold = MSG_SEVERITY_INFO
         self.active_tz_name = ""
@@ -147,6 +148,7 @@ class KioskUser(UserMixin):
                 self.user_name = r["user_name"]
                 self.must_change_pwd = r["must_change_pwd"]
                 self.force_tz_index = r["force_tz_index"]
+                self.recording_tz_index = r["recording_tz_index"]
                 if "groups" in r and r["groups"]:
                     self._groups = [x.strip() for x in r["groups"].split(",")]
                 self.repl_user_id = r["repl_user_id"]
@@ -202,9 +204,13 @@ class KioskUser(UserMixin):
                 sql += "\"user_id\"=%s"
                 sql += ", \"user_name\"=%s"
                 sql += ", \"force_tz_index\"=%s"
+                sql += ", \"recording_tz_index\"=%s"
                 sql += " where \"uid\"=%s"
 
-                KioskSQLDb.execute(sql, [self.user_id, self.user_name, self.force_tz_index, self.id])
+                KioskSQLDb.execute(sql, [self.user_id, self.user_name,
+                                         self.force_tz_index,
+                                         self.recording_tz_index,
+                                         self.id])
                 return True
             else:
                 logging.error("KioskUser.save: user {} does not exist.".format(self.id))
@@ -312,6 +318,13 @@ class KioskUser(UserMixin):
         """
         return self.force_tz_index
 
+    def get_recording_tz_index(self):
+        """
+        returns the value of the recording_tz_index field
+        :return: the value or 0 (which is simply the default)
+        """
+        return self.recording_tz_index
+
     def get_active_time_zone_name(self, iana=False):
         """
         returns the user's currently active time zone in Kiosk.
@@ -332,6 +345,26 @@ class KioskUser(UserMixin):
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.get_active_time_zone_name: Error resolving "
                           f"active kiosk timezone: {repr(e)}")
+
+        return ""
+
+    def get_recording_time_zone_name(self, iana=False):
+        """
+        returns the user's currently active recording time zone for Kiosk.
+        !Needs an active request object in Flask.
+        :param iana: set to True of you want the IANA time zone name instead of the long name
+        :return: the time zone's name or "" if there is no recording time zone set
+                 (in which case get_active_time_zone_name would be the recording time zone's name)
+        :raises nothing: catches all Exceptions
+        """
+        try:
+            if self.recording_tz_index:
+                ktz = kioskglobals.kiosk_time_zones if kioskglobals else KioskTimeZones()
+                tz_info = ktz.get_time_zone_info(self.recording_tz_index)
+                return tz_info[2] if iana else tz_info[1]
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.get_recording_time_zone_name: Error resolving "
+                          f"recording timezone: {repr(e)}")
 
         return ""
 
@@ -357,3 +390,4 @@ class KioskUser(UserMixin):
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.is_time_zone_forced: {repr(e)}")
             return True
+

@@ -18,6 +18,7 @@ class KioskUser(db.Model):
     groups = db.Column(db.String())
     must_change_pwd = db.Column(db.Boolean())
     force_tz_index = db.Column(db.Integer())
+    recording_tz_index = db.Column(db.Integer())
 
 
 class KioskPrivilege(db.Model):

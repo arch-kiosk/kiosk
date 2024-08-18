@@ -249,16 +249,26 @@
   display: block;
   width: calc(100% - 1em);
 }
-
-#popup-tz-combo-box {
+#mfp-user-time-zone-dialog kiosk-tz-combo-box {
   margin-left: 1.5em;
 }
-
-.mtz-client-tz {
+#mfp-user-time-zone-dialog .mtz-client-tz {
   font-family: var(--standard-text-font);
   font-size: var(--font-size-standard, 1rem);
   margin-bottom: 0.5em;
   margin-left: 1.5em;
+}
+#mfp-user-time-zone-dialog .dialog label {
+  margin: 5px 0 5px 0;
+}
+#mfp-user-time-zone-dialog i {
+  margin-right: 0.5em;
+}
+#mfp-user-time-zone-dialog .sub-heading {
+  margin-bottom: 5px;
+}
+#mfp-user-time-zone-dialog .dialog-radio-div input[type=radio] {
+  margin-top: 2px;
 }
 
 /*# sourceMappingURL=logincontroller.css.map */

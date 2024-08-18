@@ -45,6 +45,7 @@ kiosk_user:
       groups: [datatype(VARCHAR)]
       must_change_pwd: [datatype(BOOL)]
       force_tz_index: [datatype(INT)]
+      recording_tz_index: [datatype(INT)]
     3:
       uid: [datatype(UUID), uuid_key())]
       user_id: ["datatype(VARCHAR,20)", not_null(), unique()]
@@ -73,6 +74,7 @@ kiosk_user:
     4:
       upgrade:
         - add("force_tz_index")
+        - add("recording_tz_index")
     3:
       upgrade:
         - alter(pwd_hash)
