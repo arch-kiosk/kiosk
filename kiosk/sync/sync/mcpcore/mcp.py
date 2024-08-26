@@ -1,6 +1,6 @@
 # Master Control Program - job scheduler for Kiosk
 
-MCP_VERSION = "0.3.1"
+MCP_VERSION = "0.4"
 
 import inspect
 import logging
@@ -48,8 +48,12 @@ class MCP:
             self.pulse_mcp()
             try:
                 jobs = [MCPJob(self.gs, job_id, lock_queue=False) for job_id in gs_queue.list_jobs(lock_queue=False)]
+            except Exception as e:
+                logging.error(f"{self.__class__.__name__}.reload_queue: cannot list jobs from queue: {repr(e)}")
+                return queue
             finally:
                 gs_queue.unlock(lock)
+
             jobs.sort(key=lambda x: x.get_job_info_attribute("ns_created"))
             for job in jobs:
                 queue[job.job_id] = job

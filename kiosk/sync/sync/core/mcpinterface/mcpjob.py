@@ -392,7 +392,7 @@ class MCPJob:
         try:
             data = self._queue.read(self.job_id, lock_queue=lock_queue)
         except KeyError as e:
-            raise MCPJobUnknownError(f"Could not fetch {self.job_id} from queue.")
+            raise MCPJobUnknownError(f"Could not fetch {self.job_id} from queue: {repr(e)}")
         if data:
             if "job_data" in data:
                 self._payload.job_data = _copy_and_pop(data, "job_data")

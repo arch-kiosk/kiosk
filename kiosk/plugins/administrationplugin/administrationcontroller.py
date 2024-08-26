@@ -290,6 +290,8 @@ def administration_show():
             redis_version = ""
             logging.error(f"administrationcontroller.administration_show : {repr(e)}")
 
+        gs_id = kioskstdlib.try_get_dict_entry(conf.config,"gs_id","",True)
+
         authorized_to = get_local_authorization_strings(LOCAL_ADMINISTRATION_PRIVILEGES)
         if kioskglobals.get_development_option("suppress_system_messages").lower() == 'true':
             messages = []
@@ -314,7 +316,8 @@ def administration_show():
                                mcp_alive=mcp_alive,
                                redis_version=redis_version,
                                is_local_server=local_server,
-                               file_cache_refresh_running=file_cache_refresh_running)
+                               file_cache_refresh_running=file_cache_refresh_running,
+                               gs_id=gs_id)
     except BaseException as e:
         logging.error(f"administrationcontroller.administration_show : {repr(e)}")
         abort(500, repr(e))

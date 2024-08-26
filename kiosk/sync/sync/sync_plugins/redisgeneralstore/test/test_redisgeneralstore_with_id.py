@@ -36,15 +36,15 @@ class TestRedisGeneralStore(KioskPyTestHelper):
         return str(uuid.uuid4())
 
     def test_init(self, cfg):
-        rgs = RedisGeneralStore(cfg, mcp_id="MCP2_")
+        rgs = RedisGeneralStore(cfg, gs_id="MCP2_")
         assert rgs._check_redis()
 
     def test_redis_version(self, cfg):
-        rgs = RedisGeneralStore(cfg, mcp_id="MCP2_")
+        rgs = RedisGeneralStore(cfg, gs_id="MCP2_")
         assert Version(rgs.get_redis_version()).major == 6
 
     def test_put_string(self, cfg):
-        rgs = RedisGeneralStore(cfg, mcp_id="MCP2_")
+        rgs = RedisGeneralStore(cfg, gs_id="MCP2_")
         assert rgs.put_string(rgs.make_key(generalstorekeys.test, "key", 1), "")
         assert rgs.get_string(rgs.make_key(generalstorekeys.test, "key", 1)) == ""
         assert rgs.put_string(rgs.make_key(generalstorekeys.test, "key", 1), "Some Text")
@@ -54,14 +54,14 @@ class TestRedisGeneralStore(KioskPyTestHelper):
             rgs.put_string(rgs.make_key(generalstorekeys.test, "key", 1), 12)
 
     def test_delete_key(self, cfg):
-        rgs = RedisGeneralStore(cfg, mcp_id="MCP2_")
+        rgs = RedisGeneralStore(cfg, gs_id="MCP2_")
         assert rgs.put_string(rgs.make_key(generalstorekeys.test, "key", 1), "")
         assert rgs.delete_key(rgs.make_key(generalstorekeys.test, "key", 1))
         with pytest.raises(KeyError):
             assert rgs.get_string(rgs.make_key(generalstorekeys.test, "key", 1)) != ""
 
     def test_put_int(self, cfg):
-        rgs = RedisGeneralStore(cfg, mcp_id="MCP2_")
+        rgs = RedisGeneralStore(cfg, gs_id="MCP2_")
         assert rgs.put_int(rgs.make_key(generalstorekeys.test, "key", 1), 0)
         assert rgs.get_int(rgs.make_key(generalstorekeys.test, "key", 1)) == 0
         assert rgs.put_int(rgs.make_key(generalstorekeys.test, "key", 1), 12)
@@ -78,7 +78,7 @@ class TestRedisGeneralStore(KioskPyTestHelper):
             rgs.put_int(rgs.make_key(generalstorekeys.test, "key", 1), "12")
 
     def test_put_dict(self, cfg):
-        rgs = RedisGeneralStore(cfg, mcp_id="MCP2_")
+        rgs = RedisGeneralStore(cfg, gs_id="MCP2_")
         rgs.delete_key(rgs.make_key(generalstorekeys.test, "dict", 1))
         assert rgs.put_dict(rgs.make_key(generalstorekeys.test, "dict", 1), [], {})
         assert rgs.get_dict(rgs.make_key(generalstorekeys.test, "dict", 1)) == {}
@@ -91,7 +91,7 @@ class TestRedisGeneralStore(KioskPyTestHelper):
                                                                                 'item2': '2'}
 
     def test_put_dict_value(self, cfg):
-        rgs = RedisGeneralStore(cfg, mcp_id="MCP2_")
+        rgs = RedisGeneralStore(cfg, gs_id="MCP2_")
         rgs.delete_key(rgs.make_key(generalstorekeys.test, "dict", 1))
         assert rgs.put_dict(rgs.make_key(generalstorekeys.test, "dict", 1), [], {'item1': 1, 'item2': '2'})
         assert rgs.get_dict(rgs.make_key(generalstorekeys.test, "dict", 1), []) == {'item1': 1, 'item2': '2'}
@@ -101,7 +101,7 @@ class TestRedisGeneralStore(KioskPyTestHelper):
         assert rgs.get_dict(rgs.make_key(generalstorekeys.test, "dict", 1), []) == {'item1': 'put_value', 'item2': '3'}
 
     def test_inc_int(self, cfg):
-        rgs = RedisGeneralStore(cfg, mcp_id="MCP2_")
+        rgs = RedisGeneralStore(cfg, gs_id="MCP2_")
         key = rgs.make_key(generalstorekeys.test, "my_int", 1)
         rgs.delete_key(key)
         assert rgs.inc_int(key) == 1
@@ -111,7 +111,7 @@ class TestRedisGeneralStore(KioskPyTestHelper):
             assert rgs.inc_int(key, -1) == 4
 
     def test_dec_int(self, cfg):
-        rgs = RedisGeneralStore(cfg, mcp_id="MCP2_")
+        rgs = RedisGeneralStore(cfg, gs_id="MCP2_")
         key = rgs.make_key(generalstorekeys.test, "my_int", 1)
         rgs.delete_key(key)
         assert rgs.dec_int(key) == -1
@@ -121,7 +121,7 @@ class TestRedisGeneralStore(KioskPyTestHelper):
             assert rgs.dec_int(key, -1) == -5
 
     def test_append_to_array(self, cfg):
-        rgs = RedisGeneralStore(cfg, mcp_id="MCP2_")
+        rgs = RedisGeneralStore(cfg, gs_id="MCP2_")
         key = rgs.make_key(generalstorekeys.test, "my_array", 1)
         rgs.delete_key(key)
         assert rgs.append_to_array(key, "first") == 1
@@ -130,7 +130,7 @@ class TestRedisGeneralStore(KioskPyTestHelper):
         assert rgs.get_array_count(key) == 3
 
     def test_delete_value_from_array(self, cfg):
-        rgs = RedisGeneralStore(cfg, mcp_id="MCP2_")
+        rgs = RedisGeneralStore(cfg, gs_id="MCP2_")
         key = rgs.make_key(generalstorekeys.test, "my_array", 1)
         rgs.delete_key(key)
         assert rgs.append_to_array(key, "first") == 1
@@ -142,7 +142,7 @@ class TestRedisGeneralStore(KioskPyTestHelper):
         assert rgs.get_array_count(key)
 
     def test_get_array_element(self, cfg):
-        rgs = RedisGeneralStore(cfg, mcp_id="MCP2_")
+        rgs = RedisGeneralStore(cfg, gs_id="MCP2_")
         key = rgs.make_key(generalstorekeys.test, "my_array", 1)
         rgs.delete_key(key)
         assert rgs.append_to_array(key, "first") == 1
@@ -154,7 +154,7 @@ class TestRedisGeneralStore(KioskPyTestHelper):
         assert rgs.get_array_element(key, 0) == "2nd"
 
     def test_get_array(self, cfg):
-        rgs = RedisGeneralStore(cfg, mcp_id="MCP2_")
+        rgs = RedisGeneralStore(cfg, gs_id="MCP2_")
         key = rgs.make_key(generalstorekeys.test, "my_array", 1)
         rgs.delete_key(key)
         assert rgs.append_to_array(key, "first") == 1
@@ -162,7 +162,7 @@ class TestRedisGeneralStore(KioskPyTestHelper):
         assert rgs.get_array(key) == ["first", "2nd"]
 
     def test_in_array(self, cfg):
-        rgs = RedisGeneralStore(cfg, mcp_id="MCP2_")
+        rgs = RedisGeneralStore(cfg, gs_id="MCP2_")
         key = rgs.make_key(generalstorekeys.test, "my_array", 1)
         rgs.delete_key(key)
         assert not rgs.in_array(key, "2nd")
@@ -190,7 +190,7 @@ class TestRedisGeneralStore(KioskPyTestHelper):
             GeneralStore.register(type_repos)
 
     def test_append_values_to_array(self, cfg):
-        rgs = RedisGeneralStore(cfg, mcp_id="MCP2_")
+        rgs = RedisGeneralStore(cfg, gs_id="MCP2_")
         key = rgs.make_key(generalstorekeys.test, "my_array", 1)
         rgs.delete_key(key)
         assert rgs.append_values_to_array(key, ["first", "2nd", "3rd"]) == 3
@@ -204,12 +204,12 @@ class TestRedisGeneralStore(KioskPyTestHelper):
         rgs.delete_key(key)
 
     def test_register_scripts(self, cfg):
-        rgs = RedisGeneralStore(cfg, mcp_id="MCP2_")
-        rgs = RedisGeneralStore(cfg, mcp_id="MCP2_")
+        rgs = RedisGeneralStore(cfg, gs_id="MCP2_")
+        rgs = RedisGeneralStore(cfg, gs_id="MCP2_")
         assert rgs.call_script("lua_scripts_loaded") == "ok"
 
     def test_set_if_keys_dont_exists(self, uid, cfg):
-        rgs = RedisGeneralStore(cfg, mcp_id="MCP2_")
+        rgs = RedisGeneralStore(cfg, gs_id="MCP2_")
         assert rgs.call_script("lua_scripts_loaded") == "ok"
         uid2 = str(uuid.uuid4())
 
@@ -250,7 +250,7 @@ class TestRedisGeneralStore(KioskPyTestHelper):
                                            )
 
     def test_delete_keys(self, uid, cfg):
-        rgs = RedisGeneralStore(cfg, mcp_id="MCP2_")
+        rgs = RedisGeneralStore(cfg, gs_id="MCP2_")
         assert rgs.call_script("lua_scripts_loaded") == "ok"
         required_keys = [rgs.make_key(generalstorekeys.sync_core, "test_lock", "1"),
                          rgs.make_key(generalstorekeys.sync_core, "test_lock", "2"),
@@ -274,7 +274,7 @@ class TestRedisGeneralStore(KioskPyTestHelper):
                                            )
 
     def test_idle_time(self, uid, cfg):
-        rgs = RedisGeneralStore(cfg, mcp_id="MCP2_")
+        rgs = RedisGeneralStore(cfg, gs_id="MCP2_")
         rgs.delete_key("akey")
         rgs.put_string("akey", "avalue")
         assert rgs.get_string("akey") == "avalue"
@@ -282,7 +282,7 @@ class TestRedisGeneralStore(KioskPyTestHelper):
         assert rgs.get_key_idle_time("akey") >= 1
 
     def test_red_lock(self, uid, cfg):
-        rgs = RedisGeneralStore(cfg, mcp_id="MCP2_")
+        rgs = RedisGeneralStore(cfg, gs_id="MCP2_")
         lock = rgs.red_lock_lock("something")
         assert lock
         lock2 = rgs.red_lock_lock("something", wait_seconds=2)
@@ -298,7 +298,7 @@ class TestRedisGeneralStore(KioskPyTestHelper):
         assert check_redis()
 
     def test_json_unicode(self, cfg):
-        rgs = RedisGeneralStore(cfg, always_decode_responses=False, mcp_id="MCP2_")
+        rgs = RedisGeneralStore(cfg, always_decode_responses=False, gs_id="MCP2_")
         rgs.delete_key(rgs.make_key(generalstorekeys.test, "dict", 1))
         assert rgs.put_dict(rgs.make_key(generalstorekeys.test, "dict", 1), [], {})
         assert rgs.put_dict(rgs.make_key(generalstorekeys.test, "dict", 1), [], {'item1': 'luiza´s'})

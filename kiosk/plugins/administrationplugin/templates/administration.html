@@ -112,7 +112,8 @@
           <div class="admin-sysinfo-entry"><label>PostgreSQL:</label> {{ sysinfo.postgresql_ver }}</div>
           <div class="admin-sysinfo-entry"><label>MCP:</label>{{ mcp_version }} {{ mcp_alive }}</div>
           <div class="admin-sysinfo-entry"><label>Redis:</label>{% if redis_version %}{{ redis_version }}
-          {% else %}not present{% endif %}</div>
+                                                                {% else %}not present{% endif %}</div>
+          <div class="admin-sysinfo-entry"><label>gs id:</label>{% if gs_id %}{{ gs_id }}{% else %}-{% endif %}</div>
         </div>
         <div class="admin-gridded-info">
           <div class="admin-sysinfo-entry"><label>project-id:</label> {{ config.get_project_id() }}</div>
