@@ -50,7 +50,7 @@ from pluggableflaskapp import current_app
 from sqlalchemy_models.adminmodel import KioskUser
 
 from synchronization import Synchronization
-from tz.kiosktimezone import KioskTimeZones
+from tz.kiosktimezones import KioskTimeZones
 from .forms.backupform import BackupForm
 from .forms.housekeepingform import HousekeepingForm
 from .forms.restoreform import RestoreForm

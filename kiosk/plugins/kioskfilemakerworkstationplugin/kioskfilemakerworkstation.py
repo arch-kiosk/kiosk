@@ -1,5 +1,7 @@
+import copy
 import logging
 import textwrap
+import zoneinfo
 from typing import List
 
 from werkzeug import datastructures
@@ -19,6 +21,7 @@ from synchronization import Synchronization
 from kiosksqldb import KioskSQLDb
 from authorization import EDIT_WORKSTATION_PRIVILEGE, PREPARE_WORKSTATIONS, DOWNLOAD_WORKSTATION, \
     UPLOAD_WORKSTATION, SYNCHRONIZE, get_local_authorization_strings, MANAGE_USERS, MANAGE_SERVER_PRIVILEGE
+from tz.kiosktimezoneinstance import KioskTimeZoneInstance
 
 TYPE_KIOSK_FILEMAKER_WORKSTATION = "KioskFileMakerWorkstation"
 
@@ -74,6 +77,21 @@ class KioskFileMakerWorkstation(KioskWorkstation):
     @property
     def disabled(self) -> bool:
         return self.sync_ws.disabled
+
+    @property
+    def current_tz(self) -> KioskTimeZoneInstance:
+        return self.sync_ws.current_tz
+
+    @current_tz.setter
+    def current_tz(self, user_ktz: KioskTimeZoneInstance):
+
+        # override user settings with dock settings if there are any
+        if self.sync_ws.user_time_zone_index:
+            user_ktz.user_tz_index = self.sync_ws.user_time_zone_index
+        if self.sync_ws.recording_time_zone_index:
+            user_ktz.user_tz_index = self.sync_ws.recording_time_zone_index
+
+        self.sync_ws.current_tz = user_ktz
 
     @disabled.setter
     def disabled(self, value: bool):
@@ -180,9 +198,10 @@ class KioskFileMakerWorkstation(KioskWorkstation):
         if status in ["IN_THE_FIELD", "BACK_FROM_FIELD"] \
                 and self._download_upload_status_text \
                 and not self._sync_ws.has_option('PERMANENT_DOWNLOAD'):
+            fork_time = self._sync_ws.get_fork_time()
             if self._sync_ws.download_upload_status > -1 and \
                     self._sync_ws.download_upload_ts and \
-                    self._sync_ws.get_fork_time() < self._sync_ws.download_upload_ts:
+                    fork_time < self._sync_ws.download_upload_ts:
                 self._state_description = self._download_upload_status_text + " on " + \
                                           self._sync_ws.download_upload_ts.isoformat(" ")[:19]
             else:
@@ -209,14 +228,14 @@ class KioskFileMakerWorkstation(KioskWorkstation):
         if self._sync_ws.user_time_zone_index:
             time_zone = kioskglobals.kiosk_time_zones.get_time_zone_info(self._sync_ws.user_time_zone_index)
             if time_zone:
-                time_zone_info = f"\n({textwrap.shorten(time_zone[1],width=30,placeholder='...')})"
+                time_zone_info = f"\n({textwrap.shorten(time_zone[1], width=30, placeholder='...')})"
             else:
                 time_zone_info = f" (invalid time zone)"
 
         if self._sync_ws.recording_time_zone_index:
             time_zone = kioskglobals.kiosk_time_zones.get_time_zone_info(self._sync_ws.recording_time_zone_index)
             if time_zone:
-                time_zone_info_2 = f"\n({textwrap.shorten(time_zone[1],width=30,placeholder='...')})"
+                time_zone_info_2 = f"\n({textwrap.shorten(time_zone[1], width=30, placeholder='...')})"
             else:
                 time_zone_info_2 = f" (invalid time zone)"
             time_zone_info += ("/" + time_zone_info_2) if time_zone_info else time_zone_info_2

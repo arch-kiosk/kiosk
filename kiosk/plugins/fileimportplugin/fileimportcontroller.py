@@ -790,7 +790,7 @@ def run_sequence_import():
         job = MCPJob(kioskglobals.general_store)
         job.set_worker("plugins.fileimportplugin.workers.filesequenceimportworker", "FileSequenceImportWorker")
         job.job_data = file_import.get_wtform_values()
-        job.user_data = {"uuid": current_user.get_id()}
+        job.user_data = current_user.to_dict()
         job.queue()
         job_uid = job.job_id
         json_message = "ok"

@@ -631,7 +631,13 @@ def null_key(fld, key, null_val):
         return (null_val)
 
 
-def str_starts_element(s: str, lst):
+def str_starts_with_element(s: str, lst):
+    """
+    checks if s starts with any of the list elements. case-insensitive!
+    :param s: a string
+    :param lst: a list with strings
+    :return: true or false
+    """
     s = s.upper().strip()
     for element in lst:
         if s.startswith(element.upper().strip()):

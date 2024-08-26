@@ -1,11 +1,13 @@
 import logging
 
+import kioskglobals
 from kioskresult import KioskResult
 from kioskuser import KioskUser
 from mcpinterface.mcpjob import MCPJobStatus
 from synchronization import Synchronization
 from plugins.syncmanagerplugin.workstationmanagerworker import WorkstationManagerWorker
 from plugins.kioskfilemakerworkstationplugin import KioskFileMakerWorkstation
+from tz.kiosktimezoneinstance import KioskTimeZoneInstance
 
 
 class ExportWorkstationWorker(WorkstationManagerWorker):
@@ -46,18 +48,13 @@ class ExportWorkstationWorker(WorkstationManagerWorker):
         def export():
             try:
                 logging.debug("Export Worker starts")
+                self.report_progress({"progress": 0, "message": "Export to FileMaker..."})
                 self.init_dsd()
                 sync = Synchronization()
-                ws = KioskFileMakerWorkstation(ws_id, sync=sync)
-                ws.load_workstation()
-                name = ws.description
-                self.report_progress({"progress": 0, "message": "Export to FileMaker..."})
+                ws = self.init_dock(ws_id, sync, kioskglobals.kiosk_time_zones)
                 if ws:
-                    try:
-                        user = self.get_kiosk_user()
-                    except BaseException as e:
-                        raise Exception(f" When initializing user {repr(e)}")
                     ws.reset_download_upload_status()
+
                     rc = ws.sync_ws.transition("EXPORT_TO_FILEMAKER", param_callback_progress=self.report_progress)
                     status = self.job.fetch_status()
                     if status == MCPJobStatus.JOB_STATUS_CANCELLING:
@@ -69,7 +66,7 @@ class ExportWorkstationWorker(WorkstationManagerWorker):
                         else:
                             result = KioskResult(False, "An error occurred during export.")
                 else:
-                    result = KioskResult(message=f"error exporting workstation  {name}")
+                    result = KioskResult(message=f"error exporting workstation  {ws.description}")
             except Exception as e:
                 logging.error("Exception in export-worker: " + repr(e))
                 result = KioskResult(message=f"Exception in export-worker: {repr(e)}")
@@ -100,4 +97,3 @@ class ExportWorkstationWorker(WorkstationManagerWorker):
                     KioskResult(message="An error occurred. Please refer to the log for details.").get_dict())
 
         logging.debug("export workstation - worker ends")
-

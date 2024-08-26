@@ -5,7 +5,9 @@ import shutil
 from shutil import copyfile
 import time
 from os import path
+from zoneinfo import ZoneInfo
 
+import kioskdatetimelib
 import kioskrepllib
 from statemachine import StateTransition, StateMachine
 from werkzeug import datastructures
@@ -21,6 +23,7 @@ from migration.postgresdbmigration import PostgresDbMigration
 from sync_config import SyncConfig
 from kiosksqldb import KioskSQLDb
 from kioskstdlib import report_progress
+from tz.kiosktimezoneinstance import KioskTimeZoneInstance
 from .filemakercontrol import FileMakerControl
 from contextmanagement.sqlsourcecached import CONTEXT_CACHE_NAMESPACE
 
@@ -95,12 +98,12 @@ class FileMakerWorkstation(RecordingWorkstation):
     @property
     def download_upload_ts(self) -> datetime.datetime:
         """
-        returns the timestamp of the download upload status
+        returns the timestamp of the download upload status. It is a utc time stamp without time zone info.
         Strictly taken this plays no role in the sync subsystem and is even manipulating a kiosk table.
         But it must be here because only that way can it operate in mcp worker processes
         :return: datetime
         """
-        return self._download_upload_ts
+        return self._download_upload_ts.replace(tzinfo=None) if self._download_upload_ts else None
 
     @property
     def options(self):
@@ -169,7 +172,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                 cur = KioskSQLDb.get_dict_cursor()
                 close_cur = True
 
-            ts = datetime.datetime.now()
+            ts = kioskdatetimelib.get_utc_now()
             cur.execute("update " + " kiosk_workstation set download_upload_status=%s, "
                                     "ts_status=%s where id=%s", [status, ts, self._id])
             if commit:
@@ -227,6 +230,8 @@ class FileMakerWorkstation(RecordingWorkstation):
         :param create: if set to False the template file will not be copied if it does not exist.
         :return: path and filename of the template file. Throws exceptions otherwise
         """
+        # todo: time zone
+        # different time zones might need to call for different templates
         template_file = SyncConfig.get_config().filemaker_template
         if not recording_group:  # or recording_group == "default":
             raise Exception(f"{cls.__name__}.get_template_filepath_and_name: kiosk > 0.11.1 "
@@ -270,7 +275,9 @@ class FileMakerWorkstation(RecordingWorkstation):
         sql += "id serial NOT NULL, "
         sql += "tablename varchar NOT NULL, "
         sql += "uid uuid NOT NULL, "
-        sql += "modified varchar NOT NULL, "
+        # sql += "modified varchar NOT NULL, "
+        sql += "modified timestamp with time zone NOT NULL, "
+        sql += "modified_tz varchar, "
         sql += "modified_by varchar NOT NULL "
         sql += ");"
         cur.execute(sql)
@@ -441,13 +448,13 @@ class FileMakerWorkstation(RecordingWorkstation):
 
     def export(self):
         """ exports the workstation's shadow tables
-            to a filemaker database and sets the workstation to state IN_THE_FIELD.
+            to a FileMaker database and sets the workstation to state IN_THE_FIELD.
             Checks if the workstation is in the correct state (which is usually READY_FOR_EXPORT).
 
             ignore_status ignores only if the workstation is already in state IN_THE_FIELD.
 
             Returns true or false and does not catch all exceptions.
-
+            :param current_tz - the time zone(s) to use for the FileMaker Database.
             todo: redesign
             todo: refactor: It is long.
 
@@ -456,6 +463,9 @@ class FileMakerWorkstation(RecordingWorkstation):
         template_file = ""
 
         try:
+            if not self.current_tz or not self.user_time_zone_index:
+                raise Exception("Export to dock not possible: current_tz is not set.")
+
             logging.info("FileMakerWorkstation.export: Exporting to workstation " + self.get_id())
 
             # just to make sure!
@@ -489,13 +499,15 @@ class FileMakerWorkstation(RecordingWorkstation):
                               f"recent modification timestamp in the filemaker db at the beginning of export")
 
                 # todo: time zone
+                # this must be UTC, right?
                 self.ws_fork_sync_time = fm.get_ts_constant("fork_sync_time")
 
                 report_progress(self.interruptable_callback_progress, 20, None, "Transferring data to FileMaker...")
-                if self._transfer_tables_to_filemaker(fm, self.interruptable_callback_progress):
+                if self._transfer_tables_to_filemaker(fm, self.interruptable_callback_progress,
+                                                      current_tz=self.current_tz):
                     report_progress(self.interruptable_callback_progress, 50, None,
                                     "Preparing images transfer to FileMaker...")
-                    if self._sync_file_tables_in_filemaker(fm):
+                    if self._sync_file_tables_in_filemaker(fm, current_tz=self.current_tz):
                         # raise InterruptedError()
                         report_progress(self.interruptable_callback_progress, 55, None,
                                         "Transferring images to FileMaker...")
@@ -503,7 +515,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                                                               callback_progress=self.interruptable_callback_progress):
 
                             # rc = self._build_file_identifier_cache(fm)
-                            rc = self._transfer_file_identifier_cache(fm)
+                            rc = self._transfer_file_identifier_cache(fm, current_tz=self.current_tz)
                             if not rc:
                                 logging.error("FileMakerWorkstation.export: _transfer_file_identifier_cache failed.")
                             else:
@@ -615,7 +627,7 @@ class FileMakerWorkstation(RecordingWorkstation):
             rc = True
         return rc
 
-    def _transfer_file_identifier_cache(self, fm):
+    def _transfer_file_identifier_cache(self, fm, current_tz: KioskTimeZoneInstance = None):
         """ transfers the file-identifier-cache to filemaker.
             Transfers only those entries for which there are images in the workstation's
             image table.
@@ -677,7 +689,18 @@ class FileMakerWorkstation(RecordingWorkstation):
             report_progress(self.interruptable_callback_progress, 85, None,
                             "transfering file identifier cache ...")
 
-            rc = bool(fm.transfer_table_data_to_filemaker(cur, None, "file_identifier_cache_load", fm_field_list))
+            table_structure = {
+                "identifier": ("varchar", None),
+                "data": ("uuid", None),
+                "record_type": ("varchar", None),
+                "data_uuid": ("uuid", None)
+            }
+
+            fm: FileMakerControl
+            rc = bool(fm.transfer_non_dsd_table_data_to_filemaker(cur,
+                                                                  table_structure,
+                                                                  dest_tablename="file_identifier_cache_load",
+                                                                  current_tz=current_tz))
             if rc:
                 try:
                     report_progress(self.interruptable_callback_progress, 87, None,
@@ -729,11 +752,17 @@ class FileMakerWorkstation(RecordingWorkstation):
                             "Sleeping a bit before starting FileMaker ...")
             time.sleep(seconds)
 
-    def _transfer_tables_to_filemaker(self, fm, callback_progress=None):
+    def _transfer_tables_to_filemaker(self, fm: FileMakerControl, callback_progress=None, current_tz=None):
         """ exports the workstation's shadow tables from the master-Model
             to a filemaker database. Requests an open FileMakerControl object.
 
             returns true or false
+
+            :param fm: an open and active FileMakerControl Instance
+            :param callback_progress: a method to call for progress report
+            :param current_tz: required time zone information to use for the File Maker Database
+            :return bool
+            :raises can let a few Exceptions through but does not raise anything specific
 
         .. note:
 
@@ -743,6 +772,7 @@ class FileMakerWorkstation(RecordingWorkstation):
             todo: redesign
             todo: refactor
         """
+        assert current_tz
 
         cur = KioskSQLDb.get_dict_cursor()
         if cur is None:
@@ -750,6 +780,7 @@ class FileMakerWorkstation(RecordingWorkstation):
             return False
 
         dsd = self._get_workstation_dsd()
+
         if dsd is None:
             logging.error("FileMakerWorkstation._transfer_tables_to_filemaker: KioskSQLDb.get_dsd() failed.")
             return False
@@ -770,11 +801,13 @@ class FileMakerWorkstation(RecordingWorkstation):
                 report_progress(callback_progress, c * 100 / c_tables, "transfer_tables", f"transferring {table} ...")
 
                 if table.lower() == files_table:
-                    if not self._transfer_table_data_to_filemaker(cur, fm, dsd, table, table + "_load"):
+                    if not self._transfer_table_data_to_filemaker(cur, fm, dsd, table, table + "_load",
+                                                                  current_tz=current_tz):
                         raise Exception(("FileMakerWorkstation._transfer_tables_to_filemaker: "
                                          "_transfer_table_data_to_filemaker returned False for table " + table))
                 else:
-                    if not self._transfer_table_data_to_filemaker(cur, fm, dsd, table):
+                    if not self._transfer_table_data_to_filemaker(cur, fm, dsd, table,
+                                                                  current_tz=current_tz):
                         raise Exception(("FileMakerWorkstation._transfer_tables_to_filemaker: "
                                          "_transfer_table_data_to_filemaker returned False for table " + table))
 
@@ -796,14 +829,14 @@ class FileMakerWorkstation(RecordingWorkstation):
             c += 1
             report_progress(callback_progress, c * 100 / c_tables, "transfer_tables",
                             f"transferring image metadata ...")
-            if not self._transfer_image_transfer_table(cur, fm):
+            if not self._transfer_image_transfer_table(cur, fm, current_tz):
                 raise Exception(("FileMakerWorkstation._transfer_tables_to_filemaker: "
                                  "_transfer_image_transfer_table() returned False."))
 
             c += 1
             report_progress(callback_progress, c * 100 / c_tables, "transfer_tables",
                             "transferring replication metadata ... ")
-            if not self._transfer_repldata_transfer_table(cur, fm):
+            if not self._transfer_repldata_transfer_table(cur, fm, current_tz):
                 raise Exception(("FileMakerWorkstation._transfer_tables_to_filemaker: "
                                  "_transfer_repldata_transfer_table() returned False."))
 
@@ -821,9 +854,9 @@ class FileMakerWorkstation(RecordingWorkstation):
         cur.close()
         return False
 
-    def _sync_file_tables_in_filemaker(self, fm: FileMakerControl):
+    def _sync_file_tables_in_filemaker(self, fm: FileMakerControl, current_tz: KioskTimeZoneInstance):
         dsd = self._get_workstation_dsd()
-        columns = dsd.list_fields(dsd.files_table)
+        columns = dsd.omit_fields_by_datatype(dsd.files_table, dsd.list_fields(dsd.files_table), "tz")
         if self._table_didnt_need_transfer(dsd.files_table):
             cur = KioskSQLDb.get_dict_cursor()
             if cur is None:
@@ -832,21 +865,21 @@ class FileMakerWorkstation(RecordingWorkstation):
             try:
                 src_table_name = self._id + "_" + dsd.files_table
                 latest_record_data = self._get_up_to_date_markers_from_table(cur, dsd, src_table_name, dsd.files_table)
-                if fm.check_is_table_already_up_to_date(dsd.files_table, latest_record_data):
+                if fm.check_is_table_already_up_to_date(dsd.files_table, latest_record_data, current_tz=current_tz):
                     logging.debug(f"{self.__class__.__name__}._sync_file_tables_in_filemaker: "
-                                  f"step 'sync_internal_files_tables' skipped because table {dsd.files_table} does not need an update.")
+                                  f"step 'sync_internal_files_tables' skipped because table {dsd.files_table} "
+                                  f"does not need an update.")
                     return True
                 else:
                     logging.debug(f"{self.__class__.__name__}._sync_file_tables_in_filemaker: "
                                   f"step cannot be skipped because Kiosk's table '{dsd.files_table}' "
                                   f"differs from the one in FileMaker.")
-
             finally:
                 cur.close()
 
         return fm.sync_internal_files_tables(dsd.files_table, columns)
 
-    def _transfer_image_transfer_table(self, cur, fm) -> bool:
+    def _transfer_image_transfer_table(self, cur, fm, current_tz) -> bool:
         """ transfers the contents of the table id_fm_image_transfer from the master-Model to the
             filemaker-Model. Don't use outside of _transfer_tables_to_filemaker.
 
@@ -855,11 +888,19 @@ class FileMakerWorkstation(RecordingWorkstation):
         """
         src_table_name = KioskSQLDb.sql_safe_namespaced_table(namespace=self._db_namespace,
                                                               db_table=self._id + "_fm_image_transfer")
-        field_list = ["id", "uid_file", "filepath_and_name", "location", "resolution", "disabled", "file_type",
-                      "file_size"]
+        field_list = {"id": ("uuid", None),
+                      "uid_file": ("varchar", None),
+                      "filepath_and_name": ("varchar", None),
+                      "location": ("varchar", None),
+                      "resolution": ("varchar", None),
+                      "disabled": ("boolean", None),
+                      "file_type": ("varchar", None),
+                      "file_size": ("int", None)
+                      }
+
         sql_select = 'SELECT '
         comma = ""
-        for f in field_list:
+        for f in field_list.keys():
             sql_select = sql_select + comma + '"' + f + '"'
             comma = ", "
         sql_select = sql_select + ' FROM ' + src_table_name + ';'
@@ -867,14 +908,16 @@ class FileMakerWorkstation(RecordingWorkstation):
 
         logging.info(("\nFileMakerWorkstation._transfer_image_transfer_table: "
                       "About to copy " + str(cur.rowcount) + " lines from " + src_table_name + " to filemaker"))
-        rc = fm.transfer_table_data_to_filemaker(cur, None, "fm_image_transfer", field_list)
+        # rc = fm.transfer_table_data_to_filemaker(cur, dsd.files_table, "fm_image_transfer", field_list)
+        fm: FileMakerControl
+        rc = fm.transfer_non_dsd_table_data_to_filemaker(cur, field_list, "fm_image_transfer", current_tz=current_tz)
         if rc == 2:
             # table was already up to date.
             self._register_no_transfer_necessary("fm_image_transfer")
 
         return bool(rc)
 
-    def _transfer_repldata_transfer_table(self, cur, fm) -> bool:
+    def _transfer_repldata_transfer_table(self, cur, fm, current_tz) -> bool:
         """ transfers the contents of the table id_fm_repldata_transfer from the master-Model to the
             filemaker-Model. Don't use outside of _transfer_tables_to_filemaker.
 
@@ -884,10 +927,18 @@ class FileMakerWorkstation(RecordingWorkstation):
 
         src_table_name = KioskSQLDb.sql_safe_namespaced_table(namespace=self._db_namespace,
                                                               db_table=self._id + "_fm_repldata_transfer")
-        field_list = ["id", "tablename", "uid", "modified", "modified_by"]
+        # todo timezone this needs a modified_tz field
+        field_list = {"id": ("int", None),
+                      "tablename": ("varchar", None),
+                      "uid": ("uuid", None),
+                      # that's why the dsd instruction "tz_type()" is not allowed on modified fields:
+                      "modified": ("timestamp", "u"),
+                      "modified_tz": ("tz", None),
+                      "modified_by": ("varchar", None)}
+
         sql_select = 'SELECT '
         comma = ""
-        for f in field_list:
+        for f in field_list.keys():
             sql_select = sql_select + comma + '"' + f + '"'
             comma = ", "
         sql_select = sql_select + ' FROM ' + src_table_name + ';'
@@ -900,8 +951,9 @@ class FileMakerWorkstation(RecordingWorkstation):
             logging.info(f"FileMakerWorkstation._transfer_repldata_transfer_table: "
                          f"No records in {src_table_name}: import replication data can be skipped later.")
             self._register_no_transfer_necessary("fm_repldata_transfer")
-
-        return bool(fm.transfer_table_data_to_filemaker(cur, None, "fm_repldata_transfer", field_list))
+        fm: FileMakerControl
+        return bool(fm.transfer_non_dsd_table_data_to_filemaker(cur, field_list, "fm_repldata_transfer",
+                                                                current_tz=current_tz))
 
     def _gather_repldata(self, cur, dsd: DataSetDefinition, tablename):
         """
@@ -921,16 +973,26 @@ class FileMakerWorkstation(RecordingWorkstation):
                                                                   db_table=self._id + "_fm_repldata_transfer")
 
             sql_repldata_insert = f"INSERT INTO {transfer_table}"
-            sql_repldata_insert += "(\"tablename\", \"uid\", \"modified\", \"modified_by\")"
+            sql_repldata_insert += "(\"tablename\", \"uid\", \"modified\", \"modified_tz\", \"modified_by\")"
             ok = True
-            for fld_name in ["replfield_uuid", "replfield_modified", "replfield_modified_by"]:
-                fld = dsd.get_fields_with_instructions(tablename, [fld_name])
+            for instruction_name in ["replfield_uuid", "replfield_modified", "replfield_modified_by"]:
+                fld = dsd.get_fields_with_instructions(tablename, [instruction_name])
                 if fld and len(fld) == 1:
-                    fld_names.append(next(iter(fld.keys())))
+                    fld_name = next(iter(fld.keys()))
+                    fld_names.append(fld_name)
+                    if instruction_name == "replfield_modified":
+                        tz_field_name = fld_name + "_tz"
+                        if dsd.get_field_datatype(tablename, tz_field_name) == "tz":
+                            fld_names.append(tz_field_name)
+                        else:
+                            ok = False
+                            logging.debug(f"{self.__class__.__name__}._gather_repl_data: "
+                                          f"dsd table {tablename} lacks _tz field {tz_field_name}")
+                            break
                 else:
                     ok = False
                     logging.debug(f"{self.__class__.__name__}._gather_repl_data: "
-                                  f"dsd table {tablename} lacks replication field {fld_name}")
+                                  f"dsd table {tablename} lacks replication field {instruction_name}")
                     break
         except Exception as e:
             logging.error(("FileMakerWorkstation._gather_repldata: "
@@ -959,14 +1021,23 @@ class FileMakerWorkstation(RecordingWorkstation):
 
         return ok
 
-    def _transfer_table_data_to_filemaker(self, cur, fm, dsd: DataSetDefinition, tablename, dest_tablename="") -> bool:
+    def _transfer_table_data_to_filemaker(self, cur, fm, dsd: DataSetDefinition, tablename, dest_tablename="",
+                                          current_tz=None) -> bool:
         """ transfers the data from a single table from the master-Model to the
             filemaker-Model.
             returns true or false, does not catch exceptions.
 
-            todo: redesign
-            todo: refactor
+            :param cur: open Postgres cursor
+            :param fm: open FileMakerControl instance
+            :param dsd: DataSetDefinition
+            :param tablename: the source table name
+            :param dest_tablename: the destination table name if different from the source table name
+            :param current_tz: required time zone to interpret the FileMaker database timestamps
+            :return: boolean
+            :raises nothing particular but can let Exceptions through
         """
+        assert current_tz
+
         if not dest_tablename:
             dest_tablename = tablename
 
@@ -974,11 +1045,12 @@ class FileMakerWorkstation(RecordingWorkstation):
         src_table_name = self._id + "_" + tablename
         sql_select = 'SELECT '
         comma = ""
-        # todo time zone: must include both the Zulu and the _tz timestamps
+
         for f in dsd.list_fields(tablename):
             sql_select = sql_select + comma + '"' + f + '"'
             comma = ", "
 
+        # these markers are UTC!
         latest_record_data = self._get_up_to_date_markers_from_table(cur, dsd, src_table_name, tablename)
 
         san_src_table_name = KioskSQLDb.sql_safe_namespaced_table(namespace=self._db_namespace,
@@ -990,8 +1062,11 @@ class FileMakerWorkstation(RecordingWorkstation):
                          f"About to copy {str(cur.rowcount)} lines from {san_src_table_name} "
                          f"to filemaker:{dest_tablename}")
 
-            rc = fm.transfer_table_data_to_filemaker(cur, dsd, tablename, dest_tablename=dest_tablename,
-                                                     latest_record_data=latest_record_data)
+            rc = fm.transfer_table_data_to_filemaker(cur, dsd, tablename,
+                                                     dest_tablename=dest_tablename,
+                                                     latest_record_data=latest_record_data,
+                                                     current_tz=current_tz
+                                                     )
             if rc == 2:
                 # table was already up to date.
                 self._register_no_transfer_necessary(tablename)
@@ -1006,9 +1081,11 @@ class FileMakerWorkstation(RecordingWorkstation):
     def _get_up_to_date_markers_from_table(self, cur, dsd: DataSetDefinition, src_table_name, tablename):
         """
         returns markers that can be used to find out if a table's data is up to date.
-        The markers are the max and the number of dates in the table's modified-date field.
+        The markers are the max and the number of dates in the table's modified timestamp field.
 
-        :param cur: a valid database cursor
+        The result is UTC (legacy time stamps are counted as if they are UTC here).
+
+        :param cur: a valid Postgres database cursor
         :param dsd: the dataset definition
         :param src_table_name: the unquoted name of the source table (usually the tablename with a prefix. If
                the workstation uses a namespace it will be added automatically.
@@ -1034,35 +1111,41 @@ class FileMakerWorkstation(RecordingWorkstation):
             sets necessary values in the constant table of the workstation's filemaker-Model
 
         """
+        # todo timezone: all the time stamps need thinking
         cfg = SyncConfig.get_config()
-        rc = fm.set_constant("export_date", datetime.datetime.today())
+        rc = fm.set_constant("export_date", datetime.datetime.today().replace(microsecond=0))
         if rc:
             rc = fm.set_constant("export_device_id", self._id)
         if rc:
-            rc = fm.set_constant("fork_time", self.get_fork_time())
+            rc = fm.set_constant("fork_time", self.current_tz.utc_dt_to_user_dt(self.get_fork_time()))
         if rc:
-            rc = fm.set_constant("fork_sync_time", self.get_fork_sync_time())
+            rc = fm.set_constant("fork_sync_time", self.current_tz.utc_dt_to_user_dt(self.get_fork_sync_time()))
         if rc:
             rc = fm.set_constant("developer_mode", "false")
         if rc:
-            if self.user_time_zone_index:
-                raise NotImplementedError("filemaker needs a new time zone constant")
-                time_offset_str = kioskstdlib.local_time_offset_str(self.gmt_time_zone)
-                if time_offset_str:
-                    rc = fm.set_constant("utc_time_diff", time_offset_str)
-                    logging.info(f"{self.__class__.__name__}._set_workstation_constants: "
-                                 f"Workstation {self.get_id()} in time_zone {time_offset_str} ")
-                else:
-                    logging.error(f"{self.__class__.__name__}._set_workstation_constants: "
-                                  f"Error in time_zone setting {self.gmt_time_zone} "
-                                  f"for workstation {self.get_id()}")
-                    rc = False
+            if self.current_tz.user_tz_index:
+                time_zone_offset_str = "{:02d}:{:02d}:00".format(
+                    *kioskdatetimelib.get_time_zone_offset(datetime.datetime.now(),
+                                                           self.current_tz.user_tz_iana_name))
+                rc = fm.set_constant("utc_time_diff", time_zone_offset_str)
+                rc = fm.set_constant("user_time_zone", self.current_tz.user_tz_long_name)
+                rc = fm.set_constant("recording_time_zone", self.current_tz.recording_tz_long_name)
+                rc = fm.set_constant("user_iana_time_zone", self.current_tz.user_tz_iana_name)
+                rc = fm.set_constant("recording_iana_time_zone", self.current_tz.recording_tz_iana_name)
+                logging.info(f"{self.__class__.__name__}._set_workstation_constants: "
+                             f"Workstation {self.get_id()} in time_zone {self.current_tz.user_tz_long_name}: "
+                             f"{time_zone_offset_str} ")
             else:
+                logging.warning(f"{self.__class__.__name__}._set_workstation_constants: "
+                                f"Workstation {self.get_id()} gets utc_time_diff from local_time_offset_str"
+                                f"which should not be the case.")
                 rc = fm.set_constant("utc_time_diff", kioskstdlib.local_time_offset_str())
         if rc:
             rc = fm.set_constant("database_name", kioskstdlib.get_filename_without_extension(cfg.filemaker_db_filename))
         if rc:
-            rc = fm.set_constant("utc_offset_server", kioskstdlib.local_time_offset_str())
+            time_zone_offset_str = "{:02d}:{:02d}:00".format(
+                *kioskdatetimelib.get_time_zone_offset(datetime.datetime.now(datetime.timezone.utc).astimezone()))
+            rc = fm.set_constant("utc_offset_server", time_zone_offset_str)
 
         return rc
 
@@ -1197,16 +1280,15 @@ class FileMakerWorkstation(RecordingWorkstation):
             returns the fork time of the workstation as stored in the database.
             If debug_fork_sync_time is set, that one will be returned instead.
 
-            In any case, microseconds will be set to 0.
+            In any case, microseconds will be set to 0, time zone information will be dropped.
+            :returns a datetime or None (should not happen)
         """
         if self.debug_fork_sync_time and isinstance(self.debug_fork_sync_time, datetime.datetime):
             fork_time = self.debug_fork_sync_time
         else:
             fork_time = self._get_workstation_attribute_from_db("fork_time")
 
-        fork_time = fork_time.replace(microsecond=0)
-
-        return fork_time
+        return fork_time.replace(microsecond=0, tzinfo=None) if fork_time else fork_time
 
     def _compare_imported_fork_time(self, ws_fork_time: datetime.datetime):
         """
@@ -1877,6 +1959,7 @@ class FileMakerWorkstation(RecordingWorkstation):
         kiosk database. If so, the image identifier cache needs to be recreated.
         :return:
         """
+        # todo timezone
         fork_sync_time = self.get_fork_sync_time()
         logging.debug(f"{self.__class__.__name__}._build_file_identifier_cache_necessary: "
                       f"{self.ws_fork_sync_time} !=? {fork_sync_time}")

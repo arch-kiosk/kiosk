@@ -19,6 +19,7 @@ dsd3_images_file2 = os.path.join(data_dir, "dsd3_unit.yml")
 dsd3_images_file = os.path.join(data_dir, "dsd3_images.yml")
 dsd2_file = os.path.join(data_dir, "dsd2.yml")
 dsd3_test_file = os.path.join(data_dir, "dsd3_test.yml")
+dsd3_test_tz_type_file = os.path.join(data_dir, "dsd3_test_tz_type.yml")
 dsd3_external_test_base_file = os.path.join(data_dir, "dsd3_external_test_base.yml")
 dsd3_import_test_base_file = os.path.join(data_dir, "dsd3_import_test_base_file.yml")
 dsd3_rename_table_test = os.path.join(data_dir, "dsd3_rename_table_test.yml")
@@ -210,6 +211,16 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert len(field["datatype"]) == 1
         assert field["datatype"][0] == "VARCHAR"
 
+    def test_get_field_instructions_with_pattern(self, dsd_images_and_units_and_test):
+        dsd: DataSetDefinition = dsd_images_and_units_and_test
+        assert dsd.append_file(dsd3_dropped_table_file)
+
+        field = dsd.get_field_instructions("test", "modified_by")
+        assert field == {'replfield_modified_by': [], 'datatype': ['varchar'], 'default': ['sys']}
+
+        field = dsd.get_field_instructions("test", "modified_by", patterns=["default", "replfield_modified_by"])
+        assert field == {'replfield_modified_by': [], 'default': ['sys']}
+
     def test_get_fields_with_instruction(self, dsd_images_and_units_and_test):
         dsd: DataSetDefinition = dsd_images_and_units_and_test
         assert dsd.append_file(dsd3_dropped_table_file)
@@ -317,8 +328,8 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert len(field["datatype"]) == 1
         assert field["datatype"][0].lower() == "uuid"
 
-        assert "REPLFIELD_UUID" in field
-        assert len(field["REPLFIELD_UUID"]) == 0
+        assert "replfield_uuid" in field
+        assert len(field["replfield_uuid"]) == 0
 
         assert "file_for" in field
         assert len(field["file_for"]) == 1
@@ -516,7 +527,7 @@ class TestDataSetDefinition(KioskPyTestHelper):
 
     def test_get_modified_field(self, dsd_images_and_units_and_test):
         dsd: DataSetDefinition = dsd_images_and_units_and_test
-        assert dsd.get_modified_field("images") == ""
+        assert dsd.get_modified_field("images") == "modified"
         assert dsd.get_modified_field("unit") == "modified"
 
     def test_list_fields_with_instruction(self, dsd_images_and_units_and_test):
@@ -540,10 +551,10 @@ class TestDataSetDefinition(KioskPyTestHelper):
     def test_list_tables_with_instructions(self, dsd_images_and_units_and_test):
         dsd: DataSetDefinition = dsd_images_and_units_and_test
         tables = dsd.list_tables_with_instructions(["replfield_uuid"])
-        assert tables == ["unit"]
+        assert tables == ["images", "unit", "test"]
         dsd.append_file(dsd3_dayplan)
         tables = dsd.list_tables_with_instructions(["replfield_uuid"])
-        assert tables == ["unit", "dayplan"]
+        assert tables == ["images", "unit", "test", "dayplan"]
 
     def test_table_has_meta_flag(self, dsd_images_and_units_and_test):
         dsd: DataSetDefinition = dsd_images_and_units_and_test
@@ -850,7 +861,52 @@ class TestDataSetDefinition(KioskPyTestHelper):
                     }
                 }
             }
-        }) == {"table1": {1:{
+        }) == {"table1": {1: {
             "feld2_tz": ["datatype(TZ)"]
         }}}
 
+    def test_get_tz_type_for_field(self, dsd_images_and_units):
+        dsd: DataSetDefinition = dsd_images_and_units
+        assert dsd.append_file(dsd3_test_tz_type_file)
+        assert dsd.get_tz_type_for_field("test", "some_date") == "r"
+        assert dsd.get_tz_type_for_field("test", "explicit_r") == "r"
+        assert dsd.get_tz_type_for_field("test", "modified") == "u"
+        assert dsd.get_tz_type_for_field("test", "created") == "u"
+        assert dsd.get_tz_type_for_field("test", "dontsync") == "u"
+
+        # tests if a tz_type(r) is ignored for a modified field
+        assert dsd.get_tz_type_for_field("test2", "modified") == "u"
+
+    def test_omit_fields_by_datatype(self, dsd_images_and_units):
+        dsd: DataSetDefinition = dsd_images_and_units
+        assert dsd.append_file(dsd3_test_tz_type_file)
+        field_list = dsd.list_fields("test")
+        assert field_list == ['name',
+                              'description',
+                              'some_date',
+                              'explicit_r',
+                              'dontsync',
+                              'uid',
+                              'created',
+                              'modified',
+                              'modified_by',
+                              'some_date_tz',
+                              'explicit_r_tz',
+                              'dontsync_tz',
+                              'created_tz',
+                              'modified_tz']
+        assert dsd.omit_fields_by_datatype("test", field_list, "tz") == ['name',
+                                                                         'description',
+                                                                         'some_date',
+                                                                         'explicit_r',
+                                                                         'dontsync',
+                                                                         'uid',
+                                                                         'created',
+                                                                         'modified',
+                                                                         'modified_by',
+                                                                         # 'some_date_tz',
+                                                                         # 'explicit_r_tz',
+                                                                         # 'dontsync_tz',
+                                                                         # 'created_tz',
+                                                                         # 'modified_tz'
+                                                                         ]

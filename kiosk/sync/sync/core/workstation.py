@@ -1,4 +1,5 @@
 import logging
+from typing import Union
 
 import kioskrepllib
 import kioskstdlib
@@ -9,6 +10,7 @@ from migration.migration import Migration
 from migration.postgresdbmigration import PostgresDbMigration
 from statemachine import StateMachine
 from sync_config import SyncConfig
+from tz.kiosktimezoneinstance import KioskTimeZoneInstance
 
 
 class Dock:
@@ -53,6 +55,7 @@ class Dock:
         self.user_time_zone_index = ""
         self.recording_time_zone_index = ""
         self.grant_access_to = ""
+        self.current_tz: Union[KioskTimeZoneInstance, None] = None
 
         try:
             self._exists = self._load()
@@ -289,7 +292,7 @@ class Dock:
                 sql = "INSERT " + ("INTO \"repl_workstation\"(\"id\",\"description\",\"recording_group\", \"state\", "
                                    "\"workstation_type\", \"user_time_zone_index\", \"grant_access_to\", "
                                    "\"recording_time_zone_index\") "
-                                   "VALUES(%s, %s, %s, %s, %s, %s, %s)")
+                                   "VALUES(%s, %s, %s, %s, %s, %s, %s, %s)")
 
                 cur.execute(sql, [self._id,
                                   self.description,

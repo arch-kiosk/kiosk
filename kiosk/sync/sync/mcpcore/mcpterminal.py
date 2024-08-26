@@ -398,6 +398,15 @@ if __name__ == '__main__':
         raise Exception(f"Could not load Kiosk configuration from '{config_file}'")
     print(f" ** MCP running within {sync_config.base_path} using {config_file} ** ")
 
+    development_system = False
+    try:
+        development_system = kioskstdlib.to_bool(sync_config["development"]["development_system"])
+    except BaseException:
+        pass
+
+    if development_system:
+        print(f" ** MCP running on development system: Safety checks disabled ** ")
+
     in_debug_mode = False
     if len(sys.argv) > 2:
         param = sys.argv[2]
@@ -417,7 +426,7 @@ if __name__ == '__main__':
         logging.error(f"ERROR in MCP Terminal, main: Redis not running. Aborting.")
         exit(-1)
 
-    if MCPQueue(gs).is_mcp_alive():
+    if MCPQueue(gs).is_mcp_alive() and not development_system:
         print(f"MCP Terminal, main: There is another system. Aborting. (Please wait 10 seconds and try again)")
         logging.error(f"ERROR in MCP Terminal, main: Attempt to start MCP twice.")
         exit(0)

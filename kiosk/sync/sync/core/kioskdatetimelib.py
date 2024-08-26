@@ -1,4 +1,5 @@
 import datetime
+import math
 import time
 import logging
 import re
@@ -210,6 +211,19 @@ def local_time_offset(t=None):
         return int(-time.timezone / 60 / 60)
 
 
+def get_time_zone_offset(dt: datetime, iana_name: str = "") -> (int, int):
+    """
+    returns the time zone offset as a tuple in terms of hh and mm
+    :param dt: a datetime (if there is a iana_name and it has a tzinfo, the tzinfo will be discarded)
+    :param iana_name: the iana name of the time zone to which the dt belongs
+    :return: a tuple of hour and minutes
+    """
+    if iana_name:
+        dt = dt.replace(tzinfo=zoneinfo.ZoneInfo(iana_name))
+    return (math.trunc(dt.utcoffset() / datetime.timedelta(hours=1)),
+            math.trunc(dt.utcoffset() / datetime.timedelta(minutes=1) % 60))
+
+
 def local_time_offset_str(gmt_time_zone: str = "") -> str:
     """
     ! deprecated !
@@ -319,7 +333,8 @@ def js_to_python_utc_datetime_str(utc_datetime_str):
 def utc_ts_to_timezone_ts(utc_datetime: Union[datetime, str], time_zone: str) -> datetime.datetime:
     """
     converts a utc timestamp to the local time of the time zone and drops the time zone information
-    :param utc_datetime: either a datetime object or a string in iso8601 format
+    :param utc_datetime: either a datetime object or a string in iso8601 format.
+                         No matter if this value has a time zone info itself or not, "utc" will be assigned.
     :param time_zone: a IANA time zone string
     :returns: a datetime with local time of the time zone and the time zone information dropped.
     """
@@ -329,7 +344,13 @@ def utc_ts_to_timezone_ts(utc_datetime: Union[datetime, str], time_zone: str) ->
     if isinstance(utc_datetime, str):
         dt = kioskstdlib.str_to_iso8601(utc_datetime)
     else:
-        dt = utc_datetime
+        if isinstance(utc_datetime, datetime.datetime):
+            dt = utc_datetime
+        else:
+            raise ValueError("parameter utc_datetime is not string nor datetime")
+
+    dt = dt.replace(tzinfo=datetime.timezone.utc)
+
     tz = zoneinfo.ZoneInfo(time_zone)
     if not tz:
         raise ValueError(f"{time_zone} is not a valid IANA time zone ")
@@ -339,9 +360,47 @@ def utc_ts_to_timezone_ts(utc_datetime: Union[datetime, str], time_zone: str) ->
     return dt_tz.replace(tzinfo=None)
 
 
-def get_utc_now() -> datetime.datetime:
+def get_utc_now(no_tz_info=False, no_ms=False) -> datetime.datetime:
     """
     returns the current date and time in the UTC time zone
+    :param no_tz_info: cuts off the time zone info from the datetime
+    :param no_ms: removes microseconds
     :return: a datetime
     """
-    return datetime.datetime.now(datetime.timezone.utc)
+    ts = datetime.datetime.now(datetime.timezone.utc)
+    if no_tz_info:
+        ts = ts.replace(tzinfo=None)
+    if no_ms:
+        ts = ts.replace(microsecond=0)
+    return ts
+
+
+def time_zone_ts_to_utc(utc_datetime: Union[datetime, str], time_zone: str) -> datetime.datetime:
+    """
+    converts a timestamp of a certain time zone to the utc time zone and drops the time zone information
+    :param utc_datetime: either a datetime object or a string in iso8601 format.
+                         No matter if this value has a time zone info itself or not, the "time_zone" parameter
+                         will determine the source time zone
+    :param time_zone: a IANA time zone string
+    :returns: a datetime with local time of the time zone and the time zone information dropped.
+    """
+    if not time_zone or not utc_datetime:
+        raise ValueError("empty parameter in utc_ts_to_time_zone_ts")
+
+    if isinstance(utc_datetime, str):
+        dt = kioskstdlib.str_to_iso8601(utc_datetime)
+    else:
+        if isinstance(utc_datetime, datetime.datetime):
+            dt = utc_datetime
+        else:
+            raise ValueError("parameter utc_datetime is not string nor datetime")
+
+    tz = zoneinfo.ZoneInfo(time_zone)
+    if not tz:
+        raise ValueError(f"{time_zone} is not a valid IANA time zone ")
+
+    dt = dt.replace(tzinfo=tz)
+
+    dt_tz = dt.astimezone(datetime.timezone.utc)
+
+    return dt_tz.replace(tzinfo=None)

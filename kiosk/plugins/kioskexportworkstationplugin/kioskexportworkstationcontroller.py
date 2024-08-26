@@ -220,7 +220,7 @@ def mcp_workstation_action(worker_module, worker_class, ws_id, privilege="",
         job.set_worker(worker_module, worker_class)
         job.system_lock = system_lock
         job.job_data = {"workstation_id": ws_id}
-        job.user_data = {"uuid": current_user.get_id()}
+        job.user_data = current_user.to_dict()
         job.meta_data = [*meta_data, JOB_META_TAG_WORKSTATION]
         job.capture_log = True
         job.queue()

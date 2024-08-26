@@ -215,7 +215,7 @@ def start_synchronization():
                                 "housekeeping": bool(sync_options_form.so_housekeeping.data),
                                 }
                 job.meta_data = [JOB_META_TAG_SYNCHRONIZATION]
-                job.user_data = {"uuid": current_user.get_id()}
+                job.user_data = current_user.to_dict()
                 job.system_lock = False
                 job.queue()
                 job_uid = job.job_id

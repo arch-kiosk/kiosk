@@ -229,7 +229,7 @@ def mcp_workstation_action(worker_module, worker_class, ws_id, privilege="",
         job.job_data = {"workstation_id": ws_id}
         if additional_job_data:
             job.job_data = job.job_data | additional_job_data
-        job.user_data = {"uuid": current_user.get_id()}
+        job.user_data = current_user.to_dict()
         job.meta_data = [*meta_data, JOB_META_TAG_WORKSTATION]
         job.queue()
         if job.job_id:

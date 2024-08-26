@@ -14,7 +14,7 @@ from kioskquery.kioskquerystore import KioskQueryStore
 from kioskquery.structuredkioskquery import StructuredKioskQuery
 from kiosksqldb import KioskSQLDb
 from test.testhelpers import KioskPyTestHelper
-from tz.kiosktimezone import KioskTimeZones
+from tz.kiosktimezones import KioskTimeZones
 
 test_path = os.path.dirname(os.path.abspath(__file__))
 config_file = os.path.join(test_path, r"config", "kiosk_config.yml")

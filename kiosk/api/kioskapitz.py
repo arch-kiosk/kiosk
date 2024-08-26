@@ -9,7 +9,7 @@ from marshmallow import Schema, fields
 
 import kioskstdlib
 from kioskglobals import get_config, httpauth
-from tz.kiosktimezone import KioskTimeZones
+from tz.kiosktimezones import KioskTimeZones
 
 
 class ApiResultTimeZone(Schema):

@@ -11,7 +11,7 @@ import logging
 from kiosklib import is_ajax_request
 from kiosksqldb import KioskSQLDb
 from kioskuser import KioskUser
-from tz.kiosktimezone import KioskTimeZones
+from tz.kiosktimezones import KioskTimeZones
 
 _plugin_name_ = "login_plugin"
 _controller_name_ = "login_controller"
@@ -213,9 +213,9 @@ def manage_time_zone(uuid):
         if recording_tz_index == 0:
             recording_tz_index = None
 
-        if force_tz_index != user.force_tz_index or recording_tz_index != user.recording_tz_index:
+        if force_tz_index != user.force_tz_index or recording_tz_index != user._recording_tz_index:
             user.force_tz_index = force_tz_index
-            user.recording_tz_index = recording_tz_index
+            user._recording_tz_index = recording_tz_index
             if not user.save():
                 return jsonify(result="error", message="For some reason the new time zone settings could not be saved")
             else:

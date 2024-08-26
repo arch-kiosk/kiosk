@@ -16,7 +16,7 @@ from kioskjwt import KioskJWT
 from flask_httpauth import HTTPTokenAuth
 from uic.uictree import UICTree
 from uic.uicstream import UICStream, UICKioskFile
-from tz.kiosktimezone import KioskTimeZones
+from tz.kiosktimezones import KioskTimeZones
 import datetime
 import kioskversion
 import threading

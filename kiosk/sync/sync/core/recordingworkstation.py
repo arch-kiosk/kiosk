@@ -132,22 +132,19 @@ class RecordingWorkstation(Dock):
 
     def get_fork_time(self):
         """
-            todo: document
-            todo: redesign
-            todo: refactor
+            returns the utc fork time without milliseconds or time zone
+            :returns a datetime without microseconds and time zone or None
         """
         fork_time = self._get_workstation_attribute_from_db("fork_time")
-        if fork_time:
-            fork_time = fork_time.replace(microsecond=0)
-        return fork_time
+        return fork_time.replace(microsecond=0, tzinfo=None) if fork_time else fork_time
 
     def get_fork_sync_time(self):
         """
-            todo: document
-            todo: redesign
-            todo: refactor
+            return the utc fork sync time for the workstation
+            :returns a datetime without microseconds and time zone or None
         """
-        return self._get_workstation_attribute_from_db("fork_sync_time")
+        ts: datetime.datetime = self._get_workstation_attribute_from_db("fork_sync_time")
+        return ts.replace(microsecond=0, tzinfo=None) if ts else ts
 
     def get_recording_group(self):
         """
@@ -432,7 +429,7 @@ class RecordingWorkstation(Dock):
                 # fork_sync_time = KioskSQLDb.get_field_value("replication", "id", "sync_time", "value")
                 cur.execute(f'update ' + f'"repl_workstation" set "fork_time" = %s, "fork_sync_time" = %s '
                                          f'where "id" = %s',
-                            [datetime.datetime.now(), fork_sync_time, self._id])
+                            [kioskstdlib.get_utc_now(no_tz_info=True, no_ms=True), fork_sync_time, self._id])
                 KioskSQLDb.commit()
                 cur.close()
                 return True

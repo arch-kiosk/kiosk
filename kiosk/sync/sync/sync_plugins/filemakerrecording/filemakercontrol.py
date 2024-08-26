@@ -21,8 +21,57 @@ class FileMakerControl:
         logging.error("direct call to base class FileMakerControl.start_fm_database")
         return False
 
-    def transfer_table_data_to_filemaker(self, db_cur, dsd: DataSetDefinition, tablename, latest_record_data=None):
+    def transfer_table_data_to_filemaker(self, db_cur, dsd: DataSetDefinition, tablename,
+                                         fieldlist=None, dest_tablename="",
+                                         latest_record_data=None,
+                                         current_tz=None):
         logging.error("direct call to base class FileMakerControl.transfer_table_data_to_filemaker")
+        return False
+
+    def transfer_non_dsd_table_data_to_filemaker(self, db_cur,
+                                                 fieldlist: dict, dest_tablename="", latest_record_data=None,
+                                                 current_tz = None,
+                                                 truncate=True,
+                                                 delete_key_field=""):
+        """ Transfers data from a table in an open odbc database to the same table in the filemaker database
+            wants an open odbc database as source in db_cur, a DataSetDefinition that defines the columns to copy and
+            the name of the table to copy. \n
+
+            As an alternative to the DataSetDefinition, a list with fieldnames can be supplied.
+            The odbc database and the filemaker database need to be open. \n
+
+            if no dsd is provided the target table will always be truncated. Otherwise the dsd table flag
+            EXPORT_DONT_TRUNCATE can prevent this.
+
+            returns True or False.
+
+            :param db_cur: open postgres cursor
+            :param fieldlist: required. A dictionary with fields as keys and a tuple as value.
+                                        the field tuple consists of
+                                        [0] datetype: a dsd data type,
+                                        [1] timezone type: None for non-datetimes, "r" or "u" for datetimes
+            :param dest_tablename: required. The table name
+            :param latest_record_data: a tuple: (modified_field_name, max_modified_by, record_count).
+                                       If set the whole transfer will only happen if the most recent value of
+                                       the modified_field_name (usually "modified") is
+                                       different between the src and dest or if the number of records differs
+                                       between the two tables. If Null, the transfer will always proceed.
+                                       Note: The latest_record_data is in UTC time zone.
+            :param current_tz: required current time zone information to user for FileMaker
+            :param truncate: optional default True.
+                             if False every single record is deleted with a delete statement first.
+                             Needs the delete_key_field.
+            :param delete_key_field: required IF truncate is False. The field that is the key field for the table.
+                                     Usually "uid"
+            :return: 0: method did not succeed
+                     1: data was transferred successfully
+                     2: data did not need to be transferred: Table was already up to date
+            :raises nothing in particular but can let a few Exceptions through
+
+            :todo: refactor It is a bit longish.
+            :todo: test
+        """
+        logging.error("direct call to base class FileMakerControl.transfer_non_dsd_table_data_to_filemaker")
         return False
 
     def select_table_data(self, dsd: DataSetDefinition, tablename, version=0, import_filter=""):
@@ -93,7 +142,8 @@ class FileMakerControl:
         logging.error("Access to getfieldvalue of the abstract class UrapFileMakerControl is illegal.")
         return (None)
 
-    def check_is_table_already_up_to_date(self, tablename, latest_record_data) -> bool:
+    def check_is_table_already_up_to_date(self, tablename, latest_record_data,
+                                          current_tz=None) -> bool:
         """
         exposes the internal _check_is_table_already_up_to_date for outside use.
         Opens a FM cursor and checks if the table's data matches the provided latest_record_data.
@@ -101,6 +151,7 @@ class FileMakerControl:
 
         :param tablename: the name  of the table
         :param latest_record_data: a Tuple (see _check_is_table_already_up_to_date)
+        :param current_tz: required. a KioskTimeZoneInstance object
         :return: bool
         """
         raise NotImplementedError

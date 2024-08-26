@@ -5,6 +5,7 @@ from os import path
 from pprint import pprint, pformat
 from typing import List
 
+import kioskdatetimelib
 import kioskrepllib
 from eventmanager import EventManager
 from fts.ftsview import FTSView
@@ -1283,9 +1284,10 @@ class Synchronization(PluginLoader):
         return ok
 
     @classmethod
-    def get_sync_time(cls) -> typing.Union[None, datetime.datetime]:
+    def get_sync_time(cls) -> typing.Optional[datetime.datetime]:
         """
-            Just returns the last sync time if there is one. 
+            Just returns the last utc sync time if there is one.
+            cuts off the time zone info and microseconds
         """
 
         try:
@@ -1295,7 +1297,7 @@ class Synchronization(PluginLoader):
         except BaseException as e:
             sync_time = None
 
-        return sync_time
+        return sync_time.replace(tzinfo=None, microsecond=0) if sync_time else sync_time
 
     @staticmethod
     def update_sync_time() -> bool:
@@ -1322,7 +1324,7 @@ class Synchronization(PluginLoader):
                   f'{KioskSQLDb.sql_safe_ident("ts")}=%(value)s'
             # f' where {KioskSQLDb.sql_safe_ident("id")}=%(id)s'
 
-            sync_time = datetime.datetime.now()
+            sync_time = kioskdatetimelib.get_utc_now(no_ms=True)
             cur.execute(sql,
                         {"id": "sync_time", "value": sync_time})
             return True

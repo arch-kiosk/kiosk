@@ -1,0 +1,85 @@
+config:
+  format_version: 3
+  some_other_config: 3
+  imports:
+    - test_contexts.yml
+    - test_contexts_2.yml
+
+test:
+  meta:
+    flags: ["filemaker_workstation", "not_in_master"]
+  structure:
+    3:
+      name: [datatype("VARCHAR")]
+      description: [datatype("VARCHAR")]
+      some_date: [datatype("TIMESTAMP")]
+      explicit_r: [datatype("TIMESTAMP"), tz_type("r")]
+      dontsync: [datatype("TIMESTAMP"), no_sync(), tz_type("u")]  #don't include this field in any synchronizaiton
+      uid: [datatype("UUID"), REPLFIELD_UUID()]
+      created: [datatype("datetime"), REPLFIELD_CREATED()]
+      modified: [datatype("datetime"), REPLFIELD_MODIFIED()]
+      modified_by: [datatype("varchar"), REPLFIELD_MODIFIED_BY(), default("sys")]
+    2:
+      name: [datatype("VARCHAR")]
+      test_description: [datatype("VARCHAR")]
+      uid: [datatype("UUID"), REPLFIELD_UUID()]
+      created: [datatype("datetime"), REPLFIELD_CREATED()]
+      modified: [datatype("datetime"), REPLFIELD_MODIFIED()]
+      modified_by: [datatype("varchar"), REPLFIELD_MODIFIED_BY(), default("sys")]
+    1:
+      name: [datatype("VARCHAR")]
+      uid: [datatype("UUID"), REPLFIELD_UUID()]
+      created: [datatype("datetime"), REPLFIELD_CREATED()]
+      modified: [datatype("datetime"), REPLFIELD_MODIFIED()]
+      modified_by: [datatype("varchar"), REPLFIELD_MODIFIED_BY(), default("sys")]
+
+  migration:
+    3:
+      upgrade:
+      - rename("test_description", "description")
+      - add("dontsync")
+      downgrade:
+      - rename("description", "test_description")
+      - drop("dontsync")
+    2:
+      upgrade:
+      - add("description")
+
+test_types:
+  structure:
+    1:
+      typ1: [stringtype("'a string'")]
+      typ2: [numbertype(12.2)]
+      typ3: [functiontype("now()")]
+      typ4: [othertype("<a tag>")]
+      typ5: [nulltype("Null")]
+      typ6: [someotherinstruction("1"), stringtype("'a string'")]
+      typ7: [identifier()]
+      typ8: [identifier("additional")]
+      typ9: [identifier("error")]
+
+
+migration_catalog:
+  meta:
+    flags: [system_table]
+  structure:
+    1:
+      "uid": [datatype('UUID'), uuid_key()]
+      "table": [datatype('TEXT'), not_null(), unique()]
+      "table_definition": [datatype('TEXT'), not_null()]
+      "namespace": [datatype('TEXT'), default("''")]
+      "version": [datatype('INT'), not_null()]
+
+
+test2:
+  structure:
+    1:
+      name: [datatype("VARCHAR")]
+      description: [datatype("VARCHAR")]
+      some_date: [datatype("TIMESTAMP")]
+      explicit_r: [datatype("TIMESTAMP"), tz_type("r")]
+      dontsync: [datatype("TIMESTAMP"), no_sync(), tz_type("u")]  #don't include this field in any synchronizaiton
+      uid: [datatype("UUID"), REPLFIELD_UUID()]
+      created: [datatype("datetime"), REPLFIELD_CREATED()]
+      modified: [datatype("datetime"), REPLFIELD_MODIFIED(), tz_type(r)]
+      modified_by: [datatype("varchar"), REPLFIELD_MODIFIED_BY(), default("sys")]

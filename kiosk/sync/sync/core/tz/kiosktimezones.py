@@ -380,7 +380,6 @@ class KioskTimeZones:
         return (kioskstdlib.latin_date(record_ts) if latin else f"{record_ts}") + " " + time_zone
 
 
-
 # if __name__ == '__main__':
 #     # cfg = SyncConfig.get_config({'config_file': r'C:\notebook_source\kiosk\server\kiosk\kiosk\config\kiosk_config.yml'})
 #     # kiosk_tz = KioskTimeZones()
@@ -391,3 +390,4 @@ class KioskTimeZones:
 #     cfg = SyncConfig.get_config({'config_file': r'C:\notebook_source\kiosk\server\kiosk\kiosk\config\kiosk_config.yml'})
 #     kiosk_tz = KioskTimeZones()
 #     kiosk_tz.update_local_kiosk_time_zones(r"C:\notebook_source\kiosk\server\kiosk\kiosk\tools\tz\kiosk_tz.json")
+

@@ -598,7 +598,7 @@ if __name__ == '__main__':
                 print("Database Migration successful")
                 if "ntz" not in options:
                     try:
-                        from tz.kiosktimezone import KioskTimeZones
+                        from tz.kiosktimezones import KioskTimeZones
                         tz_dir = os.path.join(kiosk_dir, "tools", "tz")
                         kiosk_tz = KioskTimeZones()
                         kiosk_tz.update_local_kiosk_time_zones(os.path.join(tz_dir, "kiosk_tz.json"))

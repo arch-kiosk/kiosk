@@ -28,7 +28,7 @@ from kioskuser import KioskUser
 from messaging.systemmessage import SystemMessage
 from messaging.systemmessagecatalog import *
 from messaging.systemmessagelist import SystemMessages
-from tz.kiosktimezone import KioskTimeZones
+from tz.kiosktimezones import KioskTimeZones
 
 def basic_initialization(config_file):
     # Initialize logging and settings

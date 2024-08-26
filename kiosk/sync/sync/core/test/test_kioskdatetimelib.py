@@ -50,7 +50,7 @@ class TestDateTimeLib:
         ]
         for test in not_okay_tests:
             assert kioskdatetimelib.guess_latin_date(test) == "", (f"error testing"
-                                                                  f" {test[0]}: Should not have returned anything!")
+                                                                   f" {test[0]}: Should not have returned anything!")
 
     def test_check_urap_date_time(self):
         assert kioskdatetimelib.check_urap_date_time(
@@ -174,25 +174,51 @@ class TestDateTimeLib:
         utc_ts = datetime.datetime(day=1, month=8, year=2024, hour=21, minute=00, second=00,
                                    tzinfo=datetime.timezone.utc)
         assert kioskdatetimelib.utc_ts_to_timezone_ts(utc_ts, "Europe/Berlin") == datetime.datetime(day=1, month=8,
-                                                                                                   year=2024,
-                                                                                                   hour=23,
-                                                                                                   minute=00,
-                                                                                                   second=00)
+                                                                                                    year=2024,
+                                                                                                    hour=23,
+                                                                                                    minute=00,
+                                                                                                    second=00)
         assert kioskdatetimelib.utc_ts_to_timezone_ts(utc_ts, "Europe/London") == datetime.datetime(day=1, month=8,
-                                                                                                   year=2024,
-                                                                                                   hour=22,
-                                                                                                   minute=00,
-                                                                                                   second=00)
+                                                                                                    year=2024,
+                                                                                                    hour=22,
+                                                                                                    minute=00,
+                                                                                                    second=00)
 
         utc_ts = datetime.datetime(day=1, month=1, year=2024, hour=21, minute=00, second=00,
                                    tzinfo=datetime.timezone.utc)
         assert kioskdatetimelib.utc_ts_to_timezone_ts(utc_ts, "Europe/Berlin") == datetime.datetime(day=1, month=1,
-                                                                                                   year=2024,
-                                                                                                   hour=22,
-                                                                                                   minute=00,
-                                                                                                   second=00)
+                                                                                                    year=2024,
+                                                                                                    hour=22,
+                                                                                                    minute=00,
+                                                                                                    second=00)
         assert kioskdatetimelib.utc_ts_to_timezone_ts(utc_ts, "Europe/London") == datetime.datetime(day=1, month=1,
-                                                                                                   year=2024,
-                                                                                                   hour=21,
-                                                                                                   minute=00,
-                                                                                                   second=00)
+                                                                                                    year=2024,
+                                                                                                    hour=21,
+                                                                                                    minute=00,
+                                                                                                    second=00)
+
+    def test_utc_ts_to_time_zone_ts(self):
+        tz_berlin = zoneinfo.ZoneInfo("Europe/Berlin")
+        berlin_ts = datetime.datetime(day=19, month=8, year=2024, hour=15, minute=00, second=00,
+                                      tzinfo=tz_berlin)
+
+        assert kioskdatetimelib.time_zone_ts_to_utc(berlin_ts, "Europe/Berlin") == datetime.datetime(day=19, month=8,
+                                                                                                     year=2024,
+                                                                                                     hour=13,
+                                                                                                     minute=00,
+                                                                                                     second=00)
+
+        assert kioskdatetimelib.time_zone_ts_to_utc(berlin_ts, "Europe/London") == datetime.datetime(day=19, month=8,
+                                                                                                     year=2024,
+                                                                                                     hour=14,
+                                                                                                     minute=00,
+                                                                                                     second=00)
+
+    def test_get_time_zone_offset(self):
+        tz_berlin = zoneinfo.ZoneInfo("Europe/Berlin")
+        berlin_ts = datetime.datetime(day=19, month=8, year=2024, hour=15, minute=00, second=00,
+                                      tzinfo=tz_berlin)
+        assert kioskdatetimelib.get_time_zone_offset(berlin_ts, "Europe/Berlin") == (2, 0)
+        assert kioskdatetimelib.get_time_zone_offset(berlin_ts, "EST") == (-5, 0)
+        assert kioskdatetimelib.get_time_zone_offset(berlin_ts, "Asia/Kolkata") == (5, 30)
+        assert kioskdatetimelib.get_time_zone_offset(berlin_ts, "Pacific/Chatham") == (12, 45)

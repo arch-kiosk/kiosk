@@ -1,20 +1,22 @@
 import logging
+from typing import Union
 
 from flask_login import UserMixin
 from flask import request
 from werkzeug.security import generate_password_hash, check_password_hash
 
 import kioskglobals
+import kioskstdlib
 from generalstore.generalstorekeys import kiosk_core_security_tokens, kiosk_core_security_user_tokens
 from kioskconfig import KioskConfig
 from kioskglobals import get_general_store, get_config, get_jws
 from messaging.systemmessagecatalog import *
 from kiosksqldb import KioskSQLDb
-from tz.kiosktimezone import KioskTimeZones
+from tz.kiosktimezones import KioskTimeZones
 
 
 class KioskUser(UserMixin):
-    def __init__(self, user_uuid, check_token=True):
+    def __init__(self, user_uuid, check_token=True, init_dict=None):
         self._privileges = []
         self._groups = []
         self.id = None
@@ -24,14 +26,20 @@ class KioskUser(UserMixin):
         self.repl_user_id = ""
         self._token = ""
         self.force_tz_index = 0
-        self.recording_tz_index = 0
+        self._recording_tz_index: Union[int, None] = None
         self._group_threshold = MSG_SEVERITY_INFO
         self._user_threshold = MSG_SEVERITY_INFO
-        self.active_tz_name = ""
-        self.active_iana_tz_name = ""
+        self._active_tz_index: Union[int, None] = None
+        self._active_tz_name = ""
+        self._active_iana_tz_name = ""
+        self._recording_tz_name = ""
+        self._recording_tz_iana_name = ""
 
         if not self.load_user(user_uuid, check_token):
             raise Exception('kiosk user not found or an exception occurred. Please consult the logs')
+
+        if isinstance(init_dict, dict):
+            self.init_from_dict(init_dict)
 
     @property
     def message_threshold(self) -> (int, int):
@@ -148,7 +156,7 @@ class KioskUser(UserMixin):
                 self.user_name = r["user_name"]
                 self.must_change_pwd = r["must_change_pwd"]
                 self.force_tz_index = r["force_tz_index"]
-                self.recording_tz_index = r["recording_tz_index"]
+                self._recording_tz_index = r["recording_tz_index"]
                 if "groups" in r and r["groups"]:
                     self._groups = [x.strip() for x in r["groups"].split(",")]
                 self.repl_user_id = r["repl_user_id"]
@@ -209,7 +217,7 @@ class KioskUser(UserMixin):
 
                 KioskSQLDb.execute(sql, [self.user_id, self.user_name,
                                          self.force_tz_index,
-                                         self.recording_tz_index,
+                                         self._recording_tz_index,
                                          self.id])
                 return True
             else:
@@ -323,34 +331,39 @@ class KioskUser(UserMixin):
         returns the value of the recording_tz_index field
         :return: the value or 0 (which is simply the default)
         """
-        return self.recording_tz_index
+        return self._recording_tz_index
 
     def get_active_recording_tz_index(self):
         """
         returns the tz index that is set to be used for recording data (archaeological data).
         If nothing explicit is set here the active user tz_index is returned.
-        !Needs an active request object in Flask
+        !Needs an active request object in Flask unless the _active_tz_index is set externally
 
         :return: the tz index
         """
-        return self.recording_tz_index if self.recording_tz_index else self.get_active_tz_index()
+        return self._recording_tz_index if self._recording_tz_index else self.get_active_tz_index()
 
     def get_active_time_zone_name(self, iana=False):
         """
         returns the user's currently active time zone in Kiosk.
-        !Needs an active request object in Flask.
+
+        note: This needs an active request object in Flask unless the _active_tz_index or the _active_tz_name
+              was set externally
+
         :param iana: set to True of you want the IANA time zone name instead of the long name
         :return: the time zone's name or ""
         :raises nothing: catches all Exceptions
         """
         try:
-            if not self.active_tz_name:
-                if "kiosk_tz_index" in request.cookies:
-                    kiosk_tz = kioskglobals.kiosk_time_zones if kioskglobals else KioskTimeZones()
-                    kiosk_tz_info = kiosk_tz.get_time_zone_info(int(request.cookies.get("kiosk_tz_index")))
-                    self.active_tz_name = kiosk_tz_info[1]
-                    self.active_iana_tz_name = kiosk_tz_info[2]
-            return self.active_iana_tz_name if iana else self.active_tz_name
+            if not self._active_tz_name:
+                kiosk_tz = kioskglobals.kiosk_time_zones if kioskglobals else KioskTimeZones()
+                kiosk_tz_index = self.get_active_tz_index()
+                if kiosk_tz_index is not None:
+                    kiosk_tz_info = kiosk_tz.get_time_zone_info(kiosk_tz_index)
+                    self._active_tz_name = kiosk_tz_info[1]
+                    self._active_iana_tz_name = kiosk_tz_info[2]
+
+            return self._active_iana_tz_name if iana else self._active_tz_name
 
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.get_active_time_zone_name: Error resolving "
@@ -361,36 +374,47 @@ class KioskUser(UserMixin):
     def get_recording_time_zone_name(self, iana=False):
         """
         returns the user's currently active recording time zone for Kiosk.
-        !Needs an active request object in Flask.
         :param iana: set to True of you want the IANA time zone name instead of the long name
         :return: the time zone's name or "" if there is no recording time zone set
                  (in which case get_active_time_zone_name would be the recording time zone's name)
         :raises nothing: catches all Exceptions
         """
         try:
-            if self.recording_tz_index:
-                ktz = kioskglobals.kiosk_time_zones if kioskglobals else KioskTimeZones()
-                tz_info = ktz.get_time_zone_info(self.recording_tz_index)
-                return tz_info[2] if iana else tz_info[1]
+            if not self._recording_tz_name:
+                if self._recording_tz_index is not None:
+                    ktz = kioskglobals.kiosk_time_zones if kioskglobals else KioskTimeZones()
+                    tz_info = ktz.get_time_zone_info(self._recording_tz_index)
+                    self._recording_tz_name = tz_info[1]
+                    self._recording_tz_iana_name = tz_info[2]
+            return self._recording_tz_iana_name if iana else self._recording_tz_name
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.get_recording_time_zone_name: Error resolving "
                           f"recording timezone: {repr(e)}")
 
         return ""
 
-    @staticmethod
-    def get_active_tz_index():
+    def get_active_tz_index(self):
         """
         returns the user's currently active time zone index in Kiosk.
-        !Needs an active request object in Flask.
+
+        note: Unless the _active_tz_index was set externally this needs an active request object in Flask
+
         :return: the time zone index
         """
-        return int(request.cookies.get("kiosk_tz_index"))
+        if self._active_tz_index is None:
+            if request:
+                if "kiosk_tz_index" in request.cookies:
+                    self._active_tz_index = int(request.cookies.get("kiosk_tz_index"))
+            else:
+                raise Exception("get_active_tz_index called without a flask context")
+
+        return self._active_tz_index
 
     def is_time_zone_forced(self):
         """
         checks if the active time zone differs from the Browser's time zone.
-        !Needs access to a current flask request!
+
+        note: This needs access to a current flask request!
 
         :return: boolean.
         :raises: nothing. Returns True if any exception occurs.
@@ -401,3 +425,40 @@ class KioskUser(UserMixin):
             logging.error(f"{self.__class__.__name__}.is_time_zone_forced: {repr(e)}")
             return True
 
+    def to_dict(self) -> dict:
+        """
+        returns an initializer dictionary that can be used with init_from_dict. It contains only data that is NOT
+        stored in the database. This is particularly to have time zone settings being transferred to parts of the
+        system where cookies are not available. Mostly MCP processes.
+        :return: a dictionary that can be used with init_from_dict
+        """
+        return {
+            "uuid": self.get_id(),
+            "active_tz_index": self.get_active_tz_index(),
+            "active_iana_tz_name": self.get_active_time_zone_name(iana=True),
+            "active_tz_name": self.get_active_time_zone_name(),
+            "recording_tz_index": self.get_recording_tz_index(),
+            "recording_tz_iana_name": self.get_recording_time_zone_name(iana=True),
+            "recording_tz_name": self.get_recording_time_zone_name(),
+        }
+
+    def init_from_dict(self, user_data: dict):
+        """
+        initializes parts of a Kiosk instance with data from a dict that has been created by init_from_dict.
+        This is particularly to have time zone settings being transferred to parts of the
+        system where cookies are not available. Mostly MCP processes.
+
+        :param user_data: a dict that was returned by to_dict
+        """
+        if user_data["uuid"] != self.id:
+            raise Exception("init data and current id must match when using initFromDict")
+
+        self._active_tz_index = kioskstdlib.try_get_dict_entry(user_data, "active_tz_index", self._active_tz_index)
+        self._active_iana_tz_name = kioskstdlib.try_get_dict_entry(user_data, "active_iana_tz_name",
+                                                                   self._active_iana_tz_name)
+        self._active_tz_name = kioskstdlib.try_get_dict_entry(user_data, "active_tz_name", self._active_tz_name)
+        self._recording_tz_index = kioskstdlib.try_get_dict_entry(user_data, "recording_tz_index",
+                                                                  self._recording_tz_iana_name)
+        self._recording_tz_iana_name = kioskstdlib.try_get_dict_entry(user_data, "recording_tz_iana_name", "")
+        self._recording_tz_name = kioskstdlib.try_get_dict_entry(user_data, "recording_tz_name",
+                                                                 self._recording_tz_name)

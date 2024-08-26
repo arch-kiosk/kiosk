@@ -3,6 +3,7 @@ import logging
 import re
 from typing import List
 
+import kioskstdlib
 from kioskfiletools import get_file_extension
 from dsd.dsdloader import DSDLoader
 from dsd.dsdconstants import *
@@ -94,7 +95,7 @@ class DataSetDefinition:
         "DATE": "DATE",
         "TIME": "TIME",
         "SERIAL": "SERIAL",
-        "TZ": "INT",
+        "TZ": "TZ",
     }
 
     def __init__(self, dsd_store=None):
@@ -189,6 +190,7 @@ class DataSetDefinition:
         :param raw_dsd: a complete dsd structure
         :return: a dictionary with table: version: fields: parameters to add
         """
+
         def _append_virtual_fields_to_table(raw_dsd_table: dict):
             new_fields = {}
             for ver in raw_dsd_table:
@@ -507,6 +509,26 @@ class DataSetDefinition:
 
         return self._dsd_data.get_keys([table, KEY_TABLE_STRUCTURE, version])
 
+    def omit_fields_by_datatype(self, table, fields, datatype, version=0) -> List:
+        """ returns a list of the field names of a given version of a table definition
+        that don't have the given datatype.
+
+        :param table: the table in the dsd
+        :param fields: list of field names
+        :param datatype: the datatype to omit
+        :param version: if not given or set to 0 the most recent version is used
+        :result: same list as fields except for the fields with the data type
+        """
+        version = version if version else self.get_current_version(table)
+        if self.is_table_dropped(table, version):
+            raise DSDTableDropped(f"{table}, version {version} dropped.")
+
+        dt_fields = self.get_fields_with_datatype(table, datatype, version=version)
+        if not dt_fields:
+            return fields
+
+        return [f for f in fields if f not in dt_fields]
+
     def get_table_definition(self, table, version=0) -> dict:
         """ returns the complete definition (of a given version) of a table.
             Instructions stay as text and are not parsed.
@@ -574,14 +596,17 @@ class DataSetDefinition:
         instructions = self._dsd_data.get([table, KEY_TABLE_STRUCTURE, version, fieldname])
         return copy(instructions)
 
-    def get_field_instructions(self, table, fieldname, version=0) -> dict:
+    def get_field_instructions(self, table, fieldname, version=0, patterns: List[str] = None) -> dict:
         """ returns a dictionary with all the instructions and their parameters for a field
         :param table: the table
         :param fieldname: the field
         :param version: the version. 0 for the most recent version.
+        :param patterns: optional. Only instructions that start with one of the patterns are returned
         :return: a dictionary with the instructions as key and a list of parameters as values.
+                 The instruction (the key) is lowercase
         :raises all kinds of exceptions.
         :todo this won't work if a field can have the same instruction twice! Not a use case so far...
+        :todo test
         """
         result = {}
         parser = SimpleFunctionParser()
@@ -590,11 +615,12 @@ class DataSetDefinition:
             raise DSDTableDropped(f"{table}, version {version} dropped.")
 
         for instruction in self._dsd_data.get([table, KEY_TABLE_STRUCTURE, version, fieldname]):
-            parser.parse(instruction)
-            if parser.ok:
-                result[parser.instruction] = parser.parameters
-            else:
-                raise DSDInstructionSyntaxError(instruction)
+            if not patterns or kioskstdlib.str_starts_with_element(instruction, patterns):
+                parser.parse(instruction)
+                if parser.ok:
+                    result[parser.instruction.lower()] = parser.parameters
+                else:
+                    raise DSDInstructionSyntaxError(instruction)
 
         return result
 
@@ -732,7 +758,7 @@ class DataSetDefinition:
 
     def get_modified_field(self, table) -> str:
         """
-            returns the field with instruction REPLFIELD_MODIFED from the given table of the DSD.
+            returns the field with instruction replfield_modified from the given table of the DSD.
             :param table: the table
             :returns: the field name or ""
         """
@@ -1548,3 +1574,35 @@ class DataSetDefinition:
             return True
 
         return False
+
+    def get_tz_type_for_field(self, tablename: str, field_name: str, version: int = 0) -> str:
+        """
+        checks if a field belongs to the user's time zone or the recording time zone.
+        Note that field with the "replfield_modified" instruction will always be "u".
+
+        Default is recording time zone.
+
+        :param tablename: the table
+        :param field_name: the field
+        :param version: optional version
+        :return: "u" for user's time zone, "r" for recording time zone
+        """
+        params = self.get_instruction_parameters(tablename, field_name, "tz_type", version=version)
+        instructions = self.get_field_instructions(tablename, field_name, patterns=["replfield_modified",
+                                                                                    "replfield_created"])
+
+        if params:
+            if params[0] in ["r", "u"]:
+                if instructions and "replfield_modified" in instructions:
+                    if params[0] == "r":
+                        logging.warning(f"{self.__class__.__name__}.get_tz_type_for_field: "
+                                        f"The replfield_modified field {tablename}.{field_name} "
+                                        f"has a tz_type(r) definition which is ignored.")
+                        return "u"
+
+                return params[0]
+
+            raise DSDInstructionValueError(f"field {tablename}.{field_name} "
+                                           f"has wrong parameter for instruction 'tz_type'")
+
+        return "u" if instructions else "r"

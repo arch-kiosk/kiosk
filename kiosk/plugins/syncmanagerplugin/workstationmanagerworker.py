@@ -1,11 +1,16 @@
+import pprint
+
 from dsd.dsd3singleton import Dsd3Singleton
 from dsd.dsdyamlloader import DSDYamlLoader
 from kioskuser import KioskUser
+from plugins.kioskfilemakerworkstationplugin import KioskFileMakerWorkstation
 from sync_config import SyncConfig
 from mcpinterface.mcpjob import MCPJob, MCPJobStatus
 from generalstore.generalstore import GeneralStore
 from generalstore.generalstorekeys import gs_key_kiosk_init_counter
 import logging
+
+from tz.kiosktimezoneinstance import KioskTimeZoneInstance
 
 
 class WorkstationManagerWorker:
@@ -41,10 +46,33 @@ class WorkstationManagerWorker:
             user_uuid = self.job.user_data["uuid"]
             logging.info(f"WorkstationManagerWorker.get_kiosk_user: loading user {user_uuid}")
             user = KioskUser(user_uuid, check_token=False)
+            user.init_from_dict(self.job.user_data)
+            logging.info(f"WorkstationManagerWorker.get_kiosk_user: user settings are "
+                         f"{pprint.pformat(self.job.user_data)}")
             return user
         except BaseException as e:
             logging.error(f"WorkstationManagerWorker.get_kiosk_user: {repr(e)}")
             return None
+
+    def init_dock(self, ws_id: str, sync, kiosk_time_zones):
+        ws = KioskFileMakerWorkstation(ws_id, sync=sync)
+        ws.load_workstation()
+        if ws:
+            try:
+                user = self.get_kiosk_user()
+            except BaseException as e:
+                raise Exception(f" When initializing user {repr(e)}")
+
+            if user.get_active_tz_index() is None or not user.get_active_time_zone_name(iana=True):
+                raise Exception(f"User has no active time zone setting. That is not permitted.")
+
+            ws.current_tz = KioskTimeZoneInstance(kiosk_time_zones,
+                                                  user.get_active_recording_tz_index(),
+                                                  user.get_active_tz_index())
+            logging.info(f"{self.__class__.__name__}.init_dock: Dock {ws_id} is using "
+                         f"user's time zone {ws.current_tz.user_tz_long_name} and "
+                         f"recording time zone {ws.current_tz.recording_tz_long_name}")
+        return ws
 
     def job_is_ok(self, current_operation_label=""):
         if current_operation_label == "":
