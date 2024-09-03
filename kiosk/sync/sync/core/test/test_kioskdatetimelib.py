@@ -1,3 +1,5 @@
+import os
+
 import pytest
 import kioskdatetimelib
 import datetime
@@ -5,8 +7,24 @@ import time
 
 import zoneinfo
 
+from kiosksqldb import KioskSQLDb
+from test.testhelpers import KioskPyTestHelper
 
-class TestDateTimeLib:
+test_dir = os.path.dirname(os.path.abspath(__file__))
+config_file = os.path.join(test_dir, r"config\kiosk_config.yml")
+log_file = os.path.join(test_dir, r"log\test.log")
+
+
+class TestDateTimeLib(KioskPyTestHelper):
+    @pytest.fixture(scope="module")
+    def cfg(self):
+        return self.get_config(config_file, log_file=log_file)
+
+    @pytest.fixture()
+    def db(self, cfg):
+        assert KioskSQLDb.drop_database()
+        assert KioskSQLDb.create_database()
+
     def test_latin_date(self):
         assert kioskdatetimelib.latin_date(datetime.datetime(day=1, month=1, year=2021), no_time=True) == "01.I.2021"
         assert kioskdatetimelib.latin_date(datetime.datetime(day=1, month=12, year=2021), no_time=True) == "01.XII.2021"
@@ -222,3 +240,15 @@ class TestDateTimeLib:
         assert kioskdatetimelib.get_time_zone_offset(berlin_ts, "EST") == (-5, 0)
         assert kioskdatetimelib.get_time_zone_offset(berlin_ts, "Asia/Kolkata") == (5, 30)
         assert kioskdatetimelib.get_time_zone_offset(berlin_ts, "Pacific/Chatham") == (12, 45)
+
+    def test_datetime_tz_to_sql_tztimestamp(self, db):
+        KioskSQLDb.execute("create temp table tmp1(dt timestamptz not null)")
+        dt = datetime.datetime.fromisoformat("20240831T10:00:00")
+        dt = dt.replace(tzinfo=zoneinfo.ZoneInfo('Europe/Paris'))
+        cur = KioskSQLDb.execute_return_cursor("insert into tmp1 values(%s::timestamptz)",
+                                               parameters=[
+                                                   kioskdatetimelib.datetime_tz_to_sql_tztimestamp(dt,
+                                                                                                   "Europe/Berlin")])
+        assert cur.query == b"insert into tmp1 values('2024-08-31T10:00:00 Europe/Berlin'::timestamptz)"
+        assert KioskSQLDb.get_records("select * from tmp1") == [[datetime.datetime(2024, 8, 31, 8, 0,
+                                                                                   tzinfo=datetime.timezone.utc)]]

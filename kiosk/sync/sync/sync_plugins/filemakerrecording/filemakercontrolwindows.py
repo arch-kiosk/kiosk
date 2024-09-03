@@ -1087,8 +1087,9 @@ class FileMakerControlWindows(FileMakerControl):
         try:
             sql_select = 'SELECT '
             comma = ""
-            # todo time zone: this should only return the Zulu timestamp fields but not the _tz fields
-            for f in dsd.list_fields(tablename, version=version):
+            for f in dsd.omit_fields_by_datatype(tablename,
+                                                 dsd.list_fields(tablename, version=version),
+                                                 "tz"):
                 sql_select = sql_select + comma + '"' + f + '"'
                 comma = ", "
             sql_select = sql_select + ' FROM "' + tablename + '"'
@@ -1107,7 +1108,12 @@ class FileMakerControlWindows(FileMakerControl):
             raise Exception(f"Error in select_table_data for table {tablename}")
 
     def export_container_images(self, workstation, printdots, callback_progress=None):
-        """asks the filemaker database to unload all the images into the given path."""
+        """
+        asks the filemaker database to unload all the images into the given path.
+
+        todo time zone: Check if this still works when running on the server's FileMaker. The FM Code must only
+         use the dates like fork_sync_time etc. from the constants and never now() or so!
+        """
         try:
             path = workstation.get_and_init_files_dir("import")
             kioskstdlib.remove_files_in_directory(path)

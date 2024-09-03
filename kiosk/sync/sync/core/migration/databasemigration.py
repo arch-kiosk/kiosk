@@ -167,7 +167,7 @@ class DatabaseMigration:
         if dsd_table in self.dsd.list_tables(include_system_tables=True):
             if version == 0:
                 version = self.dsd.get_current_version(dsd_table)
-            if version in self.dsd.list_versions(dsd_table):
+            if version in self.dsd.list_table_versions(dsd_table):
                 if self._adapter_create_table(dsd_table=dsd_table, db_table=db_table,
                                               version=version, namespace=namespace, sync_tools=sync_tools,
                                               temporary=temporary):

@@ -378,8 +378,6 @@ class DataSetDefinition:
                 self._resolve_externals(dsddata, base_path=external_file_path)
             rc = self._dsd_data.merge([], dsddata)
 
-            # todo time zone: it is here that the additional _ts field would have to be added
-            #  to all occurences of a TIMESTAMP
             if rc:
                 if self._identify_files_table() <= 1:
                     return rc
@@ -474,8 +472,7 @@ class DataSetDefinition:
         return [table for table in tables if set(self.table_has_meta_flag(table, flags))]
 
     def list_versions(self, table):
-        logging.debug("DataSetDefinition.list_versions: call deprecated, use list_table_versions instead.")
-        return self.list_table_versions(table)
+        raise DeprecationWarning("list_versions is obsolete!")
 
     def list_table_versions(self, table) -> []:
         """ returns a list of the versions of a tabledefinition in the DataSetDefinition
@@ -740,18 +737,19 @@ class DataSetDefinition:
 
         return fieldlist
 
-    def get_field_datatype(self, table, field) -> str:
+    def get_field_datatype(self, table, field, version=0) -> str:
         """
         returns the datatype set by the datatype instruction for a field of a table
         :param table: the table
         :param field: the field
+        :param version: optional version
         :return: the datatype (in lowercase letters) or ""
                  if not field does not exist or the instruction is missing.
 
         :changes:
                 02.12.2020: now returns only lowercase types.
         """
-        fields = self.get_fields_with_instructions(table, ["datatype"])
+        fields = self.get_fields_with_instructions(table, ["datatype"], version=version)
         if field in fields:
             return self.translate_datatype(fields[field]['datatype'][0])
         return ""
@@ -800,22 +798,21 @@ class DataSetDefinition:
         return list(self.get_fields_with_instructions(table, [fieldtype], version).keys())
 
     def get_proxy_field_reference(self, table, field, version=0):
-        """ returns the field name given by the attribute "PROXY_FOR()" of the given field 
+        """ returns the field name given by the attribute "PROXY_FOR()" of the given field
+            works only in the files table and is a bit of relict.
         
-        .. note::
+        """
 
-           DEPRECATED!"""
-
-        if self.is_table_dropped(table_name=table, version=version):
-            raise DSDTableDropped(f"{table}, version {version} dropped.")
-
-        try:
-            version = version if version else self.get_current_version(table)
-            instructions = self.get_field_instructions(table, field, version)
-            if "proxy_for" in instructions:
-                return instructions["proxy_for"][0]
-        except Exception as e:
-            logging.error("DataSetDefinition.get_proxy_field_reference: Exception " + repr(e))
+        if table == self.files_table:
+            if self.is_table_dropped(table_name=table, version=version):
+                raise DSDTableDropped(f"{table}, version {version} dropped.")
+            try:
+                version = version if version else self.get_current_version(table)
+                instructions = self.get_field_instructions(table, field, version)
+                if "proxy_for" in instructions:
+                    return instructions["proxy_for"][0]
+            except Exception as e:
+                logging.error("DataSetDefinition.get_proxy_field_reference: Exception " + repr(e))
 
         return ""
 

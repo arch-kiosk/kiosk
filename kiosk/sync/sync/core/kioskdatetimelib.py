@@ -404,3 +404,17 @@ def time_zone_ts_to_utc(utc_datetime: Union[datetime, str], time_zone: str) -> d
     dt_tz = dt.astimezone(datetime.timezone.utc)
 
     return dt_tz.replace(tzinfo=None)
+
+
+def datetime_tz_to_sql_tztimestamp(dt: datetime.datetime, tz_iana_name: str):
+    """
+    removes the tz_info trom the datetime and returns a sql datetime that has the actual iana time included.
+    So 01.08.2024 08:00:00+02:00 leads to '01.08.2024 08:00:00 Europe/Berlin'.
+    This is not doing any time conversion on the basis of the time zone. It is merely formatting a date for sql so
+    that it can be inserted into something like 'insert into tmp1 values(%s::timestamptz)'
+
+    :param dt: datetime
+    :param tz_iana_name: the iana name of the time zone
+    :return: str
+    """
+    return f"{dt.replace(tzinfo=None).isoformat()} {tz_iana_name}"

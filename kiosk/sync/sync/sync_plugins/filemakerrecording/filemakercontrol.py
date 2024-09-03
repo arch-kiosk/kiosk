@@ -99,12 +99,12 @@ class FileMakerControl:
         logging.error("direct call to base class FileMakerControl.set_constant")
         return False
 
-    def get_constant(self, key, value):
+    def get_constant(self, key):
         """gets a value from the constants-table of the open filemaker - Model"""
         logging.error("direct call to base class FileMakerControl.get_constant")
         return None
 
-    def export_container_images(self, workstation, printdots):
+    def export_container_images(self, workstation, printdots, callback_progress=None):
         """Makes filemaker unload all the data from the images table"""
         logging.error("direct call to base class FileMakerControl.export_container_images")
         return False
@@ -137,7 +137,7 @@ class FileMakerControl:
     @classmethod
     def getfieldvalue(cls, rec, fieldname):
         """Unfortunately it is not really standardized how to access values of a record by column-name.
-           Since the classes which use UrapFileMakerControl should not need to know the
+           Since the classes which use FileMakerControl should not need to know the
            specific database interface used for accessing data, this wrapper helps."""
         logging.error("Access to getfieldvalue of the abstract class UrapFileMakerControl is illegal.")
         return (None)

@@ -69,11 +69,15 @@ class TestKioskTimeZoneInstance(KioskPyTestHelper):
         kti.user_tz_index = 27743346
         assert kti.user_tz_iana_name == "US/Mountain"
 
-        assert not kti.recording_tz_iana_name
-        assert not kti.recording_tz_long_name
+        kti.user_tz_index = 96554373
+        assert kti.user_tz_iana_name == "Europe/Berlin"
+        assert kti.recording_tz_iana_name == "Europe/Berlin"
 
         kti.recording_tz_index = 27743346
         assert kti.recording_tz_iana_name == "US/Mountain"
+
+        kti.recording_tz_index = None
+        assert kti.recording_tz_iana_name == "Europe/Berlin"
 
     def test_user_dt_to_utc_dt(self, mock_kiosk_time_zones):
         kti = KioskTimeZoneInstance(KioskTimeZones())
@@ -98,3 +102,24 @@ class TestKioskTimeZoneInstance(KioskPyTestHelper):
         assert kti.utc_dt_to_user_dt(dt) == datetime.datetime.fromisoformat("20240819T09:00:00")
         dt = datetime.datetime.fromisoformat("20240819T15:00:00+02")
         assert kti.utc_dt_to_user_dt(dt) == datetime.datetime.fromisoformat("20240819T09:00:00")
+
+    def test_clone(self, mock_kiosk_time_zones):
+        kti = KioskTimeZoneInstance(KioskTimeZones())
+        kti.user_tz_index = 96554373
+        kti.recording_tz_index = 27743346
+        assert kti.user_tz_iana_name == "Europe/Berlin"
+        assert kti.recording_tz_iana_name == "US/Mountain"
+        kti2 = kti.clone()
+        assert kti2.user_tz_iana_name == "Europe/Berlin"
+        assert kti2.recording_tz_iana_name == "US/Mountain"
+        kti2.recording_tz_index = None
+        assert kti2.recording_tz_iana_name == "Europe/Berlin"
+        kti2.user_tz_index = None
+        assert not kti2.recording_tz_iana_name
+        assert kti.user_tz_iana_name == "Europe/Berlin"
+        assert kti.recording_tz_iana_name == "US/Mountain"
+
+        kti2.user_tz_index = 27743346
+        assert kti2.user_tz_iana_name == "US/Mountain"
+        assert kti2.recording_tz_iana_name == "US/Mountain"
+

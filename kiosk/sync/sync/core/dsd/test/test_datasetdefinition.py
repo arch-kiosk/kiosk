@@ -1,3 +1,4 @@
+import logging
 import pprint
 
 import pytest
@@ -33,7 +34,7 @@ lookup_test_dsd3 = os.path.join(data_dir, "lookup_test_dsd3.yml")
 class TestDataSetDefinition(KioskPyTestHelper):
     @pytest.fixture(scope="module")
     def cfg(self):
-        return self.get_config(config_file)
+        return self.get_config(config_file, log_file=log_file)
 
     def test_init(self):
         dsd = DataSetDefinition()
@@ -133,19 +134,19 @@ class TestDataSetDefinition(KioskPyTestHelper):
     def test_list_versions(self, dsd_images_and_units_and_test):
         dsd: DataSetDefinition = dsd_images_and_units_and_test
         assert dsd.append_file(dsd3_dropped_table_file)
-        versions = dsd.list_versions("test")
+        versions = dsd.list_table_versions("test")
         assert len(versions) == 3
         assert 1 in versions
         assert 2 in versions
         assert 3 in versions
 
-        versions = dsd.list_versions("images")
+        versions = dsd.list_table_versions("images")
         assert len(versions) == 1
 
-        versions = dsd.list_versions("unit")
+        versions = dsd.list_table_versions("unit")
         assert len(versions) == 1
 
-        versions = dsd.list_versions("dropped_table")
+        versions = dsd.list_table_versions("dropped_table")
         assert len(versions) == 3
 
     def test_get_recent_version(self, dsd_images_and_units_and_test):
@@ -910,3 +911,10 @@ class TestDataSetDefinition(KioskPyTestHelper):
                                                                          # 'created_tz',
                                                                          # 'modified_tz'
                                                                          ]
+
+    def test_get_field_instructiuons_for_tz(self, cfg, dsd_images_and_units):
+        dsd: DataSetDefinition = dsd_images_and_units
+        assert dsd.append_file(dsd3_test_tz_type_file)
+        assert dsd.get_field_datatype("test", "some_date_tz") == "tz"
+        assert dsd.get_field_instructions("test", "some_date_tz") == {'datatype': ['TZ']}
+

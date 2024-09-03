@@ -1,5 +1,7 @@
 import os
+import pprint
 import shutil
+import datetime
 
 import pytest
 
@@ -14,6 +16,9 @@ from migration.postgresdbmigration import PostgresDbMigration
 from sync_plugins.filemakerrecording.filemakerworkstation import FileMakerWorkstation
 from synchronization import Synchronization
 from test.testhelpers import KioskPyTestHelper
+from tz.kiosktimezoneinstance import KioskTimeZoneInstance
+# from tz.kiosktimezones import KioskTimeZones
+from test.mock_timezoneinfo import mock_kiosk_time_zones, KioskTimeZones
 
 test_dir = os.path.dirname(os.path.abspath(__file__))
 parent_test_dir = kioskstdlib.get_parent_dir(test_dir)
@@ -49,6 +54,8 @@ class TestFilemakerWorkstation(KioskPyTestHelper):
     def test_connections(self, config, urapdb):
         assert config
         assert urapdb
+
+
 
     def test_create_load_workstation(self, config, urapdb):
         ws = FileMakerWorkstation("test_id", "test_description")
@@ -285,26 +292,26 @@ class TestFilemakerWorkstation(KioskPyTestHelper):
         #                                       "create_master_tables.sql"))
 
         KioskSQLDb.run_sql_script(os.path.join(test_dir,
-                                              "sqls",
-                                              "insert_unit_fa.sql"))
+                                               "sqls",
+                                               "insert_unit_fa.sql"))
 
         KioskSQLDb.run_sql_script(os.path.join(test_dir,
-                                              "sqls",
-                                              "insert_fa_dayplans.sql"))
+                                               "sqls",
+                                               "insert_fa_dayplans.sql"))
 
         KioskSQLDb.run_sql_script(os.path.join(test_dir,
-                                              "sqls",
-                                              "insert_images.sql"),
+                                               "sqls",
+                                               "insert_images.sql"),
                                   substitute_variables=config._config["config"])
         KioskSQLDb.run_sql_script(os.path.join(test_dir,
-                                              "sqls",
-                                              "file_picking_rule_set_1.sql"))
+                                               "sqls",
+                                               "file_picking_rule_set_1.sql"))
 
         for f in [('32d4db7e-ef19-4465-90de-5714c413638e', "32d4db7e-ef19-4465-90de-5714c413638e.JPG"),
                   ('21e9156c-c6a2-4229-9d9e-bd712323c4f1', "21e9156c-c6a2-4229-9d9e-bd712323c4f1.NEF"),
                   ('c5107d70-a9c2-4bde-945a-f41c2f11dfd6', "c5107d70-a9c2-4bde-945a-f41c2f11dfd6.SVG")]:
             r = KioskSQLDb.get_first_record_from_sql(f"select filename from images "
-                                                    f"where uid = '{f[0]}'")
+                                                     f"where uid = '{f[0]}'")
             assert r["filename"].lower() == os.path.join(shared_datadir, "file_repository", f[1]).lower()
 
         self.activate_template("recording_v12_template.fmp12", shared_datadir, config)

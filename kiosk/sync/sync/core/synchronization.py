@@ -43,8 +43,8 @@ sync_version = '0.9'
 class Synchronization(PluginLoader):
 
     def __init__(self, options=None):
-        # TODO: What's that? USE_TEMP_TABLE?
-        self.USE_TEMP_TABLE = False
+        # Set this to False for debug purposes
+        self.USE_TEMP_TABLE = True
 
         self.type_repository = TypeRepository()
         cfg: SyncConfig = SyncConfig.get_config()
@@ -535,9 +535,6 @@ class Synchronization(PluginLoader):
             ctable = 0
             for table in tables:
                 if self._create_sync_temp_table(table=table, dsd=dsd):
-                    # if dsd.create_table(table, "temp", self.USE_TEMP_TABLE,
-                    #                     sync_tools=True):  # Attention! The second parameter needs to be True later, to make the results temporary
-                    assert KioskSQLDb.does_temp_table_exist("temp_" + table)
 
                     for ws in workstations:
                         ws: RecordingWorkstation
@@ -1342,7 +1339,17 @@ class Synchronization(PluginLoader):
         """
         db_adapter = PostgresDbMigration(dsd=dsd, psycopg2_con=KioskSQLDb.get_con())
         try:
-            if db_adapter.create_temporary_table(dsd_table=table, db_table="temp" + "_" + table, sync_tools=True):
+            if self.USE_TEMP_TABLE:
+                rc = db_adapter.create_temporary_table(dsd_table=table, db_table="temp" + "_" + table, sync_tools=True)
+                if rc:
+                    rc = KioskSQLDb.does_temp_table_exist("temp_" + table)
+            else:
+                logging.warning(f"{self.__class__.__name__}._create_sync_temp_table: "
+                                f"YOU ARE USING NON-TEMPORARY TABLES FOR DEBUGGING: {table}")
+                rc = db_adapter.create_table(dsd_table=table, db_table="temp" + "_" + table, sync_tools=True)
+                if rc:
+                    rc = KioskSQLDb.does_table_exist("temp_" + table)
+            if rc:
                 return True
             else:
                 logging.error(f"{self.__class__.__name__}._create_sync_temp_table: "

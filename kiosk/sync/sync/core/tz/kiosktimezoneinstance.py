@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+import copy
 from typing import Union
 import datetime
 import kioskdatetimelib
@@ -25,17 +28,32 @@ class KioskTimeZoneInstance:
         self.recording_tz_index = recording_tz_index
         self.user_tz_index = user_tz_index
 
+    def clone(self) -> KioskTimeZoneInstance:
+        """
+        :return: a shallow copy of the current instance.
+        """
+        new_tz = copy.copy(self)
+        new_tz._kiosk_time_zones = self._kiosk_time_zones
+        return new_tz
+
     @property
     def recording_tz_index(self):
-        return self._recording_tz_index
+        return self._recording_tz_index if self._recording_tz_index else self._user_tz_index
 
     @recording_tz_index.setter
     def recording_tz_index(self, tz_index):
-        tz_info = self._kiosk_time_zones.get_time_zone_info(tz_index)
-        if tz_info:
-            self._recording_tz_index = tz_index
-            self._recording_tz_iana_name = tz_info[2]
-            self._recording_tz_long_name = tz_info[1]
+        if tz_index is not None:
+            tz_info = self._kiosk_time_zones.get_time_zone_info(tz_index)
+            if tz_info:
+                self._recording_tz_index = tz_index
+                self._recording_tz_iana_name = tz_info[2]
+                self._recording_tz_long_name = tz_info[1]
+            else:
+                raise Exception(f"Can't set recording tz index: There is no Kiosk Time Zone for tz_index {tz_index}")
+        else:
+            self._recording_tz_index = None
+            self._recording_tz_iana_name = None
+            self._recording_tz_long_name = None
 
     @property
     def user_tz_index(self):
@@ -43,11 +61,19 @@ class KioskTimeZoneInstance:
 
     @user_tz_index.setter
     def user_tz_index(self, tz_index):
-        tz_info = self._kiosk_time_zones.get_time_zone_info(tz_index)
-        if tz_info:
-            self._user_tz_index = tz_index
-            self._user_tz_iana_name = tz_info[2]
-            self._user_tz_long_name = tz_info[1]
+        if tz_index is not None:
+            tz_info = self._kiosk_time_zones.get_time_zone_info(tz_index)
+            if tz_info:
+                self._user_tz_index = tz_index
+                self._user_tz_iana_name = tz_info[2]
+                self._user_tz_long_name = tz_info[1]
+            else:
+                raise Exception(f"Can't set user tz index: There is no Kiosk Time Zone for tz_index {tz_index}")
+
+        else:
+            self._user_tz_index = None
+            self._user_tz_iana_name = None
+            self._user_tz_long_name = None
 
     @property
     def recording_tz_iana_name(self):
@@ -75,7 +101,19 @@ class KioskTimeZoneInstance:
             return user_dt
 
         dt_from = user_dt.replace(tzinfo=None)
-        return kioskdatetimelib.time_zone_ts_to_utc(dt_from, self._user_tz_iana_name)
+        return kioskdatetimelib.time_zone_ts_to_utc(dt_from, self.user_tz_iana_name)
+
+    def recording_dt_to_utc_dt(self, recording_dt: Union[datetime.datetime | None]):
+        """
+        interprets dt as a datetime of the recording time zone and returns a utc datetime
+        :param recording_dt: a datetime in terms of the recording time zone
+        :return: a utc date time without a time zone part. None if recording_dt is not a datetime or None.
+        """
+        if not recording_dt or not isinstance(recording_dt, datetime.datetime):
+            return recording_dt
+
+        dt_from = recording_dt.replace(tzinfo=None)
+        return kioskdatetimelib.time_zone_ts_to_utc(dt_from, self.recording_tz_iana_name)
 
     def utc_dt_to_user_dt(self, utc_dt: Union[datetime.datetime, None]):
         """
