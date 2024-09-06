@@ -1,0 +1,48 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+#variables:
+#  unit_id: ["dsd('unit', 'arch_context')"]
+queries:
+  'ceramics_type_and_weight':
+    name: '#:How much pottery has been found in each ceramic category?'
+    description: '#:Lists the ceramic categories and calculates weight and quantity'
+    type: 'SQL'
+    output_type: 'list'
+    query: "
+      select su.category_1 category,
+       sum(su.weight)::float weight,
+       sum(su.count)::float quantity
+       from {{collected_material}} cm 
+         inner join {{su_ceramics_preprocessing_entry}} su on cm.uid = su.cm_uid
+         where coalesce(su.category_1,'') != ''
+      group by su.category_1
+      order by sum(su.weight) desc,sum(su.count) desc, su.category_1"
+    charts:
+      chart1:
+        type: "pie"
+        title: "#: ceramic categories by weight"
+        categories: "category"
+        values: "weight"
+      chart2:
+        type: "pie"
+        title: "#: ceramic categories by quantity"
+        categories: "category"
+        values: "quantity"
+      chart3:
+        type: "bar"
+        title: "#: ceramic categories by weight"
+        categories: "category"
+        values: "weight"
+      chart4:
+        type: "bar"
+        title: "#: ceramic categories by quantity"
+        categories: "category"
+        values: "quantity"
+    column_information:
+      category: DSD('su_ceramics_preprocessing_entry','category_1')
+      weight: DSD('su_ceramics_preprocessing_entry','weight')
+      quantity: DSD('su_ceramics_preprocessing_entry','count')
+
+

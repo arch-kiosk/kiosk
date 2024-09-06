@@ -6,8 +6,8 @@ variables:
   unit_id: ["dsd('unit', 'arch_context')"]
 queries:
   'material_types_of_unit_x_sql':
-    name: 'What materials (and how much of each) were found in unit x?'
-    description: 'Lists the materials found in a certain unit and shows count and weight by material'
+    name: '#: What materials (and how much of each) were found in #($/constants/labels/label_for_unit_on_start_page) x?'
+    description: '#: Lists the materials found in a certain #($/constants/labels/label_for_unit_on_start_page) and shows count and weight by material'
     type: 'SQL'
     output_type: 'list'
     query: "
@@ -25,42 +25,42 @@ queries:
     charts:
       chart1:
         type: "pie"
-        title: "#: % material in #(/$/constants/labels/unit) #(/variables/inputs/unit_id) by quantity"
+        title: "#: % material in #($/constants/labels/label_for_unit_on_start_page) #(/variables/inputs/unit_id) by quantity"
         categories: "material"
         values: "quantity"
       chart2:
         type: "pie"
-        title: "#: % material in #(/$/constants/labels/unit) #(/variables/inputs/unit_id) by weight"
+        title: "#: % material in #($/constants/labels/label_for_unit_on_start_page)) #(/variables/inputs/unit_id) by weight"
         categories: "material"
         values: "weight"
       chart2a:
         type: "pie"
-        title: "#: #(/$/glossary/collected_material_type) in #(/$/constants/labels/unit) #(/variables/inputs/unit_id) by quantity"
+        title: "#: #(/$/glossary/collected_material_type) in #($/constants/labels/label_for_unit_on_start_page) #(/variables/inputs/unit_id) by quantity"
         categories: "type"
         values: "quantity"
       chart2b:
         type: "pie"
-        title: "#: #(/$/glossary/collected_material_type) in #(/$/constants/labels/unit) #(/variables/inputs/unit_id) by weight"
+        title: "#: #(/$/glossary/collected_material_type) in #($/constants/labels/label_for_unit_on_start_page) #(/variables/inputs/unit_id) by weight"
         categories: "type"
         values: "weight"
       chart3:
         type: "bar"
-        title: "#: materials and their quantities in #(/$/constants/labels/unit) #(/variables/inputs/unit_id)"
+        title: "#: materials and their quantities in #($/constants/labels/label_for_unit_on_start_page) #(/variables/inputs/unit_id)"
         categories: "material"
         values: "quantity"
       chart4:
         type: "bar"
-        title: "#: materials and their weights in #(/$/constants/labels/unit) #(/variables/inputs/unit_id)"
+        title: "#: materials and their weights in #($/constants/labels/label_for_unit_on_start_page) #(/variables/inputs/unit_id)"
         categories: "material"
         values: "weight"
       chart5:
         type: "bar"
-        title: "#: #(/$/glossary/collected_material_type) and quantity in #(/$/constants/labels/unit) #(/variables/inputs/unit_id)"
+        title: "#: #(/$/glossary/collected_material_type) and quantity in #($/constants/labels/label_for_unit_on_start_page) #(/variables/inputs/unit_id)"
         categories: "type"
         values: "quantity"
       chart6:
         type: "bar"
-        title: "#: #(/$/glossary/collected_material_type) and weight in #(/$/constants/labels/unit) #(/variables/inputs/unit_id)"
+        title: "#: #(/$/glossary/collected_material_type) and weight in #($/constants/labels/label_for_unit_on_start_page) #(/variables/inputs/unit_id)"
         categories: "type"
         values: "weight"
     column_information:
