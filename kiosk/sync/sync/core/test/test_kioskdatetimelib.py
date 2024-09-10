@@ -241,6 +241,15 @@ class TestDateTimeLib(KioskPyTestHelper):
         assert kioskdatetimelib.get_time_zone_offset(berlin_ts, "Asia/Kolkata") == (5, 30)
         assert kioskdatetimelib.get_time_zone_offset(berlin_ts, "Pacific/Chatham") == (12, 45)
 
+    def test_get_time_zone_offset_str(self):
+        tz_berlin = zoneinfo.ZoneInfo("Europe/Berlin")
+        berlin_ts = datetime.datetime(day=19, month=8, year=2024, hour=15, minute=00, second=00,
+                                      tzinfo=tz_berlin)
+        assert kioskdatetimelib.get_time_zone_offset_str(berlin_ts, "Europe/Berlin") == "02:00:00"
+        assert kioskdatetimelib.get_time_zone_offset_str(berlin_ts, "EST") == "-05:00:00"
+        assert kioskdatetimelib.get_time_zone_offset_str(berlin_ts, "Asia/Kolkata") == "05:30:00"
+        assert kioskdatetimelib.get_time_zone_offset_str(berlin_ts, "Pacific/Chatham") == "12:45:00"
+
     def test_datetime_tz_to_sql_tztimestamp(self, db):
         KioskSQLDb.execute("create temp table tmp1(dt timestamptz not null)")
         dt = datetime.datetime.fromisoformat("20240831T10:00:00")

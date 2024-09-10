@@ -1114,7 +1114,7 @@ class Synchronization(PluginLoader):
         return collision
 
     def _solve_field_modification(self, cur, table, field):
-        """ updates field values in a master table from the youngest modification
+        """ updates field values in a master table from the most recent modification
             that can be found in the temporary table.
             The function returns TRUE if everything was fine, FALSE if not. It catches Exceptions
 
@@ -1129,7 +1129,7 @@ class Synchronization(PluginLoader):
             file_field = dsd.get_proxy_field_reference(table, field)
             if file_field:
                 sql = ""
-                sql = sql + "with collisions as ( "
+                sql = sql + "WITH" + " collisions as ( "
                 sql = sql + "SELECT tmp.\"uid\", tmp.\"" + field + "\", tmp.\"" + file_field + "\" \"file_field\", tmp.\"modified\", tmp.\"repl_workstation_id\" \"workstation_id\", "
                 sql = sql + "row_number() OVER(PARTITION BY tmp.\"uid\" "
                 sql = sql + "ORDER BY COALESCE(tmp.\"modified\", tmp.\"created\") DESC) \"_solve_field_modification_rownr\" "

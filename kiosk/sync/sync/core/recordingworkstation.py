@@ -132,7 +132,11 @@ class RecordingWorkstation(Dock):
 
     def get_fork_time(self):
         """
-            returns the utc fork time without milliseconds or time zone
+            returns the fork time without milliseconds or time zone
+
+            Note: Although the fork time is coming back without a time zone, expect it to be in
+            the time zone that was set for the user (the dock's user time zone) on export.
+
             :returns a datetime without microseconds and time zone or None
         """
         fork_time = self._get_workstation_attribute_from_db("fork_time")
@@ -141,6 +145,10 @@ class RecordingWorkstation(Dock):
     def get_fork_sync_time(self):
         """
             return the utc fork sync time for the workstation
+
+            Note: Although the fork sync time is coming back without a time zone, expect it to be in
+            the time zone that was set for the user (the dock's user time zone) on export.
+
             :returns a datetime without microseconds and time zone or None
         """
         ts: datetime.datetime = self._get_workstation_attribute_from_db("fork_sync_time")

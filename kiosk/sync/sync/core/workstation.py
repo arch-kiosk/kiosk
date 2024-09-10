@@ -52,8 +52,8 @@ class Dock:
         self._db_namespace = workstation_id.lower()
         self._sync = sync
         self.recording_group = ""
-        self.user_time_zone_index = ""
-        self.recording_time_zone_index = ""
+        self._user_time_zone_index = None
+        self._recording_time_zone_index = None
         self.grant_access_to = ""
         self.current_tz: Union[KioskTimeZoneInstance, None] = None
 
@@ -65,6 +65,36 @@ class Dock:
         except Exception as e:
             logging.error(repr(e))
             raise Exception(f'Instantiation of Workstation {workstation_id} failed: {repr(e)}')
+
+    @property
+    def user_time_zone_index(self) -> Union[int, None]:
+        """
+        The user time zone index stored for this workstation.
+        Note that this is not necessarily the one to use in an operation
+
+        :return: int | None
+        """
+        return self._user_time_zone_index
+
+    @user_time_zone_index.setter
+    def user_time_zone_index(self, value):
+        self.set_user_time_zone_index(value)
+
+    def set_user_time_zone_index(self, tz_index: int):
+        self._user_time_zone_index = tz_index
+
+    @property
+    def recording_time_zone_index(self) -> Union[int, None]:
+        """
+        The recording time zone index stored for this workstation.
+        Note that this is not necessarily the one to use in an operation
+
+        :return: int | None
+        """
+        return self._recording_time_zone_index
+
+    def set_recording_time_zone_index(self, tz_index: int):
+        self._recording_time_zone_index = tz_index
 
     @classmethod
     def get_workstation_type(cls) -> str:
@@ -179,9 +209,9 @@ class Dock:
                 if r is not None:
                     self.description = r[0]
                     self.recording_group = r[2]
-                    self.user_time_zone_index = r[3]
+                    self._user_time_zone_index = r[3]
                     self.grant_access_to = r[4] if r[4] else "*"
-                    self.recording_time_zone_index = r[5]
+                    self._recording_time_zone_index = r[5]
                     state = self.get_state_from_code(r[1])
                     self.state_machine.set_initial_state(state)
                     cur.close()
@@ -299,7 +329,7 @@ class Dock:
                                   self.recording_group,
                                   self.get_code_from_state("IDLE"),
                                   self.get_workstation_type(),
-                                  self.user_time_zone_index,
+                                  self._user_time_zone_index,
                                   self.grant_access_to,
                                   self.recording_time_zone_index])
                 KioskSQLDb.commit()

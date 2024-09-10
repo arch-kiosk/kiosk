@@ -102,6 +102,20 @@ class TestKioskTimeZoneInstance(KioskPyTestHelper):
         assert kti.utc_dt_to_user_dt(dt) == datetime.datetime.fromisoformat("20240819T09:00:00")
         dt = datetime.datetime.fromisoformat("20240819T15:00:00+02")
         assert kti.utc_dt_to_user_dt(dt) == datetime.datetime.fromisoformat("20240819T09:00:00")
+        dt = datetime.datetime.fromisoformat("20240819T15:00:00,500")
+        assert kti.utc_dt_to_user_dt(dt, drop_ms=False) == datetime.datetime.fromisoformat("20240819T09:00:00,500")
+        dt = datetime.datetime.fromisoformat("20240819T15:00:00,500")
+        assert kti.utc_dt_to_user_dt(dt) == datetime.datetime.fromisoformat("20240819T09:00:00")
+
+    def test_utc_dt_to_tz_dt(self, mock_kiosk_time_zones):
+        kti = KioskTimeZoneInstance(KioskTimeZones())
+        dt = None
+        assert kti.utc_dt_to_tz_dt(dt, 27743346) is None
+        dt = datetime.datetime.fromisoformat("20240819T15:00:00")
+        with pytest.raises(Exception):
+            kti.utc_dt_to_tz_dt(dt, 123)
+        assert kti.utc_dt_to_tz_dt(dt, 27743346) == datetime.datetime.fromisoformat("20240819T09:00:00")
+
 
     def test_clone(self, mock_kiosk_time_zones):
         kti = KioskTimeZoneInstance(KioskTimeZones())

@@ -330,8 +330,8 @@ class KioskFileMakerWorkstation(KioskWorkstation):
             self.sync = Synchronization()
 
         ws = self.sync.create_workstation("FileMakerWorkstation", self._id, ws_name, recording_group=recording_group)
-        ws.user_time_zone_index = user_time_zone_index
-        ws.recording_time_zone_index = recording_time_zone_index
+        ws._user_time_zone_index = user_time_zone_index
+        ws._recording_time_zone_index = recording_time_zone_index
         ws.options = options
         ws.grant_access_to = grant_access_to
         if ws:

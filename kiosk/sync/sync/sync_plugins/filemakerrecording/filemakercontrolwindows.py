@@ -532,22 +532,26 @@ class FileMakerControlWindows(FileMakerControl):
             varchar_fields = []
             timestamp_fields = {}
 
+            u_fields = list(dsd.get_fields_with_instructions(tablename, ["replfield_modified", ""]).keys())
+            modified_fields = dsd.list_fields_with_instruction(tablename, "replfield_modified")
+            modified_field_name = modified_fields[0] if modified_fields else ""
+            if modified_field_name:
+                fieldlist.append("modified_ww")
+
             for f in fieldlist:
                 fm_sql_insert = fm_sql_insert + comma + '"' + f + '"'
                 fm_sql_insert_values = fm_sql_insert_values + comma + "?"
                 comma = ", "
-                field_data_type = dsd.get_field_datatype(tablename, f)
-                if field_data_type in ["varchar", "text"]:
-                    varchar_fields.append(f)
-                else:
-                    if tablename == "fm_repldata_transfer" and f == "modified_by":
+                if f != "modified_ww":
+                    field_data_type = dsd.get_field_datatype(tablename, f)
+                    if field_data_type in ["varchar", "text"] or \
+                            (tablename == "fm_repldata_transfer" and f == "modified_by"):
                         varchar_fields.append(f)
-                    if field_data_type == "timestamp":
-                        timestamp_fields[f] = dsd.get_tz_type_for_field(tablename, f) if dsd else "r"
+                    else:
+                        if field_data_type == "timestamp":
+                            timestamp_fields[f] = dsd.get_tz_type_for_field(tablename, f) if dsd else ""
 
             fm_sql_insert = fm_sql_insert + ") VALUES(" + fm_sql_insert_values + ")"
-
-            row = db_cur.fetchone()
 
             r_count = 1
             max_time_elapsed = 0
@@ -557,6 +561,8 @@ class FileMakerControlWindows(FileMakerControl):
             c_ts_values = 0
             c_ts_to_u = 0
             c_ts_to_r = 0
+
+            row = db_cur.fetchone()
             while row:
                 if not truncate:
                     # in this case every single record has to be deleted first.
@@ -566,20 +572,28 @@ class FileMakerControlWindows(FileMakerControl):
                 params = []
                 for f in fieldlist:
                     try:
-                        field_value = row[f]
                         # noinspection PyComparisonWithNone
-                        if field_value is not None:
-                            if f in varchar_fields:
-                                field_value = self._handle_gobbledygook(f, field_value, row, tablename)
-                            elif f in timestamp_fields.keys():
-                                c_ts_values += 1
-                                if row[f + "_tz"]:  # only convert timestamps that were recorded with a time zone
-                                    if timestamp_fields[f] == "u":
-                                        c_ts_to_u += 1
-                                        field_value = current_tz.utc_dt_to_user_dt(field_value)
-                                    else:
-                                        c_ts_to_r += 1
-                                        field_value = current_tz.utc_dt_to_recording_dt(field_value)
+                        if f == "modified_ww":
+                            modified_value = row["modified"]
+                            modified_tz_value = row["modified_tz"]
+                            field_value = current_tz.utc_dt_to_tz_dt(modified_value, modified_tz_value) \
+                                if modified_tz_value else modified_value
+                        else:
+                            field_value = row[f]
+                            if field_value is not None:
+                                if f in varchar_fields:
+                                    field_value = self._handle_gobbledygook(f, field_value, row, tablename)
+                                elif f in timestamp_fields.keys():
+                                    c_ts_values += 1
+                                    tz_value = row[f + "_tz"]
+                                    if tz_value:
+                                        if f in u_fields:
+                                            # the u_fields (modified field or proxy_for) are always
+                                            #  converted to current user time zone
+                                            field_value = current_tz.utc_dt_to_user_dt(field_value)
+                                        else:
+                                            # timestamp in its originally recorded time zone
+                                            field_value = current_tz.utc_dt_to_tz_dt(field_value, tz_value)
                     except BaseException as e:
                         logging.error(f"{self.__class__.__name__}.transfer_table_data_to_filemaker: "
                                       f"Exception when processing field {f}...")
@@ -773,16 +787,22 @@ class FileMakerControlWindows(FileMakerControl):
                                 field_value = self._handle_gobbledygook(f, field_value, row, dest_tablename)
                             elif f in timestamp_fields.keys():
                                 c_ts_values += 1
-                                if row[f + "_tz"]:  # only convert timestamps that were recorded with a time zone
-                                    if timestamp_fields[f] == "u":
+                                tz_value = row[f + "_tz"]
+                                if tz_value:
+                                    if not timestamp_fields[f]:
+                                        # timestamp in its originally recorded time zone
+                                        field_value = current_tz.utc_dt_to_tz_dt(field_value, tz_value)
+                                    elif timestamp_fields[f] == "u":
+                                        # timestamp in the current user time zone
                                         c_ts_to_u += 1
                                         field_value = current_tz.utc_dt_to_user_dt(field_value)
-                                    else:
+                                    elif timestamp_fields[f] == "r":
+                                        # timestamp in the current recording time zone
                                         c_ts_to_r += 1
                                         field_value = current_tz.utc_dt_to_recording_dt(field_value)
                     except BaseException as e:
                         logging.error(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
-                                      f"Exception when processing field {f}...")
+                                      f"Exception when processing field '{f}'...")
                         raise e
 
                     params.append(field_value)
@@ -865,8 +885,10 @@ class FileMakerControlWindows(FileMakerControl):
                                     f"count(\"{modified_field}\") \"c\" from \"{dest_tablename}\"")
             fm_record = fm_cur.fetchone()
 
-            fm_utc_dt: datetime.datetime = current_tz.user_dt_to_utc_dt(fm_record[0])
+            # time zone: The max_modified from postgres is always in UTC,
+            #  so the FM max modified needs a conversion
             pg_utc_dt: datetime.datetime = max_modified
+            fm_utc_dt: datetime.datetime = current_tz.user_dt_to_utc_dt(fm_record[0])
 
             logging.debug(f"{self.__class__.__name__}._is_table_already_up_to_date: "
                           f"{dest_tablename}: max_modified={fm_record[0]}/UTC:{fm_utc_dt}, count={fm_record[1]}")

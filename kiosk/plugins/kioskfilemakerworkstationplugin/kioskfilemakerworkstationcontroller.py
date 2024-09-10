@@ -896,8 +896,8 @@ def kfw_edit(ws_id):
             if not general_errors:
                 sync_ws.description = kfw_form.description.data
                 sync_ws.recording_group = kfw_form.recording_group.data
-                sync_ws.user_time_zone_index = kfw_form.user_time_zone_index.data
-                sync_ws.recording_time_zone_index = kfw_form.recording_time_zone_index.data
+                sync_ws.set_user_time_zone_index(kfw_form.user_time_zone_index.data)
+                sync_ws.set_recording_time_zone_index(kfw_form.recording_time_zone_index.data)
                 sync_ws.grant_access_to = kfw_form.grant_access_to.data
                 sync_ws.options = kfw_form.options.data
                 if sync_ws.save():

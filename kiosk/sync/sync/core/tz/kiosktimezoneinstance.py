@@ -115,29 +115,59 @@ class KioskTimeZoneInstance:
         dt_from = recording_dt.replace(tzinfo=None)
         return kioskdatetimelib.time_zone_ts_to_utc(dt_from, self.recording_tz_iana_name)
 
-    def utc_dt_to_user_dt(self, utc_dt: Union[datetime.datetime, None]):
+    def utc_dt_to_tz_dt(self, utc_dt: Union[datetime.datetime, None], tz: Union[str | int], drop_ms=True):
         """
-        interprets dt as a utc datetime returns a datetime in terms of the user's time zone BUT without a tz_info!
-        :param utc_dt: a utc datetime
-        :return: a date time without a time zone part. None if utc_dt is not a datetime or None.
+        expects utc_dt as a utc datetime and returns that time in terms of the tz_iana_name time zone
+        :param utc_dt: a utc datetime (with or without tzinfo)
+        :param tz: either the IANA name of the target time zone or a Kiosk tz index
+        :param drop_ms: drop the milliseconds from the datetime. That's the default
+        :return: new datetime with tzinfo.
         """
         if not utc_dt or not isinstance(utc_dt, datetime.datetime):
             return utc_dt
 
-        dt_from = utc_dt.replace(tzinfo=None)
-        return kioskdatetimelib.utc_ts_to_timezone_ts(dt_from, self.user_tz_iana_name)
+        if tz is not None and (isinstance(tz, int) or str(tz).isnumeric()):
+            tz_info = self._kiosk_time_zones.get_time_zone_info(int(tz))
+            if tz_info:
+                tz_info = tz_info[2]
+            else:
+                raise KeyError(f"utc_dt_to_tz_dt wasn't able to get a iana time zone for tz index {tz}")
+        else:
+            tz_info = tz
 
-    def utc_dt_to_recording_dt(self, utc_dt: Union[datetime.datetime, None]):
+        dt_from = utc_dt.replace(tzinfo=None)
+        if drop_ms:
+            dt_from = dt_from.replace(microsecond=0)
+
+        return kioskdatetimelib.utc_ts_to_timezone_ts(dt_from, tz_info)
+
+    def utc_dt_to_user_dt(self, utc_dt: Union[datetime.datetime, None], drop_ms: bool = True):
+        """
+        interprets dt as a utc datetime returns a datetime in terms of the user's time zone BUT without a tz_info!
+        :param utc_dt: a utc datetime
+        :param drop_ms: drop the milliseconds from the datetime. That's the default
+        :return: a date time without a time zone part. None if utc_dt is not a datetime or None.
+        """
+        return self.utc_dt_to_tz_dt(utc_dt, self.user_tz_iana_name, drop_ms=drop_ms)
+        # # if not utc_dt or not isinstance(utc_dt, datetime.datetime):
+        # #     return utc_dt
+        #
+        # dt_from = utc_dt.replace(tzinfo=None)
+        # return kioskdatetimelib.utc_ts_to_timezone_ts(dt_from, self.user_tz_iana_name)
+
+    def utc_dt_to_recording_dt(self, utc_dt: Union[datetime.datetime, None], drop_ms: bool = True):
         """
         interprets dt as a utc datetime returns a datetime in terms of the recording time zone BUT without a tz_info!
 
         Note that this is using the user tz if there is no recording tz!
 
         :param utc_dt: a utc datetime
+        :param drop_ms: drop the milliseconds from the datetime. That's the default
         :return: a date time without a time zone part. None if utc_dt is not a datetime or None.
         """
-        if not utc_dt or not isinstance(utc_dt, datetime.datetime):
-            return utc_dt
-
-        dt_from = utc_dt.replace(tzinfo=None)
-        return kioskdatetimelib.utc_ts_to_timezone_ts(dt_from, self.recording_tz_iana_name)
+        return self.utc_dt_to_tz_dt(utc_dt, self.recording_tz_iana_name, drop_ms=drop_ms)
+        # if not utc_dt or not isinstance(utc_dt, datetime.datetime):
+        #     return utc_dt
+        #
+        # dt_from = utc_dt.replace(tzinfo=None)
+        # return kioskdatetimelib.utc_ts_to_timezone_ts(dt_from, self.recording_tz_iana_name)

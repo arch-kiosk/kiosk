@@ -223,6 +223,17 @@ def get_time_zone_offset(dt: datetime, iana_name: str = "") -> (int, int):
     return (math.trunc(dt.utcoffset() / datetime.timedelta(hours=1)),
             math.trunc(dt.utcoffset() / datetime.timedelta(minutes=1) % 60))
 
+def get_time_zone_offset_str(dt: datetime, iana_name: str = "") -> str:
+    """
+    returns the time zone offset as a string of format [-]00:00:00
+
+    :param dt: a datetime (if there is a iana_name and it has a tzinfo, the tzinfo will be discarded)
+    :param iana_name: the iana name of the time zone to which the dt belongs
+    :return: str
+    """
+    tz_offset = get_time_zone_offset(dt, iana_name)
+    return "{:s}{:02d}:{:02d}:00".format(("-" if tz_offset[0] < 0 else ""), abs(tz_offset[0]), tz_offset[1])
+
 
 def local_time_offset_str(gmt_time_zone: str = "") -> str:
     """

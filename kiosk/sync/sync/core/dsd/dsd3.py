@@ -1574,32 +1574,31 @@ class DataSetDefinition:
 
     def get_tz_type_for_field(self, tablename: str, field_name: str, version: int = 0) -> str:
         """
-        checks if a field belongs to the user's time zone or the recording time zone.
+        checks if a field must be rendered in user's time zone or recording time zone (or default rendering is on).
         Note that field with the "replfield_modified" instruction will always be "u".
 
-        Default is recording time zone.
+        Default is "" -> no type specified or called for
 
         :param tablename: the table
         :param field_name: the field
         :param version: optional version
-        :return: "u" for user's time zone, "r" for recording time zone
+        :return: "u" for user's time zone, "r" for recording time zone, "" for not specified
         """
         params = self.get_instruction_parameters(tablename, field_name, "tz_type", version=version)
-        instructions = self.get_field_instructions(tablename, field_name, patterns=["replfield_modified",
-                                                                                    "replfield_created"])
-
+        u_instructions = self.get_field_instructions(tablename,
+                                                     field_name,
+                                                     patterns=["replfield_modified", "proxy_for"])
         if params:
             if params[0] in ["r", "u"]:
-                if instructions and "replfield_modified" in instructions:
-                    if params[0] == "r":
+                if params[0] == "r":
+                    if u_instructions and ("replfield_modified" in u_instructions or "proxy_for" in u_instructions):
                         logging.warning(f"{self.__class__.__name__}.get_tz_type_for_field: "
                                         f"The replfield_modified field {tablename}.{field_name} "
                                         f"has a tz_type(r) definition which is ignored.")
                         return "u"
-
                 return params[0]
 
             raise DSDInstructionValueError(f"field {tablename}.{field_name} "
                                            f"has wrong parameter for instruction 'tz_type'")
 
-        return "u" if instructions else "r"
+        return "u" if u_instructions else ""

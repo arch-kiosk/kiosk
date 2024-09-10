@@ -236,10 +236,10 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
             INSERT INTO public.kiosk_time_zones (id, tz_long, "tz_IANA", deprecated, version) 
             VALUES (27743346, 'Mountain Time (US/Mountain)', 'US/Mountain', false, 1720205986);
         """)
-        # KioskSQLDb.execute("""
-        #     INSERT INTO public.kiosk_time_zones (id, tz_long, "tz_IANA", deprecated, version)
-        #     VALUES (45966874, 'Chatham Time (NZ-CHAT)', 'NZ-CHAT', false, 1720205986);
-        # """)
+        KioskSQLDb.execute("""
+            INSERT INTO public.kiosk_time_zones (id, tz_long, "tz_IANA", deprecated, version)
+            VALUES (45966874, 'Chatham Time (NZ-CHAT)', 'NZ-CHAT', false, 1720205986);
+        """)
         KioskSQLDb.execute("create table test_table(uid uuid, field1 varchar, field2 timestamp with time zone, "
                            "modified timestamp with time zone, modified_by varchar)")
         return {"dsd": dsd,
@@ -287,13 +287,11 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
                               '"field2_tz"=case when ("iana_time_zones"."field2_tz_iana" is null and '
                               '"field2" != %s) OR ("iana_time_zones"."field2_tz_iana" is not null and "field2" != '
                               '(%s || \' \' || "iana_time_zones"."field2_tz_iana")::timestamptz) THEN %s ELSE '
-                              '"field2_tz" END, "modified"=case when ("iana_time_zones"."modified_tz_iana" is null and "modified" != %s) '
-                              'OR ("iana_time_zones"."modified_tz_iana" is not null and "modified" != (%s || \' \' || '
-                              '"iana_time_zones"."modified_tz_iana")::timestamptz) THEN %s::timestamptz ELSE '
-                              '"modified" END, "modified_tz"=case when ("iana_time_zones"."modified_tz_iana" is null and "modified" != %s) '
-                              'OR ("iana_time_zones"."modified_tz_iana" is not null and "modified" != (%s || \' \' '
-                              '|| "iana_time_zones"."modified_tz_iana")::timestamptz) '
-                              'THEN %s ELSE "modified_tz" END, "modified_by"=%s, "repl_tag" = 1 '
+                              '"field2_tz" END, "modified"=case when ("modified_tz" is null and "modified" != %s) OR '
+                              '("modified_tz" is not null and "modified" != %s::timestamptz) THEN '
+                              '%s::timestamptz ELSE "modified" END, "modified_tz"=case when ("modified_tz" '
+                              'is null and "modified" != %s) OR ("modified_tz" is not null and "modified" '
+                              '!= %s::timestamptz) THEN %s ELSE "modified_tz" END, "modified_by"=%s, "repl_tag" = 1 '
                               'FROM "iana_time_zones" WHERE test_table."uid" = "iana_time_zones"."uid" AND '
                               'test_table."uid" = %s')
 
@@ -414,6 +412,9 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
 
     def test__import_table_from_filemaker_updates_legacy_change(self, prepare__import_table_from_filemaker):
         # recording_tz different from user_tz
+        # settings are:
+        # tz.user_tz_index = 96554373  # Central European Time (Europe/Berlin)
+        # tz.recording_tz_index = 27743346  # Mountain Time (US/Mountain)
 
         ws = prepare__import_table_from_filemaker["ws"]
         uid1 = uuid4()
@@ -423,11 +424,11 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
         KioskSQLDb.execute(
             f"insert into test_table values('{uid1}', 'r1f1', "
             f"'{datetime.datetime.fromisoformat('2024-08-29T10:00:00')}', "
-            f"'{datetime.datetime.fromisoformat('2024-08-29T10:30:00')}', "
+            f"'{datetime.datetime.fromisoformat('2024-08-29T10:30:00')}', "  # Berlin time -> UTC 08:30
             f"'sys')")
         KioskSQLDb.execute(
             f"insert into test_table values('{uid2}','r2f1', "
-            f"'{datetime.datetime.fromisoformat('2024-08-29T11:00:00')}', "
+            f"'{datetime.datetime.fromisoformat('2024-08-29T11:00:00')}', "  # US/Mountain time -> UTC 17:00
             f"'{datetime.datetime.fromisoformat('2024-08-29T11:30:00')}', "
             f"'sys')")
 
@@ -443,7 +444,7 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
             f"values('{uid1}', 'r1f1', "
             f"'{datetime.datetime.fromisoformat('2024-08-29T10:00:00')}', "
             f"null,"
-            f"'{datetime.datetime.fromisoformat('2024-08-29T07:30:00')}', "
+            f"'{datetime.datetime.fromisoformat('2024-08-29T07:30:00')}', "  # this must change
             f"null,"
             f"'sys', null, null)")
         KioskSQLDb.execute(
@@ -451,7 +452,7 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
             f"modified, modified_tz, modified_by, "
             f"repl_tag, repl_deleted) "
             f"values('{uid2}', 'r2f1', "
-            f"'{datetime.datetime.fromisoformat('2024-08-29T11:00:01')}', "
+            f"'{datetime.datetime.fromisoformat('2024-08-29T11:00:01')}', "  # this must change
             f"null,"
             f"'{datetime.datetime.fromisoformat('2024-08-29T11:30:00')}', "
             f"null,"
@@ -467,13 +468,13 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
         expected = [[str(uid1),
                      'r1f1',
                      datetime.datetime(2024, 8, 29, 10, 0, tzinfo=datetime.timezone.utc),
-                     datetime.datetime(2024, 8, 29, 8, 30, tzinfo=datetime.timezone.utc),
+                     datetime.datetime(2024, 8, 29, 8, 30, tzinfo=datetime.timezone.utc),  # 08:30
                      None,
                      96554373,
                      "sys"],
                     [str(uid2),
                      'r2f1',
-                     datetime.datetime(2024, 8, 29, 17, 0, tzinfo=datetime.timezone.utc),
+                     datetime.datetime(2024, 8, 29, 17, 0, tzinfo=datetime.timezone.utc),  # 17:00
                      datetime.datetime(2024, 8, 29, 11, 30, tzinfo=datetime.timezone.utc),
                      27743346,
                      None,
@@ -485,6 +486,9 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
 
     def test__import_table_from_filemaker_updates_legacy_change_2(self, prepare__import_table_from_filemaker):
         # this time with no recording_tz specified
+        # settings are:
+        # tz.user_tz_index = 96554373  # Central European Time (Europe/Berlin)
+        # tz.recording_tz_index = 27743346  # Mountain Time (US/Mountain)
         prepare__import_table_from_filemaker["tz"].recording_tz_index = None
         ws = prepare__import_table_from_filemaker["ws"]
         uid1 = uuid4()
@@ -494,11 +498,11 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
         KioskSQLDb.execute(
             f"insert into test_table values('{uid1}', 'r1f1', "
             f"'{datetime.datetime.fromisoformat('2024-08-29T10:00:00')}', "
-            f"'{datetime.datetime.fromisoformat('2024-08-29T10:30:00')}', "
+            f"'{datetime.datetime.fromisoformat('2024-08-29T10:30:00')}', "  # Berlin -> UTC 08:30
             f"'sys')")
         KioskSQLDb.execute(
             f"insert into test_table values('{uid2}','r2f1', "
-            f"'{datetime.datetime.fromisoformat('2024-08-29T11:00:00')}', "
+            f"'{datetime.datetime.fromisoformat('2024-08-29T11:00:00')}', "  # Berlin -> UTC 09:00
             f"'{datetime.datetime.fromisoformat('2024-08-29T11:30:00')}', "
             f"'sys')")
 
@@ -538,13 +542,13 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
         expected = [[str(uid1),
                      'r1f1',
                      datetime.datetime(2024, 8, 29, 10, 0, tzinfo=datetime.timezone.utc),
-                     datetime.datetime(2024, 8, 29, 8, 30, tzinfo=datetime.timezone.utc),
+                     datetime.datetime(2024, 8, 29, 8, 30, tzinfo=datetime.timezone.utc), # 08:30
                      None,
                      96554373,
                      "sys"],
                     [str(uid2),
                      'r2f1',
-                     datetime.datetime(2024, 8, 29, 9, 0, tzinfo=datetime.timezone.utc),
+                     datetime.datetime(2024, 8, 29, 9, 0, tzinfo=datetime.timezone.utc),  # 09:00
                      datetime.datetime(2024, 8, 29, 11, 30, tzinfo=datetime.timezone.utc),
                      96554373,
                      None,
@@ -556,21 +560,12 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
 
     def test__import_table_from_filemaker_updates_no_legacy_no_changes(self, prepare__import_table_from_filemaker):
         # this time the shadow table already has a datetime with a tz_index
+        # settings are:
+        # tz.user_tz_index = 96554373  # Central European Time (Europe/Berlin)
+        # tz.recording_tz_index = 27743346  # Mountain Time (US/Mountain)
         ws = prepare__import_table_from_filemaker["ws"]
         uid1 = uuid4()
         uid2 = uuid4()
-
-        # this simulates the FileMaker table:
-        KioskSQLDb.execute(
-            f"insert into test_table values('{uid1}', 'r1f1', "
-            f"'{datetime.datetime.fromisoformat('2024-08-29T10:00:00')}', "
-            f"'{datetime.datetime.fromisoformat('2024-08-29T10:30:00')}', "
-            f"'sys')")
-        KioskSQLDb.execute(
-            f"insert into test_table values('{uid2}','r2f1', "
-            f"'{datetime.datetime.fromisoformat('2024-08-29T11:00:00')}', "
-            f"'{datetime.datetime.fromisoformat('2024-08-29T11:30:00')}', "
-            f"'sys')")
 
         # this simulates the shadow table in Kiosk:
         KioskSQLDb.execute(
@@ -582,22 +577,34 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
             f"modified, modified_tz, modified_by, "
             f"repl_tag, repl_deleted) "
             f"values('{uid1}', 'r1f1', "
-            f"'{datetime.datetime.fromisoformat('2024-08-29T16:00:00')}', "
-            f"27743346,"
-            f"'{datetime.datetime.fromisoformat('2024-08-29T08:30:00')}', "
-            f"96554373,"
+            f"'{datetime.datetime.fromisoformat('2024-08-29T16:00:00')}', "  # NZ-CHAT  30.08. 04:45 
+            f"45966874," 
+            f"'{datetime.datetime.fromisoformat('2024-08-29T08:30:00')}', "  # NZ-CHAT  21:15 -> Berlin 10:30
+            f"45966874,"
             f"'sys', null, null)")
         KioskSQLDb.execute(
             f"insert into testdock_test_table(uid, field1, field2, field2_tz, "
             f"modified, modified_tz, modified_by, "
             f"repl_tag, repl_deleted) "
             f"values('{uid2}', 'r2f1', "
-            f"'{datetime.datetime.fromisoformat('2024-08-29T17:00:00')}', "
-            f"27743346,"
-            f"'{datetime.datetime.fromisoformat('2024-08-29T09:30:00')}', "
-            f"96554373,"
+            f"'{datetime.datetime.fromisoformat('2024-08-29T17:00:00')}', "  # NZ-CHAT  30.08. 05:45
+            f"45966874,"
+            f"'{datetime.datetime.fromisoformat('2024-08-29T09:30:00')}', "  # NZ-CHAT 22:15 -> Berlin 11:30
+            f"45966874,"
             f"'sys', null, null)")
+        # this simulates the FileMaker table:
+        KioskSQLDb.execute(
+            f"insert into test_table values('{uid1}', 'r1f1', "
+            f"'{datetime.datetime.fromisoformat('2024-08-30T04:45:00')}', "  # NZ-CHAT
+            f"'{datetime.datetime.fromisoformat('2024-08-29T10:30:00')}', "  # Berlin
+            f"'sys')")
+        KioskSQLDb.execute(
+            f"insert into test_table values('{uid2}','r2f1', "
+            f"'{datetime.datetime.fromisoformat('2024-08-30T05:45:00')}', "  # NZ-CHAT
+            f"'{datetime.datetime.fromisoformat('2024-08-29T11:30:00')}', "  # Berlin
+            f"'sys')")
 
+        KioskSQLDb.commit()
         cur = KioskSQLDb.get_dict_cursor()
         assert ws._import_table_from_filemaker(cur, prepare__import_table_from_filemaker["fm"],
                                                prepare__import_table_from_filemaker["dsd"], "test_table",
@@ -609,17 +616,16 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
                      'r1f1',
                      datetime.datetime(2024, 8, 29, 16, 0, tzinfo=datetime.timezone.utc),
                      datetime.datetime(2024, 8, 29, 8, 30, tzinfo=datetime.timezone.utc),
-                     27743346,
-                     96554373,
+                     45966874,
+                     45966874,
                      "sys"],
                     [str(uid2),
                      'r2f1',
                      datetime.datetime(2024, 8, 29, 17, 0, tzinfo=datetime.timezone.utc),
                      datetime.datetime(2024, 8, 29, 9, 30, tzinfo=datetime.timezone.utc),
-                     27743346,
-                     96554373,
+                     45966874,
+                     45966874,
                      "sys"]
-
                     ]
         expected.sort()
         assert records == expected
@@ -635,19 +641,6 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
         uid1 = uuid4()
         uid2 = uuid4()
 
-
-        # this simulates the FileMaker table:
-        KioskSQLDb.execute(
-            f"insert into test_table values('{uid1}', 'r1f1', "
-            f"'{datetime.datetime.fromisoformat('2024-08-29T10:00:00')}', "  # field2, UTC 16:00
-            f"'{datetime.datetime.fromisoformat('2024-08-29T10:30:00')}', "  # modified, UTC 08:30 
-            f"'sys')")
-
-        KioskSQLDb.execute(
-            f"insert into test_table values('{uid2}','r2f1', "
-            f"'{datetime.datetime.fromisoformat('2024-08-29T11:00:00')}', "  # field2, UTC 17:00
-            f"'{datetime.datetime.fromisoformat('2024-08-29T11:30:00')}', "  # modified, UTC 09:30
-            f"'sys')")
 
         # this simulates the shadow table in Kiosk:
         KioskSQLDb.execute(
@@ -674,6 +667,20 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
             f"'{datetime.datetime.fromisoformat('2024-08-29T08:29:59')}', "
             f"45966874,"
             f"'sys', null, null)")
+
+        # this simulates the FileMaker table:
+        KioskSQLDb.execute(
+            f"insert into test_table values('{uid1}', 'r1f1', "
+            f"'{datetime.datetime.fromisoformat('2024-08-29T10:00:00')}', "  # field2, UTC 16:00
+            f"'{datetime.datetime.fromisoformat('2024-08-29T10:30:00')}', "  # modified, UTC 08:30 
+            f"'sys')")
+
+        KioskSQLDb.execute(
+            f"insert into test_table values('{uid2}','r2f1', "
+            f"'{datetime.datetime.fromisoformat('2024-08-29T11:00:00')}', "  # field2, UTC 17:00
+            f"'{datetime.datetime.fromisoformat('2024-08-29T11:30:00')}', "  # modified, UTC 09:30
+            f"'sys')")
+
         KioskSQLDb.commit()
         cur = KioskSQLDb.get_dict_cursor()
         assert ws._import_table_from_filemaker(cur, prepare__import_table_from_filemaker["fm"],
@@ -703,23 +710,13 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
         assert records == expected
 
     def test__import_table_from_filemaker_updates_no_legacy_2(self, prepare__import_table_from_filemaker):
-        # this time the shadow table already has a datetime with a tz_index and there is no recording time zone
+        # this time the shadow table already has a datetime wit h a tz_index and there is no recording time zone
+        # tz.user_tz_index = 96554373  # Central European Time (Europe/Berlin)
+
         ws = prepare__import_table_from_filemaker["ws"]
         prepare__import_table_from_filemaker["tz"].recording_tz_index = None
         uid1 = uuid4()
         uid2 = uuid4()
-
-        # this simulates the FileMaker table:
-        KioskSQLDb.execute(
-            f"insert into test_table values('{uid1}', 'r1f1', "
-            f"'{datetime.datetime.fromisoformat('2024-08-29T10:00:00')}', "
-            f"'{datetime.datetime.fromisoformat('2024-08-29T10:30:00')}', "
-            f"'sys')")
-        KioskSQLDb.execute(
-            f"insert into test_table values('{uid2}','r2f1', "
-            f"'{datetime.datetime.fromisoformat('2024-08-29T11:00:00')}', "
-            f"'{datetime.datetime.fromisoformat('2024-08-29T11:30:00')}', "
-            f"'sys')")
 
         # this simulates the shadow table in Kiosk:
         KioskSQLDb.execute(
@@ -732,9 +729,9 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
             f"repl_tag, repl_deleted) "
             f"values('{uid1}', 'r1f1', "
             f"'{datetime.datetime.fromisoformat('2024-08-29T15:59:00')}', "
-            f"0,"
+            f"96554373,"  # Berlin -> 17:59
             f"'{datetime.datetime.fromisoformat('2024-08-29T08:29:00')}', "
-            f"0,"
+            f"45966874,"  # NZ-CHAT -> 21:14
             f"'sys', null, null)")
         KioskSQLDb.execute(
             f"insert into testdock_test_table(uid, field1, field2, field2_tz, "
@@ -742,102 +739,48 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
             f"repl_tag, repl_deleted) "
             f"values('{uid2}', 'r2f1', "
             f"'{datetime.datetime.fromisoformat('2024-08-29T16:59:00')}', "
-            f"0,"
-            f"'{datetime.datetime.fromisoformat('2024-08-29T08:29:59')}', "
-            f"0,"
+            f"45966874,"  # NZ-CHAT -> 30.08.2024 05:44
+            f"'{datetime.datetime.fromisoformat('2024-08-29T21:14:00')}', "
+            f"27743346,"  # Mountain Time (US/Mountain) -> Berlin (because this is a modified field!) 29.08.2024 23:14 
             f"'sys', null, null)")
 
+        # this simulates the FileMaker table:
+        KioskSQLDb.execute(
+            f"insert into test_table values('{uid1}', 'r1f1', "
+            f"'{datetime.datetime.fromisoformat('2024-08-29T14:00:00')}', "  # Berlin modified field2 -> UTC 12:00:00
+            f"'{datetime.datetime.fromisoformat('2024-08-29T13:00:00')}', "  # Berlin modified, -> UTC 11:00 
+            f"'sys')")
+
+        KioskSQLDb.execute(
+            f"insert into test_table values('{uid2}','r2f1', "
+            f"'{datetime.datetime.fromisoformat('2024-08-30T05:44:00')}', "  # field2 not modified -> 2024-08-29T16:59:00
+            f"'{datetime.datetime.fromisoformat('2024-08-29T23:14:00')}', "  # not modified -> 2024-08-29T21:14:00
+            f"'sys')")
+
+        KioskSQLDb.commit()
         cur = KioskSQLDb.get_dict_cursor()
         assert ws._import_table_from_filemaker(cur, prepare__import_table_from_filemaker["fm"],
                                                prepare__import_table_from_filemaker["dsd"], "test_table",
                                                tz=prepare__import_table_from_filemaker["tz"])
+        KioskSQLDb.commit()
         records = KioskSQLDb.get_records("select uid, field1, field2, modified, "
                                          "field2_tz, modified_tz, modified_by from testdock_test_table")
         records.sort()
         expected = [[str(uid1),
                      'r1f1',
-                     datetime.datetime(2024, 8, 29, 8, 0, tzinfo=datetime.timezone.utc),
-                     datetime.datetime(2024, 8, 29, 8, 30, tzinfo=datetime.timezone.utc),
+                     datetime.datetime(2024, 8, 29, 12, 0, tzinfo=datetime.timezone.utc),
+                     datetime.datetime(2024, 8, 29, 11, 0, tzinfo=datetime.timezone.utc),
                      96554373,
                      96554373,
                      "sys"],
                     [str(uid2),
                      'r2f1',
-                     datetime.datetime(2024, 8, 29, 9, 0, tzinfo=datetime.timezone.utc),
-                     datetime.datetime(2024, 8, 29, 9, 30, tzinfo=datetime.timezone.utc),
-                     96554373,
-                     96554373,
+                     datetime.datetime(2024, 8, 29, 16, 59, tzinfo=datetime.timezone.utc),
+                     datetime.datetime(2024, 8, 29, 21, 14, tzinfo=datetime.timezone.utc),
+                     45966874,
+                     27743346,
                      "sys"]
-                    ]
-        expected.sort()
-        assert records == expected
 
-    def test__import_table_from_filemaker_deletes(self, prepare__import_table_from_filemaker):
-        # this time the shadow table already has a datetime with a tz_index and there is no recording time zone
-        ws = prepare__import_table_from_filemaker["ws"]
-        prepare__import_table_from_filemaker["tz"].recording_tz_index = None
-        uid1 = uuid4()
-        uid2 = uuid4()
-
-        # this simulates the FileMaker table:
-        # KioskSQLDb.execute(
-        #     f"insert into test_table values('{uid1}', 'r1f1', "
-        #     f"'{datetime.datetime.fromisoformat('2024-08-29T10:00:00')}', "
-        #     f"'{datetime.datetime.fromisoformat('2024-08-29T10:30:00')}', "
-        #     f"'sys')")
-        KioskSQLDb.execute(
-            f"insert into test_table values('{uid2}','r2f1', "
-            f"'{datetime.datetime.fromisoformat('2024-08-29T11:00:00')}', "
-            f"'{datetime.datetime.fromisoformat('2024-08-29T11:30:00')}', "
-            f"'sys')")
-
-        # this simulates the shadow table in Kiosk:
-        KioskSQLDb.execute(
-            "create table testdock_test_table(uid uuid, field1 varchar, field2 timestamp with time zone, "
-            "modified timestamp with time zone, modified_tz int, modified_by varchar,"
-            "field2_tz int, repl_tag int, repl_deleted boolean)")
-        KioskSQLDb.execute(
-            f"insert into testdock_test_table(uid, field1, field2, field2_tz, "
-            f"modified, modified_tz, modified_by, "
-            f"repl_tag, repl_deleted) "
-            f"values('{uid1}', 'r1f1', "
-            f"'{datetime.datetime.fromisoformat('2024-08-29T15:59:00')}', "
-            f"0,"
-            f"'{datetime.datetime.fromisoformat('2024-08-29T08:29:00')}', "
-            f"0,"
-            f"'sys', null, null)")
-        KioskSQLDb.execute(
-            f"insert into testdock_test_table(uid, field1, field2, field2_tz, "
-            f"modified, modified_tz, modified_by, "
-            f"repl_tag, repl_deleted) "
-            f"values('{uid2}', 'r2f1', "
-            f"'{datetime.datetime.fromisoformat('2024-08-29T16:59:00')}', "
-            f"0,"
-            f"'{datetime.datetime.fromisoformat('2024-08-29T08:29:59')}', "
-            f"0,"
-            f"'sys', null, null)")
-
-        cur = KioskSQLDb.get_dict_cursor()
-        assert ws._import_table_from_filemaker(cur, prepare__import_table_from_filemaker["fm"],
-                                               prepare__import_table_from_filemaker["dsd"], "test_table",
-                                               tz=prepare__import_table_from_filemaker["tz"])
-        records = KioskSQLDb.get_records("select uid, field1, field2, modified, "
-                                         "field2_tz, modified_tz, modified_by, repl_deleted from testdock_test_table")
-        records.sort()
-        expected = [[str(uid1),
-                     'r1f1',
-                     datetime.datetime(2024, 8, 29, 15, 59, tzinfo=datetime.timezone.utc),
-                     prepare__import_table_from_filemaker["utc_now"] + datetime.timedelta(seconds=2),
-                     0,
-                     0,
-                     "sys", True],
-                    [str(uid2),
-                     'r2f1',
-                     datetime.datetime(2024, 8, 29, 9, 0, tzinfo=datetime.timezone.utc),
-                     datetime.datetime(2024, 8, 29, 9, 30, tzinfo=datetime.timezone.utc),
-                     96554373,
-                     96554373,
-                     "sys", None]
                     ]
         expected.sort()
         assert records == expected

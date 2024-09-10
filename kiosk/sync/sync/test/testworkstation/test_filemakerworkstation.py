@@ -161,7 +161,7 @@ class TestFilemakerWorkstation(KioskPyTestHelper):
         ws = FileMakerWorkstation("test_id", "test_description")
         assert not ws.exists()
 
-    def test_get_template_filepath_and_name(self, config, urapdb, shared_datadir):
+    def test_get_template_filepath_and_name(self, config, shared_datadir):
 
         self.activate_template("recording_v12_template.fmp12", shared_datadir, config)
         self.set_file_repos_dir(config, shared_datadir)
@@ -170,15 +170,16 @@ class TestFilemakerWorkstation(KioskPyTestHelper):
         assert ws
         ws.recording_group = "default"
         # ws.save()
-        assert ws.get_template_filepath_and_name() == os.path.join(kioskstdlib.get_file_path(config.filemaker_template),
-                                                                   "recording_groups", "default",
+        assert ws.get_template_filepath_and_name(96554373) == os.path.join(kioskstdlib.get_file_path(config.filemaker_template),
+                                                                   "recording_groups", "default",f"ts_{96554373}",
                                                                    kioskstdlib.get_filename(config.filemaker_template))
-        assert os.path.isfile(ws.get_template_filepath_and_name())
+        assert os.path.isfile(ws.get_template_filepath_and_name(96554373))
 
         dest_path = os.path.join(shared_datadir,
                                  "filemaker",
                                  "recording_groups",
                                  "group1",
+                                 f"ts_{96554373}",
                                  kioskstdlib.get_filename(config.filemaker_template))
         print(dest_path)
         # ws.delete(commit=True)
@@ -186,8 +187,8 @@ class TestFilemakerWorkstation(KioskPyTestHelper):
         ws = FileMakerWorkstation("test_id", "test_description")
         assert ws
         ws.recording_group = "group1"
-        assert os.path.isfile(ws.get_template_filepath_and_name("group1"))
-        assert ws.get_template_filepath_and_name("group1") == dest_path
+        assert os.path.isfile(ws.get_template_filepath_and_name(96554373, "group1"))
+        assert ws.get_template_filepath_and_name(96554373, "group1") == dest_path
 
     def test__transfer_file_identifier_cache(self, config, urapdb, shared_datadir):
 
@@ -261,6 +262,8 @@ class TestFilemakerWorkstation(KioskPyTestHelper):
                                     "filemaker",
                                     kioskstdlib.get_filename(config.filemaker_template))
 
+        file_path = kioskstdlib.get_file_path(dst_file)
+        os.makedirs(file_path, exist_ok=True)
         shutil.copyfile(src_file, dst_file)
 
     def test_fork(self, config, urapdb, shared_datadir):

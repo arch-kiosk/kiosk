@@ -70,8 +70,9 @@ class WorkstationManagerWorker:
                                                   user.get_active_recording_tz_index(),
                                                   user.get_active_tz_index())
             logging.info(f"{self.__class__.__name__}.init_dock: Dock {ws_id} is using "
-                         f"user's time zone {ws.current_tz.user_tz_long_name} and "
-                         f"recording time zone {ws.current_tz.recording_tz_long_name}")
+                         f"user's time zone {ws.current_tz.user_tz_index}/{ws.current_tz.user_tz_long_name} and "
+                         f"recording time zone "
+                         f"{ws.current_tz.recording_tz_index}/{ws.current_tz.recording_tz_long_name}")
         return ws
 
     def job_is_ok(self, current_operation_label=""):
