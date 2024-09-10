@@ -272,7 +272,9 @@ def trigger_action(action: str, ws_id: str):
         if not ws.exists:
             abort(HTTPStatus.BAD_REQUEST, f"Unknown workstation id '{ws_id}'")
 
-        if not ws.is_option_available(action, current_plugin_controller=get_plugin_for_controller(_plugin_name_)):
+
+        if not ws.is_option_available("enable" if ws.disabled else action,
+                                      current_plugin_controller=get_plugin_for_controller(_plugin_name_)):
             abort(HTTPStatus.BAD_REQUEST, "The triggered option is not available.")
 
         if action == "reset_recording_group":
