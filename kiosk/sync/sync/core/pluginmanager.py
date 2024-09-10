@@ -64,15 +64,19 @@ class PluginManager:
         mcpworker_present = "mcpcore.mcpworker" in sys.modules
         for plugin_candidate in plugin_candidates:
             if plugin_candidate not in self.plugins:
-                package = importlib.import_module(plugin_candidate)
-                if not mcpworker_present and "mcpcore.mcpworker" in sys.modules:
-                    logging.error(f"PluginManager.load_plugins: Detected mcpcore.mcpworker "
-                                  f"in plugin candidate {plugin_candidate}")
-                    mcpworker_present = True
-                plugin = self._get_plugin(Plugin, plugin_candidate, package, init_plugin_configuration)
-                if plugin:
-                    self.plugins[plugin_candidate] = plugin
-                    plugins_loaded.append(plugin)
+                try:
+                    package = importlib.import_module(plugin_candidate)
+                    if not mcpworker_present and "mcpcore.mcpworker" in sys.modules:
+                        logging.error(f"PluginManager.load_plugins: Detected mcpcore.mcpworker "
+                                      f"in plugin candidate {plugin_candidate}")
+                        mcpworker_present = True
+                    plugin = self._get_plugin(Plugin, plugin_candidate, package, init_plugin_configuration)
+                    if plugin:
+                        self.plugins[plugin_candidate] = plugin
+                        plugins_loaded.append(plugin)
+                except BaseException as e:
+                    logging.error(f"{self.__class__.__name__}.load_plugins: Cannot load plugin {plugin_candidate} "
+                                  f"because: {repr(e)}")
             else:
                 logging.debug(
                     f"PluginManager.load_plugins: "
