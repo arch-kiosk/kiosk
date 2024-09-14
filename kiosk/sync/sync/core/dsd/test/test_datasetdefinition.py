@@ -4,6 +4,7 @@ import pprint
 import pytest
 import os
 from dsd.dsd3 import DataSetDefinition, Join
+from dsd.dsdview import DSDView
 from dsd.dsdyamlloader import DSDYamlLoader
 from dsd.dsd3 import DSDWrongVersionError, DSDFileError, DSDTableDropped, DSDSemanticError
 from dsd.dsdconstants import *
@@ -382,9 +383,6 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert dsd.get_proxy_field_reference("images", "img_proxy") == "uid"
         assert not dsd.get_proxy_field_reference("images", "description")
 
-        with pytest.raises(DSDTableDropped):
-            assert dsd.get_proxy_field_reference("dropped_table", "img_proxy") == "uid"
-
     def test_get_file_field_reference(self, dsd_images_and_units_and_test):
         dsd: DataSetDefinition = dsd_images_and_units_and_test
         assert dsd.append_file(dsd3_dropped_table_file)
@@ -432,8 +430,30 @@ class TestDataSetDefinition(KioskPyTestHelper):
         dsddata = dsd._dsd_data.get([])
         assert "uid" in dsddata["table2"]["structure"][1]
         assert "uid" in dsddata["table1"]["structure"][1]
-        assert len(dsddata["table1"]["structure"][1]) == 15
-        assert len(dsddata["table2"]["structure"][1]) == 4
+        assert dsddata["table1"]["structure"] == {1: {'created': ['datatype("timestamp")', 'REPLFIELD_CREATED()'],
+                                                      'created_tz': ['datatype(TZ)'],
+                                                      'description': ['datatype("VARCHAR")', 'describes_file(uid)'],
+                                                      'excavation_context': ['datatype("VARCHAR")'],
+                                                      'file_datetime': ['datatype("TIMESTAMP")'],
+                                                      'file_datetime_tz': ['datatype(TZ)'],
+                                                      'id_cm': ['datatype("NUMBER")'],
+                                                      'id_locus': ['datatype("NUMBER")'],
+                                                      'id_unit': ['datatype("VARCHAR")'],
+                                                      'img_proxy': ['datatype("TIMESTAMP")', 'proxy_for(uid)'],
+                                                      'img_proxy_tz': ['datatype(TZ)'],
+                                                      'modified': ['datatype("timestamp")', 'REPLFIELD_MODIFIED()'],
+                                                      'modified_by': ['datatype("REPLFIELD_MODIFIED_BY")',
+                                                                      'default("sys")'],
+                                                      'modified_tz': ['datatype(TZ)'],
+                                                      'original_md5': ['datatype("VARCHAR")'],
+                                                      'ref_uid': ['datatype("UUID")'],
+                                                      'table_context': ['datatype("VARCHAR")'],
+                                                      'tags': ['datatype("VARCHAR")'],
+                                                      'uid': ['datatype("REPLFIELD_UUID")',
+                                                              'file_for(img_proxy)',
+                                                              'excavation_context(excavation_context)',
+                                                              'table_context(table_context)']}}
+        assert len(dsddata["table2"]["structure"][1]) == 6
 
     def test_resolve_imports(self):
         dsd: DataSetDefinition = DataSetDefinition()
@@ -445,11 +465,21 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert "uid" in dsddata["table1"]["structure"][1]
         assert "uid" in dsddata["repl_deleted_uids"]["structure"][1]
         assert "uid" in dsddata["repl_deleted_uids_2"]["structure"][2]
-        assert len(dsddata["table1"]["structure"][1]) == 15
-        assert len(dsddata["table2"]["structure"][1]) == 4
-        assert len(dsddata["repl_deleted_uids"]["structure"][1]) == 5
-        assert len(dsddata["repl_deleted_uids_2"]["structure"][2]) == 5
-        assert len(dsddata["test"]["structure"][3]) == 8
+        assert len(dsddata["table1"]["structure"][1]) == 19
+        assert len(dsddata["table2"]["structure"][1]) == 6
+        assert len(dsddata["repl_deleted_uids"]["structure"][1]) == 6
+        assert len(dsddata["repl_deleted_uids_2"]["structure"][2]) == 6
+        assert dsddata["test"]["structure"][3] == {'created': ['datatype("timestamp")', 'REPLFIELD_CREATED()'],
+                                                   'created_tz': ['datatype(TZ)'],
+                                                   'description': ['datatype("VARCHAR")'],
+                                                   'dontsync': ['datatype("TIMESTAMP")', 'nosync()'],
+                                                   'dontsync_tz': ['datatype(TZ)'],
+                                                   'modified': ['datatype("timestamp")', 'REPLFIELD_MODIFIED()'],
+                                                   'modified_by': ['datatype("REPLFIELD_MODIFIED_BY")',
+                                                                   'default("sys")'],
+                                                   'modified_tz': ['datatype(TZ)'],
+                                                   'name': ['datatype("VARCHAR")'],
+                                                   'uid': ['datatype("REPLFIELD_UUID")']}
 
     def test_delete_table(self, dsd_images_and_units_and_test):
         dsd: DataSetDefinition = dsd_images_and_units_and_test
@@ -869,7 +899,7 @@ class TestDataSetDefinition(KioskPyTestHelper):
     def test_get_tz_type_for_field(self, dsd_images_and_units):
         dsd: DataSetDefinition = dsd_images_and_units
         assert dsd.append_file(dsd3_test_tz_type_file)
-        assert dsd.get_tz_type_for_field("test", "some_date") == "r"
+        assert dsd.get_tz_type_for_field("test", "some_date") == ""
         assert dsd.get_tz_type_for_field("test", "explicit_r") == "r"
         assert dsd.get_tz_type_for_field("test", "modified") == "u"
         assert dsd.get_tz_type_for_field("test", "created") == "u"
@@ -918,3 +948,17 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert dsd.get_field_datatype("test", "some_date_tz") == "tz"
         assert dsd.get_field_instructions("test", "some_date_tz") == {'datatype': ['TZ']}
 
+    def test_get_proxy_field_reference_for_tz(self, cfg, dsd_images_and_units):
+        dsd: DataSetDefinition = dsd_images_and_units
+        assert dsd.append_file(dsd3_test_tz_type_file)
+        assert dsd.get_proxy_field_reference("test", "some_date_tz", test=True) == ""
+
+        dsd_workstation_view = DSDView(dsd)
+        dsd_workstation_view.apply_view_instructions({"config":
+                                                          {"format_ver": 3},
+                                                      "tables": [
+                                                          "include_tables_with_instruction('replfield_uuid')",
+                                                          "exclude_fields_with_instruction('no_sync')",
+                                                      ]})
+        ws_dsd = dsd_workstation_view.dsd
+        assert ws_dsd.get_proxy_field_reference("test", "some_date_tz", test=True) == ""

@@ -318,9 +318,9 @@ class Synchronization(PluginLoader):
             c = KioskLogicalFile.get_image_count()
             logging.debug(f"Before synchronization: image count is {c}")
 
-            dsd, dsd_workstation_view, master_dsd = self._get_dsds()
-            if not dsd:
-                logging.error("Synchronization.synchronize: Could not get a dsd.")
+            ws_dsd, dsd_workstation_view, master_dsd = self._get_dsds()
+            if not ws_dsd:
+                logging.error("Synchronization.synchronize: Could not get a workstation dsd.")
                 return False
 
             self._files_to_synchronize = []
@@ -338,21 +338,23 @@ class Synchronization(PluginLoader):
                     logging.error("Synchronization.synchronize: KioskSQLDb.get_cursor() failed")
                     return False
 
-                ok = self._sync_workstations_to_temptables(dsd, callback_progress=interruptable_callback_progress)
+                ok = self._sync_workstations_to_temptables(ws_dsd, callback_progress=interruptable_callback_progress)
                 if ok:
                     report_progress(interruptable_callback_progress, progress=100,
                                     topic="_sync_workstations_to_temptables")
-                    ok = self._sync_new_records(dsd, callback_progress=interruptable_callback_progress)
+                    ok = self._sync_new_records(ws_dsd, callback_progress=interruptable_callback_progress)
                     if ok:
                         report_progress(interruptable_callback_progress, progress=100, topic="_sync_new_records")
-                        ok = self._sync_modified_records(dsd, callback_progress=interruptable_callback_progress)
+                        ok = self._sync_modified_records(ws_dsd, callback_progress=interruptable_callback_progress)
                         if ok:
                             report_progress(interruptable_callback_progress, progress=100,
                                             topic="_sync_modified_records")
-                            ok = self._sync_deleted_records(dsd, callback_progress=interruptable_callback_progress)
+                            ok = self._sync_deleted_records(ws_dsd, callback_progress=interruptable_callback_progress)
 
                 if ok:
                     report_progress(interruptable_callback_progress, progress=100, topic="_sync_deleted_records")
+                    if "proxy_field" in  self.debug_mode:
+                        raise Exception("stopped because of debug mode")
 
                     try:
                         self.update_sync_time()
@@ -370,6 +372,7 @@ class Synchronization(PluginLoader):
                         ok = self._sync_change_workstation_states()
 
                 if ok:
+
                     report_progress(interruptable_callback_progress, progress=100, topic="synchronize_files")
                     logging.info(
                         "Synchronization.synchronize: Workstation states set successfully.")
@@ -470,6 +473,10 @@ class Synchronization(PluginLoader):
 
     @staticmethod
     def _get_dsds():
+        """
+        Gathers all the DSDs needed
+        :return: workstation DataSetDefinition, workstation DSDView, master DataSetDefinition
+        """
         master_dsd = Dsd3Singleton.get_dsd3()
         if master_dsd is None:
             logging.error("Synchronization._get_dsds: KioskSQLDb.get_dsd() failed")
@@ -832,7 +839,7 @@ class Synchronization(PluginLoader):
                     # sql = "delete from \"" + temp_table + "\" where \"" + temp_table + "\".\"uid\" in"
                     sql = "update \"" + temp_table + "\" set repl_tag = 2 where \"" + temp_table + "\".\"uid\" in"
                     sql = sql + " ("
-                    sql = sql + " SELECT tmp.uid from \"" + temp_table + "\" tmp LEFT OUTER JOIN \"" + table + "\" mdb ON tmp.uid = mdb.uid"
+                    sql = sql + f" {'SELECT'} tmp.uid from \"" + temp_table + "\" tmp LEFT OUTER JOIN \"" + table + "\" mdb ON tmp.uid = mdb.uid"
                     sql = sql + " INNER JOIN repl_deleted_uids on tmp.uid = repl_deleted_uids.deleted_uid"
                     sql = sql + " WHERE mdb.uid IS NULL AND NOT tmp.repl_deleted"
                     sql = sql + " and tmp.modified <= repl_deleted_uids.modified"
@@ -842,7 +849,7 @@ class Synchronization(PluginLoader):
 
                 sql = "UPDATE \"" + temp_table + "\" set repl_tag = 1 "
                 sql = sql + "WHERE \"" + temp_table + "\".\"uid\" IN("
-                sql = sql + "SELECT tmp.\"uid\" from \"" + temp_table + "\" tmp "
+                sql = sql + f"{'SELECT'} tmp.\"uid\" from \"" + temp_table + "\" tmp "
                 sql = sql + " LEFT OUTER JOIN " + table + " mdb ON tmp.\"uid\" = mdb.\"uid\""
                 sql = sql + " WHERE mdb.uid IS NULL AND NOT tmp.repl_deleted)"
                 sql = sql + " and repl_tag <> 2"
@@ -986,7 +993,11 @@ class Synchronization(PluginLoader):
         logging.info("********** Synchronizing modified records from all workstations **********")
         ok = True
         cur = KioskSQLDb.get_cursor()
-        exclude_fields = ["modified", "modified_by", "uid", "repl_deleted", "repl_tag", "created"]
+
+        # todo: time zone what about modified_tz? and created_tz?
+        #  since created does not ever get modified, neither does created_tz!
+
+        exclude_fields = ["modified", "modified_by", "modified_tz", "created_tz", "uid", "repl_deleted", "repl_tag", "created"]
 
         try:
             ctable = 0
@@ -1008,16 +1019,17 @@ class Synchronization(PluginLoader):
                     if not ok:
                         break
                     else:
-                        sql = "with mods as ("
+                        sql = f"{'with'} mods as ("
                         sql = sql + " select tmp.\"uid\", tmp.\"repl_workstation_id\", tmp.\"modified\", tmp.\"modified_by\","
                         sql = sql + " row_number() OVER(partition by tmp.\"uid\" order by coalesce(tmp.\"modified\", tmp.\"created\") desc) \"sync_modified_records_nr\""
                         sql = sql + " from \"" + temp_table + "\" tmp"
                         sql = sql + " where NOT COALESCE(tmp.\"repl_deleted\", false)"
                         sql = sql + " )"
-                        sql = sql + " update \"" + table + "\" set \"modified\"=upd.\"modified\", \"modified_by\"=upd.\"modified_by\""
+                        sql = sql + " update \"" + table + "\" set \"modified\"=upd.\"modified\","
+                        sql = sql + " modified_tz\"=upd.\"modified_tz\", modified_by\"=upd.\"modified_by\""
                         sql = sql + " from"
                         sql = sql + " ("
-                        sql = sql + " select m.\"uid\", m.\"modified\", m.\"modified_by\" from mods m where m.sync_modified_records_nr=1"
+                        sql = sql + f" {'select'} m.\"uid\", m.\"modified\", m.\"modified_by\" from mods m where m.sync_modified_records_nr=1"
                         sql = sql + " ) upd where \"" + table + "\".\"uid\" = upd.\"uid\""
                         cur.execute(sql)
                         if cur.rowcount > 0:
@@ -1126,7 +1138,7 @@ class Synchronization(PluginLoader):
             temp_table = "temp_" + table
             cur = KioskSQLDb.get_cursor()
             dsd = Dsd3Singleton.get_dsd3()
-            file_field = dsd.get_proxy_field_reference(table, field)
+            file_field = dsd.get_proxy_field_reference(table, field, test=bool("proxy_field" in self.debug_mode))
             if file_field:
                 sql = ""
                 sql = sql + "WITH" + " collisions as ( "
@@ -1150,7 +1162,7 @@ class Synchronization(PluginLoader):
                 if cur.rowcount > 0:
                     self._add_files_to_synchronize(cur)
 
-            sql = "with collisions as ("
+            sql = f"{'with'} collisions as ("
             sql = sql + " SELECT \"tmp\".\"uid\", \"tmp\".\"" + field + "\", \"tmp\".\"modified\","
             sql = sql + " row_number() OVER(PARTITION BY \"tmp\".\"uid\" ORDER BY COALESCE(\"tmp\".\"modified\", \"tmp\".\"created\") DESC) \"_solve_field_modification_rownr\""
             sql = sql + " FROM \"" + temp_table + "\" \"tmp\""
@@ -1216,7 +1228,7 @@ class Synchronization(PluginLoader):
                                         f"synchronization from deleting anything")
                     else:
                         # first insert uids about to be deleted into the table repl_deleted_uids
-                        sql = "insert into \"repl_deleted_uids\"(\"deleted_uid\", \"table\", \"repl_workstation_id\", \"modified\")"
+                        sql = f"{'insert'} into \"repl_deleted_uids\"(\"deleted_uid\", \"table\", \"repl_workstation_id\", \"modified\")"
                         sql = sql + " select tmp.\"uid\", '" + table + "' \"table\", tmp.\"repl_workstation_id\", tmp.\"modified\""
                         sql = sql + " from \"" + temp_table + "\" tmp"
                         sql = sql + " inner join \"" + table + "\" main on tmp.\"uid\" = main.\"uid\""
@@ -1227,7 +1239,7 @@ class Synchronization(PluginLoader):
                         cur.execute(sql)
                         logging.debug(str(cur.rowcount) + " new deleted uids added to repl_deleted_uids")
 
-                        sql = " delete from \"" + table + "\" where \"" + table + "\".\"uid\" in "
+                        sql = f" {'delete'} from \"" + table + "\" where \"" + table + "\".\"uid\" in "
                         sql = sql + "( "
                         sql = sql + " select tmp.\"uid\""
                         sql = sql + " from \"" + temp_table + "\" tmp"

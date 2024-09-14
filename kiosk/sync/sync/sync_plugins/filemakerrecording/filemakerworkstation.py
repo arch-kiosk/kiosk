@@ -50,6 +50,7 @@ class FileMakerWorkstation(RecordingWorkstation):
     debug_dont_check_open_state = False
 
     def __init__(self, workstation_id, description="", sync=None, *args, **kwargs):
+        self.dsd_workstation_view = None
         self._no_transfer_necessary = []
         self.repldata_records = {}
         self.ws_fork_sync_time = None
@@ -1169,7 +1170,7 @@ class FileMakerWorkstation(RecordingWorkstation):
         if rc:
             if self.current_tz.user_tz_index:
                 time_zone_offset_str = kioskdatetimelib.get_time_zone_offset_str(datetime.datetime.now(),
-                                                           self.current_tz.user_tz_iana_name)
+                                                                                 self.current_tz.user_tz_iana_name)
                 rc = fm.set_constant("utc_time_diff", time_zone_offset_str)
                 rc = fm.set_constant("user_time_zone_index", self.current_tz.user_tz_index)
                 rc = fm.set_constant("user_time_zone", self.current_tz.user_tz_long_name)
@@ -1858,11 +1859,12 @@ class FileMakerWorkstation(RecordingWorkstation):
                      f" OR ({f_tz} is not null and {f_dt} != %s::timestamptz) THEN %s" + \
                      f" ELSE {f_tz} END"
         v_tz = tz.user_dt_to_utc_dt(value)  # that's wristwatch time without time zone!
-        value_list.append(value.replace(tzinfo=datetime.timezone.utc))  # when ({f_tz} is null and {f_dt} != %s::timestamptz)
-        value_list.append(v_tz)   # ({f_tz} is not null  and {f_dt} != %s::timestamptz)
-        value_list.append(v_tz)   # THEN %s::timestamptz
+        value_list.append(
+            value.replace(tzinfo=datetime.timezone.utc))  # when ({f_tz} is null and {f_dt} != %s::timestamptz)
+        value_list.append(v_tz)  # ({f_tz} is not null  and {f_dt} != %s::timestamptz)
+        value_list.append(v_tz)  # THEN %s::timestamptz
         value_list.append(value.replace(tzinfo=datetime.timezone.utc))  # and {f_dt} != %s)
-        value_list.append(v_tz)   # OR ({f_tz} is not null and {f_dt} != %s::timestamptz)
+        value_list.append(v_tz)  # OR ({f_tz} is not null and {f_dt} != %s::timestamptz)
         value_list.append(tz.user_tz_index)  # THEN %s
 
         return sql_update
@@ -2013,7 +2015,8 @@ class FileMakerWorkstation(RecordingWorkstation):
             pass
         return ok
 
-    def _import_table_get_sqls(self, dest_table_name, dsd:DataSetDefinition, dsd_table_name, dsd_version, fm, fm_rec, tz, uid):
+    def _import_table_get_sqls(self, dest_table_name, dsd: DataSetDefinition, dsd_table_name, dsd_version, fm, fm_rec,
+                               tz, uid):
         update_values = []
         insert_values = []
         sql_with_select = ""
@@ -2024,16 +2027,18 @@ class FileMakerWorkstation(RecordingWorkstation):
         sql_insert = f'{"INSERT"} INTO {dest_table_name}('
         sql_insert_values = "VALUES("
         comma = ""
-        modified_fields = list(dsd.get_fields_with_instructions(dsd_table_name,
-                                                                ["replfield_modified", "proxy_for"]).keys())
+        # modified_fields = list(dsd.get_fields_with_instructions(dsd_table_name,
+        #                                                         ["replfield_modified", "proxy_for"]).keys())
         # modified_field_name = modified_fields[0] if modified_fields else ""
         # proxy_field_name = dsd.get_proxy_field_reference(dsd_table_name)
         # dsd: DataSetDefinition
         for f in dsd.omit_fields_by_datatype(dsd_table_name,
                                              dsd.list_fields(dsd_table_name, version=dsd_version), 'tz'):
+            data_type = dsd.get_field_datatype(dsd_table_name, f, version=dsd_version)
             argv = {"f": f,
-                    "data_type": dsd.get_field_datatype(dsd_table_name, f, version=dsd_version),
-                    "tz_type": dsd.get_tz_type_for_field(dsd_table_name, f, version=dsd_version),
+                    "data_type": data_type,
+                    "tz_type": dsd.get_tz_type_for_field(dsd_table_name, f,
+                                                         version=dsd_version) if data_type == "timestamp" else "",
                     "value": fm.getfieldvalue(fm_rec, f),
                     "value_list": update_values,
                     "tz": tz}
@@ -2044,7 +2049,10 @@ class FileMakerWorkstation(RecordingWorkstation):
                 sql_with_joins += (f" left outer join kiosk_time_zones tz{c_join} on "
                                    f"{dest_table_name}.\"{f}_tz\" = tz{c_join}.id")
 
-            if f in modified_fields:   # modified_field_name == f or proxy_field_name == f:
+            # if f in modified_fields:   # modified_field_name == f or proxy_field_name == f:
+            #     sql_field_update = self._import_table_get_update_user_tz_field_sql(f, argv["value"],
+            #                                                                        update_values, tz)
+            if argv["tz_type"] == "u":
                 sql_field_update = self._import_table_get_update_user_tz_field_sql(f, argv["value"],
                                                                                    update_values, tz)
             else:
@@ -2260,17 +2268,19 @@ class FileMakerWorkstation(RecordingWorkstation):
         returns a view on the master dsd for this workstation
         :return: a DataSetDefinition
         """
-        dsd = Dsd3Singleton.get_dsd3()
-        dsd_workstation_view = DSDView(dsd)
-        dsd_workstation_view.apply_view_instructions({"config":
-                                                          {"format_ver": 3},
-                                                      "tables": ["include_tables_with_instruction('replfield_uuid')",
-                                                                 "include_tables_with_flag('filemaker_recording')",
-                                                                 "exclude_field('images', 'filename')",
-                                                                 "exclude_field('images', 'md5_hash')",
-                                                                 "exclude_field('images', 'image_attributes')"
-                                                                 ]})
-        return dsd_workstation_view.dsd
+        if not self.dsd_workstation_view:
+            dsd = Dsd3Singleton.get_dsd3()
+            self.dsd_workstation_view = DSDView(dsd)
+            self.dsd_workstation_view.apply_view_instructions({"config":
+                                                                   {"format_ver": 3},
+                                                               "tables": [
+                                                                   "include_tables_with_instruction('replfield_uuid')",
+                                                                   "include_tables_with_flag('filemaker_recording')",
+                                                                   "exclude_field('images', 'filename')",
+                                                                   "exclude_field('images', 'md5_hash')",
+                                                                   "exclude_field('images', 'image_attributes')"
+                                                                   ]})
+        return self.dsd_workstation_view.dsd
 
     def _update_file_identifier_cache_necessary(self):
         """

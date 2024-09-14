@@ -30,7 +30,7 @@ class WorkstationManagerWorker:
 
     def init_dsd(self):
         master_dsd = Dsd3Singleton.get_dsd3()
-        master_dsd.register_loader("yml", DSDYamlLoader)
+        # master_dsd.register_loader("yml", DSDYamlLoader)
         if not master_dsd.append_file(self.cfg.get_dsdfile()):
             logging.error(
                 f"create_workstation: DSD {self.cfg.get_dsdfile()} could not be loaded by append_file.")

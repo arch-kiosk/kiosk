@@ -532,7 +532,7 @@ class FileMakerControlWindows(FileMakerControl):
             varchar_fields = []
             timestamp_fields = {}
 
-            u_fields = list(dsd.get_fields_with_instructions(tablename, ["replfield_modified", ""]).keys())
+            # u_fields = list(dsd.get_fields_with_instructions(tablename, ["replfield_modified"]).keys())
             modified_fields = dsd.list_fields_with_instruction(tablename, "replfield_modified")
             modified_field_name = modified_fields[0] if modified_fields else ""
             if modified_field_name:
@@ -545,7 +545,7 @@ class FileMakerControlWindows(FileMakerControl):
                 if f != "modified_ww":
                     field_data_type = dsd.get_field_datatype(tablename, f)
                     if field_data_type in ["varchar", "text"] or \
-                            (tablename == "fm_repldata_transfer" and f == "modified_by"):
+                            (tablename == "fm_repldata_transfer" and f == "modified_by"):  # todo: That looks hacky. Why the direct reference to "modified_by"?
                         varchar_fields.append(f)
                     else:
                         if field_data_type == "timestamp":
@@ -587,10 +587,13 @@ class FileMakerControlWindows(FileMakerControl):
                                     c_ts_values += 1
                                     tz_value = row[f + "_tz"]
                                     if tz_value:
-                                        if f in u_fields:
-                                            # the u_fields (modified field or proxy_for) are always
+                                        # if f in u_fields:
+                                            # the u_fields (modified field, created field or proxy_for) are always
                                             #  converted to current user time zone
+                                        if timestamp_fields[f] == "u":
                                             field_value = current_tz.utc_dt_to_user_dt(field_value)
+                                        elif timestamp_fields[f] == "r":
+                                            field_value = current_tz.utc_dt_to_recording_dt(field_value)
                                         else:
                                             # timestamp in its originally recorded time zone
                                             field_value = current_tz.utc_dt_to_tz_dt(field_value, tz_value)
@@ -602,10 +605,14 @@ class FileMakerControlWindows(FileMakerControl):
                     params.append(field_value)
 
                 start = timer()
+                success = False
                 try:
                     fm_cur.execute(fm_sql_insert, params)
+                    success = True
                 except BaseException as e:
                     logging.error(f"{self.__class__.__name__}.transfer_table_data_to_filemaker: {repr(e)}")
+                    raise Exception(f"Error when transferring record {row['uid'] if 'uid' in row else '?'} "
+                                    f"from {tablename} to {dest_tablename}")
                 end = timer()
                 r_count = r_count + 1
                 time_elapsed = end - start
@@ -617,6 +624,7 @@ class FileMakerControlWindows(FileMakerControl):
                     max_time_elapsed = time_elapsed
                 average = sum_time / r_count
                 row = db_cur.fetchone()
+
 
             logging.info(f"About to commit {str(r_count - 1)} lines in {dest_tablename}")
             self.cnxn.commit()

@@ -18,6 +18,6 @@ table1:
       original_md5: [datatype("VARCHAR")]
       tags: [datatype("VARCHAR")]
       uid: [datatype("REPLFIELD_UUID"), file_for(img_proxy), excavation_context(excavation_context), table_context(table_context)]
-      created: [datatype("REPLFIELD_CREATED")]
-      modified: [datatype("REPLFIELD_MODIFIED")]
+      created: [datatype("timestamp"), REPLFIELD_CREATED()]
+      modified: [datatype("timestamp"), REPLFIELD_MODIFIED()]
       modified_by: [datatype("REPLFIELD_MODIFIED_BY"), default("sys")]

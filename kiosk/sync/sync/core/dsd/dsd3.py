@@ -369,13 +369,17 @@ class DataSetDefinition:
             raise DSDWrongVersionError
         try:
 
-            virtual_fields = self.get_virtual_fields(dsddata)
-            if virtual_fields:
-                self._add_virtual_fields_to_raw_dsd(dsddata, virtual_fields)
 
             if external_file_path:
                 self._append_imports(dsddata=dsddata, external_file_path=external_file_path)
                 self._resolve_externals(dsddata, base_path=external_file_path)
+
+            #todo time zone: I moved this down here because the _tz fields were not added.
+            # But why did that ever work anywhere?
+            virtual_fields = self.get_virtual_fields(dsddata)
+            if virtual_fields:
+                self._add_virtual_fields_to_raw_dsd(dsddata, virtual_fields)
+
             rc = self._dsd_data.merge([], dsddata)
 
             if rc:
@@ -797,7 +801,7 @@ class DataSetDefinition:
         version = version if version else self.get_current_version(table)
         return list(self.get_fields_with_instructions(table, [fieldtype], version).keys())
 
-    def get_proxy_field_reference(self, table, field, version=0):
+    def get_proxy_field_reference(self, table, field, version=0, test=False):
         """ returns the field name given by the attribute "PROXY_FOR()" of the given field
             works only in the files table and is a bit of relict.
         
@@ -813,6 +817,7 @@ class DataSetDefinition:
                     return instructions["proxy_for"][0]
             except Exception as e:
                 logging.error("DataSetDefinition.get_proxy_field_reference: Exception " + repr(e))
+                if test: raise e
 
         return ""
 
@@ -1587,11 +1592,11 @@ class DataSetDefinition:
         params = self.get_instruction_parameters(tablename, field_name, "tz_type", version=version)
         u_instructions = self.get_field_instructions(tablename,
                                                      field_name,
-                                                     patterns=["replfield_modified", "proxy_for"])
+                                                     patterns=["replfield_modified", "replfield_created", "proxy_for"])
         if params:
             if params[0] in ["r", "u"]:
                 if params[0] == "r":
-                    if u_instructions and ("replfield_modified" in u_instructions or "proxy_for" in u_instructions):
+                    if u_instructions:  # and ("replfield_modified" in u_instructions or "proxy_for" in u_instructions):
                         logging.warning(f"{self.__class__.__name__}.get_tz_type_for_field: "
                                         f"The replfield_modified field {tablename}.{field_name} "
                                         f"has a tz_type(r) definition which is ignored.")
