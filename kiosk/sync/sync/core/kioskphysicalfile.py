@@ -98,7 +98,6 @@ class KioskPhysicalFile:
 
         return ""
 
-
     @classmethod
     def _guess_dest_format_from_extension(cls, extension):
         extension = extension.lower()
@@ -119,22 +118,23 @@ class KioskPhysicalFile:
             extension = kioskstdlib.get_file_extension(source_filepath_and_name)
             return cls._guess_dest_format_from_extension(extension)
         else:
-            logging.error(f"{cls.__name__}._determine_dest_format: representation has no format_request: {representation}")
+            logging.error(
+                f"{cls.__name__}._determine_dest_format: representation has no format_request: {representation}")
 
         return None
 
     @classmethod
     def can_convert_to(cls, source_filepath_and_name: str, representation: KioskRepresentationType):
         if cls.can_open(source_filepath_and_name) and \
-           representation.__class__ is KioskRepresentationType:
+                representation.__class__ is KioskRepresentationType:
             extension = kioskstdlib.get_file_extension(source_filepath_and_name)
             src_format = cls.get_format_from_input_file_extensions(extension)
             # dest_format = cls._determine_dest_format(representation, source_filepath_and_name)
             dest_format = representation.get_requested_output_format(src_format)
             if dest_format != "*" and \
                     dest_format not in cls.get_supported_output_formats():
-                logging.info(f"{cls.__name__}.can_convert_to: dest_format '{dest_format}' for '{src_format}' "
-                             f"could not be determined.")
+                logging.debug(f"{cls.__name__}.can_convert_to: dest_format '{dest_format}' for '{src_format}' "
+                              f"could not be determined.")
                 return False
             # else:
             #     logging.debug(f"{cls.__name__}.can_convert : dest_format is {dest_format}")
