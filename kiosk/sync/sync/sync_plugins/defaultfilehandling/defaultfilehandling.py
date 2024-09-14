@@ -56,6 +56,7 @@ class KioskPhysicalPillowFile(KioskPhysicalImageFile):
 
         img = Image.open(self.source_path_and_filename)
         try:
+            exif_info = None
             if "exif" in img.info:
                 exif_info = kioskpiexif.load(img.info["exif"])
 
@@ -73,9 +74,10 @@ class KioskPhysicalPillowFile(KioskPhysicalImageFile):
                         logging.debug(f"Exif info: {exif_info}")
                         self._exif_data = None
         except BaseException as e:
-            logging.warning(f"{self.__class__.__name__}._open_image:"
+            logging.info(f"{self.__class__.__name__}._open_image:"
                             f"Non-fatal exception when reading exif data: {repr(e)}")
-            logging.debug(f"Exif info: {exif_info}")
+            if exif_info:
+                logging.debug(f"Exif info: {exif_info}")
             self._exif_data = None
 
         self._has_exif_data = True if self._exif_data else False
