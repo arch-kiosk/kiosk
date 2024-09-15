@@ -530,7 +530,7 @@ class FileMakerControlWindows(FileMakerControl):
                 fieldlist = [f for f in dsd.list_fields(tablename) if dsd.get_field_datatype(tablename, f) != "tz"]
 
             varchar_fields = []
-            timestamp_fields = {}
+            timestamp_fields = []
 
             # u_fields = list(dsd.get_fields_with_instructions(tablename, ["replfield_modified"]).keys())
             modified_fields = dsd.list_fields_with_instruction(tablename, "replfield_modified")
@@ -549,7 +549,7 @@ class FileMakerControlWindows(FileMakerControl):
                         varchar_fields.append(f)
                     else:
                         if field_data_type == "timestamp":
-                            timestamp_fields[f] = dsd.get_tz_type_for_field(tablename, f) if dsd else ""
+                            timestamp_fields.append(f)  # = dsd.get_tz_type_for_field(tablename, f) if dsd else ""
 
             fm_sql_insert = fm_sql_insert + ") VALUES(" + fm_sql_insert_values + ")"
 
@@ -583,17 +583,14 @@ class FileMakerControlWindows(FileMakerControl):
                             if field_value is not None:
                                 if f in varchar_fields:
                                     field_value = self._handle_gobbledygook(f, field_value, row, tablename)
-                                elif f in timestamp_fields.keys():
+                                elif f in timestamp_fields:
                                     c_ts_values += 1
                                     tz_value = row[f + "_tz"]
                                     if tz_value:
-                                        # if f in u_fields:
-                                            # the u_fields (modified field, created field or proxy_for) are always
-                                            #  converted to current user time zone
-                                        if timestamp_fields[f] == "u":
+                                        # only the repl_modified field is always converted into user time zone
+                                        # and expected back from FileMaker in user time zone
+                                        if f == modified_field_name:
                                             field_value = current_tz.utc_dt_to_user_dt(field_value)
-                                        elif timestamp_fields[f] == "r":
-                                            field_value = current_tz.utc_dt_to_recording_dt(field_value)
                                         else:
                                             # timestamp in its originally recorded time zone
                                             field_value = current_tz.utc_dt_to_tz_dt(field_value, tz_value)
@@ -676,8 +673,8 @@ class FileMakerControlWindows(FileMakerControl):
             :param db_cur: open postgres cursor
             :param fieldlist: required. A dictionary with fields as keys and a tuple as value.
                                         the field tuple consists of
-                                        [0] datetype: a dsd data type,
-                                        [1] timezone type: None for non-datetimes, "r" or "u" for datetimes
+                                        [0] data type: a dsd data type,
+                                        [1] "true" if this is the replfield_modified field of the table
             :param dest_tablename: required. The table name
             :param latest_record_data: a tuple: (modified_field_name, max_modified_by, record_count).
                                        If set the whole transfer will only happen if the most recent value of
@@ -748,7 +745,8 @@ class FileMakerControlWindows(FileMakerControl):
             comma = ""
 
             varchar_fields = []
-            timestamp_fields = {}
+            timestamp_fields = []
+            modified_field_name = ""
 
             # get rid of tz fields
             for tz_f in [f for f, f_info in fieldlist.items() if f_info[0].lower() == "tz"]:
@@ -762,10 +760,12 @@ class FileMakerControlWindows(FileMakerControl):
                 if field_data_type in ["varchar", "text"]:
                     varchar_fields.append(f)
                 else:
+                    if f_info[1]:
+                        modified_field_name = f
                     if dest_tablename == "fm_repldata_transfer" and f == "modified_by":
                         varchar_fields.append(f)
                     if field_data_type == "timestamp":
-                        timestamp_fields[f] = f_info[1] if f_info[1] else "r"
+                        timestamp_fields.append(f)  # = dsd.get_tz_type_for_field(tablename, f) if dsd else ""
 
             fm_sql_insert = fm_sql_insert + ") VALUES(" + fm_sql_insert_values + ")"
 
@@ -793,21 +793,17 @@ class FileMakerControlWindows(FileMakerControl):
                         if field_value is not None:
                             if f in varchar_fields:
                                 field_value = self._handle_gobbledygook(f, field_value, row, dest_tablename)
-                            elif f in timestamp_fields.keys():
+                            elif f in timestamp_fields:
                                 c_ts_values += 1
                                 tz_value = row[f + "_tz"]
                                 if tz_value:
-                                    if not timestamp_fields[f]:
+                                    # only the repl_modified field is always converted into user time zone
+                                    # and expected back from FileMaker in user time zone
+                                    if f == modified_field_name:
+                                        field_value = current_tz.utc_dt_to_user_dt(field_value)
+                                    else:
                                         # timestamp in its originally recorded time zone
                                         field_value = current_tz.utc_dt_to_tz_dt(field_value, tz_value)
-                                    elif timestamp_fields[f] == "u":
-                                        # timestamp in the current user time zone
-                                        c_ts_to_u += 1
-                                        field_value = current_tz.utc_dt_to_user_dt(field_value)
-                                    elif timestamp_fields[f] == "r":
-                                        # timestamp in the current recording time zone
-                                        c_ts_to_r += 1
-                                        field_value = current_tz.utc_dt_to_recording_dt(field_value)
                     except BaseException as e:
                         logging.error(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
                                       f"Exception when processing field '{f}'...")

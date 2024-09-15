@@ -1592,7 +1592,7 @@ class DataSetDefinition:
         params = self.get_instruction_parameters(tablename, field_name, "tz_type", version=version)
         u_instructions = self.get_field_instructions(tablename,
                                                      field_name,
-                                                     patterns=["replfield_modified", "replfield_created", "proxy_for"])
+                                                     patterns=["replfield_modified", "replfield_created","proxy_for"])
         if params:
             if params[0] in ["r", "u"]:
                 if params[0] == "r":

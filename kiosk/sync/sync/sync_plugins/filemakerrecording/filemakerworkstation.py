@@ -722,10 +722,10 @@ class FileMakerWorkstation(RecordingWorkstation):
                             "transfering file identifier cache ...")
 
             table_structure = {
-                "identifier": ("varchar", None),
-                "uid_image": ("uuid", None),
-                "recording_context": ("varchar", None),
-                "uid_recording_context": ("uuid", None)
+                "identifier": ("varchar", False),
+                "uid_image": ("uuid", False),
+                "recording_context": ("varchar", False),
+                "uid_recording_context": ("uuid", False)
             }
 
             fm: FileMakerControl
@@ -920,14 +920,14 @@ class FileMakerWorkstation(RecordingWorkstation):
         """
         src_table_name = KioskSQLDb.sql_safe_namespaced_table(namespace=self._db_namespace,
                                                               db_table=self._id + "_fm_image_transfer")
-        field_list = {"id": ("uuid", None),
-                      "uid_file": ("varchar", None),
-                      "filepath_and_name": ("varchar", None),
-                      "location": ("varchar", None),
-                      "resolution": ("varchar", None),
-                      "disabled": ("boolean", None),
-                      "file_type": ("varchar", None),
-                      "file_size": ("int", None)
+        field_list = {"id": ("uuid", False),
+                      "uid_file": ("varchar", False),
+                      "filepath_and_name": ("varchar", False),
+                      "location": ("varchar", False),
+                      "resolution": ("varchar", False),
+                      "disabled": ("boolean", False),
+                      "file_type": ("varchar", False),
+                      "file_size": ("int", False)
                       }
 
         sql_select = 'SELECT '
@@ -960,13 +960,13 @@ class FileMakerWorkstation(RecordingWorkstation):
         src_table_name = KioskSQLDb.sql_safe_namespaced_table(namespace=self._db_namespace,
                                                               db_table=self._id + "_fm_repldata_transfer")
         # todo timezone this needs a modified_tz field
-        field_list = {"id": ("int", None),
-                      "tablename": ("varchar", None),
-                      "uid": ("uuid", None),
+        field_list = {"id": ("int", False),
+                      "tablename": ("varchar", False),
+                      "uid": ("uuid", False),
                       # that's why the dsd instruction "tz_type()" is not allowed on modified fields:
-                      "modified": ("timestamp", "u"),
-                      "modified_tz": ("tz", None),
-                      "modified_by": ("varchar", None)}
+                      "modified": ("timestamp", True),
+                      "modified_tz": ("tz", False),
+                      "modified_by": ("varchar", False)}
 
         sql_select = 'SELECT '
         comma = ""
@@ -1799,6 +1799,9 @@ class FileMakerWorkstation(RecordingWorkstation):
     def _import_table_get_update_field_sql(f: str, data_type: str, tz_type: Optional[str], value, value_list: List,
                                            tz: KioskTimeZoneInstance) -> str:
         """
+        returns the sql fragment to update a single field. This takes the tz_type into account.
+        This is completely independent of the tz_type that might be set in the dsd!
+
         :param f: the dsd field name
         :param data_type: the dsd data type
         :param tz_type: the time zone type (u/r) or None
@@ -1815,15 +1818,17 @@ class FileMakerWorkstation(RecordingWorkstation):
             v_tz = value.replace(tzinfo=None).isoformat()  # that's wristwatch time without time zone!
 
             sql_update = f"{f_dt}=case when ({f_tz_iana} is null and {f_dt} != %s) OR ({f_tz_iana} is not null" + \
-                         f" and {f_dt} != (%s || ' ' || {f_tz_iana})::timestamptz) THEN %s::timestamptz ELSE {f_dt} END, " \
+                         f" and {f_dt} != (%s || ' ' || {f_tz_iana})::timestamptz) " \
+                         f"THEN %s::timestamptz ELSE {f_dt} END, " \
                          f"{f_tz}=case when ({f_tz_iana} is null" + \
                          f" and {f_dt} != %s)" + \
-                         f" OR ({f_tz_iana} is not null and {f_dt} != (%s || ' ' || {f_tz_iana})::timestamptz) THEN %s" + \
-                         f" ELSE {f_tz} END"
+                         f" OR ({f_tz_iana} is not null and {f_dt} != (%s || ' ' || {f_tz_iana})::timestamptz)" \
+                         f" THEN %s ELSE {f_tz} END"
             # sql_update = sql_update.replace("\n", "").replace("\r", "")
             value_list.append(
                 value.replace(tzinfo=datetime.timezone.utc))  # when ({f_tz} is null and {f_dt} != %s::timestamptz)
             value_list.append(v_tz)  # ({f_tz} is not null  and {f_dt} != %s::timestamptz)
+            # interpreting the wrist watch time either in terms of user time zone or recording time zone:
             value_list.append(
                 v_tz + f' {tz.user_tz_iana_name if tz_type == "u" else tz.recording_tz_iana_name}')  # THEN %s::timestamptz
             value_list.append(value.replace(tzinfo=datetime.timezone.utc))  # and {f_dt} != %s)
@@ -1841,7 +1846,8 @@ class FileMakerWorkstation(RecordingWorkstation):
                                                    tz: KioskTimeZoneInstance) -> str:
         """
         This is only for fields that are always converted to user time zone and back.
-        This would be fields with instructions replfield_modified and proxy_for.
+        This would be fields with instructions replfield_modified, proxy_for and replfield_created.
+        This is completely independent of the tz_type that might be set in the dsd!
 
         :param f: the dsd field name of the field
         :param value: the value as it comes back from FileMaker (so timestamps are wristwatch or legacy or None!)
@@ -1851,12 +1857,13 @@ class FileMakerWorkstation(RecordingWorkstation):
         """
         f_dt = '"' + f + '"'
         f_tz = '"' + f + '_tz"'
-
-        sql_update = f"{f_dt}=case when ({f_tz} is null and {f_dt} != %s) OR ({f_tz} is not null" + \
+        f_tz_iana = '"iana_time_zones"."' + f + '_tz_iana"'
+        sql_update = f"{f_dt}=case when ({f_tz_iana} is null and {f_dt} != %s) OR " \
+                     f"({f_tz_iana} is not null" \
                      f" and {f_dt} != %s::timestamptz) THEN %s::timestamptz ELSE {f_dt} END, " \
-                     f"{f_tz}=case when ({f_tz} is null" + \
+                     f"{f_tz}=case when ({f_tz_iana} is null" + \
                      f" and {f_dt} != %s)" + \
-                     f" OR ({f_tz} is not null and {f_dt} != %s::timestamptz) THEN %s" + \
+                     f" OR ({f_tz_iana} is not null and {f_dt} != %s::timestamptz) THEN %s" + \
                      f" ELSE {f_tz} END"
         v_tz = tz.user_dt_to_utc_dt(value)  # that's wristwatch time without time zone!
         value_list.append(
@@ -1876,7 +1883,7 @@ class FileMakerWorkstation(RecordingWorkstation):
 
         :param f: the dsd field name
         :param data_type: the dsd data type
-        :param tz_type: the time zone type (u/r) or None
+        :param tz_type: the time zone type (u/r) or None with None leading to the same as 'r'
         :param value: the value as it comes back from FileMaker (so timestamps are wristwatch or legacy!)
         :param value_list: the value parameters for the insert sql statement
         :param tz: the time zone information to use
@@ -2043,6 +2050,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                     "value_list": update_values,
                     "tz": tz}
 
+            replfield_modified = dsd.get_modified_field(dsd_table_name)
             if argv["data_type"] == "timestamp":
                 c_join += 1
                 sql_with_select += f", tz{c_join}.\"tz_IANA\"::varchar {f}_tz_iana"
@@ -2052,7 +2060,7 @@ class FileMakerWorkstation(RecordingWorkstation):
             # if f in modified_fields:   # modified_field_name == f or proxy_field_name == f:
             #     sql_field_update = self._import_table_get_update_user_tz_field_sql(f, argv["value"],
             #                                                                        update_values, tz)
-            if argv["tz_type"] == "u":
+            if f == replfield_modified:
                 sql_field_update = self._import_table_get_update_user_tz_field_sql(f, argv["value"],
                                                                                    update_values, tz)
             else:

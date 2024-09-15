@@ -43,92 +43,6 @@ class TestFilemakerWorkstationTransferTableToFileMaker(KioskPyTestHelper):
         assert KioskSQLDb.drop_database()
         assert KioskSQLDb.create_database()
 
-    # def test__import_table_get_update_field_sql(self, db, mock_kiosk_time_zones):
-    #     tz = KioskTimeZoneInstance(kiosk_time_zones=KioskTimeZones())
-    #     tz.user_tz_index = 96554373  # Central European Time (Europe/Berlin)
-    #     tz.recording_tz_index = 27743346  # Mountain Time (US/Mountain)
-    #
-    #     argv = {
-    #         "f": "modified",
-    #         "data_type": "timestamp",
-    #         "tz_type": "u",
-    #         "value": datetime.datetime.fromisoformat("2024-08-01T12:00:00"),
-    #         "value_list": [],
-    #         "tz": tz
-    #     }
-    #
-    #     sql = FileMakerWorkstation._import_table_get_update_field_sql(**argv)
-    #     # value_list = [f"'{datetime.datetime.isoformat(x)}'" if isinstance(x, datetime.datetime) else x for x in
-    #     #               argv["value_list"]]
-    #     value_list = argv["value_list"]
-    #
-    #     # KioskSQLDb.execute("create temp table sometable(modified timestamp with time zone, modified_tz varchar)")
-    #     cur = KioskSQLDb.get_dict_cursor()
-    #     try:
-    #         cur.execute(f"{sql}", value_list)
-    #     except:
-    #         pass
-    #     assert cur.query == (b"\"modified\"=case "
-    #                          b"when (\"iana_time_zones\".\"modified_tz_iana\" is null and "
-    #                          b"\"modified\" != '2024-08-01T12:00:00+00:00'::timestamptz) "
-    #                          b"OR (\"iana_time_zones\".\"modified_tz_iana\" is not null and "
-    #                          b"\"modified\" != ('2024-08-01T12:00:00' || ' ' || \"iana_time_zones\".\"modified_tz_iana\")::timestamptz) "
-    #                          b"THEN '2024-08-01T12:00:00 Europe/Berlin'::timestamptz "
-    #                          b"ELSE \"modified\" END, "
-    #                          b"\"modified_tz\"=case when (\"iana_time_zones\".\"modified_tz_iana\" is null and "
-    #                          b"\"modified\" != '2024-08-01T12:00:00+00:00'::timestamptz) "
-    #                          b"OR (\"iana_time_zones\".\"modified_tz_iana\" is not null and "
-    #                          b"\"modified\" != ('2024-08-01T12:00:00' || ' ' || \"iana_time_zones\".\"modified_tz_iana\")::timestamptz) "
-    #                          b"THEN 96554373 ELSE \"modified_tz\" END")
-    #
-    #     # test #2
-    #
-    #     f = "modified"
-    #     data_type = "timestamp"
-    #     tz_type = "r"
-    #     value = datetime.datetime.fromisoformat("2024-08-01T12:00:00")
-    #     value_list = []
-    #
-    #     sql = FileMakerWorkstation._import_table_get_update_field_sql(f=f,
-    #                                                                   data_type=data_type,
-    #                                                                   tz_type=tz_type,
-    #                                                                   value=value,
-    #                                                                   value_list=value_list,
-    #                                                                   tz=tz)
-    #     value_list = [f"'{x.isoformat()}'" if isinstance(x, datetime.datetime) else (f"'{x}'" if isinstance(x, str) else x) for x in
-    #                   value_list]
-    #     assert sql % tuple(value_list) == (f"\"modified\"=case "
-    #                                        f"when (\"iana_time_zones\".\"modified_tz_iana\" is null and "
-    #                                        f"\"modified\" != '2024-08-01T12:00:00+00:00') "
-    #                                        f"OR (\"iana_time_zones\".\"modified_tz_iana\" is not null and "
-    #                                        f"\"modified\" != ('2024-08-01T12:00:00' || ' ' || \"iana_time_zones\".\"modified_tz_iana\")::timestamptz) "
-    #                                        f"THEN '2024-08-01T12:00:00 US/Mountain'::timestamptz "
-    #                                        f"ELSE \"modified\" END, "
-    #                                        f"\"modified_tz\"=case when (\"iana_time_zones\".\"modified_tz_iana\" is null and "
-    #                                        f"\"modified\" != '2024-08-01T12:00:00+00:00') "
-    #                                        f"OR (\"iana_time_zones\".\"modified_tz_iana\" is not null and "
-    #                                        f"\"modified\" != ('2024-08-01T12:00:00' || ' ' || \"iana_time_zones\".\"modified_tz_iana\")::timestamptz) "
-    #                                        f"THEN 27743346 ELSE \"modified_tz\" END")
-    #
-    #     # test #3
-    #
-    #     f = "modified"
-    #     data_type = "varchar"
-    #     tz_type = None
-    #     value = "my value"
-    #     value_list = []
-    #
-    #     sql = FileMakerWorkstation._import_table_get_update_field_sql(f=f,
-    #                                                                   data_type=data_type,
-    #                                                                   tz_type=tz_type,
-    #                                                                   value=value,
-    #                                                                   value_list=value_list,
-    #                                                                   tz=tz)
-    #
-    #     value_list = [f"'{datetime.datetime.isoformat(x)}'" if isinstance(x, datetime.datetime) else x for x in
-    #                   value_list]
-    #     assert sql % tuple(value_list) == "\"modified\"=my value"
-
     @pytest.fixture()
     def mocked_fm_instance(self, mocker) -> FileMakerControlWindows:
 
@@ -381,14 +295,14 @@ class TestFilemakerWorkstationTransferTableToFileMaker(KioskPyTestHelper):
                     1: {
                         "uid": ["datatype('UUID')"],
                         "field1": ["datatype('TEXT')"],
-                        "field2": ["datatype('timestamp'), tz_type('r')"],
+                        "field2": ["datatype('timestamp')", "tz_type('r')"],
                         "modified": ["datatype('timestamp')", "replfield_modified()"],
                         "modified_by": ["datatype('varchar')", "replfield_modified_by()"],
                     }
                 }
             }
         })
-        return prepare__exporting_to_filemaker
+        # return prepare__exporting_to_filemaker
 
         tablename = "test_table"
         fm: FileMakerControlWindows = prepared_by_fixture["fm"]
@@ -400,7 +314,7 @@ class TestFilemakerWorkstationTransferTableToFileMaker(KioskPyTestHelper):
         KioskSQLDb.execute(insert_sql, [
             '62aefbe7-e45d-4f85-bf4b-30618da16980',
             '3',
-            datetime.datetime.fromisoformat('2024-09-11T15:15:12'),  # shall be 17:15:12 because even with a tz_type('r')
+            datetime.datetime.fromisoformat('2024-09-11T15:15:12').replace(tzinfo=None),  # shall be 17:15:12 because even with a tz_type('r')
                                                                      #  it ain't matter in this direction that the current recording time is US/Mountain
             96554373,  # Berlin
             datetime.datetime.fromisoformat('2024-09-11T15:16:12'),  # shall be 17:16:12, __ww 09:16:12
@@ -422,5 +336,73 @@ class TestFilemakerWorkstationTransferTableToFileMaker(KioskPyTestHelper):
                 datetime.datetime(2024, 9, 11, 17, 15, 12),
                 datetime.datetime(2024, 9, 11, 17, 16, 12),  # modified should always be user time zone in FM
                 datetime.datetime(2024, 9, 11, 9, 16, 12),  # Mountain Time
+            ],
+        ]
+
+    def test_transfer_non_dsd_table_data_to_filemaker(self, prepare__exporting_to_filemaker):
+        prepared_by_fixture = prepare__exporting_to_filemaker
+        # tz.user_tz_index = 96554373  # Central European Time (Europe/Berlin)
+
+        KioskSQLDb.execute("drop table if exists test_table")
+        KioskSQLDb.execute("create table test_table(uid uuid, field1 varchar, field2 timestamp, "
+                           "modified timestamp, created timestamp, modified_by varchar)")
+
+        KioskSQLDb.execute("drop table if exists test_table_src")
+        KioskSQLDb.execute("create table test_table_src(uid uuid, field1 varchar, "
+                           "field2 timestamp with time zone, field2_tz varchar,"
+                           "modified timestamp with time zone, modified_tz varchar,"
+                           "created timestamp with time zone, created_tz varchar,"
+                           "modified_by varchar)")
+
+        prepared_by_fixture = prepare__exporting_to_filemaker
+        assert prepared_by_fixture["tz"].user_tz_index == 96554373  # Mountain Time (US/Mountain)
+        assert prepared_by_fixture["tz"].recording_tz_index == 27743346  # Mountain Time (US/Mountain)
+
+        field_list = {"uid": ("uuid", False),
+                        "field1": ("varchar", False),
+                        "field2": ("timestamp", False),
+                        "field2_tz": ("tz", False),
+                        "modified": ("timestamp", True),
+                        "modified_tz": ("tz", False),
+                        "created": ("timestamp", False),
+                        "created_tz": ("tz", False),
+                        "modified_by": ("varchar", False),}
+
+        # return prepare__exporting_to_filemaker
+
+        tablename = "test_table"
+        fm: FileMakerControlWindows = prepared_by_fixture["fm"]
+
+        insert_sql = f"""
+            INSERT INTO test_table_src (uid, field1, field2, field2_tz, modified, 
+                    modified_tz, created, created_tz, modified_by)  
+            VALUES (%s, %s,%s,%s,%s,%s,%s,%s,%s)"""
+
+        KioskSQLDb.execute(insert_sql, [
+            '62aefbe7-e45d-4f85-bf4b-30618da16980',
+            '3',
+            datetime.datetime.fromisoformat('2024-09-11T15:15:12').replace(tzinfo=None),  # -> UTC to Berlin 17:15:12
+            96554373,  # Berlin
+            datetime.datetime.fromisoformat('2024-09-11T15:16:12'),  # shall be Berlin: 17:16:12
+            27743346,  # US mountain time, but irrelevant for a modified field
+            datetime.datetime.fromisoformat('2024-09-11T15:16:12'),  # shall be US/Mountain: 09:16:12
+            27743346,
+            'ups']
+        )
+
+        cur = KioskSQLDb.execute_return_cursor("select * from test_table_src")
+        assert fm.transfer_non_dsd_table_data_to_filemaker(cur,
+                                                   field_list,
+                                                   tablename,
+                                                   current_tz=prepared_by_fixture["tz"]) > 0
+        cur.close()
+
+        records = KioskSQLDb.get_records("select field1, field2, modified,created from test_table order by field1")
+        assert records == [
+            [
+                '3',
+                datetime.datetime(2024, 9, 11, 17, 15, 12),
+                datetime.datetime(2024, 9, 11, 17, 16, 12),  # modified should always be user time zone in FM
+                datetime.datetime(2024, 9, 11, 9, 16, 12)  # Mountain Time
             ],
         ]
