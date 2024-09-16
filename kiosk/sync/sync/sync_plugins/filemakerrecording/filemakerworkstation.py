@@ -1171,16 +1171,21 @@ class FileMakerWorkstation(RecordingWorkstation):
             if self.current_tz.user_tz_index:
                 time_zone_offset_str = kioskdatetimelib.get_time_zone_offset_str(datetime.datetime.now(),
                                                                                  self.current_tz.user_tz_iana_name)
-                rc = fm.set_constant("utc_time_diff", time_zone_offset_str)
-                rc = fm.set_constant("user_time_zone_index", self.current_tz.user_tz_index)
-                rc = fm.set_constant("user_time_zone", self.current_tz.user_tz_long_name)
-                rc = fm.set_constant("recording_time_zone", self.current_tz.recording_tz_long_name)
-                rc = fm.set_constant("recording_time_zone_index", self.current_tz.recording_tz_index)
-                rc = fm.set_constant("user_iana_time_zone", self.current_tz.user_tz_iana_name)
-                rc = fm.set_constant("recording_iana_time_zone", self.current_tz.recording_tz_iana_name)
-                logging.info(f"{self.__class__.__name__}._set_workstation_constants: "
-                             f"Workstation {self.get_id()} in time_zone {self.current_tz.user_tz_long_name}: "
-                             f"{time_zone_offset_str} ")
+                rc = rc and fm.set_constant("utc_time_diff", time_zone_offset_str)
+                rc = rc and fm.set_constant("user_time_zone_index", self.current_tz.user_tz_index)
+                rc = rc and fm.set_constant("user_time_zone", self.current_tz.user_tz_long_name)
+                rc = rc and fm.set_constant("recording_time_zone", self.current_tz.recording_tz_long_name)
+                rc = rc and fm.set_constant("recording_time_zone_index", self.current_tz.recording_tz_index)
+                rc = rc and fm.set_constant("user_iana_time_zone", self.current_tz.user_tz_iana_name)
+                rc = rc and fm.set_constant("recording_iana_time_zone", self.current_tz.recording_tz_iana_name)
+                if rc:
+                    logging.info(f"{self.__class__.__name__}._set_workstation_constants: "
+                                 f"Workstation {self.get_id()} in time_zone {self.current_tz.user_tz_long_name}: "
+                                 f"{time_zone_offset_str} ")
+                else:
+                    logging.error(f"{self.__class__.__name__}._set_workstation_constants: "
+                                 f"could not set time zone information for dock {self.get_id()}.")
+
             else:
                 logging.warning(f"{self.__class__.__name__}._set_workstation_constants: "
                                 f"Workstation {self.get_id()} gets utc_time_diff from local_time_offset_str"
