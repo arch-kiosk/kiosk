@@ -6,6 +6,7 @@ import winreg
 from os import path
 # import yappi
 from timeit import default_timer as timer
+from typing import List
 
 import pyodbc
 import pythoncom
@@ -1148,6 +1149,11 @@ class FileMakerControlWindows(FileMakerControl):
                           "Calling Filemaker 'ExportImages'")
             rc = self._start_fm_script_with_progress("ExportImages", "export_progress", 1, 240, True,
                                                      callback_progress=callback_progress)
+            if rc:
+                warnings = self.get_fm_script_warnings()
+                for w in warnings:
+                    logging.warning(f"{self.__class__.__name__}.export_container_images: {w}")
+
             return bool(rc != "")
 
         except Exception as e:
@@ -1171,6 +1177,26 @@ class FileMakerControlWindows(FileMakerControl):
                                                    max_wait_cycles=max_wait_cycles,
                                                    printdots=printdots,
                                                    callback_progress=callback_progress)
+
+    def get_fm_script_warnings(self) -> List[str]:
+        """A FileMaker script can succeed but produce warnings.
+        This returns them as a list  """
+        rc = []
+        if self.cnxn:
+            if self.fm_doc:
+                cur = self.cnxn.cursor()
+                try:
+                    cur.execute('select "value" from "constants" where "id"=\'script_warnings\'')
+                    r = cur.fetchone()
+                    if r and r[0]:
+                        rc = list(filter(lambda x: bool(x), r[0].split("|")))
+                finally:
+                    try:
+                        cur.close()
+                    except BaseException as e:
+                        logging.debug(f"{self.__class__.__name__}.get_fm_script_warnings: {repr(e)}")
+
+        return rc
 
     def _start_fm_script_with_progress(self, script_name, progress_key, wait_seconds_per_step=1, max_wait_cycles=60,
                                        printdots=False, callback_progress=None):
@@ -1203,6 +1229,15 @@ class FileMakerControlWindows(FileMakerControl):
                     self.cnxn.commit()
                 else:
                     cur.execute('UPDATE "constants" set "value"=\'\' where "id"=\'scriptresult\'')
+                    self.cnxn.commit()
+
+                cur.execute('select "value" from "constants" where "id"=\'script_warnings\'')
+                if not cur.fetchone():
+                    cur.execute('INSERT INTO "constants"("id", "value") VALUES(?, ?)', ["script_warnings", ""])
+                    logging.info("inserted scriptresult")
+                    self.cnxn.commit()
+                else:
+                    cur.execute('UPDATE "constants" set "value"=\'\' where "id"=\'script_warnings\'')
                     self.cnxn.commit()
 
                 self.fm_doc.DoFMScript(script_name)

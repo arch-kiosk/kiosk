@@ -1686,11 +1686,10 @@ class FileMakerWorkstation(RecordingWorkstation):
             logging.debug("FileMakerWorkstation._prepare_import_from_filemaker: "
                           "Calling Filemaker 'PrepareExport'")
 
-            # todo: What is the script actually doing?
-            rc = fm.start_fm_script_with_progress("PrepareExport", "prepare_export",
+            rc = bool(fm.start_fm_script_with_progress("PrepareExport", "prepare_export",
                                                   printdots=bool(callback_progress),
-                                                  callback_progress=callback_progress)
-            return bool(rc != "")
+                                                  callback_progress=callback_progress) != "")
+            return rc
         except Exception as e:
             logging.info(f"{self.__class__.__name__}._prepare_import_from_filemaker: {repr(e)}")
 
@@ -2124,6 +2123,7 @@ class FileMakerWorkstation(RecordingWorkstation):
         try:
             fm: FileMakerControl
             ok = fm.export_container_images(self, True, callback_progress)
+
         except Exception as e:
             logging.error("FileMakerWorkstation._import_containerfiles_from_filemaker: " + repr(e))
 
