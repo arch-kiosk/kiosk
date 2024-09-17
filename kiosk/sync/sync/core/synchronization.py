@@ -1020,16 +1020,16 @@ class Synchronization(PluginLoader):
                         break
                     else:
                         sql = f"{'with'} mods as ("
-                        sql = sql + " select tmp.\"uid\", tmp.\"repl_workstation_id\", tmp.\"modified\", tmp.\"modified_by\","
+                        sql = sql + " select tmp.\"uid\", tmp.\"repl_workstation_id\", tmp.\"modified\", tmp.\"modified_tz\", tmp.\"modified_by\","
                         sql = sql + " row_number() OVER(partition by tmp.\"uid\" order by coalesce(tmp.\"modified\", tmp.\"created\") desc) \"sync_modified_records_nr\""
                         sql = sql + " from \"" + temp_table + "\" tmp"
                         sql = sql + " where NOT COALESCE(tmp.\"repl_deleted\", false)"
                         sql = sql + " )"
                         sql = sql + " update \"" + table + "\" set \"modified\"=upd.\"modified\","
-                        sql = sql + " modified_tz\"=upd.\"modified_tz\", modified_by\"=upd.\"modified_by\""
+                        sql = sql + " \"modified_tz\"=upd.\"modified_tz\", \"modified_by\"=upd.\"modified_by\""
                         sql = sql + " from"
                         sql = sql + " ("
-                        sql = sql + f" {'select'} m.\"uid\", m.\"modified\", m.\"modified_by\" from mods m where m.sync_modified_records_nr=1"
+                        sql = sql + f" {'select'} m.\"uid\", m.\"modified\", m.\"modified_tz\", m.\"modified_by\" from mods m where m.sync_modified_records_nr=1"
                         sql = sql + " ) upd where \"" + table + "\".\"uid\" = upd.\"uid\""
                         cur.execute(sql)
                         if cur.rowcount > 0:
