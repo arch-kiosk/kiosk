@@ -66,7 +66,7 @@ class SynchronizationWorker(WorkstationManagerWorker):
                 logging.debug(pprint.pformat(self.job.job_data))
                 housekeeping = self.job.job_data["housekeeping"]
                 sync = Synchronization(options=self.job.job_data)
-                sync.debug_mode = "proxy_field"
+                # sync.debug_mode = "proxy_field"
                 rc = sync.synchronize(callback_progress=self.report_progress)
                 if rc:
                     worker_result = KioskResult(success=True)

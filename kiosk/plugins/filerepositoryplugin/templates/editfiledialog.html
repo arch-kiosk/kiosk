@@ -1,183 +1,221 @@
 {% extends "basicmodaldialog.html" %}
 {% block dialog_css %}
-  <link rel=stylesheet href="/filerepository/static/editdialog.css" type="text/css">
+    <link rel=stylesheet href="/filerepository/static/editdialog.css" type="text/css">
 {% endblock %}
 {% block kiosk_modal_dialog_id %}id="fr-edit-dialog"{% endblock %}
 {% block kiosk_modal_dialog_classes %}kiosk-modal-dialog-fullscreen{% endblock %}
 {% block kiosk_modal_dialog_name %}{{ title }}{% endblock %}
 {% block kiosk_modal_dialog_content %}
-  <div id="ef-header-right">
-    <div>
-      uuid: <span id="uid">{{ img.get_value('uid') }}</span><br>
-      {% if img.get_arch_identifier() %}
-        identifiers: <span id="uid">{{ img.get_arch_identifier() }}</span><br>
-      {% endif %}
-      created: <span class="kiosk-tz-span" data-display-mode="recording" data-recording-iana-tz="{{ created_tz }}">{{ created }}</span><br>
-      modified: <span class="kiosk-tz-span" data-display-mode="recording" data-recording-iana-tz="{{ modified_tz }}">{{ modified }}</span><br>
-      modified by {{ img.get_value('modified_by') }}<br>
-      file type/size: {{ file_extension }} / {{ file_size }}<br>
-    </div>
-  </div>
-  <div id="ef-dialog" class="pagecontrol-content grid-12 kiosk-modal-dialog-griddy">
-  <div class="col-12">
-    <div id="image-spinner">
-    </div>
-    <div id="img-data-container">
-      <div id="ef-image">
-        <div id="ef-upload-area">
-          <img id="image-container" src="{{ img.get_image_file_ref(fullscreen_representation_id) }}">
-          <!--"assets/images/3A677DA4-01AE-9E46-B34A-EFC19EA17286.jpg"-->
-          {% if "download file" in authorized_to %}
-            <div class="dropdown">
-                <div id="download-menu">
-                  <button id="download-menu-image"></button>
-                </div>
-                <div class="dropdown-content" id="download-menu-contents">
-                  <div id="download-raw" class="ef-download">download original file</div>
-                  {% for representation in representations %}
-                    <div class="ef-download" data-representation-id="{{representation[1]}}">download {{representation[0]}}</div>
-                  {% endfor %}
-                </div>
-            </div>
-          {% endif %}
-          {% if "modify data" in authorized_to %}
-            <button id="ef-upload" class="modal-upload">
-              <input id="ef-upload-input" type="file" name="files[]"/>
-            </button>
-          {% endif %}
-        </div>
-      </div>
-      <div id="ef-image-data">
-        <form id="ef-form" method="post" class="grid-2 kiosk-align-flex-end">
-          {{ ef_form.csrf_token }}
-            <div class="col-12">
-              <div class="kiosk-dialog-label">directly assigned to</div>
-              <div id="ef-context-list" class="ef-context-list">
+    <div id="api-init-panel" style="visibility:hidden">
+        <div id="ef-header-right">
+            <div>
+                uuid: <span id="uid">{{ img.get_value('uid') }}</span><br>
                 {% if img.get_arch_identifier() %}
-                      {% for i,v in img.get_identifiers_and_recording_contexts().items() %}
-                        <div class="ef-context">
-                          <span class="ef-dialog-identifier">{{ i }}</span><span class="ef-record-type">({{ v }})</span>
+                    identifiers: <span id="uid">{{ img.get_arch_identifier() }}</span><br>
+                {% endif %}
+                created: <span id="what" class="kiosk-tz-span"
+                               data-tz-index="{{ created_tz_index }}"
+                               data-recording-iana-tz="{{ created_tz_iana }}">{{ created }}</span><br>
+                modified: <span class="kiosk-tz-span"
+                                data-tz-index="{{ modified_tz_index }}"
+                                data-recording-iana-tz="{{ modified_tz_iana }}">{{ modified }}</span><br>
+                modified by {{ img.get_value('modified_by') }}<br>
+                file type/size: {{ file_extension }} / {{ file_size }}<br>
+            </div>
+        </div>
+        <div id="ef-dialog" class="pagecontrol-content grid-12 kiosk-modal-dialog-griddy">
+            <div class="col-12">
+                <div id="image-spinner">
+                </div>
+                <div id="img-data-container">
+                    <div id="ef-image">
+                        <div id="ef-upload-area">
+                            <img id="image-container" src="{{ img.get_image_file_ref(fullscreen_representation_id) }}">
+                            <!--"assets/images/3A677DA4-01AE-9E46-B34A-EFC19EA17286.jpg"-->
+                            {% if "download file" in authorized_to %}
+                                <div class="dropdown">
+                                    <div id="download-menu">
+                                        <button id="download-menu-image"></button>
+                                    </div>
+                                    <div class="dropdown-content" id="download-menu-contents">
+                                        <div id="download-raw" class="ef-download">download original file</div>
+                                        {% for representation in representations %}
+                                            <div class="ef-download" data-representation-id="{{ representation[1] }}">
+                                                download {{ representation[0] }}</div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
                             {% if "modify data" in authorized_to %}
-                              <i class="ef-cancel-context fa fa-times-circle" aria-hidden="true"></i>
-                              <i class="ef-undo-drop-context fa fa-step-backward" aria-hidden="true"></i>
+                                <button id="ef-upload" class="modal-upload">
+                                    <input id="ef-upload-input" type="file" name="files[]"/>
+                                </button>
                             {% endif %}
                         </div>
-                      {% endfor %}
-                {% endif %}
-                {% if "modify data" in authorized_to %}
-                    <div id="ef-add-context-div" class="ef-context">
-                  <i id="ef-new-context" class="fa fa-plus-circle" aria-hidden="true"></i>
-                  <div id="ef-new-context-controls-template" style="display: none">
-                    <div class="ef-new-context-controls">
-                      <div><input class="kiosk-dialog-textfield" type="text"/></div>
-                      <i class="ef-cancel-new-context fa fa-times-circle" aria-hidden="true"></i>
                     </div>
-                    <div class="ef-context">
-                    </div>
-                  </div>
-                </div>
-                {% endif %}
-              </div>
-            </div>
-            {% if img.get_indirect_contexts() %}
-            <div class="col-12">
-              <div class="kiosk-dialog-label">included in</div>
-              <div id="ef-context-list" class="ef-context-list">
-{#              {% if img.get_arch_identifier() %}#}
-                {% for i,v in img.get_indirect_contexts().items() %}
-                  <div class="ef-context">
-                    <span class="ef-dialog-identifier">{{ i }}</span><span class="ef-record-type">({{ v }})</span>
-                  </div>
-                {% endfor %}
-{#              {% endif %}#}
-              </div>
-            </div>
-          {% endif %}
-          {% if recorded_description %}
-            <div class="col-12">
-              <div class="kiosk-dialog-label">contextual descriptions:</div>
-              <p class="kiosk-dialog-disabled-multiline-textfield">{{ recorded_description }}</p>
-            </div>
-          {% endif %}
-          <div class="col-12">
-            {{ ef_form.ef_description.label(class="kiosk-dialog-label") }}
-            {% if "modify data" not in authorized_to %}
-              <div class="kiosk-dialog-disabled-textfield"> {{ ef_form.ef_description.data }} </div>
-            {% else %}
-              {{ ef_form.ef_description(class="kiosk-dialog-textfield") }}
-            {% endif %}
-          </div>
+                    <div id="ef-image-data">
+                        <form id="ef-form" method="post" class="grid-2 kiosk-align-flex-end">
+                            {{ ef_form.csrf_token }}
+                            <div class="col-12">
+                                <div class="kiosk-dialog-label">directly assigned to</div>
+                                <div id="ef-context-list" class="ef-context-list">
+                                    {% if img.get_arch_identifier() %}
+                                        {% for i,v in img.get_identifiers_and_recording_contexts().items() %}
+                                            <div class="ef-context">
+                                                <span class="ef-dialog-identifier">{{ i }}</span><span
+                                                    class="ef-record-type">({{ v }})</span>
+                                                {% if "modify data" in authorized_to %}
+                                                    <i class="ef-cancel-context fa fa-times-circle"
+                                                       aria-hidden="true"></i>
+                                                    <i class="ef-undo-drop-context fa fa-step-backward"
+                                                       aria-hidden="true"></i>
+                                                {% endif %}
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                    {% if "modify data" in authorized_to %}
+                                        <div id="ef-add-context-div" class="ef-context">
+                                            <i id="ef-new-context" class="fa fa-plus-circle" aria-hidden="true"></i>
+                                            <div id="ef-new-context-controls-template" style="display: none">
+                                                <div class="ef-new-context-controls">
+                                                    <div><input class="kiosk-dialog-textfield" type="text"/></div>
+                                                    <i class="ef-cancel-new-context fa fa-times-circle"
+                                                       aria-hidden="true"></i>
+                                                </div>
+                                                <div class="ef-context">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% if img.get_indirect_contexts() %}
+                                <div class="col-12">
+                                    <div class="kiosk-dialog-label">included in</div>
+                                    <div id="ef-context-list" class="ef-context-list">
+                                        {#              {% if img.get_arch_identifier() %}#}
+                                        {% for i,v in img.get_indirect_contexts().items() %}
+                                            <div class="ef-context">
+                                                <span class="ef-dialog-identifier">{{ i }}</span><span
+                                                    class="ef-record-type">({{ v }})</span>
+                                            </div>
+                                        {% endfor %}
+                                        {#              {% endif %}#}
+                                    </div>
+                                </div>
+                            {% endif %}
+                            {% if recorded_description %}
+                                <div class="col-12">
+                                    <div class="kiosk-dialog-label">contextual descriptions:</div>
+                                    <p class="kiosk-dialog-disabled-multiline-textfield">{{ recorded_description }}</p>
+                                </div>
+                            {% endif %}
+                            <div class="col-12">
+                                {{ ef_form.ef_description.label(class="kiosk-dialog-label") }}
+                                {% if "modify data" not in authorized_to %}
+                                    <div class="kiosk-dialog-disabled-textfield"> {{ ef_form.ef_description.data }} </div>
+                                {% else %}
+                                    {{ ef_form.ef_description(class="kiosk-dialog-textfield") }}
+                                {% endif %}
+                            </div>
 
-          <div class="col-12">
-            {{ ef_form.ef_tags.label(class="kiosk-dialog-label") }}
-            {% if "modify data" not in authorized_to %}
-              <div class="kiosk-dialog-disabled-textfield"> {{ ef_form.ef_tags.data }} </div>
-            {% else %}
-              {{ ef_form.ef_tags(class="kiosk-dialog-textfield") }}
-            {% endif %}
-          </div>
+                            <div class="col-12">
+                                {{ ef_form.ef_tags.label(class="kiosk-dialog-label") }}
+                                {% if "modify data" not in authorized_to %}
+                                    <div class="kiosk-dialog-disabled-textfield"> {{ ef_form.ef_tags.data }} </div>
+                                {% else %}
+                                    {{ ef_form.ef_tags(class="kiosk-dialog-textfield") }}
+                                {% endif %}
+                            </div>
 
-          <div class="col">
-            {{ ef_form.ef_file_datetime.label(class="kiosk-dialog-label") }}
-            <!-- Next line had formerly: "(contexts and ef_form.ef_file_datetime.data) or" See #960  -->
-            {% if ("modify data" not in authorized_to ) %}
-              <div class="kiosk-dialog-disabled-textfield">
+                            <div class="col">
+                                {{ ef_form.ef_file_datetime.label(class="kiosk-dialog-label") }}
+                                <!-- Next line had formerly: "(contexts and ef_form.ef_file_datetime.data) or" See #960  -->
+                                {% if ("modify data" not in authorized_to ) %}
+                                    <div class="kiosk-dialog-disabled-textfield">
                   <span class="kiosk-tz-span" data-recording-iana-tz="{{ ef_form.ef_file_datetime_tz.data }}">
                       {{ ef_form.ef_file_datetime.data }}
                   </span>
-              </div>
-            {% else %}
-              {{ ef_form.ef_file_datetime(class="kiosk-dialog-textfield") }}
-              {{ ef_form.ef_file_datetime_tz() }}
-            {% endif %}
-          </div>
+                                    </div>
+                                {% else %}
+                                    {{ ef_form.ef_file_datetime(class="kiosk-dialog-textfield") }}
+                                    {{ ef_form.ef_file_datetime_tz() }}
+                                {% endif %}
+                            </div>
 
-          <div class="col">
-            {{ ef_form.ef_export_filename.label(class="kiosk-dialog-label") }}
-            {% if "modify data" not in authorized_to %}
-              <div class="kiosk-dialog-disabled-textfield"> {{ ef_form.ef_export_filename.data }} </div>
-            {% else %}
-              {{ ef_form.ef_export_filename(class="kiosk-dialog-textfield") }}
-            {% endif %}
-          </div>
-        </form>
-        <div class="kiosk-modal-dialog-toasts"></div>
-        <div id="ef-button-bar">
-          <div id="ef-option-buttons">
-            <button id="ef-delete" class="modal-delete"
-                {% if "modify data" not in authorized_to %} disabled {% endif %}></button>
-          </div>
-          <div id="ef-dialog-buttons">
-            <button id="ef-cancel" class="modal-cancel"></button>
-            <button id="ef-ok" class="modal-ok"
-                {% if "modify data" not in authorized_to %} disabled {% endif %}></button>
-          </div>
+                            <div class="col">
+                                {{ ef_form.ef_export_filename.label(class="kiosk-dialog-label") }}
+                                {% if "modify data" not in authorized_to %}
+                                    <div class="kiosk-dialog-disabled-textfield"> {{ ef_form.ef_export_filename.data }} </div>
+                                {% else %}
+                                    {{ ef_form.ef_export_filename(class="kiosk-dialog-textfield") }}
+                                {% endif %}
+                            </div>
+                        </form>
+                        <div class="kiosk-modal-dialog-toasts"></div>
+                        <div id="ef-button-bar">
+                            <div id="ef-option-buttons">
+                                <button id="ef-delete" class="modal-delete"
+                                        {% if "modify data" not in authorized_to %} disabled {% endif %}></button>
+                            </div>
+                            <div id="ef-dialog-buttons">
+                                <button id="ef-cancel" class="modal-cancel"></button>
+                                <button id="ef-ok" class="modal-ok"
+                                        {% if "modify data" not in authorized_to %} disabled {% endif %}></button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
         </div>
-
-      </div>
     </div>
-  </div>
 {% endblock %}
 {% block kiosk_modal_dialog_after %}
-  <script>
-    $(() => {
-      initDialog();
-    });
+    {% include "_kioskmodaldialog_api_connector_include.html" %}
+    <script>
 
-    function initDialog() {
-      inject_loader_div($("#image-spinner"), "white", 50, 50);
-      bindReturnKeyToButtons("ef-dialog", "ef-ok", ["ef-cancel", "ef-delete", "ef-download", "ef-upload"]);
-      $("#ef-delete").on("click", onEFDialogDelete);
-      $("#ef-cancel").on("click", onEFDialogCancel);
-      $("#ef-ok").on("click", onEFDialogOk);
-      $(".ef-download").on("click", onEFDownloadImage);
-      $('#download-menu').click(function () {
-        showhidemenu('#download-menu','#download-menu-contents');
-      });
-      $('#ef-description').bind('keypress', function (e) {
-        if (e.keyCode === 13) e.stopPropagation()
-      })
-      initEFDialog();
-    }
-  </script>
+        function popupApiConnected(api) {
+            /*  for (const cb of document.querySelectorAll("kiosk-tz-combo-box")) {
+                  cb.apiContext = api
+              }
+
+             */
+            try {
+                time_zones = new window.KioskTimeZones(api)
+                time_zones.refreshAllTimeZones().then(() => {
+                    initDialog(time_zones)
+                }).catch(popupApiFailed)
+            } catch {
+                popupApiFailed()
+            }
+        }
+
+        function popupApiFailed() {
+            kioskErrorToast("Could not connect to the Kiosk API. The dialog cannot be initialized. Maybe try again?")
+            $.magnificPopup.close()
+        }
+
+        /* $(() => {
+        });
+        */
+
+        function initDialog(time_zones) {
+
+            inject_loader_div($("#image-spinner"), "white", 50, 50);
+            bindReturnKeyToButtons("ef-dialog", "ef-ok", ["ef-cancel", "ef-delete", "ef-download", "ef-upload"]);
+            $("#ef-delete").on("click", onEFDialogDelete);
+            $("#ef-cancel").on("click", onEFDialogCancel);
+            $("#ef-ok").on("click", onEFDialogOk);
+            $(".ef-download").on("click", onEFDownloadImage);
+            $('#download-menu').click(function () {
+                showhidemenu('#download-menu', '#download-menu-contents');
+            });
+            $('#ef-description').bind('keypress', function (e) {
+                if (e.keyCode === 13) e.stopPropagation()
+            })
+            initEFDialog(time_zones);
+            document.getElementById('api-init-panel').style.visibility = "visible"
+        }
+    </script>
 {% endblock %}

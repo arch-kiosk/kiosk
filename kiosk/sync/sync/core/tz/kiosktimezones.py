@@ -291,6 +291,16 @@ class KioskTimeZones:
         tz_info = self.get_time_zone_info(tz_index)
         return tz_info[2] if tz_info else "-"
 
+    def get_long_time_zone(self, tz_index) -> str:
+        """
+        returns the long time zone name for a kiosk time zone index.
+        If the index does not exist, the result will be an empty string.
+        :param tz_index: Kiosk Time Zone Index
+        :return: str
+        """
+        tz_info = self.get_time_zone_info(tz_index)
+        return tz_info[1] if tz_info else "-"
+
     def get_time_zone_index(self, iana_name: str) -> Union[int, None]:
         """
         returns the tz_index for a IANA time zone

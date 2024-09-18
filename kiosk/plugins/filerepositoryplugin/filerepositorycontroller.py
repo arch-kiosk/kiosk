@@ -391,10 +391,12 @@ def filerepository_editdialog(uid):
                 pass
 
         created = kioskstdlib.iso8601_to_str(img.get_value("created"))
-        created_tz = kioskglobals.kiosk_time_zones.get_iana_time_zone(img.get_value("created_tz", default=None))
+        created_tz_iana = kioskglobals.kiosk_time_zones.get_iana_time_zone(img.get_value("created_tz", default=None))
+        created_tz_index = img.get_value("created_tz")
 
         modified = kioskstdlib.iso8601_to_str(img.get_value("modified"))
-        modified_tz = kioskglobals.kiosk_time_zones.get_iana_time_zone(img.get_value("modified_tz", default=None))
+        modified_tz_iana = kioskglobals.kiosk_time_zones.get_iana_time_zone(img.get_value("modified_tz", default=None))
+        modified_tz_index = img.get_value("modified_tz")
 
         representations = KioskRepresentations.get_representation_labels_and_ids(cfg)
         fullscreen_representation_id = cfg.file_repository["fullscreen_representation"]
@@ -403,8 +405,8 @@ def filerepository_editdialog(uid):
         return render_template('editfiledialog.html',
                                title="edit file" if "modify data" in authorized_to else "view file",
                                img=img,
-                               created=created, created_tz=created_tz,
-                               modified=modified, modified_tz=modified_tz,
+                               created=created, created_tz_iana=created_tz_iana, created_tz_index=created_tz_index,
+                               modified=modified, modified_tz_iana=modified_tz_iana, modified_tz_index=modified_tz_index,
                                ef_form=ef_form,
                                authorized_to=authorized_to,
                                contexts=img.get_arch_identifier(),

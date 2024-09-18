@@ -35,9 +35,12 @@
             {#    '<div id="kiosk-dynamic-app-container">' +#}
             {#    '   <kiosk-tz-combo-box id="popup-tz-combo-box"></kiosk-tz-combo-box>' +#}
             {#    '</div>');#}
+            console.log("trying to get Api Context...")
             getKioskApiContext().then((api) => {
+                console.log("got Api Context!")
                 popupApiConnected(api)
-            }).catch(() => {
+            }).catch((e) => {
+                console.log(e)
                 popupApiFailed()
             })
             {#loadAppHtml()#}

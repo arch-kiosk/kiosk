@@ -1,190 +1,190 @@
-function Gn(n, e, t = 0) {
-  let r = /* @__PURE__ */ new Date();
-  r.setTime(r.getTime() + t * 24 * 60 * 60 * 1e3);
-  let s = "expires=" + r.toUTCString();
-  document.cookie = n + "=" + e + ";" + s + ";path=/";
+function bu(s, e, r = 0) {
+  let i = /* @__PURE__ */ new Date();
+  i.setTime(i.getTime() + r * 24 * 60 * 60 * 1e3);
+  let a = "expires=" + i.toUTCString();
+  document.cookie = s + "=" + e + ";" + a + ";path=/";
 }
-function Y(n) {
-  let e = n + "=", r = decodeURIComponent(document.cookie).split(";");
-  for (let s = 0; s < r.length; s++) {
-    let i = r[s];
-    for (; i.charAt(0) === " "; )
-      i = i.substring(1);
-    if (i.indexOf(e) === 0)
-      return i.substring(e.length, i.length);
+function Tt(s) {
+  let e = s + "=", i = decodeURIComponent(document.cookie).split(";");
+  for (let a = 0; a < i.length; a++) {
+    let c = i[a];
+    for (; c.charAt(0) === " "; )
+      c = c.substring(1);
+    if (c.indexOf(e) === 0)
+      return c.substring(e.length, c.length);
   }
   return "";
 }
-const Bs = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const Yc = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  getCookie: Y,
-  setCookie: Gn
+  getCookie: Tt,
+  setCookie: bu
 }, Symbol.toStringTag, { value: "Module" }));
-class G extends Error {
+class At extends Error {
 }
-class Jn extends G {
+class wu extends At {
   constructor(e) {
     super(`Invalid DateTime: ${e.toMessage()}`);
   }
 }
-class Bn extends G {
+class ku extends At {
   constructor(e) {
     super(`Invalid Interval: ${e.toMessage()}`);
   }
 }
-class jn extends G {
+class _u extends At {
   constructor(e) {
     super(`Invalid Duration: ${e.toMessage()}`);
   }
 }
-class ee extends G {
+class zt extends At {
 }
-class Ut extends G {
+class Co extends At {
   constructor(e) {
     super(`Invalid unit ${e}`);
   }
 }
-class v extends G {
+class ge extends At {
 }
-class Z extends G {
+class tt extends At {
   constructor() {
     super("Zone is an abstract class");
   }
 }
-const c = "numeric", W = "short", M = "long", Fe = {
-  year: c,
-  month: c,
-  day: c
-}, Rt = {
-  year: c,
-  month: W,
-  day: c
-}, Xn = {
-  year: c,
-  month: W,
-  day: c,
-  weekday: W
-}, qt = {
-  year: c,
-  month: M,
-  day: c
-}, Ht = {
-  year: c,
-  month: M,
-  day: c,
-  weekday: M
-}, Yt = {
-  hour: c,
-  minute: c
-}, _t = {
-  hour: c,
-  minute: c,
-  second: c
-}, Pt = {
-  hour: c,
-  minute: c,
-  second: c,
-  timeZoneName: W
-}, Gt = {
-  hour: c,
-  minute: c,
-  second: c,
-  timeZoneName: M
-}, Jt = {
-  hour: c,
-  minute: c,
+const V = "numeric", Fe = "short", Te = "long", Er = {
+  year: V,
+  month: V,
+  day: V
+}, Do = {
+  year: V,
+  month: Fe,
+  day: V
+}, Su = {
+  year: V,
+  month: Fe,
+  day: V,
+  weekday: Fe
+}, $o = {
+  year: V,
+  month: Te,
+  day: V
+}, No = {
+  year: V,
+  month: Te,
+  day: V,
+  weekday: Te
+}, Mo = {
+  hour: V,
+  minute: V
+}, Po = {
+  hour: V,
+  minute: V,
+  second: V
+}, Fo = {
+  hour: V,
+  minute: V,
+  second: V,
+  timeZoneName: Fe
+}, Ro = {
+  hour: V,
+  minute: V,
+  second: V,
+  timeZoneName: Te
+}, Vo = {
+  hour: V,
+  minute: V,
   hourCycle: "h23"
-}, Bt = {
-  hour: c,
-  minute: c,
-  second: c,
+}, qo = {
+  hour: V,
+  minute: V,
+  second: V,
   hourCycle: "h23"
-}, jt = {
-  hour: c,
-  minute: c,
-  second: c,
+}, Lo = {
+  hour: V,
+  minute: V,
+  second: V,
   hourCycle: "h23",
-  timeZoneName: W
-}, Xt = {
-  hour: c,
-  minute: c,
-  second: c,
+  timeZoneName: Fe
+}, Uo = {
+  hour: V,
+  minute: V,
+  second: V,
   hourCycle: "h23",
-  timeZoneName: M
-}, Qt = {
-  year: c,
-  month: c,
-  day: c,
-  hour: c,
-  minute: c
-}, Kt = {
-  year: c,
-  month: c,
-  day: c,
-  hour: c,
-  minute: c,
-  second: c
-}, en = {
-  year: c,
-  month: W,
-  day: c,
-  hour: c,
-  minute: c
-}, tn = {
-  year: c,
-  month: W,
-  day: c,
-  hour: c,
-  minute: c,
-  second: c
-}, Qn = {
-  year: c,
-  month: W,
-  day: c,
-  weekday: W,
-  hour: c,
-  minute: c
-}, nn = {
-  year: c,
-  month: M,
-  day: c,
-  hour: c,
-  minute: c,
-  timeZoneName: W
-}, rn = {
-  year: c,
-  month: M,
-  day: c,
-  hour: c,
-  minute: c,
-  second: c,
-  timeZoneName: W
-}, sn = {
-  year: c,
-  month: M,
-  day: c,
-  weekday: M,
-  hour: c,
-  minute: c,
-  timeZoneName: M
-}, an = {
-  year: c,
-  month: M,
-  day: c,
-  weekday: M,
-  hour: c,
-  minute: c,
-  second: c,
-  timeZoneName: M
+  timeZoneName: Te
+}, jo = {
+  year: V,
+  month: V,
+  day: V,
+  hour: V,
+  minute: V
+}, Wo = {
+  year: V,
+  month: V,
+  day: V,
+  hour: V,
+  minute: V,
+  second: V
+}, Ko = {
+  year: V,
+  month: Fe,
+  day: V,
+  hour: V,
+  minute: V
+}, zo = {
+  year: V,
+  month: Fe,
+  day: V,
+  hour: V,
+  minute: V,
+  second: V
+}, xu = {
+  year: V,
+  month: Fe,
+  day: V,
+  weekday: Fe,
+  hour: V,
+  minute: V
+}, Zo = {
+  year: V,
+  month: Te,
+  day: V,
+  hour: V,
+  minute: V,
+  timeZoneName: Fe
+}, Bo = {
+  year: V,
+  month: Te,
+  day: V,
+  hour: V,
+  minute: V,
+  second: V,
+  timeZoneName: Fe
+}, Ho = {
+  year: V,
+  month: Te,
+  day: V,
+  weekday: Te,
+  hour: V,
+  minute: V,
+  timeZoneName: Te
+}, Yo = {
+  year: V,
+  month: Te,
+  day: V,
+  weekday: Te,
+  hour: V,
+  minute: V,
+  second: V,
+  timeZoneName: Te
 };
-class se {
+class Qt {
   /**
    * The type of zone
    * @abstract
    * @type {string}
    */
   get type() {
-    throw new Z();
+    throw new tt();
   }
   /**
    * The name of this zone.
@@ -192,7 +192,7 @@ class se {
    * @type {string}
    */
   get name() {
-    throw new Z();
+    throw new tt();
   }
   /**
    * The IANA name of this zone.
@@ -209,7 +209,7 @@ class se {
    * @type {boolean}
    */
   get isUniversal() {
-    throw new Z();
+    throw new tt();
   }
   /**
    * Returns the offset's common name (such as EST) at the specified timestamp
@@ -220,8 +220,8 @@ class se {
    * @param {string} opts.locale - What locale to return the offset name in.
    * @return {string}
    */
-  offsetName(e, t) {
-    throw new Z();
+  offsetName(e, r) {
+    throw new tt();
   }
   /**
    * Returns the offset's value as a string
@@ -231,8 +231,8 @@ class se {
    *                          Accepts 'narrow', 'short', or 'techie'. Returning '+6', '+06:00', or '+0600' respectively
    * @return {string}
    */
-  formatOffset(e, t) {
-    throw new Z();
+  formatOffset(e, r) {
+    throw new tt();
   }
   /**
    * Return the offset in minutes for this zone at the specified timestamp.
@@ -241,7 +241,7 @@ class se {
    * @return {number}
    */
   offset(e) {
-    throw new Z();
+    throw new tt();
   }
   /**
    * Return whether this Zone is equal to another zone
@@ -250,7 +250,7 @@ class se {
    * @return {boolean}
    */
   equals(e) {
-    throw new Z();
+    throw new tt();
   }
   /**
    * Return whether this Zone is valid.
@@ -258,17 +258,17 @@ class se {
    * @type {boolean}
    */
   get isValid() {
-    throw new Z();
+    throw new tt();
   }
 }
-let Ue = null;
-class ke extends se {
+let xi = null;
+class Pn extends Qt {
   /**
    * Get a singleton instance of the local zone
    * @return {SystemZone}
    */
   static get instance() {
-    return Ue === null && (Ue = new ke()), Ue;
+    return xi === null && (xi = new Pn()), xi;
   }
   /** @override **/
   get type() {
@@ -283,12 +283,12 @@ class ke extends se {
     return !1;
   }
   /** @override **/
-  offsetName(e, { format: t, locale: r }) {
-    return gn(e, t, r);
+  offsetName(e, { format: r, locale: i }) {
+    return sa(e, r, i);
   }
   /** @override **/
-  formatOffset(e, t) {
-    return ge(this.offset(e), t);
+  formatOffset(e, r) {
+    return In(this.offset(e), r);
   }
   /** @override **/
   offset(e) {
@@ -303,11 +303,11 @@ class ke extends se {
     return !0;
   }
 }
-let Me = {};
-function Kn(n) {
-  return Me[n] || (Me[n] = new Intl.DateTimeFormat("en-US", {
+let kr = {};
+function Tu(s) {
+  return kr[s] || (kr[s] = new Intl.DateTimeFormat("en-US", {
     hour12: !1,
-    timeZone: n,
+    timeZone: s,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
@@ -315,9 +315,9 @@ function Kn(n) {
     minute: "2-digit",
     second: "2-digit",
     era: "short"
-  })), Me[n];
+  })), kr[s];
 }
-const er = {
+const Ou = {
   year: 0,
   month: 1,
   day: 2,
@@ -326,33 +326,33 @@ const er = {
   minute: 5,
   second: 6
 };
-function tr(n, e) {
-  const t = n.format(e).replace(/\u200E/g, ""), r = /(\d+)\/(\d+)\/(\d+) (AD|BC),? (\d+):(\d+):(\d+)/.exec(t), [, s, i, a, o, u, l, f] = r;
-  return [a, s, i, o, u, l, f];
+function Eu(s, e) {
+  const r = s.format(e).replace(/\u200E/g, ""), i = /(\d+)\/(\d+)\/(\d+) (AD|BC),? (\d+):(\d+):(\d+)/.exec(r), [, a, c, h, m, v, A, q] = i;
+  return [h, a, c, m, v, A, q];
 }
-function nr(n, e) {
-  const t = n.formatToParts(e), r = [];
-  for (let s = 0; s < t.length; s++) {
-    const { type: i, value: a } = t[s], o = er[i];
-    i === "era" ? r[o] = a : m(o) || (r[o] = parseInt(a, 10));
+function Iu(s, e) {
+  const r = s.formatToParts(e), i = [];
+  for (let a = 0; a < r.length; a++) {
+    const { type: c, value: h } = r[a], m = Ou[c];
+    c === "era" ? i[m] = h : Z(m) || (i[m] = parseInt(h, 10));
   }
-  return r;
+  return i;
 }
-let Oe = {};
-class $ extends se {
+let yr = {};
+class Ue extends Qt {
   /**
    * @param {string} name - Zone name
    * @return {IANAZone}
    */
   static create(e) {
-    return Oe[e] || (Oe[e] = new $(e)), Oe[e];
+    return yr[e] || (yr[e] = new Ue(e)), yr[e];
   }
   /**
    * Reset local caches. Should only be necessary in testing scenarios.
    * @return {void}
    */
   static resetCache() {
-    Oe = {}, Me = {};
+    yr = {}, kr = {};
   }
   /**
    * Returns whether the provided string is a valid specifier. This only checks the string's format, not that the specifier identifies a known zone; see isValidZone for that.
@@ -383,7 +383,7 @@ class $ extends se {
     }
   }
   constructor(e) {
-    super(), this.zoneName = e, this.valid = $.isValidZone(e);
+    super(), this.zoneName = e, this.valid = Ue.isValidZone(e);
   }
   /**
    * The type of zone. `iana` for all instances of `IANAZone`.
@@ -419,8 +419,8 @@ class $ extends se {
    * @param {string} opts.locale - What locale to return the offset name in.
    * @return {string}
    */
-  offsetName(e, { format: t, locale: r }) {
-    return gn(e, t, r, this.name);
+  offsetName(e, { format: r, locale: i }) {
+    return sa(e, r, i, this.name);
   }
   /**
    * Returns the offset's value as a string
@@ -430,8 +430,8 @@ class $ extends se {
    *                          Accepts 'narrow', 'short', or 'techie'. Returning '+6', '+06:00', or '+0600' respectively
    * @return {string}
    */
-  formatOffset(e, t) {
-    return ge(this.offset(e), t);
+  formatOffset(e, r) {
+    return In(this.offset(e), r);
   }
   /**
    * Return the offset in minutes for this zone at the specified timestamp.
@@ -440,23 +440,23 @@ class $ extends se {
    * @return {number}
    */
   offset(e) {
-    const t = new Date(e);
-    if (isNaN(t)) return NaN;
-    const r = Kn(this.name);
-    let [s, i, a, o, u, l, f] = r.formatToParts ? nr(r, t) : tr(r, t);
-    o === "BC" && (s = -Math.abs(s) + 1);
-    const T = Ze({
-      year: s,
-      month: i,
-      day: a,
-      hour: u === 24 ? 0 : u,
-      minute: l,
-      second: f,
+    const r = new Date(e);
+    if (isNaN(r)) return NaN;
+    const i = Tu(this.name);
+    let [a, c, h, m, v, A, q] = i.formatToParts ? Iu(i, r) : Eu(i, r);
+    m === "BC" && (a = -Math.abs(a) + 1);
+    const z = Mr({
+      year: a,
+      month: c,
+      day: h,
+      hour: v === 24 ? 0 : v,
+      minute: A,
+      second: q,
       millisecond: 0
     });
-    let h = +t;
-    const I = h % 1e3;
-    return h -= I >= 0 ? I : 1e3 + I, (T - h) / (60 * 1e3);
+    let j = +r;
+    const ee = j % 1e3;
+    return j -= ee >= 0 ? ee : 1e3 + ee, (z - j) / (60 * 1e3);
   }
   /**
    * Return whether this Zone is equal to another zone
@@ -476,161 +476,161 @@ class $ extends se {
     return this.valid;
   }
 }
-let ct = {};
-function rr(n, e = {}) {
-  const t = JSON.stringify([n, e]);
-  let r = ct[t];
-  return r || (r = new Intl.ListFormat(n, e), ct[t] = r), r;
+let qs = {};
+function Au(s, e = {}) {
+  const r = JSON.stringify([s, e]);
+  let i = qs[r];
+  return i || (i = new Intl.ListFormat(s, e), qs[r] = i), i;
 }
-let Je = {};
-function Be(n, e = {}) {
-  const t = JSON.stringify([n, e]);
-  let r = Je[t];
-  return r || (r = new Intl.DateTimeFormat(n, e), Je[t] = r), r;
+let Fi = {};
+function Ri(s, e = {}) {
+  const r = JSON.stringify([s, e]);
+  let i = Fi[r];
+  return i || (i = new Intl.DateTimeFormat(s, e), Fi[r] = i), i;
 }
-let je = {};
-function sr(n, e = {}) {
-  const t = JSON.stringify([n, e]);
-  let r = je[t];
-  return r || (r = new Intl.NumberFormat(n, e), je[t] = r), r;
+let Vi = {};
+function Cu(s, e = {}) {
+  const r = JSON.stringify([s, e]);
+  let i = Vi[r];
+  return i || (i = new Intl.NumberFormat(s, e), Vi[r] = i), i;
 }
-let Xe = {};
-function ir(n, e = {}) {
-  const { base: t, ...r } = e, s = JSON.stringify([n, r]);
-  let i = Xe[s];
-  return i || (i = new Intl.RelativeTimeFormat(n, e), Xe[s] = i), i;
+let qi = {};
+function Du(s, e = {}) {
+  const { base: r, ...i } = e, a = JSON.stringify([s, i]);
+  let c = qi[a];
+  return c || (c = new Intl.RelativeTimeFormat(s, e), qi[a] = c), c;
 }
-let he = null;
-function ar() {
-  return he || (he = new Intl.DateTimeFormat().resolvedOptions().locale, he);
+let Tn = null;
+function $u() {
+  return Tn || (Tn = new Intl.DateTimeFormat().resolvedOptions().locale, Tn);
 }
-let ft = {};
-function or(n) {
-  let e = ft[n];
+let Ls = {};
+function Nu(s) {
+  let e = Ls[s];
   if (!e) {
-    const t = new Intl.Locale(n);
-    e = "getWeekInfo" in t ? t.getWeekInfo() : t.weekInfo, ft[n] = e;
+    const r = new Intl.Locale(s);
+    e = "getWeekInfo" in r ? r.getWeekInfo() : r.weekInfo, Ls[s] = e;
   }
   return e;
 }
-function ur(n) {
-  const e = n.indexOf("-x-");
-  e !== -1 && (n = n.substring(0, e));
-  const t = n.indexOf("-u-");
-  if (t === -1)
-    return [n];
+function Mu(s) {
+  const e = s.indexOf("-x-");
+  e !== -1 && (s = s.substring(0, e));
+  const r = s.indexOf("-u-");
+  if (r === -1)
+    return [s];
   {
-    let r, s;
+    let i, a;
     try {
-      r = Be(n).resolvedOptions(), s = n;
+      i = Ri(s).resolvedOptions(), a = s;
     } catch {
-      const u = n.substring(0, t);
-      r = Be(u).resolvedOptions(), s = u;
+      const v = s.substring(0, r);
+      i = Ri(v).resolvedOptions(), a = v;
     }
-    const { numberingSystem: i, calendar: a } = r;
-    return [s, i, a];
+    const { numberingSystem: c, calendar: h } = i;
+    return [a, c, h];
   }
 }
-function lr(n, e, t) {
-  return (t || e) && (n.includes("-u-") || (n += "-u"), t && (n += `-ca-${t}`), e && (n += `-nu-${e}`)), n;
+function Pu(s, e, r) {
+  return (r || e) && (s.includes("-u-") || (s += "-u"), r && (s += `-ca-${r}`), e && (s += `-nu-${e}`)), s;
 }
-function cr(n) {
+function Fu(s) {
   const e = [];
-  for (let t = 1; t <= 12; t++) {
-    const r = d.utc(2009, t, 1);
-    e.push(n(r));
+  for (let r = 1; r <= 12; r++) {
+    const i = K.utc(2009, r, 1);
+    e.push(s(i));
   }
   return e;
 }
-function fr(n) {
+function Ru(s) {
   const e = [];
-  for (let t = 1; t <= 7; t++) {
-    const r = d.utc(2016, 11, 13 + t);
-    e.push(n(r));
+  for (let r = 1; r <= 7; r++) {
+    const i = K.utc(2016, 11, 13 + r);
+    e.push(s(i));
   }
   return e;
 }
-function Ie(n, e, t, r) {
-  const s = n.listingMode();
-  return s === "error" ? null : s === "en" ? t(e) : r(e);
+function gr(s, e, r, i) {
+  const a = s.listingMode();
+  return a === "error" ? null : a === "en" ? r(e) : i(e);
 }
-function dr(n) {
-  return n.numberingSystem && n.numberingSystem !== "latn" ? !1 : n.numberingSystem === "latn" || !n.locale || n.locale.startsWith("en") || new Intl.DateTimeFormat(n.intl).resolvedOptions().numberingSystem === "latn";
+function Vu(s) {
+  return s.numberingSystem && s.numberingSystem !== "latn" ? !1 : s.numberingSystem === "latn" || !s.locale || s.locale.startsWith("en") || new Intl.DateTimeFormat(s.intl).resolvedOptions().numberingSystem === "latn";
 }
-class hr {
-  constructor(e, t, r) {
-    this.padTo = r.padTo || 0, this.floor = r.floor || !1;
-    const { padTo: s, floor: i, ...a } = r;
-    if (!t || Object.keys(a).length > 0) {
-      const o = { useGrouping: !1, ...r };
-      r.padTo > 0 && (o.minimumIntegerDigits = r.padTo), this.inf = sr(e, o);
+class qu {
+  constructor(e, r, i) {
+    this.padTo = i.padTo || 0, this.floor = i.floor || !1;
+    const { padTo: a, floor: c, ...h } = i;
+    if (!r || Object.keys(h).length > 0) {
+      const m = { useGrouping: !1, ...i };
+      i.padTo > 0 && (m.minimumIntegerDigits = i.padTo), this.inf = Cu(e, m);
     }
   }
   format(e) {
     if (this.inf) {
-      const t = this.floor ? Math.floor(e) : e;
-      return this.inf.format(t);
+      const r = this.floor ? Math.floor(e) : e;
+      return this.inf.format(r);
     } else {
-      const t = this.floor ? Math.floor(e) : st(e, 3);
-      return O(t, this.padTo);
+      const r = this.floor ? Math.floor(e) : Gi(e, 3);
+      return fe(r, this.padTo);
     }
   }
 }
-class mr {
-  constructor(e, t, r) {
-    this.opts = r, this.originalZone = void 0;
-    let s;
+class Lu {
+  constructor(e, r, i) {
+    this.opts = i, this.originalZone = void 0;
+    let a;
     if (this.opts.timeZone)
       this.dt = e;
     else if (e.zone.type === "fixed") {
-      const a = -1 * (e.offset / 60), o = a >= 0 ? `Etc/GMT+${a}` : `Etc/GMT${a}`;
-      e.offset !== 0 && $.create(o).valid ? (s = o, this.dt = e) : (s = "UTC", this.dt = e.offset === 0 ? e : e.setZone("UTC").plus({ minutes: e.offset }), this.originalZone = e.zone);
-    } else e.zone.type === "system" ? this.dt = e : e.zone.type === "iana" ? (this.dt = e, s = e.zone.name) : (s = "UTC", this.dt = e.setZone("UTC").plus({ minutes: e.offset }), this.originalZone = e.zone);
-    const i = { ...this.opts };
-    i.timeZone = i.timeZone || s, this.dtf = Be(t, i);
+      const h = -1 * (e.offset / 60), m = h >= 0 ? `Etc/GMT+${h}` : `Etc/GMT${h}`;
+      e.offset !== 0 && Ue.create(m).valid ? (a = m, this.dt = e) : (a = "UTC", this.dt = e.offset === 0 ? e : e.setZone("UTC").plus({ minutes: e.offset }), this.originalZone = e.zone);
+    } else e.zone.type === "system" ? this.dt = e : e.zone.type === "iana" ? (this.dt = e, a = e.zone.name) : (a = "UTC", this.dt = e.setZone("UTC").plus({ minutes: e.offset }), this.originalZone = e.zone);
+    const c = { ...this.opts };
+    c.timeZone = c.timeZone || a, this.dtf = Ri(r, c);
   }
   format() {
     return this.originalZone ? this.formatToParts().map(({ value: e }) => e).join("") : this.dtf.format(this.dt.toJSDate());
   }
   formatToParts() {
     const e = this.dtf.formatToParts(this.dt.toJSDate());
-    return this.originalZone ? e.map((t) => {
-      if (t.type === "timeZoneName") {
-        const r = this.originalZone.offsetName(this.dt.ts, {
+    return this.originalZone ? e.map((r) => {
+      if (r.type === "timeZoneName") {
+        const i = this.originalZone.offsetName(this.dt.ts, {
           locale: this.dt.locale,
           format: this.opts.timeZoneName
         });
         return {
-          ...t,
-          value: r
+          ...r,
+          value: i
         };
       } else
-        return t;
+        return r;
     }) : e;
   }
   resolvedOptions() {
     return this.dtf.resolvedOptions();
   }
 }
-class yr {
-  constructor(e, t, r) {
-    this.opts = { style: "long", ...r }, !t && mn() && (this.rtf = ir(e, r));
+class Uu {
+  constructor(e, r, i) {
+    this.opts = { style: "long", ...i }, !r && ra() && (this.rtf = Du(e, i));
   }
-  format(e, t) {
-    return this.rtf ? this.rtf.format(e, t) : Zr(t, e, this.opts.numeric, this.opts.style !== "long");
+  format(e, r) {
+    return this.rtf ? this.rtf.format(e, r) : ll(r, e, this.opts.numeric, this.opts.style !== "long");
   }
-  formatToParts(e, t) {
-    return this.rtf ? this.rtf.formatToParts(e, t) : [];
+  formatToParts(e, r) {
+    return this.rtf ? this.rtf.formatToParts(e, r) : [];
   }
 }
-const gr = {
+const ju = {
   firstDay: 1,
   minimalDays: 4,
   weekend: [6, 7]
 };
-class k {
+class re {
   static fromOpts(e) {
-    return k.create(
+    return re.create(
       e.locale,
       e.numberingSystem,
       e.outputCalendar,
@@ -638,33 +638,33 @@ class k {
       e.defaultToEN
     );
   }
-  static create(e, t, r, s, i = !1) {
-    const a = e || p.defaultLocale, o = a || (i ? "en-US" : ar()), u = t || p.defaultNumberingSystem, l = r || p.defaultOutputCalendar, f = Qe(s) || p.defaultWeekSettings;
-    return new k(o, u, l, f, a);
+  static create(e, r, i, a, c = !1) {
+    const h = e || ue.defaultLocale, m = h || (c ? "en-US" : $u()), v = r || ue.defaultNumberingSystem, A = i || ue.defaultOutputCalendar, q = Li(a) || ue.defaultWeekSettings;
+    return new re(m, v, A, q, h);
   }
   static resetCache() {
-    he = null, Je = {}, je = {}, Xe = {};
+    Tn = null, Fi = {}, Vi = {}, qi = {};
   }
-  static fromObject({ locale: e, numberingSystem: t, outputCalendar: r, weekSettings: s } = {}) {
-    return k.create(e, t, r, s);
+  static fromObject({ locale: e, numberingSystem: r, outputCalendar: i, weekSettings: a } = {}) {
+    return re.create(e, r, i, a);
   }
-  constructor(e, t, r, s, i) {
-    const [a, o, u] = ur(e);
-    this.locale = a, this.numberingSystem = t || o || null, this.outputCalendar = r || u || null, this.weekSettings = s, this.intl = lr(this.locale, this.numberingSystem, this.outputCalendar), this.weekdaysCache = { format: {}, standalone: {} }, this.monthsCache = { format: {}, standalone: {} }, this.meridiemCache = null, this.eraCache = {}, this.specifiedLocale = i, this.fastNumbersCached = null;
+  constructor(e, r, i, a, c) {
+    const [h, m, v] = Mu(e);
+    this.locale = h, this.numberingSystem = r || m || null, this.outputCalendar = i || v || null, this.weekSettings = a, this.intl = Pu(this.locale, this.numberingSystem, this.outputCalendar), this.weekdaysCache = { format: {}, standalone: {} }, this.monthsCache = { format: {}, standalone: {} }, this.meridiemCache = null, this.eraCache = {}, this.specifiedLocale = c, this.fastNumbersCached = null;
   }
   get fastNumbers() {
-    return this.fastNumbersCached == null && (this.fastNumbersCached = dr(this)), this.fastNumbersCached;
+    return this.fastNumbersCached == null && (this.fastNumbersCached = Vu(this)), this.fastNumbersCached;
   }
   listingMode() {
-    const e = this.isEnglish(), t = (this.numberingSystem === null || this.numberingSystem === "latn") && (this.outputCalendar === null || this.outputCalendar === "gregory");
-    return e && t ? "en" : "intl";
+    const e = this.isEnglish(), r = (this.numberingSystem === null || this.numberingSystem === "latn") && (this.outputCalendar === null || this.outputCalendar === "gregory");
+    return e && r ? "en" : "intl";
   }
   clone(e) {
-    return !e || Object.getOwnPropertyNames(e).length === 0 ? this : k.create(
+    return !e || Object.getOwnPropertyNames(e).length === 0 ? this : re.create(
       e.locale || this.specifiedLocale,
       e.numberingSystem || this.numberingSystem,
       e.outputCalendar || this.outputCalendar,
-      Qe(e.weekSettings) || this.weekSettings,
+      Li(e.weekSettings) || this.weekSettings,
       e.defaultToEN || !1
     );
   }
@@ -674,30 +674,30 @@ class k {
   redefaultToSystem(e = {}) {
     return this.clone({ ...e, defaultToEN: !1 });
   }
-  months(e, t = !1) {
-    return Ie(this, e, Tn, () => {
-      const r = t ? { month: e, day: "numeric" } : { month: e }, s = t ? "format" : "standalone";
-      return this.monthsCache[s][e] || (this.monthsCache[s][e] = cr((i) => this.extract(i, r, "month"))), this.monthsCache[s][e];
+  months(e, r = !1) {
+    return gr(this, e, ua, () => {
+      const i = r ? { month: e, day: "numeric" } : { month: e }, a = r ? "format" : "standalone";
+      return this.monthsCache[a][e] || (this.monthsCache[a][e] = Fu((c) => this.extract(c, i, "month"))), this.monthsCache[a][e];
     });
   }
-  weekdays(e, t = !1) {
-    return Ie(this, e, On, () => {
-      const r = t ? { weekday: e, year: "numeric", month: "long", day: "numeric" } : { weekday: e }, s = t ? "format" : "standalone";
-      return this.weekdaysCache[s][e] || (this.weekdaysCache[s][e] = fr(
-        (i) => this.extract(i, r, "weekday")
-      )), this.weekdaysCache[s][e];
+  weekdays(e, r = !1) {
+    return gr(this, e, fa, () => {
+      const i = r ? { weekday: e, year: "numeric", month: "long", day: "numeric" } : { weekday: e }, a = r ? "format" : "standalone";
+      return this.weekdaysCache[a][e] || (this.weekdaysCache[a][e] = Ru(
+        (c) => this.extract(c, i, "weekday")
+      )), this.weekdaysCache[a][e];
     });
   }
   meridiems() {
-    return Ie(
+    return gr(
       this,
       void 0,
-      () => In,
+      () => ha,
       () => {
         if (!this.meridiemCache) {
           const e = { hour: "numeric", hourCycle: "h12" };
-          this.meridiemCache = [d.utc(2016, 11, 13, 9), d.utc(2016, 11, 13, 19)].map(
-            (t) => this.extract(t, e, "dayperiod")
+          this.meridiemCache = [K.utc(2016, 11, 13, 9), K.utc(2016, 11, 13, 19)].map(
+            (r) => this.extract(r, e, "dayperiod")
           );
         }
         return this.meridiemCache;
@@ -705,34 +705,34 @@ class k {
     );
   }
   eras(e) {
-    return Ie(this, e, vn, () => {
-      const t = { era: e };
-      return this.eraCache[e] || (this.eraCache[e] = [d.utc(-40, 1, 1), d.utc(2017, 1, 1)].map(
-        (r) => this.extract(r, t, "era")
+    return gr(this, e, da, () => {
+      const r = { era: e };
+      return this.eraCache[e] || (this.eraCache[e] = [K.utc(-40, 1, 1), K.utc(2017, 1, 1)].map(
+        (i) => this.extract(i, r, "era")
       )), this.eraCache[e];
     });
   }
-  extract(e, t, r) {
-    const s = this.dtFormatter(e, t), i = s.formatToParts(), a = i.find((o) => o.type.toLowerCase() === r);
-    return a ? a.value : null;
+  extract(e, r, i) {
+    const a = this.dtFormatter(e, r), c = a.formatToParts(), h = c.find((m) => m.type.toLowerCase() === i);
+    return h ? h.value : null;
   }
   numberFormatter(e = {}) {
-    return new hr(this.intl, e.forceSimple || this.fastNumbers, e);
+    return new qu(this.intl, e.forceSimple || this.fastNumbers, e);
   }
-  dtFormatter(e, t = {}) {
-    return new mr(e, this.intl, t);
+  dtFormatter(e, r = {}) {
+    return new Lu(e, this.intl, r);
   }
   relFormatter(e = {}) {
-    return new yr(this.intl, this.isEnglish(), e);
+    return new Uu(this.intl, this.isEnglish(), e);
   }
   listFormatter(e = {}) {
-    return rr(this.intl, e);
+    return Au(this.intl, e);
   }
   isEnglish() {
     return this.locale === "en" || this.locale.toLowerCase() === "en-us" || new Intl.DateTimeFormat(this.intl).resolvedOptions().locale.startsWith("en-us");
   }
   getWeekSettings() {
-    return this.weekSettings ? this.weekSettings : yn() ? or(this.locale) : gr;
+    return this.weekSettings ? this.weekSettings : ia() ? Nu(this.locale) : ju;
   }
   getStartOfWeek() {
     return this.getWeekSettings().firstDay;
@@ -750,14 +750,14 @@ class k {
     return `Locale(${this.locale}, ${this.numberingSystem}, ${this.outputCalendar})`;
   }
 }
-let Re = null;
-class D extends se {
+let Ti = null;
+class be extends Qt {
   /**
    * Get a singleton instance of UTC
    * @return {FixedOffsetZone}
    */
   static get utcInstance() {
-    return Re === null && (Re = new D(0)), Re;
+    return Ti === null && (Ti = new be(0)), Ti;
   }
   /**
    * Get an instance with a specified offset
@@ -765,7 +765,7 @@ class D extends se {
    * @return {FixedOffsetZone}
    */
   static instance(e) {
-    return e === 0 ? D.utcInstance : new D(e);
+    return e === 0 ? be.utcInstance : new be(e);
   }
   /**
    * Get an instance of FixedOffsetZone from a UTC offset string, like "UTC+6"
@@ -777,9 +777,9 @@ class D extends se {
    */
   static parseSpecifier(e) {
     if (e) {
-      const t = e.match(/^utc(?:([+-]\d{1,2})(?::(\d{2}))?)?$/i);
-      if (t)
-        return new D(ze(t[1], t[2]));
+      const r = e.match(/^utc(?:([+-]\d{1,2})(?::(\d{2}))?)?$/i);
+      if (r)
+        return new be(Pr(r[1], r[2]));
     }
     return null;
   }
@@ -801,7 +801,7 @@ class D extends se {
    * @type {string}
    */
   get name() {
-    return this.fixed === 0 ? "UTC" : `UTC${ge(this.fixed, "narrow")}`;
+    return this.fixed === 0 ? "UTC" : `UTC${In(this.fixed, "narrow")}`;
   }
   /**
    * The IANA name of this zone, i.e. `Etc/UTC` or `Etc/GMT+/-nn`
@@ -810,7 +810,7 @@ class D extends se {
    * @type {string}
    */
   get ianaName() {
-    return this.fixed === 0 ? "Etc/UTC" : `Etc/GMT${ge(-this.fixed, "narrow")}`;
+    return this.fixed === 0 ? "Etc/UTC" : `Etc/GMT${In(-this.fixed, "narrow")}`;
   }
   /**
    * Returns the offset's common name at the specified timestamp.
@@ -829,8 +829,8 @@ class D extends se {
    *                          Accepts 'narrow', 'short', or 'techie'. Returning '+6', '+06:00', or '+0600' respectively
    * @return {string}
    */
-  formatOffset(e, t) {
-    return ge(this.fixed, t);
+  formatOffset(e, r) {
+    return In(this.fixed, r);
   }
   /**
    * Returns whether the offset is known to be fixed for the whole year:
@@ -870,7 +870,7 @@ class D extends se {
     return !0;
   }
 }
-class on extends se {
+class Go extends Qt {
   constructor(e) {
     super(), this.zoneName = e;
   }
@@ -907,17 +907,17 @@ class on extends se {
     return !1;
   }
 }
-function U(n, e) {
-  if (m(n) || n === null)
+function it(s, e) {
+  if (Z(s) || s === null)
     return e;
-  if (n instanceof se)
-    return n;
-  if (Or(n)) {
-    const t = n.toLowerCase();
-    return t === "default" ? e : t === "local" || t === "system" ? ke.instance : t === "utc" || t === "gmt" ? D.utcInstance : D.parseSpecifier(t) || $.create(n);
-  } else return R(n) ? D.instance(n) : typeof n == "object" && "offset" in n && typeof n.offset == "function" ? n : new on(n);
+  if (s instanceof Qt)
+    return s;
+  if (Hu(s)) {
+    const r = s.toLowerCase();
+    return r === "default" ? e : r === "local" || r === "system" ? Pn.instance : r === "utc" || r === "gmt" ? be.utcInstance : be.parseSpecifier(r) || Ue.create(s);
+  } else return at(s) ? be.instance(s) : typeof s == "object" && "offset" in s && typeof s.offset == "function" ? s : new Go(s);
 }
-const et = {
+const Zi = {
   arab: "[٠-٩]",
   arabext: "[۰-۹]",
   bali: "[᭐-᭙]",
@@ -939,7 +939,7 @@ const et = {
   thai: "[๐-๙]",
   tibt: "[༠-༩]",
   latn: "\\d"
-}, dt = {
+}, Us = {
   arab: [1632, 1641],
   arabext: [1776, 1785],
   bali: [6992, 7001],
@@ -959,41 +959,41 @@ const et = {
   telu: [3174, 3183],
   thai: [3664, 3673],
   tibt: [3872, 3881]
-}, wr = et.hanidec.replace(/[\[|\]]/g, "").split("");
-function kr(n) {
-  let e = parseInt(n, 10);
+}, Wu = Zi.hanidec.replace(/[\[|\]]/g, "").split("");
+function Ku(s) {
+  let e = parseInt(s, 10);
   if (isNaN(e)) {
     e = "";
-    for (let t = 0; t < n.length; t++) {
-      const r = n.charCodeAt(t);
-      if (n[t].search(et.hanidec) !== -1)
-        e += wr.indexOf(n[t]);
+    for (let r = 0; r < s.length; r++) {
+      const i = s.charCodeAt(r);
+      if (s[r].search(Zi.hanidec) !== -1)
+        e += Wu.indexOf(s[r]);
       else
-        for (const s in dt) {
-          const [i, a] = dt[s];
-          r >= i && r <= a && (e += r - i);
+        for (const a in Us) {
+          const [c, h] = Us[a];
+          i >= c && i <= h && (e += i - c);
         }
     }
     return parseInt(e, 10);
   } else
     return e;
 }
-let K = {};
-function Tr() {
-  K = {};
+let Wt = {};
+function zu() {
+  Wt = {};
 }
-function V({ numberingSystem: n }, e = "") {
-  const t = n || "latn";
-  return K[t] || (K[t] = {}), K[t][e] || (K[t][e] = new RegExp(`${et[t]}${e}`)), K[t][e];
+function Ne({ numberingSystem: s }, e = "") {
+  const r = s || "latn";
+  return Wt[r] || (Wt[r] = {}), Wt[r][e] || (Wt[r][e] = new RegExp(`${Zi[r]}${e}`)), Wt[r][e];
 }
-let ht = () => Date.now(), mt = "system", yt = null, gt = null, wt = null, kt = 60, Tt, St = null;
-class p {
+let js = () => Date.now(), Ws = "system", Ks = null, zs = null, Zs = null, Bs = 60, Hs, Ys = null;
+class ue {
   /**
    * Get the callback for returning the current timestamp.
    * @type {function}
    */
   static get now() {
-    return ht;
+    return js;
   }
   /**
    * Set the callback for returning the current timestamp.
@@ -1003,7 +1003,7 @@ class p {
    * @example Settings.now = () => 0 // always pretend it's Jan 1, 1970 at midnight in UTC time
    */
   static set now(e) {
-    ht = e;
+    js = e;
   }
   /**
    * Set the default time zone to create DateTimes in. Does not affect existing instances.
@@ -1011,7 +1011,7 @@ class p {
    * @type {string}
    */
   static set defaultZone(e) {
-    mt = e;
+    Ws = e;
   }
   /**
    * Get the default time zone object currently used to create DateTimes. Does not affect existing instances.
@@ -1019,49 +1019,49 @@ class p {
    * @type {Zone}
    */
   static get defaultZone() {
-    return U(mt, ke.instance);
+    return it(Ws, Pn.instance);
   }
   /**
    * Get the default locale to create DateTimes with. Does not affect existing instances.
    * @type {string}
    */
   static get defaultLocale() {
-    return yt;
+    return Ks;
   }
   /**
    * Set the default locale to create DateTimes with. Does not affect existing instances.
    * @type {string}
    */
   static set defaultLocale(e) {
-    yt = e;
+    Ks = e;
   }
   /**
    * Get the default numbering system to create DateTimes with. Does not affect existing instances.
    * @type {string}
    */
   static get defaultNumberingSystem() {
-    return gt;
+    return zs;
   }
   /**
    * Set the default numbering system to create DateTimes with. Does not affect existing instances.
    * @type {string}
    */
   static set defaultNumberingSystem(e) {
-    gt = e;
+    zs = e;
   }
   /**
    * Get the default output calendar to create DateTimes with. Does not affect existing instances.
    * @type {string}
    */
   static get defaultOutputCalendar() {
-    return wt;
+    return Zs;
   }
   /**
    * Set the default output calendar to create DateTimes with. Does not affect existing instances.
    * @type {string}
    */
   static set defaultOutputCalendar(e) {
-    wt = e;
+    Zs = e;
   }
   /**
    * @typedef {Object} WeekSettings
@@ -1073,7 +1073,7 @@ class p {
    * @return {WeekSettings|null}
    */
   static get defaultWeekSettings() {
-    return St;
+    return Ys;
   }
   /**
    * Allows overriding the default locale week settings, i.e. the start of the week, the weekend and
@@ -1083,14 +1083,14 @@ class p {
    * @param {WeekSettings|null} weekSettings
    */
   static set defaultWeekSettings(e) {
-    St = Qe(e);
+    Ys = Li(e);
   }
   /**
    * Get the cutoff year for whether a 2-digit year string is interpreted in the current or previous century. Numbers higher than the cutoff will be considered to mean 19xx and numbers lower or equal to the cutoff will be considered 20xx.
    * @type {number}
    */
   static get twoDigitCutoffYear() {
-    return kt;
+    return Bs;
   }
   /**
    * Set the cutoff year for whether a 2-digit year string is interpreted in the current or previous century. Numbers higher than the cutoff will be considered to mean 19xx and numbers lower or equal to the cutoff will be considered 20xx.
@@ -1102,235 +1102,235 @@ class p {
    * @example Settings.twoDigitCutoffYear = 2050 // ALSO interpreted as 50
    */
   static set twoDigitCutoffYear(e) {
-    kt = e % 100;
+    Bs = e % 100;
   }
   /**
    * Get whether Luxon will throw when it encounters invalid DateTimes, Durations, or Intervals
    * @type {boolean}
    */
   static get throwOnInvalid() {
-    return Tt;
+    return Hs;
   }
   /**
    * Set whether Luxon will throw when it encounters invalid DateTimes, Durations, or Intervals
    * @type {boolean}
    */
   static set throwOnInvalid(e) {
-    Tt = e;
+    Hs = e;
   }
   /**
    * Reset Luxon's global caches. Should only be necessary in testing scenarios.
    * @return {void}
    */
   static resetCaches() {
-    k.resetCache(), $.resetCache(), d.resetCache(), Tr();
+    re.resetCache(), Ue.resetCache(), K.resetCache(), zu();
   }
 }
-class C {
-  constructor(e, t) {
-    this.reason = e, this.explanation = t;
+class Pe {
+  constructor(e, r) {
+    this.reason = e, this.explanation = r;
   }
   toMessage() {
     return this.explanation ? `${this.reason}: ${this.explanation}` : this.reason;
   }
 }
-const un = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334], ln = [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335];
-function x(n, e) {
-  return new C(
+const Jo = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334], Xo = [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335];
+function Ae(s, e) {
+  return new Pe(
     "unit out of range",
-    `you specified ${e} (of type ${typeof e}) as a ${n}, which is invalid`
+    `you specified ${e} (of type ${typeof e}) as a ${s}, which is invalid`
   );
 }
-function tt(n, e, t) {
-  const r = new Date(Date.UTC(n, e - 1, t));
-  n < 100 && n >= 0 && r.setUTCFullYear(r.getUTCFullYear() - 1900);
-  const s = r.getUTCDay();
-  return s === 0 ? 7 : s;
+function Bi(s, e, r) {
+  const i = new Date(Date.UTC(s, e - 1, r));
+  s < 100 && s >= 0 && i.setUTCFullYear(i.getUTCFullYear() - 1900);
+  const a = i.getUTCDay();
+  return a === 0 ? 7 : a;
 }
-function cn(n, e, t) {
-  return t + (Te(n) ? ln : un)[e - 1];
+function Qo(s, e, r) {
+  return r + (Fn(s) ? Xo : Jo)[e - 1];
 }
-function fn(n, e) {
-  const t = Te(n) ? ln : un, r = t.findIndex((i) => i < e), s = e - t[r];
-  return { month: r + 1, day: s };
+function ea(s, e) {
+  const r = Fn(s) ? Xo : Jo, i = r.findIndex((c) => c < e), a = e - r[i];
+  return { month: i + 1, day: a };
 }
-function nt(n, e) {
-  return (n - e + 7) % 7 + 1;
+function Hi(s, e) {
+  return (s - e + 7) % 7 + 1;
 }
-function Ce(n, e = 4, t = 1) {
-  const { year: r, month: s, day: i } = n, a = cn(r, s, i), o = nt(tt(r, s, i), t);
-  let u = Math.floor((a - o + 14 - e) / 7), l;
-  return u < 1 ? (l = r - 1, u = we(l, e, t)) : u > we(r, e, t) ? (l = r + 1, u = 1) : l = r, { weekYear: l, weekNumber: u, weekday: o, ...Ae(n) };
+function Ir(s, e = 4, r = 1) {
+  const { year: i, month: a, day: c } = s, h = Qo(i, a, c), m = Hi(Bi(i, a, c), r);
+  let v = Math.floor((h - m + 14 - e) / 7), A;
+  return v < 1 ? (A = i - 1, v = Dn(A, e, r)) : v > Dn(i, e, r) ? (A = i + 1, v = 1) : A = i, { weekYear: A, weekNumber: v, weekday: m, ...Fr(s) };
 }
-function pt(n, e = 4, t = 1) {
-  const { weekYear: r, weekNumber: s, weekday: i } = n, a = nt(tt(r, 1, e), t), o = te(r);
-  let u = s * 7 + i - a - 7 + e, l;
-  u < 1 ? (l = r - 1, u += te(l)) : u > o ? (l = r + 1, u -= te(r)) : l = r;
-  const { month: f, day: y } = fn(l, u);
-  return { year: l, month: f, day: y, ...Ae(n) };
+function Gs(s, e = 4, r = 1) {
+  const { weekYear: i, weekNumber: a, weekday: c } = s, h = Hi(Bi(i, 1, e), r), m = Bt(i);
+  let v = a * 7 + c - h - 7 + e, A;
+  v < 1 ? (A = i - 1, v += Bt(A)) : v > m ? (A = i + 1, v -= Bt(i)) : A = i;
+  const { month: q, day: M } = ea(A, v);
+  return { year: A, month: q, day: M, ...Fr(s) };
 }
-function qe(n) {
-  const { year: e, month: t, day: r } = n, s = cn(e, t, r);
-  return { year: e, ordinal: s, ...Ae(n) };
+function Oi(s) {
+  const { year: e, month: r, day: i } = s, a = Qo(e, r, i);
+  return { year: e, ordinal: a, ...Fr(s) };
 }
-function Ot(n) {
-  const { year: e, ordinal: t } = n, { month: r, day: s } = fn(e, t);
-  return { year: e, month: r, day: s, ...Ae(n) };
+function Js(s) {
+  const { year: e, ordinal: r } = s, { month: i, day: a } = ea(e, r);
+  return { year: e, month: i, day: a, ...Fr(s) };
 }
-function It(n, e) {
-  if (!m(n.localWeekday) || !m(n.localWeekNumber) || !m(n.localWeekYear)) {
-    if (!m(n.weekday) || !m(n.weekNumber) || !m(n.weekYear))
-      throw new ee(
+function Xs(s, e) {
+  if (!Z(s.localWeekday) || !Z(s.localWeekNumber) || !Z(s.localWeekYear)) {
+    if (!Z(s.weekday) || !Z(s.weekNumber) || !Z(s.weekYear))
+      throw new zt(
         "Cannot mix locale-based week fields with ISO-based week fields"
       );
-    return m(n.localWeekday) || (n.weekday = n.localWeekday), m(n.localWeekNumber) || (n.weekNumber = n.localWeekNumber), m(n.localWeekYear) || (n.weekYear = n.localWeekYear), delete n.localWeekday, delete n.localWeekNumber, delete n.localWeekYear, {
+    return Z(s.localWeekday) || (s.weekday = s.localWeekday), Z(s.localWeekNumber) || (s.weekNumber = s.localWeekNumber), Z(s.localWeekYear) || (s.weekYear = s.localWeekYear), delete s.localWeekday, delete s.localWeekNumber, delete s.localWeekYear, {
       minDaysInFirstWeek: e.getMinDaysInFirstWeek(),
       startOfWeek: e.getStartOfWeek()
     };
   } else
     return { minDaysInFirstWeek: 4, startOfWeek: 1 };
 }
-function Sr(n, e = 4, t = 1) {
-  const r = $e(n.weekYear), s = b(
-    n.weekNumber,
+function Zu(s, e = 4, r = 1) {
+  const i = Nr(s.weekYear), a = Ce(
+    s.weekNumber,
     1,
-    we(n.weekYear, e, t)
-  ), i = b(n.weekday, 1, 7);
-  return r ? s ? i ? !1 : x("weekday", n.weekday) : x("week", n.weekNumber) : x("weekYear", n.weekYear);
+    Dn(s.weekYear, e, r)
+  ), c = Ce(s.weekday, 1, 7);
+  return i ? a ? c ? !1 : Ae("weekday", s.weekday) : Ae("week", s.weekNumber) : Ae("weekYear", s.weekYear);
 }
-function pr(n) {
-  const e = $e(n.year), t = b(n.ordinal, 1, te(n.year));
-  return e ? t ? !1 : x("ordinal", n.ordinal) : x("year", n.year);
+function Bu(s) {
+  const e = Nr(s.year), r = Ce(s.ordinal, 1, Bt(s.year));
+  return e ? r ? !1 : Ae("ordinal", s.ordinal) : Ae("year", s.year);
 }
-function dn(n) {
-  const e = $e(n.year), t = b(n.month, 1, 12), r = b(n.day, 1, We(n.year, n.month));
-  return e ? t ? r ? !1 : x("day", n.day) : x("month", n.month) : x("year", n.year);
+function ta(s) {
+  const e = Nr(s.year), r = Ce(s.month, 1, 12), i = Ce(s.day, 1, Ar(s.year, s.month));
+  return e ? r ? i ? !1 : Ae("day", s.day) : Ae("month", s.month) : Ae("year", s.year);
 }
-function hn(n) {
-  const { hour: e, minute: t, second: r, millisecond: s } = n, i = b(e, 0, 23) || e === 24 && t === 0 && r === 0 && s === 0, a = b(t, 0, 59), o = b(r, 0, 59), u = b(s, 0, 999);
-  return i ? a ? o ? u ? !1 : x("millisecond", s) : x("second", r) : x("minute", t) : x("hour", e);
+function na(s) {
+  const { hour: e, minute: r, second: i, millisecond: a } = s, c = Ce(e, 0, 23) || e === 24 && r === 0 && i === 0 && a === 0, h = Ce(r, 0, 59), m = Ce(i, 0, 59), v = Ce(a, 0, 999);
+  return c ? h ? m ? v ? !1 : Ae("millisecond", a) : Ae("second", i) : Ae("minute", r) : Ae("hour", e);
 }
-function m(n) {
-  return typeof n > "u";
+function Z(s) {
+  return typeof s > "u";
 }
-function R(n) {
-  return typeof n == "number";
+function at(s) {
+  return typeof s == "number";
 }
-function $e(n) {
-  return typeof n == "number" && n % 1 === 0;
+function Nr(s) {
+  return typeof s == "number" && s % 1 === 0;
 }
-function Or(n) {
-  return typeof n == "string";
+function Hu(s) {
+  return typeof s == "string";
 }
-function Ir(n) {
-  return Object.prototype.toString.call(n) === "[object Date]";
+function Yu(s) {
+  return Object.prototype.toString.call(s) === "[object Date]";
 }
-function mn() {
+function ra() {
   try {
     return typeof Intl < "u" && !!Intl.RelativeTimeFormat;
   } catch {
     return !1;
   }
 }
-function yn() {
+function ia() {
   try {
     return typeof Intl < "u" && !!Intl.Locale && ("weekInfo" in Intl.Locale.prototype || "getWeekInfo" in Intl.Locale.prototype);
   } catch {
     return !1;
   }
 }
-function vr(n) {
-  return Array.isArray(n) ? n : [n];
+function Gu(s) {
+  return Array.isArray(s) ? s : [s];
 }
-function vt(n, e, t) {
-  if (n.length !== 0)
-    return n.reduce((r, s) => {
-      const i = [e(s), s];
-      return r && t(r[0], i[0]) === r[0] ? r : i;
+function Qs(s, e, r) {
+  if (s.length !== 0)
+    return s.reduce((i, a) => {
+      const c = [e(a), a];
+      return i && r(i[0], c[0]) === i[0] ? i : c;
     }, null)[1];
 }
-function Nr(n, e) {
-  return e.reduce((t, r) => (t[r] = n[r], t), {});
+function Ju(s, e) {
+  return e.reduce((r, i) => (r[i] = s[i], r), {});
 }
-function re(n, e) {
-  return Object.prototype.hasOwnProperty.call(n, e);
+function Gt(s, e) {
+  return Object.prototype.hasOwnProperty.call(s, e);
 }
-function Qe(n) {
-  if (n == null)
+function Li(s) {
+  if (s == null)
     return null;
-  if (typeof n != "object")
-    throw new v("Week settings must be an object");
-  if (!b(n.firstDay, 1, 7) || !b(n.minimalDays, 1, 7) || !Array.isArray(n.weekend) || n.weekend.some((e) => !b(e, 1, 7)))
-    throw new v("Invalid week settings");
+  if (typeof s != "object")
+    throw new ge("Week settings must be an object");
+  if (!Ce(s.firstDay, 1, 7) || !Ce(s.minimalDays, 1, 7) || !Array.isArray(s.weekend) || s.weekend.some((e) => !Ce(e, 1, 7)))
+    throw new ge("Invalid week settings");
   return {
-    firstDay: n.firstDay,
-    minimalDays: n.minimalDays,
-    weekend: Array.from(n.weekend)
+    firstDay: s.firstDay,
+    minimalDays: s.minimalDays,
+    weekend: Array.from(s.weekend)
   };
 }
-function b(n, e, t) {
-  return $e(n) && n >= e && n <= t;
+function Ce(s, e, r) {
+  return Nr(s) && s >= e && s <= r;
 }
-function Dr(n, e) {
-  return n - e * Math.floor(n / e);
+function Xu(s, e) {
+  return s - e * Math.floor(s / e);
 }
-function O(n, e = 2) {
-  const t = n < 0;
-  let r;
-  return t ? r = "-" + ("" + -n).padStart(e, "0") : r = ("" + n).padStart(e, "0"), r;
+function fe(s, e = 2) {
+  const r = s < 0;
+  let i;
+  return r ? i = "-" + ("" + -s).padStart(e, "0") : i = ("" + s).padStart(e, "0"), i;
 }
-function A(n) {
-  if (!(m(n) || n === null || n === ""))
-    return parseInt(n, 10);
+function rt(s) {
+  if (!(Z(s) || s === null || s === ""))
+    return parseInt(s, 10);
 }
-function q(n) {
-  if (!(m(n) || n === null || n === ""))
-    return parseFloat(n);
+function _t(s) {
+  if (!(Z(s) || s === null || s === ""))
+    return parseFloat(s);
 }
-function rt(n) {
-  if (!(m(n) || n === null || n === "")) {
-    const e = parseFloat("0." + n) * 1e3;
+function Yi(s) {
+  if (!(Z(s) || s === null || s === "")) {
+    const e = parseFloat("0." + s) * 1e3;
     return Math.floor(e);
   }
 }
-function st(n, e, t = !1) {
-  const r = 10 ** e;
-  return (t ? Math.trunc : Math.round)(n * r) / r;
+function Gi(s, e, r = !1) {
+  const i = 10 ** e;
+  return (r ? Math.trunc : Math.round)(s * i) / i;
 }
-function Te(n) {
-  return n % 4 === 0 && (n % 100 !== 0 || n % 400 === 0);
+function Fn(s) {
+  return s % 4 === 0 && (s % 100 !== 0 || s % 400 === 0);
 }
-function te(n) {
-  return Te(n) ? 366 : 365;
+function Bt(s) {
+  return Fn(s) ? 366 : 365;
 }
-function We(n, e) {
-  const t = Dr(e - 1, 12) + 1, r = n + (e - t) / 12;
-  return t === 2 ? Te(r) ? 29 : 28 : [31, null, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][t - 1];
+function Ar(s, e) {
+  const r = Xu(e - 1, 12) + 1, i = s + (e - r) / 12;
+  return r === 2 ? Fn(i) ? 29 : 28 : [31, null, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][r - 1];
 }
-function Ze(n) {
+function Mr(s) {
   let e = Date.UTC(
-    n.year,
-    n.month - 1,
-    n.day,
-    n.hour,
-    n.minute,
-    n.second,
-    n.millisecond
+    s.year,
+    s.month - 1,
+    s.day,
+    s.hour,
+    s.minute,
+    s.second,
+    s.millisecond
   );
-  return n.year < 100 && n.year >= 0 && (e = new Date(e), e.setUTCFullYear(n.year, n.month - 1, n.day)), +e;
+  return s.year < 100 && s.year >= 0 && (e = new Date(e), e.setUTCFullYear(s.year, s.month - 1, s.day)), +e;
 }
-function Nt(n, e, t) {
-  return -nt(tt(n, 1, e), t) + e - 1;
+function eo(s, e, r) {
+  return -Hi(Bi(s, 1, e), r) + e - 1;
 }
-function we(n, e = 4, t = 1) {
-  const r = Nt(n, e, t), s = Nt(n + 1, e, t);
-  return (te(n) - r + s) / 7;
+function Dn(s, e = 4, r = 1) {
+  const i = eo(s, e, r), a = eo(s + 1, e, r);
+  return (Bt(s) - i + a) / 7;
 }
-function Ke(n) {
-  return n > 99 ? n : n > p.twoDigitCutoffYear ? 1900 + n : 2e3 + n;
+function Ui(s) {
+  return s > 99 ? s : s > ue.twoDigitCutoffYear ? 1900 + s : 2e3 + s;
 }
-function gn(n, e, t, r = null) {
-  const s = new Date(n), i = {
+function sa(s, e, r, i = null) {
+  const a = new Date(s), c = {
     hourCycle: "h23",
     year: "numeric",
     month: "2-digit",
@@ -1338,49 +1338,49 @@ function gn(n, e, t, r = null) {
     hour: "2-digit",
     minute: "2-digit"
   };
-  r && (i.timeZone = r);
-  const a = { timeZoneName: e, ...i }, o = new Intl.DateTimeFormat(t, a).formatToParts(s).find((u) => u.type.toLowerCase() === "timezonename");
-  return o ? o.value : null;
+  i && (c.timeZone = i);
+  const h = { timeZoneName: e, ...c }, m = new Intl.DateTimeFormat(r, h).formatToParts(a).find((v) => v.type.toLowerCase() === "timezonename");
+  return m ? m.value : null;
 }
-function ze(n, e) {
-  let t = parseInt(n, 10);
-  Number.isNaN(t) && (t = 0);
-  const r = parseInt(e, 10) || 0, s = t < 0 || Object.is(t, -0) ? -r : r;
-  return t * 60 + s;
+function Pr(s, e) {
+  let r = parseInt(s, 10);
+  Number.isNaN(r) && (r = 0);
+  const i = parseInt(e, 10) || 0, a = r < 0 || Object.is(r, -0) ? -i : i;
+  return r * 60 + a;
 }
-function wn(n) {
-  const e = Number(n);
-  if (typeof n == "boolean" || n === "" || Number.isNaN(e))
-    throw new v(`Invalid unit value ${n}`);
+function oa(s) {
+  const e = Number(s);
+  if (typeof s == "boolean" || s === "" || Number.isNaN(e))
+    throw new ge(`Invalid unit value ${s}`);
   return e;
 }
-function Le(n, e) {
-  const t = {};
-  for (const r in n)
-    if (re(n, r)) {
-      const s = n[r];
-      if (s == null) continue;
-      t[e(r)] = wn(s);
+function Cr(s, e) {
+  const r = {};
+  for (const i in s)
+    if (Gt(s, i)) {
+      const a = s[i];
+      if (a == null) continue;
+      r[e(i)] = oa(a);
     }
-  return t;
+  return r;
 }
-function ge(n, e) {
-  const t = Math.trunc(Math.abs(n / 60)), r = Math.trunc(Math.abs(n % 60)), s = n >= 0 ? "+" : "-";
+function In(s, e) {
+  const r = Math.trunc(Math.abs(s / 60)), i = Math.trunc(Math.abs(s % 60)), a = s >= 0 ? "+" : "-";
   switch (e) {
     case "short":
-      return `${s}${O(t, 2)}:${O(r, 2)}`;
+      return `${a}${fe(r, 2)}:${fe(i, 2)}`;
     case "narrow":
-      return `${s}${t}${r > 0 ? `:${r}` : ""}`;
+      return `${a}${r}${i > 0 ? `:${i}` : ""}`;
     case "techie":
-      return `${s}${O(t, 2)}${O(r, 2)}`;
+      return `${a}${fe(r, 2)}${fe(i, 2)}`;
     default:
       throw new RangeError(`Value format ${e} is out of range for property format`);
   }
 }
-function Ae(n) {
-  return Nr(n, ["hour", "minute", "second", "millisecond"]);
+function Fr(s) {
+  return Ju(s, ["hour", "minute", "second", "millisecond"]);
 }
-const Mr = [
+const Qu = [
   "January",
   "February",
   "March",
@@ -1393,7 +1393,7 @@ const Mr = [
   "October",
   "November",
   "December"
-], kn = [
+], aa = [
   "Jan",
   "Feb",
   "Mar",
@@ -1406,15 +1406,15 @@ const Mr = [
   "Oct",
   "Nov",
   "Dec"
-], Er = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
-function Tn(n) {
-  switch (n) {
+], el = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+function ua(s) {
+  switch (s) {
     case "narrow":
-      return [...Er];
+      return [...el];
     case "short":
-      return [...kn];
+      return [...aa];
     case "long":
-      return [...Mr];
+      return [...Qu];
     case "numeric":
       return ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
     case "2-digit":
@@ -1423,7 +1423,7 @@ function Tn(n) {
       return null;
   }
 }
-const Sn = [
+const la = [
   "Monday",
   "Tuesday",
   "Wednesday",
@@ -1431,48 +1431,48 @@ const Sn = [
   "Friday",
   "Saturday",
   "Sunday"
-], pn = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], xr = ["M", "T", "W", "T", "F", "S", "S"];
-function On(n) {
-  switch (n) {
+], ca = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], tl = ["M", "T", "W", "T", "F", "S", "S"];
+function fa(s) {
+  switch (s) {
     case "narrow":
-      return [...xr];
+      return [...tl];
     case "short":
-      return [...pn];
+      return [...ca];
     case "long":
-      return [...Sn];
+      return [...la];
     case "numeric":
       return ["1", "2", "3", "4", "5", "6", "7"];
     default:
       return null;
   }
 }
-const In = ["AM", "PM"], br = ["Before Christ", "Anno Domini"], Vr = ["BC", "AD"], Fr = ["B", "A"];
-function vn(n) {
-  switch (n) {
+const ha = ["AM", "PM"], nl = ["Before Christ", "Anno Domini"], rl = ["BC", "AD"], il = ["B", "A"];
+function da(s) {
+  switch (s) {
     case "narrow":
-      return [...Fr];
+      return [...il];
     case "short":
-      return [...Vr];
+      return [...rl];
     case "long":
-      return [...br];
+      return [...nl];
     default:
       return null;
   }
 }
-function Cr(n) {
-  return In[n.hour < 12 ? 0 : 1];
+function sl(s) {
+  return ha[s.hour < 12 ? 0 : 1];
 }
-function Wr(n, e) {
-  return On(e)[n.weekday - 1];
+function ol(s, e) {
+  return fa(e)[s.weekday - 1];
 }
-function Lr(n, e) {
-  return Tn(e)[n.month - 1];
+function al(s, e) {
+  return ua(e)[s.month - 1];
 }
-function $r(n, e) {
-  return vn(e)[n.year < 0 ? 0 : 1];
+function ul(s, e) {
+  return da(e)[s.year < 0 ? 0 : 1];
 }
-function Zr(n, e, t = "always", r = !1) {
-  const s = {
+function ll(s, e, r = "always", i = !1) {
+  const a = {
     years: ["year", "yr."],
     quarters: ["quarter", "qtr."],
     months: ["month", "mo."],
@@ -1481,101 +1481,101 @@ function Zr(n, e, t = "always", r = !1) {
     hours: ["hour", "hr."],
     minutes: ["minute", "min."],
     seconds: ["second", "sec."]
-  }, i = ["hours", "minutes", "seconds"].indexOf(n) === -1;
-  if (t === "auto" && i) {
-    const y = n === "days";
+  }, c = ["hours", "minutes", "seconds"].indexOf(s) === -1;
+  if (r === "auto" && c) {
+    const M = s === "days";
     switch (e) {
       case 1:
-        return y ? "tomorrow" : `next ${s[n][0]}`;
+        return M ? "tomorrow" : `next ${a[s][0]}`;
       case -1:
-        return y ? "yesterday" : `last ${s[n][0]}`;
+        return M ? "yesterday" : `last ${a[s][0]}`;
       case 0:
-        return y ? "today" : `this ${s[n][0]}`;
+        return M ? "today" : `this ${a[s][0]}`;
     }
   }
-  const a = Object.is(e, -0) || e < 0, o = Math.abs(e), u = o === 1, l = s[n], f = r ? u ? l[1] : l[2] || l[1] : u ? s[n][0] : n;
-  return a ? `${o} ${f} ago` : `in ${o} ${f}`;
+  const h = Object.is(e, -0) || e < 0, m = Math.abs(e), v = m === 1, A = a[s], q = i ? v ? A[1] : A[2] || A[1] : v ? a[s][0] : s;
+  return h ? `${m} ${q} ago` : `in ${m} ${q}`;
 }
-function Dt(n, e) {
-  let t = "";
-  for (const r of n)
-    r.literal ? t += r.val : t += e(r.val);
-  return t;
+function to(s, e) {
+  let r = "";
+  for (const i of s)
+    i.literal ? r += i.val : r += e(i.val);
+  return r;
 }
-const zr = {
-  D: Fe,
-  DD: Rt,
-  DDD: qt,
-  DDDD: Ht,
-  t: Yt,
-  tt: _t,
-  ttt: Pt,
-  tttt: Gt,
-  T: Jt,
-  TT: Bt,
-  TTT: jt,
-  TTTT: Xt,
-  f: Qt,
-  ff: en,
-  fff: nn,
-  ffff: sn,
-  F: Kt,
-  FF: tn,
-  FFF: rn,
-  FFFF: an
+const cl = {
+  D: Er,
+  DD: Do,
+  DDD: $o,
+  DDDD: No,
+  t: Mo,
+  tt: Po,
+  ttt: Fo,
+  tttt: Ro,
+  T: Vo,
+  TT: qo,
+  TTT: Lo,
+  TTTT: Uo,
+  f: jo,
+  ff: Ko,
+  fff: Zo,
+  ffff: Ho,
+  F: Wo,
+  FF: zo,
+  FFF: Bo,
+  FFFF: Yo
 };
-class N {
-  static create(e, t = {}) {
-    return new N(e, t);
+class ve {
+  static create(e, r = {}) {
+    return new ve(e, r);
   }
   static parseFormat(e) {
-    let t = null, r = "", s = !1;
-    const i = [];
-    for (let a = 0; a < e.length; a++) {
-      const o = e.charAt(a);
-      o === "'" ? (r.length > 0 && i.push({ literal: s || /^\s+$/.test(r), val: r }), t = null, r = "", s = !s) : s || o === t ? r += o : (r.length > 0 && i.push({ literal: /^\s+$/.test(r), val: r }), r = o, t = o);
+    let r = null, i = "", a = !1;
+    const c = [];
+    for (let h = 0; h < e.length; h++) {
+      const m = e.charAt(h);
+      m === "'" ? (i.length > 0 && c.push({ literal: a || /^\s+$/.test(i), val: i }), r = null, i = "", a = !a) : a || m === r ? i += m : (i.length > 0 && c.push({ literal: /^\s+$/.test(i), val: i }), i = m, r = m);
     }
-    return r.length > 0 && i.push({ literal: s || /^\s+$/.test(r), val: r }), i;
+    return i.length > 0 && c.push({ literal: a || /^\s+$/.test(i), val: i }), c;
   }
   static macroTokenToFormatOpts(e) {
-    return zr[e];
+    return cl[e];
   }
-  constructor(e, t) {
-    this.opts = t, this.loc = e, this.systemLoc = null;
+  constructor(e, r) {
+    this.opts = r, this.loc = e, this.systemLoc = null;
   }
-  formatWithSystemDefault(e, t) {
-    return this.systemLoc === null && (this.systemLoc = this.loc.redefaultToSystem()), this.systemLoc.dtFormatter(e, { ...this.opts, ...t }).format();
+  formatWithSystemDefault(e, r) {
+    return this.systemLoc === null && (this.systemLoc = this.loc.redefaultToSystem()), this.systemLoc.dtFormatter(e, { ...this.opts, ...r }).format();
   }
-  dtFormatter(e, t = {}) {
-    return this.loc.dtFormatter(e, { ...this.opts, ...t });
+  dtFormatter(e, r = {}) {
+    return this.loc.dtFormatter(e, { ...this.opts, ...r });
   }
-  formatDateTime(e, t) {
-    return this.dtFormatter(e, t).format();
+  formatDateTime(e, r) {
+    return this.dtFormatter(e, r).format();
   }
-  formatDateTimeParts(e, t) {
-    return this.dtFormatter(e, t).formatToParts();
+  formatDateTimeParts(e, r) {
+    return this.dtFormatter(e, r).formatToParts();
   }
-  formatInterval(e, t) {
-    return this.dtFormatter(e.start, t).dtf.formatRange(e.start.toJSDate(), e.end.toJSDate());
+  formatInterval(e, r) {
+    return this.dtFormatter(e.start, r).dtf.formatRange(e.start.toJSDate(), e.end.toJSDate());
   }
-  resolvedOptions(e, t) {
-    return this.dtFormatter(e, t).resolvedOptions();
+  resolvedOptions(e, r) {
+    return this.dtFormatter(e, r).resolvedOptions();
   }
-  num(e, t = 0) {
+  num(e, r = 0) {
     if (this.opts.forceSimple)
-      return O(e, t);
-    const r = { ...this.opts };
-    return t > 0 && (r.padTo = t), this.loc.numberFormatter(r).format(e);
+      return fe(e, r);
+    const i = { ...this.opts };
+    return r > 0 && (i.padTo = r), this.loc.numberFormatter(i).format(e);
   }
-  formatDateTimeFromString(e, t) {
-    const r = this.loc.listingMode() === "en", s = this.loc.outputCalendar && this.loc.outputCalendar !== "gregory", i = (h, I) => this.loc.extract(e, h, I), a = (h) => e.isOffsetFixed && e.offset === 0 && h.allowZ ? "Z" : e.isValid ? e.zone.formatOffset(e.ts, h.format) : "", o = () => r ? Cr(e) : i({ hour: "numeric", hourCycle: "h12" }, "dayperiod"), u = (h, I) => r ? Lr(e, h) : i(I ? { month: h } : { month: h, day: "numeric" }, "month"), l = (h, I) => r ? Wr(e, h) : i(
-      I ? { weekday: h } : { weekday: h, month: "long", day: "numeric" },
+  formatDateTimeFromString(e, r) {
+    const i = this.loc.listingMode() === "en", a = this.loc.outputCalendar && this.loc.outputCalendar !== "gregory", c = (j, ee) => this.loc.extract(e, j, ee), h = (j) => e.isOffsetFixed && e.offset === 0 && j.allowZ ? "Z" : e.isValid ? e.zone.formatOffset(e.ts, j.format) : "", m = () => i ? sl(e) : c({ hour: "numeric", hourCycle: "h12" }, "dayperiod"), v = (j, ee) => i ? al(e, j) : c(ee ? { month: j } : { month: j, day: "numeric" }, "month"), A = (j, ee) => i ? ol(e, j) : c(
+      ee ? { weekday: j } : { weekday: j, month: "long", day: "numeric" },
       "weekday"
-    ), f = (h) => {
-      const I = N.macroTokenToFormatOpts(h);
-      return I ? this.formatWithSystemDefault(e, I) : h;
-    }, y = (h) => r ? $r(e, h) : i({ era: h }, "era"), T = (h) => {
-      switch (h) {
+    ), q = (j) => {
+      const ee = ve.macroTokenToFormatOpts(j);
+      return ee ? this.formatWithSystemDefault(e, ee) : j;
+    }, M = (j) => i ? ul(e, j) : c({ era: j }, "era"), z = (j) => {
+      switch (j) {
         case "S":
           return this.num(e.millisecond);
         case "u":
@@ -1602,11 +1602,11 @@ class N {
         case "HH":
           return this.num(e.hour, 2);
         case "Z":
-          return a({ format: "narrow", allowZ: this.opts.allowZ });
+          return h({ format: "narrow", allowZ: this.opts.allowZ });
         case "ZZ":
-          return a({ format: "short", allowZ: this.opts.allowZ });
+          return h({ format: "short", allowZ: this.opts.allowZ });
         case "ZZZ":
-          return a({ format: "techie", allowZ: this.opts.allowZ });
+          return h({ format: "techie", allowZ: this.opts.allowZ });
         case "ZZZZ":
           return e.zone.offsetName(e.ts, { format: "short", locale: this.loc.locale });
         case "ZZZZZ":
@@ -1614,61 +1614,61 @@ class N {
         case "z":
           return e.zoneName;
         case "a":
-          return o();
+          return m();
         case "d":
-          return s ? i({ day: "numeric" }, "day") : this.num(e.day);
+          return a ? c({ day: "numeric" }, "day") : this.num(e.day);
         case "dd":
-          return s ? i({ day: "2-digit" }, "day") : this.num(e.day, 2);
+          return a ? c({ day: "2-digit" }, "day") : this.num(e.day, 2);
         case "c":
           return this.num(e.weekday);
         case "ccc":
-          return l("short", !0);
+          return A("short", !0);
         case "cccc":
-          return l("long", !0);
+          return A("long", !0);
         case "ccccc":
-          return l("narrow", !0);
+          return A("narrow", !0);
         case "E":
           return this.num(e.weekday);
         case "EEE":
-          return l("short", !1);
+          return A("short", !1);
         case "EEEE":
-          return l("long", !1);
+          return A("long", !1);
         case "EEEEE":
-          return l("narrow", !1);
+          return A("narrow", !1);
         case "L":
-          return s ? i({ month: "numeric", day: "numeric" }, "month") : this.num(e.month);
+          return a ? c({ month: "numeric", day: "numeric" }, "month") : this.num(e.month);
         case "LL":
-          return s ? i({ month: "2-digit", day: "numeric" }, "month") : this.num(e.month, 2);
+          return a ? c({ month: "2-digit", day: "numeric" }, "month") : this.num(e.month, 2);
         case "LLL":
-          return u("short", !0);
+          return v("short", !0);
         case "LLLL":
-          return u("long", !0);
+          return v("long", !0);
         case "LLLLL":
-          return u("narrow", !0);
+          return v("narrow", !0);
         case "M":
-          return s ? i({ month: "numeric" }, "month") : this.num(e.month);
+          return a ? c({ month: "numeric" }, "month") : this.num(e.month);
         case "MM":
-          return s ? i({ month: "2-digit" }, "month") : this.num(e.month, 2);
+          return a ? c({ month: "2-digit" }, "month") : this.num(e.month, 2);
         case "MMM":
-          return u("short", !1);
+          return v("short", !1);
         case "MMMM":
-          return u("long", !1);
+          return v("long", !1);
         case "MMMMM":
-          return u("narrow", !1);
+          return v("narrow", !1);
         case "y":
-          return s ? i({ year: "numeric" }, "year") : this.num(e.year);
+          return a ? c({ year: "numeric" }, "year") : this.num(e.year);
         case "yy":
-          return s ? i({ year: "2-digit" }, "year") : this.num(e.year.toString().slice(-2), 2);
+          return a ? c({ year: "2-digit" }, "year") : this.num(e.year.toString().slice(-2), 2);
         case "yyyy":
-          return s ? i({ year: "numeric" }, "year") : this.num(e.year, 4);
+          return a ? c({ year: "numeric" }, "year") : this.num(e.year, 4);
         case "yyyyyy":
-          return s ? i({ year: "numeric" }, "year") : this.num(e.year, 6);
+          return a ? c({ year: "numeric" }, "year") : this.num(e.year, 6);
         case "G":
-          return y("short");
+          return M("short");
         case "GG":
-          return y("long");
+          return M("long");
         case "GGGGG":
-          return y("narrow");
+          return M("narrow");
         case "kk":
           return this.num(e.weekYear.toString().slice(-2), 2);
         case "kkkk":
@@ -1698,14 +1698,14 @@ class N {
         case "x":
           return this.num(e.ts);
         default:
-          return f(h);
+          return q(j);
       }
     };
-    return Dt(N.parseFormat(t), T);
+    return to(ve.parseFormat(r), z);
   }
-  formatDurationFromString(e, t) {
-    const r = (u) => {
-      switch (u[0]) {
+  formatDurationFromString(e, r) {
+    const i = (v) => {
+      switch (v[0]) {
         case "S":
           return "millisecond";
         case "s":
@@ -1725,96 +1725,96 @@ class N {
         default:
           return null;
       }
-    }, s = (u) => (l) => {
-      const f = r(l);
-      return f ? this.num(u.get(f), l.length) : l;
-    }, i = N.parseFormat(t), a = i.reduce(
-      (u, { literal: l, val: f }) => l ? u : u.concat(f),
+    }, a = (v) => (A) => {
+      const q = i(A);
+      return q ? this.num(v.get(q), A.length) : A;
+    }, c = ve.parseFormat(r), h = c.reduce(
+      (v, { literal: A, val: q }) => A ? v : v.concat(q),
       []
-    ), o = e.shiftTo(...a.map(r).filter((u) => u));
-    return Dt(i, s(o));
+    ), m = e.shiftTo(...h.map(i).filter((v) => v));
+    return to(c, a(m));
   }
 }
-const Nn = /[A-Za-z_+-]{1,256}(?::?\/[A-Za-z0-9_+-]{1,256}(?:\/[A-Za-z0-9_+-]{1,256})?)?/;
-function ie(...n) {
-  const e = n.reduce((t, r) => t + r.source, "");
+const ma = /[A-Za-z_+-]{1,256}(?::?\/[A-Za-z0-9_+-]{1,256}(?:\/[A-Za-z0-9_+-]{1,256})?)?/;
+function en(...s) {
+  const e = s.reduce((r, i) => r + i.source, "");
   return RegExp(`^${e}$`);
 }
-function ae(...n) {
-  return (e) => n.reduce(
-    ([t, r, s], i) => {
-      const [a, o, u] = i(e, s);
-      return [{ ...t, ...a }, o || r, u];
+function tn(...s) {
+  return (e) => s.reduce(
+    ([r, i, a], c) => {
+      const [h, m, v] = c(e, a);
+      return [{ ...r, ...h }, m || i, v];
     },
     [{}, null, 1]
   ).slice(0, 2);
 }
-function oe(n, ...e) {
-  if (n == null)
+function nn(s, ...e) {
+  if (s == null)
     return [null, null];
-  for (const [t, r] of e) {
-    const s = t.exec(n);
-    if (s)
-      return r(s);
+  for (const [r, i] of e) {
+    const a = r.exec(s);
+    if (a)
+      return i(a);
   }
   return [null, null];
 }
-function Dn(...n) {
-  return (e, t) => {
-    const r = {};
-    let s;
-    for (s = 0; s < n.length; s++)
-      r[n[s]] = A(e[t + s]);
-    return [r, null, t + s];
+function pa(...s) {
+  return (e, r) => {
+    const i = {};
+    let a;
+    for (a = 0; a < s.length; a++)
+      i[s[a]] = rt(e[r + a]);
+    return [i, null, r + a];
   };
 }
-const Mn = /(?:(Z)|([+-]\d\d)(?::?(\d\d))?)/, Ar = `(?:${Mn.source}?(?:\\[(${Nn.source})\\])?)?`, it = /(\d\d)(?::?(\d\d)(?::?(\d\d)(?:[.,](\d{1,30}))?)?)?/, En = RegExp(`${it.source}${Ar}`), at = RegExp(`(?:T${En.source})?`), Ur = /([+-]\d{6}|\d{4})(?:-?(\d\d)(?:-?(\d\d))?)?/, Rr = /(\d{4})-?W(\d\d)(?:-?(\d))?/, qr = /(\d{4})-?(\d{3})/, Hr = Dn("weekYear", "weekNumber", "weekDay"), Yr = Dn("year", "ordinal"), _r = /(\d{4})-(\d\d)-(\d\d)/, xn = RegExp(
-  `${it.source} ?(?:${Mn.source}|(${Nn.source}))?`
-), Pr = RegExp(`(?: ${xn.source})?`);
-function ne(n, e, t) {
-  const r = n[e];
-  return m(r) ? t : A(r);
+const ya = /(?:(Z)|([+-]\d\d)(?::?(\d\d))?)/, fl = `(?:${ya.source}?(?:\\[(${ma.source})\\])?)?`, Ji = /(\d\d)(?::?(\d\d)(?::?(\d\d)(?:[.,](\d{1,30}))?)?)?/, ga = RegExp(`${Ji.source}${fl}`), Xi = RegExp(`(?:T${ga.source})?`), hl = /([+-]\d{6}|\d{4})(?:-?(\d\d)(?:-?(\d\d))?)?/, dl = /(\d{4})-?W(\d\d)(?:-?(\d))?/, ml = /(\d{4})-?(\d{3})/, pl = pa("weekYear", "weekNumber", "weekDay"), yl = pa("year", "ordinal"), gl = /(\d{4})-(\d\d)-(\d\d)/, va = RegExp(
+  `${Ji.source} ?(?:${ya.source}|(${ma.source}))?`
+), vl = RegExp(`(?: ${va.source})?`);
+function Ht(s, e, r) {
+  const i = s[e];
+  return Z(i) ? r : rt(i);
 }
-function Gr(n, e) {
+function bl(s, e) {
   return [{
-    year: ne(n, e),
-    month: ne(n, e + 1, 1),
-    day: ne(n, e + 2, 1)
+    year: Ht(s, e),
+    month: Ht(s, e + 1, 1),
+    day: Ht(s, e + 2, 1)
   }, null, e + 3];
 }
-function ue(n, e) {
+function rn(s, e) {
   return [{
-    hours: ne(n, e, 0),
-    minutes: ne(n, e + 1, 0),
-    seconds: ne(n, e + 2, 0),
-    milliseconds: rt(n[e + 3])
+    hours: Ht(s, e, 0),
+    minutes: Ht(s, e + 1, 0),
+    seconds: Ht(s, e + 2, 0),
+    milliseconds: Yi(s[e + 3])
   }, null, e + 4];
 }
-function Se(n, e) {
-  const t = !n[e] && !n[e + 1], r = ze(n[e + 1], n[e + 2]), s = t ? null : D.instance(r);
-  return [{}, s, e + 3];
+function Rn(s, e) {
+  const r = !s[e] && !s[e + 1], i = Pr(s[e + 1], s[e + 2]), a = r ? null : be.instance(i);
+  return [{}, a, e + 3];
 }
-function pe(n, e) {
-  const t = n[e] ? $.create(n[e]) : null;
-  return [{}, t, e + 1];
+function Vn(s, e) {
+  const r = s[e] ? Ue.create(s[e]) : null;
+  return [{}, r, e + 1];
 }
-const Jr = RegExp(`^T?${it.source}$`), Br = /^-?P(?:(?:(-?\d{1,20}(?:\.\d{1,20})?)Y)?(?:(-?\d{1,20}(?:\.\d{1,20})?)M)?(?:(-?\d{1,20}(?:\.\d{1,20})?)W)?(?:(-?\d{1,20}(?:\.\d{1,20})?)D)?(?:T(?:(-?\d{1,20}(?:\.\d{1,20})?)H)?(?:(-?\d{1,20}(?:\.\d{1,20})?)M)?(?:(-?\d{1,20})(?:[.,](-?\d{1,20}))?S)?)?)$/;
-function jr(n) {
-  const [e, t, r, s, i, a, o, u, l] = n, f = e[0] === "-", y = u && u[0] === "-", T = (h, I = !1) => h !== void 0 && (I || h && f) ? -h : h;
+const wl = RegExp(`^T?${Ji.source}$`), kl = /^-?P(?:(?:(-?\d{1,20}(?:\.\d{1,20})?)Y)?(?:(-?\d{1,20}(?:\.\d{1,20})?)M)?(?:(-?\d{1,20}(?:\.\d{1,20})?)W)?(?:(-?\d{1,20}(?:\.\d{1,20})?)D)?(?:T(?:(-?\d{1,20}(?:\.\d{1,20})?)H)?(?:(-?\d{1,20}(?:\.\d{1,20})?)M)?(?:(-?\d{1,20})(?:[.,](-?\d{1,20}))?S)?)?)$/;
+function _l(s) {
+  const [e, r, i, a, c, h, m, v, A] = s, q = e[0] === "-", M = v && v[0] === "-", z = (j, ee = !1) => j !== void 0 && (ee || j && q) ? -j : j;
   return [
     {
-      years: T(q(t)),
-      months: T(q(r)),
-      weeks: T(q(s)),
-      days: T(q(i)),
-      hours: T(q(a)),
-      minutes: T(q(o)),
-      seconds: T(q(u), u === "-0"),
-      milliseconds: T(rt(l), y)
+      years: z(_t(r)),
+      months: z(_t(i)),
+      weeks: z(_t(a)),
+      days: z(_t(c)),
+      hours: z(_t(h)),
+      minutes: z(_t(m)),
+      seconds: z(_t(v), v === "-0"),
+      milliseconds: z(Yi(A), M)
     }
   ];
 }
-const Xr = {
+const Sl = {
   GMT: 0,
   EDT: -4 * 60,
   EST: -5 * 60,
@@ -1825,107 +1825,107 @@ const Xr = {
   PDT: -7 * 60,
   PST: -8 * 60
 };
-function ot(n, e, t, r, s, i, a) {
-  const o = {
-    year: e.length === 2 ? Ke(A(e)) : A(e),
-    month: kn.indexOf(t) + 1,
-    day: A(r),
-    hour: A(s),
-    minute: A(i)
+function Qi(s, e, r, i, a, c, h) {
+  const m = {
+    year: e.length === 2 ? Ui(rt(e)) : rt(e),
+    month: aa.indexOf(r) + 1,
+    day: rt(i),
+    hour: rt(a),
+    minute: rt(c)
   };
-  return a && (o.second = A(a)), n && (o.weekday = n.length > 3 ? Sn.indexOf(n) + 1 : pn.indexOf(n) + 1), o;
+  return h && (m.second = rt(h)), s && (m.weekday = s.length > 3 ? la.indexOf(s) + 1 : ca.indexOf(s) + 1), m;
 }
-const Qr = /^(?:(Mon|Tue|Wed|Thu|Fri|Sat|Sun),\s)?(\d{1,2})\s(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s(\d{2,4})\s(\d\d):(\d\d)(?::(\d\d))?\s(?:(UT|GMT|[ECMP][SD]T)|([Zz])|(?:([+-]\d\d)(\d\d)))$/;
-function Kr(n) {
+const xl = /^(?:(Mon|Tue|Wed|Thu|Fri|Sat|Sun),\s)?(\d{1,2})\s(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s(\d{2,4})\s(\d\d):(\d\d)(?::(\d\d))?\s(?:(UT|GMT|[ECMP][SD]T)|([Zz])|(?:([+-]\d\d)(\d\d)))$/;
+function Tl(s) {
   const [
     ,
     e,
-    t,
     r,
-    s,
     i,
     a,
-    o,
-    u,
-    l,
-    f,
-    y
-  ] = n, T = ot(e, s, r, t, i, a, o);
-  let h;
-  return u ? h = Xr[u] : l ? h = 0 : h = ze(f, y), [T, new D(h)];
+    c,
+    h,
+    m,
+    v,
+    A,
+    q,
+    M
+  ] = s, z = Qi(e, a, i, r, c, h, m);
+  let j;
+  return v ? j = Sl[v] : A ? j = 0 : j = Pr(q, M), [z, new be(j)];
 }
-function es(n) {
-  return n.replace(/\([^()]*\)|[\n\t]/g, " ").replace(/(\s\s+)/g, " ").trim();
+function Ol(s) {
+  return s.replace(/\([^()]*\)|[\n\t]/g, " ").replace(/(\s\s+)/g, " ").trim();
 }
-const ts = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun), (\d\d) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (\d{4}) (\d\d):(\d\d):(\d\d) GMT$/, ns = /^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), (\d\d)-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-(\d\d) (\d\d):(\d\d):(\d\d) GMT$/, rs = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) ( \d|\d\d) (\d\d):(\d\d):(\d\d) (\d{4})$/;
-function Mt(n) {
-  const [, e, t, r, s, i, a, o] = n;
-  return [ot(e, s, r, t, i, a, o), D.utcInstance];
+const El = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun), (\d\d) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (\d{4}) (\d\d):(\d\d):(\d\d) GMT$/, Il = /^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), (\d\d)-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-(\d\d) (\d\d):(\d\d):(\d\d) GMT$/, Al = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) ( \d|\d\d) (\d\d):(\d\d):(\d\d) (\d{4})$/;
+function no(s) {
+  const [, e, r, i, a, c, h, m] = s;
+  return [Qi(e, a, i, r, c, h, m), be.utcInstance];
 }
-function ss(n) {
-  const [, e, t, r, s, i, a, o] = n;
-  return [ot(e, o, t, r, s, i, a), D.utcInstance];
+function Cl(s) {
+  const [, e, r, i, a, c, h, m] = s;
+  return [Qi(e, m, r, i, a, c, h), be.utcInstance];
 }
-const is = ie(Ur, at), as = ie(Rr, at), os = ie(qr, at), us = ie(En), bn = ae(
-  Gr,
-  ue,
-  Se,
-  pe
-), ls = ae(
-  Hr,
-  ue,
-  Se,
-  pe
-), cs = ae(
-  Yr,
-  ue,
-  Se,
-  pe
-), fs = ae(
-  ue,
-  Se,
-  pe
+const Dl = en(hl, Xi), $l = en(dl, Xi), Nl = en(ml, Xi), Ml = en(ga), ba = tn(
+  bl,
+  rn,
+  Rn,
+  Vn
+), Pl = tn(
+  pl,
+  rn,
+  Rn,
+  Vn
+), Fl = tn(
+  yl,
+  rn,
+  Rn,
+  Vn
+), Rl = tn(
+  rn,
+  Rn,
+  Vn
 );
-function ds(n) {
-  return oe(
-    n,
-    [is, bn],
-    [as, ls],
-    [os, cs],
-    [us, fs]
+function Vl(s) {
+  return nn(
+    s,
+    [Dl, ba],
+    [$l, Pl],
+    [Nl, Fl],
+    [Ml, Rl]
   );
 }
-function hs(n) {
-  return oe(es(n), [Qr, Kr]);
+function ql(s) {
+  return nn(Ol(s), [xl, Tl]);
 }
-function ms(n) {
-  return oe(
-    n,
-    [ts, Mt],
-    [ns, Mt],
-    [rs, ss]
+function Ll(s) {
+  return nn(
+    s,
+    [El, no],
+    [Il, no],
+    [Al, Cl]
   );
 }
-function ys(n) {
-  return oe(n, [Br, jr]);
+function Ul(s) {
+  return nn(s, [kl, _l]);
 }
-const gs = ae(ue);
-function ws(n) {
-  return oe(n, [Jr, gs]);
+const jl = tn(rn);
+function Wl(s) {
+  return nn(s, [wl, jl]);
 }
-const ks = ie(_r, Pr), Ts = ie(xn), Ss = ae(
-  ue,
-  Se,
-  pe
+const Kl = en(gl, vl), zl = en(va), Zl = tn(
+  rn,
+  Rn,
+  Vn
 );
-function ps(n) {
-  return oe(
-    n,
-    [ks, bn],
-    [Ts, Ss]
+function Bl(s) {
+  return nn(
+    s,
+    [Kl, ba],
+    [zl, Zl]
   );
 }
-const Et = "Invalid Duration", Vn = {
+const ro = "Invalid Duration", wa = {
   weeks: {
     days: 7,
     hours: 7 * 24,
@@ -1942,7 +1942,7 @@ const Et = "Invalid Duration", Vn = {
   hours: { minutes: 60, seconds: 60 * 60, milliseconds: 60 * 60 * 1e3 },
   minutes: { seconds: 60, milliseconds: 60 * 1e3 },
   seconds: { milliseconds: 1e3 }
-}, Os = {
+}, Hl = {
   years: {
     quarters: 4,
     months: 12,
@@ -1970,37 +1970,37 @@ const Et = "Invalid Duration", Vn = {
     seconds: 30 * 24 * 60 * 60,
     milliseconds: 30 * 24 * 60 * 60 * 1e3
   },
-  ...Vn
-}, E = 146097 / 400, j = 146097 / 4800, Is = {
+  ...wa
+}, Ie = 146097 / 400, Lt = 146097 / 4800, Yl = {
   years: {
     quarters: 4,
     months: 12,
-    weeks: E / 7,
-    days: E,
-    hours: E * 24,
-    minutes: E * 24 * 60,
-    seconds: E * 24 * 60 * 60,
-    milliseconds: E * 24 * 60 * 60 * 1e3
+    weeks: Ie / 7,
+    days: Ie,
+    hours: Ie * 24,
+    minutes: Ie * 24 * 60,
+    seconds: Ie * 24 * 60 * 60,
+    milliseconds: Ie * 24 * 60 * 60 * 1e3
   },
   quarters: {
     months: 3,
-    weeks: E / 28,
-    days: E / 4,
-    hours: E * 24 / 4,
-    minutes: E * 24 * 60 / 4,
-    seconds: E * 24 * 60 * 60 / 4,
-    milliseconds: E * 24 * 60 * 60 * 1e3 / 4
+    weeks: Ie / 28,
+    days: Ie / 4,
+    hours: Ie * 24 / 4,
+    minutes: Ie * 24 * 60 / 4,
+    seconds: Ie * 24 * 60 * 60 / 4,
+    milliseconds: Ie * 24 * 60 * 60 * 1e3 / 4
   },
   months: {
-    weeks: j / 7,
-    days: j,
-    hours: j * 24,
-    minutes: j * 24 * 60,
-    seconds: j * 24 * 60 * 60,
-    milliseconds: j * 24 * 60 * 60 * 1e3
+    weeks: Lt / 7,
+    days: Lt,
+    hours: Lt * 24,
+    minutes: Lt * 24 * 60,
+    seconds: Lt * 24 * 60 * 60,
+    milliseconds: Lt * 24 * 60 * 60 * 1e3
   },
-  ...Vn
-}, P = [
+  ...wa
+}, Ot = [
   "years",
   "quarters",
   "months",
@@ -2010,56 +2010,56 @@ const Et = "Invalid Duration", Vn = {
   "minutes",
   "seconds",
   "milliseconds"
-], vs = P.slice(0).reverse();
-function z(n, e, t = !1) {
-  const r = {
-    values: t ? e.values : { ...n.values, ...e.values || {} },
-    loc: n.loc.clone(e.loc),
-    conversionAccuracy: e.conversionAccuracy || n.conversionAccuracy,
-    matrix: e.matrix || n.matrix
+], Gl = Ot.slice(0).reverse();
+function nt(s, e, r = !1) {
+  const i = {
+    values: r ? e.values : { ...s.values, ...e.values || {} },
+    loc: s.loc.clone(e.loc),
+    conversionAccuracy: e.conversionAccuracy || s.conversionAccuracy,
+    matrix: e.matrix || s.matrix
   };
-  return new g(r);
+  return new X(i);
 }
-function Fn(n, e) {
-  let t = e.milliseconds ?? 0;
-  for (const r of vs.slice(1))
-    e[r] && (t += e[r] * n[r].milliseconds);
-  return t;
+function ka(s, e) {
+  let r = e.milliseconds ?? 0;
+  for (const i of Gl.slice(1))
+    e[i] && (r += e[i] * s[i].milliseconds);
+  return r;
 }
-function xt(n, e) {
-  const t = Fn(n, e) < 0 ? -1 : 1;
-  P.reduceRight((r, s) => {
-    if (m(e[s]))
-      return r;
-    if (r) {
-      const i = e[r] * t, a = n[s][r], o = Math.floor(i / a);
-      e[s] += o * t, e[r] -= o * a * t;
+function io(s, e) {
+  const r = ka(s, e) < 0 ? -1 : 1;
+  Ot.reduceRight((i, a) => {
+    if (Z(e[a]))
+      return i;
+    if (i) {
+      const c = e[i] * r, h = s[a][i], m = Math.floor(c / h);
+      e[a] += m * r, e[i] -= m * h * r;
     }
-    return s;
-  }, null), P.reduce((r, s) => {
-    if (m(e[s]))
-      return r;
-    if (r) {
-      const i = e[r] % 1;
-      e[r] -= i, e[s] += i * n[r][s];
+    return a;
+  }, null), Ot.reduce((i, a) => {
+    if (Z(e[a]))
+      return i;
+    if (i) {
+      const c = e[i] % 1;
+      e[i] -= c, e[a] += c * s[i][a];
     }
-    return s;
+    return a;
   }, null);
 }
-function Ns(n) {
+function Jl(s) {
   const e = {};
-  for (const [t, r] of Object.entries(n))
-    r !== 0 && (e[t] = r);
+  for (const [r, i] of Object.entries(s))
+    i !== 0 && (e[r] = i);
   return e;
 }
-class g {
+class X {
   /**
    * @private
    */
   constructor(e) {
-    const t = e.conversionAccuracy === "longterm" || !1;
-    let r = t ? Is : Os;
-    e.matrix && (r = e.matrix), this.values = e.values, this.loc = e.loc || k.create(), this.conversionAccuracy = t ? "longterm" : "casual", this.invalid = e.invalid || null, this.matrix = r, this.isLuxonDuration = !0;
+    const r = e.conversionAccuracy === "longterm" || !1;
+    let i = r ? Yl : Hl;
+    e.matrix && (i = e.matrix), this.values = e.values, this.loc = e.loc || re.create(), this.conversionAccuracy = r ? "longterm" : "casual", this.invalid = e.invalid || null, this.matrix = i, this.isLuxonDuration = !0;
   }
   /**
    * Create Duration from a number of milliseconds.
@@ -2070,8 +2070,8 @@ class g {
    * @param {string} [opts.conversionAccuracy='casual'] - the conversion system to use
    * @return {Duration}
    */
-  static fromMillis(e, t) {
-    return g.fromObject({ milliseconds: e }, t);
+  static fromMillis(e, r) {
+    return X.fromObject({ milliseconds: e }, r);
   }
   /**
    * Create a Duration from a JavaScript object with keys like 'years' and 'hours'.
@@ -2093,16 +2093,16 @@ class g {
    * @param {string} [opts.matrix=Object] - the custom conversion system to use
    * @return {Duration}
    */
-  static fromObject(e, t = {}) {
+  static fromObject(e, r = {}) {
     if (e == null || typeof e != "object")
-      throw new v(
+      throw new ge(
         `Duration.fromObject: argument expected to be an object, got ${e === null ? "null" : typeof e}`
       );
-    return new g({
-      values: Le(e, g.normalizeUnit),
-      loc: k.fromObject(t),
-      conversionAccuracy: t.conversionAccuracy,
-      matrix: t.matrix
+    return new X({
+      values: Cr(e, X.normalizeUnit),
+      loc: re.fromObject(r),
+      conversionAccuracy: r.conversionAccuracy,
+      matrix: r.matrix
     });
   }
   /**
@@ -2116,13 +2116,13 @@ class g {
    * @return {Duration}
    */
   static fromDurationLike(e) {
-    if (R(e))
-      return g.fromMillis(e);
-    if (g.isDuration(e))
+    if (at(e))
+      return X.fromMillis(e);
+    if (X.isDuration(e))
       return e;
     if (typeof e == "object")
-      return g.fromObject(e);
-    throw new v(
+      return X.fromObject(e);
+    throw new ge(
       `Unknown duration argument ${e} of type ${typeof e}`
     );
   }
@@ -2140,9 +2140,9 @@ class g {
    * @example Duration.fromISO('P5Y3M').toObject() //=> { years: 5, months: 3 }
    * @return {Duration}
    */
-  static fromISO(e, t) {
-    const [r] = ys(e);
-    return r ? g.fromObject(r, t) : g.invalid("unparsable", `the input "${e}" can't be parsed as ISO 8601`);
+  static fromISO(e, r) {
+    const [i] = Ul(e);
+    return i ? X.fromObject(i, r) : X.invalid("unparsable", `the input "${e}" can't be parsed as ISO 8601`);
   }
   /**
    * Create a Duration from an ISO 8601 time string.
@@ -2160,9 +2160,9 @@ class g {
    * @example Duration.fromISOTime('T1100').toObject() //=> { hours: 11, minutes: 0, seconds: 0 }
    * @return {Duration}
    */
-  static fromISOTime(e, t) {
-    const [r] = ws(e);
-    return r ? g.fromObject(r, t) : g.invalid("unparsable", `the input "${e}" can't be parsed as ISO 8601`);
+  static fromISOTime(e, r) {
+    const [i] = Wl(e);
+    return i ? X.fromObject(i, r) : X.invalid("unparsable", `the input "${e}" can't be parsed as ISO 8601`);
   }
   /**
    * Create an invalid Duration.
@@ -2170,19 +2170,19 @@ class g {
    * @param {string} [explanation=null] - longer explanation, may include parameters and other useful debugging information
    * @return {Duration}
    */
-  static invalid(e, t = null) {
+  static invalid(e, r = null) {
     if (!e)
-      throw new v("need to specify a reason the Duration is invalid");
-    const r = e instanceof C ? e : new C(e, t);
-    if (p.throwOnInvalid)
-      throw new jn(r);
-    return new g({ invalid: r });
+      throw new ge("need to specify a reason the Duration is invalid");
+    const i = e instanceof Pe ? e : new Pe(e, r);
+    if (ue.throwOnInvalid)
+      throw new _u(i);
+    return new X({ invalid: i });
   }
   /**
    * @private
    */
   static normalizeUnit(e) {
-    const t = {
+    const r = {
       year: "years",
       years: "years",
       quarter: "quarters",
@@ -2202,8 +2202,8 @@ class g {
       millisecond: "milliseconds",
       milliseconds: "milliseconds"
     }[e && e.toLowerCase()];
-    if (!t) throw new Ut(e);
-    return t;
+    if (!r) throw new Co(e);
+    return r;
   }
   /**
    * Check if an object is a Duration. Works across context boundaries
@@ -2250,12 +2250,12 @@ class g {
    * @example Duration.fromObject({ years: 1, days: 6, seconds: 2 }).toFormat("M S") //=> "12 518402000"
    * @return {string}
    */
-  toFormat(e, t = {}) {
-    const r = {
-      ...t,
-      floor: t.round !== !1 && t.floor !== !1
+  toFormat(e, r = {}) {
+    const i = {
+      ...r,
+      floor: r.round !== !1 && r.floor !== !1
     };
-    return this.isValid ? N.create(this.loc, r).formatDurationFromString(this, e) : Et;
+    return this.isValid ? ve.create(this.loc, i).formatDurationFromString(this, e) : ro;
   }
   /**
    * Returns a string representation of a Duration with all units included.
@@ -2272,12 +2272,12 @@ class g {
    * ```
    */
   toHuman(e = {}) {
-    if (!this.isValid) return Et;
-    const t = P.map((r) => {
-      const s = this.values[r];
-      return m(s) ? null : this.loc.numberFormatter({ style: "unit", unitDisplay: "long", ...e, unit: r.slice(0, -1) }).format(s);
-    }).filter((r) => r);
-    return this.loc.listFormatter({ type: "conjunction", style: e.listStyle || "narrow", ...e }).format(t);
+    if (!this.isValid) return ro;
+    const r = Ot.map((i) => {
+      const a = this.values[i];
+      return Z(a) ? null : this.loc.numberFormatter({ style: "unit", unitDisplay: "long", ...e, unit: i.slice(0, -1) }).format(a);
+    }).filter((i) => i);
+    return this.loc.listFormatter({ type: "conjunction", style: e.listStyle || "narrow", ...e }).format(r);
   }
   /**
    * Returns a JavaScript object with this Duration's values.
@@ -2300,7 +2300,7 @@ class g {
   toISO() {
     if (!this.isValid) return null;
     let e = "P";
-    return this.years !== 0 && (e += this.years + "Y"), (this.months !== 0 || this.quarters !== 0) && (e += this.months + this.quarters * 3 + "M"), this.weeks !== 0 && (e += this.weeks + "W"), this.days !== 0 && (e += this.days + "D"), (this.hours !== 0 || this.minutes !== 0 || this.seconds !== 0 || this.milliseconds !== 0) && (e += "T"), this.hours !== 0 && (e += this.hours + "H"), this.minutes !== 0 && (e += this.minutes + "M"), (this.seconds !== 0 || this.milliseconds !== 0) && (e += st(this.seconds + this.milliseconds / 1e3, 3) + "S"), e === "P" && (e += "T0S"), e;
+    return this.years !== 0 && (e += this.years + "Y"), (this.months !== 0 || this.quarters !== 0) && (e += this.months + this.quarters * 3 + "M"), this.weeks !== 0 && (e += this.weeks + "W"), this.days !== 0 && (e += this.days + "D"), (this.hours !== 0 || this.minutes !== 0 || this.seconds !== 0 || this.milliseconds !== 0) && (e += "T"), this.hours !== 0 && (e += this.hours + "H"), this.minutes !== 0 && (e += this.minutes + "M"), (this.seconds !== 0 || this.milliseconds !== 0) && (e += Gi(this.seconds + this.milliseconds / 1e3, 3) + "S"), e === "P" && (e += "T0S"), e;
   }
   /**
    * Returns an ISO 8601-compliant string representation of this Duration, formatted as a time of day.
@@ -2320,15 +2320,15 @@ class g {
    */
   toISOTime(e = {}) {
     if (!this.isValid) return null;
-    const t = this.toMillis();
-    return t < 0 || t >= 864e5 ? null : (e = {
+    const r = this.toMillis();
+    return r < 0 || r >= 864e5 ? null : (e = {
       suppressMilliseconds: !1,
       suppressSeconds: !1,
       includePrefix: !1,
       format: "extended",
       ...e,
       includeOffset: !1
-    }, d.fromMillis(t, { zone: "UTC" }).toISOTime(e));
+    }, K.fromMillis(r, { zone: "UTC" }).toISOTime(e));
   }
   /**
    * Returns an ISO 8601 representation of this Duration appropriate for use in JSON.
@@ -2356,7 +2356,7 @@ class g {
    * @return {number}
    */
   toMillis() {
-    return this.isValid ? Fn(this.matrix, this.values) : NaN;
+    return this.isValid ? ka(this.matrix, this.values) : NaN;
   }
   /**
    * Returns an milliseconds value of this Duration. Alias of {@link toMillis}
@@ -2372,10 +2372,10 @@ class g {
    */
   plus(e) {
     if (!this.isValid) return this;
-    const t = g.fromDurationLike(e), r = {};
-    for (const s of P)
-      (re(t.values, s) || re(this.values, s)) && (r[s] = t.get(s) + this.get(s));
-    return z(this, { values: r }, !0);
+    const r = X.fromDurationLike(e), i = {};
+    for (const a of Ot)
+      (Gt(r.values, a) || Gt(this.values, a)) && (i[a] = r.get(a) + this.get(a));
+    return nt(this, { values: i }, !0);
   }
   /**
    * Make this Duration shorter by the specified amount. Return a newly-constructed Duration.
@@ -2384,8 +2384,8 @@ class g {
    */
   minus(e) {
     if (!this.isValid) return this;
-    const t = g.fromDurationLike(e);
-    return this.plus(t.negate());
+    const r = X.fromDurationLike(e);
+    return this.plus(r.negate());
   }
   /**
    * Scale this Duration by the specified amount. Return a newly-constructed Duration.
@@ -2396,10 +2396,10 @@ class g {
    */
   mapUnits(e) {
     if (!this.isValid) return this;
-    const t = {};
-    for (const r of Object.keys(this.values))
-      t[r] = wn(e(this.values[r], r));
-    return z(this, { values: t }, !0);
+    const r = {};
+    for (const i of Object.keys(this.values))
+      r[i] = oa(e(this.values[i], i));
+    return nt(this, { values: r }, !0);
   }
   /**
    * Get the value of unit.
@@ -2410,7 +2410,7 @@ class g {
    * @return {number}
    */
   get(e) {
-    return this[g.normalizeUnit(e)];
+    return this[X.normalizeUnit(e)];
   }
   /**
    * "Set" the values of specified units. Return a newly-constructed Duration.
@@ -2421,17 +2421,17 @@ class g {
    */
   set(e) {
     if (!this.isValid) return this;
-    const t = { ...this.values, ...Le(e, g.normalizeUnit) };
-    return z(this, { values: t });
+    const r = { ...this.values, ...Cr(e, X.normalizeUnit) };
+    return nt(this, { values: r });
   }
   /**
    * "Set" the locale and/or numberingSystem.  Returns a newly-constructed Duration.
    * @example dur.reconfigure({ locale: 'en-GB' })
    * @return {Duration}
    */
-  reconfigure({ locale: e, numberingSystem: t, conversionAccuracy: r, matrix: s } = {}) {
-    const a = { loc: this.loc.clone({ locale: e, numberingSystem: t }), matrix: s, conversionAccuracy: r };
-    return z(this, a);
+  reconfigure({ locale: e, numberingSystem: r, conversionAccuracy: i, matrix: a } = {}) {
+    const h = { loc: this.loc.clone({ locale: e, numberingSystem: r }), matrix: a, conversionAccuracy: i };
+    return nt(this, h);
   }
   /**
    * Return the length of the duration in the specified unit.
@@ -2462,7 +2462,7 @@ class g {
   normalize() {
     if (!this.isValid) return this;
     const e = this.toObject();
-    return xt(this.matrix, e), z(this, { values: e }, !0);
+    return io(this.matrix, e), nt(this, { values: e }, !0);
   }
   /**
    * Rescale units to its largest representation
@@ -2471,8 +2471,8 @@ class g {
    */
   rescale() {
     if (!this.isValid) return this;
-    const e = Ns(this.normalize().shiftToAll().toObject());
-    return z(this, { values: e }, !0);
+    const e = Jl(this.normalize().shiftToAll().toObject());
+    return nt(this, { values: e }, !0);
   }
   /**
    * Convert this Duration into its representation in a different set of units.
@@ -2483,22 +2483,22 @@ class g {
     if (!this.isValid) return this;
     if (e.length === 0)
       return this;
-    e = e.map((a) => g.normalizeUnit(a));
-    const t = {}, r = {}, s = this.toObject();
-    let i;
-    for (const a of P)
-      if (e.indexOf(a) >= 0) {
-        i = a;
-        let o = 0;
-        for (const l in r)
-          o += this.matrix[l][a] * r[l], r[l] = 0;
-        R(s[a]) && (o += s[a]);
-        const u = Math.trunc(o);
-        t[a] = u, r[a] = (o * 1e3 - u * 1e3) / 1e3;
-      } else R(s[a]) && (r[a] = s[a]);
-    for (const a in r)
-      r[a] !== 0 && (t[i] += a === i ? r[a] : r[a] / this.matrix[i][a]);
-    return xt(this.matrix, t), z(this, { values: t }, !0);
+    e = e.map((h) => X.normalizeUnit(h));
+    const r = {}, i = {}, a = this.toObject();
+    let c;
+    for (const h of Ot)
+      if (e.indexOf(h) >= 0) {
+        c = h;
+        let m = 0;
+        for (const A in i)
+          m += this.matrix[A][h] * i[A], i[A] = 0;
+        at(a[h]) && (m += a[h]);
+        const v = Math.trunc(m);
+        r[h] = v, i[h] = (m * 1e3 - v * 1e3) / 1e3;
+      } else at(a[h]) && (i[h] = a[h]);
+    for (const h in i)
+      i[h] !== 0 && (r[c] += h === c ? i[h] : i[h] / this.matrix[c][h]);
+    return io(this.matrix, r), nt(this, { values: r }, !0);
   }
   /**
    * Shift this Duration to all available units.
@@ -2525,9 +2525,9 @@ class g {
   negate() {
     if (!this.isValid) return this;
     const e = {};
-    for (const t of Object.keys(this.values))
-      e[t] = this.values[t] === 0 ? 0 : -this.values[t];
-    return z(this, { values: e }, !0);
+    for (const r of Object.keys(this.values))
+      e[r] = this.values[r] === 0 ? 0 : -this.values[r];
+    return nt(this, { values: e }, !0);
   }
   /**
    * Get the years.
@@ -2623,23 +2623,23 @@ class g {
   equals(e) {
     if (!this.isValid || !e.isValid || !this.loc.equals(e.loc))
       return !1;
-    function t(r, s) {
-      return r === void 0 || r === 0 ? s === void 0 || s === 0 : r === s;
+    function r(i, a) {
+      return i === void 0 || i === 0 ? a === void 0 || a === 0 : i === a;
     }
-    for (const r of P)
-      if (!t(this.values[r], e.values[r]))
+    for (const i of Ot)
+      if (!r(this.values[i], e.values[i]))
         return !1;
     return !0;
   }
 }
-const X = "Invalid Interval";
-function Ds(n, e) {
-  return !n || !n.isValid ? S.invalid("missing or invalid start") : !e || !e.isValid ? S.invalid("missing or invalid end") : e < n ? S.invalid(
+const Ut = "Invalid Interval";
+function Xl(s, e) {
+  return !s || !s.isValid ? ae.invalid("missing or invalid start") : !e || !e.isValid ? ae.invalid("missing or invalid end") : e < s ? ae.invalid(
     "end before start",
-    `The end of an interval must be after its start, but you had start=${n.toISO()} and end=${e.toISO()}`
+    `The end of an interval must be after its start, but you had start=${s.toISO()} and end=${e.toISO()}`
   ) : null;
 }
-class S {
+class ae {
   /**
    * @private
    */
@@ -2652,13 +2652,13 @@ class S {
    * @param {string} [explanation=null] - longer explanation, may include parameters and other useful debugging information
    * @return {Interval}
    */
-  static invalid(e, t = null) {
+  static invalid(e, r = null) {
     if (!e)
-      throw new v("need to specify a reason the Interval is invalid");
-    const r = e instanceof C ? e : new C(e, t);
-    if (p.throwOnInvalid)
-      throw new Bn(r);
-    return new S({ invalid: r });
+      throw new ge("need to specify a reason the Interval is invalid");
+    const i = e instanceof Pe ? e : new Pe(e, r);
+    if (ue.throwOnInvalid)
+      throw new ku(i);
+    return new ae({ invalid: i });
   }
   /**
    * Create an Interval from a start DateTime and an end DateTime. Inclusive of the start but not the end.
@@ -2666,11 +2666,11 @@ class S {
    * @param {DateTime|Date|Object} end
    * @return {Interval}
    */
-  static fromDateTimes(e, t) {
-    const r = de(e), s = de(t), i = Ds(r, s);
-    return i ?? new S({
-      start: r,
-      end: s
+  static fromDateTimes(e, r) {
+    const i = Sn(e), a = Sn(r), c = Xl(i, a);
+    return c ?? new ae({
+      start: i,
+      end: a
     });
   }
   /**
@@ -2679,9 +2679,9 @@ class S {
    * @param {Duration|Object|number} duration - the length of the Interval.
    * @return {Interval}
    */
-  static after(e, t) {
-    const r = g.fromDurationLike(t), s = de(e);
-    return S.fromDateTimes(s, s.plus(r));
+  static after(e, r) {
+    const i = X.fromDurationLike(r), a = Sn(e);
+    return ae.fromDateTimes(a, a.plus(i));
   }
   /**
    * Create an Interval from an end DateTime and a Duration to extend backwards to.
@@ -2689,9 +2689,9 @@ class S {
    * @param {Duration|Object|number} duration - the length of the Interval.
    * @return {Interval}
    */
-  static before(e, t) {
-    const r = g.fromDurationLike(t), s = de(e);
-    return S.fromDateTimes(s.minus(r), s);
+  static before(e, r) {
+    const i = X.fromDurationLike(r), a = Sn(e);
+    return ae.fromDateTimes(a.minus(i), a);
   }
   /**
    * Create an Interval from an ISO 8601 string.
@@ -2701,34 +2701,34 @@ class S {
    * @see https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
    * @return {Interval}
    */
-  static fromISO(e, t) {
-    const [r, s] = (e || "").split("/", 2);
-    if (r && s) {
-      let i, a;
+  static fromISO(e, r) {
+    const [i, a] = (e || "").split("/", 2);
+    if (i && a) {
+      let c, h;
       try {
-        i = d.fromISO(r, t), a = i.isValid;
+        c = K.fromISO(i, r), h = c.isValid;
       } catch {
-        a = !1;
+        h = !1;
       }
-      let o, u;
+      let m, v;
       try {
-        o = d.fromISO(s, t), u = o.isValid;
+        m = K.fromISO(a, r), v = m.isValid;
       } catch {
-        u = !1;
+        v = !1;
       }
-      if (a && u)
-        return S.fromDateTimes(i, o);
-      if (a) {
-        const l = g.fromISO(s, t);
-        if (l.isValid)
-          return S.after(i, l);
-      } else if (u) {
-        const l = g.fromISO(r, t);
-        if (l.isValid)
-          return S.before(o, l);
+      if (h && v)
+        return ae.fromDateTimes(c, m);
+      if (h) {
+        const A = X.fromISO(a, r);
+        if (A.isValid)
+          return ae.after(c, A);
+      } else if (v) {
+        const A = X.fromISO(i, r);
+        if (A.isValid)
+          return ae.before(m, A);
       }
     }
-    return S.invalid("unparsable", `the input "${e}" can't be parsed as ISO 8601`);
+    return ae.invalid("unparsable", `the input "${e}" can't be parsed as ISO 8601`);
   }
   /**
    * Check if an object is an Interval. Works across context boundaries
@@ -2790,11 +2790,11 @@ class S {
    * @param {boolean} [opts.useLocaleWeeks=false] - If true, use weeks based on the locale, i.e. use the locale-dependent start of the week; this operation will always use the locale of the start DateTime
    * @return {number}
    */
-  count(e = "milliseconds", t) {
+  count(e = "milliseconds", r) {
     if (!this.isValid) return NaN;
-    const r = this.start.startOf(e, t);
-    let s;
-    return t != null && t.useLocaleWeeks ? s = this.end.reconfigure({ locale: r.locale }) : s = this.end, s = s.startOf(e, t), Math.floor(s.diff(r, e).get(e)) + (s.valueOf() !== this.end.valueOf());
+    const i = this.start.startOf(e, r);
+    let a;
+    return r != null && r.useLocaleWeeks ? a = this.end.reconfigure({ locale: i.locale }) : a = this.end, a = a.startOf(e, r), Math.floor(a.diff(i, e).get(e)) + (a.valueOf() !== this.end.valueOf());
   }
   /**
    * Returns whether this Interval's start and end are both in the same unit of time
@@ -2842,8 +2842,8 @@ class S {
    * @param {DateTime} values.end - the ending DateTime
    * @return {Interval}
    */
-  set({ start: e, end: t } = {}) {
-    return this.isValid ? S.fromDateTimes(e || this.s, t || this.e) : this;
+  set({ start: e, end: r } = {}) {
+    return this.isValid ? ae.fromDateTimes(e || this.s, r || this.e) : this;
   }
   /**
    * Split this Interval at each of the specified DateTimes
@@ -2852,13 +2852,13 @@ class S {
    */
   splitAt(...e) {
     if (!this.isValid) return [];
-    const t = e.map(de).filter((a) => this.contains(a)).sort((a, o) => a.toMillis() - o.toMillis()), r = [];
-    let { s } = this, i = 0;
-    for (; s < this.e; ) {
-      const a = t[i] || this.e, o = +a > +this.e ? this.e : a;
-      r.push(S.fromDateTimes(s, o)), s = o, i += 1;
+    const r = e.map(Sn).filter((h) => this.contains(h)).sort((h, m) => h.toMillis() - m.toMillis()), i = [];
+    let { s: a } = this, c = 0;
+    for (; a < this.e; ) {
+      const h = r[c] || this.e, m = +h > +this.e ? this.e : h;
+      i.push(ae.fromDateTimes(a, m)), a = m, c += 1;
     }
-    return r;
+    return i;
   }
   /**
    * Split this Interval into smaller Intervals, each of the specified length.
@@ -2867,16 +2867,16 @@ class S {
    * @return {Array}
    */
   splitBy(e) {
-    const t = g.fromDurationLike(e);
-    if (!this.isValid || !t.isValid || t.as("milliseconds") === 0)
+    const r = X.fromDurationLike(e);
+    if (!this.isValid || !r.isValid || r.as("milliseconds") === 0)
       return [];
-    let { s: r } = this, s = 1, i;
-    const a = [];
-    for (; r < this.e; ) {
-      const o = this.start.plus(t.mapUnits((u) => u * s));
-      i = +o > +this.e ? this.e : o, a.push(S.fromDateTimes(r, i)), r = i, s += 1;
+    let { s: i } = this, a = 1, c;
+    const h = [];
+    for (; i < this.e; ) {
+      const m = this.start.plus(r.mapUnits((v) => v * a));
+      c = +m > +this.e ? this.e : m, h.push(ae.fromDateTimes(i, c)), i = c, a += 1;
     }
-    return a;
+    return h;
   }
   /**
    * Split this Interval into the specified number of smaller intervals.
@@ -2935,8 +2935,8 @@ class S {
    */
   intersection(e) {
     if (!this.isValid) return this;
-    const t = this.s > e.s ? this.s : e.s, r = this.e < e.e ? this.e : e.e;
-    return t >= r ? null : S.fromDateTimes(t, r);
+    const r = this.s > e.s ? this.s : e.s, i = this.e < e.e ? this.e : e.e;
+    return r >= i ? null : ae.fromDateTimes(r, i);
   }
   /**
    * Return an Interval representing the union of this Interval and the specified Interval.
@@ -2946,8 +2946,8 @@ class S {
    */
   union(e) {
     if (!this.isValid) return this;
-    const t = this.s < e.s ? this.s : e.s, r = this.e > e.e ? this.e : e.e;
-    return S.fromDateTimes(t, r);
+    const r = this.s < e.s ? this.s : e.s, i = this.e > e.e ? this.e : e.e;
+    return ae.fromDateTimes(r, i);
   }
   /**
    * Merge an array of Intervals into a equivalent minimal set of Intervals.
@@ -2956,11 +2956,11 @@ class S {
    * @return {Array}
    */
   static merge(e) {
-    const [t, r] = e.sort((s, i) => s.s - i.s).reduce(
-      ([s, i], a) => i ? i.overlaps(a) || i.abutsStart(a) ? [s, i.union(a)] : [s.concat([i]), a] : [s, a],
+    const [r, i] = e.sort((a, c) => a.s - c.s).reduce(
+      ([a, c], h) => c ? c.overlaps(h) || c.abutsStart(h) ? [a, c.union(h)] : [a.concat([c]), h] : [a, h],
       [[], null]
     );
-    return r && t.push(r), t;
+    return i && r.push(i), r;
   }
   /**
    * Return an array of Intervals representing the spans of time that only appear in one of the specified Intervals.
@@ -2968,14 +2968,14 @@ class S {
    * @return {Array}
    */
   static xor(e) {
-    let t = null, r = 0;
-    const s = [], i = e.map((u) => [
-      { time: u.s, type: "s" },
-      { time: u.e, type: "e" }
-    ]), a = Array.prototype.concat(...i), o = a.sort((u, l) => u.time - l.time);
-    for (const u of o)
-      r += u.type === "s" ? 1 : -1, r === 1 ? t = u.time : (t && +t != +u.time && s.push(S.fromDateTimes(t, u.time)), t = null);
-    return S.merge(s);
+    let r = null, i = 0;
+    const a = [], c = e.map((v) => [
+      { time: v.s, type: "s" },
+      { time: v.e, type: "e" }
+    ]), h = Array.prototype.concat(...c), m = h.sort((v, A) => v.time - A.time);
+    for (const v of m)
+      i += v.type === "s" ? 1 : -1, i === 1 ? r = v.time : (r && +r != +v.time && a.push(ae.fromDateTimes(r, v.time)), r = null);
+    return ae.merge(a);
   }
   /**
    * Return an Interval representing the span of time in this Interval that doesn't overlap with any of the specified Intervals.
@@ -2983,14 +2983,14 @@ class S {
    * @return {Array}
    */
   difference(...e) {
-    return S.xor([this].concat(e)).map((t) => this.intersection(t)).filter((t) => t && !t.isEmpty());
+    return ae.xor([this].concat(e)).map((r) => this.intersection(r)).filter((r) => r && !r.isEmpty());
   }
   /**
    * Returns a string representation of this Interval appropriate for debugging.
    * @return {string}
    */
   toString() {
-    return this.isValid ? `[${this.s.toISO()} – ${this.e.toISO()})` : X;
+    return this.isValid ? `[${this.s.toISO()} – ${this.e.toISO()})` : Ut;
   }
   /**
    * Returns a string representation of this Interval appropriate for the REPL.
@@ -3017,8 +3017,8 @@ class S {
    * @example Interval.fromISO('2022-11-07T17:00Z/2022-11-07T19:00Z').toLocaleString({ weekday: 'short', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }); //=> Mon, Nov 07, 6:00 – 8:00 p
    * @return {string}
    */
-  toLocaleString(e = Fe, t = {}) {
-    return this.isValid ? N.create(this.s.loc.clone(t), e).formatInterval(this) : X;
+  toLocaleString(e = Er, r = {}) {
+    return this.isValid ? ve.create(this.s.loc.clone(r), e).formatInterval(this) : Ut;
   }
   /**
    * Returns an ISO 8601-compliant string representation of this Interval.
@@ -3027,7 +3027,7 @@ class S {
    * @return {string}
    */
   toISO(e) {
-    return this.isValid ? `${this.s.toISO(e)}/${this.e.toISO(e)}` : X;
+    return this.isValid ? `${this.s.toISO(e)}/${this.e.toISO(e)}` : Ut;
   }
   /**
    * Returns an ISO 8601-compliant string representation of date of this Interval.
@@ -3036,7 +3036,7 @@ class S {
    * @return {string}
    */
   toISODate() {
-    return this.isValid ? `${this.s.toISODate()}/${this.e.toISODate()}` : X;
+    return this.isValid ? `${this.s.toISODate()}/${this.e.toISODate()}` : Ut;
   }
   /**
    * Returns an ISO 8601-compliant string representation of time of this Interval.
@@ -3046,7 +3046,7 @@ class S {
    * @return {string}
    */
   toISOTime(e) {
-    return this.isValid ? `${this.s.toISOTime(e)}/${this.e.toISOTime(e)}` : X;
+    return this.isValid ? `${this.s.toISOTime(e)}/${this.e.toISOTime(e)}` : Ut;
   }
   /**
    * Returns a string representation of this Interval formatted according to the specified format
@@ -3059,8 +3059,8 @@ class S {
    * representations.
    * @return {string}
    */
-  toFormat(e, { separator: t = " – " } = {}) {
-    return this.isValid ? `${this.s.toFormat(e)}${t}${this.e.toFormat(e)}` : X;
+  toFormat(e, { separator: r = " – " } = {}) {
+    return this.isValid ? `${this.s.toFormat(e)}${r}${this.e.toFormat(e)}` : Ut;
   }
   /**
    * Return a Duration representing the time spanned by this interval.
@@ -3074,8 +3074,8 @@ class S {
    * @example Interval.fromDateTimes(dt1, dt2).toDuration('seconds').toObject() //=> { seconds: 88489.257 }
    * @return {Duration}
    */
-  toDuration(e, t) {
-    return this.isValid ? this.e.diff(this.s, e, t) : g.invalid(this.invalidReason);
+  toDuration(e, r) {
+    return this.isValid ? this.e.diff(this.s, e, r) : X.invalid(this.invalidReason);
   }
   /**
    * Run mapFn on the interval start and end, returning a new Interval from the resulting DateTimes
@@ -3085,18 +3085,18 @@ class S {
    * @example Interval.fromDateTimes(dt1, dt2).mapEndpoints(endpoint => endpoint.plus({ hours: 2 }))
    */
   mapEndpoints(e) {
-    return S.fromDateTimes(e(this.s), e(this.e));
+    return ae.fromDateTimes(e(this.s), e(this.e));
   }
 }
-class me {
+class On {
   /**
    * Return whether the specified zone contains a DST.
    * @param {string|Zone} [zone='local'] - Zone to check. Defaults to the environment's local zone.
    * @return {boolean}
    */
-  static hasDST(e = p.defaultZone) {
-    const t = d.now().setZone(e).set({ month: 12 });
-    return !e.isUniversal && t.offset !== t.set({ month: 6 }).offset;
+  static hasDST(e = ue.defaultZone) {
+    const r = K.now().setZone(e).set({ month: 12 });
+    return !e.isUniversal && r.offset !== r.set({ month: 6 }).offset;
   }
   /**
    * Return whether the specified zone is a valid IANA specifier.
@@ -3104,7 +3104,7 @@ class me {
    * @return {boolean}
    */
   static isValidIANAZone(e) {
-    return $.isValidZone(e);
+    return Ue.isValidZone(e);
   }
   /**
    * Converts the input into a {@link Zone} instance.
@@ -3121,7 +3121,7 @@ class me {
    * @return {Zone}
    */
   static normalizeZone(e) {
-    return U(e, p.defaultZone);
+    return it(e, ue.defaultZone);
   }
   /**
    * Get the weekday on which the week starts according to the given locale.
@@ -3130,8 +3130,8 @@ class me {
    * @param {string} [opts.locObj=null] - an existing locale object to use
    * @returns {number} the start of the week, 1 for Monday through 7 for Sunday
    */
-  static getStartOfWeek({ locale: e = null, locObj: t = null } = {}) {
-    return (t || k.create(e)).getStartOfWeek();
+  static getStartOfWeek({ locale: e = null, locObj: r = null } = {}) {
+    return (r || re.create(e)).getStartOfWeek();
   }
   /**
    * Get the minimum number of days necessary in a week before it is considered part of the next year according
@@ -3141,8 +3141,8 @@ class me {
    * @param {string} [opts.locObj=null] - an existing locale object to use
    * @returns {number}
    */
-  static getMinimumDaysInFirstWeek({ locale: e = null, locObj: t = null } = {}) {
-    return (t || k.create(e)).getMinDaysInFirstWeek();
+  static getMinimumDaysInFirstWeek({ locale: e = null, locObj: r = null } = {}) {
+    return (r || re.create(e)).getMinDaysInFirstWeek();
   }
   /**
    * Get the weekdays, which are considered the weekend according to the given locale
@@ -3151,8 +3151,8 @@ class me {
    * @param {string} [opts.locObj=null] - an existing locale object to use
    * @returns {number[]} an array of weekdays, 1 for Monday through 7 for Sunday
    */
-  static getWeekendWeekdays({ locale: e = null, locObj: t = null } = {}) {
-    return (t || k.create(e)).getWeekendDays().slice();
+  static getWeekendWeekdays({ locale: e = null, locObj: r = null } = {}) {
+    return (r || re.create(e)).getWeekendDays().slice();
   }
   /**
    * Return an array of standalone month names.
@@ -3171,8 +3171,8 @@ class me {
    * @example Info.months('long', { outputCalendar: 'islamic' })[0] //=> 'Rabiʻ I'
    * @return {Array}
    */
-  static months(e = "long", { locale: t = null, numberingSystem: r = null, locObj: s = null, outputCalendar: i = "gregory" } = {}) {
-    return (s || k.create(t, r, i)).months(e);
+  static months(e = "long", { locale: r = null, numberingSystem: i = null, locObj: a = null, outputCalendar: c = "gregory" } = {}) {
+    return (a || re.create(r, i, c)).months(e);
   }
   /**
    * Return an array of format month names.
@@ -3187,8 +3187,8 @@ class me {
    * @param {string} [opts.outputCalendar='gregory'] - the calendar
    * @return {Array}
    */
-  static monthsFormat(e = "long", { locale: t = null, numberingSystem: r = null, locObj: s = null, outputCalendar: i = "gregory" } = {}) {
-    return (s || k.create(t, r, i)).months(e, !0);
+  static monthsFormat(e = "long", { locale: r = null, numberingSystem: i = null, locObj: a = null, outputCalendar: c = "gregory" } = {}) {
+    return (a || re.create(r, i, c)).months(e, !0);
   }
   /**
    * Return an array of standalone week names.
@@ -3204,8 +3204,8 @@ class me {
    * @example Info.weekdays('short', { locale: 'ar' })[0] //=> 'الاثنين'
    * @return {Array}
    */
-  static weekdays(e = "long", { locale: t = null, numberingSystem: r = null, locObj: s = null } = {}) {
-    return (s || k.create(t, r, null)).weekdays(e);
+  static weekdays(e = "long", { locale: r = null, numberingSystem: i = null, locObj: a = null } = {}) {
+    return (a || re.create(r, i, null)).weekdays(e);
   }
   /**
    * Return an array of format week names.
@@ -3219,8 +3219,8 @@ class me {
    * @param {string} [opts.locObj=null] - an existing locale object to use
    * @return {Array}
    */
-  static weekdaysFormat(e = "long", { locale: t = null, numberingSystem: r = null, locObj: s = null } = {}) {
-    return (s || k.create(t, r, null)).weekdays(e, !0);
+  static weekdaysFormat(e = "long", { locale: r = null, numberingSystem: i = null, locObj: a = null } = {}) {
+    return (a || re.create(r, i, null)).weekdays(e, !0);
   }
   /**
    * Return an array of meridiems.
@@ -3231,7 +3231,7 @@ class me {
    * @return {Array}
    */
   static meridiems({ locale: e = null } = {}) {
-    return k.create(e).meridiems();
+    return re.create(e).meridiems();
   }
   /**
    * Return an array of eras, such as ['BC', 'AD']. The locale can be specified, but the calendar system is always Gregorian.
@@ -3243,8 +3243,8 @@ class me {
    * @example Info.eras('long', { locale: 'fr' }) //=> [ 'avant Jésus-Christ', 'après Jésus-Christ' ]
    * @return {Array}
    */
-  static eras(e = "short", { locale: t = null } = {}) {
-    return k.create(t, null, "gregory").eras(e);
+  static eras(e = "short", { locale: r = null } = {}) {
+    return re.create(r, null, "gregory").eras(e);
   }
   /**
    * Return the set of available features in this environment.
@@ -3256,179 +3256,179 @@ class me {
    * @return {Object}
    */
   static features() {
-    return { relative: mn(), localeWeek: yn() };
+    return { relative: ra(), localeWeek: ia() };
   }
 }
-function bt(n, e) {
-  const t = (s) => s.toUTC(0, { keepLocalTime: !0 }).startOf("day").valueOf(), r = t(e) - t(n);
-  return Math.floor(g.fromMillis(r).as("days"));
+function so(s, e) {
+  const r = (a) => a.toUTC(0, { keepLocalTime: !0 }).startOf("day").valueOf(), i = r(e) - r(s);
+  return Math.floor(X.fromMillis(i).as("days"));
 }
-function Ms(n, e, t) {
-  const r = [
-    ["years", (u, l) => l.year - u.year],
-    ["quarters", (u, l) => l.quarter - u.quarter + (l.year - u.year) * 4],
-    ["months", (u, l) => l.month - u.month + (l.year - u.year) * 12],
+function Ql(s, e, r) {
+  const i = [
+    ["years", (v, A) => A.year - v.year],
+    ["quarters", (v, A) => A.quarter - v.quarter + (A.year - v.year) * 4],
+    ["months", (v, A) => A.month - v.month + (A.year - v.year) * 12],
     [
       "weeks",
-      (u, l) => {
-        const f = bt(u, l);
-        return (f - f % 7) / 7;
+      (v, A) => {
+        const q = so(v, A);
+        return (q - q % 7) / 7;
       }
     ],
-    ["days", bt]
-  ], s = {}, i = n;
-  let a, o;
-  for (const [u, l] of r)
-    t.indexOf(u) >= 0 && (a = u, s[u] = l(n, e), o = i.plus(s), o > e ? (s[u]--, n = i.plus(s), n > e && (o = n, s[u]--, n = i.plus(s))) : n = o);
-  return [n, s, o, a];
+    ["days", so]
+  ], a = {}, c = s;
+  let h, m;
+  for (const [v, A] of i)
+    r.indexOf(v) >= 0 && (h = v, a[v] = A(s, e), m = c.plus(a), m > e ? (a[v]--, s = c.plus(a), s > e && (m = s, a[v]--, s = c.plus(a))) : s = m);
+  return [s, a, m, h];
 }
-function Es(n, e, t, r) {
-  let [s, i, a, o] = Ms(n, e, t);
-  const u = e - s, l = t.filter(
-    (y) => ["hours", "minutes", "seconds", "milliseconds"].indexOf(y) >= 0
+function ec(s, e, r, i) {
+  let [a, c, h, m] = Ql(s, e, r);
+  const v = e - a, A = r.filter(
+    (M) => ["hours", "minutes", "seconds", "milliseconds"].indexOf(M) >= 0
   );
-  l.length === 0 && (a < e && (a = s.plus({ [o]: 1 })), a !== s && (i[o] = (i[o] || 0) + u / (a - s)));
-  const f = g.fromObject(i, r);
-  return l.length > 0 ? g.fromMillis(u, r).shiftTo(...l).plus(f) : f;
+  A.length === 0 && (h < e && (h = a.plus({ [m]: 1 })), h !== a && (c[m] = (c[m] || 0) + v / (h - a)));
+  const q = X.fromObject(c, i);
+  return A.length > 0 ? X.fromMillis(v, i).shiftTo(...A).plus(q) : q;
 }
-const xs = "missing Intl.DateTimeFormat.formatToParts support";
-function w(n, e = (t) => t) {
-  return { regex: n, deser: ([t]) => e(kr(t)) };
+const tc = "missing Intl.DateTimeFormat.formatToParts support";
+function ne(s, e = (r) => r) {
+  return { regex: s, deser: ([r]) => e(Ku(r)) };
 }
-const bs = " ", Cn = `[ ${bs}]`, Wn = new RegExp(Cn, "g");
-function Vs(n) {
-  return n.replace(/\./g, "\\.?").replace(Wn, Cn);
+const nc = " ", _a = `[ ${nc}]`, Sa = new RegExp(_a, "g");
+function rc(s) {
+  return s.replace(/\./g, "\\.?").replace(Sa, _a);
 }
-function Vt(n) {
-  return n.replace(/\./g, "").replace(Wn, " ").toLowerCase();
+function oo(s) {
+  return s.replace(/\./g, "").replace(Sa, " ").toLowerCase();
 }
-function F(n, e) {
-  return n === null ? null : {
-    regex: RegExp(n.map(Vs).join("|")),
-    deser: ([t]) => n.findIndex((r) => Vt(t) === Vt(r)) + e
+function Me(s, e) {
+  return s === null ? null : {
+    regex: RegExp(s.map(rc).join("|")),
+    deser: ([r]) => s.findIndex((i) => oo(r) === oo(i)) + e
   };
 }
-function Ft(n, e) {
-  return { regex: n, deser: ([, t, r]) => ze(t, r), groups: e };
+function ao(s, e) {
+  return { regex: s, deser: ([, r, i]) => Pr(r, i), groups: e };
 }
-function ve(n) {
-  return { regex: n, deser: ([e]) => e };
+function vr(s) {
+  return { regex: s, deser: ([e]) => e };
 }
-function Fs(n) {
-  return n.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
+function ic(s) {
+  return s.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
 }
-function Cs(n, e) {
-  const t = V(e), r = V(e, "{2}"), s = V(e, "{3}"), i = V(e, "{4}"), a = V(e, "{6}"), o = V(e, "{1,2}"), u = V(e, "{1,3}"), l = V(e, "{1,6}"), f = V(e, "{1,9}"), y = V(e, "{2,4}"), T = V(e, "{4,6}"), h = (L) => ({ regex: RegExp(Fs(L.val)), deser: ([B]) => B, literal: !0 }), J = ((L) => {
-    if (n.literal)
-      return h(L);
-    switch (L.val) {
+function sc(s, e) {
+  const r = Ne(e), i = Ne(e, "{2}"), a = Ne(e, "{3}"), c = Ne(e, "{4}"), h = Ne(e, "{6}"), m = Ne(e, "{1,2}"), v = Ne(e, "{1,3}"), A = Ne(e, "{1,6}"), q = Ne(e, "{1,9}"), M = Ne(e, "{2,4}"), z = Ne(e, "{4,6}"), j = (Oe) => ({ regex: RegExp(ic(Oe.val)), deser: ([Ze]) => Ze, literal: !0 }), Se = ((Oe) => {
+    if (s.literal)
+      return j(Oe);
+    switch (Oe.val) {
       case "G":
-        return F(e.eras("short"), 0);
+        return Me(e.eras("short"), 0);
       case "GG":
-        return F(e.eras("long"), 0);
+        return Me(e.eras("long"), 0);
       case "y":
-        return w(l);
+        return ne(A);
       case "yy":
-        return w(y, Ke);
+        return ne(M, Ui);
       case "yyyy":
-        return w(i);
+        return ne(c);
       case "yyyyy":
-        return w(T);
+        return ne(z);
       case "yyyyyy":
-        return w(a);
+        return ne(h);
       case "M":
-        return w(o);
+        return ne(m);
       case "MM":
-        return w(r);
+        return ne(i);
       case "MMM":
-        return F(e.months("short", !0), 1);
+        return Me(e.months("short", !0), 1);
       case "MMMM":
-        return F(e.months("long", !0), 1);
+        return Me(e.months("long", !0), 1);
       case "L":
-        return w(o);
+        return ne(m);
       case "LL":
-        return w(r);
+        return ne(i);
       case "LLL":
-        return F(e.months("short", !1), 1);
+        return Me(e.months("short", !1), 1);
       case "LLLL":
-        return F(e.months("long", !1), 1);
+        return Me(e.months("long", !1), 1);
       case "d":
-        return w(o);
+        return ne(m);
       case "dd":
-        return w(r);
+        return ne(i);
       case "o":
-        return w(u);
+        return ne(v);
       case "ooo":
-        return w(s);
+        return ne(a);
       case "HH":
-        return w(r);
+        return ne(i);
       case "H":
-        return w(o);
+        return ne(m);
       case "hh":
-        return w(r);
+        return ne(i);
       case "h":
-        return w(o);
+        return ne(m);
       case "mm":
-        return w(r);
+        return ne(i);
       case "m":
-        return w(o);
+        return ne(m);
       case "q":
-        return w(o);
+        return ne(m);
       case "qq":
-        return w(r);
+        return ne(i);
       case "s":
-        return w(o);
+        return ne(m);
       case "ss":
-        return w(r);
+        return ne(i);
       case "S":
-        return w(u);
+        return ne(v);
       case "SSS":
-        return w(s);
+        return ne(a);
       case "u":
-        return ve(f);
+        return vr(q);
       case "uu":
-        return ve(o);
+        return vr(m);
       case "uuu":
-        return w(t);
+        return ne(r);
       case "a":
-        return F(e.meridiems(), 0);
+        return Me(e.meridiems(), 0);
       case "kkkk":
-        return w(i);
+        return ne(c);
       case "kk":
-        return w(y, Ke);
+        return ne(M, Ui);
       case "W":
-        return w(o);
+        return ne(m);
       case "WW":
-        return w(r);
+        return ne(i);
       case "E":
       case "c":
-        return w(t);
+        return ne(r);
       case "EEE":
-        return F(e.weekdays("short", !1), 1);
+        return Me(e.weekdays("short", !1), 1);
       case "EEEE":
-        return F(e.weekdays("long", !1), 1);
+        return Me(e.weekdays("long", !1), 1);
       case "ccc":
-        return F(e.weekdays("short", !0), 1);
+        return Me(e.weekdays("short", !0), 1);
       case "cccc":
-        return F(e.weekdays("long", !0), 1);
+        return Me(e.weekdays("long", !0), 1);
       case "Z":
       case "ZZ":
-        return Ft(new RegExp(`([+-]${o.source})(?::(${r.source}))?`), 2);
+        return ao(new RegExp(`([+-]${m.source})(?::(${i.source}))?`), 2);
       case "ZZZ":
-        return Ft(new RegExp(`([+-]${o.source})(${r.source})?`), 2);
+        return ao(new RegExp(`([+-]${m.source})(${i.source})?`), 2);
       case "z":
-        return ve(/[a-z_+-/]{1,256}?/i);
+        return vr(/[a-z_+-/]{1,256}?/i);
       case " ":
-        return ve(/[^\S\n\r]/);
+        return vr(/[^\S\n\r]/);
       default:
-        return h(L);
+        return j(Oe);
     }
-  })(n) || {
-    invalidReason: xs
+  })(s) || {
+    invalidReason: tc
   };
-  return J.token = n, J;
+  return Se.token = s, Se;
 }
-const Ws = {
+const oc = {
   year: {
     "2-digit": "yy",
     numeric: "yyyyy"
@@ -3470,45 +3470,45 @@ const Ws = {
     short: "ZZZ"
   }
 };
-function Ls(n, e, t) {
-  const { type: r, value: s } = n;
-  if (r === "literal") {
-    const u = /^\s+$/.test(s);
+function ac(s, e, r) {
+  const { type: i, value: a } = s;
+  if (i === "literal") {
+    const v = /^\s+$/.test(a);
     return {
-      literal: !u,
-      val: u ? " " : s
+      literal: !v,
+      val: v ? " " : a
     };
   }
-  const i = e[r];
-  let a = r;
-  r === "hour" && (e.hour12 != null ? a = e.hour12 ? "hour12" : "hour24" : e.hourCycle != null ? e.hourCycle === "h11" || e.hourCycle === "h12" ? a = "hour12" : a = "hour24" : a = t.hour12 ? "hour12" : "hour24");
-  let o = Ws[a];
-  if (typeof o == "object" && (o = o[i]), o)
+  const c = e[i];
+  let h = i;
+  i === "hour" && (e.hour12 != null ? h = e.hour12 ? "hour12" : "hour24" : e.hourCycle != null ? e.hourCycle === "h11" || e.hourCycle === "h12" ? h = "hour12" : h = "hour24" : h = r.hour12 ? "hour12" : "hour24");
+  let m = oc[h];
+  if (typeof m == "object" && (m = m[c]), m)
     return {
       literal: !1,
-      val: o
+      val: m
     };
 }
-function $s(n) {
-  return [`^${n.map((t) => t.regex).reduce((t, r) => `${t}(${r.source})`, "")}$`, n];
+function uc(s) {
+  return [`^${s.map((r) => r.regex).reduce((r, i) => `${r}(${i.source})`, "")}$`, s];
 }
-function Zs(n, e, t) {
-  const r = n.match(e);
-  if (r) {
-    const s = {};
-    let i = 1;
-    for (const a in t)
-      if (re(t, a)) {
-        const o = t[a], u = o.groups ? o.groups + 1 : 1;
-        !o.literal && o.token && (s[o.token.val[0]] = o.deser(r.slice(i, i + u))), i += u;
+function lc(s, e, r) {
+  const i = s.match(e);
+  if (i) {
+    const a = {};
+    let c = 1;
+    for (const h in r)
+      if (Gt(r, h)) {
+        const m = r[h], v = m.groups ? m.groups + 1 : 1;
+        !m.literal && m.token && (a[m.token.val[0]] = m.deser(i.slice(c, c + v))), c += v;
       }
-    return [r, s];
+    return [i, a];
   } else
-    return [r, {}];
+    return [i, {}];
 }
-function zs(n) {
-  const e = (i) => {
-    switch (i) {
+function cc(s) {
+  const e = (c) => {
+    switch (c) {
       case "S":
         return "millisecond";
       case "s":
@@ -3540,48 +3540,48 @@ function zs(n) {
         return null;
     }
   };
-  let t = null, r;
-  return m(n.z) || (t = $.create(n.z)), m(n.Z) || (t || (t = new D(n.Z)), r = n.Z), m(n.q) || (n.M = (n.q - 1) * 3 + 1), m(n.h) || (n.h < 12 && n.a === 1 ? n.h += 12 : n.h === 12 && n.a === 0 && (n.h = 0)), n.G === 0 && n.y && (n.y = -n.y), m(n.u) || (n.S = rt(n.u)), [Object.keys(n).reduce((i, a) => {
-    const o = e(a);
-    return o && (i[o] = n[a]), i;
-  }, {}), t, r];
+  let r = null, i;
+  return Z(s.z) || (r = Ue.create(s.z)), Z(s.Z) || (r || (r = new be(s.Z)), i = s.Z), Z(s.q) || (s.M = (s.q - 1) * 3 + 1), Z(s.h) || (s.h < 12 && s.a === 1 ? s.h += 12 : s.h === 12 && s.a === 0 && (s.h = 0)), s.G === 0 && s.y && (s.y = -s.y), Z(s.u) || (s.S = Yi(s.u)), [Object.keys(s).reduce((c, h) => {
+    const m = e(h);
+    return m && (c[m] = s[h]), c;
+  }, {}), r, i];
 }
-let He = null;
-function As() {
-  return He || (He = d.fromMillis(1555555555555)), He;
+let Ei = null;
+function fc() {
+  return Ei || (Ei = K.fromMillis(1555555555555)), Ei;
 }
-function Us(n, e) {
-  if (n.literal)
-    return n;
-  const t = N.macroTokenToFormatOpts(n.val), r = zn(t, e);
-  return r == null || r.includes(void 0) ? n : r;
+function hc(s, e) {
+  if (s.literal)
+    return s;
+  const r = ve.macroTokenToFormatOpts(s.val), i = Ea(r, e);
+  return i == null || i.includes(void 0) ? s : i;
 }
-function Ln(n, e) {
-  return Array.prototype.concat(...n.map((t) => Us(t, e)));
+function xa(s, e) {
+  return Array.prototype.concat(...s.map((r) => hc(r, e)));
 }
-class $n {
-  constructor(e, t) {
-    if (this.locale = e, this.format = t, this.tokens = Ln(N.parseFormat(t), e), this.units = this.tokens.map((r) => Cs(r, e)), this.disqualifyingUnit = this.units.find((r) => r.invalidReason), !this.disqualifyingUnit) {
-      const [r, s] = $s(this.units);
-      this.regex = RegExp(r, "i"), this.handlers = s;
+class Ta {
+  constructor(e, r) {
+    if (this.locale = e, this.format = r, this.tokens = xa(ve.parseFormat(r), e), this.units = this.tokens.map((i) => sc(i, e)), this.disqualifyingUnit = this.units.find((i) => i.invalidReason), !this.disqualifyingUnit) {
+      const [i, a] = uc(this.units);
+      this.regex = RegExp(i, "i"), this.handlers = a;
     }
   }
   explainFromTokens(e) {
     if (this.isValid) {
-      const [t, r] = Zs(e, this.regex, this.handlers), [s, i, a] = r ? zs(r) : [null, null, void 0];
-      if (re(r, "a") && re(r, "H"))
-        throw new ee(
+      const [r, i] = lc(e, this.regex, this.handlers), [a, c, h] = i ? cc(i) : [null, null, void 0];
+      if (Gt(i, "a") && Gt(i, "H"))
+        throw new zt(
           "Can't include meridiem when specifying 24-hour format"
         );
       return {
         input: e,
         tokens: this.tokens,
         regex: this.regex,
-        rawMatches: t,
-        matches: r,
-        result: s,
-        zone: i,
-        specificOffset: a
+        rawMatches: r,
+        matches: i,
+        result: a,
+        zone: c,
+        specificOffset: h
       };
     } else
       return { input: e, tokens: this.tokens, invalidReason: this.invalidReason };
@@ -3593,76 +3593,76 @@ class $n {
     return this.disqualifyingUnit ? this.disqualifyingUnit.invalidReason : null;
   }
 }
-function Zn(n, e, t) {
-  return new $n(n, t).explainFromTokens(e);
+function Oa(s, e, r) {
+  return new Ta(s, r).explainFromTokens(e);
 }
-function Rs(n, e, t) {
-  const { result: r, zone: s, specificOffset: i, invalidReason: a } = Zn(n, e, t);
-  return [r, s, i, a];
+function dc(s, e, r) {
+  const { result: i, zone: a, specificOffset: c, invalidReason: h } = Oa(s, e, r);
+  return [i, a, c, h];
 }
-function zn(n, e) {
-  if (!n)
+function Ea(s, e) {
+  if (!s)
     return null;
-  const r = N.create(e, n).dtFormatter(As()), s = r.formatToParts(), i = r.resolvedOptions();
-  return s.map((a) => Ls(a, n, i));
+  const i = ve.create(e, s).dtFormatter(fc()), a = i.formatToParts(), c = i.resolvedOptions();
+  return a.map((h) => ac(h, s, c));
 }
-const Ye = "Invalid DateTime", Ct = 864e13;
-function ye(n) {
-  return new C("unsupported zone", `the zone "${n.name}" is not supported`);
+const Ii = "Invalid DateTime", uo = 864e13;
+function En(s) {
+  return new Pe("unsupported zone", `the zone "${s.name}" is not supported`);
 }
-function _e(n) {
-  return n.weekData === null && (n.weekData = Ce(n.c)), n.weekData;
+function Ai(s) {
+  return s.weekData === null && (s.weekData = Ir(s.c)), s.weekData;
 }
-function Pe(n) {
-  return n.localWeekData === null && (n.localWeekData = Ce(
-    n.c,
-    n.loc.getMinDaysInFirstWeek(),
-    n.loc.getStartOfWeek()
-  )), n.localWeekData;
+function Ci(s) {
+  return s.localWeekData === null && (s.localWeekData = Ir(
+    s.c,
+    s.loc.getMinDaysInFirstWeek(),
+    s.loc.getStartOfWeek()
+  )), s.localWeekData;
 }
-function H(n, e) {
-  const t = {
-    ts: n.ts,
-    zone: n.zone,
-    c: n.c,
-    o: n.o,
-    loc: n.loc,
-    invalid: n.invalid
+function St(s, e) {
+  const r = {
+    ts: s.ts,
+    zone: s.zone,
+    c: s.c,
+    o: s.o,
+    loc: s.loc,
+    invalid: s.invalid
   };
-  return new d({ ...t, ...e, old: t });
+  return new K({ ...r, ...e, old: r });
 }
-function An(n, e, t) {
-  let r = n - e * 60 * 1e3;
-  const s = t.offset(r);
-  if (e === s)
-    return [r, e];
-  r -= (s - e) * 60 * 1e3;
-  const i = t.offset(r);
-  return s === i ? [r, s] : [n - Math.min(s, i) * 60 * 1e3, Math.max(s, i)];
+function Ia(s, e, r) {
+  let i = s - e * 60 * 1e3;
+  const a = r.offset(i);
+  if (e === a)
+    return [i, e];
+  i -= (a - e) * 60 * 1e3;
+  const c = r.offset(i);
+  return a === c ? [i, a] : [s - Math.min(a, c) * 60 * 1e3, Math.max(a, c)];
 }
-function Ne(n, e) {
-  n += e * 60 * 1e3;
-  const t = new Date(n);
+function br(s, e) {
+  s += e * 60 * 1e3;
+  const r = new Date(s);
   return {
-    year: t.getUTCFullYear(),
-    month: t.getUTCMonth() + 1,
-    day: t.getUTCDate(),
-    hour: t.getUTCHours(),
-    minute: t.getUTCMinutes(),
-    second: t.getUTCSeconds(),
-    millisecond: t.getUTCMilliseconds()
+    year: r.getUTCFullYear(),
+    month: r.getUTCMonth() + 1,
+    day: r.getUTCDate(),
+    hour: r.getUTCHours(),
+    minute: r.getUTCMinutes(),
+    second: r.getUTCSeconds(),
+    millisecond: r.getUTCMilliseconds()
   };
 }
-function Ee(n, e, t) {
-  return An(Ze(n), e, t);
+function _r(s, e, r) {
+  return Ia(Mr(s), e, r);
 }
-function Wt(n, e) {
-  const t = n.o, r = n.c.year + Math.trunc(e.years), s = n.c.month + Math.trunc(e.months) + Math.trunc(e.quarters) * 3, i = {
-    ...n.c,
-    year: r,
-    month: s,
-    day: Math.min(n.c.day, We(r, s)) + Math.trunc(e.days) + Math.trunc(e.weeks) * 7
-  }, a = g.fromObject({
+function lo(s, e) {
+  const r = s.o, i = s.c.year + Math.trunc(e.years), a = s.c.month + Math.trunc(e.months) + Math.trunc(e.quarters) * 3, c = {
+    ...s.c,
+    year: i,
+    month: a,
+    day: Math.min(s.c.day, Ar(i, a)) + Math.trunc(e.days) + Math.trunc(e.weeks) * 7
+  }, h = X.fromObject({
     years: e.years - Math.trunc(e.years),
     quarters: e.quarters - Math.trunc(e.quarters),
     months: e.months - Math.trunc(e.months),
@@ -3672,60 +3672,60 @@ function Wt(n, e) {
     minutes: e.minutes,
     seconds: e.seconds,
     milliseconds: e.milliseconds
-  }).as("milliseconds"), o = Ze(i);
-  let [u, l] = An(o, t, n.zone);
-  return a !== 0 && (u += a, l = n.zone.offset(u)), { ts: u, o: l };
+  }).as("milliseconds"), m = Mr(c);
+  let [v, A] = Ia(m, r, s.zone);
+  return h !== 0 && (v += h, A = s.zone.offset(v)), { ts: v, o: A };
 }
-function Q(n, e, t, r, s, i) {
-  const { setZone: a, zone: o } = t;
-  if (n && Object.keys(n).length !== 0 || e) {
-    const u = e || o, l = d.fromObject(n, {
-      ...t,
-      zone: u,
-      specificOffset: i
+function jt(s, e, r, i, a, c) {
+  const { setZone: h, zone: m } = r;
+  if (s && Object.keys(s).length !== 0 || e) {
+    const v = e || m, A = K.fromObject(s, {
+      ...r,
+      zone: v,
+      specificOffset: c
     });
-    return a ? l : l.setZone(o);
+    return h ? A : A.setZone(m);
   } else
-    return d.invalid(
-      new C("unparsable", `the input "${s}" can't be parsed as ${r}`)
+    return K.invalid(
+      new Pe("unparsable", `the input "${a}" can't be parsed as ${i}`)
     );
 }
-function De(n, e, t = !0) {
-  return n.isValid ? N.create(k.create("en-US"), {
-    allowZ: t,
+function wr(s, e, r = !0) {
+  return s.isValid ? ve.create(re.create("en-US"), {
+    allowZ: r,
     forceSimple: !0
-  }).formatDateTimeFromString(n, e) : null;
+  }).formatDateTimeFromString(s, e) : null;
 }
-function Ge(n, e) {
-  const t = n.c.year > 9999 || n.c.year < 0;
-  let r = "";
-  return t && n.c.year >= 0 && (r += "+"), r += O(n.c.year, t ? 6 : 4), e ? (r += "-", r += O(n.c.month), r += "-", r += O(n.c.day)) : (r += O(n.c.month), r += O(n.c.day)), r;
+function Di(s, e) {
+  const r = s.c.year > 9999 || s.c.year < 0;
+  let i = "";
+  return r && s.c.year >= 0 && (i += "+"), i += fe(s.c.year, r ? 6 : 4), e ? (i += "-", i += fe(s.c.month), i += "-", i += fe(s.c.day)) : (i += fe(s.c.month), i += fe(s.c.day)), i;
 }
-function Lt(n, e, t, r, s, i) {
-  let a = O(n.c.hour);
-  return e ? (a += ":", a += O(n.c.minute), (n.c.millisecond !== 0 || n.c.second !== 0 || !t) && (a += ":")) : a += O(n.c.minute), (n.c.millisecond !== 0 || n.c.second !== 0 || !t) && (a += O(n.c.second), (n.c.millisecond !== 0 || !r) && (a += ".", a += O(n.c.millisecond, 3))), s && (n.isOffsetFixed && n.offset === 0 && !i ? a += "Z" : n.o < 0 ? (a += "-", a += O(Math.trunc(-n.o / 60)), a += ":", a += O(Math.trunc(-n.o % 60))) : (a += "+", a += O(Math.trunc(n.o / 60)), a += ":", a += O(Math.trunc(n.o % 60)))), i && (a += "[" + n.zone.ianaName + "]"), a;
+function co(s, e, r, i, a, c) {
+  let h = fe(s.c.hour);
+  return e ? (h += ":", h += fe(s.c.minute), (s.c.millisecond !== 0 || s.c.second !== 0 || !r) && (h += ":")) : h += fe(s.c.minute), (s.c.millisecond !== 0 || s.c.second !== 0 || !r) && (h += fe(s.c.second), (s.c.millisecond !== 0 || !i) && (h += ".", h += fe(s.c.millisecond, 3))), a && (s.isOffsetFixed && s.offset === 0 && !c ? h += "Z" : s.o < 0 ? (h += "-", h += fe(Math.trunc(-s.o / 60)), h += ":", h += fe(Math.trunc(-s.o % 60))) : (h += "+", h += fe(Math.trunc(s.o / 60)), h += ":", h += fe(Math.trunc(s.o % 60)))), c && (h += "[" + s.zone.ianaName + "]"), h;
 }
-const Un = {
+const Aa = {
   month: 1,
   day: 1,
   hour: 0,
   minute: 0,
   second: 0,
   millisecond: 0
-}, qs = {
+}, mc = {
   weekNumber: 1,
   weekday: 1,
   hour: 0,
   minute: 0,
   second: 0,
   millisecond: 0
-}, Hs = {
+}, pc = {
   ordinal: 1,
   hour: 0,
   minute: 0,
   second: 0,
   millisecond: 0
-}, Rn = ["year", "month", "day", "hour", "minute", "second", "millisecond"], Ys = [
+}, Ca = ["year", "month", "day", "hour", "minute", "second", "millisecond"], yc = [
   "weekYear",
   "weekNumber",
   "weekday",
@@ -3733,8 +3733,8 @@ const Un = {
   "minute",
   "second",
   "millisecond"
-], _s = ["year", "ordinal", "hour", "minute", "second", "millisecond"];
-function Ps(n) {
+], gc = ["year", "ordinal", "hour", "minute", "second", "millisecond"];
+function vc(s) {
   const e = {
     year: "year",
     years: "year",
@@ -3760,12 +3760,12 @@ function Ps(n) {
     weekyear: "weekYear",
     weekyears: "weekYear",
     ordinal: "ordinal"
-  }[n.toLowerCase()];
-  if (!e) throw new Ut(n);
+  }[s.toLowerCase()];
+  if (!e) throw new Co(s);
   return e;
 }
-function $t(n) {
-  switch (n.toLowerCase()) {
+function fo(s) {
+  switch (s.toLowerCase()) {
     case "localweekday":
     case "localweekdays":
       return "localWeekday";
@@ -3776,64 +3776,64 @@ function $t(n) {
     case "localweekyears":
       return "localWeekYear";
     default:
-      return Ps(n);
+      return vc(s);
   }
 }
-function Gs(n) {
-  return be[n] || (xe === void 0 && (xe = p.now()), be[n] = n.offset(xe)), be[n];
+function bc(s) {
+  return xr[s] || (Sr === void 0 && (Sr = ue.now()), xr[s] = s.offset(Sr)), xr[s];
 }
-function Zt(n, e) {
-  const t = U(e.zone, p.defaultZone);
-  if (!t.isValid)
-    return d.invalid(ye(t));
-  const r = k.fromObject(e);
-  let s, i;
-  if (m(n.year))
-    s = p.now();
+function ho(s, e) {
+  const r = it(e.zone, ue.defaultZone);
+  if (!r.isValid)
+    return K.invalid(En(r));
+  const i = re.fromObject(e);
+  let a, c;
+  if (Z(s.year))
+    a = ue.now();
   else {
-    for (const u of Rn)
-      m(n[u]) && (n[u] = Un[u]);
-    const a = dn(n) || hn(n);
-    if (a)
-      return d.invalid(a);
-    const o = Gs(t);
-    [s, i] = Ee(n, o, t);
+    for (const v of Ca)
+      Z(s[v]) && (s[v] = Aa[v]);
+    const h = ta(s) || na(s);
+    if (h)
+      return K.invalid(h);
+    const m = bc(r);
+    [a, c] = _r(s, m, r);
   }
-  return new d({ ts: s, zone: t, loc: r, o: i });
+  return new K({ ts: a, zone: r, loc: i, o: c });
 }
-function zt(n, e, t) {
-  const r = m(t.round) ? !0 : t.round, s = (a, o) => (a = st(a, r || t.calendary ? 0 : 2, !0), e.loc.clone(t).relFormatter(t).format(a, o)), i = (a) => t.calendary ? e.hasSame(n, a) ? 0 : e.startOf(a).diff(n.startOf(a), a).get(a) : e.diff(n, a).get(a);
-  if (t.unit)
-    return s(i(t.unit), t.unit);
-  for (const a of t.units) {
-    const o = i(a);
-    if (Math.abs(o) >= 1)
-      return s(o, a);
+function mo(s, e, r) {
+  const i = Z(r.round) ? !0 : r.round, a = (h, m) => (h = Gi(h, i || r.calendary ? 0 : 2, !0), e.loc.clone(r).relFormatter(r).format(h, m)), c = (h) => r.calendary ? e.hasSame(s, h) ? 0 : e.startOf(h).diff(s.startOf(h), h).get(h) : e.diff(s, h).get(h);
+  if (r.unit)
+    return a(c(r.unit), r.unit);
+  for (const h of r.units) {
+    const m = c(h);
+    if (Math.abs(m) >= 1)
+      return a(m, h);
   }
-  return s(n > e ? -0 : 0, t.units[t.units.length - 1]);
+  return a(s > e ? -0 : 0, r.units[r.units.length - 1]);
 }
-function At(n) {
-  let e = {}, t;
-  return n.length > 0 && typeof n[n.length - 1] == "object" ? (e = n[n.length - 1], t = Array.from(n).slice(0, n.length - 1)) : t = Array.from(n), [e, t];
+function po(s) {
+  let e = {}, r;
+  return s.length > 0 && typeof s[s.length - 1] == "object" ? (e = s[s.length - 1], r = Array.from(s).slice(0, s.length - 1)) : r = Array.from(s), [e, r];
 }
-let xe, be = {};
-class d {
+let Sr, xr = {};
+class K {
   /**
    * @access private
    */
   constructor(e) {
-    const t = e.zone || p.defaultZone;
-    let r = e.invalid || (Number.isNaN(e.ts) ? new C("invalid input") : null) || (t.isValid ? null : ye(t));
-    this.ts = m(e.ts) ? p.now() : e.ts;
-    let s = null, i = null;
-    if (!r)
-      if (e.old && e.old.ts === this.ts && e.old.zone.equals(t))
-        [s, i] = [e.old.c, e.old.o];
+    const r = e.zone || ue.defaultZone;
+    let i = e.invalid || (Number.isNaN(e.ts) ? new Pe("invalid input") : null) || (r.isValid ? null : En(r));
+    this.ts = Z(e.ts) ? ue.now() : e.ts;
+    let a = null, c = null;
+    if (!i)
+      if (e.old && e.old.ts === this.ts && e.old.zone.equals(r))
+        [a, c] = [e.old.c, e.old.o];
       else {
-        const o = R(e.o) && !e.old ? e.o : t.offset(this.ts);
-        s = Ne(this.ts, o), r = Number.isNaN(s.year) ? new C("invalid input") : null, s = r ? null : s, i = r ? null : o;
+        const m = at(e.o) && !e.old ? e.o : r.offset(this.ts);
+        a = br(this.ts, m), i = Number.isNaN(a.year) ? new Pe("invalid input") : null, a = i ? null : a, c = i ? null : m;
       }
-    this._zone = t, this.loc = e.loc || k.create(), this.invalid = r, this.weekData = null, this.localWeekData = null, this.c = s, this.o = i, this.isLuxonDateTime = !0;
+    this._zone = r, this.loc = e.loc || re.create(), this.invalid = i, this.weekData = null, this.localWeekData = null, this.c = a, this.o = c, this.isLuxonDateTime = !0;
   }
   // CONSTRUCT
   /**
@@ -3844,7 +3844,7 @@ class d {
    * @return {DateTime}
    */
   static now() {
-    return new d({});
+    return new K({});
   }
   /**
    * Create a local DateTime
@@ -3868,8 +3868,8 @@ class d {
    * @return {DateTime}
    */
   static local() {
-    const [e, t] = At(arguments), [r, s, i, a, o, u, l] = t;
-    return Zt({ year: r, month: s, day: i, hour: a, minute: o, second: u, millisecond: l }, e);
+    const [e, r] = po(arguments), [i, a, c, h, m, v, A] = r;
+    return ho({ year: i, month: a, day: c, hour: h, minute: m, second: v, millisecond: A }, e);
   }
   /**
    * Create a DateTime in UTC
@@ -3897,8 +3897,8 @@ class d {
    * @return {DateTime}
    */
   static utc() {
-    const [e, t] = At(arguments), [r, s, i, a, o, u, l] = t;
-    return e.zone = D.utcInstance, Zt({ year: r, month: s, day: i, hour: a, minute: o, second: u, millisecond: l }, e);
+    const [e, r] = po(arguments), [i, a, c, h, m, v, A] = r;
+    return e.zone = be.utcInstance, ho({ year: i, month: a, day: c, hour: h, minute: m, second: v, millisecond: A }, e);
   }
   /**
    * Create a DateTime from a JavaScript Date object. Uses the default zone.
@@ -3907,16 +3907,16 @@ class d {
    * @param {string|Zone} [options.zone='local'] - the zone to place the DateTime into
    * @return {DateTime}
    */
-  static fromJSDate(e, t = {}) {
-    const r = Ir(e) ? e.valueOf() : NaN;
-    if (Number.isNaN(r))
-      return d.invalid("invalid input");
-    const s = U(t.zone, p.defaultZone);
-    return s.isValid ? new d({
-      ts: r,
-      zone: s,
-      loc: k.fromObject(t)
-    }) : d.invalid(ye(s));
+  static fromJSDate(e, r = {}) {
+    const i = Yu(e) ? e.valueOf() : NaN;
+    if (Number.isNaN(i))
+      return K.invalid("invalid input");
+    const a = it(r.zone, ue.defaultZone);
+    return a.isValid ? new K({
+      ts: i,
+      zone: a,
+      loc: re.fromObject(r)
+    }) : K.invalid(En(a));
   }
   /**
    * Create a DateTime from a number of milliseconds since the epoch (meaning since 1 January 1970 00:00:00 UTC). Uses the default zone.
@@ -3929,14 +3929,14 @@ class d {
    * @param {string} options.weekSettings - the week settings to set on the resulting DateTime instance
    * @return {DateTime}
    */
-  static fromMillis(e, t = {}) {
-    if (R(e))
-      return e < -Ct || e > Ct ? d.invalid("Timestamp out of range") : new d({
+  static fromMillis(e, r = {}) {
+    if (at(e))
+      return e < -uo || e > uo ? K.invalid("Timestamp out of range") : new K({
         ts: e,
-        zone: U(t.zone, p.defaultZone),
-        loc: k.fromObject(t)
+        zone: it(r.zone, ue.defaultZone),
+        loc: re.fromObject(r)
       });
-    throw new v(
+    throw new ge(
       `fromMillis requires a numerical input, but received a ${typeof e} with value ${e}`
     );
   }
@@ -3951,14 +3951,14 @@ class d {
    * @param {string} options.weekSettings - the week settings to set on the resulting DateTime instance
    * @return {DateTime}
    */
-  static fromSeconds(e, t = {}) {
-    if (R(e))
-      return new d({
+  static fromSeconds(e, r = {}) {
+    if (at(e))
+      return new K({
         ts: e * 1e3,
-        zone: U(t.zone, p.defaultZone),
-        loc: k.fromObject(t)
+        zone: it(r.zone, ue.defaultZone),
+        loc: re.fromObject(r)
       });
-    throw new v("fromSeconds requires a numerical input");
+    throw new ge("fromSeconds requires a numerical input");
   }
   /**
    * Create a DateTime from a JavaScript object with keys like 'year' and 'hour' with reasonable defaults.
@@ -3993,39 +3993,39 @@ class d {
    * @example DateTime.fromObject({ localWeekYear: 2022, localWeekNumber: 1, localWeekday: 1 }, { locale: "en-US" }).toISODate() //=> '2021-12-26'
    * @return {DateTime}
    */
-  static fromObject(e, t = {}) {
+  static fromObject(e, r = {}) {
     e = e || {};
-    const r = U(t.zone, p.defaultZone);
-    if (!r.isValid)
-      return d.invalid(ye(r));
-    const s = k.fromObject(t), i = Le(e, $t), { minDaysInFirstWeek: a, startOfWeek: o } = It(i, s), u = p.now(), l = m(t.specificOffset) ? r.offset(u) : t.specificOffset, f = !m(i.ordinal), y = !m(i.year), T = !m(i.month) || !m(i.day), h = y || T, I = i.weekYear || i.weekNumber;
-    if ((h || f) && I)
-      throw new ee(
+    const i = it(r.zone, ue.defaultZone);
+    if (!i.isValid)
+      return K.invalid(En(i));
+    const a = re.fromObject(r), c = Cr(e, fo), { minDaysInFirstWeek: h, startOfWeek: m } = Xs(c, a), v = ue.now(), A = Z(r.specificOffset) ? i.offset(v) : r.specificOffset, q = !Z(c.ordinal), M = !Z(c.year), z = !Z(c.month) || !Z(c.day), j = M || z, ee = c.weekYear || c.weekNumber;
+    if ((j || q) && ee)
+      throw new zt(
         "Can't mix weekYear/weekNumber units with year/month/day or ordinals"
       );
-    if (T && f)
-      throw new ee("Can't mix ordinal dates with month/day");
-    const J = I || i.weekday && !h;
-    let L, B, le = Ne(u, l);
-    J ? (L = Ys, B = qs, le = Ce(le, a, o)) : f ? (L = _s, B = Hs, le = qe(le)) : (L = Rn, B = Un);
-    let ut = !1;
-    for (const fe of L) {
-      const Pn = i[fe];
-      m(Pn) ? ut ? i[fe] = B[fe] : i[fe] = le[fe] : ut = !0;
+    if (z && q)
+      throw new zt("Can't mix ordinal dates with month/day");
+    const Se = ee || c.weekday && !j;
+    let Oe, Ze, Re = br(v, A);
+    Se ? (Oe = yc, Ze = mc, Re = Ir(Re, h, m)) : q ? (Oe = gc, Ze = pc, Re = Oi(Re)) : (Oe = Ca, Ze = Aa);
+    let sn = !1;
+    for (const Be of Oe) {
+      const Un = c[Be];
+      Z(Un) ? sn ? c[Be] = Ze[Be] : c[Be] = Re[Be] : sn = !0;
     }
-    const qn = J ? Sr(i, a, o) : f ? pr(i) : dn(i), lt = qn || hn(i);
-    if (lt)
-      return d.invalid(lt);
-    const Hn = J ? pt(i, a, o) : f ? Ot(i) : i, [Yn, _n] = Ee(Hn, l, r), ce = new d({
-      ts: Yn,
-      zone: r,
-      o: _n,
-      loc: s
+    const lt = Se ? Zu(c, h, m) : q ? Bu(c) : ta(c), on = lt || na(c);
+    if (on)
+      return K.invalid(on);
+    const De = Se ? Gs(c, h, m) : q ? Js(c) : c, [we, Ln] = _r(De, A, i), ct = new K({
+      ts: we,
+      zone: i,
+      o: Ln,
+      loc: a
     });
-    return i.weekday && h && e.weekday !== ce.weekday ? d.invalid(
+    return c.weekday && j && e.weekday !== ct.weekday ? K.invalid(
       "mismatched weekday",
-      `you can't specify both a weekday of ${i.weekday} and a date of ${ce.toISO()}`
-    ) : ce.isValid ? ce : d.invalid(ce.invalid);
+      `you can't specify both a weekday of ${c.weekday} and a date of ${ct.toISO()}`
+    ) : ct.isValid ? ct : K.invalid(ct.invalid);
   }
   /**
    * Create a DateTime from an ISO 8601 string
@@ -4044,9 +4044,9 @@ class d {
    * @example DateTime.fromISO('2016-W05-4')
    * @return {DateTime}
    */
-  static fromISO(e, t = {}) {
-    const [r, s] = ds(e);
-    return Q(r, s, t, "ISO 8601", e);
+  static fromISO(e, r = {}) {
+    const [i, a] = Vl(e);
+    return jt(i, a, r, "ISO 8601", e);
   }
   /**
    * Create a DateTime from an RFC 2822 string
@@ -4063,9 +4063,9 @@ class d {
    * @example DateTime.fromRFC2822('25 Nov 2016 13:23 Z')
    * @return {DateTime}
    */
-  static fromRFC2822(e, t = {}) {
-    const [r, s] = hs(e);
-    return Q(r, s, t, "RFC 2822", e);
+  static fromRFC2822(e, r = {}) {
+    const [i, a] = ql(e);
+    return jt(i, a, r, "RFC 2822", e);
   }
   /**
    * Create a DateTime from an HTTP header date
@@ -4083,9 +4083,9 @@ class d {
    * @example DateTime.fromHTTP('Sun Nov  6 08:49:37 1994')
    * @return {DateTime}
    */
-  static fromHTTP(e, t = {}) {
-    const [r, s] = ms(e);
-    return Q(r, s, t, "HTTP", t);
+  static fromHTTP(e, r = {}) {
+    const [i, a] = Ll(e);
+    return jt(i, a, r, "HTTP", r);
   }
   /**
    * Create a DateTime from an input string and format string.
@@ -4101,21 +4101,21 @@ class d {
    * @param {string} opts.outputCalendar - the output calendar to set on the resulting DateTime instance
    * @return {DateTime}
    */
-  static fromFormat(e, t, r = {}) {
-    if (m(e) || m(t))
-      throw new v("fromFormat requires an input string and a format");
-    const { locale: s = null, numberingSystem: i = null } = r, a = k.fromOpts({
-      locale: s,
-      numberingSystem: i,
+  static fromFormat(e, r, i = {}) {
+    if (Z(e) || Z(r))
+      throw new ge("fromFormat requires an input string and a format");
+    const { locale: a = null, numberingSystem: c = null } = i, h = re.fromOpts({
+      locale: a,
+      numberingSystem: c,
       defaultToEN: !0
-    }), [o, u, l, f] = Rs(a, e, t);
-    return f ? d.invalid(f) : Q(o, u, r, `format ${t}`, e, l);
+    }), [m, v, A, q] = dc(h, e, r);
+    return q ? K.invalid(q) : jt(m, v, i, `format ${r}`, e, A);
   }
   /**
    * @deprecated use fromFormat instead
    */
-  static fromString(e, t, r = {}) {
-    return d.fromFormat(e, t, r);
+  static fromString(e, r, i = {}) {
+    return K.fromFormat(e, r, i);
   }
   /**
    * Create a DateTime from a SQL date, time, or datetime
@@ -4138,9 +4138,9 @@ class d {
    * @example DateTime.fromSQL('09:12:34.342')
    * @return {DateTime}
    */
-  static fromSQL(e, t = {}) {
-    const [r, s] = ps(e);
-    return Q(r, s, t, "SQL", e);
+  static fromSQL(e, r = {}) {
+    const [i, a] = Bl(e);
+    return jt(i, a, r, "SQL", e);
   }
   /**
    * Create an invalid DateTime.
@@ -4148,13 +4148,13 @@ class d {
    * @param {string} [explanation=null] - longer explanation, may include parameters and other useful debugging information
    * @return {DateTime}
    */
-  static invalid(e, t = null) {
+  static invalid(e, r = null) {
     if (!e)
-      throw new v("need to specify a reason the DateTime is invalid");
-    const r = e instanceof C ? e : new C(e, t);
-    if (p.throwOnInvalid)
-      throw new Jn(r);
-    return new d({ invalid: r });
+      throw new ge("need to specify a reason the DateTime is invalid");
+    const i = e instanceof Pe ? e : new Pe(e, r);
+    if (ue.throwOnInvalid)
+      throw new wu(i);
+    return new K({ invalid: i });
   }
   /**
    * Check if an object is an instance of DateTime. Works across context boundaries
@@ -4170,9 +4170,9 @@ class d {
    * @param localeOpts
    * @returns {string}
    */
-  static parseFormatForOpts(e, t = {}) {
-    const r = zn(e, k.fromObject(t));
-    return r ? r.map((s) => s ? s.val : null).join("") : null;
+  static parseFormatForOpts(e, r = {}) {
+    const i = Ea(e, re.fromObject(r));
+    return i ? i.map((a) => a ? a.val : null).join("") : null;
   }
   /**
    * Produce the the fully expanded format token for the locale
@@ -4181,11 +4181,11 @@ class d {
    * @param localeOpts
    * @returns {string}
    */
-  static expandFormat(e, t = {}) {
-    return Ln(N.parseFormat(e), k.fromObject(t)).map((s) => s.val).join("");
+  static expandFormat(e, r = {}) {
+    return xa(ve.parseFormat(e), re.fromObject(r)).map((a) => a.val).join("");
   }
   static resetCache() {
-    xe = void 0, be = {};
+    Sr = void 0, xr = {};
   }
   // INFO
   /**
@@ -4330,7 +4330,7 @@ class d {
    * @type {number}
    */
   get weekYear() {
-    return this.isValid ? _e(this).weekYear : NaN;
+    return this.isValid ? Ai(this).weekYear : NaN;
   }
   /**
    * Get the week number of the week year (1-52ish).
@@ -4339,7 +4339,7 @@ class d {
    * @type {number}
    */
   get weekNumber() {
-    return this.isValid ? _e(this).weekNumber : NaN;
+    return this.isValid ? Ai(this).weekNumber : NaN;
   }
   /**
    * Get the day of the week.
@@ -4349,7 +4349,7 @@ class d {
    * @type {number}
    */
   get weekday() {
-    return this.isValid ? _e(this).weekday : NaN;
+    return this.isValid ? Ai(this).weekday : NaN;
   }
   /**
    * Returns true if this date is on a weekend according to the locale, false otherwise
@@ -4365,7 +4365,7 @@ class d {
    * @returns {number}
    */
   get localWeekday() {
-    return this.isValid ? Pe(this).weekday : NaN;
+    return this.isValid ? Ci(this).weekday : NaN;
   }
   /**
    * Get the week number of the week year according to the locale. Different locales assign week numbers differently,
@@ -4374,7 +4374,7 @@ class d {
    * @returns {number}
    */
   get localWeekNumber() {
-    return this.isValid ? Pe(this).weekNumber : NaN;
+    return this.isValid ? Ci(this).weekNumber : NaN;
   }
   /**
    * Get the week year according to the locale. Different locales assign week numbers (and therefor week years)
@@ -4382,7 +4382,7 @@ class d {
    * @returns {number}
    */
   get localWeekYear() {
-    return this.isValid ? Pe(this).weekYear : NaN;
+    return this.isValid ? Ci(this).weekYear : NaN;
   }
   /**
    * Get the ordinal (meaning the day of the year)
@@ -4390,7 +4390,7 @@ class d {
    * @type {number|DateTime}
    */
   get ordinal() {
-    return this.isValid ? qe(this.c).ordinal : NaN;
+    return this.isValid ? Oi(this.c).ordinal : NaN;
   }
   /**
    * Get the human readable short month name, such as 'Oct'.
@@ -4399,7 +4399,7 @@ class d {
    * @type {string}
    */
   get monthShort() {
-    return this.isValid ? me.months("short", { locObj: this.loc })[this.month - 1] : null;
+    return this.isValid ? On.months("short", { locObj: this.loc })[this.month - 1] : null;
   }
   /**
    * Get the human readable long month name, such as 'October'.
@@ -4408,7 +4408,7 @@ class d {
    * @type {string}
    */
   get monthLong() {
-    return this.isValid ? me.months("long", { locObj: this.loc })[this.month - 1] : null;
+    return this.isValid ? On.months("long", { locObj: this.loc })[this.month - 1] : null;
   }
   /**
    * Get the human readable short weekday, such as 'Mon'.
@@ -4417,7 +4417,7 @@ class d {
    * @type {string}
    */
   get weekdayShort() {
-    return this.isValid ? me.weekdays("short", { locObj: this.loc })[this.weekday - 1] : null;
+    return this.isValid ? On.weekdays("short", { locObj: this.loc })[this.weekday - 1] : null;
   }
   /**
    * Get the human readable long weekday, such as 'Monday'.
@@ -4426,7 +4426,7 @@ class d {
    * @type {string}
    */
   get weekdayLong() {
-    return this.isValid ? me.weekdays("long", { locObj: this.loc })[this.weekday - 1] : null;
+    return this.isValid ? On.weekdays("long", { locObj: this.loc })[this.weekday - 1] : null;
   }
   /**
    * Get the UTC offset of this DateTime in minutes
@@ -4483,11 +4483,11 @@ class d {
   getPossibleOffsets() {
     if (!this.isValid || this.isOffsetFixed)
       return [this];
-    const e = 864e5, t = 6e4, r = Ze(this.c), s = this.zone.offset(r - e), i = this.zone.offset(r + e), a = this.zone.offset(r - s * t), o = this.zone.offset(r - i * t);
-    if (a === o)
+    const e = 864e5, r = 6e4, i = Mr(this.c), a = this.zone.offset(i - e), c = this.zone.offset(i + e), h = this.zone.offset(i - a * r), m = this.zone.offset(i - c * r);
+    if (h === m)
       return [this];
-    const u = r - a * t, l = r - o * t, f = Ne(u, a), y = Ne(l, o);
-    return f.hour === y.hour && f.minute === y.minute && f.second === y.second && f.millisecond === y.millisecond ? [H(this, { ts: u }), H(this, { ts: l })] : [this];
+    const v = i - h * r, A = i - m * r, q = br(v, h), M = br(A, m);
+    return q.hour === M.hour && q.minute === M.minute && q.second === M.second && q.millisecond === M.millisecond ? [St(this, { ts: v }), St(this, { ts: A })] : [this];
   }
   /**
    * Returns true if this DateTime is in a leap year, false otherwise
@@ -4496,7 +4496,7 @@ class d {
    * @type {boolean}
    */
   get isInLeapYear() {
-    return Te(this.year);
+    return Fn(this.year);
   }
   /**
    * Returns the number of days in this DateTime's month
@@ -4505,7 +4505,7 @@ class d {
    * @type {number}
    */
   get daysInMonth() {
-    return We(this.year, this.month);
+    return Ar(this.year, this.month);
   }
   /**
    * Returns the number of days in this DateTime's year
@@ -4514,7 +4514,7 @@ class d {
    * @type {number}
    */
   get daysInYear() {
-    return this.isValid ? te(this.year) : NaN;
+    return this.isValid ? Bt(this.year) : NaN;
   }
   /**
    * Returns the number of weeks in this DateTime's year
@@ -4524,7 +4524,7 @@ class d {
    * @type {number}
    */
   get weeksInWeekYear() {
-    return this.isValid ? we(this.weekYear) : NaN;
+    return this.isValid ? Dn(this.weekYear) : NaN;
   }
   /**
    * Returns the number of weeks in this DateTime's local week year
@@ -4533,7 +4533,7 @@ class d {
    * @type {number}
    */
   get weeksInLocalWeekYear() {
-    return this.isValid ? we(
+    return this.isValid ? Dn(
       this.localWeekYear,
       this.loc.getMinDaysInFirstWeek(),
       this.loc.getStartOfWeek()
@@ -4546,11 +4546,11 @@ class d {
    * @return {Object}
    */
   resolvedLocaleOptions(e = {}) {
-    const { locale: t, numberingSystem: r, calendar: s } = N.create(
+    const { locale: r, numberingSystem: i, calendar: a } = ve.create(
       this.loc.clone(e),
       e
     ).resolvedOptions(this);
-    return { locale: t, numberingSystem: r, outputCalendar: s };
+    return { locale: r, numberingSystem: i, outputCalendar: a };
   }
   // TRANSFORM
   /**
@@ -4561,8 +4561,8 @@ class d {
    * @param {Object} [opts={}] - options to pass to `setZone()`
    * @return {DateTime}
    */
-  toUTC(e = 0, t = {}) {
-    return this.setZone(D.instance(e), t);
+  toUTC(e = 0, r = {}) {
+    return this.setZone(be.instance(e), r);
   }
   /**
    * "Set" the DateTime's zone to the host's local zone. Returns a newly-constructed DateTime.
@@ -4571,7 +4571,7 @@ class d {
    * @return {DateTime}
    */
   toLocal() {
-    return this.setZone(p.defaultZone);
+    return this.setZone(ue.defaultZone);
   }
   /**
    * "Set" the DateTime's zone to specified zone. Returns a newly-constructed DateTime.
@@ -4582,18 +4582,18 @@ class d {
    * @param {boolean} [opts.keepLocalTime=false] - If true, adjust the underlying time so that the local time stays the same, but in the target zone. You should rarely need this.
    * @return {DateTime}
    */
-  setZone(e, { keepLocalTime: t = !1, keepCalendarTime: r = !1 } = {}) {
-    if (e = U(e, p.defaultZone), e.equals(this.zone))
+  setZone(e, { keepLocalTime: r = !1, keepCalendarTime: i = !1 } = {}) {
+    if (e = it(e, ue.defaultZone), e.equals(this.zone))
       return this;
     if (e.isValid) {
-      let s = this.ts;
-      if (t || r) {
-        const i = e.offset(this.ts), a = this.toObject();
-        [s] = Ee(a, i, e);
+      let a = this.ts;
+      if (r || i) {
+        const c = e.offset(this.ts), h = this.toObject();
+        [a] = _r(h, c, e);
       }
-      return H(this, { ts: s, zone: e });
+      return St(this, { ts: a, zone: e });
     } else
-      return d.invalid(ye(e));
+      return K.invalid(En(e));
   }
   /**
    * "Set" the locale, numberingSystem, or outputCalendar. Returns a newly-constructed DateTime.
@@ -4601,9 +4601,9 @@ class d {
    * @example DateTime.local(2017, 5, 25).reconfigure({ locale: 'en-GB' })
    * @return {DateTime}
    */
-  reconfigure({ locale: e, numberingSystem: t, outputCalendar: r } = {}) {
-    const s = this.loc.clone({ locale: e, numberingSystem: t, outputCalendar: r });
-    return H(this, { loc: s });
+  reconfigure({ locale: e, numberingSystem: r, outputCalendar: i } = {}) {
+    const a = this.loc.clone({ locale: e, numberingSystem: r, outputCalendar: i });
+    return St(this, { loc: a });
   }
   /**
    * "Set" the locale. Returns a newly-constructed DateTime.
@@ -4629,21 +4629,21 @@ class d {
    */
   set(e) {
     if (!this.isValid) return this;
-    const t = Le(e, $t), { minDaysInFirstWeek: r, startOfWeek: s } = It(t, this.loc), i = !m(t.weekYear) || !m(t.weekNumber) || !m(t.weekday), a = !m(t.ordinal), o = !m(t.year), u = !m(t.month) || !m(t.day), l = o || u, f = t.weekYear || t.weekNumber;
-    if ((l || a) && f)
-      throw new ee(
+    const r = Cr(e, fo), { minDaysInFirstWeek: i, startOfWeek: a } = Xs(r, this.loc), c = !Z(r.weekYear) || !Z(r.weekNumber) || !Z(r.weekday), h = !Z(r.ordinal), m = !Z(r.year), v = !Z(r.month) || !Z(r.day), A = m || v, q = r.weekYear || r.weekNumber;
+    if ((A || h) && q)
+      throw new zt(
         "Can't mix weekYear/weekNumber units with year/month/day or ordinals"
       );
-    if (u && a)
-      throw new ee("Can't mix ordinal dates with month/day");
-    let y;
-    i ? y = pt(
-      { ...Ce(this.c, r, s), ...t },
-      r,
-      s
-    ) : m(t.ordinal) ? (y = { ...this.toObject(), ...t }, m(t.day) && (y.day = Math.min(We(y.year, y.month), y.day))) : y = Ot({ ...qe(this.c), ...t });
-    const [T, h] = Ee(y, this.o, this.zone);
-    return H(this, { ts: T, o: h });
+    if (v && h)
+      throw new zt("Can't mix ordinal dates with month/day");
+    let M;
+    c ? M = Gs(
+      { ...Ir(this.c, i, a), ...r },
+      i,
+      a
+    ) : Z(r.ordinal) ? (M = { ...this.toObject(), ...r }, Z(r.day) && (M.day = Math.min(Ar(M.year, M.month), M.day))) : M = Js({ ...Oi(this.c), ...r });
+    const [z, j] = _r(M, this.o, this.zone);
+    return St(this, { ts: z, o: j });
   }
   /**
    * Add a period of time to this DateTime and return the resulting DateTime
@@ -4660,8 +4660,8 @@ class d {
    */
   plus(e) {
     if (!this.isValid) return this;
-    const t = g.fromDurationLike(e);
-    return H(this, Wt(this, t));
+    const r = X.fromDurationLike(e);
+    return St(this, lo(this, r));
   }
   /**
    * Subtract a period of time to this DateTime and return the resulting DateTime
@@ -4671,8 +4671,8 @@ class d {
    */
   minus(e) {
     if (!this.isValid) return this;
-    const t = g.fromDurationLike(e).negate();
-    return H(this, Wt(this, t));
+    const r = X.fromDurationLike(e).negate();
+    return St(this, lo(this, r));
   }
   /**
    * "Set" this DateTime to the beginning of a unit of time.
@@ -4686,37 +4686,37 @@ class d {
    * @example DateTime.local(2014, 3, 3, 5, 30).startOf('hour').toISOTime(); //=> '05:00:00.000-05:00'
    * @return {DateTime}
    */
-  startOf(e, { useLocaleWeeks: t = !1 } = {}) {
+  startOf(e, { useLocaleWeeks: r = !1 } = {}) {
     if (!this.isValid) return this;
-    const r = {}, s = g.normalizeUnit(e);
-    switch (s) {
+    const i = {}, a = X.normalizeUnit(e);
+    switch (a) {
       case "years":
-        r.month = 1;
+        i.month = 1;
       case "quarters":
       case "months":
-        r.day = 1;
+        i.day = 1;
       case "weeks":
       case "days":
-        r.hour = 0;
+        i.hour = 0;
       case "hours":
-        r.minute = 0;
+        i.minute = 0;
       case "minutes":
-        r.second = 0;
+        i.second = 0;
       case "seconds":
-        r.millisecond = 0;
+        i.millisecond = 0;
         break;
     }
-    if (s === "weeks")
-      if (t) {
-        const i = this.loc.getStartOfWeek(), { weekday: a } = this;
-        a < i && (r.weekNumber = this.weekNumber - 1), r.weekday = i;
+    if (a === "weeks")
+      if (r) {
+        const c = this.loc.getStartOfWeek(), { weekday: h } = this;
+        h < c && (i.weekNumber = this.weekNumber - 1), i.weekday = c;
       } else
-        r.weekday = 1;
-    if (s === "quarters") {
-      const i = Math.ceil(this.month / 3);
-      r.month = (i - 1) * 3 + 1;
+        i.weekday = 1;
+    if (a === "quarters") {
+      const c = Math.ceil(this.month / 3);
+      i.month = (c - 1) * 3 + 1;
     }
-    return this.set(r);
+    return this.set(i);
   }
   /**
    * "Set" this DateTime to the end (meaning the last millisecond) of a unit of time
@@ -4730,8 +4730,8 @@ class d {
    * @example DateTime.local(2014, 3, 3, 5, 30).endOf('hour').toISO(); //=> '2014-03-03T05:59:59.999-05:00'
    * @return {DateTime}
    */
-  endOf(e, t) {
-    return this.isValid ? this.plus({ [e]: 1 }).startOf(e, t).minus(1) : this;
+  endOf(e, r) {
+    return this.isValid ? this.plus({ [e]: 1 }).startOf(e, r).minus(1) : this;
   }
   // OUTPUT
   /**
@@ -4746,8 +4746,8 @@ class d {
    * @example DateTime.now().toFormat("HH 'hours and' mm 'minutes'") //=> '20 hours and 55 minutes'
    * @return {string}
    */
-  toFormat(e, t = {}) {
-    return this.isValid ? N.create(this.loc.redefaultToEN(t)).formatDateTimeFromString(this, e) : Ye;
+  toFormat(e, r = {}) {
+    return this.isValid ? ve.create(this.loc.redefaultToEN(r)).formatDateTimeFromString(this, e) : Ii;
   }
   /**
    * Returns a localized string representing this date. Accepts the same options as the Intl.DateTimeFormat constructor and any presets defined by Luxon, such as `DateTime.DATE_FULL` or `DateTime.TIME_SIMPLE`.
@@ -4768,8 +4768,8 @@ class d {
    * @example DateTime.now().toLocaleString({ hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }); //=> '11:32'
    * @return {string}
    */
-  toLocaleString(e = Fe, t = {}) {
-    return this.isValid ? N.create(this.loc.clone(t), e).formatDateTime(this) : Ye;
+  toLocaleString(e = Er, r = {}) {
+    return this.isValid ? ve.create(this.loc.clone(r), e).formatDateTime(this) : Ii;
   }
   /**
    * Returns an array of format "parts", meaning individual tokens along with metadata. This is allows callers to post-process individual sections of the formatted output.
@@ -4785,7 +4785,7 @@ class d {
    *                                   //=> ]
    */
   toLocaleParts(e = {}) {
-    return this.isValid ? N.create(this.loc.clone(e), e).formatDateTimeParts(this) : [];
+    return this.isValid ? ve.create(this.loc.clone(e), e).formatDateTimeParts(this) : [];
   }
   /**
    * Returns an ISO 8601-compliant string representation of this DateTime
@@ -4803,16 +4803,16 @@ class d {
    */
   toISO({
     format: e = "extended",
-    suppressSeconds: t = !1,
-    suppressMilliseconds: r = !1,
-    includeOffset: s = !0,
-    extendedZone: i = !1
+    suppressSeconds: r = !1,
+    suppressMilliseconds: i = !1,
+    includeOffset: a = !0,
+    extendedZone: c = !1
   } = {}) {
     if (!this.isValid)
       return null;
-    const a = e === "extended";
-    let o = Ge(this, a);
-    return o += "T", o += Lt(this, a, t, r, s, i), o;
+    const h = e === "extended";
+    let m = Di(this, h);
+    return m += "T", m += co(this, h, r, i, a, c), m;
   }
   /**
    * Returns an ISO 8601-compliant string representation of this DateTime's date component
@@ -4823,7 +4823,7 @@ class d {
    * @return {string}
    */
   toISODate({ format: e = "extended" } = {}) {
-    return this.isValid ? Ge(this, e === "extended") : null;
+    return this.isValid ? Di(this, e === "extended") : null;
   }
   /**
    * Returns an ISO 8601-compliant string representation of this DateTime's week date
@@ -4831,7 +4831,7 @@ class d {
    * @return {string}
    */
   toISOWeekDate() {
-    return De(this, "kkkk-'W'WW-c");
+    return wr(this, "kkkk-'W'WW-c");
   }
   /**
    * Returns an ISO 8601-compliant string representation of this DateTime's time component
@@ -4850,19 +4850,19 @@ class d {
    */
   toISOTime({
     suppressMilliseconds: e = !1,
-    suppressSeconds: t = !1,
-    includeOffset: r = !0,
-    includePrefix: s = !1,
-    extendedZone: i = !1,
-    format: a = "extended"
+    suppressSeconds: r = !1,
+    includeOffset: i = !0,
+    includePrefix: a = !1,
+    extendedZone: c = !1,
+    format: h = "extended"
   } = {}) {
-    return this.isValid ? (s ? "T" : "") + Lt(
+    return this.isValid ? (a ? "T" : "") + co(
       this,
-      a === "extended",
-      t,
-      e,
+      h === "extended",
       r,
-      i
+      e,
+      i,
+      c
     ) : null;
   }
   /**
@@ -4872,7 +4872,7 @@ class d {
    * @return {string}
    */
   toRFC2822() {
-    return De(this, "EEE, dd LLL yyyy HH:mm:ss ZZZ", !1);
+    return wr(this, "EEE, dd LLL yyyy HH:mm:ss ZZZ", !1);
   }
   /**
    * Returns a string representation of this DateTime appropriate for use in HTTP headers. The output is always expressed in GMT.
@@ -4883,7 +4883,7 @@ class d {
    * @return {string}
    */
   toHTTP() {
-    return De(this.toUTC(), "EEE, dd LLL yyyy HH:mm:ss 'GMT'");
+    return wr(this.toUTC(), "EEE, dd LLL yyyy HH:mm:ss 'GMT'");
   }
   /**
    * Returns a string representation of this DateTime appropriate for use in SQL Date
@@ -4891,7 +4891,7 @@ class d {
    * @return {string}
    */
   toSQLDate() {
-    return this.isValid ? Ge(this, !0) : null;
+    return this.isValid ? Di(this, !0) : null;
   }
   /**
    * Returns a string representation of this DateTime appropriate for use in SQL Time
@@ -4905,9 +4905,9 @@ class d {
    * @example DateTime.now().toSQL({ includeZone: false }) //=> '05:15:16.345 America/New_York'
    * @return {string}
    */
-  toSQLTime({ includeOffset: e = !0, includeZone: t = !1, includeOffsetSpace: r = !0 } = {}) {
-    let s = "HH:mm:ss.SSS";
-    return (t || e) && (r && (s += " "), t ? s += "z" : e && (s += "ZZ")), De(this, s, !0);
+  toSQLTime({ includeOffset: e = !0, includeZone: r = !1, includeOffsetSpace: i = !0 } = {}) {
+    let a = "HH:mm:ss.SSS";
+    return (r || e) && (i && (a += " "), r ? a += "z" : e && (a += "ZZ")), wr(this, a, !0);
   }
   /**
    * Returns a string representation of this DateTime appropriate for use in SQL DateTime
@@ -4929,7 +4929,7 @@ class d {
    * @return {string}
    */
   toString() {
-    return this.isValid ? this.toISO() : Ye;
+    return this.isValid ? this.toISO() : Ii;
   }
   /**
    * Returns a string representation of this DateTime appropriate for the REPL.
@@ -4989,8 +4989,8 @@ class d {
    */
   toObject(e = {}) {
     if (!this.isValid) return {};
-    const t = { ...this.c };
-    return e.includeConfig && (t.outputCalendar = this.outputCalendar, t.numberingSystem = this.loc.numberingSystem, t.locale = this.loc.locale), t;
+    const r = { ...this.c };
+    return e.includeConfig && (r.outputCalendar = this.outputCalendar, r.numberingSystem = this.loc.numberingSystem, r.locale = this.loc.locale), r;
   }
   /**
    * Returns a JavaScript Date equivalent to this DateTime.
@@ -5015,11 +5015,11 @@ class d {
    * i2.diff(i1, ['months', 'days', 'hours']).toObject() //=> { months: 16, days: 19, hours: 0.75 }
    * @return {Duration}
    */
-  diff(e, t = "milliseconds", r = {}) {
+  diff(e, r = "milliseconds", i = {}) {
     if (!this.isValid || !e.isValid)
-      return g.invalid("created by diffing an invalid DateTime");
-    const s = { locale: this.locale, numberingSystem: this.numberingSystem, ...r }, i = vr(t).map(g.normalizeUnit), a = e.valueOf() > this.valueOf(), o = a ? this : e, u = a ? e : this, l = Es(o, u, i, s);
-    return a ? l.negate() : l;
+      return X.invalid("created by diffing an invalid DateTime");
+    const a = { locale: this.locale, numberingSystem: this.numberingSystem, ...i }, c = Gu(r).map(X.normalizeUnit), h = e.valueOf() > this.valueOf(), m = h ? this : e, v = h ? e : this, A = ec(m, v, c, a);
+    return h ? A.negate() : A;
   }
   /**
    * Return the difference between this DateTime and right now.
@@ -5029,8 +5029,8 @@ class d {
    * @param {string} [opts.conversionAccuracy='casual'] - the conversion system to use
    * @return {Duration}
    */
-  diffNow(e = "milliseconds", t = {}) {
-    return this.diff(d.now(), e, t);
+  diffNow(e = "milliseconds", r = {}) {
+    return this.diff(K.now(), e, r);
   }
   /**
    * Return an Interval spanning between this DateTime and another DateTime
@@ -5038,7 +5038,7 @@ class d {
    * @return {Interval}
    */
   until(e) {
-    return this.isValid ? S.fromDateTimes(this, e) : this;
+    return this.isValid ? ae.fromDateTimes(this, e) : this;
   }
   /**
    * Return whether this DateTime is in the same unit of time as another DateTime.
@@ -5051,10 +5051,10 @@ class d {
    * @example DateTime.now().hasSame(otherDT, 'day'); //~> true if otherDT is in the same current calendar day
    * @return {boolean}
    */
-  hasSame(e, t, r) {
+  hasSame(e, r, i) {
     if (!this.isValid) return !1;
-    const s = e.valueOf(), i = this.setZone(e.zone, { keepLocalTime: !0 });
-    return i.startOf(t, r) <= s && s <= i.endOf(t, r);
+    const a = e.valueOf(), c = this.setZone(e.zone, { keepLocalTime: !0 });
+    return c.startOf(r, i) <= a && a <= c.endOf(r, i);
   }
   /**
    * Equality check
@@ -5086,13 +5086,13 @@ class d {
    */
   toRelative(e = {}) {
     if (!this.isValid) return null;
-    const t = e.base || d.fromObject({}, { zone: this.zone }), r = e.padding ? this < t ? -e.padding : e.padding : 0;
-    let s = ["years", "months", "days", "hours", "minutes", "seconds"], i = e.unit;
-    return Array.isArray(e.unit) && (s = e.unit, i = void 0), zt(t, this.plus(r), {
+    const r = e.base || K.fromObject({}, { zone: this.zone }), i = e.padding ? this < r ? -e.padding : e.padding : 0;
+    let a = ["years", "months", "days", "hours", "minutes", "seconds"], c = e.unit;
+    return Array.isArray(e.unit) && (a = e.unit, c = void 0), mo(r, this.plus(i), {
       ...e,
       numeric: "always",
-      units: s,
-      unit: i
+      units: a,
+      unit: c
     });
   }
   /**
@@ -5109,7 +5109,7 @@ class d {
    * @example DateTime.now().minus({ days: 2 }).toRelativeCalendar() //=> "2 days ago"
    */
   toRelativeCalendar(e = {}) {
-    return this.isValid ? zt(e.base || d.fromObject({}, { zone: this.zone }), this, {
+    return this.isValid ? mo(e.base || K.fromObject({}, { zone: this.zone }), this, {
       ...e,
       numeric: "auto",
       units: ["years", "months", "days"],
@@ -5122,9 +5122,9 @@ class d {
    * @return {DateTime} the min DateTime, or undefined if called with no argument
    */
   static min(...e) {
-    if (!e.every(d.isDateTime))
-      throw new v("min requires all arguments be DateTimes");
-    return vt(e, (t) => t.valueOf(), Math.min);
+    if (!e.every(K.isDateTime))
+      throw new ge("min requires all arguments be DateTimes");
+    return Qs(e, (r) => r.valueOf(), Math.min);
   }
   /**
    * Return the max of several date times
@@ -5132,9 +5132,9 @@ class d {
    * @return {DateTime} the max DateTime, or undefined if called with no argument
    */
   static max(...e) {
-    if (!e.every(d.isDateTime))
-      throw new v("max requires all arguments be DateTimes");
-    return vt(e, (t) => t.valueOf(), Math.max);
+    if (!e.every(K.isDateTime))
+      throw new ge("max requires all arguments be DateTimes");
+    return Qs(e, (r) => r.valueOf(), Math.max);
   }
   // MISC
   /**
@@ -5144,19 +5144,19 @@ class d {
    * @param {Object} options - options taken by fromFormat()
    * @return {Object}
    */
-  static fromFormatExplain(e, t, r = {}) {
-    const { locale: s = null, numberingSystem: i = null } = r, a = k.fromOpts({
-      locale: s,
-      numberingSystem: i,
+  static fromFormatExplain(e, r, i = {}) {
+    const { locale: a = null, numberingSystem: c = null } = i, h = re.fromOpts({
+      locale: a,
+      numberingSystem: c,
       defaultToEN: !0
     });
-    return Zn(a, e, t);
+    return Oa(h, e, r);
   }
   /**
    * @deprecated use fromFormatExplain instead
    */
-  static fromStringExplain(e, t, r = {}) {
-    return d.fromFormatExplain(e, t, r);
+  static fromStringExplain(e, r, i = {}) {
+    return K.fromFormatExplain(e, r, i);
   }
   /**
    * Build a parser for `fmt` using the given locale. This parser can be passed
@@ -5170,13 +5170,13 @@ class d {
    * for parser
    * @returns {TokenParser} - opaque object to be used
    */
-  static buildFormatParser(e, t = {}) {
-    const { locale: r = null, numberingSystem: s = null } = t, i = k.fromOpts({
-      locale: r,
-      numberingSystem: s,
+  static buildFormatParser(e, r = {}) {
+    const { locale: i = null, numberingSystem: a = null } = r, c = re.fromOpts({
+      locale: i,
+      numberingSystem: a,
       defaultToEN: !0
     });
-    return new $n(i, e);
+    return new Ta(c, e);
   }
   /**
    * Create a DateTime from an input string and format parser.
@@ -5188,28 +5188,28 @@ class d {
    * @param {Object} opts - options taken by fromFormat()
    * @returns {DateTime}
    */
-  static fromFormatParser(e, t, r = {}) {
-    if (m(e) || m(t))
-      throw new v(
+  static fromFormatParser(e, r, i = {}) {
+    if (Z(e) || Z(r))
+      throw new ge(
         "fromFormatParser requires an input string and a format parser"
       );
-    const { locale: s = null, numberingSystem: i = null } = r, a = k.fromOpts({
-      locale: s,
-      numberingSystem: i,
+    const { locale: a = null, numberingSystem: c = null } = i, h = re.fromOpts({
+      locale: a,
+      numberingSystem: c,
       defaultToEN: !0
     });
-    if (!a.equals(t.locale))
-      throw new v(
-        `fromFormatParser called with a locale of ${a}, but the format parser was created for ${t.locale}`
+    if (!h.equals(r.locale))
+      throw new ge(
+        `fromFormatParser called with a locale of ${h}, but the format parser was created for ${r.locale}`
       );
-    const { result: o, zone: u, specificOffset: l, invalidReason: f } = t.explainFromTokens(e);
-    return f ? d.invalid(f) : Q(
-      o,
-      u,
-      r,
-      `format ${t.format}`,
+    const { result: m, zone: v, specificOffset: A, invalidReason: q } = r.explainFromTokens(e);
+    return q ? K.invalid(q) : jt(
+      m,
+      v,
+      i,
+      `format ${r.format}`,
       e,
-      l
+      A
     );
   }
   // FORMAT PRESETS
@@ -5218,188 +5218,188 @@ class d {
    * @type {Object}
    */
   static get DATE_SHORT() {
-    return Fe;
+    return Er;
   }
   /**
    * {@link DateTime#toLocaleString} format like 'Oct 14, 1983'
    * @type {Object}
    */
   static get DATE_MED() {
-    return Rt;
+    return Do;
   }
   /**
    * {@link DateTime#toLocaleString} format like 'Fri, Oct 14, 1983'
    * @type {Object}
    */
   static get DATE_MED_WITH_WEEKDAY() {
-    return Xn;
+    return Su;
   }
   /**
    * {@link DateTime#toLocaleString} format like 'October 14, 1983'
    * @type {Object}
    */
   static get DATE_FULL() {
-    return qt;
+    return $o;
   }
   /**
    * {@link DateTime#toLocaleString} format like 'Tuesday, October 14, 1983'
    * @type {Object}
    */
   static get DATE_HUGE() {
-    return Ht;
+    return No;
   }
   /**
    * {@link DateTime#toLocaleString} format like '09:30 AM'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get TIME_SIMPLE() {
-    return Yt;
+    return Mo;
   }
   /**
    * {@link DateTime#toLocaleString} format like '09:30:23 AM'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get TIME_WITH_SECONDS() {
-    return _t;
+    return Po;
   }
   /**
    * {@link DateTime#toLocaleString} format like '09:30:23 AM EDT'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get TIME_WITH_SHORT_OFFSET() {
-    return Pt;
+    return Fo;
   }
   /**
    * {@link DateTime#toLocaleString} format like '09:30:23 AM Eastern Daylight Time'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get TIME_WITH_LONG_OFFSET() {
-    return Gt;
+    return Ro;
   }
   /**
    * {@link DateTime#toLocaleString} format like '09:30', always 24-hour.
    * @type {Object}
    */
   static get TIME_24_SIMPLE() {
-    return Jt;
+    return Vo;
   }
   /**
    * {@link DateTime#toLocaleString} format like '09:30:23', always 24-hour.
    * @type {Object}
    */
   static get TIME_24_WITH_SECONDS() {
-    return Bt;
+    return qo;
   }
   /**
    * {@link DateTime#toLocaleString} format like '09:30:23 EDT', always 24-hour.
    * @type {Object}
    */
   static get TIME_24_WITH_SHORT_OFFSET() {
-    return jt;
+    return Lo;
   }
   /**
    * {@link DateTime#toLocaleString} format like '09:30:23 Eastern Daylight Time', always 24-hour.
    * @type {Object}
    */
   static get TIME_24_WITH_LONG_OFFSET() {
-    return Xt;
+    return Uo;
   }
   /**
    * {@link DateTime#toLocaleString} format like '10/14/1983, 9:30 AM'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get DATETIME_SHORT() {
-    return Qt;
+    return jo;
   }
   /**
    * {@link DateTime#toLocaleString} format like '10/14/1983, 9:30:33 AM'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get DATETIME_SHORT_WITH_SECONDS() {
-    return Kt;
+    return Wo;
   }
   /**
    * {@link DateTime#toLocaleString} format like 'Oct 14, 1983, 9:30 AM'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get DATETIME_MED() {
-    return en;
+    return Ko;
   }
   /**
    * {@link DateTime#toLocaleString} format like 'Oct 14, 1983, 9:30:33 AM'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get DATETIME_MED_WITH_SECONDS() {
-    return tn;
+    return zo;
   }
   /**
    * {@link DateTime#toLocaleString} format like 'Fri, 14 Oct 1983, 9:30 AM'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get DATETIME_MED_WITH_WEEKDAY() {
-    return Qn;
+    return xu;
   }
   /**
    * {@link DateTime#toLocaleString} format like 'October 14, 1983, 9:30 AM EDT'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get DATETIME_FULL() {
-    return nn;
+    return Zo;
   }
   /**
    * {@link DateTime#toLocaleString} format like 'October 14, 1983, 9:30:33 AM EDT'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get DATETIME_FULL_WITH_SECONDS() {
-    return rn;
+    return Bo;
   }
   /**
    * {@link DateTime#toLocaleString} format like 'Friday, October 14, 1983, 9:30 AM Eastern Daylight Time'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get DATETIME_HUGE() {
-    return sn;
+    return Ho;
   }
   /**
    * {@link DateTime#toLocaleString} format like 'Friday, October 14, 1983, 9:30:33 AM Eastern Daylight Time'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get DATETIME_HUGE_WITH_SECONDS() {
-    return an;
+    return Yo;
   }
 }
-function de(n) {
-  if (d.isDateTime(n))
-    return n;
-  if (n && n.valueOf && R(n.valueOf()))
-    return d.fromJSDate(n);
-  if (n && typeof n == "object")
-    return d.fromObject(n);
-  throw new v(
-    `Unknown datetime argument: ${n}, of type ${typeof n}`
+function Sn(s) {
+  if (K.isDateTime(s))
+    return s;
+  if (s && s.valueOf && at(s.valueOf()))
+    return K.fromJSDate(s);
+  if (s && typeof s == "object")
+    return K.fromObject(s);
+  throw new ge(
+    `Unknown datetime argument: ${s}, of type ${typeof s}`
   );
 }
-const Js = "3.5.0", js = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const wc = "3.5.0", Gc = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  DateTime: d,
-  Duration: g,
-  FixedOffsetZone: D,
-  IANAZone: $,
-  Info: me,
-  Interval: S,
-  InvalidZone: on,
-  Settings: p,
-  SystemZone: ke,
-  VERSION: Js,
-  Zone: se
+  DateTime: K,
+  Duration: X,
+  FixedOffsetZone: be,
+  IANAZone: Ue,
+  Info: On,
+  Interval: ae,
+  InvalidZone: Go,
+  Settings: ue,
+  SystemZone: Pn,
+  VERSION: wc,
+  Zone: Qt
 }, Symbol.toStringTag, { value: "Module" }));
-class Ve extends Error {
+class Tr extends Error {
   constructor(e) {
     super(e), this.name = "KioskDateTimeError";
   }
 }
-class _ {
-  constructor() {
+class Zt {
+  constructor(e) {
     this.latinMonths = {
       I: "01",
       II: "02",
@@ -5413,7 +5413,7 @@ class _ {
       X: "10",
       XI: "11",
       XII: "12"
-    }, this.arabicMonthToLatin = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+    }, this.arabicMonthToLatin = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"], this.timeZones = void 0, this.timeZones = e;
   }
   /**
    * Returns a formatted Latin date string based on the provided Luxon DateTime object.
@@ -5422,9 +5422,9 @@ class _ {
    * @param withTime Optional. A boolean flag to include time in the output. Default is true.
    * @returns The formatted Latin date string, with or without time based on the 'withTime' flag
    */
-  getLatinDate(e, t = !0) {
-    const r = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"], s = `${e.day} ${r[e.month - 1]} ${e.year}`;
-    return t ? s + " " + e.toLocaleString(d.TIME_WITH_SECONDS) : s;
+  getLatinDate(e, r = !0) {
+    const i = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"], a = `${e.day} ${i[e.month - 1]} ${e.year}`;
+    return r ? a + " " + e.toLocaleString(K.TIME_WITH_SECONDS) : a;
   }
   /**
    * returns a TimeZoneInfo object with id, ianaName and fullName of the
@@ -5432,9 +5432,9 @@ class _ {
    */
   static getActiveUserTimeZone() {
     return {
-      id: parseInt(Y("kiosk_tz_index")),
-      ianaName: Y("kiosk_iana_time_zone"),
-      fullName: Y("kiosk_tz_name")
+      id: parseInt(Tt("kiosk_tz_index")),
+      ianaName: Tt("kiosk_iana_time_zone"),
+      fullName: Tt("kiosk_tz_name")
     };
   }
   /**
@@ -5444,9 +5444,9 @@ class _ {
    */
   static getActiveRecordingTimeZone() {
     return {
-      id: parseInt(Y("kiosk_recording_tz_index")),
-      ianaName: Y("kiosk_recording_iana_time_zone"),
-      fullName: Y("kiosk_recording_tz_name")
+      id: parseInt(Tt("kiosk_recording_tz_index")),
+      ianaName: Tt("kiosk_recording_iana_time_zone"),
+      fullName: Tt("kiosk_recording_tz_name")
     };
   }
   /**
@@ -5458,14 +5458,28 @@ class _ {
    * @param asRecordingTime Optional. If true this takes the IANA timezone from a hidden "-tz" Input Element,
    *                        otherwise the active user time zone will be used.
    */
-  initKioskDateTimeTzField(e, t = !0) {
-    let r = document.getElementById(e);
-    if (r) {
-      let s = r.dataset.utcDate;
-      if (s) {
-        let i = d.fromISO(s, { zone: "UTC" }), a = document.getElementById(e + "-tz").value, o = "-";
-        t ? o = a : a != "-" && (o = _.getActiveUserTimeZone().ianaName), o !== "-" && o !== "UTC" && (i = i.setZone(o)), r.value = this.getLatinDate(i);
+  initKioskDateTimeTzField(e, r = !0) {
+    let i = document.getElementById(e);
+    if (i) {
+      let a = i.dataset.utcDate;
+      if (a) {
+        let c = K.fromISO(a, { zone: "UTC" }), h = document.getElementById(e + "-tz").value, m = "-";
+        r ? m = h : h != "-" && (m = Zt.getActiveUserTimeZone().ianaName), m !== "-" && m !== "UTC" && (c = c.setZone(m)), i.value = this.getLatinDate(c);
       }
+    }
+  }
+  async initKioskDateTimeSpan(e, r = !0, i = !0) {
+    var c;
+    let a = (c = e.textContent) == null ? void 0 : c.trim();
+    if (a) {
+      let h = K.fromISO(a, { zone: "UTC" }), m, v;
+      if (e.dataset.tzIndex != null && this.timeZones) {
+        let z = await this.timeZones.getTimeZoneByIndex(Number(e.dataset.tzIndex));
+        z && z.tz_IANA && (m = z.tz_IANA), v = z && z.tz_long ? z.tz_long : m;
+      }
+      m || (m = e.dataset.recordingIanaTz), m && m !== "UTC" && m !== "-" && (h = h.setZone(m));
+      const A = i ? this.getLatinDate(h) : h.toLocaleString(), q = v ? ` (${v})` : " (legacy)", M = r ? q : "";
+      e.innerText = A + M;
     }
   }
   /**
@@ -5473,22 +5487,13 @@ class _ {
    * transforming it into a local time according to either the user's time zone or the recording time zone
    *
    * @param dialog
-   * @param asRecordingTime if True (the default) the time zone is taken from the span's data-recording-tz-index attribute.
-   *                        otherwise the active user's time zone is going to be used
+   * @param displayTimeZone if True (the default) the time zone name is shown
    * @param latinFormat default is true: expresses the date in Kiosk's latin date format
    */
-  initKioskDateTimeSpans(e, t = !0, r = !0) {
-    const s = e.querySelectorAll("span.kiosk-tz-span");
-    for (const i of s) {
-      let a = i.innerText;
-      if (a) {
-        let o = d.fromISO(a, { zone: "UTC" }), u = "-";
-        const l = t || i.dataset.displayMode && i.dataset.displayMode.toLowerCase() === "recording", f = i.dataset.recordingIanaTz;
-        l ? f && (u = f) : f != "-" && (u = _.getActiveUserTimeZone().ianaName), u !== "-" && u !== "UTC" && (o = o.setZone(u));
-        const y = r ? this.getLatinDate(o) : o.toLocaleString(), T = u === "-" ? " (legacy)" : ` (${u})`, h = l ? T : "";
-        i.innerText = y + h;
-      }
-    }
+  async initKioskDateTimeSpans(e, r = !0, i = !0) {
+    const a = e.querySelectorAll("span.kiosk-tz-span");
+    for (const c of a)
+      await this.initKioskDateTimeSpan(c, r, i);
   }
   /**
    * validates a HTMLInputField that is supposed to contain a date time in its value
@@ -5498,29 +5503,29 @@ class _ {
    * @param useRecordingTz default is true: uses the active recording time zone. False uses the active user time zone.
    * @returns the result of guessDateTime: A ISO8601 string of the date/time in UTC time zone
    */
-  validateDateTimeField(e, t = "kiosk-error-border", r = !0, s = !0) {
-    var o;
-    const i = document.getElementById(e);
-    let a = "";
-    if (i) {
-      t && i.classList.contains(t) && i.classList.remove(t);
-      let u = i.value;
-      if (u && u.trim()) {
-        const l = s ? _.getActiveRecordingTimeZone().ianaName : _.getActiveUserTimeZone().ianaName, f = new _();
+  validateDateTimeField(e, r = "kiosk-error-border", i = !0, a = !0) {
+    var m;
+    const c = document.getElementById(e);
+    let h = "";
+    if (c) {
+      r && c.classList.contains(r) && c.classList.remove(r);
+      let v = c.value;
+      if (v && v.trim()) {
+        const A = a ? Zt.getActiveRecordingTimeZone().ianaName : Zt.getActiveUserTimeZone().ianaName, q = new Zt();
         try {
-          if (a = (o = f.guessDateTime(u, !1, l)) == null ? void 0 : o.toISO({
+          if (h = (m = q.guessDateTime(v, !1, A)) == null ? void 0 : m.toISO({
             includeOffset: !1,
             suppressMilliseconds: !0
-          }), !a)
+          }), !h)
             throw Error("date/time value not understood.");
-        } catch (y) {
-          throw t && i.classList.add(t), y instanceof Ve && r && i.focus(), y;
+        } catch (M) {
+          throw r && c.classList.add(r), M instanceof Tr && i && c.focus(), M;
         }
       } else
-        a = "";
+        h = "";
     } else
       throw Error(`ui element ${e} does not exist.`);
-    return a;
+    return h;
   }
   /**
    * Splits a given string containing date and time (optional) into separate date and time parts.
@@ -5530,17 +5535,17 @@ class _ {
    *          If the input does not contain a time, the time part is undefined.
    */
   splitDateAndTime(e) {
-    let t = e.split(" "), r = "", s = "";
-    if (t.length < 2 || t.length == 3)
+    let r = e.split(" "), i = "", a = "";
+    if (r.length < 2 || r.length == 3)
       return [e.trim(), void 0];
-    let i = e.lastIndexOf(" ");
-    return r = e.slice(0, i), s = e.slice(i + 1), s.length > 1 && (s = s.trim()), r.length > 1 && (r = r.trim()), [r, s === "" ? void 0 : s];
+    let c = e.lastIndexOf(" ");
+    return i = e.slice(0, c), a = e.slice(c + 1), a.length > 1 && (a = a.trim()), i.length > 1 && (i = i.trim()), [i, a === "" ? void 0 : a];
   }
-  interpolateYear(e, t = 3) {
+  interpolateYear(e, r = 3) {
     if (e > 100)
       return e;
-    const r = (/* @__PURE__ */ new Date()).getFullYear() - Math.floor((/* @__PURE__ */ new Date()).getFullYear() / 1e3) * 1e3;
-    return e > r + t ? e + 1900 : e + 2e3;
+    const i = (/* @__PURE__ */ new Date()).getFullYear() - Math.floor((/* @__PURE__ */ new Date()).getFullYear() / 1e3) * 1e3;
+    return e > i + r ? e + 1900 : e + 2e3;
   }
   /**
    * formats year, month and day to a ISO8601 string. Does not check if the result is a valid date.
@@ -5548,27 +5553,27 @@ class _ {
    * @param month int or string
    * @param day int or string
    */
-  formatISO8601DateStr(e, t, r) {
-    return r = String(r).padStart(2, "0"), t = String(t).padStart(2, "0"), e = this.interpolateYear(parseInt(String(e) || ""), 3), `${e}-${t}-${r}`;
+  formatISO8601DateStr(e, r, i) {
+    return i = String(i).padStart(2, "0"), r = String(r).padStart(2, "0"), e = this.interpolateYear(parseInt(String(e) || ""), 3), `${e}-${r}-${i}`;
   }
   guessLatinDate(e) {
-    var i;
-    const t = [
+    var c;
+    const r = [
       /^(?<day>\d{1,2})\.(?<latinMonth>[IVX]{1,4})\.(?<year>\d{2,4})$/,
       /^(?<day>\d{1,2}) (?<latinMonth>[IVX]{1,4}) (?<year>\d{2,4})$/,
       /^(?<day>\d{1,2})(?<latinMonth>[IVX]{1,4})(?<year>\d{2,4})$/
     ];
-    let r = "", s = null;
-    for (const a of t)
-      if (s = new RegExp(a).exec(e), s)
+    let i = "", a = null;
+    for (const h of r)
+      if (a = new RegExp(h).exec(e), a)
         break;
-    if (s)
+    if (a)
       try {
-        const a = (i = s.groups) == null ? void 0 : i.latinMonth;
-        s.groups && a && this.latinMonths.hasOwnProperty(a) && (r = this.formatISO8601DateStr(s.groups.year, this.latinMonths[a], s.groups.day));
+        const h = (c = a.groups) == null ? void 0 : c.latinMonth;
+        a.groups && h && this.latinMonths.hasOwnProperty(h) && (i = this.formatISO8601DateStr(a.groups.year, this.latinMonths[h], a.groups.day));
       } catch {
       }
-    return r;
+    return i;
   }
   /**
    * guesses the date and time from a string.
@@ -5577,38 +5582,3882 @@ class _ {
    * can also throw other Errors
    * returns a Luxon DateTime object with UTC time zone
    */
-  guessDateTime(e, t = !1, r = "utc") {
-    const s = d.fromISO(e, { zone: "utc" });
-    if (s.isValid) return s;
-    let [i, a] = this.splitDateAndTime(e);
-    if (!a && !t)
-      throw new Ve(`${e} has no time.`);
-    let o = this.guessLatinDate(i);
-    o && (i = o);
-    let l = /^(?<day>\d{1,2})\.(?<month>\d{1,2})\.(?<year>\d{2,4})$/.exec(i);
-    if (l && l.groups)
+  guessDateTime(e, r = !1, i = "utc") {
+    const a = K.fromISO(e, { zone: "utc" });
+    if (a.isValid) return a;
+    let [c, h] = this.splitDateAndTime(e);
+    if (!h && !r)
+      throw new Tr(`${e} has no time.`);
+    let m = this.guessLatinDate(c);
+    m && (c = m);
+    let A = /^(?<day>\d{1,2})\.(?<month>\d{1,2})\.(?<year>\d{2,4})$/.exec(c);
+    if (A && A.groups)
       try {
-        i = this.formatISO8601DateStr(l.groups.year, l.groups.month, l.groups.day);
+        c = this.formatISO8601DateStr(A.groups.year, A.groups.month, A.groups.day);
       } catch {
       }
-    if (l = /^(?<month>\d{1,2})\/(?<day>\d{1,2})\/(?<year>\d{2,4})$/.exec(i), l && l.groups)
+    if (A = /^(?<month>\d{1,2})\/(?<day>\d{1,2})\/(?<year>\d{2,4})$/.exec(c), A && A.groups)
       try {
-        i = this.formatISO8601DateStr(l.groups.year, l.groups.month, l.groups.day);
+        c = this.formatISO8601DateStr(A.groups.year, A.groups.month, A.groups.day);
       } catch {
       }
-    let y;
-    if (i && (a ? y = d.fromISO(i + "T" + a, { zone: r, setZone: !0 }).toUTC() : y = d.fromISO(i, { zone: r, setZone: !0 }).toUTC(), !y.isValid))
-      throw new Ve(`${e} is not a valid date`);
-    return y;
+    let M;
+    if (c && (h ? M = K.fromISO(c + "T" + h, { zone: i, setZone: !0 }).toUTC() : M = K.fromISO(c, { zone: i, setZone: !0 }).toUTC(), !M.isValid))
+      throw new Tr(`${e} is not a valid date`);
+    return M;
   }
 }
-const Xs = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const Jc = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  KioskDateTime: _,
-  KioskDateTimeError: Ve
-}, Symbol.toStringTag, { value: "Module" }));
+  KioskDateTime: Zt,
+  KioskDateTimeError: Tr
+}, Symbol.toStringTag, { value: "Module" })), Da = 2, ji = 3;
+/**
+ * @license
+ * Copyright 2019 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+const Or = globalThis, es = Or.ShadowRoot && (Or.ShadyCSS === void 0 || Or.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, $a = Symbol(), yo = /* @__PURE__ */ new WeakMap();
+let kc = class {
+  constructor(e, r, i) {
+    if (this._$cssResult$ = !0, i !== $a) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
+    this.cssText = e, this.t = r;
+  }
+  get styleSheet() {
+    let e = this.o;
+    const r = this.t;
+    if (es && e === void 0) {
+      const i = r !== void 0 && r.length === 1;
+      i && (e = yo.get(r)), e === void 0 && ((this.o = e = new CSSStyleSheet()).replaceSync(this.cssText), i && yo.set(r, e));
+    }
+    return e;
+  }
+  toString() {
+    return this.cssText;
+  }
+};
+const _c = (s) => new kc(typeof s == "string" ? s : s + "", void 0, $a), Sc = (s, e) => {
+  if (es) s.adoptedStyleSheets = e.map((r) => r instanceof CSSStyleSheet ? r : r.styleSheet);
+  else for (const r of e) {
+    const i = document.createElement("style"), a = Or.litNonce;
+    a !== void 0 && i.setAttribute("nonce", a), i.textContent = r.cssText, s.appendChild(i);
+  }
+}, go = es ? (s) => s : (s) => s instanceof CSSStyleSheet ? ((e) => {
+  let r = "";
+  for (const i of e.cssRules) r += i.cssText;
+  return _c(r);
+})(s) : s;
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+const { is: xc, defineProperty: Tc, getOwnPropertyDescriptor: Oc, getOwnPropertyNames: Ec, getOwnPropertySymbols: Ic, getPrototypeOf: Ac } = Object, ut = globalThis, vo = ut.trustedTypes, Cc = vo ? vo.emptyScript : "", $i = ut.reactiveElementPolyfillSupport, An = (s, e) => s, Dr = { toAttribute(s, e) {
+  switch (e) {
+    case Boolean:
+      s = s ? Cc : null;
+      break;
+    case Object:
+    case Array:
+      s = s == null ? s : JSON.stringify(s);
+  }
+  return s;
+}, fromAttribute(s, e) {
+  let r = s;
+  switch (e) {
+    case Boolean:
+      r = s !== null;
+      break;
+    case Number:
+      r = s === null ? null : Number(s);
+      break;
+    case Object:
+    case Array:
+      try {
+        r = JSON.parse(s);
+      } catch {
+        r = null;
+      }
+  }
+  return r;
+} }, ts = (s, e) => !xc(s, e), bo = { attribute: !0, type: String, converter: Dr, reflect: !1, hasChanged: ts };
+Symbol.metadata ?? (Symbol.metadata = Symbol("metadata")), ut.litPropertyMetadata ?? (ut.litPropertyMetadata = /* @__PURE__ */ new WeakMap());
+class Kt extends HTMLElement {
+  static addInitializer(e) {
+    this._$Ei(), (this.l ?? (this.l = [])).push(e);
+  }
+  static get observedAttributes() {
+    return this.finalize(), this._$Eh && [...this._$Eh.keys()];
+  }
+  static createProperty(e, r = bo) {
+    if (r.state && (r.attribute = !1), this._$Ei(), this.elementProperties.set(e, r), !r.noAccessor) {
+      const i = Symbol(), a = this.getPropertyDescriptor(e, i, r);
+      a !== void 0 && Tc(this.prototype, e, a);
+    }
+  }
+  static getPropertyDescriptor(e, r, i) {
+    const { get: a, set: c } = Oc(this.prototype, e) ?? { get() {
+      return this[r];
+    }, set(h) {
+      this[r] = h;
+    } };
+    return { get() {
+      return a == null ? void 0 : a.call(this);
+    }, set(h) {
+      const m = a == null ? void 0 : a.call(this);
+      c.call(this, h), this.requestUpdate(e, m, i);
+    }, configurable: !0, enumerable: !0 };
+  }
+  static getPropertyOptions(e) {
+    return this.elementProperties.get(e) ?? bo;
+  }
+  static _$Ei() {
+    if (this.hasOwnProperty(An("elementProperties"))) return;
+    const e = Ac(this);
+    e.finalize(), e.l !== void 0 && (this.l = [...e.l]), this.elementProperties = new Map(e.elementProperties);
+  }
+  static finalize() {
+    if (this.hasOwnProperty(An("finalized"))) return;
+    if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(An("properties"))) {
+      const r = this.properties, i = [...Ec(r), ...Ic(r)];
+      for (const a of i) this.createProperty(a, r[a]);
+    }
+    const e = this[Symbol.metadata];
+    if (e !== null) {
+      const r = litPropertyMetadata.get(e);
+      if (r !== void 0) for (const [i, a] of r) this.elementProperties.set(i, a);
+    }
+    this._$Eh = /* @__PURE__ */ new Map();
+    for (const [r, i] of this.elementProperties) {
+      const a = this._$Eu(r, i);
+      a !== void 0 && this._$Eh.set(a, r);
+    }
+    this.elementStyles = this.finalizeStyles(this.styles);
+  }
+  static finalizeStyles(e) {
+    const r = [];
+    if (Array.isArray(e)) {
+      const i = new Set(e.flat(1 / 0).reverse());
+      for (const a of i) r.unshift(go(a));
+    } else e !== void 0 && r.push(go(e));
+    return r;
+  }
+  static _$Eu(e, r) {
+    const i = r.attribute;
+    return i === !1 ? void 0 : typeof i == "string" ? i : typeof e == "string" ? e.toLowerCase() : void 0;
+  }
+  constructor() {
+    super(), this._$Ep = void 0, this.isUpdatePending = !1, this.hasUpdated = !1, this._$Em = null, this._$Ev();
+  }
+  _$Ev() {
+    var e;
+    this._$ES = new Promise((r) => this.enableUpdating = r), this._$AL = /* @__PURE__ */ new Map(), this._$E_(), this.requestUpdate(), (e = this.constructor.l) == null || e.forEach((r) => r(this));
+  }
+  addController(e) {
+    var r;
+    (this._$EO ?? (this._$EO = /* @__PURE__ */ new Set())).add(e), this.renderRoot !== void 0 && this.isConnected && ((r = e.hostConnected) == null || r.call(e));
+  }
+  removeController(e) {
+    var r;
+    (r = this._$EO) == null || r.delete(e);
+  }
+  _$E_() {
+    const e = /* @__PURE__ */ new Map(), r = this.constructor.elementProperties;
+    for (const i of r.keys()) this.hasOwnProperty(i) && (e.set(i, this[i]), delete this[i]);
+    e.size > 0 && (this._$Ep = e);
+  }
+  createRenderRoot() {
+    const e = this.shadowRoot ?? this.attachShadow(this.constructor.shadowRootOptions);
+    return Sc(e, this.constructor.elementStyles), e;
+  }
+  connectedCallback() {
+    var e;
+    this.renderRoot ?? (this.renderRoot = this.createRenderRoot()), this.enableUpdating(!0), (e = this._$EO) == null || e.forEach((r) => {
+      var i;
+      return (i = r.hostConnected) == null ? void 0 : i.call(r);
+    });
+  }
+  enableUpdating(e) {
+  }
+  disconnectedCallback() {
+    var e;
+    (e = this._$EO) == null || e.forEach((r) => {
+      var i;
+      return (i = r.hostDisconnected) == null ? void 0 : i.call(r);
+    });
+  }
+  attributeChangedCallback(e, r, i) {
+    this._$AK(e, i);
+  }
+  _$EC(e, r) {
+    var c;
+    const i = this.constructor.elementProperties.get(e), a = this.constructor._$Eu(e, i);
+    if (a !== void 0 && i.reflect === !0) {
+      const h = (((c = i.converter) == null ? void 0 : c.toAttribute) !== void 0 ? i.converter : Dr).toAttribute(r, i.type);
+      this._$Em = e, h == null ? this.removeAttribute(a) : this.setAttribute(a, h), this._$Em = null;
+    }
+  }
+  _$AK(e, r) {
+    var c;
+    const i = this.constructor, a = i._$Eh.get(e);
+    if (a !== void 0 && this._$Em !== a) {
+      const h = i.getPropertyOptions(a), m = typeof h.converter == "function" ? { fromAttribute: h.converter } : ((c = h.converter) == null ? void 0 : c.fromAttribute) !== void 0 ? h.converter : Dr;
+      this._$Em = a, this[a] = m.fromAttribute(r, h.type), this._$Em = null;
+    }
+  }
+  requestUpdate(e, r, i) {
+    if (e !== void 0) {
+      if (i ?? (i = this.constructor.getPropertyOptions(e)), !(i.hasChanged ?? ts)(this[e], r)) return;
+      this.P(e, r, i);
+    }
+    this.isUpdatePending === !1 && (this._$ES = this._$ET());
+  }
+  P(e, r, i) {
+    this._$AL.has(e) || this._$AL.set(e, r), i.reflect === !0 && this._$Em !== e && (this._$Ej ?? (this._$Ej = /* @__PURE__ */ new Set())).add(e);
+  }
+  async _$ET() {
+    this.isUpdatePending = !0;
+    try {
+      await this._$ES;
+    } catch (r) {
+      Promise.reject(r);
+    }
+    const e = this.scheduleUpdate();
+    return e != null && await e, !this.isUpdatePending;
+  }
+  scheduleUpdate() {
+    return this.performUpdate();
+  }
+  performUpdate() {
+    var i;
+    if (!this.isUpdatePending) return;
+    if (!this.hasUpdated) {
+      if (this.renderRoot ?? (this.renderRoot = this.createRenderRoot()), this._$Ep) {
+        for (const [c, h] of this._$Ep) this[c] = h;
+        this._$Ep = void 0;
+      }
+      const a = this.constructor.elementProperties;
+      if (a.size > 0) for (const [c, h] of a) h.wrapped !== !0 || this._$AL.has(c) || this[c] === void 0 || this.P(c, this[c], h);
+    }
+    let e = !1;
+    const r = this._$AL;
+    try {
+      e = this.shouldUpdate(r), e ? (this.willUpdate(r), (i = this._$EO) == null || i.forEach((a) => {
+        var c;
+        return (c = a.hostUpdate) == null ? void 0 : c.call(a);
+      }), this.update(r)) : this._$EU();
+    } catch (a) {
+      throw e = !1, this._$EU(), a;
+    }
+    e && this._$AE(r);
+  }
+  willUpdate(e) {
+  }
+  _$AE(e) {
+    var r;
+    (r = this._$EO) == null || r.forEach((i) => {
+      var a;
+      return (a = i.hostUpdated) == null ? void 0 : a.call(i);
+    }), this.hasUpdated || (this.hasUpdated = !0, this.firstUpdated(e)), this.updated(e);
+  }
+  _$EU() {
+    this._$AL = /* @__PURE__ */ new Map(), this.isUpdatePending = !1;
+  }
+  get updateComplete() {
+    return this.getUpdateComplete();
+  }
+  getUpdateComplete() {
+    return this._$ES;
+  }
+  shouldUpdate(e) {
+    return !0;
+  }
+  update(e) {
+    this._$Ej && (this._$Ej = this._$Ej.forEach((r) => this._$EC(r, this[r]))), this._$EU();
+  }
+  updated(e) {
+  }
+  firstUpdated(e) {
+  }
+}
+Kt.elementStyles = [], Kt.shadowRootOptions = { mode: "open" }, Kt[An("elementProperties")] = /* @__PURE__ */ new Map(), Kt[An("finalized")] = /* @__PURE__ */ new Map(), $i == null || $i({ ReactiveElement: Kt }), (ut.reactiveElementVersions ?? (ut.reactiveElementVersions = [])).push("2.0.4");
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+const Cn = globalThis, $r = Cn.trustedTypes, wo = $r ? $r.createPolicy("lit-html", { createHTML: (s) => s }) : void 0, Na = "$lit$", st = `lit$${(Math.random() + "").slice(9)}$`, Ma = "?" + st, Dc = `<${Ma}>`, It = document, $n = () => It.createComment(""), Nn = (s) => s === null || typeof s != "object" && typeof s != "function", Pa = Array.isArray, $c = (s) => Pa(s) || typeof (s == null ? void 0 : s[Symbol.iterator]) == "function", Ni = `[ 	
+\f\r]`, xn = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, ko = /-->/g, _o = />/g, xt = RegExp(`>|${Ni}(?:([^\\s"'>=/]+)(${Ni}*=${Ni}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g"), So = /'/g, xo = /"/g, Fa = /^(?:script|style|textarea|title)$/i, Nc = (s) => (e, ...r) => ({ _$litType$: s, strings: e, values: r }), ot = Nc(1), Jt = Symbol.for("lit-noChange"), he = Symbol.for("lit-nothing"), To = /* @__PURE__ */ new WeakMap(), Et = It.createTreeWalker(It, 129);
+function Ra(s, e) {
+  if (!Array.isArray(s) || !s.hasOwnProperty("raw")) throw Error("invalid template strings array");
+  return wo !== void 0 ? wo.createHTML(e) : e;
+}
+const Mc = (s, e) => {
+  const r = s.length - 1, i = [];
+  let a, c = e === 2 ? "<svg>" : "", h = xn;
+  for (let m = 0; m < r; m++) {
+    const v = s[m];
+    let A, q, M = -1, z = 0;
+    for (; z < v.length && (h.lastIndex = z, q = h.exec(v), q !== null); ) z = h.lastIndex, h === xn ? q[1] === "!--" ? h = ko : q[1] !== void 0 ? h = _o : q[2] !== void 0 ? (Fa.test(q[2]) && (a = RegExp("</" + q[2], "g")), h = xt) : q[3] !== void 0 && (h = xt) : h === xt ? q[0] === ">" ? (h = a ?? xn, M = -1) : q[1] === void 0 ? M = -2 : (M = h.lastIndex - q[2].length, A = q[1], h = q[3] === void 0 ? xt : q[3] === '"' ? xo : So) : h === xo || h === So ? h = xt : h === ko || h === _o ? h = xn : (h = xt, a = void 0);
+    const j = h === xt && s[m + 1].startsWith("/>") ? " " : "";
+    c += h === xn ? v + Dc : M >= 0 ? (i.push(A), v.slice(0, M) + Na + v.slice(M) + st + j) : v + st + (M === -2 ? m : j);
+  }
+  return [Ra(s, c + (s[r] || "<?>") + (e === 2 ? "</svg>" : "")), i];
+};
+class Mn {
+  constructor({ strings: e, _$litType$: r }, i) {
+    let a;
+    this.parts = [];
+    let c = 0, h = 0;
+    const m = e.length - 1, v = this.parts, [A, q] = Mc(e, r);
+    if (this.el = Mn.createElement(A, i), Et.currentNode = this.el.content, r === 2) {
+      const M = this.el.content.firstChild;
+      M.replaceWith(...M.childNodes);
+    }
+    for (; (a = Et.nextNode()) !== null && v.length < m; ) {
+      if (a.nodeType === 1) {
+        if (a.hasAttributes()) for (const M of a.getAttributeNames()) if (M.endsWith(Na)) {
+          const z = q[h++], j = a.getAttribute(M).split(st), ee = /([.?@])?(.*)/.exec(z);
+          v.push({ type: 1, index: c, name: ee[2], strings: j, ctor: ee[1] === "." ? Fc : ee[1] === "?" ? Rc : ee[1] === "@" ? Vc : Rr }), a.removeAttribute(M);
+        } else M.startsWith(st) && (v.push({ type: 6, index: c }), a.removeAttribute(M));
+        if (Fa.test(a.tagName)) {
+          const M = a.textContent.split(st), z = M.length - 1;
+          if (z > 0) {
+            a.textContent = $r ? $r.emptyScript : "";
+            for (let j = 0; j < z; j++) a.append(M[j], $n()), Et.nextNode(), v.push({ type: 2, index: ++c });
+            a.append(M[z], $n());
+          }
+        }
+      } else if (a.nodeType === 8) if (a.data === Ma) v.push({ type: 2, index: c });
+      else {
+        let M = -1;
+        for (; (M = a.data.indexOf(st, M + 1)) !== -1; ) v.push({ type: 7, index: c }), M += st.length - 1;
+      }
+      c++;
+    }
+  }
+  static createElement(e, r) {
+    const i = It.createElement("template");
+    return i.innerHTML = e, i;
+  }
+}
+function Xt(s, e, r = s, i) {
+  var h, m;
+  if (e === Jt) return e;
+  let a = i !== void 0 ? (h = r._$Co) == null ? void 0 : h[i] : r._$Cl;
+  const c = Nn(e) ? void 0 : e._$litDirective$;
+  return (a == null ? void 0 : a.constructor) !== c && ((m = a == null ? void 0 : a._$AO) == null || m.call(a, !1), c === void 0 ? a = void 0 : (a = new c(s), a._$AT(s, r, i)), i !== void 0 ? (r._$Co ?? (r._$Co = []))[i] = a : r._$Cl = a), a !== void 0 && (e = Xt(s, a._$AS(s, e.values), a, i)), e;
+}
+class Pc {
+  constructor(e, r) {
+    this._$AV = [], this._$AN = void 0, this._$AD = e, this._$AM = r;
+  }
+  get parentNode() {
+    return this._$AM.parentNode;
+  }
+  get _$AU() {
+    return this._$AM._$AU;
+  }
+  u(e) {
+    const { el: { content: r }, parts: i } = this._$AD, a = ((e == null ? void 0 : e.creationScope) ?? It).importNode(r, !0);
+    Et.currentNode = a;
+    let c = Et.nextNode(), h = 0, m = 0, v = i[0];
+    for (; v !== void 0; ) {
+      if (h === v.index) {
+        let A;
+        v.type === 2 ? A = new qn(c, c.nextSibling, this, e) : v.type === 1 ? A = new v.ctor(c, v.name, v.strings, this, e) : v.type === 6 && (A = new qc(c, this, e)), this._$AV.push(A), v = i[++m];
+      }
+      h !== (v == null ? void 0 : v.index) && (c = Et.nextNode(), h++);
+    }
+    return Et.currentNode = It, a;
+  }
+  p(e) {
+    let r = 0;
+    for (const i of this._$AV) i !== void 0 && (i.strings !== void 0 ? (i._$AI(e, i, r), r += i.strings.length - 2) : i._$AI(e[r])), r++;
+  }
+}
+class qn {
+  get _$AU() {
+    var e;
+    return ((e = this._$AM) == null ? void 0 : e._$AU) ?? this._$Cv;
+  }
+  constructor(e, r, i, a) {
+    this.type = 2, this._$AH = he, this._$AN = void 0, this._$AA = e, this._$AB = r, this._$AM = i, this.options = a, this._$Cv = (a == null ? void 0 : a.isConnected) ?? !0;
+  }
+  get parentNode() {
+    let e = this._$AA.parentNode;
+    const r = this._$AM;
+    return r !== void 0 && (e == null ? void 0 : e.nodeType) === 11 && (e = r.parentNode), e;
+  }
+  get startNode() {
+    return this._$AA;
+  }
+  get endNode() {
+    return this._$AB;
+  }
+  _$AI(e, r = this) {
+    e = Xt(this, e, r), Nn(e) ? e === he || e == null || e === "" ? (this._$AH !== he && this._$AR(), this._$AH = he) : e !== this._$AH && e !== Jt && this._(e) : e._$litType$ !== void 0 ? this.$(e) : e.nodeType !== void 0 ? this.T(e) : $c(e) ? this.k(e) : this._(e);
+  }
+  S(e) {
+    return this._$AA.parentNode.insertBefore(e, this._$AB);
+  }
+  T(e) {
+    this._$AH !== e && (this._$AR(), this._$AH = this.S(e));
+  }
+  _(e) {
+    this._$AH !== he && Nn(this._$AH) ? this._$AA.nextSibling.data = e : this.T(It.createTextNode(e)), this._$AH = e;
+  }
+  $(e) {
+    var c;
+    const { values: r, _$litType$: i } = e, a = typeof i == "number" ? this._$AC(e) : (i.el === void 0 && (i.el = Mn.createElement(Ra(i.h, i.h[0]), this.options)), i);
+    if (((c = this._$AH) == null ? void 0 : c._$AD) === a) this._$AH.p(r);
+    else {
+      const h = new Pc(a, this), m = h.u(this.options);
+      h.p(r), this.T(m), this._$AH = h;
+    }
+  }
+  _$AC(e) {
+    let r = To.get(e.strings);
+    return r === void 0 && To.set(e.strings, r = new Mn(e)), r;
+  }
+  k(e) {
+    Pa(this._$AH) || (this._$AH = [], this._$AR());
+    const r = this._$AH;
+    let i, a = 0;
+    for (const c of e) a === r.length ? r.push(i = new qn(this.S($n()), this.S($n()), this, this.options)) : i = r[a], i._$AI(c), a++;
+    a < r.length && (this._$AR(i && i._$AB.nextSibling, a), r.length = a);
+  }
+  _$AR(e = this._$AA.nextSibling, r) {
+    var i;
+    for ((i = this._$AP) == null ? void 0 : i.call(this, !1, !0, r); e && e !== this._$AB; ) {
+      const a = e.nextSibling;
+      e.remove(), e = a;
+    }
+  }
+  setConnected(e) {
+    var r;
+    this._$AM === void 0 && (this._$Cv = e, (r = this._$AP) == null || r.call(this, e));
+  }
+}
+class Rr {
+  get tagName() {
+    return this.element.tagName;
+  }
+  get _$AU() {
+    return this._$AM._$AU;
+  }
+  constructor(e, r, i, a, c) {
+    this.type = 1, this._$AH = he, this._$AN = void 0, this.element = e, this.name = r, this._$AM = a, this.options = c, i.length > 2 || i[0] !== "" || i[1] !== "" ? (this._$AH = Array(i.length - 1).fill(new String()), this.strings = i) : this._$AH = he;
+  }
+  _$AI(e, r = this, i, a) {
+    const c = this.strings;
+    let h = !1;
+    if (c === void 0) e = Xt(this, e, r, 0), h = !Nn(e) || e !== this._$AH && e !== Jt, h && (this._$AH = e);
+    else {
+      const m = e;
+      let v, A;
+      for (e = c[0], v = 0; v < c.length - 1; v++) A = Xt(this, m[i + v], r, v), A === Jt && (A = this._$AH[v]), h || (h = !Nn(A) || A !== this._$AH[v]), A === he ? e = he : e !== he && (e += (A ?? "") + c[v + 1]), this._$AH[v] = A;
+    }
+    h && !a && this.j(e);
+  }
+  j(e) {
+    e === he ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, e ?? "");
+  }
+}
+class Fc extends Rr {
+  constructor() {
+    super(...arguments), this.type = 3;
+  }
+  j(e) {
+    this.element[this.name] = e === he ? void 0 : e;
+  }
+}
+class Rc extends Rr {
+  constructor() {
+    super(...arguments), this.type = 4;
+  }
+  j(e) {
+    this.element.toggleAttribute(this.name, !!e && e !== he);
+  }
+}
+class Vc extends Rr {
+  constructor(e, r, i, a, c) {
+    super(e, r, i, a, c), this.type = 5;
+  }
+  _$AI(e, r = this) {
+    if ((e = Xt(this, e, r, 0) ?? he) === Jt) return;
+    const i = this._$AH, a = e === he && i !== he || e.capture !== i.capture || e.once !== i.once || e.passive !== i.passive, c = e !== he && (i === he || a);
+    a && this.element.removeEventListener(this.name, this, i), c && this.element.addEventListener(this.name, this, e), this._$AH = e;
+  }
+  handleEvent(e) {
+    var r;
+    typeof this._$AH == "function" ? this._$AH.call(((r = this.options) == null ? void 0 : r.host) ?? this.element, e) : this._$AH.handleEvent(e);
+  }
+}
+class qc {
+  constructor(e, r, i) {
+    this.element = e, this.type = 6, this._$AN = void 0, this._$AM = r, this.options = i;
+  }
+  get _$AU() {
+    return this._$AM._$AU;
+  }
+  _$AI(e) {
+    Xt(this, e);
+  }
+}
+const Mi = Cn.litHtmlPolyfillSupport;
+Mi == null || Mi(Mn, qn), (Cn.litHtmlVersions ?? (Cn.litHtmlVersions = [])).push("3.1.2");
+const Lc = (s, e, r) => {
+  const i = (r == null ? void 0 : r.renderBefore) ?? e;
+  let a = i._$litPart$;
+  if (a === void 0) {
+    const c = (r == null ? void 0 : r.renderBefore) ?? null;
+    i._$litPart$ = a = new qn(e.insertBefore($n(), c), c, void 0, r ?? {});
+  }
+  return a._$AI(s), a;
+};
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+class Yt extends Kt {
+  constructor() {
+    super(...arguments), this.renderOptions = { host: this }, this._$Do = void 0;
+  }
+  createRenderRoot() {
+    var r;
+    const e = super.createRenderRoot();
+    return (r = this.renderOptions).renderBefore ?? (r.renderBefore = e.firstChild), e;
+  }
+  update(e) {
+    const r = this.render();
+    this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(e), this._$Do = Lc(r, this.renderRoot, this.renderOptions);
+  }
+  connectedCallback() {
+    var e;
+    super.connectedCallback(), (e = this._$Do) == null || e.setConnected(!0);
+  }
+  disconnectedCallback() {
+    var e;
+    super.disconnectedCallback(), (e = this._$Do) == null || e.setConnected(!1);
+  }
+  render() {
+    return Jt;
+  }
+}
+var Ao;
+Yt._$litElement$ = !0, Yt.finalized = !0, (Ao = globalThis.litElementHydrateSupport) == null || Ao.call(globalThis, { LitElement: Yt });
+const Pi = globalThis.litElementPolyfillSupport;
+Pi == null || Pi({ LitElement: Yt });
+(globalThis.litElementVersions ?? (globalThis.litElementVersions = [])).push("4.0.4");
+const ns = class ns extends Yt {
+  constructor() {
+    super(), this.kiosk_base_url = "/", this.appErrors = [], this.apiContext = void 0, this.showProgress = !1;
+  }
+  onAppMessage(e) {
+    console.log("Unhandled AppMessage received", e.detail), this.addAppError(e.detail.headline + "<br>" + e.detail.body);
+  }
+  firstUpdated(e) {
+    super.firstUpdated(e), this.addEventListener("send-message", this.onAppMessage);
+  }
+  updated(e) {
+    e.has("apiContext") && (this.showProgress = !1, this.apiContext && this.apiContext.status === ji && this.addAppError("Cannot connect to Kiosk API."), !e.apiContext && this.apiContext && this.apiConnected());
+  }
+  apiConnected() {
+  }
+  render() {
+    let e;
+    return this.apiContext && this.apiContext.status === Da ? e = this.apiRender() : this.apiContext && this.apiContext.status === ji ? e = this.renderApiError() : e = this.renderNoContextYet(), ot`
+            <style>
+                .system-message {
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: space-between;
+                    border-style: solid;
+                    border-width: 2px;
+                    padding: 2px 1em;
+                    position: relative;
+                    margin-bottom: 10px;
+                    background: linear-gradient(135deg, #882501, #bb3302);
+                    color: #fabc02;
+                }
+                .system-message i {
+                    
+                }
+                .loading {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 5px;
+                    width: 100vw;
+                    background-color: black;
+                }
+                .loading-progress {
+                    height: 5px;
+                    width: 100%;
+                    border-radius: 3px;
+                    background: linear-gradient(
+                        90deg,
+                        red 0%,
+                        yellow 15%,
+                        lime 30%,
+                        cyan 50%,
+                        blue 65%,
+                        magenta 80%,
+                        red 100%
+                    );
+                    background-size: 200%;
+                    animation: move-gradient 2s ease-in infinite;
+                }
+                @keyframes move-gradient {
+                    0% {
+                        background-position: 0% 0%;
+                    }
+                    100% {
+                        background-position: -200% 0%;
+                    }
+                }
+            </style>
+            <link rel="stylesheet" href="${this.kiosk_base_url}static/styles.css" />
+            ${this.renderProgress()} ${this.renderErrors()} ${e}
+        `;
+  }
+  renderNoContextYet() {
+    return ot` <link rel="stylesheet" href="${this.kiosk_base_url}static/styles.css" /> `;
+  }
+  renderApiError() {
+  }
+  renderErrors() {
+    return this.appErrors.length > 0 ? ot` ${this.appErrors.map((e) => ot`<div class="system-message" @click="${this.errorClicked}"><span>${e}</span><i>x</i></div>`)} ` : he;
+  }
+  errorClicked(e) {
+    let r = e.currentTarget.children[0].textContent;
+    r && this.deleteError(r);
+  }
+  renderProgress(e = !1) {
+    if (e || this.showProgress)
+      return ot` <div class="loading">
+                <div class="loading-progress"></div>
+            </div>`;
+  }
+  addAppError(e) {
+    this.appErrors.push(e), this.requestUpdate();
+  }
+  clearAppErrors() {
+    this.appErrors = [], this.requestUpdate();
+  }
+  deleteError(e) {
+    let r = -1;
+    this.appErrors.find((i, a) => i === e ? (r = a, !0) : !1), r > -1 && (this.appErrors.splice(r, 1), this.appErrors = [...this.appErrors]);
+  }
+};
+ns.properties = {
+  /**
+   * The Api Context
+   */
+  apiContext: { type: Object },
+  appErrors: { type: Array },
+  showProgress: { type: Boolean }
+};
+let Oo = ns;
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+const Uc = { attribute: !0, type: String, converter: Dr, reflect: !1, hasChanged: ts }, jc = (s = Uc, e, r) => {
+  const { kind: i, metadata: a } = r;
+  let c = globalThis.litPropertyMetadata.get(a);
+  if (c === void 0 && globalThis.litPropertyMetadata.set(a, c = /* @__PURE__ */ new Map()), c.set(r.name, s), i === "accessor") {
+    const { name: h } = r;
+    return { set(m) {
+      const v = e.get.call(this);
+      e.set.call(this, m), this.requestUpdate(h, v, s);
+    }, init(m) {
+      return m !== void 0 && this.P(h, void 0, s), m;
+    } };
+  }
+  if (i === "setter") {
+    const { name: h } = r;
+    return function(m) {
+      const v = this[h];
+      e.call(this, m), this.requestUpdate(h, v, s);
+    };
+  }
+  throw Error("Unsupported decorator location: " + i);
+};
+function Wc(s) {
+  return (e, r) => typeof r == "object" ? jc(s, e, r) : ((i, a, c) => {
+    const h = a.hasOwnProperty(c);
+    return a.constructor.createProperty(c, h ? { ...i, wrapped: !0 } : i), h ? Object.getOwnPropertyDescriptor(a, c) : void 0;
+  })(s, e, r);
+}
+/**
+ * @license
+ * Copyright 2017 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+function Kc(s) {
+  return Wc({ ...s, state: !0, attribute: !1 });
+}
+var zc = Object.defineProperty, Zc = (s, e, r, i) => {
+  for (var a = void 0, c = s.length - 1, h; c >= 0; c--)
+    (h = s[c]) && (a = h(e, r, a) || a);
+  return a && zc(e, r, a), a;
+};
+const rs = class rs extends Yt {
+  constructor() {
+    super(), this.kiosk_base_url = "/", this.showProgress = !1, this.apiContext = void 0;
+  }
+  updated(e) {
+    e.has("apiContext") && (this.showProgress = !1);
+  }
+  render() {
+    let e;
+    return this.apiContext && this.apiContext.status === Da ? e = this.apiRender() : this.apiContext && this.apiContext.status === ji ? e = this.renderApiError() : e = this.renderNoContextYet(), ot`
+            <link rel="stylesheet" href="${this.kiosk_base_url}static/styles.css" />
+            ${e}
+        `;
+  }
+  renderNoContextYet() {
+    return ot` <link rel="stylesheet" href="${this.kiosk_base_url}static/styles.css" /> `;
+  }
+  renderApiError() {
+  }
+  renderProgress(e = !1) {
+    if (e || this.showProgress)
+      return ot` <div class="loading">
+                <div class="loading-progress"></div>
+            </div>`;
+  }
+};
+rs.properties = {
+  /**
+   * The Api Context
+   */
+  apiContext: { type: Object }
+};
+let Wi = rs;
+Zc([
+  Kc()
+], Wi.prototype, "showProgress");
+var Eo = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {};
+function Bc(s) {
+  return s && s.__esModule && Object.prototype.hasOwnProperty.call(s, "default") ? s.default : s;
+}
+var Va = { exports: {} };
+(function(s, e) {
+  (function(r, i) {
+    s.exports = i();
+  })(Eo, function() {
+    var r = function(t, n) {
+      return (r = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(o, u) {
+        o.__proto__ = u;
+      } || function(o, u) {
+        for (var l in u) Object.prototype.hasOwnProperty.call(u, l) && (o[l] = u[l]);
+      })(t, n);
+    }, i = function() {
+      return (i = Object.assign || function(t) {
+        for (var n, o = 1, u = arguments.length; o < u; o++) for (var l in n = arguments[o]) Object.prototype.hasOwnProperty.call(n, l) && (t[l] = n[l]);
+        return t;
+      }).apply(this, arguments);
+    };
+    function a(t, n, o) {
+      for (var u, l = 0, f = n.length; l < f; l++) !u && l in n || ((u = u || Array.prototype.slice.call(n, 0, l))[l] = n[l]);
+      return t.concat(u || Array.prototype.slice.call(n));
+    }
+    var c = typeof globalThis < "u" ? globalThis : typeof self < "u" ? self : typeof window < "u" ? window : Eo, h = Object.keys, m = Array.isArray;
+    function v(t, n) {
+      return typeof n != "object" || h(n).forEach(function(o) {
+        t[o] = n[o];
+      }), t;
+    }
+    typeof Promise > "u" || c.Promise || (c.Promise = Promise);
+    var A = Object.getPrototypeOf, q = {}.hasOwnProperty;
+    function M(t, n) {
+      return q.call(t, n);
+    }
+    function z(t, n) {
+      typeof n == "function" && (n = n(A(t))), (typeof Reflect > "u" ? h : Reflect.ownKeys)(n).forEach(function(o) {
+        ee(t, o, n[o]);
+      });
+    }
+    var j = Object.defineProperty;
+    function ee(t, n, o, u) {
+      j(t, n, v(o && M(o, "get") && typeof o.get == "function" ? { get: o.get, set: o.set, configurable: !0 } : { value: o, configurable: !0, writable: !0 }, u));
+    }
+    function Se(t) {
+      return { from: function(n) {
+        return t.prototype = Object.create(n.prototype), ee(t.prototype, "constructor", t), { extend: z.bind(null, t.prototype) };
+      } };
+    }
+    var Oe = Object.getOwnPropertyDescriptor, Ze = [].slice;
+    function Re(t, n, o) {
+      return Ze.call(t, n, o);
+    }
+    function sn(t, n) {
+      return n(t);
+    }
+    function lt(t) {
+      if (!t) throw new Error("Assertion Failed");
+    }
+    function on(t) {
+      c.setImmediate ? setImmediate(t) : setTimeout(t, 0);
+    }
+    function De(t, n) {
+      if (typeof n == "string" && M(t, n)) return t[n];
+      if (!n) return t;
+      if (typeof n != "string") {
+        for (var o = [], u = 0, l = n.length; u < l; ++u) {
+          var f = De(t, n[u]);
+          o.push(f);
+        }
+        return o;
+      }
+      var d = n.indexOf(".");
+      if (d !== -1) {
+        var p = t[n.substr(0, d)];
+        return p == null ? void 0 : De(p, n.substr(d + 1));
+      }
+    }
+    function we(t, n, o) {
+      if (t && n !== void 0 && !("isFrozen" in Object && Object.isFrozen(t))) if (typeof n != "string" && "length" in n) {
+        lt(typeof o != "string" && "length" in o);
+        for (var u = 0, l = n.length; u < l; ++u) we(t, n[u], o[u]);
+      } else {
+        var f, d, p = n.indexOf(".");
+        p !== -1 ? (f = n.substr(0, p), (d = n.substr(p + 1)) === "" ? o === void 0 ? m(t) && !isNaN(parseInt(f)) ? t.splice(f, 1) : delete t[f] : t[f] = o : we(p = !(p = t[f]) || !M(t, f) ? t[f] = {} : p, d, o)) : o === void 0 ? m(t) && !isNaN(parseInt(n)) ? t.splice(n, 1) : delete t[n] : t[n] = o;
+      }
+    }
+    function Ln(t) {
+      var n, o = {};
+      for (n in t) M(t, n) && (o[n] = t[n]);
+      return o;
+    }
+    var ct = [].concat;
+    function Be(t) {
+      return ct.apply([], t);
+    }
+    var Ke = "BigUint64Array,BigInt64Array,Array,Boolean,String,Date,RegExp,Blob,File,FileList,FileSystemFileHandle,FileSystemDirectoryHandle,ArrayBuffer,DataView,Uint8ClampedArray,ImageBitmap,ImageData,Map,Set,CryptoKey".split(",").concat(Be([8, 16, 32, 64].map(function(t) {
+      return ["Int", "Uint", "Float"].map(function(n) {
+        return n + t + "Array";
+      });
+    }))).filter(function(t) {
+      return c[t];
+    }), Un = new Set(Ke.map(function(t) {
+      return c[t];
+    })), an = null;
+    function ft(t) {
+      return an = /* @__PURE__ */ new WeakMap(), t = function n(o) {
+        if (!o || typeof o != "object") return o;
+        var u = an.get(o);
+        if (u) return u;
+        if (m(o)) {
+          u = [], an.set(o, u);
+          for (var l = 0, f = o.length; l < f; ++l) u.push(n(o[l]));
+        } else if (Un.has(o.constructor)) u = o;
+        else {
+          var d, p = A(o);
+          for (d in u = p === Object.prototype ? {} : Object.create(p), an.set(o, u), o) M(o, d) && (u[d] = n(o[d]));
+        }
+        return u;
+      }(t), an = null, t;
+    }
+    var qa = {}.toString;
+    function Vr(t) {
+      return qa.call(t).slice(8, -1);
+    }
+    var qr = typeof Symbol < "u" ? Symbol.iterator : "@@iterator", La = typeof qr == "symbol" ? function(t) {
+      var n;
+      return t != null && (n = t[qr]) && n.apply(t);
+    } : function() {
+      return null;
+    };
+    function ht(t, n) {
+      return n = t.indexOf(n), 0 <= n && t.splice(n, 1), 0 <= n;
+    }
+    var Ct = {};
+    function je(t) {
+      var n, o, u, l;
+      if (arguments.length === 1) {
+        if (m(t)) return t.slice();
+        if (this === Ct && typeof t == "string") return [t];
+        if (l = La(t)) {
+          for (o = []; !(u = l.next()).done; ) o.push(u.value);
+          return o;
+        }
+        if (t == null) return [t];
+        if (typeof (n = t.length) != "number") return [t];
+        for (o = new Array(n); n--; ) o[n] = t[n];
+        return o;
+      }
+      for (n = arguments.length, o = new Array(n); n--; ) o[n] = arguments[n];
+      return o;
+    }
+    var Lr = typeof Symbol < "u" ? function(t) {
+      return t[Symbol.toStringTag] === "AsyncFunction";
+    } : function() {
+      return !1;
+    }, cn = ["Unknown", "Constraint", "Data", "TransactionInactive", "ReadOnly", "Version", "NotFound", "InvalidState", "InvalidAccess", "Abort", "Timeout", "QuotaExceeded", "Syntax", "DataClone"], Ee = ["Modify", "Bulk", "OpenFailed", "VersionChange", "Schema", "Upgrade", "InvalidTable", "MissingAPI", "NoSuchDatabase", "InvalidArgument", "SubTransaction", "Unsupported", "Internal", "DatabaseClosed", "PrematureCommit", "ForeignAwait"].concat(cn), Ua = { VersionChanged: "Database version changed by other database connection", DatabaseClosed: "Database has been closed", Abort: "Transaction aborted", TransactionInactive: "Transaction has already completed or failed", MissingAPI: "IndexedDB API missing. Please visit https://tinyurl.com/y2uuvskb" };
+    function Dt(t, n) {
+      this.name = t, this.message = n;
+    }
+    function is(t, n) {
+      return t + ". Errors: " + Object.keys(n).map(function(o) {
+        return n[o].toString();
+      }).filter(function(o, u, l) {
+        return l.indexOf(o) === u;
+      }).join(`
+`);
+    }
+    function jn(t, n, o, u) {
+      this.failures = n, this.failedKeys = u, this.successCount = o, this.message = is(t, n);
+    }
+    function $t(t, n) {
+      this.name = "BulkError", this.failures = Object.keys(n).map(function(o) {
+        return n[o];
+      }), this.failuresByPos = n, this.message = is(t, this.failures);
+    }
+    Se(Dt).from(Error).extend({ toString: function() {
+      return this.name + ": " + this.message;
+    } }), Se(jn).from(Dt), Se($t).from(Dt);
+    var Ur = Ee.reduce(function(t, n) {
+      return t[n] = n + "Error", t;
+    }, {}), ja = Dt, W = Ee.reduce(function(t, n) {
+      var o = n + "Error";
+      function u(l, f) {
+        this.name = o, l ? typeof l == "string" ? (this.message = "".concat(l).concat(f ? `
+ ` + f : ""), this.inner = f || null) : typeof l == "object" && (this.message = "".concat(l.name, " ").concat(l.message), this.inner = l) : (this.message = Ua[n] || o, this.inner = null);
+      }
+      return Se(u).from(ja), t[n] = u, t;
+    }, {});
+    W.Syntax = SyntaxError, W.Type = TypeError, W.Range = RangeError;
+    var ss = cn.reduce(function(t, n) {
+      return t[n + "Error"] = W[n], t;
+    }, {}), Wn = Ee.reduce(function(t, n) {
+      return ["Syntax", "Type", "Range"].indexOf(n) === -1 && (t[n + "Error"] = W[n]), t;
+    }, {});
+    function ie() {
+    }
+    function un(t) {
+      return t;
+    }
+    function Wa(t, n) {
+      return t == null || t === un ? n : function(o) {
+        return n(t(o));
+      };
+    }
+    function dt(t, n) {
+      return function() {
+        t.apply(this, arguments), n.apply(this, arguments);
+      };
+    }
+    function Ka(t, n) {
+      return t === ie ? n : function() {
+        var o = t.apply(this, arguments);
+        o !== void 0 && (arguments[0] = o);
+        var u = this.onsuccess, l = this.onerror;
+        this.onsuccess = null, this.onerror = null;
+        var f = n.apply(this, arguments);
+        return u && (this.onsuccess = this.onsuccess ? dt(u, this.onsuccess) : u), l && (this.onerror = this.onerror ? dt(l, this.onerror) : l), f !== void 0 ? f : o;
+      };
+    }
+    function za(t, n) {
+      return t === ie ? n : function() {
+        t.apply(this, arguments);
+        var o = this.onsuccess, u = this.onerror;
+        this.onsuccess = this.onerror = null, n.apply(this, arguments), o && (this.onsuccess = this.onsuccess ? dt(o, this.onsuccess) : o), u && (this.onerror = this.onerror ? dt(u, this.onerror) : u);
+      };
+    }
+    function Za(t, n) {
+      return t === ie ? n : function(o) {
+        var u = t.apply(this, arguments);
+        v(o, u);
+        var l = this.onsuccess, f = this.onerror;
+        return this.onsuccess = null, this.onerror = null, o = n.apply(this, arguments), l && (this.onsuccess = this.onsuccess ? dt(l, this.onsuccess) : l), f && (this.onerror = this.onerror ? dt(f, this.onerror) : f), u === void 0 ? o === void 0 ? void 0 : o : v(u, o);
+      };
+    }
+    function Ba(t, n) {
+      return t === ie ? n : function() {
+        return n.apply(this, arguments) !== !1 && t.apply(this, arguments);
+      };
+    }
+    function jr(t, n) {
+      return t === ie ? n : function() {
+        var o = t.apply(this, arguments);
+        if (o && typeof o.then == "function") {
+          for (var u = this, l = arguments.length, f = new Array(l); l--; ) f[l] = arguments[l];
+          return o.then(function() {
+            return n.apply(u, f);
+          });
+        }
+        return n.apply(this, arguments);
+      };
+    }
+    Wn.ModifyError = jn, Wn.DexieError = Dt, Wn.BulkError = $t;
+    var Ve = typeof location < "u" && /^(http|https):\/\/(localhost|127\.0\.0\.1)/.test(location.href);
+    function os(t) {
+      Ve = t;
+    }
+    var ln = {}, as = 100, Ke = typeof Promise > "u" ? [] : function() {
+      var t = Promise.resolve();
+      if (typeof crypto > "u" || !crypto.subtle) return [t, A(t), t];
+      var n = crypto.subtle.digest("SHA-512", new Uint8Array([0]));
+      return [n, A(n), t];
+    }(), cn = Ke[0], Ee = Ke[1], Ke = Ke[2], Ee = Ee && Ee.then, fn = cn && cn.constructor, Wr = !!Ke, hn = function(t, n) {
+      dn.push([t, n]), Kn && (queueMicrotask(Ya), Kn = !1);
+    }, Kr = !0, Kn = !0, mt = [], zn = [], zr = un, He = { id: "global", global: !0, ref: 0, unhandleds: [], onunhandled: ie, pgp: !1, env: {}, finalize: ie }, U = He, dn = [], pt = 0, Zn = [];
+    function L(t) {
+      if (typeof this != "object") throw new TypeError("Promises must be constructed via new");
+      this._listeners = [], this._lib = !1;
+      var n = this._PSD = U;
+      if (typeof t != "function") {
+        if (t !== ln) throw new TypeError("Not a function");
+        return this._state = arguments[1], this._value = arguments[2], void (this._state === !1 && Br(this, this._value));
+      }
+      this._state = null, this._value = null, ++n.ref, function o(u, l) {
+        try {
+          l(function(f) {
+            if (u._state === null) {
+              if (f === u) throw new TypeError("A promise cannot be resolved with itself.");
+              var d = u._lib && Nt();
+              f && typeof f.then == "function" ? o(u, function(p, w) {
+                f instanceof L ? f._then(p, w) : f.then(p, w);
+              }) : (u._state = !0, u._value = f, ls(u)), d && Mt();
+            }
+          }, Br.bind(null, u));
+        } catch (f) {
+          Br(u, f);
+        }
+      }(this, t);
+    }
+    var Zr = { get: function() {
+      var t = U, n = Gn;
+      function o(u, l) {
+        var f = this, d = !t.global && (t !== U || n !== Gn), p = d && !Ge(), w = new L(function(g, S) {
+          Hr(f, new us(fs(u, t, d, p), fs(l, t, d, p), g, S, t));
+        });
+        return this._consoleTask && (w._consoleTask = this._consoleTask), w;
+      }
+      return o.prototype = ln, o;
+    }, set: function(t) {
+      ee(this, "then", t && t.prototype === ln ? Zr : { get: function() {
+        return t;
+      }, set: Zr.set });
+    } };
+    function us(t, n, o, u, l) {
+      this.onFulfilled = typeof t == "function" ? t : null, this.onRejected = typeof n == "function" ? n : null, this.resolve = o, this.reject = u, this.psd = l;
+    }
+    function Br(t, n) {
+      var o, u;
+      zn.push(n), t._state === null && (o = t._lib && Nt(), n = zr(n), t._state = !1, t._value = n, u = t, mt.some(function(l) {
+        return l._value === u._value;
+      }) || mt.push(u), ls(t), o && Mt());
+    }
+    function ls(t) {
+      var n = t._listeners;
+      t._listeners = [];
+      for (var o = 0, u = n.length; o < u; ++o) Hr(t, n[o]);
+      var l = t._PSD;
+      --l.ref || l.finalize(), pt === 0 && (++pt, hn(function() {
+        --pt == 0 && Yr();
+      }, []));
+    }
+    function Hr(t, n) {
+      if (t._state !== null) {
+        var o = t._state ? n.onFulfilled : n.onRejected;
+        if (o === null) return (t._state ? n.resolve : n.reject)(t._value);
+        ++n.psd.ref, ++pt, hn(Ha, [o, t, n]);
+      } else t._listeners.push(n);
+    }
+    function Ha(t, n, o) {
+      try {
+        var u, l = n._value;
+        !n._state && zn.length && (zn = []), u = Ve && n._consoleTask ? n._consoleTask.run(function() {
+          return t(l);
+        }) : t(l), n._state || zn.indexOf(l) !== -1 || function(f) {
+          for (var d = mt.length; d; ) if (mt[--d]._value === f._value) return mt.splice(d, 1);
+        }(n), o.resolve(u);
+      } catch (f) {
+        o.reject(f);
+      } finally {
+        --pt == 0 && Yr(), --o.psd.ref || o.psd.finalize();
+      }
+    }
+    function Ya() {
+      yt(He, function() {
+        Nt() && Mt();
+      });
+    }
+    function Nt() {
+      var t = Kr;
+      return Kn = Kr = !1, t;
+    }
+    function Mt() {
+      var t, n, o;
+      do
+        for (; 0 < dn.length; ) for (t = dn, dn = [], o = t.length, n = 0; n < o; ++n) {
+          var u = t[n];
+          u[0].apply(null, u[1]);
+        }
+      while (0 < dn.length);
+      Kn = Kr = !0;
+    }
+    function Yr() {
+      var t = mt;
+      mt = [], t.forEach(function(u) {
+        u._PSD.onunhandled.call(null, u._value, u);
+      });
+      for (var n = Zn.slice(0), o = n.length; o; ) n[--o]();
+    }
+    function Bn(t) {
+      return new L(ln, !1, t);
+    }
+    function oe(t, n) {
+      var o = U;
+      return function() {
+        var u = Nt(), l = U;
+        try {
+          return Je(o, !0), t.apply(this, arguments);
+        } catch (f) {
+          n && n(f);
+        } finally {
+          Je(l, !1), u && Mt();
+        }
+      };
+    }
+    z(L.prototype, { then: Zr, _then: function(t, n) {
+      Hr(this, new us(null, null, t, n, U));
+    }, catch: function(t) {
+      if (arguments.length === 1) return this.then(null, t);
+      var n = t, o = arguments[1];
+      return typeof n == "function" ? this.then(null, function(u) {
+        return (u instanceof n ? o : Bn)(u);
+      }) : this.then(null, function(u) {
+        return (u && u.name === n ? o : Bn)(u);
+      });
+    }, finally: function(t) {
+      return this.then(function(n) {
+        return L.resolve(t()).then(function() {
+          return n;
+        });
+      }, function(n) {
+        return L.resolve(t()).then(function() {
+          return Bn(n);
+        });
+      });
+    }, timeout: function(t, n) {
+      var o = this;
+      return t < 1 / 0 ? new L(function(u, l) {
+        var f = setTimeout(function() {
+          return l(new W.Timeout(n));
+        }, t);
+        o.then(u, l).finally(clearTimeout.bind(null, f));
+      }) : this;
+    } }), typeof Symbol < "u" && Symbol.toStringTag && ee(L.prototype, Symbol.toStringTag, "Dexie.Promise"), He.env = cs(), z(L, { all: function() {
+      var t = je.apply(null, arguments).map(Jn);
+      return new L(function(n, o) {
+        t.length === 0 && n([]);
+        var u = t.length;
+        t.forEach(function(l, f) {
+          return L.resolve(l).then(function(d) {
+            t[f] = d, --u || n(t);
+          }, o);
+        });
+      });
+    }, resolve: function(t) {
+      return t instanceof L ? t : t && typeof t.then == "function" ? new L(function(n, o) {
+        t.then(n, o);
+      }) : new L(ln, !0, t);
+    }, reject: Bn, race: function() {
+      var t = je.apply(null, arguments).map(Jn);
+      return new L(function(n, o) {
+        t.map(function(u) {
+          return L.resolve(u).then(n, o);
+        });
+      });
+    }, PSD: { get: function() {
+      return U;
+    }, set: function(t) {
+      return U = t;
+    } }, totalEchoes: { get: function() {
+      return Gn;
+    } }, newPSD: Ye, usePSD: yt, scheduler: { get: function() {
+      return hn;
+    }, set: function(t) {
+      hn = t;
+    } }, rejectionMapper: { get: function() {
+      return zr;
+    }, set: function(t) {
+      zr = t;
+    } }, follow: function(t, n) {
+      return new L(function(o, u) {
+        return Ye(function(l, f) {
+          var d = U;
+          d.unhandleds = [], d.onunhandled = f, d.finalize = dt(function() {
+            var p, w = this;
+            p = function() {
+              w.unhandleds.length === 0 ? l() : f(w.unhandleds[0]);
+            }, Zn.push(function g() {
+              p(), Zn.splice(Zn.indexOf(g), 1);
+            }), ++pt, hn(function() {
+              --pt == 0 && Yr();
+            }, []);
+          }, d.finalize), t();
+        }, n, o, u);
+      });
+    } }), fn && (fn.allSettled && ee(L, "allSettled", function() {
+      var t = je.apply(null, arguments).map(Jn);
+      return new L(function(n) {
+        t.length === 0 && n([]);
+        var o = t.length, u = new Array(o);
+        t.forEach(function(l, f) {
+          return L.resolve(l).then(function(d) {
+            return u[f] = { status: "fulfilled", value: d };
+          }, function(d) {
+            return u[f] = { status: "rejected", reason: d };
+          }).then(function() {
+            return --o || n(u);
+          });
+        });
+      });
+    }), fn.any && typeof AggregateError < "u" && ee(L, "any", function() {
+      var t = je.apply(null, arguments).map(Jn);
+      return new L(function(n, o) {
+        t.length === 0 && o(new AggregateError([]));
+        var u = t.length, l = new Array(u);
+        t.forEach(function(f, d) {
+          return L.resolve(f).then(function(p) {
+            return n(p);
+          }, function(p) {
+            l[d] = p, --u || o(new AggregateError(l));
+          });
+        });
+      });
+    }));
+    var de = { awaits: 0, echoes: 0, id: 0 }, Ga = 0, Hn = [], Yn = 0, Gn = 0, Ja = 0;
+    function Ye(t, n, o, u) {
+      var l = U, f = Object.create(l);
+      return f.parent = l, f.ref = 0, f.global = !1, f.id = ++Ja, He.env, f.env = Wr ? { Promise: L, PromiseProp: { value: L, configurable: !0, writable: !0 }, all: L.all, race: L.race, allSettled: L.allSettled, any: L.any, resolve: L.resolve, reject: L.reject } : {}, n && v(f, n), ++l.ref, f.finalize = function() {
+        --this.parent.ref || this.parent.finalize();
+      }, u = yt(f, t, o, u), f.ref === 0 && f.finalize(), u;
+    }
+    function Pt() {
+      return de.id || (de.id = ++Ga), ++de.awaits, de.echoes += as, de.id;
+    }
+    function Ge() {
+      return !!de.awaits && (--de.awaits == 0 && (de.id = 0), de.echoes = de.awaits * as, !0);
+    }
+    function Jn(t) {
+      return de.echoes && t && t.constructor === fn ? (Pt(), t.then(function(n) {
+        return Ge(), n;
+      }, function(n) {
+        return Ge(), le(n);
+      })) : t;
+    }
+    function Xa() {
+      var t = Hn[Hn.length - 1];
+      Hn.pop(), Je(t, !1);
+    }
+    function Je(t, n) {
+      var o, u = U;
+      (n ? !de.echoes || Yn++ && t === U : !Yn || --Yn && t === U) || queueMicrotask(n ? (function(l) {
+        ++Gn, de.echoes && --de.echoes != 0 || (de.echoes = de.awaits = de.id = 0), Hn.push(U), Je(l, !0);
+      }).bind(null, t) : Xa), t !== U && (U = t, u === He && (He.env = cs()), Wr && (o = He.env.Promise, n = t.env, (u.global || t.global) && (Object.defineProperty(c, "Promise", n.PromiseProp), o.all = n.all, o.race = n.race, o.resolve = n.resolve, o.reject = n.reject, n.allSettled && (o.allSettled = n.allSettled), n.any && (o.any = n.any))));
+    }
+    function cs() {
+      var t = c.Promise;
+      return Wr ? { Promise: t, PromiseProp: Object.getOwnPropertyDescriptor(c, "Promise"), all: t.all, race: t.race, allSettled: t.allSettled, any: t.any, resolve: t.resolve, reject: t.reject } : {};
+    }
+    function yt(t, n, o, u, l) {
+      var f = U;
+      try {
+        return Je(t, !0), n(o, u, l);
+      } finally {
+        Je(f, !1);
+      }
+    }
+    function fs(t, n, o, u) {
+      return typeof t != "function" ? t : function() {
+        var l = U;
+        o && Pt(), Je(n, !0);
+        try {
+          return t.apply(this, arguments);
+        } finally {
+          Je(l, !1), u && queueMicrotask(Ge);
+        }
+      };
+    }
+    function Gr(t) {
+      Promise === fn && de.echoes === 0 ? Yn === 0 ? t() : enqueueNativeMicroTask(t) : setTimeout(t, 0);
+    }
+    ("" + Ee).indexOf("[native code]") === -1 && (Pt = Ge = ie);
+    var le = L.reject, gt = "￿", We = "Invalid key provided. Keys must be of type string, number, Date or Array<string | number | Date>.", hs = "String expected.", Ft = [], Xn = "__dbnames", Jr = "readonly", Xr = "readwrite";
+    function vt(t, n) {
+      return t ? n ? function() {
+        return t.apply(this, arguments) && n.apply(this, arguments);
+      } : t : n;
+    }
+    var ds = { type: 3, lower: -1 / 0, lowerOpen: !1, upper: [[]], upperOpen: !1 };
+    function Qn(t) {
+      return typeof t != "string" || /\./.test(t) ? function(n) {
+        return n;
+      } : function(n) {
+        return n[t] === void 0 && t in n && delete (n = ft(n))[t], n;
+      };
+    }
+    function ms() {
+      throw W.Type();
+    }
+    function Q(t, n) {
+      try {
+        var o = ps(t), u = ps(n);
+        if (o !== u) return o === "Array" ? 1 : u === "Array" ? -1 : o === "binary" ? 1 : u === "binary" ? -1 : o === "string" ? 1 : u === "string" ? -1 : o === "Date" ? 1 : u !== "Date" ? NaN : -1;
+        switch (o) {
+          case "number":
+          case "Date":
+          case "string":
+            return n < t ? 1 : t < n ? -1 : 0;
+          case "binary":
+            return function(l, f) {
+              for (var d = l.length, p = f.length, w = d < p ? d : p, g = 0; g < w; ++g) if (l[g] !== f[g]) return l[g] < f[g] ? -1 : 1;
+              return d === p ? 0 : d < p ? -1 : 1;
+            }(ys(t), ys(n));
+          case "Array":
+            return function(l, f) {
+              for (var d = l.length, p = f.length, w = d < p ? d : p, g = 0; g < w; ++g) {
+                var S = Q(l[g], f[g]);
+                if (S !== 0) return S;
+              }
+              return d === p ? 0 : d < p ? -1 : 1;
+            }(t, n);
+        }
+      } catch {
+      }
+      return NaN;
+    }
+    function ps(t) {
+      var n = typeof t;
+      return n != "object" ? n : ArrayBuffer.isView(t) ? "binary" : (t = Vr(t), t === "ArrayBuffer" ? "binary" : t);
+    }
+    function ys(t) {
+      return t instanceof Uint8Array ? t : ArrayBuffer.isView(t) ? new Uint8Array(t.buffer, t.byteOffset, t.byteLength) : new Uint8Array(t);
+    }
+    var gs = (se.prototype._trans = function(t, n, o) {
+      var u = this._tx || U.trans, l = this.name, f = Ve && typeof console < "u" && console.createTask && console.createTask("Dexie: ".concat(t === "readonly" ? "read" : "write", " ").concat(this.name));
+      function d(g, S, y) {
+        if (!y.schema[l]) throw new W.NotFound("Table " + l + " not part of transaction");
+        return n(y.idbtrans, y);
+      }
+      var p = Nt();
+      try {
+        var w = u && u.db._novip === this.db._novip ? u === U.trans ? u._promise(t, d, o) : Ye(function() {
+          return u._promise(t, d, o);
+        }, { trans: u, transless: U.transless || U }) : function g(S, y, x, b) {
+          if (S.idbdb && (S._state.openComplete || U.letThrough || S._vip)) {
+            var _ = S._createTransaction(y, x, S._dbSchema);
+            try {
+              _.create(), S._state.PR1398_maxLoop = 3;
+            } catch (T) {
+              return T.name === Ur.InvalidState && S.isOpen() && 0 < --S._state.PR1398_maxLoop ? (console.warn("Dexie: Need to reopen db"), S.close({ disableAutoOpen: !1 }), S.open().then(function() {
+                return g(S, y, x, b);
+              })) : le(T);
+            }
+            return _._promise(y, function(T, k) {
+              return Ye(function() {
+                return U.trans = _, b(T, k, _);
+              });
+            }).then(function(T) {
+              if (y === "readwrite") try {
+                _.idbtrans.commit();
+              } catch {
+              }
+              return y === "readonly" ? T : _._completion.then(function() {
+                return T;
+              });
+            });
+          }
+          if (S._state.openComplete) return le(new W.DatabaseClosed(S._state.dbOpenError));
+          if (!S._state.isBeingOpened) {
+            if (!S._state.autoOpen) return le(new W.DatabaseClosed());
+            S.open().catch(ie);
+          }
+          return S._state.dbReadyPromise.then(function() {
+            return g(S, y, x, b);
+          });
+        }(this.db, t, [this.name], d);
+        return f && (w._consoleTask = f, w = w.catch(function(g) {
+          return console.trace(g), le(g);
+        })), w;
+      } finally {
+        p && Mt();
+      }
+    }, se.prototype.get = function(t, n) {
+      var o = this;
+      return t && t.constructor === Object ? this.where(t).first(n) : t == null ? le(new W.Type("Invalid argument to Table.get()")) : this._trans("readonly", function(u) {
+        return o.core.get({ trans: u, key: t }).then(function(l) {
+          return o.hook.reading.fire(l);
+        });
+      }).then(n);
+    }, se.prototype.where = function(t) {
+      if (typeof t == "string") return new this.db.WhereClause(this, t);
+      if (m(t)) return new this.db.WhereClause(this, "[".concat(t.join("+"), "]"));
+      var n = h(t);
+      if (n.length === 1) return this.where(n[0]).equals(t[n[0]]);
+      var o = this.schema.indexes.concat(this.schema.primKey).filter(function(w) {
+        if (w.compound && n.every(function(S) {
+          return 0 <= w.keyPath.indexOf(S);
+        })) {
+          for (var g = 0; g < n.length; ++g) if (n.indexOf(w.keyPath[g]) === -1) return !1;
+          return !0;
+        }
+        return !1;
+      }).sort(function(w, g) {
+        return w.keyPath.length - g.keyPath.length;
+      })[0];
+      if (o && this.db._maxKey !== gt) {
+        var d = o.keyPath.slice(0, n.length);
+        return this.where(d).equals(d.map(function(g) {
+          return t[g];
+        }));
+      }
+      !o && Ve && console.warn("The query ".concat(JSON.stringify(t), " on ").concat(this.name, " would benefit from a ") + "compound index [".concat(n.join("+"), "]"));
+      var u = this.schema.idxByName, l = this.db._deps.indexedDB;
+      function f(w, g) {
+        return l.cmp(w, g) === 0;
+      }
+      var p = n.reduce(function(x, g) {
+        var S = x[0], y = x[1], x = u[g], b = t[g];
+        return [S || x, S || !x ? vt(y, x && x.multi ? function(_) {
+          return _ = De(_, g), m(_) && _.some(function(T) {
+            return f(b, T);
+          });
+        } : function(_) {
+          return f(b, De(_, g));
+        }) : y];
+      }, [null, null]), d = p[0], p = p[1];
+      return d ? this.where(d.name).equals(t[d.keyPath]).filter(p) : o ? this.filter(p) : this.where(n).equals("");
+    }, se.prototype.filter = function(t) {
+      return this.toCollection().and(t);
+    }, se.prototype.count = function(t) {
+      return this.toCollection().count(t);
+    }, se.prototype.offset = function(t) {
+      return this.toCollection().offset(t);
+    }, se.prototype.limit = function(t) {
+      return this.toCollection().limit(t);
+    }, se.prototype.each = function(t) {
+      return this.toCollection().each(t);
+    }, se.prototype.toArray = function(t) {
+      return this.toCollection().toArray(t);
+    }, se.prototype.toCollection = function() {
+      return new this.db.Collection(new this.db.WhereClause(this));
+    }, se.prototype.orderBy = function(t) {
+      return new this.db.Collection(new this.db.WhereClause(this, m(t) ? "[".concat(t.join("+"), "]") : t));
+    }, se.prototype.reverse = function() {
+      return this.toCollection().reverse();
+    }, se.prototype.mapToClass = function(t) {
+      var n, o = this.db, u = this.name;
+      function l() {
+        return n !== null && n.apply(this, arguments) || this;
+      }
+      (this.schema.mappedClass = t).prototype instanceof ms && (function(w, g) {
+        if (typeof g != "function" && g !== null) throw new TypeError("Class extends value " + String(g) + " is not a constructor or null");
+        function S() {
+          this.constructor = w;
+        }
+        r(w, g), w.prototype = g === null ? Object.create(g) : (S.prototype = g.prototype, new S());
+      }(l, n = t), Object.defineProperty(l.prototype, "db", { get: function() {
+        return o;
+      }, enumerable: !1, configurable: !0 }), l.prototype.table = function() {
+        return u;
+      }, t = l);
+      for (var f = /* @__PURE__ */ new Set(), d = t.prototype; d; d = A(d)) Object.getOwnPropertyNames(d).forEach(function(w) {
+        return f.add(w);
+      });
+      function p(w) {
+        if (!w) return w;
+        var g, S = Object.create(t.prototype);
+        for (g in w) if (!f.has(g)) try {
+          S[g] = w[g];
+        } catch {
+        }
+        return S;
+      }
+      return this.schema.readHook && this.hook.reading.unsubscribe(this.schema.readHook), this.schema.readHook = p, this.hook("reading", p), t;
+    }, se.prototype.defineClass = function() {
+      return this.mapToClass(function(t) {
+        v(this, t);
+      });
+    }, se.prototype.add = function(t, n) {
+      var o = this, u = this.schema.primKey, l = u.auto, f = u.keyPath, d = t;
+      return f && l && (d = Qn(f)(t)), this._trans("readwrite", function(p) {
+        return o.core.mutate({ trans: p, type: "add", keys: n != null ? [n] : null, values: [d] });
+      }).then(function(p) {
+        return p.numFailures ? L.reject(p.failures[0]) : p.lastResult;
+      }).then(function(p) {
+        if (f) try {
+          we(t, f, p);
+        } catch {
+        }
+        return p;
+      });
+    }, se.prototype.update = function(t, n) {
+      return typeof t != "object" || m(t) ? this.where(":id").equals(t).modify(n) : (t = De(t, this.schema.primKey.keyPath), t === void 0 ? le(new W.InvalidArgument("Given object does not contain its primary key")) : this.where(":id").equals(t).modify(n));
+    }, se.prototype.put = function(t, n) {
+      var o = this, u = this.schema.primKey, l = u.auto, f = u.keyPath, d = t;
+      return f && l && (d = Qn(f)(t)), this._trans("readwrite", function(p) {
+        return o.core.mutate({ trans: p, type: "put", values: [d], keys: n != null ? [n] : null });
+      }).then(function(p) {
+        return p.numFailures ? L.reject(p.failures[0]) : p.lastResult;
+      }).then(function(p) {
+        if (f) try {
+          we(t, f, p);
+        } catch {
+        }
+        return p;
+      });
+    }, se.prototype.delete = function(t) {
+      var n = this;
+      return this._trans("readwrite", function(o) {
+        return n.core.mutate({ trans: o, type: "delete", keys: [t] });
+      }).then(function(o) {
+        return o.numFailures ? L.reject(o.failures[0]) : void 0;
+      });
+    }, se.prototype.clear = function() {
+      var t = this;
+      return this._trans("readwrite", function(n) {
+        return t.core.mutate({ trans: n, type: "deleteRange", range: ds });
+      }).then(function(n) {
+        return n.numFailures ? L.reject(n.failures[0]) : void 0;
+      });
+    }, se.prototype.bulkGet = function(t) {
+      var n = this;
+      return this._trans("readonly", function(o) {
+        return n.core.getMany({ keys: t, trans: o }).then(function(u) {
+          return u.map(function(l) {
+            return n.hook.reading.fire(l);
+          });
+        });
+      });
+    }, se.prototype.bulkAdd = function(t, n, o) {
+      var u = this, l = Array.isArray(n) ? n : void 0, f = (o = o || (l ? void 0 : n)) ? o.allKeys : void 0;
+      return this._trans("readwrite", function(d) {
+        var g = u.schema.primKey, p = g.auto, g = g.keyPath;
+        if (g && l) throw new W.InvalidArgument("bulkAdd(): keys argument invalid on tables with inbound keys");
+        if (l && l.length !== t.length) throw new W.InvalidArgument("Arguments objects and keys must have the same length");
+        var w = t.length, g = g && p ? t.map(Qn(g)) : t;
+        return u.core.mutate({ trans: d, type: "add", keys: l, values: g, wantResults: f }).then(function(_) {
+          var y = _.numFailures, x = _.results, b = _.lastResult, _ = _.failures;
+          if (y === 0) return f ? x : b;
+          throw new $t("".concat(u.name, ".bulkAdd(): ").concat(y, " of ").concat(w, " operations failed"), _);
+        });
+      });
+    }, se.prototype.bulkPut = function(t, n, o) {
+      var u = this, l = Array.isArray(n) ? n : void 0, f = (o = o || (l ? void 0 : n)) ? o.allKeys : void 0;
+      return this._trans("readwrite", function(d) {
+        var g = u.schema.primKey, p = g.auto, g = g.keyPath;
+        if (g && l) throw new W.InvalidArgument("bulkPut(): keys argument invalid on tables with inbound keys");
+        if (l && l.length !== t.length) throw new W.InvalidArgument("Arguments objects and keys must have the same length");
+        var w = t.length, g = g && p ? t.map(Qn(g)) : t;
+        return u.core.mutate({ trans: d, type: "put", keys: l, values: g, wantResults: f }).then(function(_) {
+          var y = _.numFailures, x = _.results, b = _.lastResult, _ = _.failures;
+          if (y === 0) return f ? x : b;
+          throw new $t("".concat(u.name, ".bulkPut(): ").concat(y, " of ").concat(w, " operations failed"), _);
+        });
+      });
+    }, se.prototype.bulkUpdate = function(t) {
+      var n = this, o = this.core, u = t.map(function(d) {
+        return d.key;
+      }), l = t.map(function(d) {
+        return d.changes;
+      }), f = [];
+      return this._trans("readwrite", function(d) {
+        return o.getMany({ trans: d, keys: u, cache: "clone" }).then(function(p) {
+          var w = [], g = [];
+          t.forEach(function(y, x) {
+            var b = y.key, _ = y.changes, T = p[x];
+            if (T) {
+              for (var k = 0, O = Object.keys(_); k < O.length; k++) {
+                var E = O[k], I = _[E];
+                if (E === n.schema.primKey.keyPath) {
+                  if (Q(I, b) !== 0) throw new W.Constraint("Cannot update primary key in bulkUpdate()");
+                } else we(T, E, I);
+              }
+              f.push(x), w.push(b), g.push(T);
+            }
+          });
+          var S = w.length;
+          return o.mutate({ trans: d, type: "put", keys: w, values: g, updates: { keys: u, changeSpecs: l } }).then(function(y) {
+            var x = y.numFailures, b = y.failures;
+            if (x === 0) return S;
+            for (var _ = 0, T = Object.keys(b); _ < T.length; _++) {
+              var k, O = T[_], E = f[Number(O)];
+              E != null && (k = b[O], delete b[O], b[E] = k);
+            }
+            throw new $t("".concat(n.name, ".bulkUpdate(): ").concat(x, " of ").concat(S, " operations failed"), b);
+          });
+        });
+      });
+    }, se.prototype.bulkDelete = function(t) {
+      var n = this, o = t.length;
+      return this._trans("readwrite", function(u) {
+        return n.core.mutate({ trans: u, type: "delete", keys: t });
+      }).then(function(d) {
+        var l = d.numFailures, f = d.lastResult, d = d.failures;
+        if (l === 0) return f;
+        throw new $t("".concat(n.name, ".bulkDelete(): ").concat(l, " of ").concat(o, " operations failed"), d);
+      });
+    }, se);
+    function se() {
+    }
+    function mn(t) {
+      function n(d, p) {
+        if (p) {
+          for (var w = arguments.length, g = new Array(w - 1); --w; ) g[w - 1] = arguments[w];
+          return o[d].subscribe.apply(null, g), t;
+        }
+        if (typeof d == "string") return o[d];
+      }
+      var o = {};
+      n.addEventType = f;
+      for (var u = 1, l = arguments.length; u < l; ++u) f(arguments[u]);
+      return n;
+      function f(d, p, w) {
+        if (typeof d != "object") {
+          var g;
+          p = p || Ba;
+          var S = { subscribers: [], fire: w = w || ie, subscribe: function(y) {
+            S.subscribers.indexOf(y) === -1 && (S.subscribers.push(y), S.fire = p(S.fire, y));
+          }, unsubscribe: function(y) {
+            S.subscribers = S.subscribers.filter(function(x) {
+              return x !== y;
+            }), S.fire = S.subscribers.reduce(p, w);
+          } };
+          return o[d] = n[d] = S;
+        }
+        h(g = d).forEach(function(y) {
+          var x = g[y];
+          if (m(x)) f(y, g[y][0], g[y][1]);
+          else {
+            if (x !== "asap") throw new W.InvalidArgument("Invalid event config");
+            var b = f(y, un, function() {
+              for (var _ = arguments.length, T = new Array(_); _--; ) T[_] = arguments[_];
+              b.subscribers.forEach(function(k) {
+                on(function() {
+                  k.apply(null, T);
+                });
+              });
+            });
+          }
+        });
+      }
+    }
+    function pn(t, n) {
+      return Se(n).from({ prototype: t }), n;
+    }
+    function Rt(t, n) {
+      return !(t.filter || t.algorithm || t.or) && (n ? t.justLimit : !t.replayFilter);
+    }
+    function Qr(t, n) {
+      t.filter = vt(t.filter, n);
+    }
+    function ei(t, n, o) {
+      var u = t.replayFilter;
+      t.replayFilter = u ? function() {
+        return vt(u(), n());
+      } : n, t.justLimit = o && !u;
+    }
+    function er(t, n) {
+      if (t.isPrimKey) return n.primaryKey;
+      var o = n.getIndexByKeyPath(t.index);
+      if (!o) throw new W.Schema("KeyPath " + t.index + " on object store " + n.name + " is not indexed");
+      return o;
+    }
+    function vs(t, n, o) {
+      var u = er(t, n.schema);
+      return n.openCursor({ trans: o, values: !t.keysOnly, reverse: t.dir === "prev", unique: !!t.unique, query: { index: u, range: t.range } });
+    }
+    function tr(t, n, o, u) {
+      var l = t.replayFilter ? vt(t.filter, t.replayFilter()) : t.filter;
+      if (t.or) {
+        var f = {}, d = function(p, w, g) {
+          var S, y;
+          l && !l(w, g, function(x) {
+            return w.stop(x);
+          }, function(x) {
+            return w.fail(x);
+          }) || ((y = "" + (S = w.primaryKey)) == "[object ArrayBuffer]" && (y = "" + new Uint8Array(S)), M(f, y) || (f[y] = !0, n(p, w, g)));
+        };
+        return Promise.all([t.or._iterate(d, o), bs(vs(t, u, o), t.algorithm, d, !t.keysOnly && t.valueMapper)]);
+      }
+      return bs(vs(t, u, o), vt(t.algorithm, l), n, !t.keysOnly && t.valueMapper);
+    }
+    function bs(t, n, o, u) {
+      var l = oe(u ? function(f, d, p) {
+        return o(u(f), d, p);
+      } : o);
+      return t.then(function(f) {
+        if (f) return f.start(function() {
+          var d = function() {
+            return f.continue();
+          };
+          n && !n(f, function(p) {
+            return d = p;
+          }, function(p) {
+            f.stop(p), d = ie;
+          }, function(p) {
+            f.fail(p), d = ie;
+          }) || l(f.value, f, function(p) {
+            return d = p;
+          }), d();
+        });
+      });
+    }
+    var Ke = Symbol(), yn = (ws.prototype.execute = function(t) {
+      if (this.add !== void 0) {
+        var n = this.add;
+        if (m(n)) return a(a([], m(t) ? t : [], !0), n).sort();
+        if (typeof n == "number") return (Number(t) || 0) + n;
+        if (typeof n == "bigint") try {
+          return BigInt(t) + n;
+        } catch {
+          return BigInt(0) + n;
+        }
+        throw new TypeError("Invalid term ".concat(n));
+      }
+      if (this.remove !== void 0) {
+        var o = this.remove;
+        if (m(o)) return m(t) ? t.filter(function(u) {
+          return !o.includes(u);
+        }).sort() : [];
+        if (typeof o == "number") return Number(t) - o;
+        if (typeof o == "bigint") try {
+          return BigInt(t) - o;
+        } catch {
+          return BigInt(0) - o;
+        }
+        throw new TypeError("Invalid subtrahend ".concat(o));
+      }
+      return n = (n = this.replacePrefix) === null || n === void 0 ? void 0 : n[0], n && typeof t == "string" && t.startsWith(n) ? this.replacePrefix[1] + t.substring(n.length) : t;
+    }, ws);
+    function ws(t) {
+      Object.assign(this, t);
+    }
+    var Qa = (te.prototype._read = function(t, n) {
+      var o = this._ctx;
+      return o.error ? o.table._trans(null, le.bind(null, o.error)) : o.table._trans("readonly", t).then(n);
+    }, te.prototype._write = function(t) {
+      var n = this._ctx;
+      return n.error ? n.table._trans(null, le.bind(null, n.error)) : n.table._trans("readwrite", t, "locked");
+    }, te.prototype._addAlgorithm = function(t) {
+      var n = this._ctx;
+      n.algorithm = vt(n.algorithm, t);
+    }, te.prototype._iterate = function(t, n) {
+      return tr(this._ctx, t, n, this._ctx.table.core);
+    }, te.prototype.clone = function(t) {
+      var n = Object.create(this.constructor.prototype), o = Object.create(this._ctx);
+      return t && v(o, t), n._ctx = o, n;
+    }, te.prototype.raw = function() {
+      return this._ctx.valueMapper = null, this;
+    }, te.prototype.each = function(t) {
+      var n = this._ctx;
+      return this._read(function(o) {
+        return tr(n, t, o, n.table.core);
+      });
+    }, te.prototype.count = function(t) {
+      var n = this;
+      return this._read(function(o) {
+        var u = n._ctx, l = u.table.core;
+        if (Rt(u, !0)) return l.count({ trans: o, query: { index: er(u, l.schema), range: u.range } }).then(function(d) {
+          return Math.min(d, u.limit);
+        });
+        var f = 0;
+        return tr(u, function() {
+          return ++f, !1;
+        }, o, l).then(function() {
+          return f;
+        });
+      }).then(t);
+    }, te.prototype.sortBy = function(t, n) {
+      var o = t.split(".").reverse(), u = o[0], l = o.length - 1;
+      function f(w, g) {
+        return g ? f(w[o[g]], g - 1) : w[u];
+      }
+      var d = this._ctx.dir === "next" ? 1 : -1;
+      function p(w, g) {
+        return w = f(w, l), g = f(g, l), w < g ? -d : g < w ? d : 0;
+      }
+      return this.toArray(function(w) {
+        return w.sort(p);
+      }).then(n);
+    }, te.prototype.toArray = function(t) {
+      var n = this;
+      return this._read(function(o) {
+        var u = n._ctx;
+        if (u.dir === "next" && Rt(u, !0) && 0 < u.limit) {
+          var l = u.valueMapper, f = er(u, u.table.core.schema);
+          return u.table.core.query({ trans: o, limit: u.limit, values: !0, query: { index: f, range: u.range } }).then(function(p) {
+            return p = p.result, l ? p.map(l) : p;
+          });
+        }
+        var d = [];
+        return tr(u, function(p) {
+          return d.push(p);
+        }, o, u.table.core).then(function() {
+          return d;
+        });
+      }, t);
+    }, te.prototype.offset = function(t) {
+      var n = this._ctx;
+      return t <= 0 || (n.offset += t, Rt(n) ? ei(n, function() {
+        var o = t;
+        return function(u, l) {
+          return o === 0 || (o === 1 ? --o : l(function() {
+            u.advance(o), o = 0;
+          }), !1);
+        };
+      }) : ei(n, function() {
+        var o = t;
+        return function() {
+          return --o < 0;
+        };
+      })), this;
+    }, te.prototype.limit = function(t) {
+      return this._ctx.limit = Math.min(this._ctx.limit, t), ei(this._ctx, function() {
+        var n = t;
+        return function(o, u, l) {
+          return --n <= 0 && u(l), 0 <= n;
+        };
+      }, !0), this;
+    }, te.prototype.until = function(t, n) {
+      return Qr(this._ctx, function(o, u, l) {
+        return !t(o.value) || (u(l), n);
+      }), this;
+    }, te.prototype.first = function(t) {
+      return this.limit(1).toArray(function(n) {
+        return n[0];
+      }).then(t);
+    }, te.prototype.last = function(t) {
+      return this.reverse().first(t);
+    }, te.prototype.filter = function(t) {
+      var n;
+      return Qr(this._ctx, function(o) {
+        return t(o.value);
+      }), (n = this._ctx).isMatch = vt(n.isMatch, t), this;
+    }, te.prototype.and = function(t) {
+      return this.filter(t);
+    }, te.prototype.or = function(t) {
+      return new this.db.WhereClause(this._ctx.table, t, this);
+    }, te.prototype.reverse = function() {
+      return this._ctx.dir = this._ctx.dir === "prev" ? "next" : "prev", this._ondirectionchange && this._ondirectionchange(this._ctx.dir), this;
+    }, te.prototype.desc = function() {
+      return this.reverse();
+    }, te.prototype.eachKey = function(t) {
+      var n = this._ctx;
+      return n.keysOnly = !n.isMatch, this.each(function(o, u) {
+        t(u.key, u);
+      });
+    }, te.prototype.eachUniqueKey = function(t) {
+      return this._ctx.unique = "unique", this.eachKey(t);
+    }, te.prototype.eachPrimaryKey = function(t) {
+      var n = this._ctx;
+      return n.keysOnly = !n.isMatch, this.each(function(o, u) {
+        t(u.primaryKey, u);
+      });
+    }, te.prototype.keys = function(t) {
+      var n = this._ctx;
+      n.keysOnly = !n.isMatch;
+      var o = [];
+      return this.each(function(u, l) {
+        o.push(l.key);
+      }).then(function() {
+        return o;
+      }).then(t);
+    }, te.prototype.primaryKeys = function(t) {
+      var n = this._ctx;
+      if (n.dir === "next" && Rt(n, !0) && 0 < n.limit) return this._read(function(u) {
+        var l = er(n, n.table.core.schema);
+        return n.table.core.query({ trans: u, values: !1, limit: n.limit, query: { index: l, range: n.range } });
+      }).then(function(u) {
+        return u.result;
+      }).then(t);
+      n.keysOnly = !n.isMatch;
+      var o = [];
+      return this.each(function(u, l) {
+        o.push(l.primaryKey);
+      }).then(function() {
+        return o;
+      }).then(t);
+    }, te.prototype.uniqueKeys = function(t) {
+      return this._ctx.unique = "unique", this.keys(t);
+    }, te.prototype.firstKey = function(t) {
+      return this.limit(1).keys(function(n) {
+        return n[0];
+      }).then(t);
+    }, te.prototype.lastKey = function(t) {
+      return this.reverse().firstKey(t);
+    }, te.prototype.distinct = function() {
+      var t = this._ctx, t = t.index && t.table.schema.idxByName[t.index];
+      if (!t || !t.multi) return this;
+      var n = {};
+      return Qr(this._ctx, function(l) {
+        var u = l.primaryKey.toString(), l = M(n, u);
+        return n[u] = !0, !l;
+      }), this;
+    }, te.prototype.modify = function(t) {
+      var n = this, o = this._ctx;
+      return this._write(function(u) {
+        var l, f, d;
+        d = typeof t == "function" ? t : (l = h(t), f = l.length, function(k) {
+          for (var O = !1, E = 0; E < f; ++E) {
+            var I = l[E], C = t[I], $ = De(k, I);
+            C instanceof yn ? (we(k, I, C.execute($)), O = !0) : $ !== C && (we(k, I, C), O = !0);
+          }
+          return O;
+        });
+        function p(k, I) {
+          var E = I.failures, I = I.numFailures;
+          _ += k - I;
+          for (var C = 0, $ = h(E); C < $.length; C++) {
+            var F = $[C];
+            b.push(E[F]);
+          }
+        }
+        var w = o.table.core, g = w.schema.primaryKey, S = g.outbound, y = g.extractKey, x = n.db._options.modifyChunkSize || 200, b = [], _ = 0, T = [];
+        return n.clone().primaryKeys().then(function(k) {
+          function O(I) {
+            var C = Math.min(x, k.length - I);
+            return w.getMany({ trans: u, keys: k.slice(I, I + C), cache: "immutable" }).then(function($) {
+              for (var F = [], N = [], P = S ? [] : null, R = [], D = 0; D < C; ++D) {
+                var B = $[D], H = { value: ft(B), primKey: k[I + D] };
+                d.call(H, H.value, H) !== !1 && (H.value == null ? R.push(k[I + D]) : S || Q(y(B), y(H.value)) === 0 ? (N.push(H.value), S && P.push(k[I + D])) : (R.push(k[I + D]), F.push(H.value)));
+              }
+              return Promise.resolve(0 < F.length && w.mutate({ trans: u, type: "add", values: F }).then(function(J) {
+                for (var Y in J.failures) R.splice(parseInt(Y), 1);
+                p(F.length, J);
+              })).then(function() {
+                return (0 < N.length || E && typeof t == "object") && w.mutate({ trans: u, type: "put", keys: P, values: N, criteria: E, changeSpec: typeof t != "function" && t, isAdditionalChunk: 0 < I }).then(function(J) {
+                  return p(N.length, J);
+                });
+              }).then(function() {
+                return (0 < R.length || E && t === ti) && w.mutate({ trans: u, type: "delete", keys: R, criteria: E, isAdditionalChunk: 0 < I }).then(function(J) {
+                  return p(R.length, J);
+                });
+              }).then(function() {
+                return k.length > I + C && O(I + x);
+              });
+            });
+          }
+          var E = Rt(o) && o.limit === 1 / 0 && (typeof t != "function" || t === ti) && { index: o.index, range: o.range };
+          return O(0).then(function() {
+            if (0 < b.length) throw new jn("Error modifying one or more objects", b, _, T);
+            return k.length;
+          });
+        });
+      });
+    }, te.prototype.delete = function() {
+      var t = this._ctx, n = t.range;
+      return Rt(t) && (t.isPrimKey || n.type === 3) ? this._write(function(o) {
+        var u = t.table.core.schema.primaryKey, l = n;
+        return t.table.core.count({ trans: o, query: { index: u, range: l } }).then(function(f) {
+          return t.table.core.mutate({ trans: o, type: "deleteRange", range: l }).then(function(d) {
+            var p = d.failures;
+            if (d.lastResult, d.results, d = d.numFailures, d) throw new jn("Could not delete some values", Object.keys(p).map(function(w) {
+              return p[w];
+            }), f - d);
+            return f - d;
+          });
+        });
+      }) : this.modify(ti);
+    }, te);
+    function te() {
+    }
+    var ti = function(t, n) {
+      return n.value = null;
+    };
+    function eu(t, n) {
+      return t < n ? -1 : t === n ? 0 : 1;
+    }
+    function tu(t, n) {
+      return n < t ? -1 : t === n ? 0 : 1;
+    }
+    function xe(t, n, o) {
+      return t = t instanceof _s ? new t.Collection(t) : t, t._ctx.error = new (o || TypeError)(n), t;
+    }
+    function Vt(t) {
+      return new t.Collection(t, function() {
+        return ks("");
+      }).limit(0);
+    }
+    function nr(t, n, o, u) {
+      var l, f, d, p, w, g, S, y = o.length;
+      if (!o.every(function(_) {
+        return typeof _ == "string";
+      })) return xe(t, hs);
+      function x(_) {
+        l = _ === "next" ? function(k) {
+          return k.toUpperCase();
+        } : function(k) {
+          return k.toLowerCase();
+        }, f = _ === "next" ? function(k) {
+          return k.toLowerCase();
+        } : function(k) {
+          return k.toUpperCase();
+        }, d = _ === "next" ? eu : tu;
+        var T = o.map(function(k) {
+          return { lower: f(k), upper: l(k) };
+        }).sort(function(k, O) {
+          return d(k.lower, O.lower);
+        });
+        p = T.map(function(k) {
+          return k.upper;
+        }), w = T.map(function(k) {
+          return k.lower;
+        }), S = (g = _) === "next" ? "" : u;
+      }
+      x("next"), t = new t.Collection(t, function() {
+        return Xe(p[0], w[y - 1] + u);
+      }), t._ondirectionchange = function(_) {
+        x(_);
+      };
+      var b = 0;
+      return t._addAlgorithm(function(_, T, k) {
+        var O = _.key;
+        if (typeof O != "string") return !1;
+        var E = f(O);
+        if (n(E, w, b)) return !0;
+        for (var I = null, C = b; C < y; ++C) {
+          var $ = function(F, N, P, R, D, B) {
+            for (var H = Math.min(F.length, R.length), J = -1, Y = 0; Y < H; ++Y) {
+              var $e = N[Y];
+              if ($e !== R[Y]) return D(F[Y], P[Y]) < 0 ? F.substr(0, Y) + P[Y] + P.substr(Y + 1) : D(F[Y], R[Y]) < 0 ? F.substr(0, Y) + R[Y] + P.substr(Y + 1) : 0 <= J ? F.substr(0, J) + N[J] + P.substr(J + 1) : null;
+              D(F[Y], $e) < 0 && (J = Y);
+            }
+            return H < R.length && B === "next" ? F + P.substr(F.length) : H < F.length && B === "prev" ? F.substr(0, P.length) : J < 0 ? null : F.substr(0, J) + R[J] + P.substr(J + 1);
+          }(O, E, p[C], w[C], d, g);
+          $ === null && I === null ? b = C + 1 : (I === null || 0 < d(I, $)) && (I = $);
+        }
+        return T(I !== null ? function() {
+          _.continue(I + S);
+        } : k), !1;
+      }), t;
+    }
+    function Xe(t, n, o, u) {
+      return { type: 2, lower: t, upper: n, lowerOpen: o, upperOpen: u };
+    }
+    function ks(t) {
+      return { type: 1, lower: t, upper: t };
+    }
+    var _s = (Object.defineProperty(me.prototype, "Collection", { get: function() {
+      return this._ctx.table.db.Collection;
+    }, enumerable: !1, configurable: !0 }), me.prototype.between = function(t, n, o, u) {
+      o = o !== !1, u = u === !0;
+      try {
+        return 0 < this._cmp(t, n) || this._cmp(t, n) === 0 && (o || u) && (!o || !u) ? Vt(this) : new this.Collection(this, function() {
+          return Xe(t, n, !o, !u);
+        });
+      } catch {
+        return xe(this, We);
+      }
+    }, me.prototype.equals = function(t) {
+      return t == null ? xe(this, We) : new this.Collection(this, function() {
+        return ks(t);
+      });
+    }, me.prototype.above = function(t) {
+      return t == null ? xe(this, We) : new this.Collection(this, function() {
+        return Xe(t, void 0, !0);
+      });
+    }, me.prototype.aboveOrEqual = function(t) {
+      return t == null ? xe(this, We) : new this.Collection(this, function() {
+        return Xe(t, void 0, !1);
+      });
+    }, me.prototype.below = function(t) {
+      return t == null ? xe(this, We) : new this.Collection(this, function() {
+        return Xe(void 0, t, !1, !0);
+      });
+    }, me.prototype.belowOrEqual = function(t) {
+      return t == null ? xe(this, We) : new this.Collection(this, function() {
+        return Xe(void 0, t);
+      });
+    }, me.prototype.startsWith = function(t) {
+      return typeof t != "string" ? xe(this, hs) : this.between(t, t + gt, !0, !0);
+    }, me.prototype.startsWithIgnoreCase = function(t) {
+      return t === "" ? this.startsWith(t) : nr(this, function(n, o) {
+        return n.indexOf(o[0]) === 0;
+      }, [t], gt);
+    }, me.prototype.equalsIgnoreCase = function(t) {
+      return nr(this, function(n, o) {
+        return n === o[0];
+      }, [t], "");
+    }, me.prototype.anyOfIgnoreCase = function() {
+      var t = je.apply(Ct, arguments);
+      return t.length === 0 ? Vt(this) : nr(this, function(n, o) {
+        return o.indexOf(n) !== -1;
+      }, t, "");
+    }, me.prototype.startsWithAnyOfIgnoreCase = function() {
+      var t = je.apply(Ct, arguments);
+      return t.length === 0 ? Vt(this) : nr(this, function(n, o) {
+        return o.some(function(u) {
+          return n.indexOf(u) === 0;
+        });
+      }, t, gt);
+    }, me.prototype.anyOf = function() {
+      var t = this, n = je.apply(Ct, arguments), o = this._cmp;
+      try {
+        n.sort(o);
+      } catch {
+        return xe(this, We);
+      }
+      if (n.length === 0) return Vt(this);
+      var u = new this.Collection(this, function() {
+        return Xe(n[0], n[n.length - 1]);
+      });
+      u._ondirectionchange = function(f) {
+        o = f === "next" ? t._ascending : t._descending, n.sort(o);
+      };
+      var l = 0;
+      return u._addAlgorithm(function(f, d, p) {
+        for (var w = f.key; 0 < o(w, n[l]); ) if (++l === n.length) return d(p), !1;
+        return o(w, n[l]) === 0 || (d(function() {
+          f.continue(n[l]);
+        }), !1);
+      }), u;
+    }, me.prototype.notEqual = function(t) {
+      return this.inAnyRange([[-1 / 0, t], [t, this.db._maxKey]], { includeLowers: !1, includeUppers: !1 });
+    }, me.prototype.noneOf = function() {
+      var t = je.apply(Ct, arguments);
+      if (t.length === 0) return new this.Collection(this);
+      try {
+        t.sort(this._ascending);
+      } catch {
+        return xe(this, We);
+      }
+      var n = t.reduce(function(o, u) {
+        return o ? o.concat([[o[o.length - 1][1], u]]) : [[-1 / 0, u]];
+      }, null);
+      return n.push([t[t.length - 1], this.db._maxKey]), this.inAnyRange(n, { includeLowers: !1, includeUppers: !1 });
+    }, me.prototype.inAnyRange = function(O, n) {
+      var o = this, u = this._cmp, l = this._ascending, f = this._descending, d = this._min, p = this._max;
+      if (O.length === 0) return Vt(this);
+      if (!O.every(function(E) {
+        return E[0] !== void 0 && E[1] !== void 0 && l(E[0], E[1]) <= 0;
+      })) return xe(this, "First argument to inAnyRange() must be an Array of two-value Arrays [lower,upper] where upper must not be lower than lower", W.InvalidArgument);
+      var w = !n || n.includeLowers !== !1, g = n && n.includeUppers === !0, S, y = l;
+      function x(E, I) {
+        return y(E[0], I[0]);
+      }
+      try {
+        (S = O.reduce(function(E, I) {
+          for (var C = 0, $ = E.length; C < $; ++C) {
+            var F = E[C];
+            if (u(I[0], F[1]) < 0 && 0 < u(I[1], F[0])) {
+              F[0] = d(F[0], I[0]), F[1] = p(F[1], I[1]);
+              break;
+            }
+          }
+          return C === $ && E.push(I), E;
+        }, [])).sort(x);
+      } catch {
+        return xe(this, We);
+      }
+      var b = 0, _ = g ? function(E) {
+        return 0 < l(E, S[b][1]);
+      } : function(E) {
+        return 0 <= l(E, S[b][1]);
+      }, T = w ? function(E) {
+        return 0 < f(E, S[b][0]);
+      } : function(E) {
+        return 0 <= f(E, S[b][0]);
+      }, k = _, O = new this.Collection(this, function() {
+        return Xe(S[0][0], S[S.length - 1][1], !w, !g);
+      });
+      return O._ondirectionchange = function(E) {
+        y = E === "next" ? (k = _, l) : (k = T, f), S.sort(x);
+      }, O._addAlgorithm(function(E, I, C) {
+        for (var $, F = E.key; k(F); ) if (++b === S.length) return I(C), !1;
+        return !_($ = F) && !T($) || (o._cmp(F, S[b][1]) === 0 || o._cmp(F, S[b][0]) === 0 || I(function() {
+          y === l ? E.continue(S[b][0]) : E.continue(S[b][1]);
+        }), !1);
+      }), O;
+    }, me.prototype.startsWithAnyOf = function() {
+      var t = je.apply(Ct, arguments);
+      return t.every(function(n) {
+        return typeof n == "string";
+      }) ? t.length === 0 ? Vt(this) : this.inAnyRange(t.map(function(n) {
+        return [n, n + gt];
+      })) : xe(this, "startsWithAnyOf() only works with strings");
+    }, me);
+    function me() {
+    }
+    function qe(t) {
+      return oe(function(n) {
+        return gn(n), t(n.target.error), !1;
+      });
+    }
+    function gn(t) {
+      t.stopPropagation && t.stopPropagation(), t.preventDefault && t.preventDefault();
+    }
+    var vn = "storagemutated", ni = "x-storagemutated-1", Qe = mn(null, vn), nu = (Le.prototype._lock = function() {
+      return lt(!U.global), ++this._reculock, this._reculock !== 1 || U.global || (U.lockOwnerFor = this), this;
+    }, Le.prototype._unlock = function() {
+      if (lt(!U.global), --this._reculock == 0) for (U.global || (U.lockOwnerFor = null); 0 < this._blockedFuncs.length && !this._locked(); ) {
+        var t = this._blockedFuncs.shift();
+        try {
+          yt(t[1], t[0]);
+        } catch {
+        }
+      }
+      return this;
+    }, Le.prototype._locked = function() {
+      return this._reculock && U.lockOwnerFor !== this;
+    }, Le.prototype.create = function(t) {
+      var n = this;
+      if (!this.mode) return this;
+      var o = this.db.idbdb, u = this.db._state.dbOpenError;
+      if (lt(!this.idbtrans), !t && !o) switch (u && u.name) {
+        case "DatabaseClosedError":
+          throw new W.DatabaseClosed(u);
+        case "MissingAPIError":
+          throw new W.MissingAPI(u.message, u);
+        default:
+          throw new W.OpenFailed(u);
+      }
+      if (!this.active) throw new W.TransactionInactive();
+      return lt(this._completion._state === null), (t = this.idbtrans = t || (this.db.core || o).transaction(this.storeNames, this.mode, { durability: this.chromeTransactionDurability })).onerror = oe(function(l) {
+        gn(l), n._reject(t.error);
+      }), t.onabort = oe(function(l) {
+        gn(l), n.active && n._reject(new W.Abort(t.error)), n.active = !1, n.on("abort").fire(l);
+      }), t.oncomplete = oe(function() {
+        n.active = !1, n._resolve(), "mutatedParts" in t && Qe.storagemutated.fire(t.mutatedParts);
+      }), this;
+    }, Le.prototype._promise = function(t, n, o) {
+      var u = this;
+      if (t === "readwrite" && this.mode !== "readwrite") return le(new W.ReadOnly("Transaction is readonly"));
+      if (!this.active) return le(new W.TransactionInactive());
+      if (this._locked()) return new L(function(f, d) {
+        u._blockedFuncs.push([function() {
+          u._promise(t, n, o).then(f, d);
+        }, U]);
+      });
+      if (o) return Ye(function() {
+        var f = new L(function(d, p) {
+          u._lock();
+          var w = n(d, p, u);
+          w && w.then && w.then(d, p);
+        });
+        return f.finally(function() {
+          return u._unlock();
+        }), f._lib = !0, f;
+      });
+      var l = new L(function(f, d) {
+        var p = n(f, d, u);
+        p && p.then && p.then(f, d);
+      });
+      return l._lib = !0, l;
+    }, Le.prototype._root = function() {
+      return this.parent ? this.parent._root() : this;
+    }, Le.prototype.waitFor = function(t) {
+      var n, o = this._root(), u = L.resolve(t);
+      o._waitingFor ? o._waitingFor = o._waitingFor.then(function() {
+        return u;
+      }) : (o._waitingFor = u, o._waitingQueue = [], n = o.idbtrans.objectStore(o.storeNames[0]), function f() {
+        for (++o._spinCount; o._waitingQueue.length; ) o._waitingQueue.shift()();
+        o._waitingFor && (n.get(-1 / 0).onsuccess = f);
+      }());
+      var l = o._waitingFor;
+      return new L(function(f, d) {
+        u.then(function(p) {
+          return o._waitingQueue.push(oe(f.bind(null, p)));
+        }, function(p) {
+          return o._waitingQueue.push(oe(d.bind(null, p)));
+        }).finally(function() {
+          o._waitingFor === l && (o._waitingFor = null);
+        });
+      });
+    }, Le.prototype.abort = function() {
+      this.active && (this.active = !1, this.idbtrans && this.idbtrans.abort(), this._reject(new W.Abort()));
+    }, Le.prototype.table = function(t) {
+      var n = this._memoizedTables || (this._memoizedTables = {});
+      if (M(n, t)) return n[t];
+      var o = this.schema[t];
+      if (!o) throw new W.NotFound("Table " + t + " not part of transaction");
+      return o = new this.db.Table(t, o, this), o.core = this.db.core.table(t), n[t] = o;
+    }, Le);
+    function Le() {
+    }
+    function ri(t, n, o, u, l, f, d) {
+      return { name: t, keyPath: n, unique: o, multi: u, auto: l, compound: f, src: (o && !d ? "&" : "") + (u ? "*" : "") + (l ? "++" : "") + Ss(n) };
+    }
+    function Ss(t) {
+      return typeof t == "string" ? t : t ? "[" + [].join.call(t, "+") + "]" : "";
+    }
+    function ii(t, n, o) {
+      return { name: t, primKey: n, indexes: o, mappedClass: null, idxByName: (u = function(l) {
+        return [l.name, l];
+      }, o.reduce(function(l, f, d) {
+        return d = u(f, d), d && (l[d[0]] = d[1]), l;
+      }, {})) };
+      var u;
+    }
+    var bn = function(t) {
+      try {
+        return t.only([[]]), bn = function() {
+          return [[]];
+        }, [[]];
+      } catch {
+        return bn = function() {
+          return gt;
+        }, gt;
+      }
+    };
+    function si(t) {
+      return t == null ? function() {
+      } : typeof t == "string" ? (n = t).split(".").length === 1 ? function(o) {
+        return o[n];
+      } : function(o) {
+        return De(o, n);
+      } : function(o) {
+        return De(o, t);
+      };
+      var n;
+    }
+    function xs(t) {
+      return [].slice.call(t);
+    }
+    var ru = 0;
+    function wn(t) {
+      return t == null ? ":id" : typeof t == "string" ? t : "[".concat(t.join("+"), "]");
+    }
+    function iu(t, n, w) {
+      function u(k) {
+        if (k.type === 3) return null;
+        if (k.type === 4) throw new Error("Cannot convert never type to IDBKeyRange");
+        var b = k.lower, _ = k.upper, T = k.lowerOpen, k = k.upperOpen;
+        return b === void 0 ? _ === void 0 ? null : n.upperBound(_, !!k) : _ === void 0 ? n.lowerBound(b, !!T) : n.bound(b, _, !!T, !!k);
+      }
+      function l(x) {
+        var b, _ = x.name;
+        return { name: _, schema: x, mutate: function(T) {
+          var k = T.trans, O = T.type, E = T.keys, I = T.values, C = T.range;
+          return new Promise(function($, F) {
+            $ = oe($);
+            var N = k.objectStore(_), P = N.keyPath == null, R = O === "put" || O === "add";
+            if (!R && O !== "delete" && O !== "deleteRange") throw new Error("Invalid operation type: " + O);
+            var D, B = (E || I || { length: 1 }).length;
+            if (E && I && E.length !== I.length) throw new Error("Given keys array must have same length as given values array.");
+            if (B === 0) return $({ numFailures: 0, failures: {}, results: [], lastResult: void 0 });
+            function H(_e) {
+              ++$e, gn(_e);
+            }
+            var J = [], Y = [], $e = 0;
+            if (O === "deleteRange") {
+              if (C.type === 4) return $({ numFailures: $e, failures: Y, results: [], lastResult: void 0 });
+              C.type === 3 ? J.push(D = N.clear()) : J.push(D = N.delete(u(C)));
+            } else {
+              var P = R ? P ? [I, E] : [I, null] : [E, null], G = P[0], pe = P[1];
+              if (R) for (var ye = 0; ye < B; ++ye) J.push(D = pe && pe[ye] !== void 0 ? N[O](G[ye], pe[ye]) : N[O](G[ye])), D.onerror = H;
+              else for (ye = 0; ye < B; ++ye) J.push(D = N[O](G[ye])), D.onerror = H;
+            }
+            function pr(_e) {
+              _e = _e.target.result, J.forEach(function(kt, Si) {
+                return kt.error != null && (Y[Si] = kt.error);
+              }), $({ numFailures: $e, failures: Y, results: O === "delete" ? E : J.map(function(kt) {
+                return kt.result;
+              }), lastResult: _e });
+            }
+            D.onerror = function(_e) {
+              H(_e), pr(_e);
+            }, D.onsuccess = pr;
+          });
+        }, getMany: function(T) {
+          var k = T.trans, O = T.keys;
+          return new Promise(function(E, I) {
+            E = oe(E);
+            for (var C, $ = k.objectStore(_), F = O.length, N = new Array(F), P = 0, R = 0, D = function(J) {
+              J = J.target, N[J._pos] = J.result, ++R === P && E(N);
+            }, B = qe(I), H = 0; H < F; ++H) O[H] != null && ((C = $.get(O[H]))._pos = H, C.onsuccess = D, C.onerror = B, ++P);
+            P === 0 && E(N);
+          });
+        }, get: function(T) {
+          var k = T.trans, O = T.key;
+          return new Promise(function(E, I) {
+            E = oe(E);
+            var C = k.objectStore(_).get(O);
+            C.onsuccess = function($) {
+              return E($.target.result);
+            }, C.onerror = qe(I);
+          });
+        }, query: (b = g, function(T) {
+          return new Promise(function(k, O) {
+            k = oe(k);
+            var E, I, C, P = T.trans, $ = T.values, F = T.limit, D = T.query, N = F === 1 / 0 ? void 0 : F, R = D.index, D = D.range, P = P.objectStore(_), R = R.isPrimaryKey ? P : P.index(R.name), D = u(D);
+            if (F === 0) return k({ result: [] });
+            b ? ((N = $ ? R.getAll(D, N) : R.getAllKeys(D, N)).onsuccess = function(B) {
+              return k({ result: B.target.result });
+            }, N.onerror = qe(O)) : (E = 0, I = !$ && "openKeyCursor" in R ? R.openKeyCursor(D) : R.openCursor(D), C = [], I.onsuccess = function(B) {
+              var H = I.result;
+              return H ? (C.push($ ? H.value : H.primaryKey), ++E === F ? k({ result: C }) : void H.continue()) : k({ result: C });
+            }, I.onerror = qe(O));
+          });
+        }), openCursor: function(T) {
+          var k = T.trans, O = T.values, E = T.query, I = T.reverse, C = T.unique;
+          return new Promise(function($, F) {
+            $ = oe($);
+            var R = E.index, N = E.range, P = k.objectStore(_), P = R.isPrimaryKey ? P : P.index(R.name), R = I ? C ? "prevunique" : "prev" : C ? "nextunique" : "next", D = !O && "openKeyCursor" in P ? P.openKeyCursor(u(N), R) : P.openCursor(u(N), R);
+            D.onerror = qe(F), D.onsuccess = oe(function(B) {
+              var H, J, Y, $e, G = D.result;
+              G ? (G.___id = ++ru, G.done = !1, H = G.continue.bind(G), J = (J = G.continuePrimaryKey) && J.bind(G), Y = G.advance.bind(G), $e = function() {
+                throw new Error("Cursor not stopped");
+              }, G.trans = k, G.stop = G.continue = G.continuePrimaryKey = G.advance = function() {
+                throw new Error("Cursor not started");
+              }, G.fail = oe(F), G.next = function() {
+                var pe = this, ye = 1;
+                return this.start(function() {
+                  return ye-- ? pe.continue() : pe.stop();
+                }).then(function() {
+                  return pe;
+                });
+              }, G.start = function(pe) {
+                function ye() {
+                  if (D.result) try {
+                    pe();
+                  } catch (_e) {
+                    G.fail(_e);
+                  }
+                  else G.done = !0, G.start = function() {
+                    throw new Error("Cursor behind last entry");
+                  }, G.stop();
+                }
+                var pr = new Promise(function(_e, kt) {
+                  _e = oe(_e), D.onerror = qe(kt), G.fail = kt, G.stop = function(Si) {
+                    G.stop = G.continue = G.continuePrimaryKey = G.advance = $e, _e(Si);
+                  };
+                });
+                return D.onsuccess = oe(function(_e) {
+                  D.onsuccess = ye, ye();
+                }), G.continue = H, G.continuePrimaryKey = J, G.advance = Y, ye(), pr;
+              }, $(G)) : $(null);
+            }, F);
+          });
+        }, count: function(T) {
+          var k = T.query, O = T.trans, E = k.index, I = k.range;
+          return new Promise(function(C, $) {
+            var F = O.objectStore(_), N = E.isPrimaryKey ? F : F.index(E.name), F = u(I), N = F ? N.count(F) : N.count();
+            N.onsuccess = oe(function(P) {
+              return C(P.target.result);
+            }), N.onerror = qe($);
+          });
+        } };
+      }
+      var f, d, p, S = (d = w, p = xs((f = t).objectStoreNames), { schema: { name: f.name, tables: p.map(function(x) {
+        return d.objectStore(x);
+      }).map(function(x) {
+        var b = x.keyPath, k = x.autoIncrement, _ = m(b), T = {}, k = { name: x.name, primaryKey: { name: null, isPrimaryKey: !0, outbound: b == null, compound: _, keyPath: b, autoIncrement: k, unique: !0, extractKey: si(b) }, indexes: xs(x.indexNames).map(function(O) {
+          return x.index(O);
+        }).map(function(C) {
+          var E = C.name, I = C.unique, $ = C.multiEntry, C = C.keyPath, $ = { name: E, compound: m(C), keyPath: C, unique: I, multiEntry: $, extractKey: si(C) };
+          return T[wn(C)] = $;
+        }), getIndexByKeyPath: function(O) {
+          return T[wn(O)];
+        } };
+        return T[":id"] = k.primaryKey, b != null && (T[wn(b)] = k.primaryKey), k;
+      }) }, hasGetAll: 0 < p.length && "getAll" in d.objectStore(p[0]) && !(typeof navigator < "u" && /Safari/.test(navigator.userAgent) && !/(Chrome\/|Edge\/)/.test(navigator.userAgent) && [].concat(navigator.userAgent.match(/Safari\/(\d*)/))[1] < 604) }), w = S.schema, g = S.hasGetAll, S = w.tables.map(l), y = {};
+      return S.forEach(function(x) {
+        return y[x.name] = x;
+      }), { stack: "dbcore", transaction: t.transaction.bind(t), table: function(x) {
+        if (!y[x]) throw new Error("Table '".concat(x, "' not found"));
+        return y[x];
+      }, MIN_KEY: -1 / 0, MAX_KEY: bn(n), schema: w };
+    }
+    function su(t, n, o, u) {
+      var l = o.IDBKeyRange;
+      return o.indexedDB, { dbcore: (u = iu(n, l, u), t.dbcore.reduce(function(f, d) {
+        return d = d.create, i(i({}, f), d(f));
+      }, u)) };
+    }
+    function rr(t, u) {
+      var o = u.db, u = su(t._middlewares, o, t._deps, u);
+      t.core = u.dbcore, t.tables.forEach(function(l) {
+        var f = l.name;
+        t.core.schema.tables.some(function(d) {
+          return d.name === f;
+        }) && (l.core = t.core.table(f), t[f] instanceof t.Table && (t[f].core = l.core));
+      });
+    }
+    function ir(t, n, o, u) {
+      o.forEach(function(l) {
+        var f = u[l];
+        n.forEach(function(d) {
+          var p = function w(g, S) {
+            return Oe(g, S) || (g = A(g)) && w(g, S);
+          }(d, l);
+          (!p || "value" in p && p.value === void 0) && (d === t.Transaction.prototype || d instanceof t.Transaction ? ee(d, l, { get: function() {
+            return this.table(l);
+          }, set: function(w) {
+            j(this, l, { value: w, writable: !0, configurable: !0, enumerable: !0 });
+          } }) : d[l] = new t.Table(l, f));
+        });
+      });
+    }
+    function oi(t, n) {
+      n.forEach(function(o) {
+        for (var u in o) o[u] instanceof t.Table && delete o[u];
+      });
+    }
+    function ou(t, n) {
+      return t._cfg.version - n._cfg.version;
+    }
+    function au(t, n, o, u) {
+      var l = t._dbSchema;
+      o.objectStoreNames.contains("$meta") && !l.$meta && (l.$meta = ii("$meta", Os("")[0], []), t._storeNames.push("$meta"));
+      var f = t._createTransaction("readwrite", t._storeNames, l);
+      f.create(o), f._completion.catch(u);
+      var d = f._reject.bind(f), p = U.transless || U;
+      Ye(function() {
+        return U.trans = f, U.transless = p, n !== 0 ? (rr(t, o), g = n, ((w = f).storeNames.includes("$meta") ? w.table("$meta").get("version").then(function(S) {
+          return S ?? g;
+        }) : L.resolve(g)).then(function(S) {
+          return x = S, b = f, _ = o, T = [], S = (y = t)._versions, k = y._dbSchema = or(0, y.idbdb, _), (S = S.filter(function(O) {
+            return O._cfg.version >= x;
+          })).length !== 0 ? (S.forEach(function(O) {
+            T.push(function() {
+              var E = k, I = O._cfg.dbschema;
+              ar(y, E, _), ar(y, I, _), k = y._dbSchema = I;
+              var C = ai(E, I);
+              C.add.forEach(function(R) {
+                ui(_, R[0], R[1].primKey, R[1].indexes);
+              }), C.change.forEach(function(R) {
+                if (R.recreate) throw new W.Upgrade("Not yet support for changing primary key");
+                var D = _.objectStore(R.name);
+                R.add.forEach(function(B) {
+                  return sr(D, B);
+                }), R.change.forEach(function(B) {
+                  D.deleteIndex(B.name), sr(D, B);
+                }), R.del.forEach(function(B) {
+                  return D.deleteIndex(B);
+                });
+              });
+              var $ = O._cfg.contentUpgrade;
+              if ($ && O._cfg.version > x) {
+                rr(y, _), b._memoizedTables = {};
+                var F = Ln(I);
+                C.del.forEach(function(R) {
+                  F[R] = E[R];
+                }), oi(y, [y.Transaction.prototype]), ir(y, [y.Transaction.prototype], h(F), F), b.schema = F;
+                var N, P = Lr($);
+                return P && Pt(), C = L.follow(function() {
+                  var R;
+                  (N = $(b)) && P && (R = Ge.bind(null, null), N.then(R, R));
+                }), N && typeof N.then == "function" ? L.resolve(N) : C.then(function() {
+                  return N;
+                });
+              }
+            }), T.push(function(E) {
+              var I, C, $ = O._cfg.dbschema;
+              I = $, C = E, [].slice.call(C.db.objectStoreNames).forEach(function(F) {
+                return I[F] == null && C.db.deleteObjectStore(F);
+              }), oi(y, [y.Transaction.prototype]), ir(y, [y.Transaction.prototype], y._storeNames, y._dbSchema), b.schema = y._dbSchema;
+            }), T.push(function(E) {
+              y.idbdb.objectStoreNames.contains("$meta") && (Math.ceil(y.idbdb.version / 10) === O._cfg.version ? (y.idbdb.deleteObjectStore("$meta"), delete y._dbSchema.$meta, y._storeNames = y._storeNames.filter(function(I) {
+                return I !== "$meta";
+              })) : E.objectStore("$meta").put(O._cfg.version, "version"));
+            });
+          }), function O() {
+            return T.length ? L.resolve(T.shift()(b.idbtrans)).then(O) : L.resolve();
+          }().then(function() {
+            Ts(k, _);
+          })) : L.resolve();
+          var y, x, b, _, T, k;
+        }).catch(d)) : (h(l).forEach(function(S) {
+          ui(o, S, l[S].primKey, l[S].indexes);
+        }), rr(t, o), void L.follow(function() {
+          return t.on.populate.fire(f);
+        }).catch(d));
+        var w, g;
+      });
+    }
+    function uu(t, n) {
+      Ts(t._dbSchema, n), n.db.version % 10 != 0 || n.objectStoreNames.contains("$meta") || n.db.createObjectStore("$meta").add(Math.ceil(n.db.version / 10 - 1), "version");
+      var o = or(0, t.idbdb, n);
+      ar(t, t._dbSchema, n);
+      for (var u = 0, l = ai(o, t._dbSchema).change; u < l.length; u++) {
+        var f = function(d) {
+          if (d.change.length || d.recreate) return console.warn("Unable to patch indexes of table ".concat(d.name, " because it has changes on the type of index or primary key.")), { value: void 0 };
+          var p = n.objectStore(d.name);
+          d.add.forEach(function(w) {
+            Ve && console.debug("Dexie upgrade patch: Creating missing index ".concat(d.name, ".").concat(w.src)), sr(p, w);
+          });
+        }(l[u]);
+        if (typeof f == "object") return f.value;
+      }
+    }
+    function ai(t, n) {
+      var o, u = { del: [], add: [], change: [] };
+      for (o in t) n[o] || u.del.push(o);
+      for (o in n) {
+        var l = t[o], f = n[o];
+        if (l) {
+          var d = { name: o, def: f, recreate: !1, del: [], add: [], change: [] };
+          if ("" + (l.primKey.keyPath || "") != "" + (f.primKey.keyPath || "") || l.primKey.auto !== f.primKey.auto) d.recreate = !0, u.change.push(d);
+          else {
+            var p = l.idxByName, w = f.idxByName, g = void 0;
+            for (g in p) w[g] || d.del.push(g);
+            for (g in w) {
+              var S = p[g], y = w[g];
+              S ? S.src !== y.src && d.change.push(y) : d.add.push(y);
+            }
+            (0 < d.del.length || 0 < d.add.length || 0 < d.change.length) && u.change.push(d);
+          }
+        } else u.add.push([o, f]);
+      }
+      return u;
+    }
+    function ui(t, n, o, u) {
+      var l = t.db.createObjectStore(n, o.keyPath ? { keyPath: o.keyPath, autoIncrement: o.auto } : { autoIncrement: o.auto });
+      return u.forEach(function(f) {
+        return sr(l, f);
+      }), l;
+    }
+    function Ts(t, n) {
+      h(t).forEach(function(o) {
+        n.db.objectStoreNames.contains(o) || (Ve && console.debug("Dexie: Creating missing table", o), ui(n, o, t[o].primKey, t[o].indexes));
+      });
+    }
+    function sr(t, n) {
+      t.createIndex(n.name, n.keyPath, { unique: n.unique, multiEntry: n.multi });
+    }
+    function or(t, n, o) {
+      var u = {};
+      return Re(n.objectStoreNames, 0).forEach(function(l) {
+        for (var f = o.objectStore(l), d = ri(Ss(g = f.keyPath), g || "", !0, !1, !!f.autoIncrement, g && typeof g != "string", !0), p = [], w = 0; w < f.indexNames.length; ++w) {
+          var S = f.index(f.indexNames[w]), g = S.keyPath, S = ri(S.name, g, !!S.unique, !!S.multiEntry, !1, g && typeof g != "string", !1);
+          p.push(S);
+        }
+        u[l] = ii(l, d, p);
+      }), u;
+    }
+    function ar(t, n, o) {
+      for (var u = o.db.objectStoreNames, l = 0; l < u.length; ++l) {
+        var f = u[l], d = o.objectStore(f);
+        t._hasGetAll = "getAll" in d;
+        for (var p = 0; p < d.indexNames.length; ++p) {
+          var w = d.indexNames[p], g = d.index(w).keyPath, S = typeof g == "string" ? g : "[" + Re(g).join("+") + "]";
+          !n[f] || (g = n[f].idxByName[S]) && (g.name = w, delete n[f].idxByName[S], n[f].idxByName[w] = g);
+        }
+      }
+      typeof navigator < "u" && /Safari/.test(navigator.userAgent) && !/(Chrome\/|Edge\/)/.test(navigator.userAgent) && c.WorkerGlobalScope && c instanceof c.WorkerGlobalScope && [].concat(navigator.userAgent.match(/Safari\/(\d*)/))[1] < 604 && (t._hasGetAll = !1);
+    }
+    function Os(t) {
+      return t.split(",").map(function(n, o) {
+        var u = (n = n.trim()).replace(/([&*]|\+\+)/g, ""), l = /^\[/.test(u) ? u.match(/^\[(.*)\]$/)[1].split("+") : u;
+        return ri(u, l || null, /\&/.test(n), /\*/.test(n), /\+\+/.test(n), m(l), o === 0);
+      });
+    }
+    var lu = (ur.prototype._parseStoresSpec = function(t, n) {
+      h(t).forEach(function(o) {
+        if (t[o] !== null) {
+          var u = Os(t[o]), l = u.shift();
+          if (l.unique = !0, l.multi) throw new W.Schema("Primary key cannot be multi-valued");
+          u.forEach(function(f) {
+            if (f.auto) throw new W.Schema("Only primary key can be marked as autoIncrement (++)");
+            if (!f.keyPath) throw new W.Schema("Index must have a name and cannot be an empty string");
+          }), n[o] = ii(o, l, u);
+        }
+      });
+    }, ur.prototype.stores = function(o) {
+      var n = this.db;
+      this._cfg.storesSource = this._cfg.storesSource ? v(this._cfg.storesSource, o) : o;
+      var o = n._versions, u = {}, l = {};
+      return o.forEach(function(f) {
+        v(u, f._cfg.storesSource), l = f._cfg.dbschema = {}, f._parseStoresSpec(u, l);
+      }), n._dbSchema = l, oi(n, [n._allTables, n, n.Transaction.prototype]), ir(n, [n._allTables, n, n.Transaction.prototype, this._cfg.tables], h(l), l), n._storeNames = h(l), this;
+    }, ur.prototype.upgrade = function(t) {
+      return this._cfg.contentUpgrade = jr(this._cfg.contentUpgrade || ie, t), this;
+    }, ur);
+    function ur() {
+    }
+    function li(t, n) {
+      var o = t._dbNamesDB;
+      return o || (o = t._dbNamesDB = new ze(Xn, { addons: [], indexedDB: t, IDBKeyRange: n })).version(1).stores({ dbnames: "name" }), o.table("dbnames");
+    }
+    function ci(t) {
+      return t && typeof t.databases == "function";
+    }
+    function fi(t) {
+      return Ye(function() {
+        return U.letThrough = !0, t();
+      });
+    }
+    function hi(t) {
+      return !("from" in t);
+    }
+    var ke = function(t, n) {
+      if (!this) {
+        var o = new ke();
+        return t && "d" in t && v(o, t), o;
+      }
+      v(this, arguments.length ? { d: 1, from: t, to: 1 < arguments.length ? n : t } : { d: 0 });
+    };
+    function kn(t, n, o) {
+      var u = Q(n, o);
+      if (!isNaN(u)) {
+        if (0 < u) throw RangeError();
+        if (hi(t)) return v(t, { from: n, to: o, d: 1 });
+        var l = t.l, u = t.r;
+        if (Q(o, t.from) < 0) return l ? kn(l, n, o) : t.l = { from: n, to: o, d: 1, l: null, r: null }, Is(t);
+        if (0 < Q(n, t.to)) return u ? kn(u, n, o) : t.r = { from: n, to: o, d: 1, l: null, r: null }, Is(t);
+        Q(n, t.from) < 0 && (t.from = n, t.l = null, t.d = u ? u.d + 1 : 1), 0 < Q(o, t.to) && (t.to = o, t.r = null, t.d = t.l ? t.l.d + 1 : 1), o = !t.r, l && !t.l && _n(t, l), u && o && _n(t, u);
+      }
+    }
+    function _n(t, n) {
+      hi(n) || function o(u, w) {
+        var f = w.from, d = w.to, p = w.l, w = w.r;
+        kn(u, f, d), p && o(u, p), w && o(u, w);
+      }(t, n);
+    }
+    function Es(t, n) {
+      var o = lr(n), u = o.next();
+      if (u.done) return !1;
+      for (var l = u.value, f = lr(t), d = f.next(l.from), p = d.value; !u.done && !d.done; ) {
+        if (Q(p.from, l.to) <= 0 && 0 <= Q(p.to, l.from)) return !0;
+        Q(l.from, p.from) < 0 ? l = (u = o.next(p.from)).value : p = (d = f.next(l.from)).value;
+      }
+      return !1;
+    }
+    function lr(t) {
+      var n = hi(t) ? null : { s: 0, n: t };
+      return { next: function(o) {
+        for (var u = 0 < arguments.length; n; ) switch (n.s) {
+          case 0:
+            if (n.s = 1, u) for (; n.n.l && Q(o, n.n.from) < 0; ) n = { up: n, n: n.n.l, s: 1 };
+            else for (; n.n.l; ) n = { up: n, n: n.n.l, s: 1 };
+          case 1:
+            if (n.s = 2, !u || Q(o, n.n.to) <= 0) return { value: n.n, done: !1 };
+          case 2:
+            if (n.n.r) {
+              n.s = 3, n = { up: n, n: n.n.r, s: 0 };
+              continue;
+            }
+          case 3:
+            n = n.up;
+        }
+        return { done: !0 };
+      } };
+    }
+    function Is(t) {
+      var n, o, u = (((n = t.r) === null || n === void 0 ? void 0 : n.d) || 0) - (((o = t.l) === null || o === void 0 ? void 0 : o.d) || 0), l = 1 < u ? "r" : u < -1 ? "l" : "";
+      l && (n = l == "r" ? "l" : "r", o = i({}, t), u = t[l], t.from = u.from, t.to = u.to, t[l] = u[l], o[l] = u[n], (t[n] = o).d = As(o)), t.d = As(t);
+    }
+    function As(o) {
+      var n = o.r, o = o.l;
+      return (n ? o ? Math.max(n.d, o.d) : n.d : o ? o.d : 0) + 1;
+    }
+    function cr(t, n) {
+      return h(n).forEach(function(o) {
+        t[o] ? _n(t[o], n[o]) : t[o] = function u(l) {
+          var f, d, p = {};
+          for (f in l) M(l, f) && (d = l[f], p[f] = !d || typeof d != "object" || Un.has(d.constructor) ? d : u(d));
+          return p;
+        }(n[o]);
+      }), t;
+    }
+    function di(t, n) {
+      return t.all || n.all || Object.keys(t).some(function(o) {
+        return n[o] && Es(n[o], t[o]);
+      });
+    }
+    z(ke.prototype, ((Ee = { add: function(t) {
+      return _n(this, t), this;
+    }, addKey: function(t) {
+      return kn(this, t, t), this;
+    }, addKeys: function(t) {
+      var n = this;
+      return t.forEach(function(o) {
+        return kn(n, o, o);
+      }), this;
+    }, hasKey: function(t) {
+      var n = lr(this).next(t).value;
+      return n && Q(n.from, t) <= 0 && 0 <= Q(n.to, t);
+    } })[qr] = function() {
+      return lr(this);
+    }, Ee));
+    var bt = {}, mi = {}, pi = !1;
+    function fr(t) {
+      cr(mi, t), pi || (pi = !0, setTimeout(function() {
+        pi = !1, yi(mi, !(mi = {}));
+      }, 0));
+    }
+    function yi(t, n) {
+      n === void 0 && (n = !1);
+      var o = /* @__PURE__ */ new Set();
+      if (t.all) for (var u = 0, l = Object.values(bt); u < l.length; u++) Cs(d = l[u], t, o, n);
+      else for (var f in t) {
+        var d, p = /^idb\:\/\/(.*)\/(.*)\//.exec(f);
+        p && (f = p[1], p = p[2], (d = bt["idb://".concat(f, "/").concat(p)]) && Cs(d, t, o, n));
+      }
+      o.forEach(function(w) {
+        return w();
+      });
+    }
+    function Cs(t, n, o, u) {
+      for (var l = [], f = 0, d = Object.entries(t.queries.query); f < d.length; f++) {
+        for (var p = d[f], w = p[0], g = [], S = 0, y = p[1]; S < y.length; S++) {
+          var x = y[S];
+          di(n, x.obsSet) ? x.subscribers.forEach(function(k) {
+            return o.add(k);
+          }) : u && g.push(x);
+        }
+        u && l.push([w, g]);
+      }
+      if (u) for (var b = 0, _ = l; b < _.length; b++) {
+        var T = _[b], w = T[0], g = T[1];
+        t.queries.query[w] = g;
+      }
+    }
+    function cu(t) {
+      var n = t._state, o = t._deps.indexedDB;
+      if (n.isBeingOpened || t.idbdb) return n.dbReadyPromise.then(function() {
+        return n.dbOpenError ? le(n.dbOpenError) : t;
+      });
+      n.isBeingOpened = !0, n.dbOpenError = null, n.openComplete = !1;
+      var u = n.openCanceller, l = Math.round(10 * t.verno), f = !1;
+      function d() {
+        if (n.openCanceller !== u) throw new W.DatabaseClosed("db.open() was cancelled");
+      }
+      function p() {
+        return new L(function(x, b) {
+          if (d(), !o) throw new W.MissingAPI();
+          var _ = t.name, T = n.autoSchema || !l ? o.open(_) : o.open(_, l);
+          if (!T) throw new W.MissingAPI();
+          T.onerror = qe(b), T.onblocked = oe(t._fireOnBlocked), T.onupgradeneeded = oe(function(k) {
+            var O;
+            S = T.transaction, n.autoSchema && !t._options.allowEmptyDB ? (T.onerror = gn, S.abort(), T.result.close(), (O = o.deleteDatabase(_)).onsuccess = O.onerror = oe(function() {
+              b(new W.NoSuchDatabase("Database ".concat(_, " doesnt exist")));
+            })) : (S.onerror = qe(b), k = k.oldVersion > Math.pow(2, 62) ? 0 : k.oldVersion, y = k < 1, t.idbdb = T.result, f && uu(t, S), au(t, k / 10, S, b));
+          }, b), T.onsuccess = oe(function() {
+            S = null;
+            var k, O, E, I, C, $ = t.idbdb = T.result, F = Re($.objectStoreNames);
+            if (0 < F.length) try {
+              var N = $.transaction((I = F).length === 1 ? I[0] : I, "readonly");
+              if (n.autoSchema) O = $, E = N, (k = t).verno = O.version / 10, E = k._dbSchema = or(0, O, E), k._storeNames = Re(O.objectStoreNames, 0), ir(k, [k._allTables], h(E), E);
+              else if (ar(t, t._dbSchema, N), ((C = ai(or(0, (C = t).idbdb, N), C._dbSchema)).add.length || C.change.some(function(P) {
+                return P.add.length || P.change.length;
+              })) && !f) return console.warn("Dexie SchemaDiff: Schema was extended without increasing the number passed to db.version(). Dexie will add missing parts and increment native version number to workaround this."), $.close(), l = $.version + 1, f = !0, x(p());
+              rr(t, N);
+            } catch {
+            }
+            Ft.push(t), $.onversionchange = oe(function(P) {
+              n.vcFired = !0, t.on("versionchange").fire(P);
+            }), $.onclose = oe(function(P) {
+              t.on("close").fire(P);
+            }), y && (C = t._deps, N = _, $ = C.indexedDB, C = C.IDBKeyRange, ci($) || N === Xn || li($, C).put({ name: N }).catch(ie)), x();
+          }, b);
+        }).catch(function(x) {
+          switch (x == null ? void 0 : x.name) {
+            case "UnknownError":
+              if (0 < n.PR1398_maxLoop) return n.PR1398_maxLoop--, console.warn("Dexie: Workaround for Chrome UnknownError on open()"), p();
+              break;
+            case "VersionError":
+              if (0 < l) return l = 0, p();
+          }
+          return L.reject(x);
+        });
+      }
+      var w, g = n.dbReadyResolve, S = null, y = !1;
+      return L.race([u, (typeof navigator > "u" ? L.resolve() : !navigator.userAgentData && /Safari\//.test(navigator.userAgent) && !/Chrom(e|ium)\//.test(navigator.userAgent) && indexedDB.databases ? new Promise(function(x) {
+        function b() {
+          return indexedDB.databases().finally(x);
+        }
+        w = setInterval(b, 100), b();
+      }).finally(function() {
+        return clearInterval(w);
+      }) : Promise.resolve()).then(p)]).then(function() {
+        return d(), n.onReadyBeingFired = [], L.resolve(fi(function() {
+          return t.on.ready.fire(t.vip);
+        })).then(function x() {
+          if (0 < n.onReadyBeingFired.length) {
+            var b = n.onReadyBeingFired.reduce(jr, ie);
+            return n.onReadyBeingFired = [], L.resolve(fi(function() {
+              return b(t.vip);
+            })).then(x);
+          }
+        });
+      }).finally(function() {
+        n.openCanceller === u && (n.onReadyBeingFired = null, n.isBeingOpened = !1);
+      }).catch(function(x) {
+        n.dbOpenError = x;
+        try {
+          S && S.abort();
+        } catch {
+        }
+        return u === n.openCanceller && t._close(), le(x);
+      }).finally(function() {
+        n.openComplete = !0, g();
+      }).then(function() {
+        var x;
+        return y && (x = {}, t.tables.forEach(function(b) {
+          b.schema.indexes.forEach(function(_) {
+            _.name && (x["idb://".concat(t.name, "/").concat(b.name, "/").concat(_.name)] = new ke(-1 / 0, [[[]]]));
+          }), x["idb://".concat(t.name, "/").concat(b.name, "/")] = x["idb://".concat(t.name, "/").concat(b.name, "/:dels")] = new ke(-1 / 0, [[[]]]);
+        }), Qe(vn).fire(x), yi(x, !0)), t;
+      });
+    }
+    function gi(t) {
+      function n(f) {
+        return t.next(f);
+      }
+      var o = l(n), u = l(function(f) {
+        return t.throw(f);
+      });
+      function l(f) {
+        return function(w) {
+          var p = f(w), w = p.value;
+          return p.done ? w : w && typeof w.then == "function" ? w.then(o, u) : m(w) ? Promise.all(w).then(o, u) : o(w);
+        };
+      }
+      return l(n)();
+    }
+    function hr(t, n, o) {
+      for (var u = m(t) ? t.slice() : [t], l = 0; l < o; ++l) u.push(n);
+      return u;
+    }
+    var fu = { stack: "dbcore", name: "VirtualIndexMiddleware", level: 1, create: function(t) {
+      return i(i({}, t), { table: function(n) {
+        var o = t.table(n), u = o.schema, l = {}, f = [];
+        function d(y, x, b) {
+          var _ = wn(y), T = l[_] = l[_] || [], k = y == null ? 0 : typeof y == "string" ? 1 : y.length, O = 0 < x, O = i(i({}, b), { name: O ? "".concat(_, "(virtual-from:").concat(b.name, ")") : b.name, lowLevelIndex: b, isVirtual: O, keyTail: x, keyLength: k, extractKey: si(y), unique: !O && b.unique });
+          return T.push(O), O.isPrimaryKey || f.push(O), 1 < k && d(k === 2 ? y[0] : y.slice(0, k - 1), x + 1, b), T.sort(function(E, I) {
+            return E.keyTail - I.keyTail;
+          }), O;
+        }
+        n = d(u.primaryKey.keyPath, 0, u.primaryKey), l[":id"] = [n];
+        for (var p = 0, w = u.indexes; p < w.length; p++) {
+          var g = w[p];
+          d(g.keyPath, 0, g);
+        }
+        function S(y) {
+          var x, b = y.query.index;
+          return b.isVirtual ? i(i({}, y), { query: { index: b.lowLevelIndex, range: (x = y.query.range, b = b.keyTail, { type: x.type === 1 ? 2 : x.type, lower: hr(x.lower, x.lowerOpen ? t.MAX_KEY : t.MIN_KEY, b), lowerOpen: !0, upper: hr(x.upper, x.upperOpen ? t.MIN_KEY : t.MAX_KEY, b), upperOpen: !0 }) } }) : y;
+        }
+        return i(i({}, o), { schema: i(i({}, u), { primaryKey: n, indexes: f, getIndexByKeyPath: function(y) {
+          return (y = l[wn(y)]) && y[0];
+        } }), count: function(y) {
+          return o.count(S(y));
+        }, query: function(y) {
+          return o.query(S(y));
+        }, openCursor: function(y) {
+          var x = y.query.index, b = x.keyTail, _ = x.isVirtual, T = x.keyLength;
+          return _ ? o.openCursor(S(y)).then(function(O) {
+            return O && k(O);
+          }) : o.openCursor(y);
+          function k(O) {
+            return Object.create(O, { continue: { value: function(E) {
+              E != null ? O.continue(hr(E, y.reverse ? t.MAX_KEY : t.MIN_KEY, b)) : y.unique ? O.continue(O.key.slice(0, T).concat(y.reverse ? t.MIN_KEY : t.MAX_KEY, b)) : O.continue();
+            } }, continuePrimaryKey: { value: function(E, I) {
+              O.continuePrimaryKey(hr(E, t.MAX_KEY, b), I);
+            } }, primaryKey: { get: function() {
+              return O.primaryKey;
+            } }, key: { get: function() {
+              var E = O.key;
+              return T === 1 ? E[0] : E.slice(0, T);
+            } }, value: { get: function() {
+              return O.value;
+            } } });
+          }
+        } });
+      } });
+    } };
+    function vi(t, n, o, u) {
+      return o = o || {}, u = u || "", h(t).forEach(function(l) {
+        var f, d, p;
+        M(n, l) ? (f = t[l], d = n[l], typeof f == "object" && typeof d == "object" && f && d ? (p = Vr(f)) !== Vr(d) ? o[u + l] = n[l] : p === "Object" ? vi(f, d, o, u + l + ".") : f !== d && (o[u + l] = n[l]) : f !== d && (o[u + l] = n[l])) : o[u + l] = void 0;
+      }), h(n).forEach(function(l) {
+        M(t, l) || (o[u + l] = n[l]);
+      }), o;
+    }
+    function bi(t, n) {
+      return n.type === "delete" ? n.keys : n.keys || n.values.map(t.extractKey);
+    }
+    var hu = { stack: "dbcore", name: "HooksMiddleware", level: 2, create: function(t) {
+      return i(i({}, t), { table: function(n) {
+        var o = t.table(n), u = o.schema.primaryKey;
+        return i(i({}, o), { mutate: function(l) {
+          var f = U.trans, d = f.table(n).hook, p = d.deleting, w = d.creating, g = d.updating;
+          switch (l.type) {
+            case "add":
+              if (w.fire === ie) break;
+              return f._promise("readwrite", function() {
+                return S(l);
+              }, !0);
+            case "put":
+              if (w.fire === ie && g.fire === ie) break;
+              return f._promise("readwrite", function() {
+                return S(l);
+              }, !0);
+            case "delete":
+              if (p.fire === ie) break;
+              return f._promise("readwrite", function() {
+                return S(l);
+              }, !0);
+            case "deleteRange":
+              if (p.fire === ie) break;
+              return f._promise("readwrite", function() {
+                return function y(x, b, _) {
+                  return o.query({ trans: x, values: !1, query: { index: u, range: b }, limit: _ }).then(function(T) {
+                    var k = T.result;
+                    return S({ type: "delete", keys: k, trans: x }).then(function(O) {
+                      return 0 < O.numFailures ? Promise.reject(O.failures[0]) : k.length < _ ? { failures: [], numFailures: 0, lastResult: void 0 } : y(x, i(i({}, b), { lower: k[k.length - 1], lowerOpen: !0 }), _);
+                    });
+                  });
+                }(l.trans, l.range, 1e4);
+              }, !0);
+          }
+          return o.mutate(l);
+          function S(y) {
+            var x, b, _, T = U.trans, k = y.keys || bi(u, y);
+            if (!k) throw new Error("Keys missing");
+            return (y = y.type === "add" || y.type === "put" ? i(i({}, y), { keys: k }) : i({}, y)).type !== "delete" && (y.values = a([], y.values)), y.keys && (y.keys = a([], y.keys)), x = o, _ = k, ((b = y).type === "add" ? Promise.resolve([]) : x.getMany({ trans: b.trans, keys: _, cache: "immutable" })).then(function(O) {
+              var E = k.map(function(I, C) {
+                var $, F, N, P = O[C], R = { onerror: null, onsuccess: null };
+                return y.type === "delete" ? p.fire.call(R, I, P, T) : y.type === "add" || P === void 0 ? ($ = w.fire.call(R, I, y.values[C], T), I == null && $ != null && (y.keys[C] = I = $, u.outbound || we(y.values[C], u.keyPath, I))) : ($ = vi(P, y.values[C]), (F = g.fire.call(R, $, I, P, T)) && (N = y.values[C], Object.keys(F).forEach(function(D) {
+                  M(N, D) ? N[D] = F[D] : we(N, D, F[D]);
+                }))), R;
+              });
+              return o.mutate(y).then(function(I) {
+                for (var C = I.failures, $ = I.results, F = I.numFailures, I = I.lastResult, N = 0; N < k.length; ++N) {
+                  var P = ($ || k)[N], R = E[N];
+                  P == null ? R.onerror && R.onerror(C[N]) : R.onsuccess && R.onsuccess(y.type === "put" && O[N] ? y.values[N] : P);
+                }
+                return { failures: C, results: $, numFailures: F, lastResult: I };
+              }).catch(function(I) {
+                return E.forEach(function(C) {
+                  return C.onerror && C.onerror(I);
+                }), Promise.reject(I);
+              });
+            });
+          }
+        } });
+      } });
+    } };
+    function Ds(t, n, o) {
+      try {
+        if (!n || n.keys.length < t.length) return null;
+        for (var u = [], l = 0, f = 0; l < n.keys.length && f < t.length; ++l) Q(n.keys[l], t[f]) === 0 && (u.push(o ? ft(n.values[l]) : n.values[l]), ++f);
+        return u.length === t.length ? u : null;
+      } catch {
+        return null;
+      }
+    }
+    var du = { stack: "dbcore", level: -1, create: function(t) {
+      return { table: function(n) {
+        var o = t.table(n);
+        return i(i({}, o), { getMany: function(u) {
+          if (!u.cache) return o.getMany(u);
+          var l = Ds(u.keys, u.trans._cache, u.cache === "clone");
+          return l ? L.resolve(l) : o.getMany(u).then(function(f) {
+            return u.trans._cache = { keys: u.keys, values: u.cache === "clone" ? ft(f) : f }, f;
+          });
+        }, mutate: function(u) {
+          return u.type !== "add" && (u.trans._cache = null), o.mutate(u);
+        } });
+      } };
+    } };
+    function $s(t, n) {
+      return t.trans.mode === "readonly" && !!t.subscr && !t.trans.explicit && t.trans.db._options.cache !== "disabled" && !n.schema.primaryKey.outbound;
+    }
+    function Ns(t, n) {
+      switch (t) {
+        case "query":
+          return n.values && !n.unique;
+        case "get":
+        case "getMany":
+        case "count":
+        case "openCursor":
+          return !1;
+      }
+    }
+    var mu = { stack: "dbcore", level: 0, name: "Observability", create: function(t) {
+      var n = t.schema.name, o = new ke(t.MIN_KEY, t.MAX_KEY);
+      return i(i({}, t), { transaction: function(u, l, f) {
+        if (U.subscr && l !== "readonly") throw new W.ReadOnly("Readwrite transaction in liveQuery context. Querier source: ".concat(U.querier));
+        return t.transaction(u, l, f);
+      }, table: function(u) {
+        var l = t.table(u), f = l.schema, d = f.primaryKey, y = f.indexes, p = d.extractKey, w = d.outbound, g = d.autoIncrement && y.filter(function(b) {
+          return b.compound && b.keyPath.includes(d.keyPath);
+        }), S = i(i({}, l), { mutate: function(b) {
+          function _(D) {
+            return D = "idb://".concat(n, "/").concat(u, "/").concat(D), I[D] || (I[D] = new ke());
+          }
+          var T, k, O, E = b.trans, I = b.mutatedParts || (b.mutatedParts = {}), C = _(""), $ = _(":dels"), F = b.type, R = b.type === "deleteRange" ? [b.range] : b.type === "delete" ? [b.keys] : b.values.length < 50 ? [bi(d, b).filter(function(D) {
+            return D;
+          }), b.values] : [], N = R[0], P = R[1], R = b.trans._cache;
+          return m(N) ? (C.addKeys(N), (R = F === "delete" || N.length === P.length ? Ds(N, R) : null) || $.addKeys(N), (R || P) && (T = _, k = R, O = P, f.indexes.forEach(function(D) {
+            var B = T(D.name || "");
+            function H(Y) {
+              return Y != null ? D.extractKey(Y) : null;
+            }
+            function J(Y) {
+              return D.multiEntry && m(Y) ? Y.forEach(function($e) {
+                return B.addKey($e);
+              }) : B.addKey(Y);
+            }
+            (k || O).forEach(function(Y, pe) {
+              var G = k && H(k[pe]), pe = O && H(O[pe]);
+              Q(G, pe) !== 0 && (G != null && J(G), pe != null && J(pe));
+            });
+          }))) : N ? (P = { from: N.lower, to: N.upper }, $.add(P), C.add(P)) : (C.add(o), $.add(o), f.indexes.forEach(function(D) {
+            return _(D.name).add(o);
+          })), l.mutate(b).then(function(D) {
+            return !N || b.type !== "add" && b.type !== "put" || (C.addKeys(D.results), g && g.forEach(function(B) {
+              var H = b.values.map(function(Y) {
+                return B.extractKey(Y);
+              }), J = B.keyPath.findIndex(function(Y) {
+                return Y === d.keyPath;
+              });
+              D.results.forEach(function(Y) {
+                return H[J] = Y;
+              }), _(B.name).addKeys(H);
+            })), E.mutatedParts = cr(E.mutatedParts || {}, I), D;
+          });
+        } }), y = function(_) {
+          var T = _.query, _ = T.index, T = T.range;
+          return [_, new ke((_ = T.lower) !== null && _ !== void 0 ? _ : t.MIN_KEY, (T = T.upper) !== null && T !== void 0 ? T : t.MAX_KEY)];
+        }, x = { get: function(b) {
+          return [d, new ke(b.key)];
+        }, getMany: function(b) {
+          return [d, new ke().addKeys(b.keys)];
+        }, count: y, query: y, openCursor: y };
+        return h(x).forEach(function(b) {
+          S[b] = function(_) {
+            var T = U.subscr, k = !!T, O = $s(U, l) && Ns(b, _) ? _.obsSet = {} : T;
+            if (k) {
+              var E = function(P) {
+                return P = "idb://".concat(n, "/").concat(u, "/").concat(P), O[P] || (O[P] = new ke());
+              }, I = E(""), C = E(":dels"), T = x[b](_), k = T[0], T = T[1];
+              if ((b === "query" && k.isPrimaryKey && !_.values ? C : E(k.name || "")).add(T), !k.isPrimaryKey) {
+                if (b !== "count") {
+                  var $ = b === "query" && w && _.values && l.query(i(i({}, _), { values: !1 }));
+                  return l[b].apply(this, arguments).then(function(P) {
+                    if (b === "query") {
+                      if (w && _.values) return $.then(function(H) {
+                        return H = H.result, I.addKeys(H), P;
+                      });
+                      var R = _.values ? P.result.map(p) : P.result;
+                      (_.values ? I : C).addKeys(R);
+                    } else if (b === "openCursor") {
+                      var D = P, B = _.values;
+                      return D && Object.create(D, { key: { get: function() {
+                        return C.addKey(D.primaryKey), D.key;
+                      } }, primaryKey: { get: function() {
+                        var H = D.primaryKey;
+                        return C.addKey(H), H;
+                      } }, value: { get: function() {
+                        return B && I.addKey(D.primaryKey), D.value;
+                      } } });
+                    }
+                    return P;
+                  });
+                }
+                C.add(o);
+              }
+            }
+            return l[b].apply(this, arguments);
+          };
+        }), S;
+      } });
+    } };
+    function Ms(t, n, o) {
+      if (o.numFailures === 0) return n;
+      if (n.type === "deleteRange") return null;
+      var u = n.keys ? n.keys.length : "values" in n && n.values ? n.values.length : 1;
+      return o.numFailures === u ? null : (n = i({}, n), m(n.keys) && (n.keys = n.keys.filter(function(l, f) {
+        return !(f in o.failures);
+      })), "values" in n && m(n.values) && (n.values = n.values.filter(function(l, f) {
+        return !(f in o.failures);
+      })), n);
+    }
+    function wi(t, n) {
+      return o = t, ((u = n).lower === void 0 || (u.lowerOpen ? 0 < Q(o, u.lower) : 0 <= Q(o, u.lower))) && (t = t, (n = n).upper === void 0 || (n.upperOpen ? Q(t, n.upper) < 0 : Q(t, n.upper) <= 0));
+      var o, u;
+    }
+    function Ps(t, n, x, u, l, f) {
+      if (!x || x.length === 0) return t;
+      var d = n.query.index, p = d.multiEntry, w = n.query.range, g = u.schema.primaryKey.extractKey, S = d.extractKey, y = (d.lowLevelIndex || d).extractKey, x = x.reduce(function(b, _) {
+        var T = b, k = [];
+        if (_.type === "add" || _.type === "put") for (var O = new ke(), E = _.values.length - 1; 0 <= E; --E) {
+          var I, C = _.values[E], $ = g(C);
+          O.hasKey($) || (I = S(C), (p && m(I) ? I.some(function(R) {
+            return wi(R, w);
+          }) : wi(I, w)) && (O.addKey($), k.push(C)));
+        }
+        switch (_.type) {
+          case "add":
+            T = b.concat(n.values ? k : k.map(function(D) {
+              return g(D);
+            }));
+            break;
+          case "put":
+            var F = new ke().addKeys(_.values.map(function(D) {
+              return g(D);
+            })), T = b.filter(function(D) {
+              return !F.hasKey(n.values ? g(D) : D);
+            }).concat(n.values ? k : k.map(function(D) {
+              return g(D);
+            }));
+            break;
+          case "delete":
+            var N = new ke().addKeys(_.keys);
+            T = b.filter(function(D) {
+              return !N.hasKey(n.values ? g(D) : D);
+            });
+            break;
+          case "deleteRange":
+            var P = _.range;
+            T = b.filter(function(D) {
+              return !wi(g(D), P);
+            });
+        }
+        return T;
+      }, t);
+      return x === t ? t : (x.sort(function(b, _) {
+        return Q(y(b), y(_)) || Q(g(b), g(_));
+      }), n.limit && n.limit < 1 / 0 && (x.length > n.limit ? x.length = n.limit : t.length === n.limit && x.length < n.limit && (l.dirty = !0)), f ? Object.freeze(x) : x);
+    }
+    function Fs(t, n) {
+      return Q(t.lower, n.lower) === 0 && Q(t.upper, n.upper) === 0 && !!t.lowerOpen == !!n.lowerOpen && !!t.upperOpen == !!n.upperOpen;
+    }
+    function pu(t, n) {
+      return function(o, u, l, f) {
+        if (o === void 0) return u !== void 0 ? -1 : 0;
+        if (u === void 0) return 1;
+        if ((u = Q(o, u)) === 0) {
+          if (l && f) return 0;
+          if (l) return 1;
+          if (f) return -1;
+        }
+        return u;
+      }(t.lower, n.lower, t.lowerOpen, n.lowerOpen) <= 0 && 0 <= function(o, u, l, f) {
+        if (o === void 0) return u !== void 0 ? 1 : 0;
+        if (u === void 0) return -1;
+        if ((u = Q(o, u)) === 0) {
+          if (l && f) return 0;
+          if (l) return -1;
+          if (f) return 1;
+        }
+        return u;
+      }(t.upper, n.upper, t.upperOpen, n.upperOpen);
+    }
+    function yu(t, n, o, u) {
+      t.subscribers.add(o), u.addEventListener("abort", function() {
+        var l, f;
+        t.subscribers.delete(o), t.subscribers.size === 0 && (l = t, f = n, setTimeout(function() {
+          l.subscribers.size === 0 && ht(f, l);
+        }, 3e3));
+      });
+    }
+    var gu = { stack: "dbcore", level: 0, name: "Cache", create: function(t) {
+      var n = t.schema.name;
+      return i(i({}, t), { transaction: function(o, u, l) {
+        var f, d, p = t.transaction(o, u, l);
+        return u === "readwrite" && (d = (f = new AbortController()).signal, l = function(w) {
+          return function() {
+            if (f.abort(), u === "readwrite") {
+              for (var g = /* @__PURE__ */ new Set(), S = 0, y = o; S < y.length; S++) {
+                var x = y[S], b = bt["idb://".concat(n, "/").concat(x)];
+                if (b) {
+                  var _ = t.table(x), T = b.optimisticOps.filter(function(B) {
+                    return B.trans === p;
+                  });
+                  if (p._explicit && w && p.mutatedParts) for (var k = 0, O = Object.values(b.queries.query); k < O.length; k++) for (var E = 0, I = (F = O[k]).slice(); E < I.length; E++) di((N = I[E]).obsSet, p.mutatedParts) && (ht(F, N), N.subscribers.forEach(function(B) {
+                    return g.add(B);
+                  }));
+                  else if (0 < T.length) {
+                    b.optimisticOps = b.optimisticOps.filter(function(B) {
+                      return B.trans !== p;
+                    });
+                    for (var C = 0, $ = Object.values(b.queries.query); C < $.length; C++) for (var F, N, P, R = 0, D = (F = $[C]).slice(); R < D.length; R++) (N = D[R]).res != null && p.mutatedParts && (w && !N.dirty ? (P = Object.isFrozen(N.res), P = Ps(N.res, N.req, T, _, N, P), N.dirty ? (ht(F, N), N.subscribers.forEach(function(B) {
+                      return g.add(B);
+                    })) : P !== N.res && (N.res = P, N.promise = L.resolve({ result: P }))) : (N.dirty && ht(F, N), N.subscribers.forEach(function(B) {
+                      return g.add(B);
+                    })));
+                  }
+                }
+              }
+              g.forEach(function(B) {
+                return B();
+              });
+            }
+          };
+        }, p.addEventListener("abort", l(!1), { signal: d }), p.addEventListener("error", l(!1), { signal: d }), p.addEventListener("complete", l(!0), { signal: d })), p;
+      }, table: function(o) {
+        var u = t.table(o), l = u.schema.primaryKey;
+        return i(i({}, u), { mutate: function(f) {
+          var d = U.trans;
+          if (l.outbound || d.db._options.cache === "disabled" || d.explicit) return u.mutate(f);
+          var p = bt["idb://".concat(n, "/").concat(o)];
+          return p ? (d = u.mutate(f), f.type !== "add" && f.type !== "put" || !(50 <= f.values.length || bi(l, f).some(function(w) {
+            return w == null;
+          })) ? (p.optimisticOps.push(f), f.mutatedParts && fr(f.mutatedParts), d.then(function(w) {
+            0 < w.numFailures && (ht(p.optimisticOps, f), (w = Ms(0, f, w)) && p.optimisticOps.push(w), f.mutatedParts && fr(f.mutatedParts));
+          }), d.catch(function() {
+            ht(p.optimisticOps, f), f.mutatedParts && fr(f.mutatedParts);
+          })) : d.then(function(w) {
+            var g = Ms(0, i(i({}, f), { values: f.values.map(function(b, y) {
+              var x, b = (x = l.keyPath) !== null && x !== void 0 && x.includes(".") ? ft(b) : i({}, b);
+              return we(b, l.keyPath, w.results[y]), b;
+            }) }), w);
+            p.optimisticOps.push(g), queueMicrotask(function() {
+              return f.mutatedParts && fr(f.mutatedParts);
+            });
+          }), d) : u.mutate(f);
+        }, query: function(f) {
+          if (!$s(U, u) || !Ns("query", f)) return u.query(f);
+          var d = ((g = U.trans) === null || g === void 0 ? void 0 : g.db._options.cache) === "immutable", y = U, p = y.requery, w = y.signal, g = function(_, T, k, O) {
+            var E = bt["idb://".concat(_, "/").concat(T)];
+            if (!E) return [];
+            if (!(T = E.queries[k])) return [null, !1, E, null];
+            var I = T[(O.query ? O.query.index.name : null) || ""];
+            if (!I) return [null, !1, E, null];
+            switch (k) {
+              case "query":
+                var C = I.find(function($) {
+                  return $.req.limit === O.limit && $.req.values === O.values && Fs($.req.query.range, O.query.range);
+                });
+                return C ? [C, !0, E, I] : [I.find(function($) {
+                  return ("limit" in $.req ? $.req.limit : 1 / 0) >= O.limit && (!O.values || $.req.values) && pu($.req.query.range, O.query.range);
+                }), !1, E, I];
+              case "count":
+                return C = I.find(function($) {
+                  return Fs($.req.query.range, O.query.range);
+                }), [C, !!C, E, I];
+            }
+          }(n, o, "query", f), S = g[0], y = g[1], x = g[2], b = g[3];
+          return S && y ? S.obsSet = f.obsSet : (y = u.query(f).then(function(_) {
+            var T = _.result;
+            if (S && (S.res = T), d) {
+              for (var k = 0, O = T.length; k < O; ++k) Object.freeze(T[k]);
+              Object.freeze(T);
+            } else _.result = ft(T);
+            return _;
+          }).catch(function(_) {
+            return b && S && ht(b, S), Promise.reject(_);
+          }), S = { obsSet: f.obsSet, promise: y, subscribers: /* @__PURE__ */ new Set(), type: "query", req: f, dirty: !1 }, b ? b.push(S) : (b = [S], (x = x || (bt["idb://".concat(n, "/").concat(o)] = { queries: { query: {}, count: {} }, objs: /* @__PURE__ */ new Map(), optimisticOps: [], unsignaledParts: {} })).queries.query[f.query.index.name || ""] = b)), yu(S, b, p, w), S.promise.then(function(_) {
+            return { result: Ps(_.result, f, x == null ? void 0 : x.optimisticOps, u, S, d) };
+          });
+        } });
+      } });
+    } };
+    function dr(t, n) {
+      return new Proxy(t, { get: function(o, u, l) {
+        return u === "db" ? n : Reflect.get(o, u, l);
+      } });
+    }
+    var ze = (ce.prototype.version = function(t) {
+      if (isNaN(t) || t < 0.1) throw new W.Type("Given version is not a positive number");
+      if (t = Math.round(10 * t) / 10, this.idbdb || this._state.isBeingOpened) throw new W.Schema("Cannot add version when database is open");
+      this.verno = Math.max(this.verno, t);
+      var n = this._versions, o = n.filter(function(u) {
+        return u._cfg.version === t;
+      })[0];
+      return o || (o = new this.Version(t), n.push(o), n.sort(ou), o.stores({}), this._state.autoSchema = !1, o);
+    }, ce.prototype._whenReady = function(t) {
+      var n = this;
+      return this.idbdb && (this._state.openComplete || U.letThrough || this._vip) ? t() : new L(function(o, u) {
+        if (n._state.openComplete) return u(new W.DatabaseClosed(n._state.dbOpenError));
+        if (!n._state.isBeingOpened) {
+          if (!n._state.autoOpen) return void u(new W.DatabaseClosed());
+          n.open().catch(ie);
+        }
+        n._state.dbReadyPromise.then(o, u);
+      }).then(t);
+    }, ce.prototype.use = function(t) {
+      var n = t.stack, o = t.create, u = t.level, l = t.name;
+      return l && this.unuse({ stack: n, name: l }), t = this._middlewares[n] || (this._middlewares[n] = []), t.push({ stack: n, create: o, level: u ?? 10, name: l }), t.sort(function(f, d) {
+        return f.level - d.level;
+      }), this;
+    }, ce.prototype.unuse = function(t) {
+      var n = t.stack, o = t.name, u = t.create;
+      return n && this._middlewares[n] && (this._middlewares[n] = this._middlewares[n].filter(function(l) {
+        return u ? l.create !== u : !!o && l.name !== o;
+      })), this;
+    }, ce.prototype.open = function() {
+      var t = this;
+      return yt(He, function() {
+        return cu(t);
+      });
+    }, ce.prototype._close = function() {
+      var t = this._state, n = Ft.indexOf(this);
+      if (0 <= n && Ft.splice(n, 1), this.idbdb) {
+        try {
+          this.idbdb.close();
+        } catch {
+        }
+        this.idbdb = null;
+      }
+      t.isBeingOpened || (t.dbReadyPromise = new L(function(o) {
+        t.dbReadyResolve = o;
+      }), t.openCanceller = new L(function(o, u) {
+        t.cancelOpen = u;
+      }));
+    }, ce.prototype.close = function(o) {
+      var n = (o === void 0 ? { disableAutoOpen: !0 } : o).disableAutoOpen, o = this._state;
+      n ? (o.isBeingOpened && o.cancelOpen(new W.DatabaseClosed()), this._close(), o.autoOpen = !1, o.dbOpenError = new W.DatabaseClosed()) : (this._close(), o.autoOpen = this._options.autoOpen || o.isBeingOpened, o.openComplete = !1, o.dbOpenError = null);
+    }, ce.prototype.delete = function(t) {
+      var n = this;
+      t === void 0 && (t = { disableAutoOpen: !0 });
+      var o = 0 < arguments.length && typeof arguments[0] != "object", u = this._state;
+      return new L(function(l, f) {
+        function d() {
+          n.close(t);
+          var p = n._deps.indexedDB.deleteDatabase(n.name);
+          p.onsuccess = oe(function() {
+            var w, g, S;
+            w = n._deps, g = n.name, S = w.indexedDB, w = w.IDBKeyRange, ci(S) || g === Xn || li(S, w).delete(g).catch(ie), l();
+          }), p.onerror = qe(f), p.onblocked = n._fireOnBlocked;
+        }
+        if (o) throw new W.InvalidArgument("Invalid closeOptions argument to db.delete()");
+        u.isBeingOpened ? u.dbReadyPromise.then(d) : d();
+      });
+    }, ce.prototype.backendDB = function() {
+      return this.idbdb;
+    }, ce.prototype.isOpen = function() {
+      return this.idbdb !== null;
+    }, ce.prototype.hasBeenClosed = function() {
+      var t = this._state.dbOpenError;
+      return t && t.name === "DatabaseClosed";
+    }, ce.prototype.hasFailed = function() {
+      return this._state.dbOpenError !== null;
+    }, ce.prototype.dynamicallyOpened = function() {
+      return this._state.autoSchema;
+    }, Object.defineProperty(ce.prototype, "tables", { get: function() {
+      var t = this;
+      return h(this._allTables).map(function(n) {
+        return t._allTables[n];
+      });
+    }, enumerable: !1, configurable: !0 }), ce.prototype.transaction = function() {
+      var t = (function(n, o, u) {
+        var l = arguments.length;
+        if (l < 2) throw new W.InvalidArgument("Too few arguments");
+        for (var f = new Array(l - 1); --l; ) f[l - 1] = arguments[l];
+        return u = f.pop(), [n, Be(f), u];
+      }).apply(this, arguments);
+      return this._transaction.apply(this, t);
+    }, ce.prototype._transaction = function(t, n, o) {
+      var u = this, l = U.trans;
+      l && l.db === this && t.indexOf("!") === -1 || (l = null);
+      var f, d, p = t.indexOf("?") !== -1;
+      t = t.replace("!", "").replace("?", "");
+      try {
+        if (d = n.map(function(g) {
+          if (g = g instanceof u.Table ? g.name : g, typeof g != "string") throw new TypeError("Invalid table argument to Dexie.transaction(). Only Table or String are allowed");
+          return g;
+        }), t == "r" || t === Jr) f = Jr;
+        else {
+          if (t != "rw" && t != Xr) throw new W.InvalidArgument("Invalid transaction mode: " + t);
+          f = Xr;
+        }
+        if (l) {
+          if (l.mode === Jr && f === Xr) {
+            if (!p) throw new W.SubTransaction("Cannot enter a sub-transaction with READWRITE mode when parent transaction is READONLY");
+            l = null;
+          }
+          l && d.forEach(function(g) {
+            if (l && l.storeNames.indexOf(g) === -1) {
+              if (!p) throw new W.SubTransaction("Table " + g + " not included in parent transaction.");
+              l = null;
+            }
+          }), p && l && !l.active && (l = null);
+        }
+      } catch (g) {
+        return l ? l._promise(null, function(S, y) {
+          y(g);
+        }) : le(g);
+      }
+      var w = (function g(S, y, x, b, _) {
+        return L.resolve().then(function() {
+          var T = U.transless || U, k = S._createTransaction(y, x, S._dbSchema, b);
+          if (k.explicit = !0, T = { trans: k, transless: T }, b) k.idbtrans = b.idbtrans;
+          else try {
+            k.create(), k.idbtrans._explicit = !0, S._state.PR1398_maxLoop = 3;
+          } catch (I) {
+            return I.name === Ur.InvalidState && S.isOpen() && 0 < --S._state.PR1398_maxLoop ? (console.warn("Dexie: Need to reopen db"), S.close({ disableAutoOpen: !1 }), S.open().then(function() {
+              return g(S, y, x, null, _);
+            })) : le(I);
+          }
+          var O, E = Lr(_);
+          return E && Pt(), T = L.follow(function() {
+            var I;
+            (O = _.call(k, k)) && (E ? (I = Ge.bind(null, null), O.then(I, I)) : typeof O.next == "function" && typeof O.throw == "function" && (O = gi(O)));
+          }, T), (O && typeof O.then == "function" ? L.resolve(O).then(function(I) {
+            return k.active ? I : le(new W.PrematureCommit("Transaction committed too early. See http://bit.ly/2kdckMn"));
+          }) : T.then(function() {
+            return O;
+          })).then(function(I) {
+            return b && k._resolve(), k._completion.then(function() {
+              return I;
+            });
+          }).catch(function(I) {
+            return k._reject(I), le(I);
+          });
+        });
+      }).bind(null, this, f, d, l, o);
+      return l ? l._promise(f, w, "lock") : U.trans ? yt(U.transless, function() {
+        return u._whenReady(w);
+      }) : this._whenReady(w);
+    }, ce.prototype.table = function(t) {
+      if (!M(this._allTables, t)) throw new W.InvalidTable("Table ".concat(t, " does not exist"));
+      return this._allTables[t];
+    }, ce);
+    function ce(t, n) {
+      var o = this;
+      this._middlewares = {}, this.verno = 0;
+      var u = ce.dependencies;
+      this._options = n = i({ addons: ce.addons, autoOpen: !0, indexedDB: u.indexedDB, IDBKeyRange: u.IDBKeyRange, cache: "cloned" }, n), this._deps = { indexedDB: n.indexedDB, IDBKeyRange: n.IDBKeyRange }, u = n.addons, this._dbSchema = {}, this._versions = [], this._storeNames = [], this._allTables = {}, this.idbdb = null, this._novip = this;
+      var l, f, d, p, w, g = { dbOpenError: null, isBeingOpened: !1, onReadyBeingFired: null, openComplete: !1, dbReadyResolve: ie, dbReadyPromise: null, cancelOpen: ie, openCanceller: null, autoSchema: !0, PR1398_maxLoop: 3, autoOpen: n.autoOpen };
+      g.dbReadyPromise = new L(function(y) {
+        g.dbReadyResolve = y;
+      }), g.openCanceller = new L(function(y, x) {
+        g.cancelOpen = x;
+      }), this._state = g, this.name = t, this.on = mn(this, "populate", "blocked", "versionchange", "close", { ready: [jr, ie] }), this.on.ready.subscribe = sn(this.on.ready.subscribe, function(y) {
+        return function(x, b) {
+          ce.vip(function() {
+            var _, T = o._state;
+            T.openComplete ? (T.dbOpenError || L.resolve().then(x), b && y(x)) : T.onReadyBeingFired ? (T.onReadyBeingFired.push(x), b && y(x)) : (y(x), _ = o, b || y(function k() {
+              _.on.ready.unsubscribe(x), _.on.ready.unsubscribe(k);
+            }));
+          });
+        };
+      }), this.Collection = (l = this, pn(Qa.prototype, function(O, k) {
+        this.db = l;
+        var b = ds, _ = null;
+        if (k) try {
+          b = k();
+        } catch (E) {
+          _ = E;
+        }
+        var T = O._ctx, k = T.table, O = k.hook.reading.fire;
+        this._ctx = { table: k, index: T.index, isPrimKey: !T.index || k.schema.primKey.keyPath && T.index === k.schema.primKey.name, range: b, keysOnly: !1, dir: "next", unique: "", algorithm: null, filter: null, replayFilter: null, justLimit: !0, isMatch: null, offset: 0, limit: 1 / 0, error: _, or: T.or, valueMapper: O !== un ? O : null };
+      })), this.Table = (f = this, pn(gs.prototype, function(y, x, b) {
+        this.db = f, this._tx = b, this.name = y, this.schema = x, this.hook = f._allTables[y] ? f._allTables[y].hook : mn(null, { creating: [Ka, ie], reading: [Wa, un], updating: [Za, ie], deleting: [za, ie] });
+      })), this.Transaction = (d = this, pn(nu.prototype, function(y, x, b, _, T) {
+        var k = this;
+        this.db = d, this.mode = y, this.storeNames = x, this.schema = b, this.chromeTransactionDurability = _, this.idbtrans = null, this.on = mn(this, "complete", "error", "abort"), this.parent = T || null, this.active = !0, this._reculock = 0, this._blockedFuncs = [], this._resolve = null, this._reject = null, this._waitingFor = null, this._waitingQueue = null, this._spinCount = 0, this._completion = new L(function(O, E) {
+          k._resolve = O, k._reject = E;
+        }), this._completion.then(function() {
+          k.active = !1, k.on.complete.fire();
+        }, function(O) {
+          var E = k.active;
+          return k.active = !1, k.on.error.fire(O), k.parent ? k.parent._reject(O) : E && k.idbtrans && k.idbtrans.abort(), le(O);
+        });
+      })), this.Version = (p = this, pn(lu.prototype, function(y) {
+        this.db = p, this._cfg = { version: y, storesSource: null, dbschema: {}, tables: {}, contentUpgrade: null };
+      })), this.WhereClause = (w = this, pn(_s.prototype, function(y, x, b) {
+        if (this.db = w, this._ctx = { table: y, index: x === ":id" ? null : x, or: b }, this._cmp = this._ascending = Q, this._descending = function(_, T) {
+          return Q(T, _);
+        }, this._max = function(_, T) {
+          return 0 < Q(_, T) ? _ : T;
+        }, this._min = function(_, T) {
+          return Q(_, T) < 0 ? _ : T;
+        }, this._IDBKeyRange = w._deps.IDBKeyRange, !this._IDBKeyRange) throw new W.MissingAPI();
+      })), this.on("versionchange", function(y) {
+        0 < y.newVersion ? console.warn("Another connection wants to upgrade database '".concat(o.name, "'. Closing db now to resume the upgrade.")) : console.warn("Another connection wants to delete database '".concat(o.name, "'. Closing db now to resume the delete request.")), o.close({ disableAutoOpen: !1 });
+      }), this.on("blocked", function(y) {
+        !y.newVersion || y.newVersion < y.oldVersion ? console.warn("Dexie.delete('".concat(o.name, "') was blocked")) : console.warn("Upgrade '".concat(o.name, "' blocked by other connection holding version ").concat(y.oldVersion / 10));
+      }), this._maxKey = bn(n.IDBKeyRange), this._createTransaction = function(y, x, b, _) {
+        return new o.Transaction(y, x, b, o._options.chromeTransactionDurability, _);
+      }, this._fireOnBlocked = function(y) {
+        o.on("blocked").fire(y), Ft.filter(function(x) {
+          return x.name === o.name && x !== o && !x._state.vcFired;
+        }).map(function(x) {
+          return x.on("versionchange").fire(y);
+        });
+      }, this.use(du), this.use(gu), this.use(mu), this.use(fu), this.use(hu);
+      var S = new Proxy(this, { get: function(y, x, b) {
+        if (x === "_vip") return !0;
+        if (x === "table") return function(T) {
+          return dr(o.table(T), S);
+        };
+        var _ = Reflect.get(y, x, b);
+        return _ instanceof gs ? dr(_, S) : x === "tables" ? _.map(function(T) {
+          return dr(T, S);
+        }) : x === "_createTransaction" ? function() {
+          return dr(_.apply(this, arguments), S);
+        } : _;
+      } });
+      this.vip = S, u.forEach(function(y) {
+        return y(o);
+      });
+    }
+    var mr, Ee = typeof Symbol < "u" && "observable" in Symbol ? Symbol.observable : "@@observable", vu = (ki.prototype.subscribe = function(t, n, o) {
+      return this._subscribe(t && typeof t != "function" ? t : { next: t, error: n, complete: o });
+    }, ki.prototype[Ee] = function() {
+      return this;
+    }, ki);
+    function ki(t) {
+      this._subscribe = t;
+    }
+    try {
+      mr = { indexedDB: c.indexedDB || c.mozIndexedDB || c.webkitIndexedDB || c.msIndexedDB, IDBKeyRange: c.IDBKeyRange || c.webkitIDBKeyRange };
+    } catch {
+      mr = { indexedDB: null, IDBKeyRange: null };
+    }
+    function Rs(t) {
+      var n, o = !1, u = new vu(function(l) {
+        var f = Lr(t), d, p = !1, w = {}, g = {}, S = { get closed() {
+          return p;
+        }, unsubscribe: function() {
+          p || (p = !0, d && d.abort(), y && Qe.storagemutated.unsubscribe(b));
+        } };
+        l.start && l.start(S);
+        var y = !1, x = function() {
+          return Gr(_);
+        }, b = function(T) {
+          cr(w, T), di(g, w) && x();
+        }, _ = function() {
+          var T, k, O;
+          !p && mr.indexedDB && (w = {}, T = {}, d && d.abort(), d = new AbortController(), O = function(E) {
+            var I = Nt();
+            try {
+              f && Pt();
+              var C = Ye(t, E);
+              return C = f ? C.finally(Ge) : C;
+            } finally {
+              I && Mt();
+            }
+          }(k = { subscr: T, signal: d.signal, requery: x, querier: t, trans: null }), Promise.resolve(O).then(function(E) {
+            o = !0, n = E, p || k.signal.aborted || (w = {}, function(I) {
+              for (var C in I) if (M(I, C)) return;
+              return 1;
+            }(g = T) || y || (Qe(vn, b), y = !0), Gr(function() {
+              return !p && l.next && l.next(E);
+            }));
+          }, function(E) {
+            o = !1, ["DatabaseClosedError", "AbortError"].includes(E == null ? void 0 : E.name) || p || Gr(function() {
+              p || l.error && l.error(E);
+            });
+          }));
+        };
+        return setTimeout(x, 0), S;
+      });
+      return u.hasValue = function() {
+        return o;
+      }, u.getValue = function() {
+        return n;
+      }, u;
+    }
+    var wt = ze;
+    function _i(t) {
+      var n = et;
+      try {
+        et = !0, Qe.storagemutated.fire(t), yi(t, !0);
+      } finally {
+        et = n;
+      }
+    }
+    z(wt, i(i({}, Wn), { delete: function(t) {
+      return new wt(t, { addons: [] }).delete();
+    }, exists: function(t) {
+      return new wt(t, { addons: [] }).open().then(function(n) {
+        return n.close(), !0;
+      }).catch("NoSuchDatabaseError", function() {
+        return !1;
+      });
+    }, getDatabaseNames: function(t) {
+      try {
+        return n = wt.dependencies, o = n.indexedDB, n = n.IDBKeyRange, (ci(o) ? Promise.resolve(o.databases()).then(function(u) {
+          return u.map(function(l) {
+            return l.name;
+          }).filter(function(l) {
+            return l !== Xn;
+          });
+        }) : li(o, n).toCollection().primaryKeys()).then(t);
+      } catch {
+        return le(new W.MissingAPI());
+      }
+      var n, o;
+    }, defineClass: function() {
+      return function(t) {
+        v(this, t);
+      };
+    }, ignoreTransaction: function(t) {
+      return U.trans ? yt(U.transless, t) : t();
+    }, vip: fi, async: function(t) {
+      return function() {
+        try {
+          var n = gi(t.apply(this, arguments));
+          return n && typeof n.then == "function" ? n : L.resolve(n);
+        } catch (o) {
+          return le(o);
+        }
+      };
+    }, spawn: function(t, n, o) {
+      try {
+        var u = gi(t.apply(o, n || []));
+        return u && typeof u.then == "function" ? u : L.resolve(u);
+      } catch (l) {
+        return le(l);
+      }
+    }, currentTransaction: { get: function() {
+      return U.trans || null;
+    } }, waitFor: function(t, n) {
+      return n = L.resolve(typeof t == "function" ? wt.ignoreTransaction(t) : t).timeout(n || 6e4), U.trans ? U.trans.waitFor(n) : n;
+    }, Promise: L, debug: { get: function() {
+      return Ve;
+    }, set: function(t) {
+      os(t);
+    } }, derive: Se, extend: v, props: z, override: sn, Events: mn, on: Qe, liveQuery: Rs, extendObservabilitySet: cr, getByKeyPath: De, setByKeyPath: we, delByKeyPath: function(t, n) {
+      typeof n == "string" ? we(t, n, void 0) : "length" in n && [].map.call(n, function(o) {
+        we(t, o, void 0);
+      });
+    }, shallowClone: Ln, deepClone: ft, getObjectDiff: vi, cmp: Q, asap: on, minKey: -1 / 0, addons: [], connections: Ft, errnames: Ur, dependencies: mr, cache: bt, semVer: "4.0.8", version: "4.0.8".split(".").map(function(t) {
+      return parseInt(t);
+    }).reduce(function(t, n, o) {
+      return t + n / Math.pow(10, 2 * o);
+    }) })), wt.maxKey = bn(wt.dependencies.IDBKeyRange), typeof dispatchEvent < "u" && typeof addEventListener < "u" && (Qe(vn, function(t) {
+      et || (t = new CustomEvent(ni, { detail: t }), et = !0, dispatchEvent(t), et = !1);
+    }), addEventListener(ni, function(t) {
+      t = t.detail, et || _i(t);
+    }));
+    var qt, et = !1, Vs = function() {
+    };
+    return typeof BroadcastChannel < "u" && ((Vs = function() {
+      (qt = new BroadcastChannel(ni)).onmessage = function(t) {
+        return t.data && _i(t.data);
+      };
+    })(), typeof qt.unref == "function" && qt.unref(), Qe(vn, function(t) {
+      et || qt.postMessage(t);
+    })), typeof addEventListener < "u" && (addEventListener("pagehide", function(t) {
+      if (!ze.disableBfCache && t.persisted) {
+        Ve && console.debug("Dexie: handling persisted pagehide"), qt != null && qt.close();
+        for (var n = 0, o = Ft; n < o.length; n++) o[n].close({ disableAutoOpen: !1 });
+      }
+    }), addEventListener("pageshow", function(t) {
+      !ze.disableBfCache && t.persisted && (Ve && console.debug("Dexie: handling persisted pageshow"), Vs(), _i({ all: new ke(-1 / 0, [[]]) }));
+    })), L.rejectionMapper = function(t, n) {
+      return !t || t instanceof Dt || t instanceof TypeError || t instanceof SyntaxError || !t.name || !ss[t.name] ? t : (n = new ss[t.name](n || t.message, t), "stack" in t && ee(n, "stack", { get: function() {
+        return this.inner.stack;
+      } }), n);
+    }, os(Ve), i(ze, Object.freeze({ __proto__: null, Dexie: ze, liveQuery: Rs, Entity: ms, cmp: Q, PropModSymbol: Ke, PropModification: yn, replacePrefix: function(t, n) {
+      return new yn({ replacePrefix: [t, n] });
+    }, add: function(t) {
+      return new yn({ add: t });
+    }, remove: function(t) {
+      return new yn({ remove: t });
+    }, default: ze, RangeSet: ke, mergeRanges: _n, rangesOverlap: Es }), { default: ze }), ze;
+  });
+})(Va);
+var Hc = Va.exports;
+const Ki = /* @__PURE__ */ Bc(Hc), Io = Symbol.for("Dexie"), zi = globalThis[Io] || (globalThis[Io] = Ki);
+if (Ki.semVer !== zi.semVer)
+  throw new Error(`Two different versions of Dexie loaded in the same app: ${Ki.semVer} and ${zi.semVer}`);
+class Qc {
+  constructor(e) {
+    this.apiContext = void 0, this.db = void 0, this.hasRefreshedFavourites = !1, this.hasRefreshedAll = !1, this.apiContext = e, this.db = this.initDb();
+  }
+  initDb() {
+    const e = new zi("KioskTimeZones");
+    return e.version(1).stores({
+      kioskTimeZones: "&id, tz_long, tz_IANA, deprecated, version, favourite"
+    }), e;
+  }
+  async getFavouriteTimeZones(e = !1, r = !1) {
+    if (this.db) {
+      const i = await this.db.kioskTimeZones.count();
+      let a;
+      return i == 0 && await this.refreshFavourites(), e ? a = await this.db.kioskTimeZones.where({ favourite: 1 }).toArray() : a = await this.db.kioskTimeZones.where({ deprecated: 0, favourite: 1 }).toArray(), r && this.refreshFavourites().finally(() => {
+        console.log("refreshed favourites");
+      }), a;
+    } else return [];
+  }
+  async refreshFavourites() {
+    var e, r;
+    if (!this.db) return [];
+    if (!this.hasRefreshedFavourites) {
+      const i = await this.fetchFavouriteTimeZones();
+      if (i && i.length > 0) {
+        let a = await ((e = this.db) == null ? void 0 : e.kioskTimeZones.where("favourite").equals(1).delete());
+        console.log(`Deleted ${a} favourite time zones`);
+        const c = i.map((m) => ({
+          id: m.id,
+          tz_IANA: m.tz_IANA,
+          tz_long: m.tz_long,
+          deprecated: m.deprecated ? 1 : 0,
+          version: m.version,
+          favourite: 1
+        }));
+        let h = await ((r = this.db) == null ? void 0 : r.kioskTimeZones.bulkAdd(c));
+        return console.log(`Added ${h} new favourite time zones`), this.hasRefreshedFavourites = !0, c;
+      }
+    }
+    return [];
+  }
+  async fetchFavouriteTimeZones() {
+    var e;
+    return await ((e = this.apiContext) == null ? void 0 : e.fetchFromApi(
+      "",
+      "favouritetimezones",
+      {
+        method: "GET",
+        caller: "app.fetchFavouriteTimeZones"
+      }
+    ).then((r) => (console.log("favourite time zone information fetched"), r)).catch((r) => (console.log(`fetching time zone information failed: ${r}`), [])));
+  }
+  async fetchAllTimeZones(e = 0) {
+    var i;
+    const r = new URLSearchParams();
+    return r.append("include_deprecated", "true"), e > 0 && r.append("newer_than", `${e}`), await ((i = this.apiContext) == null ? void 0 : i.fetchFromApi(
+      "",
+      "timezones",
+      {
+        method: "GET",
+        caller: "app.fetchFavouriteTimeZones"
+      },
+      "v1",
+      r
+    ).then((a) => (console.log("time zone information fetched"), a)).catch((a) => (console.log(`time zone information failed: ${a}`), [])));
+  }
+  async getAllTimeZones(e = !1, r = !1) {
+    var a;
+    await this.refreshAllTimeZones(r);
+    let i = await ((a = this.db) == null ? void 0 : a.kioskTimeZones.toArray());
+    return i == null ? void 0 : i.filter((c) => c.deprecated == 0 || e);
+  }
+  async getTimeZoneByIndex(e, r = !1) {
+    if (!this.db) return;
+    await this.refreshAllTimeZones(r);
+    let i = await this.db.kioskTimeZones.where("id").equals(e).toArray();
+    return i.length > 0 ? i[0] : null;
+  }
+  async refreshAllTimeZones(e) {
+    let r = [];
+    if (this.db && (e || !this.hasRefreshedAll)) {
+      let i = 0;
+      const a = (await this.getFavouriteTimeZones()).filter((h) => h.favourite == 1).map((h) => h.id);
+      if (!e)
+        try {
+          i = (await this.db.kioskTimeZones.where("favourite").equals(0).reverse().sortBy("version"))[0].version, console.log(`max version was ${i}`);
+        } catch {
+        }
+      const c = await this.fetchAllTimeZones(i);
+      if (c && c.length > 0) {
+        let h = await this.db.kioskTimeZones.where("version").above(i).delete();
+        console.log(`delete ${h} time zones above version ${i}`), r = c.map((m) => ({
+          id: m.id,
+          tz_IANA: m.tz_IANA,
+          tz_long: m.tz_long,
+          deprecated: m.deprecated ? 1 : 0,
+          version: m.version,
+          favourite: a.includes(m.id) ? 1 : 0
+        })), h = await this.db.kioskTimeZones.bulkAdd(r), console.log(`added ${h} new time zones `), this.hasRefreshedAll = !0;
+      }
+    }
+  }
+}
 export {
-  Xs as kioskdatetime,
-  Bs as kioskstandardlib,
-  js as luxon
+  Qc as KioskTimeZones,
+  Jc as kioskdatetime,
+  Yc as kioskstandardlib,
+  Gc as luxon
 };
