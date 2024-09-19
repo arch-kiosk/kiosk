@@ -1152,9 +1152,9 @@ class DataSetDefinition:
                 script = all_scripts[script_id]
                 if check_precondition_tables:
                     if not self.all_precondition_tables_exist(script):
-                        logging.debug(f"{self.__class__.__name__}.get_migration_scripts: "
-                                      f"cross-table-migration script {script_id} skipped because "
-                                      f"it refers to at least one table unknown to the dsd.")
+                        # logging.debug(f"{self.__class__.__name__}.get_migration_scripts: "
+                        #               f"cross-table-migration script {script_id} skipped because "
+                        #               f"it refers to at least one table unknown to the dsd.")
                         continue
 
                 if not ("disable_projects" in script and project_id in script["disable_projects"]):

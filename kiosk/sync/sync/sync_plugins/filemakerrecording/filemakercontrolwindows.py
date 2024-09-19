@@ -889,14 +889,26 @@ class FileMakerControlWindows(FileMakerControl):
             fm_cur = fm_cur.execute(f"select max(\"{modified_field}\") \"max_modified\", "
                                     f"count(\"{modified_field}\") \"c\" from \"{dest_tablename}\"")
             fm_record = fm_cur.fetchone()
+            if not fm_record:
+                raise Exception("Can't read from FileMaker cursor")
 
             # time zone: The max_modified from postgres is always in UTC,
-            #  so the FM max modified needs a conversion
-            pg_utc_dt: datetime.datetime = max_modified
-            fm_utc_dt: datetime.datetime = current_tz.user_dt_to_utc_dt(fm_record[0])
+            #  so the FM max modified needs a conversion from user time zone to utc
+            #  what if user time zone has changed since the last export?
+            #  That leads to a different template, so we can be sure that the dates we find in the modified field
+            #  have been transformed to the same user time zone as the current user time zone
+
+            # pg_utc_dt: datetime.datetime = max_modified
+            # fm_utc_dt: datetime.datetime = current_tz.user_dt_to_utc_dt(fm_record[0])
+            # logging.debug(f"{self.__class__.__name__}._is_table_already_up_to_date: "
+            #               f"{dest_tablename}: max_modified={fm_record[0]} -> UTC:{fm_utc_dt}, count={fm_record[1]}")
+
+
+            pg_utc_dt: datetime.datetime = max_modified   # this is either user time zone or a legacy time stamp
+            fm_utc_dt: datetime.datetime = fm_record[0]
 
             logging.debug(f"{self.__class__.__name__}._is_table_already_up_to_date: "
-                          f"{dest_tablename}: max_modified={fm_record[0]}/UTC:{fm_utc_dt}, count={fm_record[1]}")
+                          f"FM {dest_tablename}: max_modified={fm_record[0]}, count={fm_record[1]}")
 
             if not fm_utc_dt and not pg_utc_dt:
                 logging.info(f"{self.__class__.__name__}._is_table_already_up_to_date: "
@@ -905,11 +917,13 @@ class FileMakerControlWindows(FileMakerControl):
 
             # need to get rid of microseconds
             if fm_utc_dt:
-                fm_utc_dt = datetime.datetime(fm_utc_dt.year, fm_utc_dt.month, fm_utc_dt.day, fm_utc_dt.hour,
-                                              fm_utc_dt.minute, fm_utc_dt.second, 0)
+                fm_utc_dt = fm_utc_dt.replace(microsecond=0)
+                # fm_utc_dt = datetime.datetime(fm_utc_dt.year, fm_utc_dt.month, fm_utc_dt.day, fm_utc_dt.hour,
+                #                               fm_utc_dt.minute, fm_utc_dt.second, 0)
             if pg_utc_dt:
-                pg_utc_dt = datetime.datetime(pg_utc_dt.year, pg_utc_dt.month, pg_utc_dt.day, pg_utc_dt.hour,
-                                              pg_utc_dt.minute, pg_utc_dt.second, 0)
+                pg_utc_dt = pg_utc_dt.replace(microsecond=0)
+                # pg_utc_dt = datetime.datetime(pg_utc_dt.year, pg_utc_dt.month, pg_utc_dt.day, pg_utc_dt.hour,
+                #                               pg_utc_dt.minute, pg_utc_dt.second, 0)
 
             if fm_utc_dt == pg_utc_dt and fm_record[1] == record_count:
                 logging.info(f"{self.__class__.__name__}._is_table_already_up_to_date: "

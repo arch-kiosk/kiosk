@@ -209,8 +209,8 @@ class RecordingWorkstation(Dock):
 
         """
         try:
-            # we have a truncate here. That can cause a blocking database!
-            # can I work with a timeout here and in case of failure use delete *?
+            # todo: we have a truncate here. That can cause a blocking database!
+            #  can I work with a timeout here and in case of failure use delete *?
             cur.execute(f'TRUNCATE TABLE {dst_table}')
             sql_insert = f'INSERT INTO {dst_table} ('
             sql_select = 'SELECT '

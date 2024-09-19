@@ -1,9 +1,14 @@
 from __future__ import annotations
 
 import datetime
+from datetime import tzinfo
+
 import nanoid
 import json
+
+import kioskdatetimelib
 from kioskdatetimelib import local_datetime_to_utc, utc_to_local_datetime
+from tz.kiosktimezoneinstance import KioskTimeZoneInstance
 from .systemmessagecatalog import *
 
 
@@ -14,7 +19,7 @@ class SystemMessage:
         self.headline = ""
         self._message_id = ""
         self.body = ""
-        self.utc_timestamp: datetime.datetime = datetime.datetime.now(datetime.timezone.utc)
+        self.utc_timestamp: datetime.datetime = kioskdatetimelib.get_utc_now()
         self.project = ""
         self._dirty = False
         self._addressee = "*"
@@ -85,37 +90,32 @@ class SystemMessage:
         if trigger_update:
             self.update()
 
-    @property
-    def timestamp(self):
-        if self.utc_timestamp:
-            return utc_to_local_datetime(self.utc_timestamp)
-        else:
-            return None
-
-    @property
-    def modified(self):
+    def get_modified(self):
+        """
+        returns the modified timestamp as utc
+        """
         return self._modified
 
-    def set_modified(self, timestamp=None) -> datetime.datetime:
+    def set_modified(self, utc_timestamp=None) -> datetime.datetime:
         """
-        sets the modification timestamp of this message
-        :param timestamp: if given, this timestamp is being used.
-                          Otherwise the current time
+        sets the modification timestamp of this message in utc
+        :param utc_timestamp: if given, this timestamp is being used.
+                          Otherwise the current utc time
         :return: datetime.datetime
         """
-        if not timestamp:
-            timestamp = datetime.datetime.now()
-        self._modified = timestamp
+        if not utc_timestamp:
+            utc_timestamp = kioskdatetimelib.get_utc_now()
+        self._modified = utc_timestamp
 
         return self._modified
 
-    @property
-    def format_time(self):
-        return datetime.datetime.strftime(self.timestamp, "%d. %b %H:%M:%S")
-
-    @timestamp.setter
-    def timestamp(self, value: datetime.datetime):
-        self.utc_timestamp = local_datetime_to_utc(value)
+    def get_format_time(self, iana_time_zone: str = ""):
+        if iana_time_zone:
+            ts = kioskdatetimelib.utc_ts_to_timezone_ts(self.utc_timestamp, iana_time_zone)
+            return datetime.datetime.strftime(ts, "%d. %b %H:%M:%S")
+        else:
+            return datetime.datetime.strftime(self.utc_timestamp, "%d. %b %H:%M:%S UTC")
+        
 
     @property
     def addressee(self):

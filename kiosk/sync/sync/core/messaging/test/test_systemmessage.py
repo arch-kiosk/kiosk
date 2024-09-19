@@ -2,6 +2,7 @@ import datetime
 
 import pytest
 
+import kioskdatetimelib
 from messaging.systemmessage import SystemMessage
 from test.testhelpers import KioskPyTestHelper
 from messaging.systemmessagecatalog import SYS_MSG_ID_TEST_LONER, SYS_MSG_ID_TEST_MULTI
@@ -22,7 +23,7 @@ class TestSystemMessage(KioskPyTestHelper):
         msg = SystemMessage()
         now = datetime.datetime.now()
         msg.timestamp = now
-        assert msg.timestamp.timestamp() == now.timestamp()
+        assert msg.timestamp.timestamp() == now.timestamp()   #  .timestamp returns a POSIX float that's the same between different time zones
         assert msg.utc_timestamp.timestamp() == now.timestamp()
 
     def test_message_id(self):
@@ -58,8 +59,7 @@ class TestSystemMessage(KioskPyTestHelper):
 
     def test_to_json_str(self):
         msg = SystemMessage()
-        now = datetime.datetime.now()
-        msg.timestamp = now
+        msg.timestamp = kioskdatetimelib.get_utc_now()
         msg.headline = "my headline"
         msg.body = "my body"
         msg.severity = 12

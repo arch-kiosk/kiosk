@@ -136,7 +136,7 @@ def dispatch_system_message(headline: str,
         try:
             system_messages.send_message(message)
         except BaseException as e:
-            logging.error(f"kiosklib.dispatch_system_message: {repr(e)}")
+            logging.error(f"kiosklib.dispatch_system_message: Error in send_message: {repr(e)}")
 
 
 def dispatch_user_message(headline: str,

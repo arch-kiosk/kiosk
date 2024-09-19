@@ -272,7 +272,7 @@ def local_time_offset_str(gmt_time_zone: str = "") -> str:
 
 def extend_local_timezone(dt: datetime.datetime):
     """
-    adds the local timezone to a datetime if it has not timezone information.
+    adds the local timezone to a datetime if it has no timezone information.
 
     :param dt:
     :return: the datetime with either its original timezone or the added local timezone
@@ -341,7 +341,7 @@ def js_to_python_utc_datetime_str(utc_datetime_str):
         return utc_datetime_str
 
 
-def utc_ts_to_timezone_ts(utc_datetime: Union[datetime, str], time_zone: str) -> datetime.datetime:
+def utc_ts_to_timezone_ts(utc_datetime: Union[datetime.datetime, str], time_zone: str) -> datetime.datetime:
     """
     converts a utc timestamp to the local time of the time zone and drops the time zone information
     :param utc_datetime: either a datetime object or a string in iso8601 format.
@@ -386,7 +386,7 @@ def get_utc_now(no_tz_info=False, no_ms=False) -> datetime.datetime:
     return ts
 
 
-def time_zone_ts_to_utc(utc_datetime: Union[datetime, str], time_zone: str) -> datetime.datetime:
+def time_zone_ts_to_utc(utc_datetime: Union[datetime.datetime, str], time_zone: str) -> datetime.datetime:
     """
     converts a timestamp of a certain time zone to the utc time zone and drops the time zone information
     :param utc_datetime: either a datetime object or a string in iso8601 format.

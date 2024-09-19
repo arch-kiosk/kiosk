@@ -57,7 +57,7 @@ class SystemMessageStorePostgres:
             for msg in store.messages:
                 json_msg = msg.to_json()
                 KioskSQLDb.execute(sql_insert, parameters=[msg.uid, msg.deleted])
-                KioskSQLDb.execute(sql_update, parameters=[json_msg, msg.deleted, msg.modified, msg.uid])
+                KioskSQLDb.execute(sql_update, parameters=[json_msg, msg.deleted, msg.get_modified(), msg.uid])
 
             KioskSQLDb.commit_savepoint(savepoint)
             KioskSQLDb.commit()
@@ -77,4 +77,5 @@ class SystemMessageStorePostgres:
         clears the store. Only for testing purposes.
         :param store:
         """
+        # noinspection SqlWithoutWhere
         KioskSQLDb.execute(f"delete * from {KioskSQLDb.sql_safe_ident('kiosk_system_message')}")

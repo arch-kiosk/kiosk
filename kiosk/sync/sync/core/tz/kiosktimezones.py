@@ -265,12 +265,12 @@ class KioskTimeZones:
 
             r = self._time_zone_cache.get(tz_index, None)
             if r:
-                logging.debug(f"{self.__class__.__name__}.get_time_zone_info: "
-                              f"got time zone info for {tz_index} from cache")
+                # logging.debug(f"{self.__class__.__name__}.get_time_zone_info: "
+                #               f"got time zone info for {tz_index} from cache")
                 return r
-            else:
-                logging.debug(f"{self.__class__.__name__}.get_time_zone_info: "
-                              f"{tz_index} not in cache")
+            # else:
+            #     logging.debug(f"{self.__class__.__name__}.get_time_zone_info: "
+            #                   f"{tz_index} not in cache")
 
             r = KioskSQLDb.get_records("select" + " * from kiosk_time_zones where \"id\"=%s", params=[tz_index])
             if len(r) == 1:
@@ -312,8 +312,8 @@ class KioskTimeZones:
         try:
             tz_index = self._iana_2_index.get(iana_name, None)
             if tz_index is not None:
-                logging.debug(f"{self.__class__.__name__}.get_time_zone_index: "
-                              f"got time zone index for {iana_name} from cache")
+                # logging.debug(f"{self.__class__.__name__}.get_time_zone_index: "
+                #               f"got time zone index for {iana_name} from cache")
                 return tz_index
 
             r = KioskSQLDb.get_records("select " + "* from kiosk_time_zones where \"tz_IANA\"=%s", [iana_name, ])

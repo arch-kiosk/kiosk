@@ -11,7 +11,11 @@
               {{ msg.headline }}
               <i id="{{ msg.uid }}" class="fa system-message-close"></i>
             </p>
-            <p class="message-body">{{ msg.format_time }}: {{ msg.body }}</p>
+              {% if current_user and current_user.__class__.__name__ == "KioskUser" %}
+                  <p class="message-body">{{ msg.get_format_time(current_user.get_active_time_zone_name(iana=True)) }}: {{ msg.body }}</p>
+              {% else %}
+                  <p class="message-body">{{ msg.get_format_time(None) }}: {{ msg.body }}</p>
+              {% endif %}
           </div>
         {% endif %}
       {% endfor %}

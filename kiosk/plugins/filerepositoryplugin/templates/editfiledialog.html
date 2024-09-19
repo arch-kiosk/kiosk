@@ -133,7 +133,8 @@
                                 <!-- Next line had formerly: "(contexts and ef_form.ef_file_datetime.data) or" See #960  -->
                                 {% if ("modify data" not in authorized_to ) %}
                                     <div class="kiosk-dialog-disabled-textfield">
-                  <span class="kiosk-tz-span" data-recording-iana-tz="{{ ef_form.ef_file_datetime_tz.data }}">
+                  <span class="kiosk-tz-span" data-tz-index="{{ ef_form.ef_file_datetime_tz.tz_index }}"
+                        data-recording-iana-tz="{{ ef_form.ef_file_datetime_tz.data }}">
                       {{ ef_form.ef_file_datetime.data }}
                   </span>
                                     </div>
@@ -176,11 +177,6 @@
     <script>
 
         function popupApiConnected(api) {
-            /*  for (const cb of document.querySelectorAll("kiosk-tz-combo-box")) {
-                  cb.apiContext = api
-              }
-
-             */
             try {
                 time_zones = new window.KioskTimeZones(api)
                 time_zones.refreshAllTimeZones().then(() => {

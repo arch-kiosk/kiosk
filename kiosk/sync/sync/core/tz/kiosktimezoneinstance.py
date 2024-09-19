@@ -140,7 +140,6 @@ class KioskTimeZoneInstance:
             dt_from = dt_from.replace(microsecond=0)
 
         return kioskdatetimelib.utc_ts_to_timezone_ts(dt_from, tz_info)
-
     def utc_dt_to_user_dt(self, utc_dt: Union[datetime.datetime, None], drop_ms: bool = True):
         """
         interprets dt as a utc datetime returns a datetime in terms of the user's time zone BUT without a tz_info!

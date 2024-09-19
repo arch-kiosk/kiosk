@@ -2,6 +2,7 @@ import datetime
 import logging
 import os
 import shutil
+from datetime import tzinfo
 from shutil import copyfile
 import time
 from os import path
@@ -485,7 +486,7 @@ class FileMakerWorkstation(RecordingWorkstation):
             :param current_tz - the time zone(s) to use for the FileMaker Database.
 
             todo: redesign
-            todo: refactor: It is long.
+            todo: refactor: It is too long.
 
         """
         rc = False
@@ -527,7 +528,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                 images_with_recent_modified_date = fm.count_images_modified_recently()
                 logging.debug(f"{self.__class__.__name__}.export: "
                               f"{images_with_recent_modified_date} image records have a "
-                              f"recent modification timestamp in the filemaker db at the beginning of export")
+                              f"all too recent modification timestamp in the filemaker db at the beginning of export")
 
                 # todo: time zone
                 # this was originally set in terms of what was then the user time zone. So this is not UTC!
@@ -801,7 +802,6 @@ class FileMakerWorkstation(RecordingWorkstation):
             does not check whether the workstation is in the appropriate state nor does
             it set the resulting state afterwards! Don't use outside of export_to_filemaker
 
-            todo: redesign
             todo: refactor
         """
         assert current_tz
@@ -896,7 +896,8 @@ class FileMakerWorkstation(RecordingWorkstation):
                 return False
             try:
                 src_table_name = self._id + "_" + dsd.files_table
-                latest_record_data = self._get_up_to_date_markers_from_table(cur, dsd, src_table_name, dsd.files_table)
+                latest_record_data = self._get_up_to_date_markers_from_table(cur, dsd, src_table_name,
+                                                                             dsd.files_table, current_tz=current_tz)
                 if fm.check_is_table_already_up_to_date(dsd.files_table, latest_record_data, current_tz=current_tz):
                     logging.debug(f"{self.__class__.__name__}._sync_file_tables_in_filemaker: "
                                   f"step 'sync_internal_files_tables' skipped because table {dsd.files_table} "
@@ -1082,8 +1083,8 @@ class FileMakerWorkstation(RecordingWorkstation):
             sql_select = sql_select + comma + '"' + f + '"'
             comma = ", "
 
-        # these markers are UTC!
-        latest_record_data = self._get_up_to_date_markers_from_table(cur, dsd, src_table_name, tablename)
+        latest_record_data = self._get_up_to_date_markers_from_table(cur, dsd, src_table_name, tablename,
+                                                                     current_tz=current_tz)
 
         san_src_table_name = KioskSQLDb.sql_safe_namespaced_table(namespace=self._db_namespace,
                                                                   db_table=src_table_name)
@@ -1110,7 +1111,7 @@ class FileMakerWorkstation(RecordingWorkstation):
             logging.error("SQL is " + sql_select)
             return False
 
-    def _get_up_to_date_markers_from_table(self, cur, dsd: DataSetDefinition, src_table_name, tablename):
+    def _get_up_to_date_markers_from_table(self, cur, dsd: DataSetDefinition, src_table_name, tablename, current_tz: KioskTimeZoneInstance):
         """
         returns markers that can be used to find out if a table's data is up to date.
         The markers are the max and the number of dates in the table's modified timestamp field.
@@ -1123,33 +1124,39 @@ class FileMakerWorkstation(RecordingWorkstation):
                the workstation uses a namespace it will be added automatically.
         :param tablename: the name of the table's definition in the dsd
         :return: a tuple: (name of the table's modified-field, max(modified_field), count(modified_field)) or ()
-                 no time zone conversion is done here, so thes are all UTC timestamps
+                 the max(modified_field) is either user time zone or
+                 a legacy time stamp if there are only legacy time stamps
         """
         latest_record_data = ()
         modified_field = dsd.get_modified_field(tablename)
         san_src_table_name = KioskSQLDb.sql_safe_namespaced_table(namespace=self._db_namespace,
                                                                   db_table=src_table_name)
         if modified_field:
-            # sql = f"""
-            #     select max(case
-            #                 when kiosk_time_zones."tz_IANA" is not null
-            #                 then (\"{modified_field}\"::timestamp || ' ' || kiosk_time_zones."tz_IANA")::timestamptz
-            #                 else \"{modified_field}\" end) max_date,
-            #            count(\"{modified_field}\") count_date
-            #     from {san_src_table_name}
-            #     left outer join kiosk_time_zones
-            #         on {san_src_table_name}.\"{modified_field}_tz\" = kiosk_time_zones.id;"""
-            # cur.execute(sql)
+            cur.execute(f"select max(\"{modified_field}\") max_date from {san_src_table_name} "
+                        f"where \"{modified_field}_tz\" is not null")
 
-            if modified_field:
-                cur.execute(f"select max(\"{modified_field}\") max_date, "
-                            f"count(\"{modified_field}\") count_date from {san_src_table_name}")
-
+            max_modified = None
             r = cur.fetchone()
-            if r:
-                latest_record_data = (modified_field, r[0], r[1])
-                logging.debug(f"{self.__class__.__name__}._transfer_table_data_to_filemaker: "
-                              f"latest_record_data is {latest_record_data}")
+            if r[0]:
+                max_modified = current_tz.utc_dt_to_user_dt(r[0])
+            else:
+                cur.execute(f"select max(\"{modified_field}\") max_date from {san_src_table_name}")
+                r = cur.fetchone()
+                if r[0]:
+                    max_modified = r[0]
+
+
+            if max_modified:
+                max_modified = max_modified.replace(tzinfo=None)
+                cur.execute(f"select count(\"{modified_field}\") count_date from {san_src_table_name}")
+                r = cur.fetchone()
+                if r:
+                    latest_record_data = (modified_field, max_modified, r[0])
+
+        logging.debug(f"{self.__class__.__name__}._transfer_table_data_to_filemaker: "
+                      f"latest_record_data for table {src_table_name} is {latest_record_data}")
+
+
         return latest_record_data
 
     def _set_workstation_constants(self, fm):
