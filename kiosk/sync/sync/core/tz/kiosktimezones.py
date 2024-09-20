@@ -328,7 +328,7 @@ class KioskTimeZones:
             logging.error(f"{self.__class__.__name__}.get_time_zone_index: {repr(e)}")
         return None
 
-    def kiosk_timestamp_to_display_timestamp(self, utc_timestamp: Union[datetime, str],
+    def kiosk_timestamp_to_display_timestamp(self, utc_timestamp: Union[datetime.datetime, str],
                                              tz_field: Union[int, None],
                                              target_tz: Union[int, str] = None) -> (datetime.datetime, int):
         """
