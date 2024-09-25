@@ -37,7 +37,9 @@ class ViewPartSheet(ViewPart):
     def render(self):
         part_definition = copy.deepcopy(self.part_definition)
         table_def = self.dsd.get_table_definition(self.view_record_type)
-        dsd_fields_to_render = [field_name for field_name in table_def.keys()]
+        dsd_fields_to_render = self.dsd.omit_fields_by_datatype(self.view_record_type,
+                                                                [field_name for field_name in table_def.keys()], "tz")
+
         elements_to_render: dict = self.get_elements_to_render(dsd_fields_to_render,
                                                                part_definition) if dsd_fields_to_render else {}
         if "ui_elements" not in part_definition:
@@ -45,7 +47,7 @@ class ViewPartSheet(ViewPart):
 
         if "fields_selection" in part_definition and part_definition["fields_selection"] == "dsd":
             element_ids_to_render = elements_to_render.keys()
-            additional_element_ids = [field_name for field_name in table_def.keys() if
+            additional_element_ids = [field_name for field_name in dsd_fields_to_render if
                                       field_name not in element_ids_to_render]
             for additional_element_id in additional_element_ids:
                 part_definition["ui_elements"][additional_element_id] = {}
@@ -67,8 +69,9 @@ class ViewPartSheet(ViewPart):
                 dicttools.dict_merge(element, element_definition)
 
                 if "element_type" not in element:
-                    raise Exception(f"Element type for element {element_id} "
+                    logging.info(f"Element type for element {element_id} "
                                     f"not set by any uic rule or the presentation layer definition.")
+                    continue
 
                 if "value" not in element["element_type"]:
                     element["element_type"]["value"] = f"#({self.view_record_type}/{element_id})"

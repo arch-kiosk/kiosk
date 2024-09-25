@@ -25,6 +25,8 @@ import { KioskView } from "./kioskview";
 import { fowlerNollVo1aHashModern, handleCommonFetchErrors } from "./lib/applib";
 import { FetchException } from "../kioskapplib/kioskapi";
 import { identifierInfoContext } from "./identifierinfocontext";
+import { KioskTimeZones } from "../../../../../../../kiosktsapplib";
+import { timeZoneInfoContext } from "./timezoneinfocontext";
 
 export class QueryAndViewApp extends KioskApp {
     static styles = unsafeCSS(local_css);
@@ -58,6 +60,10 @@ export class QueryAndViewApp extends KioskApp {
     @provide({context: identifierInfoContext})
     @state()
     private identifierInfo: Array<ApiResultContextsFullIdentifierInformation> = [];
+
+    @provide({context: timeZoneInfoContext})
+    @state()
+    private timeZoneInfo: KioskTimeZones = undefined
 
     private recordTypeAliases: {[key: string]: string} = { }
     private _intersectionObserver: IntersectionObserver;
@@ -114,6 +120,17 @@ export class QueryAndViewApp extends KioskApp {
             this._intersectionObserver.disconnect()
     }
 
+    fetchTimeZones() {
+        let timeZoneInfo = new KioskTimeZones(this.apiContext)
+        timeZoneInfo.getAllTimeZones(true)
+        .catch(x => {
+           this.addAppError(`Time Zone Information could not be fetched from server: ${x}`)
+        }).finally(() => {
+            this.timeZoneInfo = timeZoneInfo;
+        })
+
+    }
+
     fetchConstants() {
         this.showProgress = true
         this.apiContext.fetchFromApi(
@@ -150,6 +167,7 @@ export class QueryAndViewApp extends KioskApp {
     apiConnected() {
         console.log("api is connected");
         this.fetchConstants();
+        this.fetchTimeZones()
     }
 
     protected reloadClicked(e: Event) {
@@ -433,7 +451,7 @@ export class QueryAndViewApp extends KioskApp {
                 </div>`;
         }
         let toolbar = this.renderToolbar();
-        const app = this.constants && this.constants.length > 0?html`${this.renderQueryMode()}${this.renderGotoIdentifierMode()}${this.renderLayout()}`:nothing
+        const app = this.constants && this.constants.length > 0 && this.timeZoneInfo != undefined?html`${this.renderQueryMode()}${this.renderGotoIdentifierMode()}${this.renderLayout()}`:nothing
         return html`${dev}${toolbar}${app}`;
     }
 }

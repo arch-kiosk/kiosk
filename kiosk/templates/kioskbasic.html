@@ -32,7 +32,11 @@
         window.customElements.define;
         window.customElements.define = (name, cl, conf) => {
                 if (name !== "dom-module" || !customElements.get(name)) {
-                    _customElementsDefine.call(window.customElements, name, cl, conf);
+                    if (customElements.get(name)) {
+                        console.error(`Attempt to register custom Element again prevented by Kiosk: ${name}`)
+                    } else {
+                        _customElementsDefine.call(window.customElements, name, cl, conf);
+                    }
                 }
         };
     </script>

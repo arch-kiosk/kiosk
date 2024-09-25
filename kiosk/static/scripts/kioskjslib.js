@@ -1,190 +1,217 @@
-function bu(s, e, r = 0) {
-  let i = /* @__PURE__ */ new Date();
-  i.setTime(i.getTime() + r * 24 * 60 * 60 * 1e3);
-  let a = "expires=" + i.toUTCString();
-  document.cookie = s + "=" + e + ";" + a + ";path=/";
+var _a;
+function setCookie(cname, cvalue, exdays = 0) {
+  let d2 = /* @__PURE__ */ new Date();
+  d2.setTime(d2.getTime() + exdays * 24 * 60 * 60 * 1e3);
+  let expires = "expires=" + d2.toUTCString();
+  document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
-function Tt(s) {
-  let e = s + "=", i = decodeURIComponent(document.cookie).split(";");
-  for (let a = 0; a < i.length; a++) {
-    let c = i[a];
-    for (; c.charAt(0) === " "; )
-      c = c.substring(1);
-    if (c.indexOf(e) === 0)
-      return c.substring(e.length, c.length);
+function getCookie(cname) {
+  let name = cname + "=";
+  let decodedCookie = decodeURIComponent(document.cookie);
+  let ca = decodedCookie.split(";");
+  for (let i2 = 0; i2 < ca.length; i2++) {
+    let c2 = ca[i2];
+    while (c2.charAt(0) === " ") {
+      c2 = c2.substring(1);
+    }
+    if (c2.indexOf(name) === 0) {
+      return c2.substring(name.length, c2.length);
+    }
   }
   return "";
 }
-const Yc = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const kioskstandardlib = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  getCookie: Tt,
-  setCookie: bu
+  getCookie,
+  setCookie
 }, Symbol.toStringTag, { value: "Module" }));
-class At extends Error {
+class LuxonError extends Error {
 }
-class wu extends At {
-  constructor(e) {
-    super(`Invalid DateTime: ${e.toMessage()}`);
+class InvalidDateTimeError extends LuxonError {
+  constructor(reason) {
+    super(`Invalid DateTime: ${reason.toMessage()}`);
   }
 }
-class ku extends At {
-  constructor(e) {
-    super(`Invalid Interval: ${e.toMessage()}`);
+class InvalidIntervalError extends LuxonError {
+  constructor(reason) {
+    super(`Invalid Interval: ${reason.toMessage()}`);
   }
 }
-class _u extends At {
-  constructor(e) {
-    super(`Invalid Duration: ${e.toMessage()}`);
+class InvalidDurationError extends LuxonError {
+  constructor(reason) {
+    super(`Invalid Duration: ${reason.toMessage()}`);
   }
 }
-class zt extends At {
+class ConflictingSpecificationError extends LuxonError {
 }
-class Co extends At {
-  constructor(e) {
-    super(`Invalid unit ${e}`);
+class InvalidUnitError extends LuxonError {
+  constructor(unit) {
+    super(`Invalid unit ${unit}`);
   }
 }
-class ge extends At {
+class InvalidArgumentError extends LuxonError {
 }
-class tt extends At {
+class ZoneIsAbstractError extends LuxonError {
   constructor() {
     super("Zone is an abstract class");
   }
 }
-const V = "numeric", Fe = "short", Te = "long", Er = {
-  year: V,
-  month: V,
-  day: V
-}, Do = {
-  year: V,
-  month: Fe,
-  day: V
-}, Su = {
-  year: V,
-  month: Fe,
-  day: V,
-  weekday: Fe
-}, $o = {
-  year: V,
-  month: Te,
-  day: V
-}, No = {
-  year: V,
-  month: Te,
-  day: V,
-  weekday: Te
-}, Mo = {
-  hour: V,
-  minute: V
-}, Po = {
-  hour: V,
-  minute: V,
-  second: V
-}, Fo = {
-  hour: V,
-  minute: V,
-  second: V,
-  timeZoneName: Fe
-}, Ro = {
-  hour: V,
-  minute: V,
-  second: V,
-  timeZoneName: Te
-}, Vo = {
-  hour: V,
-  minute: V,
-  hourCycle: "h23"
-}, qo = {
-  hour: V,
-  minute: V,
-  second: V,
-  hourCycle: "h23"
-}, Lo = {
-  hour: V,
-  minute: V,
-  second: V,
-  hourCycle: "h23",
-  timeZoneName: Fe
-}, Uo = {
-  hour: V,
-  minute: V,
-  second: V,
-  hourCycle: "h23",
-  timeZoneName: Te
-}, jo = {
-  year: V,
-  month: V,
-  day: V,
-  hour: V,
-  minute: V
-}, Wo = {
-  year: V,
-  month: V,
-  day: V,
-  hour: V,
-  minute: V,
-  second: V
-}, Ko = {
-  year: V,
-  month: Fe,
-  day: V,
-  hour: V,
-  minute: V
-}, zo = {
-  year: V,
-  month: Fe,
-  day: V,
-  hour: V,
-  minute: V,
-  second: V
-}, xu = {
-  year: V,
-  month: Fe,
-  day: V,
-  weekday: Fe,
-  hour: V,
-  minute: V
-}, Zo = {
-  year: V,
-  month: Te,
-  day: V,
-  hour: V,
-  minute: V,
-  timeZoneName: Fe
-}, Bo = {
-  year: V,
-  month: Te,
-  day: V,
-  hour: V,
-  minute: V,
-  second: V,
-  timeZoneName: Fe
-}, Ho = {
-  year: V,
-  month: Te,
-  day: V,
-  weekday: Te,
-  hour: V,
-  minute: V,
-  timeZoneName: Te
-}, Yo = {
-  year: V,
-  month: Te,
-  day: V,
-  weekday: Te,
-  hour: V,
-  minute: V,
-  second: V,
-  timeZoneName: Te
+const n$4 = "numeric", s$3 = "short", l$2 = "long";
+const DATE_SHORT = {
+  year: n$4,
+  month: n$4,
+  day: n$4
 };
-class Qt {
+const DATE_MED = {
+  year: n$4,
+  month: s$3,
+  day: n$4
+};
+const DATE_MED_WITH_WEEKDAY = {
+  year: n$4,
+  month: s$3,
+  day: n$4,
+  weekday: s$3
+};
+const DATE_FULL = {
+  year: n$4,
+  month: l$2,
+  day: n$4
+};
+const DATE_HUGE = {
+  year: n$4,
+  month: l$2,
+  day: n$4,
+  weekday: l$2
+};
+const TIME_SIMPLE = {
+  hour: n$4,
+  minute: n$4
+};
+const TIME_WITH_SECONDS = {
+  hour: n$4,
+  minute: n$4,
+  second: n$4
+};
+const TIME_WITH_SHORT_OFFSET = {
+  hour: n$4,
+  minute: n$4,
+  second: n$4,
+  timeZoneName: s$3
+};
+const TIME_WITH_LONG_OFFSET = {
+  hour: n$4,
+  minute: n$4,
+  second: n$4,
+  timeZoneName: l$2
+};
+const TIME_24_SIMPLE = {
+  hour: n$4,
+  minute: n$4,
+  hourCycle: "h23"
+};
+const TIME_24_WITH_SECONDS = {
+  hour: n$4,
+  minute: n$4,
+  second: n$4,
+  hourCycle: "h23"
+};
+const TIME_24_WITH_SHORT_OFFSET = {
+  hour: n$4,
+  minute: n$4,
+  second: n$4,
+  hourCycle: "h23",
+  timeZoneName: s$3
+};
+const TIME_24_WITH_LONG_OFFSET = {
+  hour: n$4,
+  minute: n$4,
+  second: n$4,
+  hourCycle: "h23",
+  timeZoneName: l$2
+};
+const DATETIME_SHORT = {
+  year: n$4,
+  month: n$4,
+  day: n$4,
+  hour: n$4,
+  minute: n$4
+};
+const DATETIME_SHORT_WITH_SECONDS = {
+  year: n$4,
+  month: n$4,
+  day: n$4,
+  hour: n$4,
+  minute: n$4,
+  second: n$4
+};
+const DATETIME_MED = {
+  year: n$4,
+  month: s$3,
+  day: n$4,
+  hour: n$4,
+  minute: n$4
+};
+const DATETIME_MED_WITH_SECONDS = {
+  year: n$4,
+  month: s$3,
+  day: n$4,
+  hour: n$4,
+  minute: n$4,
+  second: n$4
+};
+const DATETIME_MED_WITH_WEEKDAY = {
+  year: n$4,
+  month: s$3,
+  day: n$4,
+  weekday: s$3,
+  hour: n$4,
+  minute: n$4
+};
+const DATETIME_FULL = {
+  year: n$4,
+  month: l$2,
+  day: n$4,
+  hour: n$4,
+  minute: n$4,
+  timeZoneName: s$3
+};
+const DATETIME_FULL_WITH_SECONDS = {
+  year: n$4,
+  month: l$2,
+  day: n$4,
+  hour: n$4,
+  minute: n$4,
+  second: n$4,
+  timeZoneName: s$3
+};
+const DATETIME_HUGE = {
+  year: n$4,
+  month: l$2,
+  day: n$4,
+  weekday: l$2,
+  hour: n$4,
+  minute: n$4,
+  timeZoneName: l$2
+};
+const DATETIME_HUGE_WITH_SECONDS = {
+  year: n$4,
+  month: l$2,
+  day: n$4,
+  weekday: l$2,
+  hour: n$4,
+  minute: n$4,
+  second: n$4,
+  timeZoneName: l$2
+};
+class Zone {
   /**
    * The type of zone
    * @abstract
    * @type {string}
    */
   get type() {
-    throw new tt();
+    throw new ZoneIsAbstractError();
   }
   /**
    * The name of this zone.
@@ -192,7 +219,7 @@ class Qt {
    * @type {string}
    */
   get name() {
-    throw new tt();
+    throw new ZoneIsAbstractError();
   }
   /**
    * The IANA name of this zone.
@@ -209,7 +236,7 @@ class Qt {
    * @type {boolean}
    */
   get isUniversal() {
-    throw new tt();
+    throw new ZoneIsAbstractError();
   }
   /**
    * Returns the offset's common name (such as EST) at the specified timestamp
@@ -220,8 +247,8 @@ class Qt {
    * @param {string} opts.locale - What locale to return the offset name in.
    * @return {string}
    */
-  offsetName(e, r) {
-    throw new tt();
+  offsetName(ts, opts) {
+    throw new ZoneIsAbstractError();
   }
   /**
    * Returns the offset's value as a string
@@ -231,8 +258,8 @@ class Qt {
    *                          Accepts 'narrow', 'short', or 'techie'. Returning '+6', '+06:00', or '+0600' respectively
    * @return {string}
    */
-  formatOffset(e, r) {
-    throw new tt();
+  formatOffset(ts, format) {
+    throw new ZoneIsAbstractError();
   }
   /**
    * Return the offset in minutes for this zone at the specified timestamp.
@@ -240,8 +267,8 @@ class Qt {
    * @param {number} ts - Epoch milliseconds for which to compute the offset
    * @return {number}
    */
-  offset(e) {
-    throw new tt();
+  offset(ts) {
+    throw new ZoneIsAbstractError();
   }
   /**
    * Return whether this Zone is equal to another zone
@@ -249,8 +276,8 @@ class Qt {
    * @param {Zone} otherZone - the zone to compare
    * @return {boolean}
    */
-  equals(e) {
-    throw new tt();
+  equals(otherZone) {
+    throw new ZoneIsAbstractError();
   }
   /**
    * Return whether this Zone is valid.
@@ -258,17 +285,20 @@ class Qt {
    * @type {boolean}
    */
   get isValid() {
-    throw new tt();
+    throw new ZoneIsAbstractError();
   }
 }
-let xi = null;
-class Pn extends Qt {
+let singleton$1 = null;
+class SystemZone extends Zone {
   /**
    * Get a singleton instance of the local zone
    * @return {SystemZone}
    */
   static get instance() {
-    return xi === null && (xi = new Pn()), xi;
+    if (singleton$1 === null) {
+      singleton$1 = new SystemZone();
+    }
+    return singleton$1;
   }
   /** @override **/
   get type() {
@@ -280,44 +310,47 @@ class Pn extends Qt {
   }
   /** @override **/
   get isUniversal() {
-    return !1;
+    return false;
   }
   /** @override **/
-  offsetName(e, { format: r, locale: i }) {
-    return sa(e, r, i);
+  offsetName(ts, { format, locale }) {
+    return parseZoneInfo(ts, format, locale);
   }
   /** @override **/
-  formatOffset(e, r) {
-    return In(this.offset(e), r);
+  formatOffset(ts, format) {
+    return formatOffset(this.offset(ts), format);
   }
   /** @override **/
-  offset(e) {
-    return -new Date(e).getTimezoneOffset();
+  offset(ts) {
+    return -new Date(ts).getTimezoneOffset();
   }
   /** @override **/
-  equals(e) {
-    return e.type === "system";
+  equals(otherZone) {
+    return otherZone.type === "system";
   }
   /** @override **/
   get isValid() {
-    return !0;
+    return true;
   }
 }
-let kr = {};
-function Tu(s) {
-  return kr[s] || (kr[s] = new Intl.DateTimeFormat("en-US", {
-    hour12: !1,
-    timeZone: s,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    era: "short"
-  })), kr[s];
+let dtfCache = {};
+function makeDTF(zone) {
+  if (!dtfCache[zone]) {
+    dtfCache[zone] = new Intl.DateTimeFormat("en-US", {
+      hour12: false,
+      timeZone: zone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      era: "short"
+    });
+  }
+  return dtfCache[zone];
 }
-const Ou = {
+const typeToPos = {
   year: 0,
   month: 1,
   day: 2,
@@ -326,33 +359,43 @@ const Ou = {
   minute: 5,
   second: 6
 };
-function Eu(s, e) {
-  const r = s.format(e).replace(/\u200E/g, ""), i = /(\d+)\/(\d+)\/(\d+) (AD|BC),? (\d+):(\d+):(\d+)/.exec(r), [, a, c, h, m, v, A, q] = i;
-  return [h, a, c, m, v, A, q];
+function hackyOffset(dtf, date) {
+  const formatted = dtf.format(date).replace(/\u200E/g, ""), parsed = /(\d+)\/(\d+)\/(\d+) (AD|BC),? (\d+):(\d+):(\d+)/.exec(formatted), [, fMonth, fDay, fYear, fadOrBc, fHour, fMinute, fSecond] = parsed;
+  return [fYear, fMonth, fDay, fadOrBc, fHour, fMinute, fSecond];
 }
-function Iu(s, e) {
-  const r = s.formatToParts(e), i = [];
-  for (let a = 0; a < r.length; a++) {
-    const { type: c, value: h } = r[a], m = Ou[c];
-    c === "era" ? i[m] = h : Z(m) || (i[m] = parseInt(h, 10));
+function partsOffset(dtf, date) {
+  const formatted = dtf.formatToParts(date);
+  const filled = [];
+  for (let i2 = 0; i2 < formatted.length; i2++) {
+    const { type, value } = formatted[i2];
+    const pos = typeToPos[type];
+    if (type === "era") {
+      filled[pos] = value;
+    } else if (!isUndefined(pos)) {
+      filled[pos] = parseInt(value, 10);
+    }
   }
-  return i;
+  return filled;
 }
-let yr = {};
-class Ue extends Qt {
+let ianaZoneCache = {};
+class IANAZone extends Zone {
   /**
    * @param {string} name - Zone name
    * @return {IANAZone}
    */
-  static create(e) {
-    return yr[e] || (yr[e] = new Ue(e)), yr[e];
+  static create(name) {
+    if (!ianaZoneCache[name]) {
+      ianaZoneCache[name] = new IANAZone(name);
+    }
+    return ianaZoneCache[name];
   }
   /**
    * Reset local caches. Should only be necessary in testing scenarios.
    * @return {void}
    */
   static resetCache() {
-    yr = {}, kr = {};
+    ianaZoneCache = {};
+    dtfCache = {};
   }
   /**
    * Returns whether the provided string is a valid specifier. This only checks the string's format, not that the specifier identifies a known zone; see isValidZone for that.
@@ -362,8 +405,8 @@ class Ue extends Qt {
    * @deprecated For backward compatibility, this forwards to isValidZone, better use `isValidZone()` directly instead.
    * @return {boolean}
    */
-  static isValidSpecifier(e) {
-    return this.isValidZone(e);
+  static isValidSpecifier(s2) {
+    return this.isValidZone(s2);
   }
   /**
    * Returns whether the provided string identifies a real zone
@@ -373,17 +416,21 @@ class Ue extends Qt {
    * @example IANAZone.isValidZone("Sport~~blorp") //=> false
    * @return {boolean}
    */
-  static isValidZone(e) {
-    if (!e)
-      return !1;
+  static isValidZone(zone) {
+    if (!zone) {
+      return false;
+    }
     try {
-      return new Intl.DateTimeFormat("en-US", { timeZone: e }).format(), !0;
-    } catch {
-      return !1;
+      new Intl.DateTimeFormat("en-US", { timeZone: zone }).format();
+      return true;
+    } catch (e2) {
+      return false;
     }
   }
-  constructor(e) {
-    super(), this.zoneName = e, this.valid = Ue.isValidZone(e);
+  constructor(name) {
+    super();
+    this.zoneName = name;
+    this.valid = IANAZone.isValidZone(name);
   }
   /**
    * The type of zone. `iana` for all instances of `IANAZone`.
@@ -408,7 +455,7 @@ class Ue extends Qt {
    * @type {boolean}
    */
   get isUniversal() {
-    return !1;
+    return false;
   }
   /**
    * Returns the offset's common name (such as EST) at the specified timestamp
@@ -419,8 +466,8 @@ class Ue extends Qt {
    * @param {string} opts.locale - What locale to return the offset name in.
    * @return {string}
    */
-  offsetName(e, { format: r, locale: i }) {
-    return sa(e, r, i, this.name);
+  offsetName(ts, { format, locale }) {
+    return parseZoneInfo(ts, format, locale, this.name);
   }
   /**
    * Returns the offset's value as a string
@@ -430,8 +477,8 @@ class Ue extends Qt {
    *                          Accepts 'narrow', 'short', or 'techie'. Returning '+6', '+06:00', or '+0600' respectively
    * @return {string}
    */
-  formatOffset(e, r) {
-    return In(this.offset(e), r);
+  formatOffset(ts, format) {
+    return formatOffset(this.offset(ts), format);
   }
   /**
    * Return the offset in minutes for this zone at the specified timestamp.
@@ -439,24 +486,28 @@ class Ue extends Qt {
    * @param {number} ts - Epoch milliseconds for which to compute the offset
    * @return {number}
    */
-  offset(e) {
-    const r = new Date(e);
-    if (isNaN(r)) return NaN;
-    const i = Tu(this.name);
-    let [a, c, h, m, v, A, q] = i.formatToParts ? Iu(i, r) : Eu(i, r);
-    m === "BC" && (a = -Math.abs(a) + 1);
-    const z = Mr({
-      year: a,
-      month: c,
-      day: h,
-      hour: v === 24 ? 0 : v,
-      minute: A,
-      second: q,
+  offset(ts) {
+    const date = new Date(ts);
+    if (isNaN(date)) return NaN;
+    const dtf = makeDTF(this.name);
+    let [year, month, day, adOrBc, hour, minute, second] = dtf.formatToParts ? partsOffset(dtf, date) : hackyOffset(dtf, date);
+    if (adOrBc === "BC") {
+      year = -Math.abs(year) + 1;
+    }
+    const adjustedHour = hour === 24 ? 0 : hour;
+    const asUTC = objToLocalTS({
+      year,
+      month,
+      day,
+      hour: adjustedHour,
+      minute,
+      second,
       millisecond: 0
     });
-    let j = +r;
-    const ee = j % 1e3;
-    return j -= ee >= 0 ? ee : 1e3 + ee, (z - j) / (60 * 1e3);
+    let asTS = +date;
+    const over = asTS % 1e3;
+    asTS -= over >= 0 ? over : 1e3 + over;
+    return (asUTC - asTS) / (60 * 1e3);
   }
   /**
    * Return whether this Zone is equal to another zone
@@ -464,8 +515,8 @@ class Ue extends Qt {
    * @param {Zone} otherZone - the zone to compare
    * @return {boolean}
    */
-  equals(e) {
-    return e.type === "iana" && e.name === this.name;
+  equals(otherZone) {
+    return otherZone.type === "iana" && otherZone.name === this.name;
   }
   /**
    * Return whether this Zone is valid.
@@ -476,263 +527,393 @@ class Ue extends Qt {
     return this.valid;
   }
 }
-let qs = {};
-function Au(s, e = {}) {
-  const r = JSON.stringify([s, e]);
-  let i = qs[r];
-  return i || (i = new Intl.ListFormat(s, e), qs[r] = i), i;
-}
-let Fi = {};
-function Ri(s, e = {}) {
-  const r = JSON.stringify([s, e]);
-  let i = Fi[r];
-  return i || (i = new Intl.DateTimeFormat(s, e), Fi[r] = i), i;
-}
-let Vi = {};
-function Cu(s, e = {}) {
-  const r = JSON.stringify([s, e]);
-  let i = Vi[r];
-  return i || (i = new Intl.NumberFormat(s, e), Vi[r] = i), i;
-}
-let qi = {};
-function Du(s, e = {}) {
-  const { base: r, ...i } = e, a = JSON.stringify([s, i]);
-  let c = qi[a];
-  return c || (c = new Intl.RelativeTimeFormat(s, e), qi[a] = c), c;
-}
-let Tn = null;
-function $u() {
-  return Tn || (Tn = new Intl.DateTimeFormat().resolvedOptions().locale, Tn);
-}
-let Ls = {};
-function Nu(s) {
-  let e = Ls[s];
-  if (!e) {
-    const r = new Intl.Locale(s);
-    e = "getWeekInfo" in r ? r.getWeekInfo() : r.weekInfo, Ls[s] = e;
+let intlLFCache = {};
+function getCachedLF(locString, opts = {}) {
+  const key = JSON.stringify([locString, opts]);
+  let dtf = intlLFCache[key];
+  if (!dtf) {
+    dtf = new Intl.ListFormat(locString, opts);
+    intlLFCache[key] = dtf;
   }
-  return e;
+  return dtf;
 }
-function Mu(s) {
-  const e = s.indexOf("-x-");
-  e !== -1 && (s = s.substring(0, e));
-  const r = s.indexOf("-u-");
-  if (r === -1)
-    return [s];
-  {
-    let i, a;
+let intlDTCache = {};
+function getCachedDTF(locString, opts = {}) {
+  const key = JSON.stringify([locString, opts]);
+  let dtf = intlDTCache[key];
+  if (!dtf) {
+    dtf = new Intl.DateTimeFormat(locString, opts);
+    intlDTCache[key] = dtf;
+  }
+  return dtf;
+}
+let intlNumCache = {};
+function getCachedINF(locString, opts = {}) {
+  const key = JSON.stringify([locString, opts]);
+  let inf = intlNumCache[key];
+  if (!inf) {
+    inf = new Intl.NumberFormat(locString, opts);
+    intlNumCache[key] = inf;
+  }
+  return inf;
+}
+let intlRelCache = {};
+function getCachedRTF(locString, opts = {}) {
+  const { base, ...cacheKeyOpts } = opts;
+  const key = JSON.stringify([locString, cacheKeyOpts]);
+  let inf = intlRelCache[key];
+  if (!inf) {
+    inf = new Intl.RelativeTimeFormat(locString, opts);
+    intlRelCache[key] = inf;
+  }
+  return inf;
+}
+let sysLocaleCache = null;
+function systemLocale() {
+  if (sysLocaleCache) {
+    return sysLocaleCache;
+  } else {
+    sysLocaleCache = new Intl.DateTimeFormat().resolvedOptions().locale;
+    return sysLocaleCache;
+  }
+}
+let weekInfoCache = {};
+function getCachedWeekInfo(locString) {
+  let data = weekInfoCache[locString];
+  if (!data) {
+    const locale = new Intl.Locale(locString);
+    data = "getWeekInfo" in locale ? locale.getWeekInfo() : locale.weekInfo;
+    weekInfoCache[locString] = data;
+  }
+  return data;
+}
+function parseLocaleString(localeStr) {
+  const xIndex = localeStr.indexOf("-x-");
+  if (xIndex !== -1) {
+    localeStr = localeStr.substring(0, xIndex);
+  }
+  const uIndex = localeStr.indexOf("-u-");
+  if (uIndex === -1) {
+    return [localeStr];
+  } else {
+    let options;
+    let selectedStr;
     try {
-      i = Ri(s).resolvedOptions(), a = s;
-    } catch {
-      const v = s.substring(0, r);
-      i = Ri(v).resolvedOptions(), a = v;
+      options = getCachedDTF(localeStr).resolvedOptions();
+      selectedStr = localeStr;
+    } catch (e2) {
+      const smaller = localeStr.substring(0, uIndex);
+      options = getCachedDTF(smaller).resolvedOptions();
+      selectedStr = smaller;
     }
-    const { numberingSystem: c, calendar: h } = i;
-    return [a, c, h];
+    const { numberingSystem, calendar } = options;
+    return [selectedStr, numberingSystem, calendar];
   }
 }
-function Pu(s, e, r) {
-  return (r || e) && (s.includes("-u-") || (s += "-u"), r && (s += `-ca-${r}`), e && (s += `-nu-${e}`)), s;
-}
-function Fu(s) {
-  const e = [];
-  for (let r = 1; r <= 12; r++) {
-    const i = K.utc(2009, r, 1);
-    e.push(s(i));
+function intlConfigString(localeStr, numberingSystem, outputCalendar) {
+  if (outputCalendar || numberingSystem) {
+    if (!localeStr.includes("-u-")) {
+      localeStr += "-u";
+    }
+    if (outputCalendar) {
+      localeStr += `-ca-${outputCalendar}`;
+    }
+    if (numberingSystem) {
+      localeStr += `-nu-${numberingSystem}`;
+    }
+    return localeStr;
+  } else {
+    return localeStr;
   }
-  return e;
 }
-function Ru(s) {
-  const e = [];
-  for (let r = 1; r <= 7; r++) {
-    const i = K.utc(2016, 11, 13 + r);
-    e.push(s(i));
+function mapMonths(f2) {
+  const ms = [];
+  for (let i2 = 1; i2 <= 12; i2++) {
+    const dt = DateTime.utc(2009, i2, 1);
+    ms.push(f2(dt));
   }
-  return e;
+  return ms;
 }
-function gr(s, e, r, i) {
-  const a = s.listingMode();
-  return a === "error" ? null : a === "en" ? r(e) : i(e);
+function mapWeekdays(f2) {
+  const ms = [];
+  for (let i2 = 1; i2 <= 7; i2++) {
+    const dt = DateTime.utc(2016, 11, 13 + i2);
+    ms.push(f2(dt));
+  }
+  return ms;
 }
-function Vu(s) {
-  return s.numberingSystem && s.numberingSystem !== "latn" ? !1 : s.numberingSystem === "latn" || !s.locale || s.locale.startsWith("en") || new Intl.DateTimeFormat(s.intl).resolvedOptions().numberingSystem === "latn";
+function listStuff(loc, length, englishFn, intlFn) {
+  const mode = loc.listingMode();
+  if (mode === "error") {
+    return null;
+  } else if (mode === "en") {
+    return englishFn(length);
+  } else {
+    return intlFn(length);
+  }
 }
-class qu {
-  constructor(e, r, i) {
-    this.padTo = i.padTo || 0, this.floor = i.floor || !1;
-    const { padTo: a, floor: c, ...h } = i;
-    if (!r || Object.keys(h).length > 0) {
-      const m = { useGrouping: !1, ...i };
-      i.padTo > 0 && (m.minimumIntegerDigits = i.padTo), this.inf = Cu(e, m);
+function supportsFastNumbers(loc) {
+  if (loc.numberingSystem && loc.numberingSystem !== "latn") {
+    return false;
+  } else {
+    return loc.numberingSystem === "latn" || !loc.locale || loc.locale.startsWith("en") || new Intl.DateTimeFormat(loc.intl).resolvedOptions().numberingSystem === "latn";
+  }
+}
+class PolyNumberFormatter {
+  constructor(intl, forceSimple, opts) {
+    this.padTo = opts.padTo || 0;
+    this.floor = opts.floor || false;
+    const { padTo, floor, ...otherOpts } = opts;
+    if (!forceSimple || Object.keys(otherOpts).length > 0) {
+      const intlOpts = { useGrouping: false, ...opts };
+      if (opts.padTo > 0) intlOpts.minimumIntegerDigits = opts.padTo;
+      this.inf = getCachedINF(intl, intlOpts);
     }
   }
-  format(e) {
+  format(i2) {
     if (this.inf) {
-      const r = this.floor ? Math.floor(e) : e;
-      return this.inf.format(r);
+      const fixed = this.floor ? Math.floor(i2) : i2;
+      return this.inf.format(fixed);
     } else {
-      const r = this.floor ? Math.floor(e) : Gi(e, 3);
-      return fe(r, this.padTo);
+      const fixed = this.floor ? Math.floor(i2) : roundTo(i2, 3);
+      return padStart(fixed, this.padTo);
     }
   }
 }
-class Lu {
-  constructor(e, r, i) {
-    this.opts = i, this.originalZone = void 0;
-    let a;
-    if (this.opts.timeZone)
-      this.dt = e;
-    else if (e.zone.type === "fixed") {
-      const h = -1 * (e.offset / 60), m = h >= 0 ? `Etc/GMT+${h}` : `Etc/GMT${h}`;
-      e.offset !== 0 && Ue.create(m).valid ? (a = m, this.dt = e) : (a = "UTC", this.dt = e.offset === 0 ? e : e.setZone("UTC").plus({ minutes: e.offset }), this.originalZone = e.zone);
-    } else e.zone.type === "system" ? this.dt = e : e.zone.type === "iana" ? (this.dt = e, a = e.zone.name) : (a = "UTC", this.dt = e.setZone("UTC").plus({ minutes: e.offset }), this.originalZone = e.zone);
-    const c = { ...this.opts };
-    c.timeZone = c.timeZone || a, this.dtf = Ri(r, c);
+class PolyDateFormatter {
+  constructor(dt, intl, opts) {
+    this.opts = opts;
+    this.originalZone = void 0;
+    let z = void 0;
+    if (this.opts.timeZone) {
+      this.dt = dt;
+    } else if (dt.zone.type === "fixed") {
+      const gmtOffset = -1 * (dt.offset / 60);
+      const offsetZ = gmtOffset >= 0 ? `Etc/GMT+${gmtOffset}` : `Etc/GMT${gmtOffset}`;
+      if (dt.offset !== 0 && IANAZone.create(offsetZ).valid) {
+        z = offsetZ;
+        this.dt = dt;
+      } else {
+        z = "UTC";
+        this.dt = dt.offset === 0 ? dt : dt.setZone("UTC").plus({ minutes: dt.offset });
+        this.originalZone = dt.zone;
+      }
+    } else if (dt.zone.type === "system") {
+      this.dt = dt;
+    } else if (dt.zone.type === "iana") {
+      this.dt = dt;
+      z = dt.zone.name;
+    } else {
+      z = "UTC";
+      this.dt = dt.setZone("UTC").plus({ minutes: dt.offset });
+      this.originalZone = dt.zone;
+    }
+    const intlOpts = { ...this.opts };
+    intlOpts.timeZone = intlOpts.timeZone || z;
+    this.dtf = getCachedDTF(intl, intlOpts);
   }
   format() {
-    return this.originalZone ? this.formatToParts().map(({ value: e }) => e).join("") : this.dtf.format(this.dt.toJSDate());
+    if (this.originalZone) {
+      return this.formatToParts().map(({ value }) => value).join("");
+    }
+    return this.dtf.format(this.dt.toJSDate());
   }
   formatToParts() {
-    const e = this.dtf.formatToParts(this.dt.toJSDate());
-    return this.originalZone ? e.map((r) => {
-      if (r.type === "timeZoneName") {
-        const i = this.originalZone.offsetName(this.dt.ts, {
-          locale: this.dt.locale,
-          format: this.opts.timeZoneName
-        });
-        return {
-          ...r,
-          value: i
-        };
-      } else
-        return r;
-    }) : e;
+    const parts = this.dtf.formatToParts(this.dt.toJSDate());
+    if (this.originalZone) {
+      return parts.map((part) => {
+        if (part.type === "timeZoneName") {
+          const offsetName = this.originalZone.offsetName(this.dt.ts, {
+            locale: this.dt.locale,
+            format: this.opts.timeZoneName
+          });
+          return {
+            ...part,
+            value: offsetName
+          };
+        } else {
+          return part;
+        }
+      });
+    }
+    return parts;
   }
   resolvedOptions() {
     return this.dtf.resolvedOptions();
   }
 }
-class Uu {
-  constructor(e, r, i) {
-    this.opts = { style: "long", ...i }, !r && ra() && (this.rtf = Du(e, i));
+class PolyRelFormatter {
+  constructor(intl, isEnglish, opts) {
+    this.opts = { style: "long", ...opts };
+    if (!isEnglish && hasRelative()) {
+      this.rtf = getCachedRTF(intl, opts);
+    }
   }
-  format(e, r) {
-    return this.rtf ? this.rtf.format(e, r) : ll(r, e, this.opts.numeric, this.opts.style !== "long");
+  format(count, unit) {
+    if (this.rtf) {
+      return this.rtf.format(count, unit);
+    } else {
+      return formatRelativeTime(unit, count, this.opts.numeric, this.opts.style !== "long");
+    }
   }
-  formatToParts(e, r) {
-    return this.rtf ? this.rtf.formatToParts(e, r) : [];
+  formatToParts(count, unit) {
+    if (this.rtf) {
+      return this.rtf.formatToParts(count, unit);
+    } else {
+      return [];
+    }
   }
 }
-const ju = {
+const fallbackWeekSettings = {
   firstDay: 1,
   minimalDays: 4,
   weekend: [6, 7]
 };
-class re {
-  static fromOpts(e) {
-    return re.create(
-      e.locale,
-      e.numberingSystem,
-      e.outputCalendar,
-      e.weekSettings,
-      e.defaultToEN
+class Locale {
+  static fromOpts(opts) {
+    return Locale.create(
+      opts.locale,
+      opts.numberingSystem,
+      opts.outputCalendar,
+      opts.weekSettings,
+      opts.defaultToEN
     );
   }
-  static create(e, r, i, a, c = !1) {
-    const h = e || ue.defaultLocale, m = h || (c ? "en-US" : $u()), v = r || ue.defaultNumberingSystem, A = i || ue.defaultOutputCalendar, q = Li(a) || ue.defaultWeekSettings;
-    return new re(m, v, A, q, h);
+  static create(locale, numberingSystem, outputCalendar, weekSettings, defaultToEN = false) {
+    const specifiedLocale = locale || Settings.defaultLocale;
+    const localeR = specifiedLocale || (defaultToEN ? "en-US" : systemLocale());
+    const numberingSystemR = numberingSystem || Settings.defaultNumberingSystem;
+    const outputCalendarR = outputCalendar || Settings.defaultOutputCalendar;
+    const weekSettingsR = validateWeekSettings(weekSettings) || Settings.defaultWeekSettings;
+    return new Locale(localeR, numberingSystemR, outputCalendarR, weekSettingsR, specifiedLocale);
   }
   static resetCache() {
-    Tn = null, Fi = {}, Vi = {}, qi = {};
+    sysLocaleCache = null;
+    intlDTCache = {};
+    intlNumCache = {};
+    intlRelCache = {};
   }
-  static fromObject({ locale: e, numberingSystem: r, outputCalendar: i, weekSettings: a } = {}) {
-    return re.create(e, r, i, a);
+  static fromObject({ locale, numberingSystem, outputCalendar, weekSettings } = {}) {
+    return Locale.create(locale, numberingSystem, outputCalendar, weekSettings);
   }
-  constructor(e, r, i, a, c) {
-    const [h, m, v] = Mu(e);
-    this.locale = h, this.numberingSystem = r || m || null, this.outputCalendar = i || v || null, this.weekSettings = a, this.intl = Pu(this.locale, this.numberingSystem, this.outputCalendar), this.weekdaysCache = { format: {}, standalone: {} }, this.monthsCache = { format: {}, standalone: {} }, this.meridiemCache = null, this.eraCache = {}, this.specifiedLocale = c, this.fastNumbersCached = null;
+  constructor(locale, numbering, outputCalendar, weekSettings, specifiedLocale) {
+    const [parsedLocale, parsedNumberingSystem, parsedOutputCalendar] = parseLocaleString(locale);
+    this.locale = parsedLocale;
+    this.numberingSystem = numbering || parsedNumberingSystem || null;
+    this.outputCalendar = outputCalendar || parsedOutputCalendar || null;
+    this.weekSettings = weekSettings;
+    this.intl = intlConfigString(this.locale, this.numberingSystem, this.outputCalendar);
+    this.weekdaysCache = { format: {}, standalone: {} };
+    this.monthsCache = { format: {}, standalone: {} };
+    this.meridiemCache = null;
+    this.eraCache = {};
+    this.specifiedLocale = specifiedLocale;
+    this.fastNumbersCached = null;
   }
   get fastNumbers() {
-    return this.fastNumbersCached == null && (this.fastNumbersCached = Vu(this)), this.fastNumbersCached;
+    if (this.fastNumbersCached == null) {
+      this.fastNumbersCached = supportsFastNumbers(this);
+    }
+    return this.fastNumbersCached;
   }
   listingMode() {
-    const e = this.isEnglish(), r = (this.numberingSystem === null || this.numberingSystem === "latn") && (this.outputCalendar === null || this.outputCalendar === "gregory");
-    return e && r ? "en" : "intl";
+    const isActuallyEn = this.isEnglish();
+    const hasNoWeirdness = (this.numberingSystem === null || this.numberingSystem === "latn") && (this.outputCalendar === null || this.outputCalendar === "gregory");
+    return isActuallyEn && hasNoWeirdness ? "en" : "intl";
   }
-  clone(e) {
-    return !e || Object.getOwnPropertyNames(e).length === 0 ? this : re.create(
-      e.locale || this.specifiedLocale,
-      e.numberingSystem || this.numberingSystem,
-      e.outputCalendar || this.outputCalendar,
-      Li(e.weekSettings) || this.weekSettings,
-      e.defaultToEN || !1
-    );
+  clone(alts) {
+    if (!alts || Object.getOwnPropertyNames(alts).length === 0) {
+      return this;
+    } else {
+      return Locale.create(
+        alts.locale || this.specifiedLocale,
+        alts.numberingSystem || this.numberingSystem,
+        alts.outputCalendar || this.outputCalendar,
+        validateWeekSettings(alts.weekSettings) || this.weekSettings,
+        alts.defaultToEN || false
+      );
+    }
   }
-  redefaultToEN(e = {}) {
-    return this.clone({ ...e, defaultToEN: !0 });
+  redefaultToEN(alts = {}) {
+    return this.clone({ ...alts, defaultToEN: true });
   }
-  redefaultToSystem(e = {}) {
-    return this.clone({ ...e, defaultToEN: !1 });
+  redefaultToSystem(alts = {}) {
+    return this.clone({ ...alts, defaultToEN: false });
   }
-  months(e, r = !1) {
-    return gr(this, e, ua, () => {
-      const i = r ? { month: e, day: "numeric" } : { month: e }, a = r ? "format" : "standalone";
-      return this.monthsCache[a][e] || (this.monthsCache[a][e] = Fu((c) => this.extract(c, i, "month"))), this.monthsCache[a][e];
+  months(length, format = false) {
+    return listStuff(this, length, months, () => {
+      const intl = format ? { month: length, day: "numeric" } : { month: length }, formatStr = format ? "format" : "standalone";
+      if (!this.monthsCache[formatStr][length]) {
+        this.monthsCache[formatStr][length] = mapMonths((dt) => this.extract(dt, intl, "month"));
+      }
+      return this.monthsCache[formatStr][length];
     });
   }
-  weekdays(e, r = !1) {
-    return gr(this, e, fa, () => {
-      const i = r ? { weekday: e, year: "numeric", month: "long", day: "numeric" } : { weekday: e }, a = r ? "format" : "standalone";
-      return this.weekdaysCache[a][e] || (this.weekdaysCache[a][e] = Ru(
-        (c) => this.extract(c, i, "weekday")
-      )), this.weekdaysCache[a][e];
+  weekdays(length, format = false) {
+    return listStuff(this, length, weekdays, () => {
+      const intl = format ? { weekday: length, year: "numeric", month: "long", day: "numeric" } : { weekday: length }, formatStr = format ? "format" : "standalone";
+      if (!this.weekdaysCache[formatStr][length]) {
+        this.weekdaysCache[formatStr][length] = mapWeekdays(
+          (dt) => this.extract(dt, intl, "weekday")
+        );
+      }
+      return this.weekdaysCache[formatStr][length];
     });
   }
   meridiems() {
-    return gr(
+    return listStuff(
       this,
       void 0,
-      () => ha,
+      () => meridiems,
       () => {
         if (!this.meridiemCache) {
-          const e = { hour: "numeric", hourCycle: "h12" };
-          this.meridiemCache = [K.utc(2016, 11, 13, 9), K.utc(2016, 11, 13, 19)].map(
-            (r) => this.extract(r, e, "dayperiod")
+          const intl = { hour: "numeric", hourCycle: "h12" };
+          this.meridiemCache = [DateTime.utc(2016, 11, 13, 9), DateTime.utc(2016, 11, 13, 19)].map(
+            (dt) => this.extract(dt, intl, "dayperiod")
           );
         }
         return this.meridiemCache;
       }
     );
   }
-  eras(e) {
-    return gr(this, e, da, () => {
-      const r = { era: e };
-      return this.eraCache[e] || (this.eraCache[e] = [K.utc(-40, 1, 1), K.utc(2017, 1, 1)].map(
-        (i) => this.extract(i, r, "era")
-      )), this.eraCache[e];
+  eras(length) {
+    return listStuff(this, length, eras, () => {
+      const intl = { era: length };
+      if (!this.eraCache[length]) {
+        this.eraCache[length] = [DateTime.utc(-40, 1, 1), DateTime.utc(2017, 1, 1)].map(
+          (dt) => this.extract(dt, intl, "era")
+        );
+      }
+      return this.eraCache[length];
     });
   }
-  extract(e, r, i) {
-    const a = this.dtFormatter(e, r), c = a.formatToParts(), h = c.find((m) => m.type.toLowerCase() === i);
-    return h ? h.value : null;
+  extract(dt, intlOpts, field) {
+    const df = this.dtFormatter(dt, intlOpts), results = df.formatToParts(), matching = results.find((m2) => m2.type.toLowerCase() === field);
+    return matching ? matching.value : null;
   }
-  numberFormatter(e = {}) {
-    return new qu(this.intl, e.forceSimple || this.fastNumbers, e);
+  numberFormatter(opts = {}) {
+    return new PolyNumberFormatter(this.intl, opts.forceSimple || this.fastNumbers, opts);
   }
-  dtFormatter(e, r = {}) {
-    return new Lu(e, this.intl, r);
+  dtFormatter(dt, intlOpts = {}) {
+    return new PolyDateFormatter(dt, this.intl, intlOpts);
   }
-  relFormatter(e = {}) {
-    return new Uu(this.intl, this.isEnglish(), e);
+  relFormatter(opts = {}) {
+    return new PolyRelFormatter(this.intl, this.isEnglish(), opts);
   }
-  listFormatter(e = {}) {
-    return Au(this.intl, e);
+  listFormatter(opts = {}) {
+    return getCachedLF(this.intl, opts);
   }
   isEnglish() {
     return this.locale === "en" || this.locale.toLowerCase() === "en-us" || new Intl.DateTimeFormat(this.intl).resolvedOptions().locale.startsWith("en-us");
   }
   getWeekSettings() {
-    return this.weekSettings ? this.weekSettings : ia() ? Nu(this.locale) : ju;
+    if (this.weekSettings) {
+      return this.weekSettings;
+    } else if (!hasLocaleWeekInfo()) {
+      return fallbackWeekSettings;
+    } else {
+      return getCachedWeekInfo(this.locale);
+    }
   }
   getStartOfWeek() {
     return this.getWeekSettings().firstDay;
@@ -743,29 +924,32 @@ class re {
   getWeekendDays() {
     return this.getWeekSettings().weekend;
   }
-  equals(e) {
-    return this.locale === e.locale && this.numberingSystem === e.numberingSystem && this.outputCalendar === e.outputCalendar;
+  equals(other) {
+    return this.locale === other.locale && this.numberingSystem === other.numberingSystem && this.outputCalendar === other.outputCalendar;
   }
   toString() {
     return `Locale(${this.locale}, ${this.numberingSystem}, ${this.outputCalendar})`;
   }
 }
-let Ti = null;
-class be extends Qt {
+let singleton = null;
+class FixedOffsetZone extends Zone {
   /**
    * Get a singleton instance of UTC
    * @return {FixedOffsetZone}
    */
   static get utcInstance() {
-    return Ti === null && (Ti = new be(0)), Ti;
+    if (singleton === null) {
+      singleton = new FixedOffsetZone(0);
+    }
+    return singleton;
   }
   /**
    * Get an instance with a specified offset
    * @param {number} offset - The offset in minutes
    * @return {FixedOffsetZone}
    */
-  static instance(e) {
-    return e === 0 ? be.utcInstance : new be(e);
+  static instance(offset2) {
+    return offset2 === 0 ? FixedOffsetZone.utcInstance : new FixedOffsetZone(offset2);
   }
   /**
    * Get an instance of FixedOffsetZone from a UTC offset string, like "UTC+6"
@@ -775,16 +959,18 @@ class be extends Qt {
    * @example FixedOffsetZone.parseSpecifier("UTC-6:00")
    * @return {FixedOffsetZone}
    */
-  static parseSpecifier(e) {
-    if (e) {
-      const r = e.match(/^utc(?:([+-]\d{1,2})(?::(\d{2}))?)?$/i);
-      if (r)
-        return new be(Pr(r[1], r[2]));
+  static parseSpecifier(s2) {
+    if (s2) {
+      const r2 = s2.match(/^utc(?:([+-]\d{1,2})(?::(\d{2}))?)?$/i);
+      if (r2) {
+        return new FixedOffsetZone(signedOffset(r2[1], r2[2]));
+      }
     }
     return null;
   }
-  constructor(e) {
-    super(), this.fixed = e;
+  constructor(offset2) {
+    super();
+    this.fixed = offset2;
   }
   /**
    * The type of zone. `fixed` for all instances of `FixedOffsetZone`.
@@ -801,7 +987,7 @@ class be extends Qt {
    * @type {string}
    */
   get name() {
-    return this.fixed === 0 ? "UTC" : `UTC${In(this.fixed, "narrow")}`;
+    return this.fixed === 0 ? "UTC" : `UTC${formatOffset(this.fixed, "narrow")}`;
   }
   /**
    * The IANA name of this zone, i.e. `Etc/UTC` or `Etc/GMT+/-nn`
@@ -810,7 +996,11 @@ class be extends Qt {
    * @type {string}
    */
   get ianaName() {
-    return this.fixed === 0 ? "Etc/UTC" : `Etc/GMT${In(-this.fixed, "narrow")}`;
+    if (this.fixed === 0) {
+      return "Etc/UTC";
+    } else {
+      return `Etc/GMT${formatOffset(-this.fixed, "narrow")}`;
+    }
   }
   /**
    * Returns the offset's common name at the specified timestamp.
@@ -829,8 +1019,8 @@ class be extends Qt {
    *                          Accepts 'narrow', 'short', or 'techie'. Returning '+6', '+06:00', or '+0600' respectively
    * @return {string}
    */
-  formatOffset(e, r) {
-    return In(this.fixed, r);
+  formatOffset(ts, format) {
+    return formatOffset(this.fixed, format);
   }
   /**
    * Returns whether the offset is known to be fixed for the whole year:
@@ -839,7 +1029,7 @@ class be extends Qt {
    * @type {boolean}
    */
   get isUniversal() {
-    return !0;
+    return true;
   }
   /**
    * Return the offset in minutes for this zone at the specified timestamp.
@@ -857,8 +1047,8 @@ class be extends Qt {
    * @param {Zone} otherZone - the zone to compare
    * @return {boolean}
    */
-  equals(e) {
-    return e.type === "fixed" && e.fixed === this.fixed;
+  equals(otherZone) {
+    return otherZone.type === "fixed" && otherZone.fixed === this.fixed;
   }
   /**
    * Return whether this Zone is valid:
@@ -867,12 +1057,13 @@ class be extends Qt {
    * @type {boolean}
    */
   get isValid() {
-    return !0;
+    return true;
   }
 }
-class Go extends Qt {
-  constructor(e) {
-    super(), this.zoneName = e;
+class InvalidZone extends Zone {
+  constructor(zoneName) {
+    super();
+    this.zoneName = zoneName;
   }
   /** @override **/
   get type() {
@@ -884,7 +1075,7 @@ class Go extends Qt {
   }
   /** @override **/
   get isUniversal() {
-    return !1;
+    return false;
   }
   /** @override **/
   offsetName() {
@@ -900,24 +1091,33 @@ class Go extends Qt {
   }
   /** @override **/
   equals() {
-    return !1;
+    return false;
   }
   /** @override **/
   get isValid() {
-    return !1;
+    return false;
   }
 }
-function it(s, e) {
-  if (Z(s) || s === null)
-    return e;
-  if (s instanceof Qt)
-    return s;
-  if (Hu(s)) {
-    const r = s.toLowerCase();
-    return r === "default" ? e : r === "local" || r === "system" ? Pn.instance : r === "utc" || r === "gmt" ? be.utcInstance : be.parseSpecifier(r) || Ue.create(s);
-  } else return at(s) ? be.instance(s) : typeof s == "object" && "offset" in s && typeof s.offset == "function" ? s : new Go(s);
+function normalizeZone(input, defaultZone2) {
+  if (isUndefined(input) || input === null) {
+    return defaultZone2;
+  } else if (input instanceof Zone) {
+    return input;
+  } else if (isString(input)) {
+    const lowered = input.toLowerCase();
+    if (lowered === "default") return defaultZone2;
+    else if (lowered === "local" || lowered === "system") return SystemZone.instance;
+    else if (lowered === "utc" || lowered === "gmt") return FixedOffsetZone.utcInstance;
+    else return FixedOffsetZone.parseSpecifier(lowered) || IANAZone.create(input);
+  } else if (isNumber(input)) {
+    return FixedOffsetZone.instance(input);
+  } else if (typeof input === "object" && "offset" in input && typeof input.offset === "function") {
+    return input;
+  } else {
+    return new InvalidZone(input);
+  }
 }
-const Zi = {
+const numberingSystems = {
   arab: "[٠-٩]",
   arabext: "[۰-۹]",
   bali: "[᭐-᭙]",
@@ -939,7 +1139,8 @@ const Zi = {
   thai: "[๐-๙]",
   tibt: "[༠-༩]",
   latn: "\\d"
-}, Us = {
+};
+const numberingSystemsUTF16 = {
   arab: [1632, 1641],
   arabext: [1776, 1785],
   bali: [6992, 7001],
@@ -959,41 +1160,52 @@ const Zi = {
   telu: [3174, 3183],
   thai: [3664, 3673],
   tibt: [3872, 3881]
-}, Wu = Zi.hanidec.replace(/[\[|\]]/g, "").split("");
-function Ku(s) {
-  let e = parseInt(s, 10);
-  if (isNaN(e)) {
-    e = "";
-    for (let r = 0; r < s.length; r++) {
-      const i = s.charCodeAt(r);
-      if (s[r].search(Zi.hanidec) !== -1)
-        e += Wu.indexOf(s[r]);
-      else
-        for (const a in Us) {
-          const [c, h] = Us[a];
-          i >= c && i <= h && (e += i - c);
+};
+const hanidecChars = numberingSystems.hanidec.replace(/[\[|\]]/g, "").split("");
+function parseDigits(str) {
+  let value = parseInt(str, 10);
+  if (isNaN(value)) {
+    value = "";
+    for (let i2 = 0; i2 < str.length; i2++) {
+      const code = str.charCodeAt(i2);
+      if (str[i2].search(numberingSystems.hanidec) !== -1) {
+        value += hanidecChars.indexOf(str[i2]);
+      } else {
+        for (const key in numberingSystemsUTF16) {
+          const [min, max] = numberingSystemsUTF16[key];
+          if (code >= min && code <= max) {
+            value += code - min;
+          }
         }
+      }
     }
-    return parseInt(e, 10);
-  } else
-    return e;
+    return parseInt(value, 10);
+  } else {
+    return value;
+  }
 }
-let Wt = {};
-function zu() {
-  Wt = {};
+let digitRegexCache = {};
+function resetDigitRegexCache() {
+  digitRegexCache = {};
 }
-function Ne({ numberingSystem: s }, e = "") {
-  const r = s || "latn";
-  return Wt[r] || (Wt[r] = {}), Wt[r][e] || (Wt[r][e] = new RegExp(`${Zi[r]}${e}`)), Wt[r][e];
+function digitRegex({ numberingSystem }, append = "") {
+  const ns = numberingSystem || "latn";
+  if (!digitRegexCache[ns]) {
+    digitRegexCache[ns] = {};
+  }
+  if (!digitRegexCache[ns][append]) {
+    digitRegexCache[ns][append] = new RegExp(`${numberingSystems[ns]}${append}`);
+  }
+  return digitRegexCache[ns][append];
 }
-let js = () => Date.now(), Ws = "system", Ks = null, zs = null, Zs = null, Bs = 60, Hs, Ys = null;
-class ue {
+let now = () => Date.now(), defaultZone = "system", defaultLocale = null, defaultNumberingSystem = null, defaultOutputCalendar = null, twoDigitCutoffYear = 60, throwOnInvalid, defaultWeekSettings = null;
+class Settings {
   /**
    * Get the callback for returning the current timestamp.
    * @type {function}
    */
   static get now() {
-    return js;
+    return now;
   }
   /**
    * Set the callback for returning the current timestamp.
@@ -1002,16 +1214,16 @@ class ue {
    * @example Settings.now = () => Date.now() + 3000 // pretend it is 3 seconds in the future
    * @example Settings.now = () => 0 // always pretend it's Jan 1, 1970 at midnight in UTC time
    */
-  static set now(e) {
-    js = e;
+  static set now(n3) {
+    now = n3;
   }
   /**
    * Set the default time zone to create DateTimes in. Does not affect existing instances.
    * Use the value "system" to reset this value to the system's time zone.
    * @type {string}
    */
-  static set defaultZone(e) {
-    Ws = e;
+  static set defaultZone(zone) {
+    defaultZone = zone;
   }
   /**
    * Get the default time zone object currently used to create DateTimes. Does not affect existing instances.
@@ -1019,49 +1231,49 @@ class ue {
    * @type {Zone}
    */
   static get defaultZone() {
-    return it(Ws, Pn.instance);
+    return normalizeZone(defaultZone, SystemZone.instance);
   }
   /**
    * Get the default locale to create DateTimes with. Does not affect existing instances.
    * @type {string}
    */
   static get defaultLocale() {
-    return Ks;
+    return defaultLocale;
   }
   /**
    * Set the default locale to create DateTimes with. Does not affect existing instances.
    * @type {string}
    */
-  static set defaultLocale(e) {
-    Ks = e;
+  static set defaultLocale(locale) {
+    defaultLocale = locale;
   }
   /**
    * Get the default numbering system to create DateTimes with. Does not affect existing instances.
    * @type {string}
    */
   static get defaultNumberingSystem() {
-    return zs;
+    return defaultNumberingSystem;
   }
   /**
    * Set the default numbering system to create DateTimes with. Does not affect existing instances.
    * @type {string}
    */
-  static set defaultNumberingSystem(e) {
-    zs = e;
+  static set defaultNumberingSystem(numberingSystem) {
+    defaultNumberingSystem = numberingSystem;
   }
   /**
    * Get the default output calendar to create DateTimes with. Does not affect existing instances.
    * @type {string}
    */
   static get defaultOutputCalendar() {
-    return Zs;
+    return defaultOutputCalendar;
   }
   /**
    * Set the default output calendar to create DateTimes with. Does not affect existing instances.
    * @type {string}
    */
-  static set defaultOutputCalendar(e) {
-    Zs = e;
+  static set defaultOutputCalendar(outputCalendar) {
+    defaultOutputCalendar = outputCalendar;
   }
   /**
    * @typedef {Object} WeekSettings
@@ -1073,7 +1285,7 @@ class ue {
    * @return {WeekSettings|null}
    */
   static get defaultWeekSettings() {
-    return Ys;
+    return defaultWeekSettings;
   }
   /**
    * Allows overriding the default locale week settings, i.e. the start of the week, the weekend and
@@ -1082,15 +1294,15 @@ class ue {
    *
    * @param {WeekSettings|null} weekSettings
    */
-  static set defaultWeekSettings(e) {
-    Ys = Li(e);
+  static set defaultWeekSettings(weekSettings) {
+    defaultWeekSettings = validateWeekSettings(weekSettings);
   }
   /**
    * Get the cutoff year for whether a 2-digit year string is interpreted in the current or previous century. Numbers higher than the cutoff will be considered to mean 19xx and numbers lower or equal to the cutoff will be considered 20xx.
    * @type {number}
    */
   static get twoDigitCutoffYear() {
-    return Bs;
+    return twoDigitCutoffYear;
   }
   /**
    * Set the cutoff year for whether a 2-digit year string is interpreted in the current or previous century. Numbers higher than the cutoff will be considered to mean 19xx and numbers lower or equal to the cutoff will be considered 20xx.
@@ -1101,236 +1313,339 @@ class ue {
    * @example Settings.twoDigitCutoffYear = 1950 // interpreted as 50
    * @example Settings.twoDigitCutoffYear = 2050 // ALSO interpreted as 50
    */
-  static set twoDigitCutoffYear(e) {
-    Bs = e % 100;
+  static set twoDigitCutoffYear(cutoffYear) {
+    twoDigitCutoffYear = cutoffYear % 100;
   }
   /**
    * Get whether Luxon will throw when it encounters invalid DateTimes, Durations, or Intervals
    * @type {boolean}
    */
   static get throwOnInvalid() {
-    return Hs;
+    return throwOnInvalid;
   }
   /**
    * Set whether Luxon will throw when it encounters invalid DateTimes, Durations, or Intervals
    * @type {boolean}
    */
-  static set throwOnInvalid(e) {
-    Hs = e;
+  static set throwOnInvalid(t2) {
+    throwOnInvalid = t2;
   }
   /**
    * Reset Luxon's global caches. Should only be necessary in testing scenarios.
    * @return {void}
    */
   static resetCaches() {
-    re.resetCache(), Ue.resetCache(), K.resetCache(), zu();
+    Locale.resetCache();
+    IANAZone.resetCache();
+    DateTime.resetCache();
+    resetDigitRegexCache();
   }
 }
-class Pe {
-  constructor(e, r) {
-    this.reason = e, this.explanation = r;
+class Invalid {
+  constructor(reason, explanation) {
+    this.reason = reason;
+    this.explanation = explanation;
   }
   toMessage() {
-    return this.explanation ? `${this.reason}: ${this.explanation}` : this.reason;
+    if (this.explanation) {
+      return `${this.reason}: ${this.explanation}`;
+    } else {
+      return this.reason;
+    }
   }
 }
-const Jo = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334], Xo = [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335];
-function Ae(s, e) {
-  return new Pe(
+const nonLeapLadder = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334], leapLadder = [0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335];
+function unitOutOfRange(unit, value) {
+  return new Invalid(
     "unit out of range",
-    `you specified ${e} (of type ${typeof e}) as a ${s}, which is invalid`
+    `you specified ${value} (of type ${typeof value}) as a ${unit}, which is invalid`
   );
 }
-function Bi(s, e, r) {
-  const i = new Date(Date.UTC(s, e - 1, r));
-  s < 100 && s >= 0 && i.setUTCFullYear(i.getUTCFullYear() - 1900);
-  const a = i.getUTCDay();
-  return a === 0 ? 7 : a;
+function dayOfWeek(year, month, day) {
+  const d2 = new Date(Date.UTC(year, month - 1, day));
+  if (year < 100 && year >= 0) {
+    d2.setUTCFullYear(d2.getUTCFullYear() - 1900);
+  }
+  const js = d2.getUTCDay();
+  return js === 0 ? 7 : js;
 }
-function Qo(s, e, r) {
-  return r + (Fn(s) ? Xo : Jo)[e - 1];
+function computeOrdinal(year, month, day) {
+  return day + (isLeapYear(year) ? leapLadder : nonLeapLadder)[month - 1];
 }
-function ea(s, e) {
-  const r = Fn(s) ? Xo : Jo, i = r.findIndex((c) => c < e), a = e - r[i];
-  return { month: i + 1, day: a };
+function uncomputeOrdinal(year, ordinal) {
+  const table = isLeapYear(year) ? leapLadder : nonLeapLadder, month0 = table.findIndex((i2) => i2 < ordinal), day = ordinal - table[month0];
+  return { month: month0 + 1, day };
 }
-function Hi(s, e) {
-  return (s - e + 7) % 7 + 1;
+function isoWeekdayToLocal(isoWeekday, startOfWeek) {
+  return (isoWeekday - startOfWeek + 7) % 7 + 1;
 }
-function Ir(s, e = 4, r = 1) {
-  const { year: i, month: a, day: c } = s, h = Qo(i, a, c), m = Hi(Bi(i, a, c), r);
-  let v = Math.floor((h - m + 14 - e) / 7), A;
-  return v < 1 ? (A = i - 1, v = Dn(A, e, r)) : v > Dn(i, e, r) ? (A = i + 1, v = 1) : A = i, { weekYear: A, weekNumber: v, weekday: m, ...Fr(s) };
+function gregorianToWeek(gregObj, minDaysInFirstWeek = 4, startOfWeek = 1) {
+  const { year, month, day } = gregObj, ordinal = computeOrdinal(year, month, day), weekday = isoWeekdayToLocal(dayOfWeek(year, month, day), startOfWeek);
+  let weekNumber = Math.floor((ordinal - weekday + 14 - minDaysInFirstWeek) / 7), weekYear;
+  if (weekNumber < 1) {
+    weekYear = year - 1;
+    weekNumber = weeksInWeekYear(weekYear, minDaysInFirstWeek, startOfWeek);
+  } else if (weekNumber > weeksInWeekYear(year, minDaysInFirstWeek, startOfWeek)) {
+    weekYear = year + 1;
+    weekNumber = 1;
+  } else {
+    weekYear = year;
+  }
+  return { weekYear, weekNumber, weekday, ...timeObject(gregObj) };
 }
-function Gs(s, e = 4, r = 1) {
-  const { weekYear: i, weekNumber: a, weekday: c } = s, h = Hi(Bi(i, 1, e), r), m = Bt(i);
-  let v = a * 7 + c - h - 7 + e, A;
-  v < 1 ? (A = i - 1, v += Bt(A)) : v > m ? (A = i + 1, v -= Bt(i)) : A = i;
-  const { month: q, day: M } = ea(A, v);
-  return { year: A, month: q, day: M, ...Fr(s) };
+function weekToGregorian(weekData, minDaysInFirstWeek = 4, startOfWeek = 1) {
+  const { weekYear, weekNumber, weekday } = weekData, weekdayOfJan4 = isoWeekdayToLocal(dayOfWeek(weekYear, 1, minDaysInFirstWeek), startOfWeek), yearInDays = daysInYear(weekYear);
+  let ordinal = weekNumber * 7 + weekday - weekdayOfJan4 - 7 + minDaysInFirstWeek, year;
+  if (ordinal < 1) {
+    year = weekYear - 1;
+    ordinal += daysInYear(year);
+  } else if (ordinal > yearInDays) {
+    year = weekYear + 1;
+    ordinal -= daysInYear(weekYear);
+  } else {
+    year = weekYear;
+  }
+  const { month, day } = uncomputeOrdinal(year, ordinal);
+  return { year, month, day, ...timeObject(weekData) };
 }
-function Oi(s) {
-  const { year: e, month: r, day: i } = s, a = Qo(e, r, i);
-  return { year: e, ordinal: a, ...Fr(s) };
+function gregorianToOrdinal(gregData) {
+  const { year, month, day } = gregData;
+  const ordinal = computeOrdinal(year, month, day);
+  return { year, ordinal, ...timeObject(gregData) };
 }
-function Js(s) {
-  const { year: e, ordinal: r } = s, { month: i, day: a } = ea(e, r);
-  return { year: e, month: i, day: a, ...Fr(s) };
+function ordinalToGregorian(ordinalData) {
+  const { year, ordinal } = ordinalData;
+  const { month, day } = uncomputeOrdinal(year, ordinal);
+  return { year, month, day, ...timeObject(ordinalData) };
 }
-function Xs(s, e) {
-  if (!Z(s.localWeekday) || !Z(s.localWeekNumber) || !Z(s.localWeekYear)) {
-    if (!Z(s.weekday) || !Z(s.weekNumber) || !Z(s.weekYear))
-      throw new zt(
+function usesLocalWeekValues(obj, loc) {
+  const hasLocaleWeekData = !isUndefined(obj.localWeekday) || !isUndefined(obj.localWeekNumber) || !isUndefined(obj.localWeekYear);
+  if (hasLocaleWeekData) {
+    const hasIsoWeekData = !isUndefined(obj.weekday) || !isUndefined(obj.weekNumber) || !isUndefined(obj.weekYear);
+    if (hasIsoWeekData) {
+      throw new ConflictingSpecificationError(
         "Cannot mix locale-based week fields with ISO-based week fields"
       );
-    return Z(s.localWeekday) || (s.weekday = s.localWeekday), Z(s.localWeekNumber) || (s.weekNumber = s.localWeekNumber), Z(s.localWeekYear) || (s.weekYear = s.localWeekYear), delete s.localWeekday, delete s.localWeekNumber, delete s.localWeekYear, {
-      minDaysInFirstWeek: e.getMinDaysInFirstWeek(),
-      startOfWeek: e.getStartOfWeek()
+    }
+    if (!isUndefined(obj.localWeekday)) obj.weekday = obj.localWeekday;
+    if (!isUndefined(obj.localWeekNumber)) obj.weekNumber = obj.localWeekNumber;
+    if (!isUndefined(obj.localWeekYear)) obj.weekYear = obj.localWeekYear;
+    delete obj.localWeekday;
+    delete obj.localWeekNumber;
+    delete obj.localWeekYear;
+    return {
+      minDaysInFirstWeek: loc.getMinDaysInFirstWeek(),
+      startOfWeek: loc.getStartOfWeek()
     };
-  } else
+  } else {
     return { minDaysInFirstWeek: 4, startOfWeek: 1 };
+  }
 }
-function Zu(s, e = 4, r = 1) {
-  const i = Nr(s.weekYear), a = Ce(
-    s.weekNumber,
+function hasInvalidWeekData(obj, minDaysInFirstWeek = 4, startOfWeek = 1) {
+  const validYear = isInteger(obj.weekYear), validWeek = integerBetween(
+    obj.weekNumber,
     1,
-    Dn(s.weekYear, e, r)
-  ), c = Ce(s.weekday, 1, 7);
-  return i ? a ? c ? !1 : Ae("weekday", s.weekday) : Ae("week", s.weekNumber) : Ae("weekYear", s.weekYear);
+    weeksInWeekYear(obj.weekYear, minDaysInFirstWeek, startOfWeek)
+  ), validWeekday = integerBetween(obj.weekday, 1, 7);
+  if (!validYear) {
+    return unitOutOfRange("weekYear", obj.weekYear);
+  } else if (!validWeek) {
+    return unitOutOfRange("week", obj.weekNumber);
+  } else if (!validWeekday) {
+    return unitOutOfRange("weekday", obj.weekday);
+  } else return false;
 }
-function Bu(s) {
-  const e = Nr(s.year), r = Ce(s.ordinal, 1, Bt(s.year));
-  return e ? r ? !1 : Ae("ordinal", s.ordinal) : Ae("year", s.year);
+function hasInvalidOrdinalData(obj) {
+  const validYear = isInteger(obj.year), validOrdinal = integerBetween(obj.ordinal, 1, daysInYear(obj.year));
+  if (!validYear) {
+    return unitOutOfRange("year", obj.year);
+  } else if (!validOrdinal) {
+    return unitOutOfRange("ordinal", obj.ordinal);
+  } else return false;
 }
-function ta(s) {
-  const e = Nr(s.year), r = Ce(s.month, 1, 12), i = Ce(s.day, 1, Ar(s.year, s.month));
-  return e ? r ? i ? !1 : Ae("day", s.day) : Ae("month", s.month) : Ae("year", s.year);
+function hasInvalidGregorianData(obj) {
+  const validYear = isInteger(obj.year), validMonth = integerBetween(obj.month, 1, 12), validDay = integerBetween(obj.day, 1, daysInMonth(obj.year, obj.month));
+  if (!validYear) {
+    return unitOutOfRange("year", obj.year);
+  } else if (!validMonth) {
+    return unitOutOfRange("month", obj.month);
+  } else if (!validDay) {
+    return unitOutOfRange("day", obj.day);
+  } else return false;
 }
-function na(s) {
-  const { hour: e, minute: r, second: i, millisecond: a } = s, c = Ce(e, 0, 23) || e === 24 && r === 0 && i === 0 && a === 0, h = Ce(r, 0, 59), m = Ce(i, 0, 59), v = Ce(a, 0, 999);
-  return c ? h ? m ? v ? !1 : Ae("millisecond", a) : Ae("second", i) : Ae("minute", r) : Ae("hour", e);
+function hasInvalidTimeData(obj) {
+  const { hour, minute, second, millisecond } = obj;
+  const validHour = integerBetween(hour, 0, 23) || hour === 24 && minute === 0 && second === 0 && millisecond === 0, validMinute = integerBetween(minute, 0, 59), validSecond = integerBetween(second, 0, 59), validMillisecond = integerBetween(millisecond, 0, 999);
+  if (!validHour) {
+    return unitOutOfRange("hour", hour);
+  } else if (!validMinute) {
+    return unitOutOfRange("minute", minute);
+  } else if (!validSecond) {
+    return unitOutOfRange("second", second);
+  } else if (!validMillisecond) {
+    return unitOutOfRange("millisecond", millisecond);
+  } else return false;
 }
-function Z(s) {
-  return typeof s > "u";
+function isUndefined(o2) {
+  return typeof o2 === "undefined";
 }
-function at(s) {
-  return typeof s == "number";
+function isNumber(o2) {
+  return typeof o2 === "number";
 }
-function Nr(s) {
-  return typeof s == "number" && s % 1 === 0;
+function isInteger(o2) {
+  return typeof o2 === "number" && o2 % 1 === 0;
 }
-function Hu(s) {
-  return typeof s == "string";
+function isString(o2) {
+  return typeof o2 === "string";
 }
-function Yu(s) {
-  return Object.prototype.toString.call(s) === "[object Date]";
+function isDate(o2) {
+  return Object.prototype.toString.call(o2) === "[object Date]";
 }
-function ra() {
+function hasRelative() {
   try {
-    return typeof Intl < "u" && !!Intl.RelativeTimeFormat;
-  } catch {
-    return !1;
+    return typeof Intl !== "undefined" && !!Intl.RelativeTimeFormat;
+  } catch (e2) {
+    return false;
   }
 }
-function ia() {
+function hasLocaleWeekInfo() {
   try {
-    return typeof Intl < "u" && !!Intl.Locale && ("weekInfo" in Intl.Locale.prototype || "getWeekInfo" in Intl.Locale.prototype);
-  } catch {
-    return !1;
+    return typeof Intl !== "undefined" && !!Intl.Locale && ("weekInfo" in Intl.Locale.prototype || "getWeekInfo" in Intl.Locale.prototype);
+  } catch (e2) {
+    return false;
   }
 }
-function Gu(s) {
-  return Array.isArray(s) ? s : [s];
+function maybeArray(thing) {
+  return Array.isArray(thing) ? thing : [thing];
 }
-function Qs(s, e, r) {
-  if (s.length !== 0)
-    return s.reduce((i, a) => {
-      const c = [e(a), a];
-      return i && r(i[0], c[0]) === i[0] ? i : c;
-    }, null)[1];
+function bestBy(arr, by, compare) {
+  if (arr.length === 0) {
+    return void 0;
+  }
+  return arr.reduce((best, next) => {
+    const pair = [by(next), next];
+    if (!best) {
+      return pair;
+    } else if (compare(best[0], pair[0]) === best[0]) {
+      return best;
+    } else {
+      return pair;
+    }
+  }, null)[1];
 }
-function Ju(s, e) {
-  return e.reduce((r, i) => (r[i] = s[i], r), {});
+function pick(obj, keys) {
+  return keys.reduce((a2, k2) => {
+    a2[k2] = obj[k2];
+    return a2;
+  }, {});
 }
-function Gt(s, e) {
-  return Object.prototype.hasOwnProperty.call(s, e);
+function hasOwnProperty(obj, prop) {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
 }
-function Li(s) {
-  if (s == null)
+function validateWeekSettings(settings) {
+  if (settings == null) {
     return null;
-  if (typeof s != "object")
-    throw new ge("Week settings must be an object");
-  if (!Ce(s.firstDay, 1, 7) || !Ce(s.minimalDays, 1, 7) || !Array.isArray(s.weekend) || s.weekend.some((e) => !Ce(e, 1, 7)))
-    throw new ge("Invalid week settings");
-  return {
-    firstDay: s.firstDay,
-    minimalDays: s.minimalDays,
-    weekend: Array.from(s.weekend)
-  };
-}
-function Ce(s, e, r) {
-  return Nr(s) && s >= e && s <= r;
-}
-function Xu(s, e) {
-  return s - e * Math.floor(s / e);
-}
-function fe(s, e = 2) {
-  const r = s < 0;
-  let i;
-  return r ? i = "-" + ("" + -s).padStart(e, "0") : i = ("" + s).padStart(e, "0"), i;
-}
-function rt(s) {
-  if (!(Z(s) || s === null || s === ""))
-    return parseInt(s, 10);
-}
-function _t(s) {
-  if (!(Z(s) || s === null || s === ""))
-    return parseFloat(s);
-}
-function Yi(s) {
-  if (!(Z(s) || s === null || s === "")) {
-    const e = parseFloat("0." + s) * 1e3;
-    return Math.floor(e);
+  } else if (typeof settings !== "object") {
+    throw new InvalidArgumentError("Week settings must be an object");
+  } else {
+    if (!integerBetween(settings.firstDay, 1, 7) || !integerBetween(settings.minimalDays, 1, 7) || !Array.isArray(settings.weekend) || settings.weekend.some((v2) => !integerBetween(v2, 1, 7))) {
+      throw new InvalidArgumentError("Invalid week settings");
+    }
+    return {
+      firstDay: settings.firstDay,
+      minimalDays: settings.minimalDays,
+      weekend: Array.from(settings.weekend)
+    };
   }
 }
-function Gi(s, e, r = !1) {
-  const i = 10 ** e;
-  return (r ? Math.trunc : Math.round)(s * i) / i;
+function integerBetween(thing, bottom, top) {
+  return isInteger(thing) && thing >= bottom && thing <= top;
 }
-function Fn(s) {
-  return s % 4 === 0 && (s % 100 !== 0 || s % 400 === 0);
+function floorMod(x2, n3) {
+  return x2 - n3 * Math.floor(x2 / n3);
 }
-function Bt(s) {
-  return Fn(s) ? 366 : 365;
+function padStart(input, n3 = 2) {
+  const isNeg = input < 0;
+  let padded;
+  if (isNeg) {
+    padded = "-" + ("" + -input).padStart(n3, "0");
+  } else {
+    padded = ("" + input).padStart(n3, "0");
+  }
+  return padded;
 }
-function Ar(s, e) {
-  const r = Xu(e - 1, 12) + 1, i = s + (e - r) / 12;
-  return r === 2 ? Fn(i) ? 29 : 28 : [31, null, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][r - 1];
+function parseInteger(string) {
+  if (isUndefined(string) || string === null || string === "") {
+    return void 0;
+  } else {
+    return parseInt(string, 10);
+  }
 }
-function Mr(s) {
-  let e = Date.UTC(
-    s.year,
-    s.month - 1,
-    s.day,
-    s.hour,
-    s.minute,
-    s.second,
-    s.millisecond
+function parseFloating(string) {
+  if (isUndefined(string) || string === null || string === "") {
+    return void 0;
+  } else {
+    return parseFloat(string);
+  }
+}
+function parseMillis(fraction) {
+  if (isUndefined(fraction) || fraction === null || fraction === "") {
+    return void 0;
+  } else {
+    const f2 = parseFloat("0." + fraction) * 1e3;
+    return Math.floor(f2);
+  }
+}
+function roundTo(number, digits, towardZero = false) {
+  const factor = 10 ** digits, rounder = towardZero ? Math.trunc : Math.round;
+  return rounder(number * factor) / factor;
+}
+function isLeapYear(year) {
+  return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
+}
+function daysInYear(year) {
+  return isLeapYear(year) ? 366 : 365;
+}
+function daysInMonth(year, month) {
+  const modMonth = floorMod(month - 1, 12) + 1, modYear = year + (month - modMonth) / 12;
+  if (modMonth === 2) {
+    return isLeapYear(modYear) ? 29 : 28;
+  } else {
+    return [31, null, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][modMonth - 1];
+  }
+}
+function objToLocalTS(obj) {
+  let d2 = Date.UTC(
+    obj.year,
+    obj.month - 1,
+    obj.day,
+    obj.hour,
+    obj.minute,
+    obj.second,
+    obj.millisecond
   );
-  return s.year < 100 && s.year >= 0 && (e = new Date(e), e.setUTCFullYear(s.year, s.month - 1, s.day)), +e;
+  if (obj.year < 100 && obj.year >= 0) {
+    d2 = new Date(d2);
+    d2.setUTCFullYear(obj.year, obj.month - 1, obj.day);
+  }
+  return +d2;
 }
-function eo(s, e, r) {
-  return -Hi(Bi(s, 1, e), r) + e - 1;
+function firstWeekOffset(year, minDaysInFirstWeek, startOfWeek) {
+  const fwdlw = isoWeekdayToLocal(dayOfWeek(year, 1, minDaysInFirstWeek), startOfWeek);
+  return -fwdlw + minDaysInFirstWeek - 1;
 }
-function Dn(s, e = 4, r = 1) {
-  const i = eo(s, e, r), a = eo(s + 1, e, r);
-  return (Bt(s) - i + a) / 7;
+function weeksInWeekYear(weekYear, minDaysInFirstWeek = 4, startOfWeek = 1) {
+  const weekOffset = firstWeekOffset(weekYear, minDaysInFirstWeek, startOfWeek);
+  const weekOffsetNext = firstWeekOffset(weekYear + 1, minDaysInFirstWeek, startOfWeek);
+  return (daysInYear(weekYear) - weekOffset + weekOffsetNext) / 7;
 }
-function Ui(s) {
-  return s > 99 ? s : s > ue.twoDigitCutoffYear ? 1900 + s : 2e3 + s;
+function untruncateYear(year) {
+  if (year > 99) {
+    return year;
+  } else return year > Settings.twoDigitCutoffYear ? 1900 + year : 2e3 + year;
 }
-function sa(s, e, r, i = null) {
-  const a = new Date(s), c = {
+function parseZoneInfo(ts, offsetFormat, locale, timeZone = null) {
+  const date = new Date(ts), intlOpts = {
     hourCycle: "h23",
     year: "numeric",
     month: "2-digit",
@@ -1338,49 +1653,55 @@ function sa(s, e, r, i = null) {
     hour: "2-digit",
     minute: "2-digit"
   };
-  i && (c.timeZone = i);
-  const h = { timeZoneName: e, ...c }, m = new Intl.DateTimeFormat(r, h).formatToParts(a).find((v) => v.type.toLowerCase() === "timezonename");
-  return m ? m.value : null;
+  if (timeZone) {
+    intlOpts.timeZone = timeZone;
+  }
+  const modified = { timeZoneName: offsetFormat, ...intlOpts };
+  const parsed = new Intl.DateTimeFormat(locale, modified).formatToParts(date).find((m2) => m2.type.toLowerCase() === "timezonename");
+  return parsed ? parsed.value : null;
 }
-function Pr(s, e) {
-  let r = parseInt(s, 10);
-  Number.isNaN(r) && (r = 0);
-  const i = parseInt(e, 10) || 0, a = r < 0 || Object.is(r, -0) ? -i : i;
-  return r * 60 + a;
+function signedOffset(offHourStr, offMinuteStr) {
+  let offHour = parseInt(offHourStr, 10);
+  if (Number.isNaN(offHour)) {
+    offHour = 0;
+  }
+  const offMin = parseInt(offMinuteStr, 10) || 0, offMinSigned = offHour < 0 || Object.is(offHour, -0) ? -offMin : offMin;
+  return offHour * 60 + offMinSigned;
 }
-function oa(s) {
-  const e = Number(s);
-  if (typeof s == "boolean" || s === "" || Number.isNaN(e))
-    throw new ge(`Invalid unit value ${s}`);
-  return e;
+function asNumber(value) {
+  const numericValue = Number(value);
+  if (typeof value === "boolean" || value === "" || Number.isNaN(numericValue))
+    throw new InvalidArgumentError(`Invalid unit value ${value}`);
+  return numericValue;
 }
-function Cr(s, e) {
-  const r = {};
-  for (const i in s)
-    if (Gt(s, i)) {
-      const a = s[i];
-      if (a == null) continue;
-      r[e(i)] = oa(a);
+function normalizeObject(obj, normalizer) {
+  const normalized = {};
+  for (const u2 in obj) {
+    if (hasOwnProperty(obj, u2)) {
+      const v2 = obj[u2];
+      if (v2 === void 0 || v2 === null) continue;
+      normalized[normalizer(u2)] = asNumber(v2);
     }
-  return r;
+  }
+  return normalized;
 }
-function In(s, e) {
-  const r = Math.trunc(Math.abs(s / 60)), i = Math.trunc(Math.abs(s % 60)), a = s >= 0 ? "+" : "-";
-  switch (e) {
+function formatOffset(offset2, format) {
+  const hours = Math.trunc(Math.abs(offset2 / 60)), minutes = Math.trunc(Math.abs(offset2 % 60)), sign = offset2 >= 0 ? "+" : "-";
+  switch (format) {
     case "short":
-      return `${a}${fe(r, 2)}:${fe(i, 2)}`;
+      return `${sign}${padStart(hours, 2)}:${padStart(minutes, 2)}`;
     case "narrow":
-      return `${a}${r}${i > 0 ? `:${i}` : ""}`;
+      return `${sign}${hours}${minutes > 0 ? `:${minutes}` : ""}`;
     case "techie":
-      return `${a}${fe(r, 2)}${fe(i, 2)}`;
+      return `${sign}${padStart(hours, 2)}${padStart(minutes, 2)}`;
     default:
-      throw new RangeError(`Value format ${e} is out of range for property format`);
+      throw new RangeError(`Value format ${format} is out of range for property format`);
   }
 }
-function Fr(s) {
-  return Ju(s, ["hour", "minute", "second", "millisecond"]);
+function timeObject(obj) {
+  return pick(obj, ["hour", "minute", "second", "millisecond"]);
 }
-const Qu = [
+const monthsLong = [
   "January",
   "February",
   "March",
@@ -1393,7 +1714,8 @@ const Qu = [
   "October",
   "November",
   "December"
-], aa = [
+];
+const monthsShort = [
   "Jan",
   "Feb",
   "Mar",
@@ -1406,15 +1728,16 @@ const Qu = [
   "Oct",
   "Nov",
   "Dec"
-], el = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
-function ua(s) {
-  switch (s) {
+];
+const monthsNarrow = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+function months(length) {
+  switch (length) {
     case "narrow":
-      return [...el];
+      return [...monthsNarrow];
     case "short":
-      return [...aa];
+      return [...monthsShort];
     case "long":
-      return [...Qu];
+      return [...monthsLong];
     case "numeric":
       return ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"];
     case "2-digit":
@@ -1423,7 +1746,7 @@ function ua(s) {
       return null;
   }
 }
-const la = [
+const weekdaysLong = [
   "Monday",
   "Tuesday",
   "Wednesday",
@@ -1431,48 +1754,53 @@ const la = [
   "Friday",
   "Saturday",
   "Sunday"
-], ca = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], tl = ["M", "T", "W", "T", "F", "S", "S"];
-function fa(s) {
-  switch (s) {
+];
+const weekdaysShort = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const weekdaysNarrow = ["M", "T", "W", "T", "F", "S", "S"];
+function weekdays(length) {
+  switch (length) {
     case "narrow":
-      return [...tl];
+      return [...weekdaysNarrow];
     case "short":
-      return [...ca];
+      return [...weekdaysShort];
     case "long":
-      return [...la];
+      return [...weekdaysLong];
     case "numeric":
       return ["1", "2", "3", "4", "5", "6", "7"];
     default:
       return null;
   }
 }
-const ha = ["AM", "PM"], nl = ["Before Christ", "Anno Domini"], rl = ["BC", "AD"], il = ["B", "A"];
-function da(s) {
-  switch (s) {
+const meridiems = ["AM", "PM"];
+const erasLong = ["Before Christ", "Anno Domini"];
+const erasShort = ["BC", "AD"];
+const erasNarrow = ["B", "A"];
+function eras(length) {
+  switch (length) {
     case "narrow":
-      return [...il];
+      return [...erasNarrow];
     case "short":
-      return [...rl];
+      return [...erasShort];
     case "long":
-      return [...nl];
+      return [...erasLong];
     default:
       return null;
   }
 }
-function sl(s) {
-  return ha[s.hour < 12 ? 0 : 1];
+function meridiemForDateTime(dt) {
+  return meridiems[dt.hour < 12 ? 0 : 1];
 }
-function ol(s, e) {
-  return fa(e)[s.weekday - 1];
+function weekdayForDateTime(dt, length) {
+  return weekdays(length)[dt.weekday - 1];
 }
-function al(s, e) {
-  return ua(e)[s.month - 1];
+function monthForDateTime(dt, length) {
+  return months(length)[dt.month - 1];
 }
-function ul(s, e) {
-  return da(e)[s.year < 0 ? 0 : 1];
+function eraForDateTime(dt, length) {
+  return eras(length)[dt.year < 0 ? 0 : 1];
 }
-function ll(s, e, r = "always", i = !1) {
-  const a = {
+function formatRelativeTime(unit, count, numeric = "always", narrow = false) {
+  const units = {
     years: ["year", "yr."],
     quarters: ["quarter", "qtr."],
     months: ["month", "mo."],
@@ -1481,231 +1809,277 @@ function ll(s, e, r = "always", i = !1) {
     hours: ["hour", "hr."],
     minutes: ["minute", "min."],
     seconds: ["second", "sec."]
-  }, c = ["hours", "minutes", "seconds"].indexOf(s) === -1;
-  if (r === "auto" && c) {
-    const M = s === "days";
-    switch (e) {
+  };
+  const lastable = ["hours", "minutes", "seconds"].indexOf(unit) === -1;
+  if (numeric === "auto" && lastable) {
+    const isDay = unit === "days";
+    switch (count) {
       case 1:
-        return M ? "tomorrow" : `next ${a[s][0]}`;
+        return isDay ? "tomorrow" : `next ${units[unit][0]}`;
       case -1:
-        return M ? "yesterday" : `last ${a[s][0]}`;
+        return isDay ? "yesterday" : `last ${units[unit][0]}`;
       case 0:
-        return M ? "today" : `this ${a[s][0]}`;
+        return isDay ? "today" : `this ${units[unit][0]}`;
     }
   }
-  const h = Object.is(e, -0) || e < 0, m = Math.abs(e), v = m === 1, A = a[s], q = i ? v ? A[1] : A[2] || A[1] : v ? a[s][0] : s;
-  return h ? `${m} ${q} ago` : `in ${m} ${q}`;
+  const isInPast = Object.is(count, -0) || count < 0, fmtValue = Math.abs(count), singular = fmtValue === 1, lilUnits = units[unit], fmtUnit = narrow ? singular ? lilUnits[1] : lilUnits[2] || lilUnits[1] : singular ? units[unit][0] : unit;
+  return isInPast ? `${fmtValue} ${fmtUnit} ago` : `in ${fmtValue} ${fmtUnit}`;
 }
-function to(s, e) {
-  let r = "";
-  for (const i of s)
-    i.literal ? r += i.val : r += e(i.val);
-  return r;
+function stringifyTokens(splits, tokenToString) {
+  let s2 = "";
+  for (const token of splits) {
+    if (token.literal) {
+      s2 += token.val;
+    } else {
+      s2 += tokenToString(token.val);
+    }
+  }
+  return s2;
 }
-const cl = {
-  D: Er,
-  DD: Do,
-  DDD: $o,
-  DDDD: No,
-  t: Mo,
-  tt: Po,
-  ttt: Fo,
-  tttt: Ro,
-  T: Vo,
-  TT: qo,
-  TTT: Lo,
-  TTTT: Uo,
-  f: jo,
-  ff: Ko,
-  fff: Zo,
-  ffff: Ho,
-  F: Wo,
-  FF: zo,
-  FFF: Bo,
-  FFFF: Yo
+const macroTokenToFormatOpts = {
+  D: DATE_SHORT,
+  DD: DATE_MED,
+  DDD: DATE_FULL,
+  DDDD: DATE_HUGE,
+  t: TIME_SIMPLE,
+  tt: TIME_WITH_SECONDS,
+  ttt: TIME_WITH_SHORT_OFFSET,
+  tttt: TIME_WITH_LONG_OFFSET,
+  T: TIME_24_SIMPLE,
+  TT: TIME_24_WITH_SECONDS,
+  TTT: TIME_24_WITH_SHORT_OFFSET,
+  TTTT: TIME_24_WITH_LONG_OFFSET,
+  f: DATETIME_SHORT,
+  ff: DATETIME_MED,
+  fff: DATETIME_FULL,
+  ffff: DATETIME_HUGE,
+  F: DATETIME_SHORT_WITH_SECONDS,
+  FF: DATETIME_MED_WITH_SECONDS,
+  FFF: DATETIME_FULL_WITH_SECONDS,
+  FFFF: DATETIME_HUGE_WITH_SECONDS
 };
-class ve {
-  static create(e, r = {}) {
-    return new ve(e, r);
+class Formatter {
+  static create(locale, opts = {}) {
+    return new Formatter(locale, opts);
   }
-  static parseFormat(e) {
-    let r = null, i = "", a = !1;
-    const c = [];
-    for (let h = 0; h < e.length; h++) {
-      const m = e.charAt(h);
-      m === "'" ? (i.length > 0 && c.push({ literal: a || /^\s+$/.test(i), val: i }), r = null, i = "", a = !a) : a || m === r ? i += m : (i.length > 0 && c.push({ literal: /^\s+$/.test(i), val: i }), i = m, r = m);
+  static parseFormat(fmt) {
+    let current = null, currentFull = "", bracketed = false;
+    const splits = [];
+    for (let i2 = 0; i2 < fmt.length; i2++) {
+      const c2 = fmt.charAt(i2);
+      if (c2 === "'") {
+        if (currentFull.length > 0) {
+          splits.push({ literal: bracketed || /^\s+$/.test(currentFull), val: currentFull });
+        }
+        current = null;
+        currentFull = "";
+        bracketed = !bracketed;
+      } else if (bracketed) {
+        currentFull += c2;
+      } else if (c2 === current) {
+        currentFull += c2;
+      } else {
+        if (currentFull.length > 0) {
+          splits.push({ literal: /^\s+$/.test(currentFull), val: currentFull });
+        }
+        currentFull = c2;
+        current = c2;
+      }
     }
-    return i.length > 0 && c.push({ literal: a || /^\s+$/.test(i), val: i }), c;
+    if (currentFull.length > 0) {
+      splits.push({ literal: bracketed || /^\s+$/.test(currentFull), val: currentFull });
+    }
+    return splits;
   }
-  static macroTokenToFormatOpts(e) {
-    return cl[e];
+  static macroTokenToFormatOpts(token) {
+    return macroTokenToFormatOpts[token];
   }
-  constructor(e, r) {
-    this.opts = r, this.loc = e, this.systemLoc = null;
+  constructor(locale, formatOpts) {
+    this.opts = formatOpts;
+    this.loc = locale;
+    this.systemLoc = null;
   }
-  formatWithSystemDefault(e, r) {
-    return this.systemLoc === null && (this.systemLoc = this.loc.redefaultToSystem()), this.systemLoc.dtFormatter(e, { ...this.opts, ...r }).format();
+  formatWithSystemDefault(dt, opts) {
+    if (this.systemLoc === null) {
+      this.systemLoc = this.loc.redefaultToSystem();
+    }
+    const df = this.systemLoc.dtFormatter(dt, { ...this.opts, ...opts });
+    return df.format();
   }
-  dtFormatter(e, r = {}) {
-    return this.loc.dtFormatter(e, { ...this.opts, ...r });
+  dtFormatter(dt, opts = {}) {
+    return this.loc.dtFormatter(dt, { ...this.opts, ...opts });
   }
-  formatDateTime(e, r) {
-    return this.dtFormatter(e, r).format();
+  formatDateTime(dt, opts) {
+    return this.dtFormatter(dt, opts).format();
   }
-  formatDateTimeParts(e, r) {
-    return this.dtFormatter(e, r).formatToParts();
+  formatDateTimeParts(dt, opts) {
+    return this.dtFormatter(dt, opts).formatToParts();
   }
-  formatInterval(e, r) {
-    return this.dtFormatter(e.start, r).dtf.formatRange(e.start.toJSDate(), e.end.toJSDate());
+  formatInterval(interval, opts) {
+    const df = this.dtFormatter(interval.start, opts);
+    return df.dtf.formatRange(interval.start.toJSDate(), interval.end.toJSDate());
   }
-  resolvedOptions(e, r) {
-    return this.dtFormatter(e, r).resolvedOptions();
+  resolvedOptions(dt, opts) {
+    return this.dtFormatter(dt, opts).resolvedOptions();
   }
-  num(e, r = 0) {
-    if (this.opts.forceSimple)
-      return fe(e, r);
-    const i = { ...this.opts };
-    return r > 0 && (i.padTo = r), this.loc.numberFormatter(i).format(e);
+  num(n3, p2 = 0) {
+    if (this.opts.forceSimple) {
+      return padStart(n3, p2);
+    }
+    const opts = { ...this.opts };
+    if (p2 > 0) {
+      opts.padTo = p2;
+    }
+    return this.loc.numberFormatter(opts).format(n3);
   }
-  formatDateTimeFromString(e, r) {
-    const i = this.loc.listingMode() === "en", a = this.loc.outputCalendar && this.loc.outputCalendar !== "gregory", c = (j, ee) => this.loc.extract(e, j, ee), h = (j) => e.isOffsetFixed && e.offset === 0 && j.allowZ ? "Z" : e.isValid ? e.zone.formatOffset(e.ts, j.format) : "", m = () => i ? sl(e) : c({ hour: "numeric", hourCycle: "h12" }, "dayperiod"), v = (j, ee) => i ? al(e, j) : c(ee ? { month: j } : { month: j, day: "numeric" }, "month"), A = (j, ee) => i ? ol(e, j) : c(
-      ee ? { weekday: j } : { weekday: j, month: "long", day: "numeric" },
+  formatDateTimeFromString(dt, fmt) {
+    const knownEnglish = this.loc.listingMode() === "en", useDateTimeFormatter = this.loc.outputCalendar && this.loc.outputCalendar !== "gregory", string = (opts, extract) => this.loc.extract(dt, opts, extract), formatOffset2 = (opts) => {
+      if (dt.isOffsetFixed && dt.offset === 0 && opts.allowZ) {
+        return "Z";
+      }
+      return dt.isValid ? dt.zone.formatOffset(dt.ts, opts.format) : "";
+    }, meridiem = () => knownEnglish ? meridiemForDateTime(dt) : string({ hour: "numeric", hourCycle: "h12" }, "dayperiod"), month = (length, standalone) => knownEnglish ? monthForDateTime(dt, length) : string(standalone ? { month: length } : { month: length, day: "numeric" }, "month"), weekday = (length, standalone) => knownEnglish ? weekdayForDateTime(dt, length) : string(
+      standalone ? { weekday: length } : { weekday: length, month: "long", day: "numeric" },
       "weekday"
-    ), q = (j) => {
-      const ee = ve.macroTokenToFormatOpts(j);
-      return ee ? this.formatWithSystemDefault(e, ee) : j;
-    }, M = (j) => i ? ul(e, j) : c({ era: j }, "era"), z = (j) => {
-      switch (j) {
+    ), maybeMacro = (token) => {
+      const formatOpts = Formatter.macroTokenToFormatOpts(token);
+      if (formatOpts) {
+        return this.formatWithSystemDefault(dt, formatOpts);
+      } else {
+        return token;
+      }
+    }, era = (length) => knownEnglish ? eraForDateTime(dt, length) : string({ era: length }, "era"), tokenToString = (token) => {
+      switch (token) {
         case "S":
-          return this.num(e.millisecond);
+          return this.num(dt.millisecond);
         case "u":
         case "SSS":
-          return this.num(e.millisecond, 3);
+          return this.num(dt.millisecond, 3);
         case "s":
-          return this.num(e.second);
+          return this.num(dt.second);
         case "ss":
-          return this.num(e.second, 2);
+          return this.num(dt.second, 2);
         case "uu":
-          return this.num(Math.floor(e.millisecond / 10), 2);
+          return this.num(Math.floor(dt.millisecond / 10), 2);
         case "uuu":
-          return this.num(Math.floor(e.millisecond / 100));
+          return this.num(Math.floor(dt.millisecond / 100));
         case "m":
-          return this.num(e.minute);
+          return this.num(dt.minute);
         case "mm":
-          return this.num(e.minute, 2);
+          return this.num(dt.minute, 2);
         case "h":
-          return this.num(e.hour % 12 === 0 ? 12 : e.hour % 12);
+          return this.num(dt.hour % 12 === 0 ? 12 : dt.hour % 12);
         case "hh":
-          return this.num(e.hour % 12 === 0 ? 12 : e.hour % 12, 2);
+          return this.num(dt.hour % 12 === 0 ? 12 : dt.hour % 12, 2);
         case "H":
-          return this.num(e.hour);
+          return this.num(dt.hour);
         case "HH":
-          return this.num(e.hour, 2);
+          return this.num(dt.hour, 2);
         case "Z":
-          return h({ format: "narrow", allowZ: this.opts.allowZ });
+          return formatOffset2({ format: "narrow", allowZ: this.opts.allowZ });
         case "ZZ":
-          return h({ format: "short", allowZ: this.opts.allowZ });
+          return formatOffset2({ format: "short", allowZ: this.opts.allowZ });
         case "ZZZ":
-          return h({ format: "techie", allowZ: this.opts.allowZ });
+          return formatOffset2({ format: "techie", allowZ: this.opts.allowZ });
         case "ZZZZ":
-          return e.zone.offsetName(e.ts, { format: "short", locale: this.loc.locale });
+          return dt.zone.offsetName(dt.ts, { format: "short", locale: this.loc.locale });
         case "ZZZZZ":
-          return e.zone.offsetName(e.ts, { format: "long", locale: this.loc.locale });
+          return dt.zone.offsetName(dt.ts, { format: "long", locale: this.loc.locale });
         case "z":
-          return e.zoneName;
+          return dt.zoneName;
         case "a":
-          return m();
+          return meridiem();
         case "d":
-          return a ? c({ day: "numeric" }, "day") : this.num(e.day);
+          return useDateTimeFormatter ? string({ day: "numeric" }, "day") : this.num(dt.day);
         case "dd":
-          return a ? c({ day: "2-digit" }, "day") : this.num(e.day, 2);
+          return useDateTimeFormatter ? string({ day: "2-digit" }, "day") : this.num(dt.day, 2);
         case "c":
-          return this.num(e.weekday);
+          return this.num(dt.weekday);
         case "ccc":
-          return A("short", !0);
+          return weekday("short", true);
         case "cccc":
-          return A("long", !0);
+          return weekday("long", true);
         case "ccccc":
-          return A("narrow", !0);
+          return weekday("narrow", true);
         case "E":
-          return this.num(e.weekday);
+          return this.num(dt.weekday);
         case "EEE":
-          return A("short", !1);
+          return weekday("short", false);
         case "EEEE":
-          return A("long", !1);
+          return weekday("long", false);
         case "EEEEE":
-          return A("narrow", !1);
+          return weekday("narrow", false);
         case "L":
-          return a ? c({ month: "numeric", day: "numeric" }, "month") : this.num(e.month);
+          return useDateTimeFormatter ? string({ month: "numeric", day: "numeric" }, "month") : this.num(dt.month);
         case "LL":
-          return a ? c({ month: "2-digit", day: "numeric" }, "month") : this.num(e.month, 2);
+          return useDateTimeFormatter ? string({ month: "2-digit", day: "numeric" }, "month") : this.num(dt.month, 2);
         case "LLL":
-          return v("short", !0);
+          return month("short", true);
         case "LLLL":
-          return v("long", !0);
+          return month("long", true);
         case "LLLLL":
-          return v("narrow", !0);
+          return month("narrow", true);
         case "M":
-          return a ? c({ month: "numeric" }, "month") : this.num(e.month);
+          return useDateTimeFormatter ? string({ month: "numeric" }, "month") : this.num(dt.month);
         case "MM":
-          return a ? c({ month: "2-digit" }, "month") : this.num(e.month, 2);
+          return useDateTimeFormatter ? string({ month: "2-digit" }, "month") : this.num(dt.month, 2);
         case "MMM":
-          return v("short", !1);
+          return month("short", false);
         case "MMMM":
-          return v("long", !1);
+          return month("long", false);
         case "MMMMM":
-          return v("narrow", !1);
+          return month("narrow", false);
         case "y":
-          return a ? c({ year: "numeric" }, "year") : this.num(e.year);
+          return useDateTimeFormatter ? string({ year: "numeric" }, "year") : this.num(dt.year);
         case "yy":
-          return a ? c({ year: "2-digit" }, "year") : this.num(e.year.toString().slice(-2), 2);
+          return useDateTimeFormatter ? string({ year: "2-digit" }, "year") : this.num(dt.year.toString().slice(-2), 2);
         case "yyyy":
-          return a ? c({ year: "numeric" }, "year") : this.num(e.year, 4);
+          return useDateTimeFormatter ? string({ year: "numeric" }, "year") : this.num(dt.year, 4);
         case "yyyyyy":
-          return a ? c({ year: "numeric" }, "year") : this.num(e.year, 6);
+          return useDateTimeFormatter ? string({ year: "numeric" }, "year") : this.num(dt.year, 6);
         case "G":
-          return M("short");
+          return era("short");
         case "GG":
-          return M("long");
+          return era("long");
         case "GGGGG":
-          return M("narrow");
+          return era("narrow");
         case "kk":
-          return this.num(e.weekYear.toString().slice(-2), 2);
+          return this.num(dt.weekYear.toString().slice(-2), 2);
         case "kkkk":
-          return this.num(e.weekYear, 4);
+          return this.num(dt.weekYear, 4);
         case "W":
-          return this.num(e.weekNumber);
+          return this.num(dt.weekNumber);
         case "WW":
-          return this.num(e.weekNumber, 2);
+          return this.num(dt.weekNumber, 2);
         case "n":
-          return this.num(e.localWeekNumber);
+          return this.num(dt.localWeekNumber);
         case "nn":
-          return this.num(e.localWeekNumber, 2);
+          return this.num(dt.localWeekNumber, 2);
         case "ii":
-          return this.num(e.localWeekYear.toString().slice(-2), 2);
+          return this.num(dt.localWeekYear.toString().slice(-2), 2);
         case "iiii":
-          return this.num(e.localWeekYear, 4);
+          return this.num(dt.localWeekYear, 4);
         case "o":
-          return this.num(e.ordinal);
+          return this.num(dt.ordinal);
         case "ooo":
-          return this.num(e.ordinal, 3);
+          return this.num(dt.ordinal, 3);
         case "q":
-          return this.num(e.quarter);
+          return this.num(dt.quarter);
         case "qq":
-          return this.num(e.quarter, 2);
+          return this.num(dt.quarter, 2);
         case "X":
-          return this.num(Math.floor(e.ts / 1e3));
+          return this.num(Math.floor(dt.ts / 1e3));
         case "x":
-          return this.num(e.ts);
+          return this.num(dt.ts);
         default:
-          return q(j);
+          return maybeMacro(token);
       }
     };
-    return to(ve.parseFormat(r), z);
+    return stringifyTokens(Formatter.parseFormat(fmt), tokenToString);
   }
-  formatDurationFromString(e, r) {
-    const i = (v) => {
-      switch (v[0]) {
+  formatDurationFromString(dur, fmt) {
+    const tokenToField = (token) => {
+      switch (token[0]) {
         case "S":
           return "millisecond";
         case "s":
@@ -1725,96 +2099,121 @@ class ve {
         default:
           return null;
       }
-    }, a = (v) => (A) => {
-      const q = i(A);
-      return q ? this.num(v.get(q), A.length) : A;
-    }, c = ve.parseFormat(r), h = c.reduce(
-      (v, { literal: A, val: q }) => A ? v : v.concat(q),
+    }, tokenToString = (lildur) => (token) => {
+      const mapped = tokenToField(token);
+      if (mapped) {
+        return this.num(lildur.get(mapped), token.length);
+      } else {
+        return token;
+      }
+    }, tokens = Formatter.parseFormat(fmt), realTokens = tokens.reduce(
+      (found, { literal, val }) => literal ? found : found.concat(val),
       []
-    ), m = e.shiftTo(...h.map(i).filter((v) => v));
-    return to(c, a(m));
+    ), collapsed = dur.shiftTo(...realTokens.map(tokenToField).filter((t2) => t2));
+    return stringifyTokens(tokens, tokenToString(collapsed));
   }
 }
-const ma = /[A-Za-z_+-]{1,256}(?::?\/[A-Za-z0-9_+-]{1,256}(?:\/[A-Za-z0-9_+-]{1,256})?)?/;
-function en(...s) {
-  const e = s.reduce((r, i) => r + i.source, "");
-  return RegExp(`^${e}$`);
+const ianaRegex = /[A-Za-z_+-]{1,256}(?::?\/[A-Za-z0-9_+-]{1,256}(?:\/[A-Za-z0-9_+-]{1,256})?)?/;
+function combineRegexes(...regexes) {
+  const full = regexes.reduce((f2, r2) => f2 + r2.source, "");
+  return RegExp(`^${full}$`);
 }
-function tn(...s) {
-  return (e) => s.reduce(
-    ([r, i, a], c) => {
-      const [h, m, v] = c(e, a);
-      return [{ ...r, ...h }, m || i, v];
+function combineExtractors(...extractors) {
+  return (m2) => extractors.reduce(
+    ([mergedVals, mergedZone, cursor], ex) => {
+      const [val, zone, next] = ex(m2, cursor);
+      return [{ ...mergedVals, ...val }, zone || mergedZone, next];
     },
     [{}, null, 1]
   ).slice(0, 2);
 }
-function nn(s, ...e) {
-  if (s == null)
+function parse(s2, ...patterns) {
+  if (s2 == null) {
     return [null, null];
-  for (const [r, i] of e) {
-    const a = r.exec(s);
-    if (a)
-      return i(a);
+  }
+  for (const [regex, extractor] of patterns) {
+    const m2 = regex.exec(s2);
+    if (m2) {
+      return extractor(m2);
+    }
   }
   return [null, null];
 }
-function pa(...s) {
-  return (e, r) => {
-    const i = {};
-    let a;
-    for (a = 0; a < s.length; a++)
-      i[s[a]] = rt(e[r + a]);
-    return [i, null, r + a];
+function simpleParse(...keys) {
+  return (match2, cursor) => {
+    const ret = {};
+    let i2;
+    for (i2 = 0; i2 < keys.length; i2++) {
+      ret[keys[i2]] = parseInteger(match2[cursor + i2]);
+    }
+    return [ret, null, cursor + i2];
   };
 }
-const ya = /(?:(Z)|([+-]\d\d)(?::?(\d\d))?)/, fl = `(?:${ya.source}?(?:\\[(${ma.source})\\])?)?`, Ji = /(\d\d)(?::?(\d\d)(?::?(\d\d)(?:[.,](\d{1,30}))?)?)?/, ga = RegExp(`${Ji.source}${fl}`), Xi = RegExp(`(?:T${ga.source})?`), hl = /([+-]\d{6}|\d{4})(?:-?(\d\d)(?:-?(\d\d))?)?/, dl = /(\d{4})-?W(\d\d)(?:-?(\d))?/, ml = /(\d{4})-?(\d{3})/, pl = pa("weekYear", "weekNumber", "weekDay"), yl = pa("year", "ordinal"), gl = /(\d{4})-(\d\d)-(\d\d)/, va = RegExp(
-  `${Ji.source} ?(?:${ya.source}|(${ma.source}))?`
-), vl = RegExp(`(?: ${va.source})?`);
-function Ht(s, e, r) {
-  const i = s[e];
-  return Z(i) ? r : rt(i);
+const offsetRegex = /(?:(Z)|([+-]\d\d)(?::?(\d\d))?)/;
+const isoExtendedZone = `(?:${offsetRegex.source}?(?:\\[(${ianaRegex.source})\\])?)?`;
+const isoTimeBaseRegex = /(\d\d)(?::?(\d\d)(?::?(\d\d)(?:[.,](\d{1,30}))?)?)?/;
+const isoTimeRegex = RegExp(`${isoTimeBaseRegex.source}${isoExtendedZone}`);
+const isoTimeExtensionRegex = RegExp(`(?:T${isoTimeRegex.source})?`);
+const isoYmdRegex = /([+-]\d{6}|\d{4})(?:-?(\d\d)(?:-?(\d\d))?)?/;
+const isoWeekRegex = /(\d{4})-?W(\d\d)(?:-?(\d))?/;
+const isoOrdinalRegex = /(\d{4})-?(\d{3})/;
+const extractISOWeekData = simpleParse("weekYear", "weekNumber", "weekDay");
+const extractISOOrdinalData = simpleParse("year", "ordinal");
+const sqlYmdRegex = /(\d{4})-(\d\d)-(\d\d)/;
+const sqlTimeRegex = RegExp(
+  `${isoTimeBaseRegex.source} ?(?:${offsetRegex.source}|(${ianaRegex.source}))?`
+);
+const sqlTimeExtensionRegex = RegExp(`(?: ${sqlTimeRegex.source})?`);
+function int(match2, pos, fallback) {
+  const m2 = match2[pos];
+  return isUndefined(m2) ? fallback : parseInteger(m2);
 }
-function bl(s, e) {
-  return [{
-    year: Ht(s, e),
-    month: Ht(s, e + 1, 1),
-    day: Ht(s, e + 2, 1)
-  }, null, e + 3];
+function extractISOYmd(match2, cursor) {
+  const item = {
+    year: int(match2, cursor),
+    month: int(match2, cursor + 1, 1),
+    day: int(match2, cursor + 2, 1)
+  };
+  return [item, null, cursor + 3];
 }
-function rn(s, e) {
-  return [{
-    hours: Ht(s, e, 0),
-    minutes: Ht(s, e + 1, 0),
-    seconds: Ht(s, e + 2, 0),
-    milliseconds: Yi(s[e + 3])
-  }, null, e + 4];
+function extractISOTime(match2, cursor) {
+  const item = {
+    hours: int(match2, cursor, 0),
+    minutes: int(match2, cursor + 1, 0),
+    seconds: int(match2, cursor + 2, 0),
+    milliseconds: parseMillis(match2[cursor + 3])
+  };
+  return [item, null, cursor + 4];
 }
-function Rn(s, e) {
-  const r = !s[e] && !s[e + 1], i = Pr(s[e + 1], s[e + 2]), a = r ? null : be.instance(i);
-  return [{}, a, e + 3];
+function extractISOOffset(match2, cursor) {
+  const local = !match2[cursor] && !match2[cursor + 1], fullOffset = signedOffset(match2[cursor + 1], match2[cursor + 2]), zone = local ? null : FixedOffsetZone.instance(fullOffset);
+  return [{}, zone, cursor + 3];
 }
-function Vn(s, e) {
-  const r = s[e] ? Ue.create(s[e]) : null;
-  return [{}, r, e + 1];
+function extractIANAZone(match2, cursor) {
+  const zone = match2[cursor] ? IANAZone.create(match2[cursor]) : null;
+  return [{}, zone, cursor + 1];
 }
-const wl = RegExp(`^T?${Ji.source}$`), kl = /^-?P(?:(?:(-?\d{1,20}(?:\.\d{1,20})?)Y)?(?:(-?\d{1,20}(?:\.\d{1,20})?)M)?(?:(-?\d{1,20}(?:\.\d{1,20})?)W)?(?:(-?\d{1,20}(?:\.\d{1,20})?)D)?(?:T(?:(-?\d{1,20}(?:\.\d{1,20})?)H)?(?:(-?\d{1,20}(?:\.\d{1,20})?)M)?(?:(-?\d{1,20})(?:[.,](-?\d{1,20}))?S)?)?)$/;
-function _l(s) {
-  const [e, r, i, a, c, h, m, v, A] = s, q = e[0] === "-", M = v && v[0] === "-", z = (j, ee = !1) => j !== void 0 && (ee || j && q) ? -j : j;
+const isoTimeOnly = RegExp(`^T?${isoTimeBaseRegex.source}$`);
+const isoDuration = /^-?P(?:(?:(-?\d{1,20}(?:\.\d{1,20})?)Y)?(?:(-?\d{1,20}(?:\.\d{1,20})?)M)?(?:(-?\d{1,20}(?:\.\d{1,20})?)W)?(?:(-?\d{1,20}(?:\.\d{1,20})?)D)?(?:T(?:(-?\d{1,20}(?:\.\d{1,20})?)H)?(?:(-?\d{1,20}(?:\.\d{1,20})?)M)?(?:(-?\d{1,20})(?:[.,](-?\d{1,20}))?S)?)?)$/;
+function extractISODuration(match2) {
+  const [s2, yearStr, monthStr, weekStr, dayStr, hourStr, minuteStr, secondStr, millisecondsStr] = match2;
+  const hasNegativePrefix = s2[0] === "-";
+  const negativeSeconds = secondStr && secondStr[0] === "-";
+  const maybeNegate = (num, force = false) => num !== void 0 && (force || num && hasNegativePrefix) ? -num : num;
   return [
     {
-      years: z(_t(r)),
-      months: z(_t(i)),
-      weeks: z(_t(a)),
-      days: z(_t(c)),
-      hours: z(_t(h)),
-      minutes: z(_t(m)),
-      seconds: z(_t(v), v === "-0"),
-      milliseconds: z(Yi(A), M)
+      years: maybeNegate(parseFloating(yearStr)),
+      months: maybeNegate(parseFloating(monthStr)),
+      weeks: maybeNegate(parseFloating(weekStr)),
+      days: maybeNegate(parseFloating(dayStr)),
+      hours: maybeNegate(parseFloating(hourStr)),
+      minutes: maybeNegate(parseFloating(minuteStr)),
+      seconds: maybeNegate(parseFloating(secondStr), secondStr === "-0"),
+      milliseconds: maybeNegate(parseMillis(millisecondsStr), negativeSeconds)
     }
   ];
 }
-const Sl = {
+const obsOffsets = {
   GMT: 0,
   EDT: -4 * 60,
   EST: -5 * 60,
@@ -1825,107 +2224,128 @@ const Sl = {
   PDT: -7 * 60,
   PST: -8 * 60
 };
-function Qi(s, e, r, i, a, c, h) {
-  const m = {
-    year: e.length === 2 ? Ui(rt(e)) : rt(e),
-    month: aa.indexOf(r) + 1,
-    day: rt(i),
-    hour: rt(a),
-    minute: rt(c)
+function fromStrings(weekdayStr, yearStr, monthStr, dayStr, hourStr, minuteStr, secondStr) {
+  const result = {
+    year: yearStr.length === 2 ? untruncateYear(parseInteger(yearStr)) : parseInteger(yearStr),
+    month: monthsShort.indexOf(monthStr) + 1,
+    day: parseInteger(dayStr),
+    hour: parseInteger(hourStr),
+    minute: parseInteger(minuteStr)
   };
-  return h && (m.second = rt(h)), s && (m.weekday = s.length > 3 ? la.indexOf(s) + 1 : ca.indexOf(s) + 1), m;
+  if (secondStr) result.second = parseInteger(secondStr);
+  if (weekdayStr) {
+    result.weekday = weekdayStr.length > 3 ? weekdaysLong.indexOf(weekdayStr) + 1 : weekdaysShort.indexOf(weekdayStr) + 1;
+  }
+  return result;
 }
-const xl = /^(?:(Mon|Tue|Wed|Thu|Fri|Sat|Sun),\s)?(\d{1,2})\s(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s(\d{2,4})\s(\d\d):(\d\d)(?::(\d\d))?\s(?:(UT|GMT|[ECMP][SD]T)|([Zz])|(?:([+-]\d\d)(\d\d)))$/;
-function Tl(s) {
+const rfc2822 = /^(?:(Mon|Tue|Wed|Thu|Fri|Sat|Sun),\s)?(\d{1,2})\s(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s(\d{2,4})\s(\d\d):(\d\d)(?::(\d\d))?\s(?:(UT|GMT|[ECMP][SD]T)|([Zz])|(?:([+-]\d\d)(\d\d)))$/;
+function extractRFC2822(match2) {
   const [
     ,
-    e,
-    r,
-    i,
-    a,
-    c,
-    h,
-    m,
-    v,
-    A,
-    q,
-    M
-  ] = s, z = Qi(e, a, i, r, c, h, m);
-  let j;
-  return v ? j = Sl[v] : A ? j = 0 : j = Pr(q, M), [z, new be(j)];
+    weekdayStr,
+    dayStr,
+    monthStr,
+    yearStr,
+    hourStr,
+    minuteStr,
+    secondStr,
+    obsOffset,
+    milOffset,
+    offHourStr,
+    offMinuteStr
+  ] = match2, result = fromStrings(weekdayStr, yearStr, monthStr, dayStr, hourStr, minuteStr, secondStr);
+  let offset2;
+  if (obsOffset) {
+    offset2 = obsOffsets[obsOffset];
+  } else if (milOffset) {
+    offset2 = 0;
+  } else {
+    offset2 = signedOffset(offHourStr, offMinuteStr);
+  }
+  return [result, new FixedOffsetZone(offset2)];
 }
-function Ol(s) {
-  return s.replace(/\([^()]*\)|[\n\t]/g, " ").replace(/(\s\s+)/g, " ").trim();
+function preprocessRFC2822(s2) {
+  return s2.replace(/\([^()]*\)|[\n\t]/g, " ").replace(/(\s\s+)/g, " ").trim();
 }
-const El = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun), (\d\d) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (\d{4}) (\d\d):(\d\d):(\d\d) GMT$/, Il = /^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), (\d\d)-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-(\d\d) (\d\d):(\d\d):(\d\d) GMT$/, Al = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) ( \d|\d\d) (\d\d):(\d\d):(\d\d) (\d{4})$/;
-function no(s) {
-  const [, e, r, i, a, c, h, m] = s;
-  return [Qi(e, a, i, r, c, h, m), be.utcInstance];
+const rfc1123 = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun), (\d\d) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (\d{4}) (\d\d):(\d\d):(\d\d) GMT$/, rfc850 = /^(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), (\d\d)-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-(\d\d) (\d\d):(\d\d):(\d\d) GMT$/, ascii = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) ( \d|\d\d) (\d\d):(\d\d):(\d\d) (\d{4})$/;
+function extractRFC1123Or850(match2) {
+  const [, weekdayStr, dayStr, monthStr, yearStr, hourStr, minuteStr, secondStr] = match2, result = fromStrings(weekdayStr, yearStr, monthStr, dayStr, hourStr, minuteStr, secondStr);
+  return [result, FixedOffsetZone.utcInstance];
 }
-function Cl(s) {
-  const [, e, r, i, a, c, h, m] = s;
-  return [Qi(e, m, r, i, a, c, h), be.utcInstance];
+function extractASCII(match2) {
+  const [, weekdayStr, monthStr, dayStr, hourStr, minuteStr, secondStr, yearStr] = match2, result = fromStrings(weekdayStr, yearStr, monthStr, dayStr, hourStr, minuteStr, secondStr);
+  return [result, FixedOffsetZone.utcInstance];
 }
-const Dl = en(hl, Xi), $l = en(dl, Xi), Nl = en(ml, Xi), Ml = en(ga), ba = tn(
-  bl,
-  rn,
-  Rn,
-  Vn
-), Pl = tn(
-  pl,
-  rn,
-  Rn,
-  Vn
-), Fl = tn(
-  yl,
-  rn,
-  Rn,
-  Vn
-), Rl = tn(
-  rn,
-  Rn,
-  Vn
+const isoYmdWithTimeExtensionRegex = combineRegexes(isoYmdRegex, isoTimeExtensionRegex);
+const isoWeekWithTimeExtensionRegex = combineRegexes(isoWeekRegex, isoTimeExtensionRegex);
+const isoOrdinalWithTimeExtensionRegex = combineRegexes(isoOrdinalRegex, isoTimeExtensionRegex);
+const isoTimeCombinedRegex = combineRegexes(isoTimeRegex);
+const extractISOYmdTimeAndOffset = combineExtractors(
+  extractISOYmd,
+  extractISOTime,
+  extractISOOffset,
+  extractIANAZone
 );
-function Vl(s) {
-  return nn(
-    s,
-    [Dl, ba],
-    [$l, Pl],
-    [Nl, Fl],
-    [Ml, Rl]
-  );
-}
-function ql(s) {
-  return nn(Ol(s), [xl, Tl]);
-}
-function Ll(s) {
-  return nn(
-    s,
-    [El, no],
-    [Il, no],
-    [Al, Cl]
-  );
-}
-function Ul(s) {
-  return nn(s, [kl, _l]);
-}
-const jl = tn(rn);
-function Wl(s) {
-  return nn(s, [wl, jl]);
-}
-const Kl = en(gl, vl), zl = en(va), Zl = tn(
-  rn,
-  Rn,
-  Vn
+const extractISOWeekTimeAndOffset = combineExtractors(
+  extractISOWeekData,
+  extractISOTime,
+  extractISOOffset,
+  extractIANAZone
 );
-function Bl(s) {
-  return nn(
-    s,
-    [Kl, ba],
-    [zl, Zl]
+const extractISOOrdinalDateAndTime = combineExtractors(
+  extractISOOrdinalData,
+  extractISOTime,
+  extractISOOffset,
+  extractIANAZone
+);
+const extractISOTimeAndOffset = combineExtractors(
+  extractISOTime,
+  extractISOOffset,
+  extractIANAZone
+);
+function parseISODate(s2) {
+  return parse(
+    s2,
+    [isoYmdWithTimeExtensionRegex, extractISOYmdTimeAndOffset],
+    [isoWeekWithTimeExtensionRegex, extractISOWeekTimeAndOffset],
+    [isoOrdinalWithTimeExtensionRegex, extractISOOrdinalDateAndTime],
+    [isoTimeCombinedRegex, extractISOTimeAndOffset]
   );
 }
-const ro = "Invalid Duration", wa = {
+function parseRFC2822Date(s2) {
+  return parse(preprocessRFC2822(s2), [rfc2822, extractRFC2822]);
+}
+function parseHTTPDate(s2) {
+  return parse(
+    s2,
+    [rfc1123, extractRFC1123Or850],
+    [rfc850, extractRFC1123Or850],
+    [ascii, extractASCII]
+  );
+}
+function parseISODuration(s2) {
+  return parse(s2, [isoDuration, extractISODuration]);
+}
+const extractISOTimeOnly = combineExtractors(extractISOTime);
+function parseISOTimeOnly(s2) {
+  return parse(s2, [isoTimeOnly, extractISOTimeOnly]);
+}
+const sqlYmdWithTimeExtensionRegex = combineRegexes(sqlYmdRegex, sqlTimeExtensionRegex);
+const sqlTimeCombinedRegex = combineRegexes(sqlTimeRegex);
+const extractISOTimeOffsetAndIANAZone = combineExtractors(
+  extractISOTime,
+  extractISOOffset,
+  extractIANAZone
+);
+function parseSQL(s2) {
+  return parse(
+    s2,
+    [sqlYmdWithTimeExtensionRegex, extractISOYmdTimeAndOffset],
+    [sqlTimeCombinedRegex, extractISOTimeOffsetAndIANAZone]
+  );
+}
+const INVALID$2 = "Invalid Duration";
+const lowOrderMatrix = {
   weeks: {
     days: 7,
     hours: 7 * 24,
@@ -1942,7 +2362,7 @@ const ro = "Invalid Duration", wa = {
   hours: { minutes: 60, seconds: 60 * 60, milliseconds: 60 * 60 * 1e3 },
   minutes: { seconds: 60, milliseconds: 60 * 1e3 },
   seconds: { milliseconds: 1e3 }
-}, Hl = {
+}, casualMatrix = {
   years: {
     quarters: 4,
     months: 12,
@@ -1970,37 +2390,38 @@ const ro = "Invalid Duration", wa = {
     seconds: 30 * 24 * 60 * 60,
     milliseconds: 30 * 24 * 60 * 60 * 1e3
   },
-  ...wa
-}, Ie = 146097 / 400, Lt = 146097 / 4800, Yl = {
+  ...lowOrderMatrix
+}, daysInYearAccurate = 146097 / 400, daysInMonthAccurate = 146097 / 4800, accurateMatrix = {
   years: {
     quarters: 4,
     months: 12,
-    weeks: Ie / 7,
-    days: Ie,
-    hours: Ie * 24,
-    minutes: Ie * 24 * 60,
-    seconds: Ie * 24 * 60 * 60,
-    milliseconds: Ie * 24 * 60 * 60 * 1e3
+    weeks: daysInYearAccurate / 7,
+    days: daysInYearAccurate,
+    hours: daysInYearAccurate * 24,
+    minutes: daysInYearAccurate * 24 * 60,
+    seconds: daysInYearAccurate * 24 * 60 * 60,
+    milliseconds: daysInYearAccurate * 24 * 60 * 60 * 1e3
   },
   quarters: {
     months: 3,
-    weeks: Ie / 28,
-    days: Ie / 4,
-    hours: Ie * 24 / 4,
-    minutes: Ie * 24 * 60 / 4,
-    seconds: Ie * 24 * 60 * 60 / 4,
-    milliseconds: Ie * 24 * 60 * 60 * 1e3 / 4
+    weeks: daysInYearAccurate / 28,
+    days: daysInYearAccurate / 4,
+    hours: daysInYearAccurate * 24 / 4,
+    minutes: daysInYearAccurate * 24 * 60 / 4,
+    seconds: daysInYearAccurate * 24 * 60 * 60 / 4,
+    milliseconds: daysInYearAccurate * 24 * 60 * 60 * 1e3 / 4
   },
   months: {
-    weeks: Lt / 7,
-    days: Lt,
-    hours: Lt * 24,
-    minutes: Lt * 24 * 60,
-    seconds: Lt * 24 * 60 * 60,
-    milliseconds: Lt * 24 * 60 * 60 * 1e3
+    weeks: daysInMonthAccurate / 7,
+    days: daysInMonthAccurate,
+    hours: daysInMonthAccurate * 24,
+    minutes: daysInMonthAccurate * 24 * 60,
+    seconds: daysInMonthAccurate * 24 * 60 * 60,
+    milliseconds: daysInMonthAccurate * 24 * 60 * 60 * 1e3
   },
-  ...wa
-}, Ot = [
+  ...lowOrderMatrix
+};
+const orderedUnits$1 = [
   "years",
   "quarters",
   "months",
@@ -2010,56 +2431,80 @@ const ro = "Invalid Duration", wa = {
   "minutes",
   "seconds",
   "milliseconds"
-], Gl = Ot.slice(0).reverse();
-function nt(s, e, r = !1) {
-  const i = {
-    values: r ? e.values : { ...s.values, ...e.values || {} },
-    loc: s.loc.clone(e.loc),
-    conversionAccuracy: e.conversionAccuracy || s.conversionAccuracy,
-    matrix: e.matrix || s.matrix
+];
+const reverseUnits = orderedUnits$1.slice(0).reverse();
+function clone$1(dur, alts, clear = false) {
+  const conf = {
+    values: clear ? alts.values : { ...dur.values, ...alts.values || {} },
+    loc: dur.loc.clone(alts.loc),
+    conversionAccuracy: alts.conversionAccuracy || dur.conversionAccuracy,
+    matrix: alts.matrix || dur.matrix
   };
-  return new X(i);
+  return new Duration(conf);
 }
-function ka(s, e) {
-  let r = e.milliseconds ?? 0;
-  for (const i of Gl.slice(1))
-    e[i] && (r += e[i] * s[i].milliseconds);
-  return r;
+function durationToMillis(matrix, vals) {
+  let sum = vals.milliseconds ?? 0;
+  for (const unit of reverseUnits.slice(1)) {
+    if (vals[unit]) {
+      sum += vals[unit] * matrix[unit]["milliseconds"];
+    }
+  }
+  return sum;
 }
-function io(s, e) {
-  const r = ka(s, e) < 0 ? -1 : 1;
-  Ot.reduceRight((i, a) => {
-    if (Z(e[a]))
-      return i;
-    if (i) {
-      const c = e[i] * r, h = s[a][i], m = Math.floor(c / h);
-      e[a] += m * r, e[i] -= m * h * r;
+function normalizeValues(matrix, vals) {
+  const factor = durationToMillis(matrix, vals) < 0 ? -1 : 1;
+  orderedUnits$1.reduceRight((previous, current) => {
+    if (!isUndefined(vals[current])) {
+      if (previous) {
+        const previousVal = vals[previous] * factor;
+        const conv = matrix[current][previous];
+        const rollUp = Math.floor(previousVal / conv);
+        vals[current] += rollUp * factor;
+        vals[previous] -= rollUp * conv * factor;
+      }
+      return current;
+    } else {
+      return previous;
     }
-    return a;
-  }, null), Ot.reduce((i, a) => {
-    if (Z(e[a]))
-      return i;
-    if (i) {
-      const c = e[i] % 1;
-      e[i] -= c, e[a] += c * s[i][a];
+  }, null);
+  orderedUnits$1.reduce((previous, current) => {
+    if (!isUndefined(vals[current])) {
+      if (previous) {
+        const fraction = vals[previous] % 1;
+        vals[previous] -= fraction;
+        vals[current] += fraction * matrix[previous][current];
+      }
+      return current;
+    } else {
+      return previous;
     }
-    return a;
   }, null);
 }
-function Jl(s) {
-  const e = {};
-  for (const [r, i] of Object.entries(s))
-    i !== 0 && (e[r] = i);
-  return e;
+function removeZeroes(vals) {
+  const newVals = {};
+  for (const [key, value] of Object.entries(vals)) {
+    if (value !== 0) {
+      newVals[key] = value;
+    }
+  }
+  return newVals;
 }
-class X {
+class Duration {
   /**
    * @private
    */
-  constructor(e) {
-    const r = e.conversionAccuracy === "longterm" || !1;
-    let i = r ? Yl : Hl;
-    e.matrix && (i = e.matrix), this.values = e.values, this.loc = e.loc || re.create(), this.conversionAccuracy = r ? "longterm" : "casual", this.invalid = e.invalid || null, this.matrix = i, this.isLuxonDuration = !0;
+  constructor(config) {
+    const accurate = config.conversionAccuracy === "longterm" || false;
+    let matrix = accurate ? accurateMatrix : casualMatrix;
+    if (config.matrix) {
+      matrix = config.matrix;
+    }
+    this.values = config.values;
+    this.loc = config.loc || Locale.create();
+    this.conversionAccuracy = accurate ? "longterm" : "casual";
+    this.invalid = config.invalid || null;
+    this.matrix = matrix;
+    this.isLuxonDuration = true;
   }
   /**
    * Create Duration from a number of milliseconds.
@@ -2070,8 +2515,8 @@ class X {
    * @param {string} [opts.conversionAccuracy='casual'] - the conversion system to use
    * @return {Duration}
    */
-  static fromMillis(e, r) {
-    return X.fromObject({ milliseconds: e }, r);
+  static fromMillis(count, opts) {
+    return Duration.fromObject({ milliseconds: count }, opts);
   }
   /**
    * Create a Duration from a JavaScript object with keys like 'years' and 'hours'.
@@ -2093,16 +2538,17 @@ class X {
    * @param {string} [opts.matrix=Object] - the custom conversion system to use
    * @return {Duration}
    */
-  static fromObject(e, r = {}) {
-    if (e == null || typeof e != "object")
-      throw new ge(
-        `Duration.fromObject: argument expected to be an object, got ${e === null ? "null" : typeof e}`
+  static fromObject(obj, opts = {}) {
+    if (obj == null || typeof obj !== "object") {
+      throw new InvalidArgumentError(
+        `Duration.fromObject: argument expected to be an object, got ${obj === null ? "null" : typeof obj}`
       );
-    return new X({
-      values: Cr(e, X.normalizeUnit),
-      loc: re.fromObject(r),
-      conversionAccuracy: r.conversionAccuracy,
-      matrix: r.matrix
+    }
+    return new Duration({
+      values: normalizeObject(obj, Duration.normalizeUnit),
+      loc: Locale.fromObject(opts),
+      conversionAccuracy: opts.conversionAccuracy,
+      matrix: opts.matrix
     });
   }
   /**
@@ -2115,16 +2561,18 @@ class X {
    * - Duration instance
    * @return {Duration}
    */
-  static fromDurationLike(e) {
-    if (at(e))
-      return X.fromMillis(e);
-    if (X.isDuration(e))
-      return e;
-    if (typeof e == "object")
-      return X.fromObject(e);
-    throw new ge(
-      `Unknown duration argument ${e} of type ${typeof e}`
-    );
+  static fromDurationLike(durationLike) {
+    if (isNumber(durationLike)) {
+      return Duration.fromMillis(durationLike);
+    } else if (Duration.isDuration(durationLike)) {
+      return durationLike;
+    } else if (typeof durationLike === "object") {
+      return Duration.fromObject(durationLike);
+    } else {
+      throw new InvalidArgumentError(
+        `Unknown duration argument ${durationLike} of type ${typeof durationLike}`
+      );
+    }
   }
   /**
    * Create a Duration from an ISO 8601 duration string.
@@ -2140,9 +2588,13 @@ class X {
    * @example Duration.fromISO('P5Y3M').toObject() //=> { years: 5, months: 3 }
    * @return {Duration}
    */
-  static fromISO(e, r) {
-    const [i] = Ul(e);
-    return i ? X.fromObject(i, r) : X.invalid("unparsable", `the input "${e}" can't be parsed as ISO 8601`);
+  static fromISO(text, opts) {
+    const [parsed] = parseISODuration(text);
+    if (parsed) {
+      return Duration.fromObject(parsed, opts);
+    } else {
+      return Duration.invalid("unparsable", `the input "${text}" can't be parsed as ISO 8601`);
+    }
   }
   /**
    * Create a Duration from an ISO 8601 time string.
@@ -2160,9 +2612,13 @@ class X {
    * @example Duration.fromISOTime('T1100').toObject() //=> { hours: 11, minutes: 0, seconds: 0 }
    * @return {Duration}
    */
-  static fromISOTime(e, r) {
-    const [i] = Wl(e);
-    return i ? X.fromObject(i, r) : X.invalid("unparsable", `the input "${e}" can't be parsed as ISO 8601`);
+  static fromISOTime(text, opts) {
+    const [parsed] = parseISOTimeOnly(text);
+    if (parsed) {
+      return Duration.fromObject(parsed, opts);
+    } else {
+      return Duration.invalid("unparsable", `the input "${text}" can't be parsed as ISO 8601`);
+    }
   }
   /**
    * Create an invalid Duration.
@@ -2170,19 +2626,22 @@ class X {
    * @param {string} [explanation=null] - longer explanation, may include parameters and other useful debugging information
    * @return {Duration}
    */
-  static invalid(e, r = null) {
-    if (!e)
-      throw new ge("need to specify a reason the Duration is invalid");
-    const i = e instanceof Pe ? e : new Pe(e, r);
-    if (ue.throwOnInvalid)
-      throw new _u(i);
-    return new X({ invalid: i });
+  static invalid(reason, explanation = null) {
+    if (!reason) {
+      throw new InvalidArgumentError("need to specify a reason the Duration is invalid");
+    }
+    const invalid = reason instanceof Invalid ? reason : new Invalid(reason, explanation);
+    if (Settings.throwOnInvalid) {
+      throw new InvalidDurationError(invalid);
+    } else {
+      return new Duration({ invalid });
+    }
   }
   /**
    * @private
    */
-  static normalizeUnit(e) {
-    const r = {
+  static normalizeUnit(unit) {
+    const normalized = {
       year: "years",
       years: "years",
       quarter: "quarters",
@@ -2201,17 +2660,17 @@ class X {
       seconds: "seconds",
       millisecond: "milliseconds",
       milliseconds: "milliseconds"
-    }[e && e.toLowerCase()];
-    if (!r) throw new Co(e);
-    return r;
+    }[unit ? unit.toLowerCase() : unit];
+    if (!normalized) throw new InvalidUnitError(unit);
+    return normalized;
   }
   /**
    * Check if an object is a Duration. Works across context boundaries
    * @param {object} o
    * @return {boolean}
    */
-  static isDuration(e) {
-    return e && e.isLuxonDuration || !1;
+  static isDuration(o2) {
+    return o2 && o2.isLuxonDuration || false;
   }
   /**
    * Get  the locale of a Duration, such 'en-GB'
@@ -2250,12 +2709,12 @@ class X {
    * @example Duration.fromObject({ years: 1, days: 6, seconds: 2 }).toFormat("M S") //=> "12 518402000"
    * @return {string}
    */
-  toFormat(e, r = {}) {
-    const i = {
-      ...r,
-      floor: r.round !== !1 && r.floor !== !1
+  toFormat(fmt, opts = {}) {
+    const fmtOpts = {
+      ...opts,
+      floor: opts.round !== false && opts.floor !== false
     };
-    return this.isValid ? ve.create(this.loc, i).formatDurationFromString(this, e) : ro;
+    return this.isValid ? Formatter.create(this.loc, fmtOpts).formatDurationFromString(this, fmt) : INVALID$2;
   }
   /**
    * Returns a string representation of a Duration with all units included.
@@ -2271,13 +2730,16 @@ class X {
    * dur.toHuman({ unitDisplay: "short" }) //=> '1 day, 5 hr, 6 min'
    * ```
    */
-  toHuman(e = {}) {
-    if (!this.isValid) return ro;
-    const r = Ot.map((i) => {
-      const a = this.values[i];
-      return Z(a) ? null : this.loc.numberFormatter({ style: "unit", unitDisplay: "long", ...e, unit: i.slice(0, -1) }).format(a);
-    }).filter((i) => i);
-    return this.loc.listFormatter({ type: "conjunction", style: e.listStyle || "narrow", ...e }).format(r);
+  toHuman(opts = {}) {
+    if (!this.isValid) return INVALID$2;
+    const l2 = orderedUnits$1.map((unit) => {
+      const val = this.values[unit];
+      if (isUndefined(val)) {
+        return null;
+      }
+      return this.loc.numberFormatter({ style: "unit", unitDisplay: "long", ...opts, unit: unit.slice(0, -1) }).format(val);
+    }).filter((n3) => n3);
+    return this.loc.listFormatter({ type: "conjunction", style: opts.listStyle || "narrow", ...opts }).format(l2);
   }
   /**
    * Returns a JavaScript object with this Duration's values.
@@ -2285,7 +2747,8 @@ class X {
    * @return {Object}
    */
   toObject() {
-    return this.isValid ? { ...this.values } : {};
+    if (!this.isValid) return {};
+    return { ...this.values };
   }
   /**
    * Returns an ISO 8601-compliant string representation of this Duration.
@@ -2299,8 +2762,19 @@ class X {
    */
   toISO() {
     if (!this.isValid) return null;
-    let e = "P";
-    return this.years !== 0 && (e += this.years + "Y"), (this.months !== 0 || this.quarters !== 0) && (e += this.months + this.quarters * 3 + "M"), this.weeks !== 0 && (e += this.weeks + "W"), this.days !== 0 && (e += this.days + "D"), (this.hours !== 0 || this.minutes !== 0 || this.seconds !== 0 || this.milliseconds !== 0) && (e += "T"), this.hours !== 0 && (e += this.hours + "H"), this.minutes !== 0 && (e += this.minutes + "M"), (this.seconds !== 0 || this.milliseconds !== 0) && (e += Gi(this.seconds + this.milliseconds / 1e3, 3) + "S"), e === "P" && (e += "T0S"), e;
+    let s2 = "P";
+    if (this.years !== 0) s2 += this.years + "Y";
+    if (this.months !== 0 || this.quarters !== 0) s2 += this.months + this.quarters * 3 + "M";
+    if (this.weeks !== 0) s2 += this.weeks + "W";
+    if (this.days !== 0) s2 += this.days + "D";
+    if (this.hours !== 0 || this.minutes !== 0 || this.seconds !== 0 || this.milliseconds !== 0)
+      s2 += "T";
+    if (this.hours !== 0) s2 += this.hours + "H";
+    if (this.minutes !== 0) s2 += this.minutes + "M";
+    if (this.seconds !== 0 || this.milliseconds !== 0)
+      s2 += roundTo(this.seconds + this.milliseconds / 1e3, 3) + "S";
+    if (s2 === "P") s2 += "T0S";
+    return s2;
   }
   /**
    * Returns an ISO 8601-compliant string representation of this Duration, formatted as a time of day.
@@ -2318,17 +2792,20 @@ class X {
    * @example Duration.fromObject({ hours: 11 }).toISOTime({ format: 'basic' }) //=> '110000.000'
    * @return {string}
    */
-  toISOTime(e = {}) {
+  toISOTime(opts = {}) {
     if (!this.isValid) return null;
-    const r = this.toMillis();
-    return r < 0 || r >= 864e5 ? null : (e = {
-      suppressMilliseconds: !1,
-      suppressSeconds: !1,
-      includePrefix: !1,
+    const millis = this.toMillis();
+    if (millis < 0 || millis >= 864e5) return null;
+    opts = {
+      suppressMilliseconds: false,
+      suppressSeconds: false,
+      includePrefix: false,
       format: "extended",
-      ...e,
-      includeOffset: !1
-    }, K.fromMillis(r, { zone: "UTC" }).toISOTime(e));
+      ...opts,
+      includeOffset: false
+    };
+    const dateTime = DateTime.fromMillis(millis, { zone: "UTC" });
+    return dateTime.toISOTime(opts);
   }
   /**
    * Returns an ISO 8601 representation of this Duration appropriate for use in JSON.
@@ -2349,14 +2826,19 @@ class X {
    * @return {string}
    */
   [Symbol.for("nodejs.util.inspect.custom")]() {
-    return this.isValid ? `Duration { values: ${JSON.stringify(this.values)} }` : `Duration { Invalid, reason: ${this.invalidReason} }`;
+    if (this.isValid) {
+      return `Duration { values: ${JSON.stringify(this.values)} }`;
+    } else {
+      return `Duration { Invalid, reason: ${this.invalidReason} }`;
+    }
   }
   /**
    * Returns an milliseconds value of this Duration.
    * @return {number}
    */
   toMillis() {
-    return this.isValid ? ka(this.matrix, this.values) : NaN;
+    if (!this.isValid) return NaN;
+    return durationToMillis(this.matrix, this.values);
   }
   /**
    * Returns an milliseconds value of this Duration. Alias of {@link toMillis}
@@ -2370,22 +2852,25 @@ class X {
    * @param {Duration|Object|number} duration - The amount to add. Either a Luxon Duration, a number of milliseconds, the object argument to Duration.fromObject()
    * @return {Duration}
    */
-  plus(e) {
+  plus(duration) {
     if (!this.isValid) return this;
-    const r = X.fromDurationLike(e), i = {};
-    for (const a of Ot)
-      (Gt(r.values, a) || Gt(this.values, a)) && (i[a] = r.get(a) + this.get(a));
-    return nt(this, { values: i }, !0);
+    const dur = Duration.fromDurationLike(duration), result = {};
+    for (const k2 of orderedUnits$1) {
+      if (hasOwnProperty(dur.values, k2) || hasOwnProperty(this.values, k2)) {
+        result[k2] = dur.get(k2) + this.get(k2);
+      }
+    }
+    return clone$1(this, { values: result }, true);
   }
   /**
    * Make this Duration shorter by the specified amount. Return a newly-constructed Duration.
    * @param {Duration|Object|number} duration - The amount to subtract. Either a Luxon Duration, a number of milliseconds, the object argument to Duration.fromObject()
    * @return {Duration}
    */
-  minus(e) {
+  minus(duration) {
     if (!this.isValid) return this;
-    const r = X.fromDurationLike(e);
-    return this.plus(r.negate());
+    const dur = Duration.fromDurationLike(duration);
+    return this.plus(dur.negate());
   }
   /**
    * Scale this Duration by the specified amount. Return a newly-constructed Duration.
@@ -2394,12 +2879,13 @@ class X {
    * @example Duration.fromObject({ hours: 1, minutes: 30 }).mapUnits((x, u) => u === "hours" ? x * 2 : x) //=> { hours: 2, minutes: 30 }
    * @return {Duration}
    */
-  mapUnits(e) {
+  mapUnits(fn) {
     if (!this.isValid) return this;
-    const r = {};
-    for (const i of Object.keys(this.values))
-      r[i] = oa(e(this.values[i], i));
-    return nt(this, { values: r }, !0);
+    const result = {};
+    for (const k2 of Object.keys(this.values)) {
+      result[k2] = asNumber(fn(this.values[k2], k2));
+    }
+    return clone$1(this, { values: result }, true);
   }
   /**
    * Get the value of unit.
@@ -2409,8 +2895,8 @@ class X {
    * @example Duration.fromObject({years: 2, days: 3}).get('days') //=> 3
    * @return {number}
    */
-  get(e) {
-    return this[X.normalizeUnit(e)];
+  get(unit) {
+    return this[Duration.normalizeUnit(unit)];
   }
   /**
    * "Set" the values of specified units. Return a newly-constructed Duration.
@@ -2419,19 +2905,20 @@ class X {
    * @example dur.set({ hours: 8, minutes: 30 })
    * @return {Duration}
    */
-  set(e) {
+  set(values) {
     if (!this.isValid) return this;
-    const r = { ...this.values, ...Cr(e, X.normalizeUnit) };
-    return nt(this, { values: r });
+    const mixed = { ...this.values, ...normalizeObject(values, Duration.normalizeUnit) };
+    return clone$1(this, { values: mixed });
   }
   /**
    * "Set" the locale and/or numberingSystem.  Returns a newly-constructed Duration.
    * @example dur.reconfigure({ locale: 'en-GB' })
    * @return {Duration}
    */
-  reconfigure({ locale: e, numberingSystem: r, conversionAccuracy: i, matrix: a } = {}) {
-    const h = { loc: this.loc.clone({ locale: e, numberingSystem: r }), matrix: a, conversionAccuracy: i };
-    return nt(this, h);
+  reconfigure({ locale, numberingSystem, conversionAccuracy, matrix } = {}) {
+    const loc = this.loc.clone({ locale, numberingSystem });
+    const opts = { loc, matrix, conversionAccuracy };
+    return clone$1(this, opts);
   }
   /**
    * Return the length of the duration in the specified unit.
@@ -2441,8 +2928,8 @@ class X {
    * @example Duration.fromObject({hours: 60}).as('days') //=> 2.5
    * @return {number}
    */
-  as(e) {
-    return this.isValid ? this.shiftTo(e).get(e) : NaN;
+  as(unit) {
+    return this.isValid ? this.shiftTo(unit).get(unit) : NaN;
   }
   /**
    * Reduce this Duration to its canonical representation in its current units.
@@ -2461,8 +2948,9 @@ class X {
    */
   normalize() {
     if (!this.isValid) return this;
-    const e = this.toObject();
-    return io(this.matrix, e), nt(this, { values: e }, !0);
+    const vals = this.toObject();
+    normalizeValues(this.matrix, vals);
+    return clone$1(this, { values: vals }, true);
   }
   /**
    * Rescale units to its largest representation
@@ -2471,34 +2959,47 @@ class X {
    */
   rescale() {
     if (!this.isValid) return this;
-    const e = Jl(this.normalize().shiftToAll().toObject());
-    return nt(this, { values: e }, !0);
+    const vals = removeZeroes(this.normalize().shiftToAll().toObject());
+    return clone$1(this, { values: vals }, true);
   }
   /**
    * Convert this Duration into its representation in a different set of units.
    * @example Duration.fromObject({ hours: 1, seconds: 30 }).shiftTo('minutes', 'milliseconds').toObject() //=> { minutes: 60, milliseconds: 30000 }
    * @return {Duration}
    */
-  shiftTo(...e) {
+  shiftTo(...units) {
     if (!this.isValid) return this;
-    if (e.length === 0)
+    if (units.length === 0) {
       return this;
-    e = e.map((h) => X.normalizeUnit(h));
-    const r = {}, i = {}, a = this.toObject();
-    let c;
-    for (const h of Ot)
-      if (e.indexOf(h) >= 0) {
-        c = h;
-        let m = 0;
-        for (const A in i)
-          m += this.matrix[A][h] * i[A], i[A] = 0;
-        at(a[h]) && (m += a[h]);
-        const v = Math.trunc(m);
-        r[h] = v, i[h] = (m * 1e3 - v * 1e3) / 1e3;
-      } else at(a[h]) && (i[h] = a[h]);
-    for (const h in i)
-      i[h] !== 0 && (r[c] += h === c ? i[h] : i[h] / this.matrix[c][h]);
-    return io(this.matrix, r), nt(this, { values: r }, !0);
+    }
+    units = units.map((u2) => Duration.normalizeUnit(u2));
+    const built = {}, accumulated = {}, vals = this.toObject();
+    let lastUnit;
+    for (const k2 of orderedUnits$1) {
+      if (units.indexOf(k2) >= 0) {
+        lastUnit = k2;
+        let own = 0;
+        for (const ak in accumulated) {
+          own += this.matrix[ak][k2] * accumulated[ak];
+          accumulated[ak] = 0;
+        }
+        if (isNumber(vals[k2])) {
+          own += vals[k2];
+        }
+        const i2 = Math.trunc(own);
+        built[k2] = i2;
+        accumulated[k2] = (own * 1e3 - i2 * 1e3) / 1e3;
+      } else if (isNumber(vals[k2])) {
+        accumulated[k2] = vals[k2];
+      }
+    }
+    for (const key in accumulated) {
+      if (accumulated[key] !== 0) {
+        built[lastUnit] += key === lastUnit ? accumulated[key] : accumulated[key] / this.matrix[lastUnit][key];
+      }
+    }
+    normalizeValues(this.matrix, built);
+    return clone$1(this, { values: built }, true);
   }
   /**
    * Shift this Duration to all available units.
@@ -2506,7 +3007,8 @@ class X {
    * @return {Duration}
    */
   shiftToAll() {
-    return this.isValid ? this.shiftTo(
+    if (!this.isValid) return this;
+    return this.shiftTo(
       "years",
       "months",
       "weeks",
@@ -2515,7 +3017,7 @@ class X {
       "minutes",
       "seconds",
       "milliseconds"
-    ) : this;
+    );
   }
   /**
    * Return the negative of this Duration.
@@ -2524,10 +3026,11 @@ class X {
    */
   negate() {
     if (!this.isValid) return this;
-    const e = {};
-    for (const r of Object.keys(this.values))
-      e[r] = this.values[r] === 0 ? 0 : -this.values[r];
-    return nt(this, { values: e }, !0);
+    const negated = {};
+    for (const k2 of Object.keys(this.values)) {
+      negated[k2] = this.values[k2] === 0 ? 0 : -this.values[k2];
+    }
+    return clone$1(this, { values: negated }, true);
   }
   /**
    * Get the years.
@@ -2620,31 +3123,49 @@ class X {
    * @param {Duration} other
    * @return {boolean}
    */
-  equals(e) {
-    if (!this.isValid || !e.isValid || !this.loc.equals(e.loc))
-      return !1;
-    function r(i, a) {
-      return i === void 0 || i === 0 ? a === void 0 || a === 0 : i === a;
+  equals(other) {
+    if (!this.isValid || !other.isValid) {
+      return false;
     }
-    for (const i of Ot)
-      if (!r(this.values[i], e.values[i]))
-        return !1;
-    return !0;
+    if (!this.loc.equals(other.loc)) {
+      return false;
+    }
+    function eq(v1, v2) {
+      if (v1 === void 0 || v1 === 0) return v2 === void 0 || v2 === 0;
+      return v1 === v2;
+    }
+    for (const u2 of orderedUnits$1) {
+      if (!eq(this.values[u2], other.values[u2])) {
+        return false;
+      }
+    }
+    return true;
   }
 }
-const Ut = "Invalid Interval";
-function Xl(s, e) {
-  return !s || !s.isValid ? ae.invalid("missing or invalid start") : !e || !e.isValid ? ae.invalid("missing or invalid end") : e < s ? ae.invalid(
-    "end before start",
-    `The end of an interval must be after its start, but you had start=${s.toISO()} and end=${e.toISO()}`
-  ) : null;
+const INVALID$1 = "Invalid Interval";
+function validateStartEnd(start, end) {
+  if (!start || !start.isValid) {
+    return Interval.invalid("missing or invalid start");
+  } else if (!end || !end.isValid) {
+    return Interval.invalid("missing or invalid end");
+  } else if (end < start) {
+    return Interval.invalid(
+      "end before start",
+      `The end of an interval must be after its start, but you had start=${start.toISO()} and end=${end.toISO()}`
+    );
+  } else {
+    return null;
+  }
 }
-class ae {
+class Interval {
   /**
    * @private
    */
-  constructor(e) {
-    this.s = e.start, this.e = e.end, this.invalid = e.invalid || null, this.isLuxonInterval = !0;
+  constructor(config) {
+    this.s = config.start;
+    this.e = config.end;
+    this.invalid = config.invalid || null;
+    this.isLuxonInterval = true;
   }
   /**
    * Create an invalid Interval.
@@ -2652,13 +3173,16 @@ class ae {
    * @param {string} [explanation=null] - longer explanation, may include parameters and other useful debugging information
    * @return {Interval}
    */
-  static invalid(e, r = null) {
-    if (!e)
-      throw new ge("need to specify a reason the Interval is invalid");
-    const i = e instanceof Pe ? e : new Pe(e, r);
-    if (ue.throwOnInvalid)
-      throw new ku(i);
-    return new ae({ invalid: i });
+  static invalid(reason, explanation = null) {
+    if (!reason) {
+      throw new InvalidArgumentError("need to specify a reason the Interval is invalid");
+    }
+    const invalid = reason instanceof Invalid ? reason : new Invalid(reason, explanation);
+    if (Settings.throwOnInvalid) {
+      throw new InvalidIntervalError(invalid);
+    } else {
+      return new Interval({ invalid });
+    }
   }
   /**
    * Create an Interval from a start DateTime and an end DateTime. Inclusive of the start but not the end.
@@ -2666,12 +3190,17 @@ class ae {
    * @param {DateTime|Date|Object} end
    * @return {Interval}
    */
-  static fromDateTimes(e, r) {
-    const i = Sn(e), a = Sn(r), c = Xl(i, a);
-    return c ?? new ae({
-      start: i,
-      end: a
-    });
+  static fromDateTimes(start, end) {
+    const builtStart = friendlyDateTime(start), builtEnd = friendlyDateTime(end);
+    const validateError = validateStartEnd(builtStart, builtEnd);
+    if (validateError == null) {
+      return new Interval({
+        start: builtStart,
+        end: builtEnd
+      });
+    } else {
+      return validateError;
+    }
   }
   /**
    * Create an Interval from a start DateTime and a Duration to extend to.
@@ -2679,9 +3208,9 @@ class ae {
    * @param {Duration|Object|number} duration - the length of the Interval.
    * @return {Interval}
    */
-  static after(e, r) {
-    const i = X.fromDurationLike(r), a = Sn(e);
-    return ae.fromDateTimes(a, a.plus(i));
+  static after(start, duration) {
+    const dur = Duration.fromDurationLike(duration), dt = friendlyDateTime(start);
+    return Interval.fromDateTimes(dt, dt.plus(dur));
   }
   /**
    * Create an Interval from an end DateTime and a Duration to extend backwards to.
@@ -2689,9 +3218,9 @@ class ae {
    * @param {Duration|Object|number} duration - the length of the Interval.
    * @return {Interval}
    */
-  static before(e, r) {
-    const i = X.fromDurationLike(r), a = Sn(e);
-    return ae.fromDateTimes(a.minus(i), a);
+  static before(end, duration) {
+    const dur = Duration.fromDurationLike(duration), dt = friendlyDateTime(end);
+    return Interval.fromDateTimes(dt.minus(dur), dt);
   }
   /**
    * Create an Interval from an ISO 8601 string.
@@ -2701,42 +3230,47 @@ class ae {
    * @see https://en.wikipedia.org/wiki/ISO_8601#Time_intervals
    * @return {Interval}
    */
-  static fromISO(e, r) {
-    const [i, a] = (e || "").split("/", 2);
-    if (i && a) {
-      let c, h;
+  static fromISO(text, opts) {
+    const [s2, e2] = (text || "").split("/", 2);
+    if (s2 && e2) {
+      let start, startIsValid;
       try {
-        c = K.fromISO(i, r), h = c.isValid;
-      } catch {
-        h = !1;
+        start = DateTime.fromISO(s2, opts);
+        startIsValid = start.isValid;
+      } catch (e3) {
+        startIsValid = false;
       }
-      let m, v;
+      let end, endIsValid;
       try {
-        m = K.fromISO(a, r), v = m.isValid;
-      } catch {
-        v = !1;
+        end = DateTime.fromISO(e2, opts);
+        endIsValid = end.isValid;
+      } catch (e3) {
+        endIsValid = false;
       }
-      if (h && v)
-        return ae.fromDateTimes(c, m);
-      if (h) {
-        const A = X.fromISO(a, r);
-        if (A.isValid)
-          return ae.after(c, A);
-      } else if (v) {
-        const A = X.fromISO(i, r);
-        if (A.isValid)
-          return ae.before(m, A);
+      if (startIsValid && endIsValid) {
+        return Interval.fromDateTimes(start, end);
+      }
+      if (startIsValid) {
+        const dur = Duration.fromISO(e2, opts);
+        if (dur.isValid) {
+          return Interval.after(start, dur);
+        }
+      } else if (endIsValid) {
+        const dur = Duration.fromISO(s2, opts);
+        if (dur.isValid) {
+          return Interval.before(end, dur);
+        }
       }
     }
-    return ae.invalid("unparsable", `the input "${e}" can't be parsed as ISO 8601`);
+    return Interval.invalid("unparsable", `the input "${text}" can't be parsed as ISO 8601`);
   }
   /**
    * Check if an object is an Interval. Works across context boundaries
    * @param {object} o
    * @return {boolean}
    */
-  static isInterval(e) {
-    return e && e.isLuxonInterval || !1;
+  static isInterval(o2) {
+    return o2 && o2.isLuxonInterval || false;
   }
   /**
    * Returns the start of the Interval
@@ -2778,8 +3312,8 @@ class ae {
    * @param {string} unit - the unit (such as 'hours' or 'days') to return the length in.
    * @return {number}
    */
-  length(e = "milliseconds") {
-    return this.isValid ? this.toDuration(e).get(e) : NaN;
+  length(unit = "milliseconds") {
+    return this.isValid ? this.toDuration(...[unit]).get(unit) : NaN;
   }
   /**
    * Returns the count of minutes, hours, days, months, or years included in the Interval, even in part.
@@ -2790,19 +3324,25 @@ class ae {
    * @param {boolean} [opts.useLocaleWeeks=false] - If true, use weeks based on the locale, i.e. use the locale-dependent start of the week; this operation will always use the locale of the start DateTime
    * @return {number}
    */
-  count(e = "milliseconds", r) {
+  count(unit = "milliseconds", opts) {
     if (!this.isValid) return NaN;
-    const i = this.start.startOf(e, r);
-    let a;
-    return r != null && r.useLocaleWeeks ? a = this.end.reconfigure({ locale: i.locale }) : a = this.end, a = a.startOf(e, r), Math.floor(a.diff(i, e).get(e)) + (a.valueOf() !== this.end.valueOf());
+    const start = this.start.startOf(unit, opts);
+    let end;
+    if (opts == null ? void 0 : opts.useLocaleWeeks) {
+      end = this.end.reconfigure({ locale: start.locale });
+    } else {
+      end = this.end;
+    }
+    end = end.startOf(unit, opts);
+    return Math.floor(end.diff(start, unit).get(unit)) + (end.valueOf() !== this.end.valueOf());
   }
   /**
    * Returns whether this Interval's start and end are both in the same unit of time
    * @param {string} unit - the unit of time to check sameness on
    * @return {boolean}
    */
-  hasSame(e) {
-    return this.isValid ? this.isEmpty() || this.e.minus(1).hasSame(this.s, e) : !1;
+  hasSame(unit) {
+    return this.isValid ? this.isEmpty() || this.e.minus(1).hasSame(this.s, unit) : false;
   }
   /**
    * Return whether this Interval has the same start and end DateTimes.
@@ -2816,24 +3356,27 @@ class ae {
    * @param {DateTime} dateTime
    * @return {boolean}
    */
-  isAfter(e) {
-    return this.isValid ? this.s > e : !1;
+  isAfter(dateTime) {
+    if (!this.isValid) return false;
+    return this.s > dateTime;
   }
   /**
    * Return whether this Interval's end is before the specified DateTime.
    * @param {DateTime} dateTime
    * @return {boolean}
    */
-  isBefore(e) {
-    return this.isValid ? this.e <= e : !1;
+  isBefore(dateTime) {
+    if (!this.isValid) return false;
+    return this.e <= dateTime;
   }
   /**
    * Return whether this Interval contains the specified DateTime.
    * @param {DateTime} dateTime
    * @return {boolean}
    */
-  contains(e) {
-    return this.isValid ? this.s <= e && this.e > e : !1;
+  contains(dateTime) {
+    if (!this.isValid) return false;
+    return this.s <= dateTime && this.e > dateTime;
   }
   /**
    * "Sets" the start and/or end dates. Returns a newly-constructed Interval.
@@ -2842,23 +3385,26 @@ class ae {
    * @param {DateTime} values.end - the ending DateTime
    * @return {Interval}
    */
-  set({ start: e, end: r } = {}) {
-    return this.isValid ? ae.fromDateTimes(e || this.s, r || this.e) : this;
+  set({ start, end } = {}) {
+    if (!this.isValid) return this;
+    return Interval.fromDateTimes(start || this.s, end || this.e);
   }
   /**
    * Split this Interval at each of the specified DateTimes
    * @param {...DateTime} dateTimes - the unit of time to count.
    * @return {Array}
    */
-  splitAt(...e) {
+  splitAt(...dateTimes) {
     if (!this.isValid) return [];
-    const r = e.map(Sn).filter((h) => this.contains(h)).sort((h, m) => h.toMillis() - m.toMillis()), i = [];
-    let { s: a } = this, c = 0;
-    for (; a < this.e; ) {
-      const h = r[c] || this.e, m = +h > +this.e ? this.e : h;
-      i.push(ae.fromDateTimes(a, m)), a = m, c += 1;
+    const sorted = dateTimes.map(friendlyDateTime).filter((d2) => this.contains(d2)).sort((a2, b2) => a2.toMillis() - b2.toMillis()), results = [];
+    let { s: s2 } = this, i2 = 0;
+    while (s2 < this.e) {
+      const added = sorted[i2] || this.e, next = +added > +this.e ? this.e : added;
+      results.push(Interval.fromDateTimes(s2, next));
+      s2 = next;
+      i2 += 1;
     }
-    return i;
+    return results;
   }
   /**
    * Split this Interval into smaller Intervals, each of the specified length.
@@ -2866,65 +3412,76 @@ class ae {
    * @param {Duration|Object|number} duration - The length of each resulting interval.
    * @return {Array}
    */
-  splitBy(e) {
-    const r = X.fromDurationLike(e);
-    if (!this.isValid || !r.isValid || r.as("milliseconds") === 0)
+  splitBy(duration) {
+    const dur = Duration.fromDurationLike(duration);
+    if (!this.isValid || !dur.isValid || dur.as("milliseconds") === 0) {
       return [];
-    let { s: i } = this, a = 1, c;
-    const h = [];
-    for (; i < this.e; ) {
-      const m = this.start.plus(r.mapUnits((v) => v * a));
-      c = +m > +this.e ? this.e : m, h.push(ae.fromDateTimes(i, c)), i = c, a += 1;
     }
-    return h;
+    let { s: s2 } = this, idx = 1, next;
+    const results = [];
+    while (s2 < this.e) {
+      const added = this.start.plus(dur.mapUnits((x2) => x2 * idx));
+      next = +added > +this.e ? this.e : added;
+      results.push(Interval.fromDateTimes(s2, next));
+      s2 = next;
+      idx += 1;
+    }
+    return results;
   }
   /**
    * Split this Interval into the specified number of smaller intervals.
    * @param {number} numberOfParts - The number of Intervals to divide the Interval into.
    * @return {Array}
    */
-  divideEqually(e) {
-    return this.isValid ? this.splitBy(this.length() / e).slice(0, e) : [];
+  divideEqually(numberOfParts) {
+    if (!this.isValid) return [];
+    return this.splitBy(this.length() / numberOfParts).slice(0, numberOfParts);
   }
   /**
    * Return whether this Interval overlaps with the specified Interval
    * @param {Interval} other
    * @return {boolean}
    */
-  overlaps(e) {
-    return this.e > e.s && this.s < e.e;
+  overlaps(other) {
+    return this.e > other.s && this.s < other.e;
   }
   /**
    * Return whether this Interval's end is adjacent to the specified Interval's start.
    * @param {Interval} other
    * @return {boolean}
    */
-  abutsStart(e) {
-    return this.isValid ? +this.e == +e.s : !1;
+  abutsStart(other) {
+    if (!this.isValid) return false;
+    return +this.e === +other.s;
   }
   /**
    * Return whether this Interval's start is adjacent to the specified Interval's end.
    * @param {Interval} other
    * @return {boolean}
    */
-  abutsEnd(e) {
-    return this.isValid ? +e.e == +this.s : !1;
+  abutsEnd(other) {
+    if (!this.isValid) return false;
+    return +other.e === +this.s;
   }
   /**
    * Returns true if this Interval fully contains the specified Interval, specifically if the intersect (of this Interval and the other Interval) is equal to the other Interval; false otherwise.
    * @param {Interval} other
    * @return {boolean}
    */
-  engulfs(e) {
-    return this.isValid ? this.s <= e.s && this.e >= e.e : !1;
+  engulfs(other) {
+    if (!this.isValid) return false;
+    return this.s <= other.s && this.e >= other.e;
   }
   /**
    * Return whether this Interval has the same start and end as the specified Interval.
    * @param {Interval} other
    * @return {boolean}
    */
-  equals(e) {
-    return !this.isValid || !e.isValid ? !1 : this.s.equals(e.s) && this.e.equals(e.e);
+  equals(other) {
+    if (!this.isValid || !other.isValid) {
+      return false;
+    }
+    return this.s.equals(other.s) && this.e.equals(other.e);
   }
   /**
    * Return an Interval representing the intersection of this Interval and the specified Interval.
@@ -2933,10 +3490,14 @@ class ae {
    * @param {Interval} other
    * @return {Interval}
    */
-  intersection(e) {
+  intersection(other) {
     if (!this.isValid) return this;
-    const r = this.s > e.s ? this.s : e.s, i = this.e < e.e ? this.e : e.e;
-    return r >= i ? null : ae.fromDateTimes(r, i);
+    const s2 = this.s > other.s ? this.s : other.s, e2 = this.e < other.e ? this.e : other.e;
+    if (s2 >= e2) {
+      return null;
+    } else {
+      return Interval.fromDateTimes(s2, e2);
+    }
   }
   /**
    * Return an Interval representing the union of this Interval and the specified Interval.
@@ -2944,10 +3505,10 @@ class ae {
    * @param {Interval} other
    * @return {Interval}
    */
-  union(e) {
+  union(other) {
     if (!this.isValid) return this;
-    const r = this.s < e.s ? this.s : e.s, i = this.e > e.e ? this.e : e.e;
-    return ae.fromDateTimes(r, i);
+    const s2 = this.s < other.s ? this.s : other.s, e2 = this.e > other.e ? this.e : other.e;
+    return Interval.fromDateTimes(s2, e2);
   }
   /**
    * Merge an array of Intervals into a equivalent minimal set of Intervals.
@@ -2955,49 +3516,74 @@ class ae {
    * @param {Array} intervals
    * @return {Array}
    */
-  static merge(e) {
-    const [r, i] = e.sort((a, c) => a.s - c.s).reduce(
-      ([a, c], h) => c ? c.overlaps(h) || c.abutsStart(h) ? [a, c.union(h)] : [a.concat([c]), h] : [a, h],
+  static merge(intervals) {
+    const [found, final] = intervals.sort((a2, b2) => a2.s - b2.s).reduce(
+      ([sofar, current], item) => {
+        if (!current) {
+          return [sofar, item];
+        } else if (current.overlaps(item) || current.abutsStart(item)) {
+          return [sofar, current.union(item)];
+        } else {
+          return [sofar.concat([current]), item];
+        }
+      },
       [[], null]
     );
-    return i && r.push(i), r;
+    if (final) {
+      found.push(final);
+    }
+    return found;
   }
   /**
    * Return an array of Intervals representing the spans of time that only appear in one of the specified Intervals.
    * @param {Array} intervals
    * @return {Array}
    */
-  static xor(e) {
-    let r = null, i = 0;
-    const a = [], c = e.map((v) => [
-      { time: v.s, type: "s" },
-      { time: v.e, type: "e" }
-    ]), h = Array.prototype.concat(...c), m = h.sort((v, A) => v.time - A.time);
-    for (const v of m)
-      i += v.type === "s" ? 1 : -1, i === 1 ? r = v.time : (r && +r != +v.time && a.push(ae.fromDateTimes(r, v.time)), r = null);
-    return ae.merge(a);
+  static xor(intervals) {
+    let start = null, currentCount = 0;
+    const results = [], ends = intervals.map((i2) => [
+      { time: i2.s, type: "s" },
+      { time: i2.e, type: "e" }
+    ]), flattened = Array.prototype.concat(...ends), arr = flattened.sort((a2, b2) => a2.time - b2.time);
+    for (const i2 of arr) {
+      currentCount += i2.type === "s" ? 1 : -1;
+      if (currentCount === 1) {
+        start = i2.time;
+      } else {
+        if (start && +start !== +i2.time) {
+          results.push(Interval.fromDateTimes(start, i2.time));
+        }
+        start = null;
+      }
+    }
+    return Interval.merge(results);
   }
   /**
    * Return an Interval representing the span of time in this Interval that doesn't overlap with any of the specified Intervals.
    * @param {...Interval} intervals
    * @return {Array}
    */
-  difference(...e) {
-    return ae.xor([this].concat(e)).map((r) => this.intersection(r)).filter((r) => r && !r.isEmpty());
+  difference(...intervals) {
+    return Interval.xor([this].concat(intervals)).map((i2) => this.intersection(i2)).filter((i2) => i2 && !i2.isEmpty());
   }
   /**
    * Returns a string representation of this Interval appropriate for debugging.
    * @return {string}
    */
   toString() {
-    return this.isValid ? `[${this.s.toISO()} – ${this.e.toISO()})` : Ut;
+    if (!this.isValid) return INVALID$1;
+    return `[${this.s.toISO()} – ${this.e.toISO()})`;
   }
   /**
    * Returns a string representation of this Interval appropriate for the REPL.
    * @return {string}
    */
   [Symbol.for("nodejs.util.inspect.custom")]() {
-    return this.isValid ? `Interval { start: ${this.s.toISO()}, end: ${this.e.toISO()} }` : `Interval { Invalid, reason: ${this.invalidReason} }`;
+    if (this.isValid) {
+      return `Interval { start: ${this.s.toISO()}, end: ${this.e.toISO()} }`;
+    } else {
+      return `Interval { Invalid, reason: ${this.invalidReason} }`;
+    }
   }
   /**
    * Returns a localized string representing this Interval. Accepts the same options as the
@@ -3017,8 +3603,8 @@ class ae {
    * @example Interval.fromISO('2022-11-07T17:00Z/2022-11-07T19:00Z').toLocaleString({ weekday: 'short', month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }); //=> Mon, Nov 07, 6:00 – 8:00 p
    * @return {string}
    */
-  toLocaleString(e = Er, r = {}) {
-    return this.isValid ? ve.create(this.s.loc.clone(r), e).formatInterval(this) : Ut;
+  toLocaleString(formatOpts = DATE_SHORT, opts = {}) {
+    return this.isValid ? Formatter.create(this.s.loc.clone(opts), formatOpts).formatInterval(this) : INVALID$1;
   }
   /**
    * Returns an ISO 8601-compliant string representation of this Interval.
@@ -3026,8 +3612,9 @@ class ae {
    * @param {Object} opts - The same options as {@link DateTime#toISO}
    * @return {string}
    */
-  toISO(e) {
-    return this.isValid ? `${this.s.toISO(e)}/${this.e.toISO(e)}` : Ut;
+  toISO(opts) {
+    if (!this.isValid) return INVALID$1;
+    return `${this.s.toISO(opts)}/${this.e.toISO(opts)}`;
   }
   /**
    * Returns an ISO 8601-compliant string representation of date of this Interval.
@@ -3036,7 +3623,8 @@ class ae {
    * @return {string}
    */
   toISODate() {
-    return this.isValid ? `${this.s.toISODate()}/${this.e.toISODate()}` : Ut;
+    if (!this.isValid) return INVALID$1;
+    return `${this.s.toISODate()}/${this.e.toISODate()}`;
   }
   /**
    * Returns an ISO 8601-compliant string representation of time of this Interval.
@@ -3045,8 +3633,9 @@ class ae {
    * @param {Object} opts - The same options as {@link DateTime#toISO}
    * @return {string}
    */
-  toISOTime(e) {
-    return this.isValid ? `${this.s.toISOTime(e)}/${this.e.toISOTime(e)}` : Ut;
+  toISOTime(opts) {
+    if (!this.isValid) return INVALID$1;
+    return `${this.s.toISOTime(opts)}/${this.e.toISOTime(opts)}`;
   }
   /**
    * Returns a string representation of this Interval formatted according to the specified format
@@ -3059,8 +3648,9 @@ class ae {
    * representations.
    * @return {string}
    */
-  toFormat(e, { separator: r = " – " } = {}) {
-    return this.isValid ? `${this.s.toFormat(e)}${r}${this.e.toFormat(e)}` : Ut;
+  toFormat(dateFormat, { separator = " – " } = {}) {
+    if (!this.isValid) return INVALID$1;
+    return `${this.s.toFormat(dateFormat)}${separator}${this.e.toFormat(dateFormat)}`;
   }
   /**
    * Return a Duration representing the time spanned by this interval.
@@ -3074,8 +3664,11 @@ class ae {
    * @example Interval.fromDateTimes(dt1, dt2).toDuration('seconds').toObject() //=> { seconds: 88489.257 }
    * @return {Duration}
    */
-  toDuration(e, r) {
-    return this.isValid ? this.e.diff(this.s, e, r) : X.invalid(this.invalidReason);
+  toDuration(unit, opts) {
+    if (!this.isValid) {
+      return Duration.invalid(this.invalidReason);
+    }
+    return this.e.diff(this.s, unit, opts);
   }
   /**
    * Run mapFn on the interval start and end, returning a new Interval from the resulting DateTimes
@@ -3084,27 +3677,27 @@ class ae {
    * @example Interval.fromDateTimes(dt1, dt2).mapEndpoints(endpoint => endpoint.toUTC())
    * @example Interval.fromDateTimes(dt1, dt2).mapEndpoints(endpoint => endpoint.plus({ hours: 2 }))
    */
-  mapEndpoints(e) {
-    return ae.fromDateTimes(e(this.s), e(this.e));
+  mapEndpoints(mapFn) {
+    return Interval.fromDateTimes(mapFn(this.s), mapFn(this.e));
   }
 }
-class On {
+class Info {
   /**
    * Return whether the specified zone contains a DST.
    * @param {string|Zone} [zone='local'] - Zone to check. Defaults to the environment's local zone.
    * @return {boolean}
    */
-  static hasDST(e = ue.defaultZone) {
-    const r = K.now().setZone(e).set({ month: 12 });
-    return !e.isUniversal && r.offset !== r.set({ month: 6 }).offset;
+  static hasDST(zone = Settings.defaultZone) {
+    const proto = DateTime.now().setZone(zone).set({ month: 12 });
+    return !zone.isUniversal && proto.offset !== proto.set({ month: 6 }).offset;
   }
   /**
    * Return whether the specified zone is a valid IANA specifier.
    * @param {string} zone - Zone to check
    * @return {boolean}
    */
-  static isValidIANAZone(e) {
-    return Ue.isValidZone(e);
+  static isValidIANAZone(zone) {
+    return IANAZone.isValidZone(zone);
   }
   /**
    * Converts the input into a {@link Zone} instance.
@@ -3120,8 +3713,8 @@ class On {
    * @param {string|Zone|number} [input] - the value to be converted
    * @return {Zone}
    */
-  static normalizeZone(e) {
-    return it(e, ue.defaultZone);
+  static normalizeZone(input) {
+    return normalizeZone(input, Settings.defaultZone);
   }
   /**
    * Get the weekday on which the week starts according to the given locale.
@@ -3130,8 +3723,8 @@ class On {
    * @param {string} [opts.locObj=null] - an existing locale object to use
    * @returns {number} the start of the week, 1 for Monday through 7 for Sunday
    */
-  static getStartOfWeek({ locale: e = null, locObj: r = null } = {}) {
-    return (r || re.create(e)).getStartOfWeek();
+  static getStartOfWeek({ locale = null, locObj = null } = {}) {
+    return (locObj || Locale.create(locale)).getStartOfWeek();
   }
   /**
    * Get the minimum number of days necessary in a week before it is considered part of the next year according
@@ -3141,8 +3734,8 @@ class On {
    * @param {string} [opts.locObj=null] - an existing locale object to use
    * @returns {number}
    */
-  static getMinimumDaysInFirstWeek({ locale: e = null, locObj: r = null } = {}) {
-    return (r || re.create(e)).getMinDaysInFirstWeek();
+  static getMinimumDaysInFirstWeek({ locale = null, locObj = null } = {}) {
+    return (locObj || Locale.create(locale)).getMinDaysInFirstWeek();
   }
   /**
    * Get the weekdays, which are considered the weekend according to the given locale
@@ -3151,8 +3744,8 @@ class On {
    * @param {string} [opts.locObj=null] - an existing locale object to use
    * @returns {number[]} an array of weekdays, 1 for Monday through 7 for Sunday
    */
-  static getWeekendWeekdays({ locale: e = null, locObj: r = null } = {}) {
-    return (r || re.create(e)).getWeekendDays().slice();
+  static getWeekendWeekdays({ locale = null, locObj = null } = {}) {
+    return (locObj || Locale.create(locale)).getWeekendDays().slice();
   }
   /**
    * Return an array of standalone month names.
@@ -3171,8 +3764,8 @@ class On {
    * @example Info.months('long', { outputCalendar: 'islamic' })[0] //=> 'Rabiʻ I'
    * @return {Array}
    */
-  static months(e = "long", { locale: r = null, numberingSystem: i = null, locObj: a = null, outputCalendar: c = "gregory" } = {}) {
-    return (a || re.create(r, i, c)).months(e);
+  static months(length = "long", { locale = null, numberingSystem = null, locObj = null, outputCalendar = "gregory" } = {}) {
+    return (locObj || Locale.create(locale, numberingSystem, outputCalendar)).months(length);
   }
   /**
    * Return an array of format month names.
@@ -3187,8 +3780,8 @@ class On {
    * @param {string} [opts.outputCalendar='gregory'] - the calendar
    * @return {Array}
    */
-  static monthsFormat(e = "long", { locale: r = null, numberingSystem: i = null, locObj: a = null, outputCalendar: c = "gregory" } = {}) {
-    return (a || re.create(r, i, c)).months(e, !0);
+  static monthsFormat(length = "long", { locale = null, numberingSystem = null, locObj = null, outputCalendar = "gregory" } = {}) {
+    return (locObj || Locale.create(locale, numberingSystem, outputCalendar)).months(length, true);
   }
   /**
    * Return an array of standalone week names.
@@ -3204,8 +3797,8 @@ class On {
    * @example Info.weekdays('short', { locale: 'ar' })[0] //=> 'الاثنين'
    * @return {Array}
    */
-  static weekdays(e = "long", { locale: r = null, numberingSystem: i = null, locObj: a = null } = {}) {
-    return (a || re.create(r, i, null)).weekdays(e);
+  static weekdays(length = "long", { locale = null, numberingSystem = null, locObj = null } = {}) {
+    return (locObj || Locale.create(locale, numberingSystem, null)).weekdays(length);
   }
   /**
    * Return an array of format week names.
@@ -3219,8 +3812,8 @@ class On {
    * @param {string} [opts.locObj=null] - an existing locale object to use
    * @return {Array}
    */
-  static weekdaysFormat(e = "long", { locale: r = null, numberingSystem: i = null, locObj: a = null } = {}) {
-    return (a || re.create(r, i, null)).weekdays(e, !0);
+  static weekdaysFormat(length = "long", { locale = null, numberingSystem = null, locObj = null } = {}) {
+    return (locObj || Locale.create(locale, numberingSystem, null)).weekdays(length, true);
   }
   /**
    * Return an array of meridiems.
@@ -3230,8 +3823,8 @@ class On {
    * @example Info.meridiems({ locale: 'my' }) //=> [ 'နံနက်', 'ညနေ' ]
    * @return {Array}
    */
-  static meridiems({ locale: e = null } = {}) {
-    return re.create(e).meridiems();
+  static meridiems({ locale = null } = {}) {
+    return Locale.create(locale).meridiems();
   }
   /**
    * Return an array of eras, such as ['BC', 'AD']. The locale can be specified, but the calendar system is always Gregorian.
@@ -3243,8 +3836,8 @@ class On {
    * @example Info.eras('long', { locale: 'fr' }) //=> [ 'avant Jésus-Christ', 'après Jésus-Christ' ]
    * @return {Array}
    */
-  static eras(e = "short", { locale: r = null } = {}) {
-    return re.create(r, null, "gregory").eras(e);
+  static eras(length = "short", { locale = null } = {}) {
+    return Locale.create(locale, null, "gregory").eras(length);
   }
   /**
    * Return the set of available features in this environment.
@@ -3256,179 +3849,218 @@ class On {
    * @return {Object}
    */
   static features() {
-    return { relative: ra(), localeWeek: ia() };
+    return { relative: hasRelative(), localeWeek: hasLocaleWeekInfo() };
   }
 }
-function so(s, e) {
-  const r = (a) => a.toUTC(0, { keepLocalTime: !0 }).startOf("day").valueOf(), i = r(e) - r(s);
-  return Math.floor(X.fromMillis(i).as("days"));
+function dayDiff(earlier, later) {
+  const utcDayStart = (dt) => dt.toUTC(0, { keepLocalTime: true }).startOf("day").valueOf(), ms = utcDayStart(later) - utcDayStart(earlier);
+  return Math.floor(Duration.fromMillis(ms).as("days"));
 }
-function Ql(s, e, r) {
-  const i = [
-    ["years", (v, A) => A.year - v.year],
-    ["quarters", (v, A) => A.quarter - v.quarter + (A.year - v.year) * 4],
-    ["months", (v, A) => A.month - v.month + (A.year - v.year) * 12],
+function highOrderDiffs(cursor, later, units) {
+  const differs = [
+    ["years", (a2, b2) => b2.year - a2.year],
+    ["quarters", (a2, b2) => b2.quarter - a2.quarter + (b2.year - a2.year) * 4],
+    ["months", (a2, b2) => b2.month - a2.month + (b2.year - a2.year) * 12],
     [
       "weeks",
-      (v, A) => {
-        const q = so(v, A);
-        return (q - q % 7) / 7;
+      (a2, b2) => {
+        const days = dayDiff(a2, b2);
+        return (days - days % 7) / 7;
       }
     ],
-    ["days", so]
-  ], a = {}, c = s;
-  let h, m;
-  for (const [v, A] of i)
-    r.indexOf(v) >= 0 && (h = v, a[v] = A(s, e), m = c.plus(a), m > e ? (a[v]--, s = c.plus(a), s > e && (m = s, a[v]--, s = c.plus(a))) : s = m);
-  return [s, a, m, h];
+    ["days", dayDiff]
+  ];
+  const results = {};
+  const earlier = cursor;
+  let lowestOrder, highWater;
+  for (const [unit, differ] of differs) {
+    if (units.indexOf(unit) >= 0) {
+      lowestOrder = unit;
+      results[unit] = differ(cursor, later);
+      highWater = earlier.plus(results);
+      if (highWater > later) {
+        results[unit]--;
+        cursor = earlier.plus(results);
+        if (cursor > later) {
+          highWater = cursor;
+          results[unit]--;
+          cursor = earlier.plus(results);
+        }
+      } else {
+        cursor = highWater;
+      }
+    }
+  }
+  return [cursor, results, highWater, lowestOrder];
 }
-function ec(s, e, r, i) {
-  let [a, c, h, m] = Ql(s, e, r);
-  const v = e - a, A = r.filter(
-    (M) => ["hours", "minutes", "seconds", "milliseconds"].indexOf(M) >= 0
+function diff(earlier, later, units, opts) {
+  let [cursor, results, highWater, lowestOrder] = highOrderDiffs(earlier, later, units);
+  const remainingMillis = later - cursor;
+  const lowerOrderUnits = units.filter(
+    (u2) => ["hours", "minutes", "seconds", "milliseconds"].indexOf(u2) >= 0
   );
-  A.length === 0 && (h < e && (h = a.plus({ [m]: 1 })), h !== a && (c[m] = (c[m] || 0) + v / (h - a)));
-  const q = X.fromObject(c, i);
-  return A.length > 0 ? X.fromMillis(v, i).shiftTo(...A).plus(q) : q;
+  if (lowerOrderUnits.length === 0) {
+    if (highWater < later) {
+      highWater = cursor.plus({ [lowestOrder]: 1 });
+    }
+    if (highWater !== cursor) {
+      results[lowestOrder] = (results[lowestOrder] || 0) + remainingMillis / (highWater - cursor);
+    }
+  }
+  const duration = Duration.fromObject(results, opts);
+  if (lowerOrderUnits.length > 0) {
+    return Duration.fromMillis(remainingMillis, opts).shiftTo(...lowerOrderUnits).plus(duration);
+  } else {
+    return duration;
+  }
 }
-const tc = "missing Intl.DateTimeFormat.formatToParts support";
-function ne(s, e = (r) => r) {
-  return { regex: s, deser: ([r]) => e(Ku(r)) };
+const MISSING_FTP = "missing Intl.DateTimeFormat.formatToParts support";
+function intUnit(regex, post = (i2) => i2) {
+  return { regex, deser: ([s2]) => post(parseDigits(s2)) };
 }
-const nc = " ", _a = `[ ${nc}]`, Sa = new RegExp(_a, "g");
-function rc(s) {
-  return s.replace(/\./g, "\\.?").replace(Sa, _a);
+const NBSP = String.fromCharCode(160);
+const spaceOrNBSP = `[ ${NBSP}]`;
+const spaceOrNBSPRegExp = new RegExp(spaceOrNBSP, "g");
+function fixListRegex(s2) {
+  return s2.replace(/\./g, "\\.?").replace(spaceOrNBSPRegExp, spaceOrNBSP);
 }
-function oo(s) {
-  return s.replace(/\./g, "").replace(Sa, " ").toLowerCase();
+function stripInsensitivities(s2) {
+  return s2.replace(/\./g, "").replace(spaceOrNBSPRegExp, " ").toLowerCase();
 }
-function Me(s, e) {
-  return s === null ? null : {
-    regex: RegExp(s.map(rc).join("|")),
-    deser: ([r]) => s.findIndex((i) => oo(r) === oo(i)) + e
-  };
+function oneOf(strings, startIndex) {
+  if (strings === null) {
+    return null;
+  } else {
+    return {
+      regex: RegExp(strings.map(fixListRegex).join("|")),
+      deser: ([s2]) => strings.findIndex((i2) => stripInsensitivities(s2) === stripInsensitivities(i2)) + startIndex
+    };
+  }
 }
-function ao(s, e) {
-  return { regex: s, deser: ([, r, i]) => Pr(r, i), groups: e };
+function offset(regex, groups) {
+  return { regex, deser: ([, h2, m2]) => signedOffset(h2, m2), groups };
 }
-function vr(s) {
-  return { regex: s, deser: ([e]) => e };
+function simple(regex) {
+  return { regex, deser: ([s2]) => s2 };
 }
-function ic(s) {
-  return s.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
+function escapeToken(value) {
+  return value.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
 }
-function sc(s, e) {
-  const r = Ne(e), i = Ne(e, "{2}"), a = Ne(e, "{3}"), c = Ne(e, "{4}"), h = Ne(e, "{6}"), m = Ne(e, "{1,2}"), v = Ne(e, "{1,3}"), A = Ne(e, "{1,6}"), q = Ne(e, "{1,9}"), M = Ne(e, "{2,4}"), z = Ne(e, "{4,6}"), j = (Oe) => ({ regex: RegExp(ic(Oe.val)), deser: ([Ze]) => Ze, literal: !0 }), Se = ((Oe) => {
-    if (s.literal)
-      return j(Oe);
-    switch (Oe.val) {
+function unitForToken(token, loc) {
+  const one = digitRegex(loc), two = digitRegex(loc, "{2}"), three = digitRegex(loc, "{3}"), four = digitRegex(loc, "{4}"), six = digitRegex(loc, "{6}"), oneOrTwo = digitRegex(loc, "{1,2}"), oneToThree = digitRegex(loc, "{1,3}"), oneToSix = digitRegex(loc, "{1,6}"), oneToNine = digitRegex(loc, "{1,9}"), twoToFour = digitRegex(loc, "{2,4}"), fourToSix = digitRegex(loc, "{4,6}"), literal = (t2) => ({ regex: RegExp(escapeToken(t2.val)), deser: ([s2]) => s2, literal: true }), unitate = (t2) => {
+    if (token.literal) {
+      return literal(t2);
+    }
+    switch (t2.val) {
       case "G":
-        return Me(e.eras("short"), 0);
+        return oneOf(loc.eras("short"), 0);
       case "GG":
-        return Me(e.eras("long"), 0);
+        return oneOf(loc.eras("long"), 0);
       case "y":
-        return ne(A);
+        return intUnit(oneToSix);
       case "yy":
-        return ne(M, Ui);
+        return intUnit(twoToFour, untruncateYear);
       case "yyyy":
-        return ne(c);
+        return intUnit(four);
       case "yyyyy":
-        return ne(z);
+        return intUnit(fourToSix);
       case "yyyyyy":
-        return ne(h);
+        return intUnit(six);
       case "M":
-        return ne(m);
+        return intUnit(oneOrTwo);
       case "MM":
-        return ne(i);
+        return intUnit(two);
       case "MMM":
-        return Me(e.months("short", !0), 1);
+        return oneOf(loc.months("short", true), 1);
       case "MMMM":
-        return Me(e.months("long", !0), 1);
+        return oneOf(loc.months("long", true), 1);
       case "L":
-        return ne(m);
+        return intUnit(oneOrTwo);
       case "LL":
-        return ne(i);
+        return intUnit(two);
       case "LLL":
-        return Me(e.months("short", !1), 1);
+        return oneOf(loc.months("short", false), 1);
       case "LLLL":
-        return Me(e.months("long", !1), 1);
+        return oneOf(loc.months("long", false), 1);
       case "d":
-        return ne(m);
+        return intUnit(oneOrTwo);
       case "dd":
-        return ne(i);
+        return intUnit(two);
       case "o":
-        return ne(v);
+        return intUnit(oneToThree);
       case "ooo":
-        return ne(a);
+        return intUnit(three);
       case "HH":
-        return ne(i);
+        return intUnit(two);
       case "H":
-        return ne(m);
+        return intUnit(oneOrTwo);
       case "hh":
-        return ne(i);
+        return intUnit(two);
       case "h":
-        return ne(m);
+        return intUnit(oneOrTwo);
       case "mm":
-        return ne(i);
+        return intUnit(two);
       case "m":
-        return ne(m);
+        return intUnit(oneOrTwo);
       case "q":
-        return ne(m);
+        return intUnit(oneOrTwo);
       case "qq":
-        return ne(i);
+        return intUnit(two);
       case "s":
-        return ne(m);
+        return intUnit(oneOrTwo);
       case "ss":
-        return ne(i);
+        return intUnit(two);
       case "S":
-        return ne(v);
+        return intUnit(oneToThree);
       case "SSS":
-        return ne(a);
+        return intUnit(three);
       case "u":
-        return vr(q);
+        return simple(oneToNine);
       case "uu":
-        return vr(m);
+        return simple(oneOrTwo);
       case "uuu":
-        return ne(r);
+        return intUnit(one);
       case "a":
-        return Me(e.meridiems(), 0);
+        return oneOf(loc.meridiems(), 0);
       case "kkkk":
-        return ne(c);
+        return intUnit(four);
       case "kk":
-        return ne(M, Ui);
+        return intUnit(twoToFour, untruncateYear);
       case "W":
-        return ne(m);
+        return intUnit(oneOrTwo);
       case "WW":
-        return ne(i);
+        return intUnit(two);
       case "E":
       case "c":
-        return ne(r);
+        return intUnit(one);
       case "EEE":
-        return Me(e.weekdays("short", !1), 1);
+        return oneOf(loc.weekdays("short", false), 1);
       case "EEEE":
-        return Me(e.weekdays("long", !1), 1);
+        return oneOf(loc.weekdays("long", false), 1);
       case "ccc":
-        return Me(e.weekdays("short", !0), 1);
+        return oneOf(loc.weekdays("short", true), 1);
       case "cccc":
-        return Me(e.weekdays("long", !0), 1);
+        return oneOf(loc.weekdays("long", true), 1);
       case "Z":
       case "ZZ":
-        return ao(new RegExp(`([+-]${m.source})(?::(${i.source}))?`), 2);
+        return offset(new RegExp(`([+-]${oneOrTwo.source})(?::(${two.source}))?`), 2);
       case "ZZZ":
-        return ao(new RegExp(`([+-]${m.source})(${i.source})?`), 2);
+        return offset(new RegExp(`([+-]${oneOrTwo.source})(${two.source})?`), 2);
       case "z":
-        return vr(/[a-z_+-/]{1,256}?/i);
+        return simple(/[a-z_+-/]{1,256}?/i);
       case " ":
-        return vr(/[^\S\n\r]/);
+        return simple(/[^\S\n\r]/);
       default:
-        return j(Oe);
+        return literal(t2);
     }
-  })(s) || {
-    invalidReason: tc
   };
-  return Se.token = s, Se;
+  const unit = unitate(token) || {
+    invalidReason: MISSING_FTP
+  };
+  unit.token = token;
+  return unit;
 }
-const oc = {
+const partTypeStyleToTokenVal = {
   year: {
     "2-digit": "yy",
     numeric: "yyyyy"
@@ -3470,45 +4102,68 @@ const oc = {
     short: "ZZZ"
   }
 };
-function ac(s, e, r) {
-  const { type: i, value: a } = s;
-  if (i === "literal") {
-    const v = /^\s+$/.test(a);
+function tokenForPart(part, formatOpts, resolvedOpts) {
+  const { type, value } = part;
+  if (type === "literal") {
+    const isSpace = /^\s+$/.test(value);
     return {
-      literal: !v,
-      val: v ? " " : a
+      literal: !isSpace,
+      val: isSpace ? " " : value
     };
   }
-  const c = e[i];
-  let h = i;
-  i === "hour" && (e.hour12 != null ? h = e.hour12 ? "hour12" : "hour24" : e.hourCycle != null ? e.hourCycle === "h11" || e.hourCycle === "h12" ? h = "hour12" : h = "hour24" : h = r.hour12 ? "hour12" : "hour24");
-  let m = oc[h];
-  if (typeof m == "object" && (m = m[c]), m)
-    return {
-      literal: !1,
-      val: m
-    };
-}
-function uc(s) {
-  return [`^${s.map((r) => r.regex).reduce((r, i) => `${r}(${i.source})`, "")}$`, s];
-}
-function lc(s, e, r) {
-  const i = s.match(e);
-  if (i) {
-    const a = {};
-    let c = 1;
-    for (const h in r)
-      if (Gt(r, h)) {
-        const m = r[h], v = m.groups ? m.groups + 1 : 1;
-        !m.literal && m.token && (a[m.token.val[0]] = m.deser(i.slice(c, c + v))), c += v;
+  const style = formatOpts[type];
+  let actualType = type;
+  if (type === "hour") {
+    if (formatOpts.hour12 != null) {
+      actualType = formatOpts.hour12 ? "hour12" : "hour24";
+    } else if (formatOpts.hourCycle != null) {
+      if (formatOpts.hourCycle === "h11" || formatOpts.hourCycle === "h12") {
+        actualType = "hour12";
+      } else {
+        actualType = "hour24";
       }
-    return [i, a];
-  } else
-    return [i, {}];
+    } else {
+      actualType = resolvedOpts.hour12 ? "hour12" : "hour24";
+    }
+  }
+  let val = partTypeStyleToTokenVal[actualType];
+  if (typeof val === "object") {
+    val = val[style];
+  }
+  if (val) {
+    return {
+      literal: false,
+      val
+    };
+  }
+  return void 0;
 }
-function cc(s) {
-  const e = (c) => {
-    switch (c) {
+function buildRegex(units) {
+  const re = units.map((u2) => u2.regex).reduce((f2, r2) => `${f2}(${r2.source})`, "");
+  return [`^${re}$`, units];
+}
+function match(input, regex, handlers) {
+  const matches = input.match(regex);
+  if (matches) {
+    const all = {};
+    let matchIndex = 1;
+    for (const i2 in handlers) {
+      if (hasOwnProperty(handlers, i2)) {
+        const h2 = handlers[i2], groups = h2.groups ? h2.groups + 1 : 1;
+        if (!h2.literal && h2.token) {
+          all[h2.token.val[0]] = h2.deser(matches.slice(matchIndex, matchIndex + groups));
+        }
+        matchIndex += groups;
+      }
+    }
+    return [matches, all];
+  } else {
+    return [matches, {}];
+  }
+}
+function dateTimeFromMatches(matches) {
+  const toField = (token) => {
+    switch (token) {
       case "S":
         return "millisecond";
       case "s":
@@ -3540,51 +4195,97 @@ function cc(s) {
         return null;
     }
   };
-  let r = null, i;
-  return Z(s.z) || (r = Ue.create(s.z)), Z(s.Z) || (r || (r = new be(s.Z)), i = s.Z), Z(s.q) || (s.M = (s.q - 1) * 3 + 1), Z(s.h) || (s.h < 12 && s.a === 1 ? s.h += 12 : s.h === 12 && s.a === 0 && (s.h = 0)), s.G === 0 && s.y && (s.y = -s.y), Z(s.u) || (s.S = Yi(s.u)), [Object.keys(s).reduce((c, h) => {
-    const m = e(h);
-    return m && (c[m] = s[h]), c;
-  }, {}), r, i];
-}
-let Ei = null;
-function fc() {
-  return Ei || (Ei = K.fromMillis(1555555555555)), Ei;
-}
-function hc(s, e) {
-  if (s.literal)
-    return s;
-  const r = ve.macroTokenToFormatOpts(s.val), i = Ea(r, e);
-  return i == null || i.includes(void 0) ? s : i;
-}
-function xa(s, e) {
-  return Array.prototype.concat(...s.map((r) => hc(r, e)));
-}
-class Ta {
-  constructor(e, r) {
-    if (this.locale = e, this.format = r, this.tokens = xa(ve.parseFormat(r), e), this.units = this.tokens.map((i) => sc(i, e)), this.disqualifyingUnit = this.units.find((i) => i.invalidReason), !this.disqualifyingUnit) {
-      const [i, a] = uc(this.units);
-      this.regex = RegExp(i, "i"), this.handlers = a;
+  let zone = null;
+  let specificOffset;
+  if (!isUndefined(matches.z)) {
+    zone = IANAZone.create(matches.z);
+  }
+  if (!isUndefined(matches.Z)) {
+    if (!zone) {
+      zone = new FixedOffsetZone(matches.Z);
+    }
+    specificOffset = matches.Z;
+  }
+  if (!isUndefined(matches.q)) {
+    matches.M = (matches.q - 1) * 3 + 1;
+  }
+  if (!isUndefined(matches.h)) {
+    if (matches.h < 12 && matches.a === 1) {
+      matches.h += 12;
+    } else if (matches.h === 12 && matches.a === 0) {
+      matches.h = 0;
     }
   }
-  explainFromTokens(e) {
-    if (this.isValid) {
-      const [r, i] = lc(e, this.regex, this.handlers), [a, c, h] = i ? cc(i) : [null, null, void 0];
-      if (Gt(i, "a") && Gt(i, "H"))
-        throw new zt(
+  if (matches.G === 0 && matches.y) {
+    matches.y = -matches.y;
+  }
+  if (!isUndefined(matches.u)) {
+    matches.S = parseMillis(matches.u);
+  }
+  const vals = Object.keys(matches).reduce((r2, k2) => {
+    const f2 = toField(k2);
+    if (f2) {
+      r2[f2] = matches[k2];
+    }
+    return r2;
+  }, {});
+  return [vals, zone, specificOffset];
+}
+let dummyDateTimeCache = null;
+function getDummyDateTime() {
+  if (!dummyDateTimeCache) {
+    dummyDateTimeCache = DateTime.fromMillis(1555555555555);
+  }
+  return dummyDateTimeCache;
+}
+function maybeExpandMacroToken(token, locale) {
+  if (token.literal) {
+    return token;
+  }
+  const formatOpts = Formatter.macroTokenToFormatOpts(token.val);
+  const tokens = formatOptsToTokens(formatOpts, locale);
+  if (tokens == null || tokens.includes(void 0)) {
+    return token;
+  }
+  return tokens;
+}
+function expandMacroTokens(tokens, locale) {
+  return Array.prototype.concat(...tokens.map((t2) => maybeExpandMacroToken(t2, locale)));
+}
+class TokenParser {
+  constructor(locale, format) {
+    this.locale = locale;
+    this.format = format;
+    this.tokens = expandMacroTokens(Formatter.parseFormat(format), locale);
+    this.units = this.tokens.map((t2) => unitForToken(t2, locale));
+    this.disqualifyingUnit = this.units.find((t2) => t2.invalidReason);
+    if (!this.disqualifyingUnit) {
+      const [regexString, handlers] = buildRegex(this.units);
+      this.regex = RegExp(regexString, "i");
+      this.handlers = handlers;
+    }
+  }
+  explainFromTokens(input) {
+    if (!this.isValid) {
+      return { input, tokens: this.tokens, invalidReason: this.invalidReason };
+    } else {
+      const [rawMatches, matches] = match(input, this.regex, this.handlers), [result, zone, specificOffset] = matches ? dateTimeFromMatches(matches) : [null, null, void 0];
+      if (hasOwnProperty(matches, "a") && hasOwnProperty(matches, "H")) {
+        throw new ConflictingSpecificationError(
           "Can't include meridiem when specifying 24-hour format"
         );
+      }
       return {
-        input: e,
+        input,
         tokens: this.tokens,
         regex: this.regex,
-        rawMatches: r,
-        matches: i,
-        result: a,
-        zone: c,
-        specificOffset: h
+        rawMatches,
+        matches,
+        result,
+        zone,
+        specificOffset
       };
-    } else
-      return { input: e, tokens: this.tokens, invalidReason: this.invalidReason };
+    }
   }
   get isValid() {
     return !this.disqualifyingUnit;
@@ -3593,139 +4294,206 @@ class Ta {
     return this.disqualifyingUnit ? this.disqualifyingUnit.invalidReason : null;
   }
 }
-function Oa(s, e, r) {
-  return new Ta(s, r).explainFromTokens(e);
+function explainFromTokens(locale, input, format) {
+  const parser = new TokenParser(locale, format);
+  return parser.explainFromTokens(input);
 }
-function dc(s, e, r) {
-  const { result: i, zone: a, specificOffset: c, invalidReason: h } = Oa(s, e, r);
-  return [i, a, c, h];
+function parseFromTokens(locale, input, format) {
+  const { result, zone, specificOffset, invalidReason } = explainFromTokens(locale, input, format);
+  return [result, zone, specificOffset, invalidReason];
 }
-function Ea(s, e) {
-  if (!s)
+function formatOptsToTokens(formatOpts, locale) {
+  if (!formatOpts) {
     return null;
-  const i = ve.create(e, s).dtFormatter(fc()), a = i.formatToParts(), c = i.resolvedOptions();
-  return a.map((h) => ac(h, s, c));
+  }
+  const formatter = Formatter.create(locale, formatOpts);
+  const df = formatter.dtFormatter(getDummyDateTime());
+  const parts = df.formatToParts();
+  const resolvedOpts = df.resolvedOptions();
+  return parts.map((p2) => tokenForPart(p2, formatOpts, resolvedOpts));
 }
-const Ii = "Invalid DateTime", uo = 864e13;
-function En(s) {
-  return new Pe("unsupported zone", `the zone "${s.name}" is not supported`);
+const INVALID = "Invalid DateTime";
+const MAX_DATE = 864e13;
+function unsupportedZone(zone) {
+  return new Invalid("unsupported zone", `the zone "${zone.name}" is not supported`);
 }
-function Ai(s) {
-  return s.weekData === null && (s.weekData = Ir(s.c)), s.weekData;
+function possiblyCachedWeekData(dt) {
+  if (dt.weekData === null) {
+    dt.weekData = gregorianToWeek(dt.c);
+  }
+  return dt.weekData;
 }
-function Ci(s) {
-  return s.localWeekData === null && (s.localWeekData = Ir(
-    s.c,
-    s.loc.getMinDaysInFirstWeek(),
-    s.loc.getStartOfWeek()
-  )), s.localWeekData;
-}
-function St(s, e) {
-  const r = {
-    ts: s.ts,
-    zone: s.zone,
-    c: s.c,
-    o: s.o,
-    loc: s.loc,
-    invalid: s.invalid
-  };
-  return new K({ ...r, ...e, old: r });
-}
-function Ia(s, e, r) {
-  let i = s - e * 60 * 1e3;
-  const a = r.offset(i);
-  if (e === a)
-    return [i, e];
-  i -= (a - e) * 60 * 1e3;
-  const c = r.offset(i);
-  return a === c ? [i, a] : [s - Math.min(a, c) * 60 * 1e3, Math.max(a, c)];
-}
-function br(s, e) {
-  s += e * 60 * 1e3;
-  const r = new Date(s);
-  return {
-    year: r.getUTCFullYear(),
-    month: r.getUTCMonth() + 1,
-    day: r.getUTCDate(),
-    hour: r.getUTCHours(),
-    minute: r.getUTCMinutes(),
-    second: r.getUTCSeconds(),
-    millisecond: r.getUTCMilliseconds()
-  };
-}
-function _r(s, e, r) {
-  return Ia(Mr(s), e, r);
-}
-function lo(s, e) {
-  const r = s.o, i = s.c.year + Math.trunc(e.years), a = s.c.month + Math.trunc(e.months) + Math.trunc(e.quarters) * 3, c = {
-    ...s.c,
-    year: i,
-    month: a,
-    day: Math.min(s.c.day, Ar(i, a)) + Math.trunc(e.days) + Math.trunc(e.weeks) * 7
-  }, h = X.fromObject({
-    years: e.years - Math.trunc(e.years),
-    quarters: e.quarters - Math.trunc(e.quarters),
-    months: e.months - Math.trunc(e.months),
-    weeks: e.weeks - Math.trunc(e.weeks),
-    days: e.days - Math.trunc(e.days),
-    hours: e.hours,
-    minutes: e.minutes,
-    seconds: e.seconds,
-    milliseconds: e.milliseconds
-  }).as("milliseconds"), m = Mr(c);
-  let [v, A] = Ia(m, r, s.zone);
-  return h !== 0 && (v += h, A = s.zone.offset(v)), { ts: v, o: A };
-}
-function jt(s, e, r, i, a, c) {
-  const { setZone: h, zone: m } = r;
-  if (s && Object.keys(s).length !== 0 || e) {
-    const v = e || m, A = K.fromObject(s, {
-      ...r,
-      zone: v,
-      specificOffset: c
-    });
-    return h ? A : A.setZone(m);
-  } else
-    return K.invalid(
-      new Pe("unparsable", `the input "${a}" can't be parsed as ${i}`)
+function possiblyCachedLocalWeekData(dt) {
+  if (dt.localWeekData === null) {
+    dt.localWeekData = gregorianToWeek(
+      dt.c,
+      dt.loc.getMinDaysInFirstWeek(),
+      dt.loc.getStartOfWeek()
     );
+  }
+  return dt.localWeekData;
 }
-function wr(s, e, r = !0) {
-  return s.isValid ? ve.create(re.create("en-US"), {
-    allowZ: r,
-    forceSimple: !0
-  }).formatDateTimeFromString(s, e) : null;
+function clone(inst, alts) {
+  const current = {
+    ts: inst.ts,
+    zone: inst.zone,
+    c: inst.c,
+    o: inst.o,
+    loc: inst.loc,
+    invalid: inst.invalid
+  };
+  return new DateTime({ ...current, ...alts, old: current });
 }
-function Di(s, e) {
-  const r = s.c.year > 9999 || s.c.year < 0;
-  let i = "";
-  return r && s.c.year >= 0 && (i += "+"), i += fe(s.c.year, r ? 6 : 4), e ? (i += "-", i += fe(s.c.month), i += "-", i += fe(s.c.day)) : (i += fe(s.c.month), i += fe(s.c.day)), i;
+function fixOffset(localTS, o2, tz) {
+  let utcGuess = localTS - o2 * 60 * 1e3;
+  const o22 = tz.offset(utcGuess);
+  if (o2 === o22) {
+    return [utcGuess, o2];
+  }
+  utcGuess -= (o22 - o2) * 60 * 1e3;
+  const o3 = tz.offset(utcGuess);
+  if (o22 === o3) {
+    return [utcGuess, o22];
+  }
+  return [localTS - Math.min(o22, o3) * 60 * 1e3, Math.max(o22, o3)];
 }
-function co(s, e, r, i, a, c) {
-  let h = fe(s.c.hour);
-  return e ? (h += ":", h += fe(s.c.minute), (s.c.millisecond !== 0 || s.c.second !== 0 || !r) && (h += ":")) : h += fe(s.c.minute), (s.c.millisecond !== 0 || s.c.second !== 0 || !r) && (h += fe(s.c.second), (s.c.millisecond !== 0 || !i) && (h += ".", h += fe(s.c.millisecond, 3))), a && (s.isOffsetFixed && s.offset === 0 && !c ? h += "Z" : s.o < 0 ? (h += "-", h += fe(Math.trunc(-s.o / 60)), h += ":", h += fe(Math.trunc(-s.o % 60))) : (h += "+", h += fe(Math.trunc(s.o / 60)), h += ":", h += fe(Math.trunc(s.o % 60)))), c && (h += "[" + s.zone.ianaName + "]"), h;
+function tsToObj(ts, offset2) {
+  ts += offset2 * 60 * 1e3;
+  const d2 = new Date(ts);
+  return {
+    year: d2.getUTCFullYear(),
+    month: d2.getUTCMonth() + 1,
+    day: d2.getUTCDate(),
+    hour: d2.getUTCHours(),
+    minute: d2.getUTCMinutes(),
+    second: d2.getUTCSeconds(),
+    millisecond: d2.getUTCMilliseconds()
+  };
 }
-const Aa = {
+function objToTS(obj, offset2, zone) {
+  return fixOffset(objToLocalTS(obj), offset2, zone);
+}
+function adjustTime(inst, dur) {
+  const oPre = inst.o, year = inst.c.year + Math.trunc(dur.years), month = inst.c.month + Math.trunc(dur.months) + Math.trunc(dur.quarters) * 3, c2 = {
+    ...inst.c,
+    year,
+    month,
+    day: Math.min(inst.c.day, daysInMonth(year, month)) + Math.trunc(dur.days) + Math.trunc(dur.weeks) * 7
+  }, millisToAdd = Duration.fromObject({
+    years: dur.years - Math.trunc(dur.years),
+    quarters: dur.quarters - Math.trunc(dur.quarters),
+    months: dur.months - Math.trunc(dur.months),
+    weeks: dur.weeks - Math.trunc(dur.weeks),
+    days: dur.days - Math.trunc(dur.days),
+    hours: dur.hours,
+    minutes: dur.minutes,
+    seconds: dur.seconds,
+    milliseconds: dur.milliseconds
+  }).as("milliseconds"), localTS = objToLocalTS(c2);
+  let [ts, o2] = fixOffset(localTS, oPre, inst.zone);
+  if (millisToAdd !== 0) {
+    ts += millisToAdd;
+    o2 = inst.zone.offset(ts);
+  }
+  return { ts, o: o2 };
+}
+function parseDataToDateTime(parsed, parsedZone, opts, format, text, specificOffset) {
+  const { setZone, zone } = opts;
+  if (parsed && Object.keys(parsed).length !== 0 || parsedZone) {
+    const interpretationZone = parsedZone || zone, inst = DateTime.fromObject(parsed, {
+      ...opts,
+      zone: interpretationZone,
+      specificOffset
+    });
+    return setZone ? inst : inst.setZone(zone);
+  } else {
+    return DateTime.invalid(
+      new Invalid("unparsable", `the input "${text}" can't be parsed as ${format}`)
+    );
+  }
+}
+function toTechFormat(dt, format, allowZ = true) {
+  return dt.isValid ? Formatter.create(Locale.create("en-US"), {
+    allowZ,
+    forceSimple: true
+  }).formatDateTimeFromString(dt, format) : null;
+}
+function toISODate(o2, extended) {
+  const longFormat = o2.c.year > 9999 || o2.c.year < 0;
+  let c2 = "";
+  if (longFormat && o2.c.year >= 0) c2 += "+";
+  c2 += padStart(o2.c.year, longFormat ? 6 : 4);
+  if (extended) {
+    c2 += "-";
+    c2 += padStart(o2.c.month);
+    c2 += "-";
+    c2 += padStart(o2.c.day);
+  } else {
+    c2 += padStart(o2.c.month);
+    c2 += padStart(o2.c.day);
+  }
+  return c2;
+}
+function toISOTime(o2, extended, suppressSeconds, suppressMilliseconds, includeOffset, extendedZone) {
+  let c2 = padStart(o2.c.hour);
+  if (extended) {
+    c2 += ":";
+    c2 += padStart(o2.c.minute);
+    if (o2.c.millisecond !== 0 || o2.c.second !== 0 || !suppressSeconds) {
+      c2 += ":";
+    }
+  } else {
+    c2 += padStart(o2.c.minute);
+  }
+  if (o2.c.millisecond !== 0 || o2.c.second !== 0 || !suppressSeconds) {
+    c2 += padStart(o2.c.second);
+    if (o2.c.millisecond !== 0 || !suppressMilliseconds) {
+      c2 += ".";
+      c2 += padStart(o2.c.millisecond, 3);
+    }
+  }
+  if (includeOffset) {
+    if (o2.isOffsetFixed && o2.offset === 0 && !extendedZone) {
+      c2 += "Z";
+    } else if (o2.o < 0) {
+      c2 += "-";
+      c2 += padStart(Math.trunc(-o2.o / 60));
+      c2 += ":";
+      c2 += padStart(Math.trunc(-o2.o % 60));
+    } else {
+      c2 += "+";
+      c2 += padStart(Math.trunc(o2.o / 60));
+      c2 += ":";
+      c2 += padStart(Math.trunc(o2.o % 60));
+    }
+  }
+  if (extendedZone) {
+    c2 += "[" + o2.zone.ianaName + "]";
+  }
+  return c2;
+}
+const defaultUnitValues = {
   month: 1,
   day: 1,
   hour: 0,
   minute: 0,
   second: 0,
   millisecond: 0
-}, mc = {
+}, defaultWeekUnitValues = {
   weekNumber: 1,
   weekday: 1,
   hour: 0,
   minute: 0,
   second: 0,
   millisecond: 0
-}, pc = {
+}, defaultOrdinalUnitValues = {
   ordinal: 1,
   hour: 0,
   minute: 0,
   second: 0,
   millisecond: 0
-}, Ca = ["year", "month", "day", "hour", "minute", "second", "millisecond"], yc = [
+};
+const orderedUnits = ["year", "month", "day", "hour", "minute", "second", "millisecond"], orderedWeekUnits = [
   "weekYear",
   "weekNumber",
   "weekday",
@@ -3733,9 +4501,9 @@ const Aa = {
   "minute",
   "second",
   "millisecond"
-], gc = ["year", "ordinal", "hour", "minute", "second", "millisecond"];
-function vc(s) {
-  const e = {
+], orderedOrdinalUnits = ["year", "ordinal", "hour", "minute", "second", "millisecond"];
+function normalizeUnit(unit) {
+  const normalized = {
     year: "year",
     years: "year",
     month: "month",
@@ -3760,12 +4528,12 @@ function vc(s) {
     weekyear: "weekYear",
     weekyears: "weekYear",
     ordinal: "ordinal"
-  }[s.toLowerCase()];
-  if (!e) throw new Co(s);
-  return e;
+  }[unit.toLowerCase()];
+  if (!normalized) throw new InvalidUnitError(unit);
+  return normalized;
 }
-function fo(s) {
-  switch (s.toLowerCase()) {
+function normalizeUnitWithLocalWeeks(unit) {
+  switch (unit.toLowerCase()) {
     case "localweekday":
     case "localweekdays":
       return "localWeekday";
@@ -3776,64 +4544,108 @@ function fo(s) {
     case "localweekyears":
       return "localWeekYear";
     default:
-      return vc(s);
+      return normalizeUnit(unit);
   }
 }
-function bc(s) {
-  return xr[s] || (Sr === void 0 && (Sr = ue.now()), xr[s] = s.offset(Sr)), xr[s];
-}
-function ho(s, e) {
-  const r = it(e.zone, ue.defaultZone);
-  if (!r.isValid)
-    return K.invalid(En(r));
-  const i = re.fromObject(e);
-  let a, c;
-  if (Z(s.year))
-    a = ue.now();
-  else {
-    for (const v of Ca)
-      Z(s[v]) && (s[v] = Aa[v]);
-    const h = ta(s) || na(s);
-    if (h)
-      return K.invalid(h);
-    const m = bc(r);
-    [a, c] = _r(s, m, r);
+function guessOffsetForZone(zone) {
+  if (!zoneOffsetGuessCache[zone]) {
+    if (zoneOffsetTs === void 0) {
+      zoneOffsetTs = Settings.now();
+    }
+    zoneOffsetGuessCache[zone] = zone.offset(zoneOffsetTs);
   }
-  return new K({ ts: a, zone: r, loc: i, o: c });
+  return zoneOffsetGuessCache[zone];
 }
-function mo(s, e, r) {
-  const i = Z(r.round) ? !0 : r.round, a = (h, m) => (h = Gi(h, i || r.calendary ? 0 : 2, !0), e.loc.clone(r).relFormatter(r).format(h, m)), c = (h) => r.calendary ? e.hasSame(s, h) ? 0 : e.startOf(h).diff(s.startOf(h), h).get(h) : e.diff(s, h).get(h);
-  if (r.unit)
-    return a(c(r.unit), r.unit);
-  for (const h of r.units) {
-    const m = c(h);
-    if (Math.abs(m) >= 1)
-      return a(m, h);
+function quickDT(obj, opts) {
+  const zone = normalizeZone(opts.zone, Settings.defaultZone);
+  if (!zone.isValid) {
+    return DateTime.invalid(unsupportedZone(zone));
   }
-  return a(s > e ? -0 : 0, r.units[r.units.length - 1]);
+  const loc = Locale.fromObject(opts);
+  let ts, o2;
+  if (!isUndefined(obj.year)) {
+    for (const u2 of orderedUnits) {
+      if (isUndefined(obj[u2])) {
+        obj[u2] = defaultUnitValues[u2];
+      }
+    }
+    const invalid = hasInvalidGregorianData(obj) || hasInvalidTimeData(obj);
+    if (invalid) {
+      return DateTime.invalid(invalid);
+    }
+    const offsetProvis = guessOffsetForZone(zone);
+    [ts, o2] = objToTS(obj, offsetProvis, zone);
+  } else {
+    ts = Settings.now();
+  }
+  return new DateTime({ ts, zone, loc, o: o2 });
 }
-function po(s) {
-  let e = {}, r;
-  return s.length > 0 && typeof s[s.length - 1] == "object" ? (e = s[s.length - 1], r = Array.from(s).slice(0, s.length - 1)) : r = Array.from(s), [e, r];
+function diffRelative(start, end, opts) {
+  const round = isUndefined(opts.round) ? true : opts.round, format = (c2, unit) => {
+    c2 = roundTo(c2, round || opts.calendary ? 0 : 2, true);
+    const formatter = end.loc.clone(opts).relFormatter(opts);
+    return formatter.format(c2, unit);
+  }, differ = (unit) => {
+    if (opts.calendary) {
+      if (!end.hasSame(start, unit)) {
+        return end.startOf(unit).diff(start.startOf(unit), unit).get(unit);
+      } else return 0;
+    } else {
+      return end.diff(start, unit).get(unit);
+    }
+  };
+  if (opts.unit) {
+    return format(differ(opts.unit), opts.unit);
+  }
+  for (const unit of opts.units) {
+    const count = differ(unit);
+    if (Math.abs(count) >= 1) {
+      return format(count, unit);
+    }
+  }
+  return format(start > end ? -0 : 0, opts.units[opts.units.length - 1]);
 }
-let Sr, xr = {};
-class K {
+function lastOpts(argList) {
+  let opts = {}, args;
+  if (argList.length > 0 && typeof argList[argList.length - 1] === "object") {
+    opts = argList[argList.length - 1];
+    args = Array.from(argList).slice(0, argList.length - 1);
+  } else {
+    args = Array.from(argList);
+  }
+  return [opts, args];
+}
+let zoneOffsetTs;
+let zoneOffsetGuessCache = {};
+class DateTime {
   /**
    * @access private
    */
-  constructor(e) {
-    const r = e.zone || ue.defaultZone;
-    let i = e.invalid || (Number.isNaN(e.ts) ? new Pe("invalid input") : null) || (r.isValid ? null : En(r));
-    this.ts = Z(e.ts) ? ue.now() : e.ts;
-    let a = null, c = null;
-    if (!i)
-      if (e.old && e.old.ts === this.ts && e.old.zone.equals(r))
-        [a, c] = [e.old.c, e.old.o];
-      else {
-        const m = at(e.o) && !e.old ? e.o : r.offset(this.ts);
-        a = br(this.ts, m), i = Number.isNaN(a.year) ? new Pe("invalid input") : null, a = i ? null : a, c = i ? null : m;
+  constructor(config) {
+    const zone = config.zone || Settings.defaultZone;
+    let invalid = config.invalid || (Number.isNaN(config.ts) ? new Invalid("invalid input") : null) || (!zone.isValid ? unsupportedZone(zone) : null);
+    this.ts = isUndefined(config.ts) ? Settings.now() : config.ts;
+    let c2 = null, o2 = null;
+    if (!invalid) {
+      const unchanged = config.old && config.old.ts === this.ts && config.old.zone.equals(zone);
+      if (unchanged) {
+        [c2, o2] = [config.old.c, config.old.o];
+      } else {
+        const ot = isNumber(config.o) && !config.old ? config.o : zone.offset(this.ts);
+        c2 = tsToObj(this.ts, ot);
+        invalid = Number.isNaN(c2.year) ? new Invalid("invalid input") : null;
+        c2 = invalid ? null : c2;
+        o2 = invalid ? null : ot;
       }
-    this._zone = r, this.loc = e.loc || re.create(), this.invalid = i, this.weekData = null, this.localWeekData = null, this.c = a, this.o = c, this.isLuxonDateTime = !0;
+    }
+    this._zone = zone;
+    this.loc = config.loc || Locale.create();
+    this.invalid = invalid;
+    this.weekData = null;
+    this.localWeekData = null;
+    this.c = c2;
+    this.o = o2;
+    this.isLuxonDateTime = true;
   }
   // CONSTRUCT
   /**
@@ -3844,7 +4656,7 @@ class K {
    * @return {DateTime}
    */
   static now() {
-    return new K({});
+    return new DateTime({});
   }
   /**
    * Create a local DateTime
@@ -3868,8 +4680,8 @@ class K {
    * @return {DateTime}
    */
   static local() {
-    const [e, r] = po(arguments), [i, a, c, h, m, v, A] = r;
-    return ho({ year: i, month: a, day: c, hour: h, minute: m, second: v, millisecond: A }, e);
+    const [opts, args] = lastOpts(arguments), [year, month, day, hour, minute, second, millisecond] = args;
+    return quickDT({ year, month, day, hour, minute, second, millisecond }, opts);
   }
   /**
    * Create a DateTime in UTC
@@ -3897,8 +4709,9 @@ class K {
    * @return {DateTime}
    */
   static utc() {
-    const [e, r] = po(arguments), [i, a, c, h, m, v, A] = r;
-    return e.zone = be.utcInstance, ho({ year: i, month: a, day: c, hour: h, minute: m, second: v, millisecond: A }, e);
+    const [opts, args] = lastOpts(arguments), [year, month, day, hour, minute, second, millisecond] = args;
+    opts.zone = FixedOffsetZone.utcInstance;
+    return quickDT({ year, month, day, hour, minute, second, millisecond }, opts);
   }
   /**
    * Create a DateTime from a JavaScript Date object. Uses the default zone.
@@ -3907,16 +4720,20 @@ class K {
    * @param {string|Zone} [options.zone='local'] - the zone to place the DateTime into
    * @return {DateTime}
    */
-  static fromJSDate(e, r = {}) {
-    const i = Yu(e) ? e.valueOf() : NaN;
-    if (Number.isNaN(i))
-      return K.invalid("invalid input");
-    const a = it(r.zone, ue.defaultZone);
-    return a.isValid ? new K({
-      ts: i,
-      zone: a,
-      loc: re.fromObject(r)
-    }) : K.invalid(En(a));
+  static fromJSDate(date, options = {}) {
+    const ts = isDate(date) ? date.valueOf() : NaN;
+    if (Number.isNaN(ts)) {
+      return DateTime.invalid("invalid input");
+    }
+    const zoneToUse = normalizeZone(options.zone, Settings.defaultZone);
+    if (!zoneToUse.isValid) {
+      return DateTime.invalid(unsupportedZone(zoneToUse));
+    }
+    return new DateTime({
+      ts,
+      zone: zoneToUse,
+      loc: Locale.fromObject(options)
+    });
   }
   /**
    * Create a DateTime from a number of milliseconds since the epoch (meaning since 1 January 1970 00:00:00 UTC). Uses the default zone.
@@ -3929,16 +4746,20 @@ class K {
    * @param {string} options.weekSettings - the week settings to set on the resulting DateTime instance
    * @return {DateTime}
    */
-  static fromMillis(e, r = {}) {
-    if (at(e))
-      return e < -uo || e > uo ? K.invalid("Timestamp out of range") : new K({
-        ts: e,
-        zone: it(r.zone, ue.defaultZone),
-        loc: re.fromObject(r)
+  static fromMillis(milliseconds, options = {}) {
+    if (!isNumber(milliseconds)) {
+      throw new InvalidArgumentError(
+        `fromMillis requires a numerical input, but received a ${typeof milliseconds} with value ${milliseconds}`
+      );
+    } else if (milliseconds < -MAX_DATE || milliseconds > MAX_DATE) {
+      return DateTime.invalid("Timestamp out of range");
+    } else {
+      return new DateTime({
+        ts: milliseconds,
+        zone: normalizeZone(options.zone, Settings.defaultZone),
+        loc: Locale.fromObject(options)
       });
-    throw new ge(
-      `fromMillis requires a numerical input, but received a ${typeof e} with value ${e}`
-    );
+    }
   }
   /**
    * Create a DateTime from a number of seconds since the epoch (meaning since 1 January 1970 00:00:00 UTC). Uses the default zone.
@@ -3951,14 +4772,16 @@ class K {
    * @param {string} options.weekSettings - the week settings to set on the resulting DateTime instance
    * @return {DateTime}
    */
-  static fromSeconds(e, r = {}) {
-    if (at(e))
-      return new K({
-        ts: e * 1e3,
-        zone: it(r.zone, ue.defaultZone),
-        loc: re.fromObject(r)
+  static fromSeconds(seconds, options = {}) {
+    if (!isNumber(seconds)) {
+      throw new InvalidArgumentError("fromSeconds requires a numerical input");
+    } else {
+      return new DateTime({
+        ts: seconds * 1e3,
+        zone: normalizeZone(options.zone, Settings.defaultZone),
+        loc: Locale.fromObject(options)
       });
-    throw new ge("fromSeconds requires a numerical input");
+    }
   }
   /**
    * Create a DateTime from a JavaScript object with keys like 'year' and 'hour' with reasonable defaults.
@@ -3993,39 +4816,69 @@ class K {
    * @example DateTime.fromObject({ localWeekYear: 2022, localWeekNumber: 1, localWeekday: 1 }, { locale: "en-US" }).toISODate() //=> '2021-12-26'
    * @return {DateTime}
    */
-  static fromObject(e, r = {}) {
-    e = e || {};
-    const i = it(r.zone, ue.defaultZone);
-    if (!i.isValid)
-      return K.invalid(En(i));
-    const a = re.fromObject(r), c = Cr(e, fo), { minDaysInFirstWeek: h, startOfWeek: m } = Xs(c, a), v = ue.now(), A = Z(r.specificOffset) ? i.offset(v) : r.specificOffset, q = !Z(c.ordinal), M = !Z(c.year), z = !Z(c.month) || !Z(c.day), j = M || z, ee = c.weekYear || c.weekNumber;
-    if ((j || q) && ee)
-      throw new zt(
+  static fromObject(obj, opts = {}) {
+    obj = obj || {};
+    const zoneToUse = normalizeZone(opts.zone, Settings.defaultZone);
+    if (!zoneToUse.isValid) {
+      return DateTime.invalid(unsupportedZone(zoneToUse));
+    }
+    const loc = Locale.fromObject(opts);
+    const normalized = normalizeObject(obj, normalizeUnitWithLocalWeeks);
+    const { minDaysInFirstWeek, startOfWeek } = usesLocalWeekValues(normalized, loc);
+    const tsNow = Settings.now(), offsetProvis = !isUndefined(opts.specificOffset) ? opts.specificOffset : zoneToUse.offset(tsNow), containsOrdinal = !isUndefined(normalized.ordinal), containsGregorYear = !isUndefined(normalized.year), containsGregorMD = !isUndefined(normalized.month) || !isUndefined(normalized.day), containsGregor = containsGregorYear || containsGregorMD, definiteWeekDef = normalized.weekYear || normalized.weekNumber;
+    if ((containsGregor || containsOrdinal) && definiteWeekDef) {
+      throw new ConflictingSpecificationError(
         "Can't mix weekYear/weekNumber units with year/month/day or ordinals"
       );
-    if (z && q)
-      throw new zt("Can't mix ordinal dates with month/day");
-    const Se = ee || c.weekday && !j;
-    let Oe, Ze, Re = br(v, A);
-    Se ? (Oe = yc, Ze = mc, Re = Ir(Re, h, m)) : q ? (Oe = gc, Ze = pc, Re = Oi(Re)) : (Oe = Ca, Ze = Aa);
-    let sn = !1;
-    for (const Be of Oe) {
-      const Un = c[Be];
-      Z(Un) ? sn ? c[Be] = Ze[Be] : c[Be] = Re[Be] : sn = !0;
     }
-    const lt = Se ? Zu(c, h, m) : q ? Bu(c) : ta(c), on = lt || na(c);
-    if (on)
-      return K.invalid(on);
-    const De = Se ? Gs(c, h, m) : q ? Js(c) : c, [we, Ln] = _r(De, A, i), ct = new K({
-      ts: we,
-      zone: i,
-      o: Ln,
-      loc: a
+    if (containsGregorMD && containsOrdinal) {
+      throw new ConflictingSpecificationError("Can't mix ordinal dates with month/day");
+    }
+    const useWeekData = definiteWeekDef || normalized.weekday && !containsGregor;
+    let units, defaultValues, objNow = tsToObj(tsNow, offsetProvis);
+    if (useWeekData) {
+      units = orderedWeekUnits;
+      defaultValues = defaultWeekUnitValues;
+      objNow = gregorianToWeek(objNow, minDaysInFirstWeek, startOfWeek);
+    } else if (containsOrdinal) {
+      units = orderedOrdinalUnits;
+      defaultValues = defaultOrdinalUnitValues;
+      objNow = gregorianToOrdinal(objNow);
+    } else {
+      units = orderedUnits;
+      defaultValues = defaultUnitValues;
+    }
+    let foundFirst = false;
+    for (const u2 of units) {
+      const v2 = normalized[u2];
+      if (!isUndefined(v2)) {
+        foundFirst = true;
+      } else if (foundFirst) {
+        normalized[u2] = defaultValues[u2];
+      } else {
+        normalized[u2] = objNow[u2];
+      }
+    }
+    const higherOrderInvalid = useWeekData ? hasInvalidWeekData(normalized, minDaysInFirstWeek, startOfWeek) : containsOrdinal ? hasInvalidOrdinalData(normalized) : hasInvalidGregorianData(normalized), invalid = higherOrderInvalid || hasInvalidTimeData(normalized);
+    if (invalid) {
+      return DateTime.invalid(invalid);
+    }
+    const gregorian = useWeekData ? weekToGregorian(normalized, minDaysInFirstWeek, startOfWeek) : containsOrdinal ? ordinalToGregorian(normalized) : normalized, [tsFinal, offsetFinal] = objToTS(gregorian, offsetProvis, zoneToUse), inst = new DateTime({
+      ts: tsFinal,
+      zone: zoneToUse,
+      o: offsetFinal,
+      loc
     });
-    return c.weekday && j && e.weekday !== ct.weekday ? K.invalid(
-      "mismatched weekday",
-      `you can't specify both a weekday of ${c.weekday} and a date of ${ct.toISO()}`
-    ) : ct.isValid ? ct : K.invalid(ct.invalid);
+    if (normalized.weekday && containsGregor && obj.weekday !== inst.weekday) {
+      return DateTime.invalid(
+        "mismatched weekday",
+        `you can't specify both a weekday of ${normalized.weekday} and a date of ${inst.toISO()}`
+      );
+    }
+    if (!inst.isValid) {
+      return DateTime.invalid(inst.invalid);
+    }
+    return inst;
   }
   /**
    * Create a DateTime from an ISO 8601 string
@@ -4044,9 +4897,9 @@ class K {
    * @example DateTime.fromISO('2016-W05-4')
    * @return {DateTime}
    */
-  static fromISO(e, r = {}) {
-    const [i, a] = Vl(e);
-    return jt(i, a, r, "ISO 8601", e);
+  static fromISO(text, opts = {}) {
+    const [vals, parsedZone] = parseISODate(text);
+    return parseDataToDateTime(vals, parsedZone, opts, "ISO 8601", text);
   }
   /**
    * Create a DateTime from an RFC 2822 string
@@ -4063,9 +4916,9 @@ class K {
    * @example DateTime.fromRFC2822('25 Nov 2016 13:23 Z')
    * @return {DateTime}
    */
-  static fromRFC2822(e, r = {}) {
-    const [i, a] = ql(e);
-    return jt(i, a, r, "RFC 2822", e);
+  static fromRFC2822(text, opts = {}) {
+    const [vals, parsedZone] = parseRFC2822Date(text);
+    return parseDataToDateTime(vals, parsedZone, opts, "RFC 2822", text);
   }
   /**
    * Create a DateTime from an HTTP header date
@@ -4083,9 +4936,9 @@ class K {
    * @example DateTime.fromHTTP('Sun Nov  6 08:49:37 1994')
    * @return {DateTime}
    */
-  static fromHTTP(e, r = {}) {
-    const [i, a] = Ll(e);
-    return jt(i, a, r, "HTTP", r);
+  static fromHTTP(text, opts = {}) {
+    const [vals, parsedZone] = parseHTTPDate(text);
+    return parseDataToDateTime(vals, parsedZone, opts, "HTTP", opts);
   }
   /**
    * Create a DateTime from an input string and format string.
@@ -4101,21 +4954,26 @@ class K {
    * @param {string} opts.outputCalendar - the output calendar to set on the resulting DateTime instance
    * @return {DateTime}
    */
-  static fromFormat(e, r, i = {}) {
-    if (Z(e) || Z(r))
-      throw new ge("fromFormat requires an input string and a format");
-    const { locale: a = null, numberingSystem: c = null } = i, h = re.fromOpts({
-      locale: a,
-      numberingSystem: c,
-      defaultToEN: !0
-    }), [m, v, A, q] = dc(h, e, r);
-    return q ? K.invalid(q) : jt(m, v, i, `format ${r}`, e, A);
+  static fromFormat(text, fmt, opts = {}) {
+    if (isUndefined(text) || isUndefined(fmt)) {
+      throw new InvalidArgumentError("fromFormat requires an input string and a format");
+    }
+    const { locale = null, numberingSystem = null } = opts, localeToUse = Locale.fromOpts({
+      locale,
+      numberingSystem,
+      defaultToEN: true
+    }), [vals, parsedZone, specificOffset, invalid] = parseFromTokens(localeToUse, text, fmt);
+    if (invalid) {
+      return DateTime.invalid(invalid);
+    } else {
+      return parseDataToDateTime(vals, parsedZone, opts, `format ${fmt}`, text, specificOffset);
+    }
   }
   /**
    * @deprecated use fromFormat instead
    */
-  static fromString(e, r, i = {}) {
-    return K.fromFormat(e, r, i);
+  static fromString(text, fmt, opts = {}) {
+    return DateTime.fromFormat(text, fmt, opts);
   }
   /**
    * Create a DateTime from a SQL date, time, or datetime
@@ -4138,9 +4996,9 @@ class K {
    * @example DateTime.fromSQL('09:12:34.342')
    * @return {DateTime}
    */
-  static fromSQL(e, r = {}) {
-    const [i, a] = Bl(e);
-    return jt(i, a, r, "SQL", e);
+  static fromSQL(text, opts = {}) {
+    const [vals, parsedZone] = parseSQL(text);
+    return parseDataToDateTime(vals, parsedZone, opts, "SQL", text);
   }
   /**
    * Create an invalid DateTime.
@@ -4148,21 +5006,24 @@ class K {
    * @param {string} [explanation=null] - longer explanation, may include parameters and other useful debugging information
    * @return {DateTime}
    */
-  static invalid(e, r = null) {
-    if (!e)
-      throw new ge("need to specify a reason the DateTime is invalid");
-    const i = e instanceof Pe ? e : new Pe(e, r);
-    if (ue.throwOnInvalid)
-      throw new wu(i);
-    return new K({ invalid: i });
+  static invalid(reason, explanation = null) {
+    if (!reason) {
+      throw new InvalidArgumentError("need to specify a reason the DateTime is invalid");
+    }
+    const invalid = reason instanceof Invalid ? reason : new Invalid(reason, explanation);
+    if (Settings.throwOnInvalid) {
+      throw new InvalidDateTimeError(invalid);
+    } else {
+      return new DateTime({ invalid });
+    }
   }
   /**
    * Check if an object is an instance of DateTime. Works across context boundaries
    * @param {object} o
    * @return {boolean}
    */
-  static isDateTime(e) {
-    return e && e.isLuxonDateTime || !1;
+  static isDateTime(o2) {
+    return o2 && o2.isLuxonDateTime || false;
   }
   /**
    * Produce the format string for a set of options
@@ -4170,9 +5031,9 @@ class K {
    * @param localeOpts
    * @returns {string}
    */
-  static parseFormatForOpts(e, r = {}) {
-    const i = Ea(e, re.fromObject(r));
-    return i ? i.map((a) => a ? a.val : null).join("") : null;
+  static parseFormatForOpts(formatOpts, localeOpts = {}) {
+    const tokenList = formatOptsToTokens(formatOpts, Locale.fromObject(localeOpts));
+    return !tokenList ? null : tokenList.map((t2) => t2 ? t2.val : null).join("");
   }
   /**
    * Produce the the fully expanded format token for the locale
@@ -4181,11 +5042,13 @@ class K {
    * @param localeOpts
    * @returns {string}
    */
-  static expandFormat(e, r = {}) {
-    return xa(ve.parseFormat(e), re.fromObject(r)).map((a) => a.val).join("");
+  static expandFormat(fmt, localeOpts = {}) {
+    const expanded = expandMacroTokens(Formatter.parseFormat(fmt), Locale.fromObject(localeOpts));
+    return expanded.map((t2) => t2.val).join("");
   }
   static resetCache() {
-    Sr = void 0, xr = {};
+    zoneOffsetTs = void 0;
+    zoneOffsetGuessCache = {};
   }
   // INFO
   /**
@@ -4195,8 +5058,8 @@ class K {
    * @example DateTime.local(2017, 7, 4).get('day'); //=> 4
    * @return {number}
    */
-  get(e) {
-    return this[e];
+  get(unit) {
+    return this[unit];
   }
   /**
    * Returns whether the DateTime is valid. Invalid DateTimes occur when:
@@ -4330,7 +5193,7 @@ class K {
    * @type {number}
    */
   get weekYear() {
-    return this.isValid ? Ai(this).weekYear : NaN;
+    return this.isValid ? possiblyCachedWeekData(this).weekYear : NaN;
   }
   /**
    * Get the week number of the week year (1-52ish).
@@ -4339,7 +5202,7 @@ class K {
    * @type {number}
    */
   get weekNumber() {
-    return this.isValid ? Ai(this).weekNumber : NaN;
+    return this.isValid ? possiblyCachedWeekData(this).weekNumber : NaN;
   }
   /**
    * Get the day of the week.
@@ -4349,7 +5212,7 @@ class K {
    * @type {number}
    */
   get weekday() {
-    return this.isValid ? Ai(this).weekday : NaN;
+    return this.isValid ? possiblyCachedWeekData(this).weekday : NaN;
   }
   /**
    * Returns true if this date is on a weekend according to the locale, false otherwise
@@ -4365,7 +5228,7 @@ class K {
    * @returns {number}
    */
   get localWeekday() {
-    return this.isValid ? Ci(this).weekday : NaN;
+    return this.isValid ? possiblyCachedLocalWeekData(this).weekday : NaN;
   }
   /**
    * Get the week number of the week year according to the locale. Different locales assign week numbers differently,
@@ -4374,7 +5237,7 @@ class K {
    * @returns {number}
    */
   get localWeekNumber() {
-    return this.isValid ? Ci(this).weekNumber : NaN;
+    return this.isValid ? possiblyCachedLocalWeekData(this).weekNumber : NaN;
   }
   /**
    * Get the week year according to the locale. Different locales assign week numbers (and therefor week years)
@@ -4382,7 +5245,7 @@ class K {
    * @returns {number}
    */
   get localWeekYear() {
-    return this.isValid ? Ci(this).weekYear : NaN;
+    return this.isValid ? possiblyCachedLocalWeekData(this).weekYear : NaN;
   }
   /**
    * Get the ordinal (meaning the day of the year)
@@ -4390,7 +5253,7 @@ class K {
    * @type {number|DateTime}
    */
   get ordinal() {
-    return this.isValid ? Oi(this.c).ordinal : NaN;
+    return this.isValid ? gregorianToOrdinal(this.c).ordinal : NaN;
   }
   /**
    * Get the human readable short month name, such as 'Oct'.
@@ -4399,7 +5262,7 @@ class K {
    * @type {string}
    */
   get monthShort() {
-    return this.isValid ? On.months("short", { locObj: this.loc })[this.month - 1] : null;
+    return this.isValid ? Info.months("short", { locObj: this.loc })[this.month - 1] : null;
   }
   /**
    * Get the human readable long month name, such as 'October'.
@@ -4408,7 +5271,7 @@ class K {
    * @type {string}
    */
   get monthLong() {
-    return this.isValid ? On.months("long", { locObj: this.loc })[this.month - 1] : null;
+    return this.isValid ? Info.months("long", { locObj: this.loc })[this.month - 1] : null;
   }
   /**
    * Get the human readable short weekday, such as 'Mon'.
@@ -4417,7 +5280,7 @@ class K {
    * @type {string}
    */
   get weekdayShort() {
-    return this.isValid ? On.weekdays("short", { locObj: this.loc })[this.weekday - 1] : null;
+    return this.isValid ? Info.weekdays("short", { locObj: this.loc })[this.weekday - 1] : null;
   }
   /**
    * Get the human readable long weekday, such as 'Monday'.
@@ -4426,7 +5289,7 @@ class K {
    * @type {string}
    */
   get weekdayLong() {
-    return this.isValid ? On.weekdays("long", { locObj: this.loc })[this.weekday - 1] : null;
+    return this.isValid ? Info.weekdays("long", { locObj: this.loc })[this.weekday - 1] : null;
   }
   /**
    * Get the UTC offset of this DateTime in minutes
@@ -4443,10 +5306,14 @@ class K {
    * @type {string}
    */
   get offsetNameShort() {
-    return this.isValid ? this.zone.offsetName(this.ts, {
-      format: "short",
-      locale: this.locale
-    }) : null;
+    if (this.isValid) {
+      return this.zone.offsetName(this.ts, {
+        format: "short",
+        locale: this.locale
+      });
+    } else {
+      return null;
+    }
   }
   /**
    * Get the long human name for the zone's current offset, for example "Eastern Standard Time" or "Eastern Daylight Time".
@@ -4454,10 +5321,14 @@ class K {
    * @type {string}
    */
   get offsetNameLong() {
-    return this.isValid ? this.zone.offsetName(this.ts, {
-      format: "long",
-      locale: this.locale
-    }) : null;
+    if (this.isValid) {
+      return this.zone.offsetName(this.ts, {
+        format: "long",
+        locale: this.locale
+      });
+    } else {
+      return null;
+    }
   }
   /**
    * Get whether this zone's offset ever changes, as in a DST.
@@ -4471,7 +5342,11 @@ class K {
    * @type {boolean}
    */
   get isInDST() {
-    return this.isOffsetFixed ? !1 : this.offset > this.set({ month: 1, day: 1 }).offset || this.offset > this.set({ month: 5 }).offset;
+    if (this.isOffsetFixed) {
+      return false;
+    } else {
+      return this.offset > this.set({ month: 1, day: 1 }).offset || this.offset > this.set({ month: 5 }).offset;
+    }
   }
   /**
    * Get those DateTimes which have the same local time as this DateTime, but a different offset from UTC
@@ -4481,13 +5356,27 @@ class K {
    * @returns {DateTime[]}
    */
   getPossibleOffsets() {
-    if (!this.isValid || this.isOffsetFixed)
+    if (!this.isValid || this.isOffsetFixed) {
       return [this];
-    const e = 864e5, r = 6e4, i = Mr(this.c), a = this.zone.offset(i - e), c = this.zone.offset(i + e), h = this.zone.offset(i - a * r), m = this.zone.offset(i - c * r);
-    if (h === m)
+    }
+    const dayMs = 864e5;
+    const minuteMs = 6e4;
+    const localTS = objToLocalTS(this.c);
+    const oEarlier = this.zone.offset(localTS - dayMs);
+    const oLater = this.zone.offset(localTS + dayMs);
+    const o1 = this.zone.offset(localTS - oEarlier * minuteMs);
+    const o2 = this.zone.offset(localTS - oLater * minuteMs);
+    if (o1 === o2) {
       return [this];
-    const v = i - h * r, A = i - m * r, q = br(v, h), M = br(A, m);
-    return q.hour === M.hour && q.minute === M.minute && q.second === M.second && q.millisecond === M.millisecond ? [St(this, { ts: v }), St(this, { ts: A })] : [this];
+    }
+    const ts1 = localTS - o1 * minuteMs;
+    const ts2 = localTS - o2 * minuteMs;
+    const c1 = tsToObj(ts1, o1);
+    const c2 = tsToObj(ts2, o2);
+    if (c1.hour === c2.hour && c1.minute === c2.minute && c1.second === c2.second && c1.millisecond === c2.millisecond) {
+      return [clone(this, { ts: ts1 }), clone(this, { ts: ts2 })];
+    }
+    return [this];
   }
   /**
    * Returns true if this DateTime is in a leap year, false otherwise
@@ -4496,7 +5385,7 @@ class K {
    * @type {boolean}
    */
   get isInLeapYear() {
-    return Fn(this.year);
+    return isLeapYear(this.year);
   }
   /**
    * Returns the number of days in this DateTime's month
@@ -4505,7 +5394,7 @@ class K {
    * @type {number}
    */
   get daysInMonth() {
-    return Ar(this.year, this.month);
+    return daysInMonth(this.year, this.month);
   }
   /**
    * Returns the number of days in this DateTime's year
@@ -4514,7 +5403,7 @@ class K {
    * @type {number}
    */
   get daysInYear() {
-    return this.isValid ? Bt(this.year) : NaN;
+    return this.isValid ? daysInYear(this.year) : NaN;
   }
   /**
    * Returns the number of weeks in this DateTime's year
@@ -4524,7 +5413,7 @@ class K {
    * @type {number}
    */
   get weeksInWeekYear() {
-    return this.isValid ? Dn(this.weekYear) : NaN;
+    return this.isValid ? weeksInWeekYear(this.weekYear) : NaN;
   }
   /**
    * Returns the number of weeks in this DateTime's local week year
@@ -4533,7 +5422,7 @@ class K {
    * @type {number}
    */
   get weeksInLocalWeekYear() {
-    return this.isValid ? Dn(
+    return this.isValid ? weeksInWeekYear(
       this.localWeekYear,
       this.loc.getMinDaysInFirstWeek(),
       this.loc.getStartOfWeek()
@@ -4545,12 +5434,12 @@ class K {
    * @param {Object} opts - the same options as toLocaleString
    * @return {Object}
    */
-  resolvedLocaleOptions(e = {}) {
-    const { locale: r, numberingSystem: i, calendar: a } = ve.create(
-      this.loc.clone(e),
-      e
+  resolvedLocaleOptions(opts = {}) {
+    const { locale, numberingSystem, calendar } = Formatter.create(
+      this.loc.clone(opts),
+      opts
     ).resolvedOptions(this);
-    return { locale: r, numberingSystem: i, outputCalendar: a };
+    return { locale, numberingSystem, outputCalendar: calendar };
   }
   // TRANSFORM
   /**
@@ -4561,8 +5450,8 @@ class K {
    * @param {Object} [opts={}] - options to pass to `setZone()`
    * @return {DateTime}
    */
-  toUTC(e = 0, r = {}) {
-    return this.setZone(be.instance(e), r);
+  toUTC(offset2 = 0, opts = {}) {
+    return this.setZone(FixedOffsetZone.instance(offset2), opts);
   }
   /**
    * "Set" the DateTime's zone to the host's local zone. Returns a newly-constructed DateTime.
@@ -4571,7 +5460,7 @@ class K {
    * @return {DateTime}
    */
   toLocal() {
-    return this.setZone(ue.defaultZone);
+    return this.setZone(Settings.defaultZone);
   }
   /**
    * "Set" the DateTime's zone to specified zone. Returns a newly-constructed DateTime.
@@ -4582,18 +5471,21 @@ class K {
    * @param {boolean} [opts.keepLocalTime=false] - If true, adjust the underlying time so that the local time stays the same, but in the target zone. You should rarely need this.
    * @return {DateTime}
    */
-  setZone(e, { keepLocalTime: r = !1, keepCalendarTime: i = !1 } = {}) {
-    if (e = it(e, ue.defaultZone), e.equals(this.zone))
+  setZone(zone, { keepLocalTime = false, keepCalendarTime = false } = {}) {
+    zone = normalizeZone(zone, Settings.defaultZone);
+    if (zone.equals(this.zone)) {
       return this;
-    if (e.isValid) {
-      let a = this.ts;
-      if (r || i) {
-        const c = e.offset(this.ts), h = this.toObject();
-        [a] = _r(h, c, e);
+    } else if (!zone.isValid) {
+      return DateTime.invalid(unsupportedZone(zone));
+    } else {
+      let newTS = this.ts;
+      if (keepLocalTime || keepCalendarTime) {
+        const offsetGuess = zone.offset(this.ts);
+        const asObj = this.toObject();
+        [newTS] = objToTS(asObj, offsetGuess, zone);
       }
-      return St(this, { ts: a, zone: e });
-    } else
-      return K.invalid(En(e));
+      return clone(this, { ts: newTS, zone });
+    }
   }
   /**
    * "Set" the locale, numberingSystem, or outputCalendar. Returns a newly-constructed DateTime.
@@ -4601,9 +5493,9 @@ class K {
    * @example DateTime.local(2017, 5, 25).reconfigure({ locale: 'en-GB' })
    * @return {DateTime}
    */
-  reconfigure({ locale: e, numberingSystem: r, outputCalendar: i } = {}) {
-    const a = this.loc.clone({ locale: e, numberingSystem: r, outputCalendar: i });
-    return St(this, { loc: a });
+  reconfigure({ locale, numberingSystem, outputCalendar } = {}) {
+    const loc = this.loc.clone({ locale, numberingSystem, outputCalendar });
+    return clone(this, { loc });
   }
   /**
    * "Set" the locale. Returns a newly-constructed DateTime.
@@ -4611,8 +5503,8 @@ class K {
    * @example DateTime.local(2017, 5, 25).setLocale('en-GB')
    * @return {DateTime}
    */
-  setLocale(e) {
-    return this.reconfigure({ locale: e });
+  setLocale(locale) {
+    return this.reconfigure({ locale });
   }
   /**
    * "Set" the values of specified units. Returns a newly-constructed DateTime.
@@ -4627,23 +5519,36 @@ class K {
    * @example dt.set({ year: 2005, ordinal: 234 })
    * @return {DateTime}
    */
-  set(e) {
+  set(values) {
     if (!this.isValid) return this;
-    const r = Cr(e, fo), { minDaysInFirstWeek: i, startOfWeek: a } = Xs(r, this.loc), c = !Z(r.weekYear) || !Z(r.weekNumber) || !Z(r.weekday), h = !Z(r.ordinal), m = !Z(r.year), v = !Z(r.month) || !Z(r.day), A = m || v, q = r.weekYear || r.weekNumber;
-    if ((A || h) && q)
-      throw new zt(
+    const normalized = normalizeObject(values, normalizeUnitWithLocalWeeks);
+    const { minDaysInFirstWeek, startOfWeek } = usesLocalWeekValues(normalized, this.loc);
+    const settingWeekStuff = !isUndefined(normalized.weekYear) || !isUndefined(normalized.weekNumber) || !isUndefined(normalized.weekday), containsOrdinal = !isUndefined(normalized.ordinal), containsGregorYear = !isUndefined(normalized.year), containsGregorMD = !isUndefined(normalized.month) || !isUndefined(normalized.day), containsGregor = containsGregorYear || containsGregorMD, definiteWeekDef = normalized.weekYear || normalized.weekNumber;
+    if ((containsGregor || containsOrdinal) && definiteWeekDef) {
+      throw new ConflictingSpecificationError(
         "Can't mix weekYear/weekNumber units with year/month/day or ordinals"
       );
-    if (v && h)
-      throw new zt("Can't mix ordinal dates with month/day");
-    let M;
-    c ? M = Gs(
-      { ...Ir(this.c, i, a), ...r },
-      i,
-      a
-    ) : Z(r.ordinal) ? (M = { ...this.toObject(), ...r }, Z(r.day) && (M.day = Math.min(Ar(M.year, M.month), M.day))) : M = Js({ ...Oi(this.c), ...r });
-    const [z, j] = _r(M, this.o, this.zone);
-    return St(this, { ts: z, o: j });
+    }
+    if (containsGregorMD && containsOrdinal) {
+      throw new ConflictingSpecificationError("Can't mix ordinal dates with month/day");
+    }
+    let mixed;
+    if (settingWeekStuff) {
+      mixed = weekToGregorian(
+        { ...gregorianToWeek(this.c, minDaysInFirstWeek, startOfWeek), ...normalized },
+        minDaysInFirstWeek,
+        startOfWeek
+      );
+    } else if (!isUndefined(normalized.ordinal)) {
+      mixed = ordinalToGregorian({ ...gregorianToOrdinal(this.c), ...normalized });
+    } else {
+      mixed = { ...this.toObject(), ...normalized };
+      if (isUndefined(normalized.day)) {
+        mixed.day = Math.min(daysInMonth(mixed.year, mixed.month), mixed.day);
+      }
+    }
+    const [ts, o2] = objToTS(mixed, this.o, this.zone);
+    return clone(this, { ts, o: o2 });
   }
   /**
    * Add a period of time to this DateTime and return the resulting DateTime
@@ -4658,10 +5563,10 @@ class K {
    * @example DateTime.now().plus(Duration.fromObject({ hours: 3, minutes: 13 })) //~> in 3 hr, 13 min
    * @return {DateTime}
    */
-  plus(e) {
+  plus(duration) {
     if (!this.isValid) return this;
-    const r = X.fromDurationLike(e);
-    return St(this, lo(this, r));
+    const dur = Duration.fromDurationLike(duration);
+    return clone(this, adjustTime(this, dur));
   }
   /**
    * Subtract a period of time to this DateTime and return the resulting DateTime
@@ -4669,10 +5574,10 @@ class K {
    * @param {Duration|Object|number} duration - The amount to subtract. Either a Luxon Duration, a number of milliseconds, the object argument to Duration.fromObject()
    @return {DateTime}
    */
-  minus(e) {
+  minus(duration) {
     if (!this.isValid) return this;
-    const r = X.fromDurationLike(e).negate();
-    return St(this, lo(this, r));
+    const dur = Duration.fromDurationLike(duration).negate();
+    return clone(this, adjustTime(this, dur));
   }
   /**
    * "Set" this DateTime to the beginning of a unit of time.
@@ -4686,37 +5591,43 @@ class K {
    * @example DateTime.local(2014, 3, 3, 5, 30).startOf('hour').toISOTime(); //=> '05:00:00.000-05:00'
    * @return {DateTime}
    */
-  startOf(e, { useLocaleWeeks: r = !1 } = {}) {
+  startOf(unit, { useLocaleWeeks = false } = {}) {
     if (!this.isValid) return this;
-    const i = {}, a = X.normalizeUnit(e);
-    switch (a) {
+    const o2 = {}, normalizedUnit = Duration.normalizeUnit(unit);
+    switch (normalizedUnit) {
       case "years":
-        i.month = 1;
+        o2.month = 1;
       case "quarters":
       case "months":
-        i.day = 1;
+        o2.day = 1;
       case "weeks":
       case "days":
-        i.hour = 0;
+        o2.hour = 0;
       case "hours":
-        i.minute = 0;
+        o2.minute = 0;
       case "minutes":
-        i.second = 0;
+        o2.second = 0;
       case "seconds":
-        i.millisecond = 0;
+        o2.millisecond = 0;
         break;
     }
-    if (a === "weeks")
-      if (r) {
-        const c = this.loc.getStartOfWeek(), { weekday: h } = this;
-        h < c && (i.weekNumber = this.weekNumber - 1), i.weekday = c;
-      } else
-        i.weekday = 1;
-    if (a === "quarters") {
-      const c = Math.ceil(this.month / 3);
-      i.month = (c - 1) * 3 + 1;
+    if (normalizedUnit === "weeks") {
+      if (useLocaleWeeks) {
+        const startOfWeek = this.loc.getStartOfWeek();
+        const { weekday } = this;
+        if (weekday < startOfWeek) {
+          o2.weekNumber = this.weekNumber - 1;
+        }
+        o2.weekday = startOfWeek;
+      } else {
+        o2.weekday = 1;
+      }
     }
-    return this.set(i);
+    if (normalizedUnit === "quarters") {
+      const q = Math.ceil(this.month / 3);
+      o2.month = (q - 1) * 3 + 1;
+    }
+    return this.set(o2);
   }
   /**
    * "Set" this DateTime to the end (meaning the last millisecond) of a unit of time
@@ -4730,8 +5641,8 @@ class K {
    * @example DateTime.local(2014, 3, 3, 5, 30).endOf('hour').toISO(); //=> '2014-03-03T05:59:59.999-05:00'
    * @return {DateTime}
    */
-  endOf(e, r) {
-    return this.isValid ? this.plus({ [e]: 1 }).startOf(e, r).minus(1) : this;
+  endOf(unit, opts) {
+    return this.isValid ? this.plus({ [unit]: 1 }).startOf(unit, opts).minus(1) : this;
   }
   // OUTPUT
   /**
@@ -4746,8 +5657,8 @@ class K {
    * @example DateTime.now().toFormat("HH 'hours and' mm 'minutes'") //=> '20 hours and 55 minutes'
    * @return {string}
    */
-  toFormat(e, r = {}) {
-    return this.isValid ? ve.create(this.loc.redefaultToEN(r)).formatDateTimeFromString(this, e) : Ii;
+  toFormat(fmt, opts = {}) {
+    return this.isValid ? Formatter.create(this.loc.redefaultToEN(opts)).formatDateTimeFromString(this, fmt) : INVALID;
   }
   /**
    * Returns a localized string representing this date. Accepts the same options as the Intl.DateTimeFormat constructor and any presets defined by Luxon, such as `DateTime.DATE_FULL` or `DateTime.TIME_SIMPLE`.
@@ -4768,8 +5679,8 @@ class K {
    * @example DateTime.now().toLocaleString({ hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }); //=> '11:32'
    * @return {string}
    */
-  toLocaleString(e = Er, r = {}) {
-    return this.isValid ? ve.create(this.loc.clone(r), e).formatDateTime(this) : Ii;
+  toLocaleString(formatOpts = DATE_SHORT, opts = {}) {
+    return this.isValid ? Formatter.create(this.loc.clone(opts), formatOpts).formatDateTime(this) : INVALID;
   }
   /**
    * Returns an array of format "parts", meaning individual tokens along with metadata. This is allows callers to post-process individual sections of the formatted output.
@@ -4784,8 +5695,8 @@ class K {
    *                                   //=>   { type: 'year', value: '1982' }
    *                                   //=> ]
    */
-  toLocaleParts(e = {}) {
-    return this.isValid ? ve.create(this.loc.clone(e), e).formatDateTimeParts(this) : [];
+  toLocaleParts(opts = {}) {
+    return this.isValid ? Formatter.create(this.loc.clone(opts), opts).formatDateTimeParts(this) : [];
   }
   /**
    * Returns an ISO 8601-compliant string representation of this DateTime
@@ -4802,17 +5713,20 @@ class K {
    * @return {string}
    */
   toISO({
-    format: e = "extended",
-    suppressSeconds: r = !1,
-    suppressMilliseconds: i = !1,
-    includeOffset: a = !0,
-    extendedZone: c = !1
+    format = "extended",
+    suppressSeconds = false,
+    suppressMilliseconds = false,
+    includeOffset = true,
+    extendedZone = false
   } = {}) {
-    if (!this.isValid)
+    if (!this.isValid) {
       return null;
-    const h = e === "extended";
-    let m = Di(this, h);
-    return m += "T", m += co(this, h, r, i, a, c), m;
+    }
+    const ext = format === "extended";
+    let c2 = toISODate(this, ext);
+    c2 += "T";
+    c2 += toISOTime(this, ext, suppressSeconds, suppressMilliseconds, includeOffset, extendedZone);
+    return c2;
   }
   /**
    * Returns an ISO 8601-compliant string representation of this DateTime's date component
@@ -4822,8 +5736,11 @@ class K {
    * @example DateTime.utc(1982, 5, 25).toISODate({ format: 'basic' }) //=> '19820525'
    * @return {string}
    */
-  toISODate({ format: e = "extended" } = {}) {
-    return this.isValid ? Di(this, e === "extended") : null;
+  toISODate({ format = "extended" } = {}) {
+    if (!this.isValid) {
+      return null;
+    }
+    return toISODate(this, format === "extended");
   }
   /**
    * Returns an ISO 8601-compliant string representation of this DateTime's week date
@@ -4831,7 +5748,7 @@ class K {
    * @return {string}
    */
   toISOWeekDate() {
-    return wr(this, "kkkk-'W'WW-c");
+    return toTechFormat(this, "kkkk-'W'WW-c");
   }
   /**
    * Returns an ISO 8601-compliant string representation of this DateTime's time component
@@ -4849,21 +5766,25 @@ class K {
    * @return {string}
    */
   toISOTime({
-    suppressMilliseconds: e = !1,
-    suppressSeconds: r = !1,
-    includeOffset: i = !0,
-    includePrefix: a = !1,
-    extendedZone: c = !1,
-    format: h = "extended"
+    suppressMilliseconds = false,
+    suppressSeconds = false,
+    includeOffset = true,
+    includePrefix = false,
+    extendedZone = false,
+    format = "extended"
   } = {}) {
-    return this.isValid ? (a ? "T" : "") + co(
+    if (!this.isValid) {
+      return null;
+    }
+    let c2 = includePrefix ? "T" : "";
+    return c2 + toISOTime(
       this,
-      h === "extended",
-      r,
-      e,
-      i,
-      c
-    ) : null;
+      format === "extended",
+      suppressSeconds,
+      suppressMilliseconds,
+      includeOffset,
+      extendedZone
+    );
   }
   /**
    * Returns an RFC 2822-compatible string representation of this DateTime
@@ -4872,7 +5793,7 @@ class K {
    * @return {string}
    */
   toRFC2822() {
-    return wr(this, "EEE, dd LLL yyyy HH:mm:ss ZZZ", !1);
+    return toTechFormat(this, "EEE, dd LLL yyyy HH:mm:ss ZZZ", false);
   }
   /**
    * Returns a string representation of this DateTime appropriate for use in HTTP headers. The output is always expressed in GMT.
@@ -4883,7 +5804,7 @@ class K {
    * @return {string}
    */
   toHTTP() {
-    return wr(this.toUTC(), "EEE, dd LLL yyyy HH:mm:ss 'GMT'");
+    return toTechFormat(this.toUTC(), "EEE, dd LLL yyyy HH:mm:ss 'GMT'");
   }
   /**
    * Returns a string representation of this DateTime appropriate for use in SQL Date
@@ -4891,7 +5812,10 @@ class K {
    * @return {string}
    */
   toSQLDate() {
-    return this.isValid ? Di(this, !0) : null;
+    if (!this.isValid) {
+      return null;
+    }
+    return toISODate(this, true);
   }
   /**
    * Returns a string representation of this DateTime appropriate for use in SQL Time
@@ -4905,9 +5829,19 @@ class K {
    * @example DateTime.now().toSQL({ includeZone: false }) //=> '05:15:16.345 America/New_York'
    * @return {string}
    */
-  toSQLTime({ includeOffset: e = !0, includeZone: r = !1, includeOffsetSpace: i = !0 } = {}) {
-    let a = "HH:mm:ss.SSS";
-    return (r || e) && (i && (a += " "), r ? a += "z" : e && (a += "ZZ")), wr(this, a, !0);
+  toSQLTime({ includeOffset = true, includeZone = false, includeOffsetSpace = true } = {}) {
+    let fmt = "HH:mm:ss.SSS";
+    if (includeZone || includeOffset) {
+      if (includeOffsetSpace) {
+        fmt += " ";
+      }
+      if (includeZone) {
+        fmt += "z";
+      } else if (includeOffset) {
+        fmt += "ZZ";
+      }
+    }
+    return toTechFormat(this, fmt, true);
   }
   /**
    * Returns a string representation of this DateTime appropriate for use in SQL DateTime
@@ -4921,22 +5855,29 @@ class K {
    * @example DateTime.local(2014, 7, 13).toSQL({ includeZone: true }) //=> '2014-07-13 00:00:00.000 America/New_York'
    * @return {string}
    */
-  toSQL(e = {}) {
-    return this.isValid ? `${this.toSQLDate()} ${this.toSQLTime(e)}` : null;
+  toSQL(opts = {}) {
+    if (!this.isValid) {
+      return null;
+    }
+    return `${this.toSQLDate()} ${this.toSQLTime(opts)}`;
   }
   /**
    * Returns a string representation of this DateTime appropriate for debugging
    * @return {string}
    */
   toString() {
-    return this.isValid ? this.toISO() : Ii;
+    return this.isValid ? this.toISO() : INVALID;
   }
   /**
    * Returns a string representation of this DateTime appropriate for the REPL.
    * @return {string}
    */
   [Symbol.for("nodejs.util.inspect.custom")]() {
-    return this.isValid ? `DateTime { ts: ${this.toISO()}, zone: ${this.zone.name}, locale: ${this.locale} }` : `DateTime { Invalid, reason: ${this.invalidReason} }`;
+    if (this.isValid) {
+      return `DateTime { ts: ${this.toISO()}, zone: ${this.zone.name}, locale: ${this.locale} }`;
+    } else {
+      return `DateTime { Invalid, reason: ${this.invalidReason} }`;
+    }
   }
   /**
    * Returns the epoch milliseconds of this DateTime. Alias of {@link DateTime#toMillis}
@@ -4987,10 +5928,15 @@ class K {
    * @example DateTime.now().toObject() //=> { year: 2017, month: 4, day: 22, hour: 20, minute: 49, second: 42, millisecond: 268 }
    * @return {Object}
    */
-  toObject(e = {}) {
+  toObject(opts = {}) {
     if (!this.isValid) return {};
-    const r = { ...this.c };
-    return e.includeConfig && (r.outputCalendar = this.outputCalendar, r.numberingSystem = this.loc.numberingSystem, r.locale = this.loc.locale), r;
+    const base = { ...this.c };
+    if (opts.includeConfig) {
+      base.outputCalendar = this.outputCalendar;
+      base.numberingSystem = this.loc.numberingSystem;
+      base.locale = this.loc.locale;
+    }
+    return base;
   }
   /**
    * Returns a JavaScript Date equivalent to this DateTime.
@@ -5015,11 +5961,13 @@ class K {
    * i2.diff(i1, ['months', 'days', 'hours']).toObject() //=> { months: 16, days: 19, hours: 0.75 }
    * @return {Duration}
    */
-  diff(e, r = "milliseconds", i = {}) {
-    if (!this.isValid || !e.isValid)
-      return X.invalid("created by diffing an invalid DateTime");
-    const a = { locale: this.locale, numberingSystem: this.numberingSystem, ...i }, c = Gu(r).map(X.normalizeUnit), h = e.valueOf() > this.valueOf(), m = h ? this : e, v = h ? e : this, A = ec(m, v, c, a);
-    return h ? A.negate() : A;
+  diff(otherDateTime, unit = "milliseconds", opts = {}) {
+    if (!this.isValid || !otherDateTime.isValid) {
+      return Duration.invalid("created by diffing an invalid DateTime");
+    }
+    const durOpts = { locale: this.locale, numberingSystem: this.numberingSystem, ...opts };
+    const units = maybeArray(unit).map(Duration.normalizeUnit), otherIsLater = otherDateTime.valueOf() > this.valueOf(), earlier = otherIsLater ? this : otherDateTime, later = otherIsLater ? otherDateTime : this, diffed = diff(earlier, later, units, durOpts);
+    return otherIsLater ? diffed.negate() : diffed;
   }
   /**
    * Return the difference between this DateTime and right now.
@@ -5029,16 +5977,16 @@ class K {
    * @param {string} [opts.conversionAccuracy='casual'] - the conversion system to use
    * @return {Duration}
    */
-  diffNow(e = "milliseconds", r = {}) {
-    return this.diff(K.now(), e, r);
+  diffNow(unit = "milliseconds", opts = {}) {
+    return this.diff(DateTime.now(), unit, opts);
   }
   /**
    * Return an Interval spanning between this DateTime and another DateTime
    * @param {DateTime} otherDateTime - the other end point of the Interval
    * @return {Interval}
    */
-  until(e) {
-    return this.isValid ? ae.fromDateTimes(this, e) : this;
+  until(otherDateTime) {
+    return this.isValid ? Interval.fromDateTimes(this, otherDateTime) : this;
   }
   /**
    * Return whether this DateTime is in the same unit of time as another DateTime.
@@ -5051,10 +5999,11 @@ class K {
    * @example DateTime.now().hasSame(otherDT, 'day'); //~> true if otherDT is in the same current calendar day
    * @return {boolean}
    */
-  hasSame(e, r, i) {
-    if (!this.isValid) return !1;
-    const a = e.valueOf(), c = this.setZone(e.zone, { keepLocalTime: !0 });
-    return c.startOf(r, i) <= a && a <= c.endOf(r, i);
+  hasSame(otherDateTime, unit, opts) {
+    if (!this.isValid) return false;
+    const inputMs = otherDateTime.valueOf();
+    const adjustedToZone = this.setZone(otherDateTime.zone, { keepLocalTime: true });
+    return adjustedToZone.startOf(unit, opts) <= inputMs && inputMs <= adjustedToZone.endOf(unit, opts);
   }
   /**
    * Equality check
@@ -5063,8 +6012,8 @@ class K {
    * @param {DateTime} other - the other DateTime
    * @return {boolean}
    */
-  equals(e) {
-    return this.isValid && e.isValid && this.valueOf() === e.valueOf() && this.zone.equals(e.zone) && this.loc.equals(e.loc);
+  equals(other) {
+    return this.isValid && other.isValid && this.valueOf() === other.valueOf() && this.zone.equals(other.zone) && this.loc.equals(other.loc);
   }
   /**
    * Returns a string representation of a this time relative to now, such as "in two days". Can only internationalize if your
@@ -5084,15 +6033,20 @@ class K {
    * @example DateTime.now().minus({ days: 2 }).toRelative({ unit: "hours" }) //=> "48 hours ago"
    * @example DateTime.now().minus({ hours: 36 }).toRelative({ round: false }) //=> "1.5 days ago"
    */
-  toRelative(e = {}) {
+  toRelative(options = {}) {
     if (!this.isValid) return null;
-    const r = e.base || K.fromObject({}, { zone: this.zone }), i = e.padding ? this < r ? -e.padding : e.padding : 0;
-    let a = ["years", "months", "days", "hours", "minutes", "seconds"], c = e.unit;
-    return Array.isArray(e.unit) && (a = e.unit, c = void 0), mo(r, this.plus(i), {
-      ...e,
+    const base = options.base || DateTime.fromObject({}, { zone: this.zone }), padding = options.padding ? this < base ? -options.padding : options.padding : 0;
+    let units = ["years", "months", "days", "hours", "minutes", "seconds"];
+    let unit = options.unit;
+    if (Array.isArray(options.unit)) {
+      units = options.unit;
+      unit = void 0;
+    }
+    return diffRelative(base, this.plus(padding), {
+      ...options,
       numeric: "always",
-      units: a,
-      unit: c
+      units,
+      unit
     });
   }
   /**
@@ -5108,33 +6062,36 @@ class K {
    * @example DateTime.now().plus({ days: 1 }).toRelativeCalendar({ locale: "fr" }) //=> "demain"
    * @example DateTime.now().minus({ days: 2 }).toRelativeCalendar() //=> "2 days ago"
    */
-  toRelativeCalendar(e = {}) {
-    return this.isValid ? mo(e.base || K.fromObject({}, { zone: this.zone }), this, {
-      ...e,
+  toRelativeCalendar(options = {}) {
+    if (!this.isValid) return null;
+    return diffRelative(options.base || DateTime.fromObject({}, { zone: this.zone }), this, {
+      ...options,
       numeric: "auto",
       units: ["years", "months", "days"],
-      calendary: !0
-    }) : null;
+      calendary: true
+    });
   }
   /**
    * Return the min of several date times
    * @param {...DateTime} dateTimes - the DateTimes from which to choose the minimum
    * @return {DateTime} the min DateTime, or undefined if called with no argument
    */
-  static min(...e) {
-    if (!e.every(K.isDateTime))
-      throw new ge("min requires all arguments be DateTimes");
-    return Qs(e, (r) => r.valueOf(), Math.min);
+  static min(...dateTimes) {
+    if (!dateTimes.every(DateTime.isDateTime)) {
+      throw new InvalidArgumentError("min requires all arguments be DateTimes");
+    }
+    return bestBy(dateTimes, (i2) => i2.valueOf(), Math.min);
   }
   /**
    * Return the max of several date times
    * @param {...DateTime} dateTimes - the DateTimes from which to choose the maximum
    * @return {DateTime} the max DateTime, or undefined if called with no argument
    */
-  static max(...e) {
-    if (!e.every(K.isDateTime))
-      throw new ge("max requires all arguments be DateTimes");
-    return Qs(e, (r) => r.valueOf(), Math.max);
+  static max(...dateTimes) {
+    if (!dateTimes.every(DateTime.isDateTime)) {
+      throw new InvalidArgumentError("max requires all arguments be DateTimes");
+    }
+    return bestBy(dateTimes, (i2) => i2.valueOf(), Math.max);
   }
   // MISC
   /**
@@ -5144,19 +6101,19 @@ class K {
    * @param {Object} options - options taken by fromFormat()
    * @return {Object}
    */
-  static fromFormatExplain(e, r, i = {}) {
-    const { locale: a = null, numberingSystem: c = null } = i, h = re.fromOpts({
-      locale: a,
-      numberingSystem: c,
-      defaultToEN: !0
+  static fromFormatExplain(text, fmt, options = {}) {
+    const { locale = null, numberingSystem = null } = options, localeToUse = Locale.fromOpts({
+      locale,
+      numberingSystem,
+      defaultToEN: true
     });
-    return Oa(h, e, r);
+    return explainFromTokens(localeToUse, text, fmt);
   }
   /**
    * @deprecated use fromFormatExplain instead
    */
-  static fromStringExplain(e, r, i = {}) {
-    return K.fromFormatExplain(e, r, i);
+  static fromStringExplain(text, fmt, options = {}) {
+    return DateTime.fromFormatExplain(text, fmt, options);
   }
   /**
    * Build a parser for `fmt` using the given locale. This parser can be passed
@@ -5170,13 +6127,13 @@ class K {
    * for parser
    * @returns {TokenParser} - opaque object to be used
    */
-  static buildFormatParser(e, r = {}) {
-    const { locale: i = null, numberingSystem: a = null } = r, c = re.fromOpts({
-      locale: i,
-      numberingSystem: a,
-      defaultToEN: !0
+  static buildFormatParser(fmt, options = {}) {
+    const { locale = null, numberingSystem = null } = options, localeToUse = Locale.fromOpts({
+      locale,
+      numberingSystem,
+      defaultToEN: true
     });
-    return new Ta(c, e);
+    return new TokenParser(localeToUse, fmt);
   }
   /**
    * Create a DateTime from an input string and format parser.
@@ -5188,29 +6145,35 @@ class K {
    * @param {Object} opts - options taken by fromFormat()
    * @returns {DateTime}
    */
-  static fromFormatParser(e, r, i = {}) {
-    if (Z(e) || Z(r))
-      throw new ge(
+  static fromFormatParser(text, formatParser, opts = {}) {
+    if (isUndefined(text) || isUndefined(formatParser)) {
+      throw new InvalidArgumentError(
         "fromFormatParser requires an input string and a format parser"
       );
-    const { locale: a = null, numberingSystem: c = null } = i, h = re.fromOpts({
-      locale: a,
-      numberingSystem: c,
-      defaultToEN: !0
+    }
+    const { locale = null, numberingSystem = null } = opts, localeToUse = Locale.fromOpts({
+      locale,
+      numberingSystem,
+      defaultToEN: true
     });
-    if (!h.equals(r.locale))
-      throw new ge(
-        `fromFormatParser called with a locale of ${h}, but the format parser was created for ${r.locale}`
+    if (!localeToUse.equals(formatParser.locale)) {
+      throw new InvalidArgumentError(
+        `fromFormatParser called with a locale of ${localeToUse}, but the format parser was created for ${formatParser.locale}`
       );
-    const { result: m, zone: v, specificOffset: A, invalidReason: q } = r.explainFromTokens(e);
-    return q ? K.invalid(q) : jt(
-      m,
-      v,
-      i,
-      `format ${r.format}`,
-      e,
-      A
-    );
+    }
+    const { result, zone, specificOffset, invalidReason } = formatParser.explainFromTokens(text);
+    if (invalidReason) {
+      return DateTime.invalid(invalidReason);
+    } else {
+      return parseDataToDateTime(
+        result,
+        zone,
+        opts,
+        `format ${formatParser.format}`,
+        text,
+        specificOffset
+      );
+    }
   }
   // FORMAT PRESETS
   /**
@@ -5218,202 +6181,209 @@ class K {
    * @type {Object}
    */
   static get DATE_SHORT() {
-    return Er;
+    return DATE_SHORT;
   }
   /**
    * {@link DateTime#toLocaleString} format like 'Oct 14, 1983'
    * @type {Object}
    */
   static get DATE_MED() {
-    return Do;
+    return DATE_MED;
   }
   /**
    * {@link DateTime#toLocaleString} format like 'Fri, Oct 14, 1983'
    * @type {Object}
    */
   static get DATE_MED_WITH_WEEKDAY() {
-    return Su;
+    return DATE_MED_WITH_WEEKDAY;
   }
   /**
    * {@link DateTime#toLocaleString} format like 'October 14, 1983'
    * @type {Object}
    */
   static get DATE_FULL() {
-    return $o;
+    return DATE_FULL;
   }
   /**
    * {@link DateTime#toLocaleString} format like 'Tuesday, October 14, 1983'
    * @type {Object}
    */
   static get DATE_HUGE() {
-    return No;
+    return DATE_HUGE;
   }
   /**
    * {@link DateTime#toLocaleString} format like '09:30 AM'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get TIME_SIMPLE() {
-    return Mo;
+    return TIME_SIMPLE;
   }
   /**
    * {@link DateTime#toLocaleString} format like '09:30:23 AM'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get TIME_WITH_SECONDS() {
-    return Po;
+    return TIME_WITH_SECONDS;
   }
   /**
    * {@link DateTime#toLocaleString} format like '09:30:23 AM EDT'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get TIME_WITH_SHORT_OFFSET() {
-    return Fo;
+    return TIME_WITH_SHORT_OFFSET;
   }
   /**
    * {@link DateTime#toLocaleString} format like '09:30:23 AM Eastern Daylight Time'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get TIME_WITH_LONG_OFFSET() {
-    return Ro;
+    return TIME_WITH_LONG_OFFSET;
   }
   /**
    * {@link DateTime#toLocaleString} format like '09:30', always 24-hour.
    * @type {Object}
    */
   static get TIME_24_SIMPLE() {
-    return Vo;
+    return TIME_24_SIMPLE;
   }
   /**
    * {@link DateTime#toLocaleString} format like '09:30:23', always 24-hour.
    * @type {Object}
    */
   static get TIME_24_WITH_SECONDS() {
-    return qo;
+    return TIME_24_WITH_SECONDS;
   }
   /**
    * {@link DateTime#toLocaleString} format like '09:30:23 EDT', always 24-hour.
    * @type {Object}
    */
   static get TIME_24_WITH_SHORT_OFFSET() {
-    return Lo;
+    return TIME_24_WITH_SHORT_OFFSET;
   }
   /**
    * {@link DateTime#toLocaleString} format like '09:30:23 Eastern Daylight Time', always 24-hour.
    * @type {Object}
    */
   static get TIME_24_WITH_LONG_OFFSET() {
-    return Uo;
+    return TIME_24_WITH_LONG_OFFSET;
   }
   /**
    * {@link DateTime#toLocaleString} format like '10/14/1983, 9:30 AM'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get DATETIME_SHORT() {
-    return jo;
+    return DATETIME_SHORT;
   }
   /**
    * {@link DateTime#toLocaleString} format like '10/14/1983, 9:30:33 AM'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get DATETIME_SHORT_WITH_SECONDS() {
-    return Wo;
+    return DATETIME_SHORT_WITH_SECONDS;
   }
   /**
    * {@link DateTime#toLocaleString} format like 'Oct 14, 1983, 9:30 AM'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get DATETIME_MED() {
-    return Ko;
+    return DATETIME_MED;
   }
   /**
    * {@link DateTime#toLocaleString} format like 'Oct 14, 1983, 9:30:33 AM'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get DATETIME_MED_WITH_SECONDS() {
-    return zo;
+    return DATETIME_MED_WITH_SECONDS;
   }
   /**
    * {@link DateTime#toLocaleString} format like 'Fri, 14 Oct 1983, 9:30 AM'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get DATETIME_MED_WITH_WEEKDAY() {
-    return xu;
+    return DATETIME_MED_WITH_WEEKDAY;
   }
   /**
    * {@link DateTime#toLocaleString} format like 'October 14, 1983, 9:30 AM EDT'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get DATETIME_FULL() {
-    return Zo;
+    return DATETIME_FULL;
   }
   /**
    * {@link DateTime#toLocaleString} format like 'October 14, 1983, 9:30:33 AM EDT'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get DATETIME_FULL_WITH_SECONDS() {
-    return Bo;
+    return DATETIME_FULL_WITH_SECONDS;
   }
   /**
    * {@link DateTime#toLocaleString} format like 'Friday, October 14, 1983, 9:30 AM Eastern Daylight Time'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get DATETIME_HUGE() {
-    return Ho;
+    return DATETIME_HUGE;
   }
   /**
    * {@link DateTime#toLocaleString} format like 'Friday, October 14, 1983, 9:30:33 AM Eastern Daylight Time'. Only 12-hour if the locale is.
    * @type {Object}
    */
   static get DATETIME_HUGE_WITH_SECONDS() {
-    return Yo;
+    return DATETIME_HUGE_WITH_SECONDS;
   }
 }
-function Sn(s) {
-  if (K.isDateTime(s))
-    return s;
-  if (s && s.valueOf && at(s.valueOf()))
-    return K.fromJSDate(s);
-  if (s && typeof s == "object")
-    return K.fromObject(s);
-  throw new ge(
-    `Unknown datetime argument: ${s}, of type ${typeof s}`
-  );
+function friendlyDateTime(dateTimeish) {
+  if (DateTime.isDateTime(dateTimeish)) {
+    return dateTimeish;
+  } else if (dateTimeish && dateTimeish.valueOf && isNumber(dateTimeish.valueOf())) {
+    return DateTime.fromJSDate(dateTimeish);
+  } else if (dateTimeish && typeof dateTimeish === "object") {
+    return DateTime.fromObject(dateTimeish);
+  } else {
+    throw new InvalidArgumentError(
+      `Unknown datetime argument: ${dateTimeish}, of type ${typeof dateTimeish}`
+    );
+  }
 }
-const wc = "3.5.0", Gc = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const VERSION = "3.5.0";
+const luxon = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  DateTime: K,
-  Duration: X,
-  FixedOffsetZone: be,
-  IANAZone: Ue,
-  Info: On,
-  Interval: ae,
-  InvalidZone: Go,
-  Settings: ue,
-  SystemZone: Pn,
-  VERSION: wc,
-  Zone: Qt
+  DateTime,
+  Duration,
+  FixedOffsetZone,
+  IANAZone,
+  Info,
+  Interval,
+  InvalidZone,
+  Settings,
+  SystemZone,
+  VERSION,
+  Zone
 }, Symbol.toStringTag, { value: "Module" }));
-class Tr extends Error {
-  constructor(e) {
-    super(e), this.name = "KioskDateTimeError";
+class KioskDateTimeError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = "KioskDateTimeError";
   }
 }
-class Zt {
-  constructor(e) {
+class KioskDateTime {
+  constructor(timeZones) {
     this.latinMonths = {
-      I: "01",
-      II: "02",
-      III: "03",
-      IV: "04",
-      V: "05",
-      VI: "06",
-      VII: "07",
-      VIII: "08",
-      IX: "09",
-      X: "10",
-      XI: "11",
-      XII: "12"
-    }, this.arabicMonthToLatin = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"], this.timeZones = void 0, this.timeZones = e;
+      "I": "01",
+      "II": "02",
+      "III": "03",
+      "IV": "04",
+      "V": "05",
+      "VI": "06",
+      "VII": "07",
+      "VIII": "08",
+      "IX": "09",
+      "X": "10",
+      "XI": "11",
+      "XII": "12"
+    };
+    this.arabicMonthToLatin = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+    this.timeZones = void 0;
+    this.timeZones = timeZones;
   }
   /**
    * Returns a formatted Latin date string based on the provided Luxon DateTime object.
@@ -5422,9 +6392,10 @@ class Zt {
    * @param withTime Optional. A boolean flag to include time in the output. Default is true.
    * @returns The formatted Latin date string, with or without time based on the 'withTime' flag
    */
-  getLatinDate(e, r = !0) {
-    const i = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"], a = `${e.day} ${i[e.month - 1]} ${e.year}`;
-    return r ? a + " " + e.toLocaleString(K.TIME_WITH_SECONDS) : a;
+  getLatinDate(dt, withTime = true) {
+    const latinMonths = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
+    const dtStr = `${dt.day} ${latinMonths[dt.month - 1]} ${dt.year}`;
+    return withTime ? dtStr + " " + dt.toLocaleString(DateTime.TIME_WITH_SECONDS) : dtStr;
   }
   /**
    * returns a TimeZoneInfo object with id, ianaName and fullName of the
@@ -5432,9 +6403,9 @@ class Zt {
    */
   static getActiveUserTimeZone() {
     return {
-      id: parseInt(Tt("kiosk_tz_index")),
-      ianaName: Tt("kiosk_iana_time_zone"),
-      fullName: Tt("kiosk_tz_name")
+      id: parseInt(getCookie("kiosk_tz_index")),
+      ianaName: getCookie("kiosk_iana_time_zone"),
+      fullName: getCookie("kiosk_tz_name")
     };
   }
   /**
@@ -5444,9 +6415,9 @@ class Zt {
    */
   static getActiveRecordingTimeZone() {
     return {
-      id: parseInt(Tt("kiosk_recording_tz_index")),
-      ianaName: Tt("kiosk_recording_iana_time_zone"),
-      fullName: Tt("kiosk_recording_tz_name")
+      id: parseInt(getCookie("kiosk_recording_tz_index")),
+      ianaName: getCookie("kiosk_recording_iana_time_zone"),
+      fullName: getCookie("kiosk_recording_tz_name")
     };
   }
   /**
@@ -5458,28 +6429,52 @@ class Zt {
    * @param asRecordingTime Optional. If true this takes the IANA timezone from a hidden "-tz" Input Element,
    *                        otherwise the active user time zone will be used.
    */
-  initKioskDateTimeTzField(e, r = !0) {
-    let i = document.getElementById(e);
-    if (i) {
-      let a = i.dataset.utcDate;
-      if (a) {
-        let c = K.fromISO(a, { zone: "UTC" }), h = document.getElementById(e + "-tz").value, m = "-";
-        r ? m = h : h != "-" && (m = Zt.getActiveUserTimeZone().ianaName), m !== "-" && m !== "UTC" && (c = c.setZone(m)), i.value = this.getLatinDate(c);
+  initKioskDateTimeTzField(id, asRecordingTime = true) {
+    let field = document.getElementById(id);
+    if (field) {
+      let isoUTCDate = field.dataset.utcDate;
+      if (isoUTCDate) {
+        let dt = DateTime.fromISO(isoUTCDate, { zone: "UTC" });
+        let ianaTz = document.getElementById(id + "-tz").value;
+        let tz = "-";
+        if (asRecordingTime) {
+          tz = ianaTz;
+        } else {
+          if (ianaTz != "-") {
+            tz = KioskDateTime.getActiveUserTimeZone().ianaName;
+          }
+        }
+        if (tz !== "-" && tz !== "UTC") dt = dt.setZone(tz);
+        field.value = this.getLatinDate(dt);
       }
     }
   }
-  async initKioskDateTimeSpan(e, r = !0, i = !0) {
-    var c;
-    let a = (c = e.textContent) == null ? void 0 : c.trim();
-    if (a) {
-      let h = K.fromISO(a, { zone: "UTC" }), m, v;
-      if (e.dataset.tzIndex != null && this.timeZones) {
-        let z = await this.timeZones.getTimeZoneByIndex(Number(e.dataset.tzIndex));
-        z && z.tz_IANA && (m = z.tz_IANA), v = z && z.tz_long ? z.tz_long : m;
+  /**
+   * Initializes a single <span class="kiosk-tz-span"> element.
+   * @param span a HTMLSpanElement
+   * @param displayTimeZone set to false if you don't want the time zone name added
+   * @param latinFormat set to False if you want the timestamp in local date and time format instead of latin
+   */
+  async initKioskDateTimeSpan(span, displayTimeZone = true, latinFormat = true) {
+    var _a2;
+    let ISOUTCDate = (_a2 = span.textContent) == null ? void 0 : _a2.trim();
+    if (ISOUTCDate) {
+      let dt = DateTime.fromISO(ISOUTCDate, { zone: "UTC" });
+      let tzIANA;
+      let tzLong;
+      if (span.dataset.tzIndex != void 0 && this.timeZones) {
+        let tzInfo = await this.timeZones.getTimeZoneByIndex(Number(span.dataset.tzIndex));
+        if (tzInfo && tzInfo.tz_IANA) tzIANA = tzInfo.tz_IANA;
+        tzLong = tzInfo && tzInfo.tz_long ? tzInfo.tz_long : tzIANA;
       }
-      m || (m = e.dataset.recordingIanaTz), m && m !== "UTC" && m !== "-" && (h = h.setZone(m));
-      const A = i ? this.getLatinDate(h) : h.toLocaleString(), q = v ? ` (${v})` : " (legacy)", M = r ? q : "";
-      e.innerText = A + M;
+      if (!tzIANA) {
+        tzIANA = span.dataset.recordingIanaTz;
+      }
+      if (tzIANA && tzIANA !== "UTC" && tzIANA !== "-") dt = dt.setZone(tzIANA);
+      const dateStr = latinFormat ? this.getLatinDate(dt) : dt.toLocaleString();
+      const tzStr = tzLong ? ` (${tzLong})` : " (legacy)";
+      const timeStr = displayTimeZone ? tzStr : "";
+      span.innerText = dateStr + timeStr;
     }
   }
   /**
@@ -5490,10 +6485,11 @@ class Zt {
    * @param displayTimeZone if True (the default) the time zone name is shown
    * @param latinFormat default is true: expresses the date in Kiosk's latin date format
    */
-  async initKioskDateTimeSpans(e, r = !0, i = !0) {
-    const a = e.querySelectorAll("span.kiosk-tz-span");
-    for (const c of a)
-      await this.initKioskDateTimeSpan(c, r, i);
+  async initKioskDateTimeSpans(dialog, displayTimeZone = true, latinFormat = true) {
+    const spans = dialog.querySelectorAll("span.kiosk-tz-span");
+    for (const span of spans) {
+      await this.initKioskDateTimeSpan(span, displayTimeZone, latinFormat);
+    }
   }
   /**
    * validates a HTMLInputField that is supposed to contain a date time in its value
@@ -5503,29 +6499,44 @@ class Zt {
    * @param useRecordingTz default is true: uses the active recording time zone. False uses the active user time zone.
    * @returns the result of guessDateTime: A ISO8601 string of the date/time in UTC time zone
    */
-  validateDateTimeField(e, r = "kiosk-error-border", i = !0, a = !0) {
-    var m;
-    const c = document.getElementById(e);
-    let h = "";
-    if (c) {
-      r && c.classList.contains(r) && c.classList.remove(r);
-      let v = c.value;
-      if (v && v.trim()) {
-        const A = a ? Zt.getActiveRecordingTimeZone().ianaName : Zt.getActiveUserTimeZone().ianaName, q = new Zt();
+  validateDateTimeField(elementId, errorClass = "kiosk-error-border", focusOnError = true, useRecordingTz = true) {
+    var _a2;
+    const dtElement = document.getElementById(elementId);
+    let result = "";
+    if (dtElement) {
+      if (errorClass && dtElement.classList.contains(errorClass)) {
+        dtElement.classList.remove(errorClass);
+      }
+      let dt = dtElement.value;
+      if (dt && dt.trim()) {
+        const tz = useRecordingTz ? KioskDateTime.getActiveRecordingTimeZone().ianaName : KioskDateTime.getActiveUserTimeZone().ianaName;
+        const kdt = new KioskDateTime();
         try {
-          if (h = (m = q.guessDateTime(v, !1, A)) == null ? void 0 : m.toISO({
-            includeOffset: !1,
-            suppressMilliseconds: !0
-          }), !h)
+          result = (_a2 = kdt.guessDateTime(dt, false, tz)) == null ? void 0 : _a2.toISO({
+            includeOffset: false,
+            suppressMilliseconds: true
+          });
+          if (!result) {
             throw Error("date/time value not understood.");
-        } catch (M) {
-          throw r && c.classList.add(r), M instanceof Tr && i && c.focus(), M;
+          }
+        } catch (e2) {
+          if (errorClass) {
+            dtElement.classList.add(errorClass);
+          }
+          if (e2 instanceof KioskDateTimeError) {
+            if (focusOnError) {
+              dtElement.focus();
+            }
+          }
+          throw e2;
         }
-      } else
-        h = "";
-    } else
-      throw Error(`ui element ${e} does not exist.`);
-    return h;
+      } else {
+        result = "";
+      }
+    } else {
+      throw Error(`ui element ${elementId} does not exist.`);
+    }
+    return result;
   }
   /**
    * Splits a given string containing date and time (optional) into separate date and time parts.
@@ -5534,18 +6545,34 @@ class Zt {
    * @returns An array with the date part as the first element and the time part as the second element.
    *          If the input does not contain a time, the time part is undefined.
    */
-  splitDateAndTime(e) {
-    let r = e.split(" "), i = "", a = "";
-    if (r.length < 2 || r.length == 3)
-      return [e.trim(), void 0];
-    let c = e.lastIndexOf(" ");
-    return i = e.slice(0, c), a = e.slice(c + 1), a.length > 1 && (a = a.trim()), i.length > 1 && (i = i.trim()), [i, a === "" ? void 0 : a];
+  splitDateAndTime(dateTimeInput) {
+    let dtParts = dateTimeInput.split(" ");
+    let datePart = "";
+    let timePart = "";
+    if (dtParts.length < 2 || dtParts.length == 3) {
+      return [dateTimeInput.trim(), void 0];
+    }
+    let lastSpace = dateTimeInput.lastIndexOf(" ");
+    datePart = dateTimeInput.slice(0, lastSpace);
+    timePart = dateTimeInput.slice(lastSpace + 1);
+    if (timePart.length > 1) {
+      timePart = timePart.trim();
+    }
+    if (datePart.length > 1) {
+      datePart = datePart.trim();
+    }
+    return [datePart, timePart === "" ? void 0 : timePart];
   }
-  interpolateYear(e, r = 3) {
-    if (e > 100)
-      return e;
-    const i = (/* @__PURE__ */ new Date()).getFullYear() - Math.floor((/* @__PURE__ */ new Date()).getFullYear() / 1e3) * 1e3;
-    return e > i + r ? e + 1900 : e + 2e3;
+  interpolateYear(year, margin_1900 = 3) {
+    if (year > 100) {
+      return year;
+    }
+    const year2digits = (/* @__PURE__ */ new Date()).getFullYear() - Math.floor((/* @__PURE__ */ new Date()).getFullYear() / 1e3) * 1e3;
+    if (year > year2digits + margin_1900) {
+      return year + 1900;
+    } else {
+      return year + 2e3;
+    }
   }
   /**
    * formats year, month and day to a ISO8601 string. Does not check if the result is a valid date.
@@ -5553,27 +6580,38 @@ class Zt {
    * @param month int or string
    * @param day int or string
    */
-  formatISO8601DateStr(e, r, i) {
-    return i = String(i).padStart(2, "0"), r = String(r).padStart(2, "0"), e = this.interpolateYear(parseInt(String(e) || ""), 3), `${e}-${r}-${i}`;
+  formatISO8601DateStr(year, month, day) {
+    day = String(day).padStart(2, "0");
+    month = String(month).padStart(2, "0");
+    year = this.interpolateYear(parseInt(String(year) || ""), 3);
+    return `${year}-${month}-${day}`;
   }
-  guessLatinDate(e) {
-    var c;
-    const r = [
+  guessLatinDate(latinDate) {
+    var _a2;
+    const latinDatesRegexes = [
       /^(?<day>\d{1,2})\.(?<latinMonth>[IVX]{1,4})\.(?<year>\d{2,4})$/,
       /^(?<day>\d{1,2}) (?<latinMonth>[IVX]{1,4}) (?<year>\d{2,4})$/,
       /^(?<day>\d{1,2})(?<latinMonth>[IVX]{1,4})(?<year>\d{2,4})$/
     ];
-    let i = "", a = null;
-    for (const h of r)
-      if (a = new RegExp(h).exec(e), a)
+    let result = "";
+    let p2 = null;
+    for (const latinDateRegex of latinDatesRegexes) {
+      const rxLatinDate = new RegExp(latinDateRegex);
+      p2 = rxLatinDate.exec(latinDate);
+      if (p2) {
         break;
-    if (a)
-      try {
-        const h = (c = a.groups) == null ? void 0 : c.latinMonth;
-        a.groups && h && this.latinMonths.hasOwnProperty(h) && (i = this.formatISO8601DateStr(a.groups.year, this.latinMonths[h], a.groups.day));
-      } catch {
       }
-    return i;
+    }
+    if (p2) {
+      try {
+        const latinMonth = (_a2 = p2.groups) == null ? void 0 : _a2.latinMonth;
+        if (p2.groups && latinMonth && this.latinMonths.hasOwnProperty(latinMonth)) {
+          result = this.formatISO8601DateStr(p2.groups.year, this.latinMonths[latinMonth], p2.groups.day);
+        }
+      } catch (e2) {
+      }
+    }
+    return result;
   }
   /**
    * guesses the date and time from a string.
@@ -5582,286 +6620,302 @@ class Zt {
    * can also throw other Errors
    * returns a Luxon DateTime object with UTC time zone
    */
-  guessDateTime(e, r = !1, i = "utc") {
-    const a = K.fromISO(e, { zone: "utc" });
-    if (a.isValid) return a;
-    let [c, h] = this.splitDateAndTime(e);
-    if (!h && !r)
-      throw new Tr(`${e} has no time.`);
-    let m = this.guessLatinDate(c);
-    m && (c = m);
-    let A = /^(?<day>\d{1,2})\.(?<month>\d{1,2})\.(?<year>\d{2,4})$/.exec(c);
-    if (A && A.groups)
+  guessDateTime(dateTimeInput, allowDateOnly = false, timeZone = "utc") {
+    const isDT = DateTime.fromISO(dateTimeInput, { zone: "utc" });
+    if (isDT.isValid) return isDT;
+    let [datePart, timePart] = this.splitDateAndTime(dateTimeInput);
+    if (!timePart && !allowDateOnly) {
+      throw new KioskDateTimeError(`${dateTimeInput} has no time.`);
+    }
+    let p2 = this.guessLatinDate(datePart);
+    if (p2) {
+      datePart = p2;
+    }
+    const rx_german_date = /^(?<day>\d{1,2})\.(?<month>\d{1,2})\.(?<year>\d{2,4})$/;
+    let rxResult = rx_german_date.exec(datePart);
+    if (rxResult && rxResult.groups) {
       try {
-        c = this.formatISO8601DateStr(A.groups.year, A.groups.month, A.groups.day);
-      } catch {
+        datePart = this.formatISO8601DateStr(rxResult.groups.year, rxResult.groups.month, rxResult.groups.day);
+      } catch (e2) {
       }
-    if (A = /^(?<month>\d{1,2})\/(?<day>\d{1,2})\/(?<year>\d{2,4})$/.exec(c), A && A.groups)
+    }
+    const rx_us_date = /^(?<month>\d{1,2})\/(?<day>\d{1,2})\/(?<year>\d{2,4})$/;
+    rxResult = rx_us_date.exec(datePart);
+    if (rxResult && rxResult.groups) {
       try {
-        c = this.formatISO8601DateStr(A.groups.year, A.groups.month, A.groups.day);
-      } catch {
+        datePart = this.formatISO8601DateStr(rxResult.groups.year, rxResult.groups.month, rxResult.groups.day);
+      } catch (e2) {
       }
-    let M;
-    if (c && (h ? M = K.fromISO(c + "T" + h, { zone: i, setZone: !0 }).toUTC() : M = K.fromISO(c, { zone: i, setZone: !0 }).toUTC(), !M.isValid))
-      throw new Tr(`${e} is not a valid date`);
-    return M;
+    }
+    let ts;
+    if (datePart) {
+      if (timePart) {
+        ts = DateTime.fromISO(datePart + "T" + timePart, { zone: timeZone, setZone: true }).toUTC();
+      } else {
+        ts = DateTime.fromISO(datePart, { zone: timeZone, setZone: true }).toUTC();
+      }
+      if (!ts.isValid) throw new KioskDateTimeError(`${dateTimeInput} is not a valid date`);
+    }
+    return ts;
   }
 }
-const Jc = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
+const kioskdatetime = /* @__PURE__ */ Object.freeze(/* @__PURE__ */ Object.defineProperty({
   __proto__: null,
-  KioskDateTime: Zt,
-  KioskDateTimeError: Tr
-}, Symbol.toStringTag, { value: "Module" })), Da = 2, ji = 3;
+  KioskDateTime,
+  KioskDateTimeError
+}, Symbol.toStringTag, { value: "Module" }));
+const API_STATE_READY = 2;
+const API_STATE_ERROR = 3;
 /**
  * @license
  * Copyright 2019 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const Or = globalThis, es = Or.ShadowRoot && (Or.ShadyCSS === void 0 || Or.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, $a = Symbol(), yo = /* @__PURE__ */ new WeakMap();
-let kc = class {
-  constructor(e, r, i) {
-    if (this._$cssResult$ = !0, i !== $a) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
-    this.cssText = e, this.t = r;
+const t$1 = globalThis, e$2 = t$1.ShadowRoot && (void 0 === t$1.ShadyCSS || t$1.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, s$2 = Symbol(), o$3 = /* @__PURE__ */ new WeakMap();
+let n$3 = class n {
+  constructor(t2, e2, o2) {
+    if (this._$cssResult$ = true, o2 !== s$2) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
+    this.cssText = t2, this.t = e2;
   }
   get styleSheet() {
-    let e = this.o;
-    const r = this.t;
-    if (es && e === void 0) {
-      const i = r !== void 0 && r.length === 1;
-      i && (e = yo.get(r)), e === void 0 && ((this.o = e = new CSSStyleSheet()).replaceSync(this.cssText), i && yo.set(r, e));
+    let t2 = this.o;
+    const s2 = this.t;
+    if (e$2 && void 0 === t2) {
+      const e2 = void 0 !== s2 && 1 === s2.length;
+      e2 && (t2 = o$3.get(s2)), void 0 === t2 && ((this.o = t2 = new CSSStyleSheet()).replaceSync(this.cssText), e2 && o$3.set(s2, t2));
     }
-    return e;
+    return t2;
   }
   toString() {
     return this.cssText;
   }
 };
-const _c = (s) => new kc(typeof s == "string" ? s : s + "", void 0, $a), Sc = (s, e) => {
-  if (es) s.adoptedStyleSheets = e.map((r) => r instanceof CSSStyleSheet ? r : r.styleSheet);
-  else for (const r of e) {
-    const i = document.createElement("style"), a = Or.litNonce;
-    a !== void 0 && i.setAttribute("nonce", a), i.textContent = r.cssText, s.appendChild(i);
+const r$5 = (t2) => new n$3("string" == typeof t2 ? t2 : t2 + "", void 0, s$2), S$1 = (s2, o2) => {
+  if (e$2) s2.adoptedStyleSheets = o2.map((t2) => t2 instanceof CSSStyleSheet ? t2 : t2.styleSheet);
+  else for (const e2 of o2) {
+    const o3 = document.createElement("style"), n3 = t$1.litNonce;
+    void 0 !== n3 && o3.setAttribute("nonce", n3), o3.textContent = e2.cssText, s2.appendChild(o3);
   }
-}, go = es ? (s) => s : (s) => s instanceof CSSStyleSheet ? ((e) => {
-  let r = "";
-  for (const i of e.cssRules) r += i.cssText;
-  return _c(r);
-})(s) : s;
+}, c$2 = e$2 ? (t2) => t2 : (t2) => t2 instanceof CSSStyleSheet ? ((t3) => {
+  let e2 = "";
+  for (const s2 of t3.cssRules) e2 += s2.cssText;
+  return r$5(e2);
+})(t2) : t2;
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const { is: xc, defineProperty: Tc, getOwnPropertyDescriptor: Oc, getOwnPropertyNames: Ec, getOwnPropertySymbols: Ic, getPrototypeOf: Ac } = Object, ut = globalThis, vo = ut.trustedTypes, Cc = vo ? vo.emptyScript : "", $i = ut.reactiveElementPolyfillSupport, An = (s, e) => s, Dr = { toAttribute(s, e) {
-  switch (e) {
+const { is: i$1, defineProperty: e$1, getOwnPropertyDescriptor: r$4, getOwnPropertyNames: h$1, getOwnPropertySymbols: o$2, getPrototypeOf: n$2 } = Object, a$1 = globalThis, c$1 = a$1.trustedTypes, l$1 = c$1 ? c$1.emptyScript : "", p$1 = a$1.reactiveElementPolyfillSupport, d$1 = (t2, s2) => t2, u$1 = { toAttribute(t2, s2) {
+  switch (s2) {
     case Boolean:
-      s = s ? Cc : null;
+      t2 = t2 ? l$1 : null;
       break;
     case Object:
     case Array:
-      s = s == null ? s : JSON.stringify(s);
+      t2 = null == t2 ? t2 : JSON.stringify(t2);
   }
-  return s;
-}, fromAttribute(s, e) {
-  let r = s;
-  switch (e) {
+  return t2;
+}, fromAttribute(t2, s2) {
+  let i2 = t2;
+  switch (s2) {
     case Boolean:
-      r = s !== null;
+      i2 = null !== t2;
       break;
     case Number:
-      r = s === null ? null : Number(s);
+      i2 = null === t2 ? null : Number(t2);
       break;
     case Object:
     case Array:
       try {
-        r = JSON.parse(s);
-      } catch {
-        r = null;
+        i2 = JSON.parse(t2);
+      } catch (t3) {
+        i2 = null;
       }
   }
-  return r;
-} }, ts = (s, e) => !xc(s, e), bo = { attribute: !0, type: String, converter: Dr, reflect: !1, hasChanged: ts };
-Symbol.metadata ?? (Symbol.metadata = Symbol("metadata")), ut.litPropertyMetadata ?? (ut.litPropertyMetadata = /* @__PURE__ */ new WeakMap());
-class Kt extends HTMLElement {
-  static addInitializer(e) {
-    this._$Ei(), (this.l ?? (this.l = [])).push(e);
+  return i2;
+} }, f$1 = (t2, s2) => !i$1(t2, s2), y$1 = { attribute: true, type: String, converter: u$1, reflect: false, hasChanged: f$1 };
+Symbol.metadata ?? (Symbol.metadata = Symbol("metadata")), a$1.litPropertyMetadata ?? (a$1.litPropertyMetadata = /* @__PURE__ */ new WeakMap());
+class b extends HTMLElement {
+  static addInitializer(t2) {
+    this._$Ei(), (this.l ?? (this.l = [])).push(t2);
   }
   static get observedAttributes() {
     return this.finalize(), this._$Eh && [...this._$Eh.keys()];
   }
-  static createProperty(e, r = bo) {
-    if (r.state && (r.attribute = !1), this._$Ei(), this.elementProperties.set(e, r), !r.noAccessor) {
-      const i = Symbol(), a = this.getPropertyDescriptor(e, i, r);
-      a !== void 0 && Tc(this.prototype, e, a);
+  static createProperty(t2, s2 = y$1) {
+    if (s2.state && (s2.attribute = false), this._$Ei(), this.elementProperties.set(t2, s2), !s2.noAccessor) {
+      const i2 = Symbol(), r2 = this.getPropertyDescriptor(t2, i2, s2);
+      void 0 !== r2 && e$1(this.prototype, t2, r2);
     }
   }
-  static getPropertyDescriptor(e, r, i) {
-    const { get: a, set: c } = Oc(this.prototype, e) ?? { get() {
-      return this[r];
-    }, set(h) {
-      this[r] = h;
+  static getPropertyDescriptor(t2, s2, i2) {
+    const { get: e2, set: h2 } = r$4(this.prototype, t2) ?? { get() {
+      return this[s2];
+    }, set(t3) {
+      this[s2] = t3;
     } };
     return { get() {
-      return a == null ? void 0 : a.call(this);
-    }, set(h) {
-      const m = a == null ? void 0 : a.call(this);
-      c.call(this, h), this.requestUpdate(e, m, i);
-    }, configurable: !0, enumerable: !0 };
+      return e2 == null ? void 0 : e2.call(this);
+    }, set(s3) {
+      const r2 = e2 == null ? void 0 : e2.call(this);
+      h2.call(this, s3), this.requestUpdate(t2, r2, i2);
+    }, configurable: true, enumerable: true };
   }
-  static getPropertyOptions(e) {
-    return this.elementProperties.get(e) ?? bo;
+  static getPropertyOptions(t2) {
+    return this.elementProperties.get(t2) ?? y$1;
   }
   static _$Ei() {
-    if (this.hasOwnProperty(An("elementProperties"))) return;
-    const e = Ac(this);
-    e.finalize(), e.l !== void 0 && (this.l = [...e.l]), this.elementProperties = new Map(e.elementProperties);
+    if (this.hasOwnProperty(d$1("elementProperties"))) return;
+    const t2 = n$2(this);
+    t2.finalize(), void 0 !== t2.l && (this.l = [...t2.l]), this.elementProperties = new Map(t2.elementProperties);
   }
   static finalize() {
-    if (this.hasOwnProperty(An("finalized"))) return;
-    if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(An("properties"))) {
-      const r = this.properties, i = [...Ec(r), ...Ic(r)];
-      for (const a of i) this.createProperty(a, r[a]);
+    if (this.hasOwnProperty(d$1("finalized"))) return;
+    if (this.finalized = true, this._$Ei(), this.hasOwnProperty(d$1("properties"))) {
+      const t3 = this.properties, s2 = [...h$1(t3), ...o$2(t3)];
+      for (const i2 of s2) this.createProperty(i2, t3[i2]);
     }
-    const e = this[Symbol.metadata];
-    if (e !== null) {
-      const r = litPropertyMetadata.get(e);
-      if (r !== void 0) for (const [i, a] of r) this.elementProperties.set(i, a);
+    const t2 = this[Symbol.metadata];
+    if (null !== t2) {
+      const s2 = litPropertyMetadata.get(t2);
+      if (void 0 !== s2) for (const [t3, i2] of s2) this.elementProperties.set(t3, i2);
     }
     this._$Eh = /* @__PURE__ */ new Map();
-    for (const [r, i] of this.elementProperties) {
-      const a = this._$Eu(r, i);
-      a !== void 0 && this._$Eh.set(a, r);
+    for (const [t3, s2] of this.elementProperties) {
+      const i2 = this._$Eu(t3, s2);
+      void 0 !== i2 && this._$Eh.set(i2, t3);
     }
     this.elementStyles = this.finalizeStyles(this.styles);
   }
-  static finalizeStyles(e) {
-    const r = [];
-    if (Array.isArray(e)) {
-      const i = new Set(e.flat(1 / 0).reverse());
-      for (const a of i) r.unshift(go(a));
-    } else e !== void 0 && r.push(go(e));
-    return r;
+  static finalizeStyles(s2) {
+    const i2 = [];
+    if (Array.isArray(s2)) {
+      const e2 = new Set(s2.flat(1 / 0).reverse());
+      for (const s3 of e2) i2.unshift(c$2(s3));
+    } else void 0 !== s2 && i2.push(c$2(s2));
+    return i2;
   }
-  static _$Eu(e, r) {
-    const i = r.attribute;
-    return i === !1 ? void 0 : typeof i == "string" ? i : typeof e == "string" ? e.toLowerCase() : void 0;
+  static _$Eu(t2, s2) {
+    const i2 = s2.attribute;
+    return false === i2 ? void 0 : "string" == typeof i2 ? i2 : "string" == typeof t2 ? t2.toLowerCase() : void 0;
   }
   constructor() {
-    super(), this._$Ep = void 0, this.isUpdatePending = !1, this.hasUpdated = !1, this._$Em = null, this._$Ev();
+    super(), this._$Ep = void 0, this.isUpdatePending = false, this.hasUpdated = false, this._$Em = null, this._$Ev();
   }
   _$Ev() {
-    var e;
-    this._$ES = new Promise((r) => this.enableUpdating = r), this._$AL = /* @__PURE__ */ new Map(), this._$E_(), this.requestUpdate(), (e = this.constructor.l) == null || e.forEach((r) => r(this));
+    var _a2;
+    this._$ES = new Promise((t2) => this.enableUpdating = t2), this._$AL = /* @__PURE__ */ new Map(), this._$E_(), this.requestUpdate(), (_a2 = this.constructor.l) == null ? void 0 : _a2.forEach((t2) => t2(this));
   }
-  addController(e) {
-    var r;
-    (this._$EO ?? (this._$EO = /* @__PURE__ */ new Set())).add(e), this.renderRoot !== void 0 && this.isConnected && ((r = e.hostConnected) == null || r.call(e));
+  addController(t2) {
+    var _a2;
+    (this._$EO ?? (this._$EO = /* @__PURE__ */ new Set())).add(t2), void 0 !== this.renderRoot && this.isConnected && ((_a2 = t2.hostConnected) == null ? void 0 : _a2.call(t2));
   }
-  removeController(e) {
-    var r;
-    (r = this._$EO) == null || r.delete(e);
+  removeController(t2) {
+    var _a2;
+    (_a2 = this._$EO) == null ? void 0 : _a2.delete(t2);
   }
   _$E_() {
-    const e = /* @__PURE__ */ new Map(), r = this.constructor.elementProperties;
-    for (const i of r.keys()) this.hasOwnProperty(i) && (e.set(i, this[i]), delete this[i]);
-    e.size > 0 && (this._$Ep = e);
+    const t2 = /* @__PURE__ */ new Map(), s2 = this.constructor.elementProperties;
+    for (const i2 of s2.keys()) this.hasOwnProperty(i2) && (t2.set(i2, this[i2]), delete this[i2]);
+    t2.size > 0 && (this._$Ep = t2);
   }
   createRenderRoot() {
-    const e = this.shadowRoot ?? this.attachShadow(this.constructor.shadowRootOptions);
-    return Sc(e, this.constructor.elementStyles), e;
+    const t2 = this.shadowRoot ?? this.attachShadow(this.constructor.shadowRootOptions);
+    return S$1(t2, this.constructor.elementStyles), t2;
   }
   connectedCallback() {
-    var e;
-    this.renderRoot ?? (this.renderRoot = this.createRenderRoot()), this.enableUpdating(!0), (e = this._$EO) == null || e.forEach((r) => {
-      var i;
-      return (i = r.hostConnected) == null ? void 0 : i.call(r);
+    var _a2;
+    this.renderRoot ?? (this.renderRoot = this.createRenderRoot()), this.enableUpdating(true), (_a2 = this._$EO) == null ? void 0 : _a2.forEach((t2) => {
+      var _a3;
+      return (_a3 = t2.hostConnected) == null ? void 0 : _a3.call(t2);
     });
   }
-  enableUpdating(e) {
+  enableUpdating(t2) {
   }
   disconnectedCallback() {
-    var e;
-    (e = this._$EO) == null || e.forEach((r) => {
-      var i;
-      return (i = r.hostDisconnected) == null ? void 0 : i.call(r);
+    var _a2;
+    (_a2 = this._$EO) == null ? void 0 : _a2.forEach((t2) => {
+      var _a3;
+      return (_a3 = t2.hostDisconnected) == null ? void 0 : _a3.call(t2);
     });
   }
-  attributeChangedCallback(e, r, i) {
-    this._$AK(e, i);
+  attributeChangedCallback(t2, s2, i2) {
+    this._$AK(t2, i2);
   }
-  _$EC(e, r) {
-    var c;
-    const i = this.constructor.elementProperties.get(e), a = this.constructor._$Eu(e, i);
-    if (a !== void 0 && i.reflect === !0) {
-      const h = (((c = i.converter) == null ? void 0 : c.toAttribute) !== void 0 ? i.converter : Dr).toAttribute(r, i.type);
-      this._$Em = e, h == null ? this.removeAttribute(a) : this.setAttribute(a, h), this._$Em = null;
+  _$EC(t2, s2) {
+    var _a2;
+    const i2 = this.constructor.elementProperties.get(t2), e2 = this.constructor._$Eu(t2, i2);
+    if (void 0 !== e2 && true === i2.reflect) {
+      const r2 = (void 0 !== ((_a2 = i2.converter) == null ? void 0 : _a2.toAttribute) ? i2.converter : u$1).toAttribute(s2, i2.type);
+      this._$Em = t2, null == r2 ? this.removeAttribute(e2) : this.setAttribute(e2, r2), this._$Em = null;
     }
   }
-  _$AK(e, r) {
-    var c;
-    const i = this.constructor, a = i._$Eh.get(e);
-    if (a !== void 0 && this._$Em !== a) {
-      const h = i.getPropertyOptions(a), m = typeof h.converter == "function" ? { fromAttribute: h.converter } : ((c = h.converter) == null ? void 0 : c.fromAttribute) !== void 0 ? h.converter : Dr;
-      this._$Em = a, this[a] = m.fromAttribute(r, h.type), this._$Em = null;
+  _$AK(t2, s2) {
+    var _a2;
+    const i2 = this.constructor, e2 = i2._$Eh.get(t2);
+    if (void 0 !== e2 && this._$Em !== e2) {
+      const t3 = i2.getPropertyOptions(e2), r2 = "function" == typeof t3.converter ? { fromAttribute: t3.converter } : void 0 !== ((_a2 = t3.converter) == null ? void 0 : _a2.fromAttribute) ? t3.converter : u$1;
+      this._$Em = e2, this[e2] = r2.fromAttribute(s2, t3.type), this._$Em = null;
     }
   }
-  requestUpdate(e, r, i) {
-    if (e !== void 0) {
-      if (i ?? (i = this.constructor.getPropertyOptions(e)), !(i.hasChanged ?? ts)(this[e], r)) return;
-      this.P(e, r, i);
+  requestUpdate(t2, s2, i2) {
+    if (void 0 !== t2) {
+      if (i2 ?? (i2 = this.constructor.getPropertyOptions(t2)), !(i2.hasChanged ?? f$1)(this[t2], s2)) return;
+      this.P(t2, s2, i2);
     }
-    this.isUpdatePending === !1 && (this._$ES = this._$ET());
+    false === this.isUpdatePending && (this._$ES = this._$ET());
   }
-  P(e, r, i) {
-    this._$AL.has(e) || this._$AL.set(e, r), i.reflect === !0 && this._$Em !== e && (this._$Ej ?? (this._$Ej = /* @__PURE__ */ new Set())).add(e);
+  P(t2, s2, i2) {
+    this._$AL.has(t2) || this._$AL.set(t2, s2), true === i2.reflect && this._$Em !== t2 && (this._$Ej ?? (this._$Ej = /* @__PURE__ */ new Set())).add(t2);
   }
   async _$ET() {
-    this.isUpdatePending = !0;
+    this.isUpdatePending = true;
     try {
       await this._$ES;
-    } catch (r) {
-      Promise.reject(r);
+    } catch (t3) {
+      Promise.reject(t3);
     }
-    const e = this.scheduleUpdate();
-    return e != null && await e, !this.isUpdatePending;
+    const t2 = this.scheduleUpdate();
+    return null != t2 && await t2, !this.isUpdatePending;
   }
   scheduleUpdate() {
     return this.performUpdate();
   }
   performUpdate() {
-    var i;
+    var _a2;
     if (!this.isUpdatePending) return;
     if (!this.hasUpdated) {
       if (this.renderRoot ?? (this.renderRoot = this.createRenderRoot()), this._$Ep) {
-        for (const [c, h] of this._$Ep) this[c] = h;
+        for (const [t4, s3] of this._$Ep) this[t4] = s3;
         this._$Ep = void 0;
       }
-      const a = this.constructor.elementProperties;
-      if (a.size > 0) for (const [c, h] of a) h.wrapped !== !0 || this._$AL.has(c) || this[c] === void 0 || this.P(c, this[c], h);
+      const t3 = this.constructor.elementProperties;
+      if (t3.size > 0) for (const [s3, i2] of t3) true !== i2.wrapped || this._$AL.has(s3) || void 0 === this[s3] || this.P(s3, this[s3], i2);
     }
-    let e = !1;
-    const r = this._$AL;
+    let t2 = false;
+    const s2 = this._$AL;
     try {
-      e = this.shouldUpdate(r), e ? (this.willUpdate(r), (i = this._$EO) == null || i.forEach((a) => {
-        var c;
-        return (c = a.hostUpdate) == null ? void 0 : c.call(a);
-      }), this.update(r)) : this._$EU();
-    } catch (a) {
-      throw e = !1, this._$EU(), a;
+      t2 = this.shouldUpdate(s2), t2 ? (this.willUpdate(s2), (_a2 = this._$EO) == null ? void 0 : _a2.forEach((t3) => {
+        var _a3;
+        return (_a3 = t3.hostUpdate) == null ? void 0 : _a3.call(t3);
+      }), this.update(s2)) : this._$EU();
+    } catch (s3) {
+      throw t2 = false, this._$EU(), s3;
     }
-    e && this._$AE(r);
+    t2 && this._$AE(s2);
   }
-  willUpdate(e) {
+  willUpdate(t2) {
   }
-  _$AE(e) {
-    var r;
-    (r = this._$EO) == null || r.forEach((i) => {
-      var a;
-      return (a = i.hostUpdated) == null ? void 0 : a.call(i);
-    }), this.hasUpdated || (this.hasUpdated = !0, this.firstUpdated(e)), this.updated(e);
+  _$AE(t2) {
+    var _a2;
+    (_a2 = this._$EO) == null ? void 0 : _a2.forEach((t3) => {
+      var _a3;
+      return (_a3 = t3.hostUpdated) == null ? void 0 : _a3.call(t3);
+    }), this.hasUpdated || (this.hasUpdated = true, this.firstUpdated(t2)), this.updated(t2);
   }
   _$EU() {
-    this._$AL = /* @__PURE__ */ new Map(), this.isUpdatePending = !1;
+    this._$AL = /* @__PURE__ */ new Map(), this.isUpdatePending = false;
   }
   get updateComplete() {
     return this.getUpdateComplete();
@@ -5869,89 +6923,88 @@ class Kt extends HTMLElement {
   getUpdateComplete() {
     return this._$ES;
   }
-  shouldUpdate(e) {
-    return !0;
+  shouldUpdate(t2) {
+    return true;
   }
-  update(e) {
-    this._$Ej && (this._$Ej = this._$Ej.forEach((r) => this._$EC(r, this[r]))), this._$EU();
+  update(t2) {
+    this._$Ej && (this._$Ej = this._$Ej.forEach((t3) => this._$EC(t3, this[t3]))), this._$EU();
   }
-  updated(e) {
+  updated(t2) {
   }
-  firstUpdated(e) {
+  firstUpdated(t2) {
   }
 }
-Kt.elementStyles = [], Kt.shadowRootOptions = { mode: "open" }, Kt[An("elementProperties")] = /* @__PURE__ */ new Map(), Kt[An("finalized")] = /* @__PURE__ */ new Map(), $i == null || $i({ ReactiveElement: Kt }), (ut.reactiveElementVersions ?? (ut.reactiveElementVersions = [])).push("2.0.4");
+b.elementStyles = [], b.shadowRootOptions = { mode: "open" }, b[d$1("elementProperties")] = /* @__PURE__ */ new Map(), b[d$1("finalized")] = /* @__PURE__ */ new Map(), p$1 == null ? void 0 : p$1({ ReactiveElement: b }), (a$1.reactiveElementVersions ?? (a$1.reactiveElementVersions = [])).push("2.0.4");
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const Cn = globalThis, $r = Cn.trustedTypes, wo = $r ? $r.createPolicy("lit-html", { createHTML: (s) => s }) : void 0, Na = "$lit$", st = `lit$${(Math.random() + "").slice(9)}$`, Ma = "?" + st, Dc = `<${Ma}>`, It = document, $n = () => It.createComment(""), Nn = (s) => s === null || typeof s != "object" && typeof s != "function", Pa = Array.isArray, $c = (s) => Pa(s) || typeof (s == null ? void 0 : s[Symbol.iterator]) == "function", Ni = `[ 	
-\f\r]`, xn = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, ko = /-->/g, _o = />/g, xt = RegExp(`>|${Ni}(?:([^\\s"'>=/]+)(${Ni}*=${Ni}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), So = /'/g, xo = /"/g, Fa = /^(?:script|style|textarea|title)$/i, Nc = (s) => (e, ...r) => ({ _$litType$: s, strings: e, values: r }), ot = Nc(1), Jt = Symbol.for("lit-noChange"), he = Symbol.for("lit-nothing"), To = /* @__PURE__ */ new WeakMap(), Et = It.createTreeWalker(It, 129);
-function Ra(s, e) {
-  if (!Array.isArray(s) || !s.hasOwnProperty("raw")) throw Error("invalid template strings array");
-  return wo !== void 0 ? wo.createHTML(e) : e;
+const t = globalThis, i = t.trustedTypes, s$1 = i ? i.createPolicy("lit-html", { createHTML: (t2) => t2 }) : void 0, e = "$lit$", h = `lit$${(Math.random() + "").slice(9)}$`, o$1 = "?" + h, n$1 = `<${o$1}>`, r$3 = document, l = () => r$3.createComment(""), c = (t2) => null === t2 || "object" != typeof t2 && "function" != typeof t2, a = Array.isArray, u = (t2) => a(t2) || "function" == typeof (t2 == null ? void 0 : t2[Symbol.iterator]), d = "[ 	\n\f\r]", f = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, v = /-->/g, _ = />/g, m = RegExp(`>|${d}(?:([^\\s"'>=/]+)(${d}*=${d}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g"), p = /'/g, g = /"/g, $ = /^(?:script|style|textarea|title)$/i, y = (t2) => (i2, ...s2) => ({ _$litType$: t2, strings: i2, values: s2 }), x = y(1), w = Symbol.for("lit-noChange"), T = Symbol.for("lit-nothing"), A = /* @__PURE__ */ new WeakMap(), E = r$3.createTreeWalker(r$3, 129);
+function C(t2, i2) {
+  if (!Array.isArray(t2) || !t2.hasOwnProperty("raw")) throw Error("invalid template strings array");
+  return void 0 !== s$1 ? s$1.createHTML(i2) : i2;
 }
-const Mc = (s, e) => {
-  const r = s.length - 1, i = [];
-  let a, c = e === 2 ? "<svg>" : "", h = xn;
-  for (let m = 0; m < r; m++) {
-    const v = s[m];
-    let A, q, M = -1, z = 0;
-    for (; z < v.length && (h.lastIndex = z, q = h.exec(v), q !== null); ) z = h.lastIndex, h === xn ? q[1] === "!--" ? h = ko : q[1] !== void 0 ? h = _o : q[2] !== void 0 ? (Fa.test(q[2]) && (a = RegExp("</" + q[2], "g")), h = xt) : q[3] !== void 0 && (h = xt) : h === xt ? q[0] === ">" ? (h = a ?? xn, M = -1) : q[1] === void 0 ? M = -2 : (M = h.lastIndex - q[2].length, A = q[1], h = q[3] === void 0 ? xt : q[3] === '"' ? xo : So) : h === xo || h === So ? h = xt : h === ko || h === _o ? h = xn : (h = xt, a = void 0);
-    const j = h === xt && s[m + 1].startsWith("/>") ? " " : "";
-    c += h === xn ? v + Dc : M >= 0 ? (i.push(A), v.slice(0, M) + Na + v.slice(M) + st + j) : v + st + (M === -2 ? m : j);
+const P = (t2, i2) => {
+  const s2 = t2.length - 1, o2 = [];
+  let r2, l2 = 2 === i2 ? "<svg>" : "", c2 = f;
+  for (let i3 = 0; i3 < s2; i3++) {
+    const s3 = t2[i3];
+    let a2, u2, d2 = -1, y2 = 0;
+    for (; y2 < s3.length && (c2.lastIndex = y2, u2 = c2.exec(s3), null !== u2); ) y2 = c2.lastIndex, c2 === f ? "!--" === u2[1] ? c2 = v : void 0 !== u2[1] ? c2 = _ : void 0 !== u2[2] ? ($.test(u2[2]) && (r2 = RegExp("</" + u2[2], "g")), c2 = m) : void 0 !== u2[3] && (c2 = m) : c2 === m ? ">" === u2[0] ? (c2 = r2 ?? f, d2 = -1) : void 0 === u2[1] ? d2 = -2 : (d2 = c2.lastIndex - u2[2].length, a2 = u2[1], c2 = void 0 === u2[3] ? m : '"' === u2[3] ? g : p) : c2 === g || c2 === p ? c2 = m : c2 === v || c2 === _ ? c2 = f : (c2 = m, r2 = void 0);
+    const x2 = c2 === m && t2[i3 + 1].startsWith("/>") ? " " : "";
+    l2 += c2 === f ? s3 + n$1 : d2 >= 0 ? (o2.push(a2), s3.slice(0, d2) + e + s3.slice(d2) + h + x2) : s3 + h + (-2 === d2 ? i3 : x2);
   }
-  return [Ra(s, c + (s[r] || "<?>") + (e === 2 ? "</svg>" : "")), i];
+  return [C(t2, l2 + (t2[s2] || "<?>") + (2 === i2 ? "</svg>" : "")), o2];
 };
-class Mn {
-  constructor({ strings: e, _$litType$: r }, i) {
-    let a;
+class V {
+  constructor({ strings: t2, _$litType$: s2 }, n3) {
+    let r2;
     this.parts = [];
-    let c = 0, h = 0;
-    const m = e.length - 1, v = this.parts, [A, q] = Mc(e, r);
-    if (this.el = Mn.createElement(A, i), Et.currentNode = this.el.content, r === 2) {
-      const M = this.el.content.firstChild;
-      M.replaceWith(...M.childNodes);
+    let c2 = 0, a2 = 0;
+    const u2 = t2.length - 1, d2 = this.parts, [f2, v2] = P(t2, s2);
+    if (this.el = V.createElement(f2, n3), E.currentNode = this.el.content, 2 === s2) {
+      const t3 = this.el.content.firstChild;
+      t3.replaceWith(...t3.childNodes);
     }
-    for (; (a = Et.nextNode()) !== null && v.length < m; ) {
-      if (a.nodeType === 1) {
-        if (a.hasAttributes()) for (const M of a.getAttributeNames()) if (M.endsWith(Na)) {
-          const z = q[h++], j = a.getAttribute(M).split(st), ee = /([.?@])?(.*)/.exec(z);
-          v.push({ type: 1, index: c, name: ee[2], strings: j, ctor: ee[1] === "." ? Fc : ee[1] === "?" ? Rc : ee[1] === "@" ? Vc : Rr }), a.removeAttribute(M);
-        } else M.startsWith(st) && (v.push({ type: 6, index: c }), a.removeAttribute(M));
-        if (Fa.test(a.tagName)) {
-          const M = a.textContent.split(st), z = M.length - 1;
-          if (z > 0) {
-            a.textContent = $r ? $r.emptyScript : "";
-            for (let j = 0; j < z; j++) a.append(M[j], $n()), Et.nextNode(), v.push({ type: 2, index: ++c });
-            a.append(M[z], $n());
+    for (; null !== (r2 = E.nextNode()) && d2.length < u2; ) {
+      if (1 === r2.nodeType) {
+        if (r2.hasAttributes()) for (const t3 of r2.getAttributeNames()) if (t3.endsWith(e)) {
+          const i2 = v2[a2++], s3 = r2.getAttribute(t3).split(h), e2 = /([.?@])?(.*)/.exec(i2);
+          d2.push({ type: 1, index: c2, name: e2[2], strings: s3, ctor: "." === e2[1] ? k : "?" === e2[1] ? H : "@" === e2[1] ? I : R }), r2.removeAttribute(t3);
+        } else t3.startsWith(h) && (d2.push({ type: 6, index: c2 }), r2.removeAttribute(t3));
+        if ($.test(r2.tagName)) {
+          const t3 = r2.textContent.split(h), s3 = t3.length - 1;
+          if (s3 > 0) {
+            r2.textContent = i ? i.emptyScript : "";
+            for (let i2 = 0; i2 < s3; i2++) r2.append(t3[i2], l()), E.nextNode(), d2.push({ type: 2, index: ++c2 });
+            r2.append(t3[s3], l());
           }
         }
-      } else if (a.nodeType === 8) if (a.data === Ma) v.push({ type: 2, index: c });
+      } else if (8 === r2.nodeType) if (r2.data === o$1) d2.push({ type: 2, index: c2 });
       else {
-        let M = -1;
-        for (; (M = a.data.indexOf(st, M + 1)) !== -1; ) v.push({ type: 7, index: c }), M += st.length - 1;
+        let t3 = -1;
+        for (; -1 !== (t3 = r2.data.indexOf(h, t3 + 1)); ) d2.push({ type: 7, index: c2 }), t3 += h.length - 1;
       }
-      c++;
+      c2++;
     }
   }
-  static createElement(e, r) {
-    const i = It.createElement("template");
-    return i.innerHTML = e, i;
+  static createElement(t2, i2) {
+    const s2 = r$3.createElement("template");
+    return s2.innerHTML = t2, s2;
   }
 }
-function Xt(s, e, r = s, i) {
-  var h, m;
-  if (e === Jt) return e;
-  let a = i !== void 0 ? (h = r._$Co) == null ? void 0 : h[i] : r._$Cl;
-  const c = Nn(e) ? void 0 : e._$litDirective$;
-  return (a == null ? void 0 : a.constructor) !== c && ((m = a == null ? void 0 : a._$AO) == null || m.call(a, !1), c === void 0 ? a = void 0 : (a = new c(s), a._$AT(s, r, i)), i !== void 0 ? (r._$Co ?? (r._$Co = []))[i] = a : r._$Cl = a), a !== void 0 && (e = Xt(s, a._$AS(s, e.values), a, i)), e;
+function N(t2, i2, s2 = t2, e2) {
+  var _a2, _b;
+  if (i2 === w) return i2;
+  let h2 = void 0 !== e2 ? (_a2 = s2._$Co) == null ? void 0 : _a2[e2] : s2._$Cl;
+  const o2 = c(i2) ? void 0 : i2._$litDirective$;
+  return (h2 == null ? void 0 : h2.constructor) !== o2 && ((_b = h2 == null ? void 0 : h2._$AO) == null ? void 0 : _b.call(h2, false), void 0 === o2 ? h2 = void 0 : (h2 = new o2(t2), h2._$AT(t2, s2, e2)), void 0 !== e2 ? (s2._$Co ?? (s2._$Co = []))[e2] = h2 : s2._$Cl = h2), void 0 !== h2 && (i2 = N(t2, h2._$AS(t2, i2.values), h2, e2)), i2;
 }
-class Pc {
-  constructor(e, r) {
-    this._$AV = [], this._$AN = void 0, this._$AD = e, this._$AM = r;
+class S {
+  constructor(t2, i2) {
+    this._$AV = [], this._$AN = void 0, this._$AD = t2, this._$AM = i2;
   }
   get parentNode() {
     return this._$AM.parentNode;
@@ -5959,36 +7012,36 @@ class Pc {
   get _$AU() {
     return this._$AM._$AU;
   }
-  u(e) {
-    const { el: { content: r }, parts: i } = this._$AD, a = ((e == null ? void 0 : e.creationScope) ?? It).importNode(r, !0);
-    Et.currentNode = a;
-    let c = Et.nextNode(), h = 0, m = 0, v = i[0];
-    for (; v !== void 0; ) {
-      if (h === v.index) {
-        let A;
-        v.type === 2 ? A = new qn(c, c.nextSibling, this, e) : v.type === 1 ? A = new v.ctor(c, v.name, v.strings, this, e) : v.type === 6 && (A = new qc(c, this, e)), this._$AV.push(A), v = i[++m];
+  u(t2) {
+    const { el: { content: i2 }, parts: s2 } = this._$AD, e2 = ((t2 == null ? void 0 : t2.creationScope) ?? r$3).importNode(i2, true);
+    E.currentNode = e2;
+    let h2 = E.nextNode(), o2 = 0, n3 = 0, l2 = s2[0];
+    for (; void 0 !== l2; ) {
+      if (o2 === l2.index) {
+        let i3;
+        2 === l2.type ? i3 = new M(h2, h2.nextSibling, this, t2) : 1 === l2.type ? i3 = new l2.ctor(h2, l2.name, l2.strings, this, t2) : 6 === l2.type && (i3 = new L(h2, this, t2)), this._$AV.push(i3), l2 = s2[++n3];
       }
-      h !== (v == null ? void 0 : v.index) && (c = Et.nextNode(), h++);
+      o2 !== (l2 == null ? void 0 : l2.index) && (h2 = E.nextNode(), o2++);
     }
-    return Et.currentNode = It, a;
+    return E.currentNode = r$3, e2;
   }
-  p(e) {
-    let r = 0;
-    for (const i of this._$AV) i !== void 0 && (i.strings !== void 0 ? (i._$AI(e, i, r), r += i.strings.length - 2) : i._$AI(e[r])), r++;
+  p(t2) {
+    let i2 = 0;
+    for (const s2 of this._$AV) void 0 !== s2 && (void 0 !== s2.strings ? (s2._$AI(t2, s2, i2), i2 += s2.strings.length - 2) : s2._$AI(t2[i2])), i2++;
   }
 }
-class qn {
+class M {
   get _$AU() {
-    var e;
-    return ((e = this._$AM) == null ? void 0 : e._$AU) ?? this._$Cv;
+    var _a2;
+    return ((_a2 = this._$AM) == null ? void 0 : _a2._$AU) ?? this._$Cv;
   }
-  constructor(e, r, i, a) {
-    this.type = 2, this._$AH = he, this._$AN = void 0, this._$AA = e, this._$AB = r, this._$AM = i, this.options = a, this._$Cv = (a == null ? void 0 : a.isConnected) ?? !0;
+  constructor(t2, i2, s2, e2) {
+    this.type = 2, this._$AH = T, this._$AN = void 0, this._$AA = t2, this._$AB = i2, this._$AM = s2, this.options = e2, this._$Cv = (e2 == null ? void 0 : e2.isConnected) ?? true;
   }
   get parentNode() {
-    let e = this._$AA.parentNode;
-    const r = this._$AM;
-    return r !== void 0 && (e == null ? void 0 : e.nodeType) === 11 && (e = r.parentNode), e;
+    let t2 = this._$AA.parentNode;
+    const i2 = this._$AM;
+    return void 0 !== i2 && 11 === (t2 == null ? void 0 : t2.nodeType) && (t2 = i2.parentNode), t2;
   }
   get startNode() {
     return this._$AA;
@@ -5996,180 +7049,199 @@ class qn {
   get endNode() {
     return this._$AB;
   }
-  _$AI(e, r = this) {
-    e = Xt(this, e, r), Nn(e) ? e === he || e == null || e === "" ? (this._$AH !== he && this._$AR(), this._$AH = he) : e !== this._$AH && e !== Jt && this._(e) : e._$litType$ !== void 0 ? this.$(e) : e.nodeType !== void 0 ? this.T(e) : $c(e) ? this.k(e) : this._(e);
+  _$AI(t2, i2 = this) {
+    t2 = N(this, t2, i2), c(t2) ? t2 === T || null == t2 || "" === t2 ? (this._$AH !== T && this._$AR(), this._$AH = T) : t2 !== this._$AH && t2 !== w && this._(t2) : void 0 !== t2._$litType$ ? this.$(t2) : void 0 !== t2.nodeType ? this.T(t2) : u(t2) ? this.k(t2) : this._(t2);
   }
-  S(e) {
-    return this._$AA.parentNode.insertBefore(e, this._$AB);
+  S(t2) {
+    return this._$AA.parentNode.insertBefore(t2, this._$AB);
   }
-  T(e) {
-    this._$AH !== e && (this._$AR(), this._$AH = this.S(e));
+  T(t2) {
+    this._$AH !== t2 && (this._$AR(), this._$AH = this.S(t2));
   }
-  _(e) {
-    this._$AH !== he && Nn(this._$AH) ? this._$AA.nextSibling.data = e : this.T(It.createTextNode(e)), this._$AH = e;
+  _(t2) {
+    this._$AH !== T && c(this._$AH) ? this._$AA.nextSibling.data = t2 : this.T(r$3.createTextNode(t2)), this._$AH = t2;
   }
-  $(e) {
-    var c;
-    const { values: r, _$litType$: i } = e, a = typeof i == "number" ? this._$AC(e) : (i.el === void 0 && (i.el = Mn.createElement(Ra(i.h, i.h[0]), this.options)), i);
-    if (((c = this._$AH) == null ? void 0 : c._$AD) === a) this._$AH.p(r);
+  $(t2) {
+    var _a2;
+    const { values: i2, _$litType$: s2 } = t2, e2 = "number" == typeof s2 ? this._$AC(t2) : (void 0 === s2.el && (s2.el = V.createElement(C(s2.h, s2.h[0]), this.options)), s2);
+    if (((_a2 = this._$AH) == null ? void 0 : _a2._$AD) === e2) this._$AH.p(i2);
     else {
-      const h = new Pc(a, this), m = h.u(this.options);
-      h.p(r), this.T(m), this._$AH = h;
+      const t3 = new S(e2, this), s3 = t3.u(this.options);
+      t3.p(i2), this.T(s3), this._$AH = t3;
     }
   }
-  _$AC(e) {
-    let r = To.get(e.strings);
-    return r === void 0 && To.set(e.strings, r = new Mn(e)), r;
+  _$AC(t2) {
+    let i2 = A.get(t2.strings);
+    return void 0 === i2 && A.set(t2.strings, i2 = new V(t2)), i2;
   }
-  k(e) {
-    Pa(this._$AH) || (this._$AH = [], this._$AR());
-    const r = this._$AH;
-    let i, a = 0;
-    for (const c of e) a === r.length ? r.push(i = new qn(this.S($n()), this.S($n()), this, this.options)) : i = r[a], i._$AI(c), a++;
-    a < r.length && (this._$AR(i && i._$AB.nextSibling, a), r.length = a);
+  k(t2) {
+    a(this._$AH) || (this._$AH = [], this._$AR());
+    const i2 = this._$AH;
+    let s2, e2 = 0;
+    for (const h2 of t2) e2 === i2.length ? i2.push(s2 = new M(this.S(l()), this.S(l()), this, this.options)) : s2 = i2[e2], s2._$AI(h2), e2++;
+    e2 < i2.length && (this._$AR(s2 && s2._$AB.nextSibling, e2), i2.length = e2);
   }
-  _$AR(e = this._$AA.nextSibling, r) {
-    var i;
-    for ((i = this._$AP) == null ? void 0 : i.call(this, !1, !0, r); e && e !== this._$AB; ) {
-      const a = e.nextSibling;
-      e.remove(), e = a;
+  _$AR(t2 = this._$AA.nextSibling, i2) {
+    var _a2;
+    for ((_a2 = this._$AP) == null ? void 0 : _a2.call(this, false, true, i2); t2 && t2 !== this._$AB; ) {
+      const i3 = t2.nextSibling;
+      t2.remove(), t2 = i3;
     }
   }
-  setConnected(e) {
-    var r;
-    this._$AM === void 0 && (this._$Cv = e, (r = this._$AP) == null || r.call(this, e));
+  setConnected(t2) {
+    var _a2;
+    void 0 === this._$AM && (this._$Cv = t2, (_a2 = this._$AP) == null ? void 0 : _a2.call(this, t2));
   }
 }
-class Rr {
+class R {
   get tagName() {
     return this.element.tagName;
   }
   get _$AU() {
     return this._$AM._$AU;
   }
-  constructor(e, r, i, a, c) {
-    this.type = 1, this._$AH = he, this._$AN = void 0, this.element = e, this.name = r, this._$AM = a, this.options = c, i.length > 2 || i[0] !== "" || i[1] !== "" ? (this._$AH = Array(i.length - 1).fill(new String()), this.strings = i) : this._$AH = he;
+  constructor(t2, i2, s2, e2, h2) {
+    this.type = 1, this._$AH = T, this._$AN = void 0, this.element = t2, this.name = i2, this._$AM = e2, this.options = h2, s2.length > 2 || "" !== s2[0] || "" !== s2[1] ? (this._$AH = Array(s2.length - 1).fill(new String()), this.strings = s2) : this._$AH = T;
   }
-  _$AI(e, r = this, i, a) {
-    const c = this.strings;
-    let h = !1;
-    if (c === void 0) e = Xt(this, e, r, 0), h = !Nn(e) || e !== this._$AH && e !== Jt, h && (this._$AH = e);
+  _$AI(t2, i2 = this, s2, e2) {
+    const h2 = this.strings;
+    let o2 = false;
+    if (void 0 === h2) t2 = N(this, t2, i2, 0), o2 = !c(t2) || t2 !== this._$AH && t2 !== w, o2 && (this._$AH = t2);
     else {
-      const m = e;
-      let v, A;
-      for (e = c[0], v = 0; v < c.length - 1; v++) A = Xt(this, m[i + v], r, v), A === Jt && (A = this._$AH[v]), h || (h = !Nn(A) || A !== this._$AH[v]), A === he ? e = he : e !== he && (e += (A ?? "") + c[v + 1]), this._$AH[v] = A;
+      const e3 = t2;
+      let n3, r2;
+      for (t2 = h2[0], n3 = 0; n3 < h2.length - 1; n3++) r2 = N(this, e3[s2 + n3], i2, n3), r2 === w && (r2 = this._$AH[n3]), o2 || (o2 = !c(r2) || r2 !== this._$AH[n3]), r2 === T ? t2 = T : t2 !== T && (t2 += (r2 ?? "") + h2[n3 + 1]), this._$AH[n3] = r2;
     }
-    h && !a && this.j(e);
+    o2 && !e2 && this.j(t2);
   }
-  j(e) {
-    e === he ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, e ?? "");
+  j(t2) {
+    t2 === T ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t2 ?? "");
   }
 }
-class Fc extends Rr {
+class k extends R {
   constructor() {
     super(...arguments), this.type = 3;
   }
-  j(e) {
-    this.element[this.name] = e === he ? void 0 : e;
+  j(t2) {
+    this.element[this.name] = t2 === T ? void 0 : t2;
   }
 }
-class Rc extends Rr {
+class H extends R {
   constructor() {
     super(...arguments), this.type = 4;
   }
-  j(e) {
-    this.element.toggleAttribute(this.name, !!e && e !== he);
+  j(t2) {
+    this.element.toggleAttribute(this.name, !!t2 && t2 !== T);
   }
 }
-class Vc extends Rr {
-  constructor(e, r, i, a, c) {
-    super(e, r, i, a, c), this.type = 5;
+class I extends R {
+  constructor(t2, i2, s2, e2, h2) {
+    super(t2, i2, s2, e2, h2), this.type = 5;
   }
-  _$AI(e, r = this) {
-    if ((e = Xt(this, e, r, 0) ?? he) === Jt) return;
-    const i = this._$AH, a = e === he && i !== he || e.capture !== i.capture || e.once !== i.once || e.passive !== i.passive, c = e !== he && (i === he || a);
-    a && this.element.removeEventListener(this.name, this, i), c && this.element.addEventListener(this.name, this, e), this._$AH = e;
+  _$AI(t2, i2 = this) {
+    if ((t2 = N(this, t2, i2, 0) ?? T) === w) return;
+    const s2 = this._$AH, e2 = t2 === T && s2 !== T || t2.capture !== s2.capture || t2.once !== s2.once || t2.passive !== s2.passive, h2 = t2 !== T && (s2 === T || e2);
+    e2 && this.element.removeEventListener(this.name, this, s2), h2 && this.element.addEventListener(this.name, this, t2), this._$AH = t2;
   }
-  handleEvent(e) {
-    var r;
-    typeof this._$AH == "function" ? this._$AH.call(((r = this.options) == null ? void 0 : r.host) ?? this.element, e) : this._$AH.handleEvent(e);
+  handleEvent(t2) {
+    var _a2;
+    "function" == typeof this._$AH ? this._$AH.call(((_a2 = this.options) == null ? void 0 : _a2.host) ?? this.element, t2) : this._$AH.handleEvent(t2);
   }
 }
-class qc {
-  constructor(e, r, i) {
-    this.element = e, this.type = 6, this._$AN = void 0, this._$AM = r, this.options = i;
+class L {
+  constructor(t2, i2, s2) {
+    this.element = t2, this.type = 6, this._$AN = void 0, this._$AM = i2, this.options = s2;
   }
   get _$AU() {
     return this._$AM._$AU;
   }
-  _$AI(e) {
-    Xt(this, e);
+  _$AI(t2) {
+    N(this, t2);
   }
 }
-const Mi = Cn.litHtmlPolyfillSupport;
-Mi == null || Mi(Mn, qn), (Cn.litHtmlVersions ?? (Cn.litHtmlVersions = [])).push("3.1.2");
-const Lc = (s, e, r) => {
-  const i = (r == null ? void 0 : r.renderBefore) ?? e;
-  let a = i._$litPart$;
-  if (a === void 0) {
-    const c = (r == null ? void 0 : r.renderBefore) ?? null;
-    i._$litPart$ = a = new qn(e.insertBefore($n(), c), c, void 0, r ?? {});
+const Z = t.litHtmlPolyfillSupport;
+Z == null ? void 0 : Z(V, M), (t.litHtmlVersions ?? (t.litHtmlVersions = [])).push("3.1.2");
+const j = (t2, i2, s2) => {
+  const e2 = (s2 == null ? void 0 : s2.renderBefore) ?? i2;
+  let h2 = e2._$litPart$;
+  if (void 0 === h2) {
+    const t3 = (s2 == null ? void 0 : s2.renderBefore) ?? null;
+    e2._$litPart$ = h2 = new M(i2.insertBefore(l(), t3), t3, void 0, s2 ?? {});
   }
-  return a._$AI(s), a;
+  return h2._$AI(t2), h2;
 };
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-class Yt extends Kt {
+class s extends b {
   constructor() {
     super(...arguments), this.renderOptions = { host: this }, this._$Do = void 0;
   }
   createRenderRoot() {
-    var r;
-    const e = super.createRenderRoot();
-    return (r = this.renderOptions).renderBefore ?? (r.renderBefore = e.firstChild), e;
+    var _a2;
+    const t2 = super.createRenderRoot();
+    return (_a2 = this.renderOptions).renderBefore ?? (_a2.renderBefore = t2.firstChild), t2;
   }
-  update(e) {
-    const r = this.render();
-    this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(e), this._$Do = Lc(r, this.renderRoot, this.renderOptions);
+  update(t2) {
+    const i2 = this.render();
+    this.hasUpdated || (this.renderOptions.isConnected = this.isConnected), super.update(t2), this._$Do = j(i2, this.renderRoot, this.renderOptions);
   }
   connectedCallback() {
-    var e;
-    super.connectedCallback(), (e = this._$Do) == null || e.setConnected(!0);
+    var _a2;
+    super.connectedCallback(), (_a2 = this._$Do) == null ? void 0 : _a2.setConnected(true);
   }
   disconnectedCallback() {
-    var e;
-    super.disconnectedCallback(), (e = this._$Do) == null || e.setConnected(!1);
+    var _a2;
+    super.disconnectedCallback(), (_a2 = this._$Do) == null ? void 0 : _a2.setConnected(false);
   }
   render() {
-    return Jt;
+    return w;
   }
 }
-var Ao;
-Yt._$litElement$ = !0, Yt.finalized = !0, (Ao = globalThis.litElementHydrateSupport) == null || Ao.call(globalThis, { LitElement: Yt });
-const Pi = globalThis.litElementPolyfillSupport;
-Pi == null || Pi({ LitElement: Yt });
+s._$litElement$ = true, s["finalized"] = true, (_a = globalThis.litElementHydrateSupport) == null ? void 0 : _a.call(globalThis, { LitElement: s });
+const r$2 = globalThis.litElementPolyfillSupport;
+r$2 == null ? void 0 : r$2({ LitElement: s });
 (globalThis.litElementVersions ?? (globalThis.litElementVersions = [])).push("4.0.4");
-const ns = class ns extends Yt {
+const _KioskApp = class _KioskApp extends s {
   constructor() {
-    super(), this.kiosk_base_url = "/", this.appErrors = [], this.apiContext = void 0, this.showProgress = !1;
+    super();
+    this.kiosk_base_url = "/";
+    this.appErrors = [];
+    this.apiContext = void 0;
+    this.showProgress = false;
   }
-  onAppMessage(e) {
-    console.log("Unhandled AppMessage received", e.detail), this.addAppError(e.detail.headline + "<br>" + e.detail.body);
+  onAppMessage(e2) {
+    console.log(`Unhandled AppMessage received`, e2.detail);
+    this.addAppError(e2.detail.headline + "<br>" + e2.detail.body);
   }
-  firstUpdated(e) {
-    super.firstUpdated(e), this.addEventListener("send-message", this.onAppMessage);
+  firstUpdated(_changedProperties) {
+    super.firstUpdated(_changedProperties);
+    this.addEventListener("send-message", this.onAppMessage);
   }
-  updated(e) {
-    e.has("apiContext") && (this.showProgress = !1, this.apiContext && this.apiContext.status === ji && this.addAppError("Cannot connect to Kiosk API."), !e.apiContext && this.apiContext && this.apiConnected());
+  updated(_changedProperties) {
+    if (_changedProperties.has("apiContext")) {
+      this.showProgress = false;
+      if (this.apiContext && this.apiContext.status === API_STATE_ERROR) {
+        this.addAppError("Cannot connect to Kiosk API.");
+      }
+      if (!_changedProperties["apiContext"] && this.apiContext) {
+        this.apiConnected();
+      }
+    }
   }
   apiConnected() {
   }
   render() {
-    let e;
-    return this.apiContext && this.apiContext.status === Da ? e = this.apiRender() : this.apiContext && this.apiContext.status === ji ? e = this.renderApiError() : e = this.renderNoContextYet(), ot`
+    let renderedHtml;
+    if (this.apiContext && this.apiContext.status === API_STATE_READY) {
+      renderedHtml = this.apiRender();
+    } else {
+      if (this.apiContext && this.apiContext.status === API_STATE_ERROR) renderedHtml = this.renderApiError();
+      else renderedHtml = this.renderNoContextYet();
+    }
+    return x`
             <style>
                 .system-message {
                     display: flex;
@@ -6221,39 +7293,52 @@ const ns = class ns extends Yt {
                 }
             </style>
             <link rel="stylesheet" href="${this.kiosk_base_url}static/styles.css" />
-            ${this.renderProgress()} ${this.renderErrors()} ${e}
+            ${this.renderProgress()} ${this.renderErrors()} ${renderedHtml}
         `;
   }
   renderNoContextYet() {
-    return ot` <link rel="stylesheet" href="${this.kiosk_base_url}static/styles.css" /> `;
+    return x` <link rel="stylesheet" href="${this.kiosk_base_url}static/styles.css" /> `;
   }
   renderApiError() {
+    return void 0;
   }
   renderErrors() {
-    return this.appErrors.length > 0 ? ot` ${this.appErrors.map((e) => ot`<div class="system-message" @click="${this.errorClicked}"><span>${e}</span><i>x</i></div>`)} ` : he;
+    return this.appErrors.length > 0 ? x` ${this.appErrors.map((error) => x`<div class="system-message" @click="${this.errorClicked}"><span>${error}</span><i>x</i></div>`)} ` : T;
   }
-  errorClicked(e) {
-    let r = e.currentTarget.children[0].textContent;
-    r && this.deleteError(r);
+  errorClicked(e2) {
+    let text = e2.currentTarget.children[0].textContent;
+    if (text) this.deleteError(text);
   }
-  renderProgress(e = !1) {
-    if (e || this.showProgress)
-      return ot` <div class="loading">
+  renderProgress(force = false) {
+    if (force || this.showProgress)
+      return x` <div class="loading">
                 <div class="loading-progress"></div>
             </div>`;
+    else return void 0;
   }
-  addAppError(e) {
-    this.appErrors.push(e), this.requestUpdate();
+  addAppError(error) {
+    this.appErrors.push(error);
+    this.requestUpdate();
   }
   clearAppErrors() {
-    this.appErrors = [], this.requestUpdate();
+    this.appErrors = [];
+    this.requestUpdate();
   }
-  deleteError(e) {
-    let r = -1;
-    this.appErrors.find((i, a) => i === e ? (r = a, !0) : !1), r > -1 && (this.appErrors.splice(r, 1), this.appErrors = [...this.appErrors]);
+  deleteError(error) {
+    let foundIndex = -1;
+    this.appErrors.find((apiErr, index) => {
+      if (apiErr === error) {
+        foundIndex = index;
+        return true;
+      } else return false;
+    });
+    if (foundIndex > -1) {
+      this.appErrors.splice(foundIndex, 1);
+      this.appErrors = [...this.appErrors];
+    }
   }
 };
-ns.properties = {
+_KioskApp.properties = {
   /**
    * The Api Context
    */
@@ -6261,992 +7346,1027 @@ ns.properties = {
   appErrors: { type: Array },
   showProgress: { type: Boolean }
 };
-let Oo = ns;
+let KioskApp = _KioskApp;
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const Uc = { attribute: !0, type: String, converter: Dr, reflect: !1, hasChanged: ts }, jc = (s = Uc, e, r) => {
-  const { kind: i, metadata: a } = r;
-  let c = globalThis.litPropertyMetadata.get(a);
-  if (c === void 0 && globalThis.litPropertyMetadata.set(a, c = /* @__PURE__ */ new Map()), c.set(r.name, s), i === "accessor") {
-    const { name: h } = r;
-    return { set(m) {
-      const v = e.get.call(this);
-      e.set.call(this, m), this.requestUpdate(h, v, s);
-    }, init(m) {
-      return m !== void 0 && this.P(h, void 0, s), m;
+const o = { attribute: true, type: String, converter: u$1, reflect: false, hasChanged: f$1 }, r$1 = (t2 = o, e2, r2) => {
+  const { kind: n3, metadata: i2 } = r2;
+  let s2 = globalThis.litPropertyMetadata.get(i2);
+  if (void 0 === s2 && globalThis.litPropertyMetadata.set(i2, s2 = /* @__PURE__ */ new Map()), s2.set(r2.name, t2), "accessor" === n3) {
+    const { name: o2 } = r2;
+    return { set(r3) {
+      const n4 = e2.get.call(this);
+      e2.set.call(this, r3), this.requestUpdate(o2, n4, t2);
+    }, init(e3) {
+      return void 0 !== e3 && this.P(o2, void 0, t2), e3;
     } };
   }
-  if (i === "setter") {
-    const { name: h } = r;
-    return function(m) {
-      const v = this[h];
-      e.call(this, m), this.requestUpdate(h, v, s);
+  if ("setter" === n3) {
+    const { name: o2 } = r2;
+    return function(r3) {
+      const n4 = this[o2];
+      e2.call(this, r3), this.requestUpdate(o2, n4, t2);
     };
   }
-  throw Error("Unsupported decorator location: " + i);
+  throw Error("Unsupported decorator location: " + n3);
 };
-function Wc(s) {
-  return (e, r) => typeof r == "object" ? jc(s, e, r) : ((i, a, c) => {
-    const h = a.hasOwnProperty(c);
-    return a.constructor.createProperty(c, h ? { ...i, wrapped: !0 } : i), h ? Object.getOwnPropertyDescriptor(a, c) : void 0;
-  })(s, e, r);
+function n2(t2) {
+  return (e2, o2) => "object" == typeof o2 ? r$1(t2, e2, o2) : ((t3, e3, o3) => {
+    const r2 = e3.hasOwnProperty(o3);
+    return e3.constructor.createProperty(o3, r2 ? { ...t3, wrapped: true } : t3), r2 ? Object.getOwnPropertyDescriptor(e3, o3) : void 0;
+  })(t2, e2, o2);
 }
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-function Kc(s) {
-  return Wc({ ...s, state: !0, attribute: !1 });
+function r(r2) {
+  return n2({ ...r2, state: true, attribute: false });
 }
-var zc = Object.defineProperty, Zc = (s, e, r, i) => {
-  for (var a = void 0, c = s.length - 1, h; c >= 0; c--)
-    (h = s[c]) && (a = h(e, r, a) || a);
-  return a && zc(e, r, a), a;
+var __defProp = Object.defineProperty;
+var __decorateClass = (decorators, target, key, kind) => {
+  var result = void 0;
+  for (var i2 = decorators.length - 1, decorator; i2 >= 0; i2--)
+    if (decorator = decorators[i2])
+      result = decorator(target, key, result) || result;
+  if (result) __defProp(target, key, result);
+  return result;
 };
-const rs = class rs extends Yt {
+const _KioskAppComponent = class _KioskAppComponent extends s {
   constructor() {
-    super(), this.kiosk_base_url = "/", this.showProgress = !1, this.apiContext = void 0;
+    super();
+    this.kiosk_base_url = "/";
+    this.showProgress = false;
+    this.apiContext = void 0;
   }
-  updated(e) {
-    e.has("apiContext") && (this.showProgress = !1);
+  updated(_changedProperties) {
+    if (_changedProperties.has("apiContext")) {
+      this.showProgress = false;
+    }
   }
   render() {
-    let e;
-    return this.apiContext && this.apiContext.status === Da ? e = this.apiRender() : this.apiContext && this.apiContext.status === ji ? e = this.renderApiError() : e = this.renderNoContextYet(), ot`
+    let renderedHtml;
+    if (this.apiContext && this.apiContext.status === API_STATE_READY) {
+      renderedHtml = this.apiRender();
+    } else {
+      if (this.apiContext && this.apiContext.status === API_STATE_ERROR) renderedHtml = this.renderApiError();
+      else renderedHtml = this.renderNoContextYet();
+    }
+    return x`
             <link rel="stylesheet" href="${this.kiosk_base_url}static/styles.css" />
-            ${e}
+            ${renderedHtml}
         `;
   }
   renderNoContextYet() {
-    return ot` <link rel="stylesheet" href="${this.kiosk_base_url}static/styles.css" /> `;
+    return x` <link rel="stylesheet" href="${this.kiosk_base_url}static/styles.css" /> `;
   }
   renderApiError() {
+    return void 0;
   }
-  renderProgress(e = !1) {
-    if (e || this.showProgress)
-      return ot` <div class="loading">
+  renderProgress(force = false) {
+    if (force || this.showProgress)
+      return x` <div class="loading">
                 <div class="loading-progress"></div>
             </div>`;
+    else return void 0;
   }
 };
-rs.properties = {
+_KioskAppComponent.properties = {
   /**
    * The Api Context
    */
   apiContext: { type: Object }
 };
-let Wi = rs;
-Zc([
-  Kc()
-], Wi.prototype, "showProgress");
-var Eo = typeof globalThis < "u" ? globalThis : typeof window < "u" ? window : typeof global < "u" ? global : typeof self < "u" ? self : {};
-function Bc(s) {
-  return s && s.__esModule && Object.prototype.hasOwnProperty.call(s, "default") ? s.default : s;
+let KioskAppComponent = _KioskAppComponent;
+__decorateClass([
+  r()
+], KioskAppComponent.prototype, "showProgress");
+var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
+function getDefaultExportFromCjs(x2) {
+  return x2 && x2.__esModule && Object.prototype.hasOwnProperty.call(x2, "default") ? x2["default"] : x2;
 }
-var Va = { exports: {} };
-(function(s, e) {
-  (function(r, i) {
-    s.exports = i();
-  })(Eo, function() {
-    var r = function(t, n) {
-      return (r = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(o, u) {
-        o.__proto__ = u;
-      } || function(o, u) {
-        for (var l in u) Object.prototype.hasOwnProperty.call(u, l) && (o[l] = u[l]);
-      })(t, n);
-    }, i = function() {
-      return (i = Object.assign || function(t) {
-        for (var n, o = 1, u = arguments.length; o < u; o++) for (var l in n = arguments[o]) Object.prototype.hasOwnProperty.call(n, l) && (t[l] = n[l]);
-        return t;
+var dexie_min = { exports: {} };
+(function(module, exports) {
+  (function(e2, t2) {
+    module.exports = t2();
+  })(commonjsGlobal, function() {
+    var s2 = function(e3, t3) {
+      return (s2 = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(e4, t4) {
+        e4.__proto__ = t4;
+      } || function(e4, t4) {
+        for (var n4 in t4) Object.prototype.hasOwnProperty.call(t4, n4) && (e4[n4] = t4[n4]);
+      })(e3, t3);
+    };
+    var w2 = function() {
+      return (w2 = Object.assign || function(e3) {
+        for (var t3, n4 = 1, r3 = arguments.length; n4 < r3; n4++) for (var i3 in t3 = arguments[n4]) Object.prototype.hasOwnProperty.call(t3, i3) && (e3[i3] = t3[i3]);
+        return e3;
       }).apply(this, arguments);
     };
-    function a(t, n, o) {
-      for (var u, l = 0, f = n.length; l < f; l++) !u && l in n || ((u = u || Array.prototype.slice.call(n, 0, l))[l] = n[l]);
-      return t.concat(u || Array.prototype.slice.call(n));
+    function i2(e3, t3, n4) {
+      for (var r3, i3 = 0, o3 = t3.length; i3 < o3; i3++) !r3 && i3 in t3 || ((r3 = r3 || Array.prototype.slice.call(t3, 0, i3))[i3] = t3[i3]);
+      return e3.concat(r3 || Array.prototype.slice.call(t3));
     }
-    var c = typeof globalThis < "u" ? globalThis : typeof self < "u" ? self : typeof window < "u" ? window : Eo, h = Object.keys, m = Array.isArray;
-    function v(t, n) {
-      return typeof n != "object" || h(n).forEach(function(o) {
-        t[o] = n[o];
-      }), t;
+    var f2 = "undefined" != typeof globalThis ? globalThis : "undefined" != typeof self ? self : "undefined" != typeof window ? window : commonjsGlobal, _2 = Object.keys, x2 = Array.isArray;
+    function a2(t3, n4) {
+      return "object" != typeof n4 || _2(n4).forEach(function(e3) {
+        t3[e3] = n4[e3];
+      }), t3;
     }
-    typeof Promise > "u" || c.Promise || (c.Promise = Promise);
-    var A = Object.getPrototypeOf, q = {}.hasOwnProperty;
-    function M(t, n) {
-      return q.call(t, n);
+    "undefined" == typeof Promise || f2.Promise || (f2.Promise = Promise);
+    var c2 = Object.getPrototypeOf, n3 = {}.hasOwnProperty;
+    function m2(e3, t3) {
+      return n3.call(e3, t3);
     }
-    function z(t, n) {
-      typeof n == "function" && (n = n(A(t))), (typeof Reflect > "u" ? h : Reflect.ownKeys)(n).forEach(function(o) {
-        ee(t, o, n[o]);
+    function r2(t3, n4) {
+      "function" == typeof n4 && (n4 = n4(c2(t3))), ("undefined" == typeof Reflect ? _2 : Reflect.ownKeys)(n4).forEach(function(e3) {
+        l2(t3, e3, n4[e3]);
       });
     }
-    var j = Object.defineProperty;
-    function ee(t, n, o, u) {
-      j(t, n, v(o && M(o, "get") && typeof o.get == "function" ? { get: o.get, set: o.set, configurable: !0 } : { value: o, configurable: !0, writable: !0 }, u));
+    var u2 = Object.defineProperty;
+    function l2(e3, t3, n4, r3) {
+      u2(e3, t3, a2(n4 && m2(n4, "get") && "function" == typeof n4.get ? { get: n4.get, set: n4.set, configurable: true } : { value: n4, configurable: true, writable: true }, r3));
     }
-    function Se(t) {
-      return { from: function(n) {
-        return t.prototype = Object.create(n.prototype), ee(t.prototype, "constructor", t), { extend: z.bind(null, t.prototype) };
+    function o2(t3) {
+      return { from: function(e3) {
+        return t3.prototype = Object.create(e3.prototype), l2(t3.prototype, "constructor", t3), { extend: r2.bind(null, t3.prototype) };
       } };
     }
-    var Oe = Object.getOwnPropertyDescriptor, Ze = [].slice;
-    function Re(t, n, o) {
-      return Ze.call(t, n, o);
+    var h2 = Object.getOwnPropertyDescriptor;
+    var d2 = [].slice;
+    function b2(e3, t3, n4) {
+      return d2.call(e3, t3, n4);
     }
-    function sn(t, n) {
-      return n(t);
+    function p2(e3, t3) {
+      return t3(e3);
     }
-    function lt(t) {
-      if (!t) throw new Error("Assertion Failed");
+    function y2(e3) {
+      if (!e3) throw new Error("Assertion Failed");
     }
-    function on(t) {
-      c.setImmediate ? setImmediate(t) : setTimeout(t, 0);
+    function v2(e3) {
+      f2.setImmediate ? setImmediate(e3) : setTimeout(e3, 0);
     }
-    function De(t, n) {
-      if (typeof n == "string" && M(t, n)) return t[n];
-      if (!n) return t;
-      if (typeof n != "string") {
-        for (var o = [], u = 0, l = n.length; u < l; ++u) {
-          var f = De(t, n[u]);
-          o.push(f);
+    function k2(e3, t3) {
+      if ("string" == typeof t3 && m2(e3, t3)) return e3[t3];
+      if (!t3) return e3;
+      if ("string" != typeof t3) {
+        for (var n4 = [], r3 = 0, i3 = t3.length; r3 < i3; ++r3) {
+          var o3 = k2(e3, t3[r3]);
+          n4.push(o3);
         }
-        return o;
+        return n4;
       }
-      var d = n.indexOf(".");
-      if (d !== -1) {
-        var p = t[n.substr(0, d)];
-        return p == null ? void 0 : De(p, n.substr(d + 1));
+      var a3 = t3.indexOf(".");
+      if (-1 !== a3) {
+        var u3 = e3[t3.substr(0, a3)];
+        return null == u3 ? void 0 : k2(u3, t3.substr(a3 + 1));
       }
     }
-    function we(t, n, o) {
-      if (t && n !== void 0 && !("isFrozen" in Object && Object.isFrozen(t))) if (typeof n != "string" && "length" in n) {
-        lt(typeof o != "string" && "length" in o);
-        for (var u = 0, l = n.length; u < l; ++u) we(t, n[u], o[u]);
+    function P2(e3, t3, n4) {
+      if (e3 && void 0 !== t3 && !("isFrozen" in Object && Object.isFrozen(e3))) if ("string" != typeof t3 && "length" in t3) {
+        y2("string" != typeof n4 && "length" in n4);
+        for (var r3 = 0, i3 = t3.length; r3 < i3; ++r3) P2(e3, t3[r3], n4[r3]);
       } else {
-        var f, d, p = n.indexOf(".");
-        p !== -1 ? (f = n.substr(0, p), (d = n.substr(p + 1)) === "" ? o === void 0 ? m(t) && !isNaN(parseInt(f)) ? t.splice(f, 1) : delete t[f] : t[f] = o : we(p = !(p = t[f]) || !M(t, f) ? t[f] = {} : p, d, o)) : o === void 0 ? m(t) && !isNaN(parseInt(n)) ? t.splice(n, 1) : delete t[n] : t[n] = o;
+        var o3, a3, u3 = t3.indexOf(".");
+        -1 !== u3 ? (o3 = t3.substr(0, u3), "" === (a3 = t3.substr(u3 + 1)) ? void 0 === n4 ? x2(e3) && !isNaN(parseInt(o3)) ? e3.splice(o3, 1) : delete e3[o3] : e3[o3] = n4 : P2(u3 = !(u3 = e3[o3]) || !m2(e3, o3) ? e3[o3] = {} : u3, a3, n4)) : void 0 === n4 ? x2(e3) && !isNaN(parseInt(t3)) ? e3.splice(t3, 1) : delete e3[t3] : e3[t3] = n4;
       }
     }
-    function Ln(t) {
-      var n, o = {};
-      for (n in t) M(t, n) && (o[n] = t[n]);
-      return o;
+    function g2(e3) {
+      var t3, n4 = {};
+      for (t3 in e3) m2(e3, t3) && (n4[t3] = e3[t3]);
+      return n4;
     }
-    var ct = [].concat;
-    function Be(t) {
-      return ct.apply([], t);
+    var t2 = [].concat;
+    function O(e3) {
+      return t2.apply([], e3);
     }
-    var Ke = "BigUint64Array,BigInt64Array,Array,Boolean,String,Date,RegExp,Blob,File,FileList,FileSystemFileHandle,FileSystemDirectoryHandle,ArrayBuffer,DataView,Uint8ClampedArray,ImageBitmap,ImageData,Map,Set,CryptoKey".split(",").concat(Be([8, 16, 32, 64].map(function(t) {
-      return ["Int", "Uint", "Float"].map(function(n) {
-        return n + t + "Array";
+    var e2 = "BigUint64Array,BigInt64Array,Array,Boolean,String,Date,RegExp,Blob,File,FileList,FileSystemFileHandle,FileSystemDirectoryHandle,ArrayBuffer,DataView,Uint8ClampedArray,ImageBitmap,ImageData,Map,Set,CryptoKey".split(",").concat(O([8, 16, 32, 64].map(function(t3) {
+      return ["Int", "Uint", "Float"].map(function(e3) {
+        return e3 + t3 + "Array";
       });
-    }))).filter(function(t) {
-      return c[t];
-    }), Un = new Set(Ke.map(function(t) {
-      return c[t];
-    })), an = null;
-    function ft(t) {
-      return an = /* @__PURE__ */ new WeakMap(), t = function n(o) {
-        if (!o || typeof o != "object") return o;
-        var u = an.get(o);
-        if (u) return u;
-        if (m(o)) {
-          u = [], an.set(o, u);
-          for (var l = 0, f = o.length; l < f; ++l) u.push(n(o[l]));
-        } else if (Un.has(o.constructor)) u = o;
+    }))).filter(function(e3) {
+      return f2[e3];
+    }), E2 = new Set(e2.map(function(e3) {
+      return f2[e3];
+    }));
+    var K = null;
+    function S2(e3) {
+      K = /* @__PURE__ */ new WeakMap();
+      e3 = function e4(t3) {
+        if (!t3 || "object" != typeof t3) return t3;
+        var n4 = K.get(t3);
+        if (n4) return n4;
+        if (x2(t3)) {
+          n4 = [], K.set(t3, n4);
+          for (var r3 = 0, i3 = t3.length; r3 < i3; ++r3) n4.push(e4(t3[r3]));
+        } else if (E2.has(t3.constructor)) n4 = t3;
         else {
-          var d, p = A(o);
-          for (d in u = p === Object.prototype ? {} : Object.create(p), an.set(o, u), o) M(o, d) && (u[d] = n(o[d]));
+          var o3, a3 = c2(t3);
+          for (o3 in n4 = a3 === Object.prototype ? {} : Object.create(a3), K.set(t3, n4), t3) m2(t3, o3) && (n4[o3] = e4(t3[o3]));
         }
-        return u;
-      }(t), an = null, t;
+        return n4;
+      }(e3);
+      return K = null, e3;
     }
-    var qa = {}.toString;
-    function Vr(t) {
-      return qa.call(t).slice(8, -1);
+    var j2 = {}.toString;
+    function A2(e3) {
+      return j2.call(e3).slice(8, -1);
     }
-    var qr = typeof Symbol < "u" ? Symbol.iterator : "@@iterator", La = typeof qr == "symbol" ? function(t) {
-      var n;
-      return t != null && (n = t[qr]) && n.apply(t);
+    var C2 = "undefined" != typeof Symbol ? Symbol.iterator : "@@iterator", D = "symbol" == typeof C2 ? function(e3) {
+      var t3;
+      return null != e3 && (t3 = e3[C2]) && t3.apply(e3);
     } : function() {
       return null;
     };
-    function ht(t, n) {
-      return n = t.indexOf(n), 0 <= n && t.splice(n, 1), 0 <= n;
+    function T2(e3, t3) {
+      t3 = e3.indexOf(t3);
+      return 0 <= t3 && e3.splice(t3, 1), 0 <= t3;
     }
-    var Ct = {};
-    function je(t) {
-      var n, o, u, l;
-      if (arguments.length === 1) {
-        if (m(t)) return t.slice();
-        if (this === Ct && typeof t == "string") return [t];
-        if (l = La(t)) {
-          for (o = []; !(u = l.next()).done; ) o.push(u.value);
-          return o;
+    var q = {};
+    function I2(e3) {
+      var t3, n4, r3, i3;
+      if (1 === arguments.length) {
+        if (x2(e3)) return e3.slice();
+        if (this === q && "string" == typeof e3) return [e3];
+        if (i3 = D(e3)) {
+          for (n4 = []; !(r3 = i3.next()).done; ) n4.push(r3.value);
+          return n4;
         }
-        if (t == null) return [t];
-        if (typeof (n = t.length) != "number") return [t];
-        for (o = new Array(n); n--; ) o[n] = t[n];
-        return o;
+        if (null == e3) return [e3];
+        if ("number" != typeof (t3 = e3.length)) return [e3];
+        for (n4 = new Array(t3); t3--; ) n4[t3] = e3[t3];
+        return n4;
       }
-      for (n = arguments.length, o = new Array(n); n--; ) o[n] = arguments[n];
-      return o;
+      for (t3 = arguments.length, n4 = new Array(t3); t3--; ) n4[t3] = arguments[t3];
+      return n4;
     }
-    var Lr = typeof Symbol < "u" ? function(t) {
-      return t[Symbol.toStringTag] === "AsyncFunction";
+    var B = "undefined" != typeof Symbol ? function(e3) {
+      return "AsyncFunction" === e3[Symbol.toStringTag];
     } : function() {
-      return !1;
-    }, cn = ["Unknown", "Constraint", "Data", "TransactionInactive", "ReadOnly", "Version", "NotFound", "InvalidState", "InvalidAccess", "Abort", "Timeout", "QuotaExceeded", "Syntax", "DataClone"], Ee = ["Modify", "Bulk", "OpenFailed", "VersionChange", "Schema", "Upgrade", "InvalidTable", "MissingAPI", "NoSuchDatabase", "InvalidArgument", "SubTransaction", "Unsupported", "Internal", "DatabaseClosed", "PrematureCommit", "ForeignAwait"].concat(cn), Ua = { VersionChanged: "Database version changed by other database connection", DatabaseClosed: "Database has been closed", Abort: "Transaction aborted", TransactionInactive: "Transaction has already completed or failed", MissingAPI: "IndexedDB API missing. Please visit https://tinyurl.com/y2uuvskb" };
-    function Dt(t, n) {
-      this.name = t, this.message = n;
+      return false;
+    }, R2 = ["Unknown", "Constraint", "Data", "TransactionInactive", "ReadOnly", "Version", "NotFound", "InvalidState", "InvalidAccess", "Abort", "Timeout", "QuotaExceeded", "Syntax", "DataClone"], F = ["Modify", "Bulk", "OpenFailed", "VersionChange", "Schema", "Upgrade", "InvalidTable", "MissingAPI", "NoSuchDatabase", "InvalidArgument", "SubTransaction", "Unsupported", "Internal", "DatabaseClosed", "PrematureCommit", "ForeignAwait"].concat(R2), M2 = { VersionChanged: "Database version changed by other database connection", DatabaseClosed: "Database has been closed", Abort: "Transaction aborted", TransactionInactive: "Transaction has already completed or failed", MissingAPI: "IndexedDB API missing. Please visit https://tinyurl.com/y2uuvskb" };
+    function N2(e3, t3) {
+      this.name = e3, this.message = t3;
     }
-    function is(t, n) {
-      return t + ". Errors: " + Object.keys(n).map(function(o) {
-        return n[o].toString();
-      }).filter(function(o, u, l) {
-        return l.indexOf(o) === u;
-      }).join(`
-`);
+    function L2(e3, t3) {
+      return e3 + ". Errors: " + Object.keys(t3).map(function(e4) {
+        return t3[e4].toString();
+      }).filter(function(e4, t4, n4) {
+        return n4.indexOf(e4) === t4;
+      }).join("\n");
     }
-    function jn(t, n, o, u) {
-      this.failures = n, this.failedKeys = u, this.successCount = o, this.message = is(t, n);
+    function U(e3, t3, n4, r3) {
+      this.failures = t3, this.failedKeys = r3, this.successCount = n4, this.message = L2(e3, t3);
     }
-    function $t(t, n) {
-      this.name = "BulkError", this.failures = Object.keys(n).map(function(o) {
-        return n[o];
-      }), this.failuresByPos = n, this.message = is(t, this.failures);
+    function V2(e3, t3) {
+      this.name = "BulkError", this.failures = Object.keys(t3).map(function(e4) {
+        return t3[e4];
+      }), this.failuresByPos = t3, this.message = L2(e3, this.failures);
     }
-    Se(Dt).from(Error).extend({ toString: function() {
+    o2(N2).from(Error).extend({ toString: function() {
       return this.name + ": " + this.message;
-    } }), Se(jn).from(Dt), Se($t).from(Dt);
-    var Ur = Ee.reduce(function(t, n) {
-      return t[n] = n + "Error", t;
-    }, {}), ja = Dt, W = Ee.reduce(function(t, n) {
-      var o = n + "Error";
-      function u(l, f) {
-        this.name = o, l ? typeof l == "string" ? (this.message = "".concat(l).concat(f ? `
- ` + f : ""), this.inner = f || null) : typeof l == "object" && (this.message = "".concat(l.name, " ").concat(l.message), this.inner = l) : (this.message = Ua[n] || o, this.inner = null);
+    } }), o2(U).from(N2), o2(V2).from(N2);
+    var z = F.reduce(function(e3, t3) {
+      return e3[t3] = t3 + "Error", e3;
+    }, {}), W = N2, Y = F.reduce(function(e3, n4) {
+      var r3 = n4 + "Error";
+      function t3(e4, t4) {
+        this.name = r3, e4 ? "string" == typeof e4 ? (this.message = "".concat(e4).concat(t4 ? "\n " + t4 : ""), this.inner = t4 || null) : "object" == typeof e4 && (this.message = "".concat(e4.name, " ").concat(e4.message), this.inner = e4) : (this.message = M2[n4] || r3, this.inner = null);
       }
-      return Se(u).from(ja), t[n] = u, t;
+      return o2(t3).from(W), e3[n4] = t3, e3;
     }, {});
-    W.Syntax = SyntaxError, W.Type = TypeError, W.Range = RangeError;
-    var ss = cn.reduce(function(t, n) {
-      return t[n + "Error"] = W[n], t;
-    }, {}), Wn = Ee.reduce(function(t, n) {
-      return ["Syntax", "Type", "Range"].indexOf(n) === -1 && (t[n + "Error"] = W[n]), t;
+    Y.Syntax = SyntaxError, Y.Type = TypeError, Y.Range = RangeError;
+    var $2 = R2.reduce(function(e3, t3) {
+      return e3[t3 + "Error"] = Y[t3], e3;
     }, {});
-    function ie() {
+    var Q = F.reduce(function(e3, t3) {
+      return -1 === ["Syntax", "Type", "Range"].indexOf(t3) && (e3[t3 + "Error"] = Y[t3]), e3;
+    }, {});
+    function G() {
     }
-    function un(t) {
-      return t;
+    function X(e3) {
+      return e3;
     }
-    function Wa(t, n) {
-      return t == null || t === un ? n : function(o) {
-        return n(t(o));
+    function H2(t3, n4) {
+      return null == t3 || t3 === X ? n4 : function(e3) {
+        return n4(t3(e3));
       };
     }
-    function dt(t, n) {
+    function J(e3, t3) {
       return function() {
-        t.apply(this, arguments), n.apply(this, arguments);
+        e3.apply(this, arguments), t3.apply(this, arguments);
       };
     }
-    function Ka(t, n) {
-      return t === ie ? n : function() {
-        var o = t.apply(this, arguments);
-        o !== void 0 && (arguments[0] = o);
-        var u = this.onsuccess, l = this.onerror;
+    function Z2(i3, o3) {
+      return i3 === G ? o3 : function() {
+        var e3 = i3.apply(this, arguments);
+        void 0 !== e3 && (arguments[0] = e3);
+        var t3 = this.onsuccess, n4 = this.onerror;
         this.onsuccess = null, this.onerror = null;
-        var f = n.apply(this, arguments);
-        return u && (this.onsuccess = this.onsuccess ? dt(u, this.onsuccess) : u), l && (this.onerror = this.onerror ? dt(l, this.onerror) : l), f !== void 0 ? f : o;
+        var r3 = o3.apply(this, arguments);
+        return t3 && (this.onsuccess = this.onsuccess ? J(t3, this.onsuccess) : t3), n4 && (this.onerror = this.onerror ? J(n4, this.onerror) : n4), void 0 !== r3 ? r3 : e3;
       };
     }
-    function za(t, n) {
-      return t === ie ? n : function() {
-        t.apply(this, arguments);
-        var o = this.onsuccess, u = this.onerror;
-        this.onsuccess = this.onerror = null, n.apply(this, arguments), o && (this.onsuccess = this.onsuccess ? dt(o, this.onsuccess) : o), u && (this.onerror = this.onerror ? dt(u, this.onerror) : u);
+    function ee(n4, r3) {
+      return n4 === G ? r3 : function() {
+        n4.apply(this, arguments);
+        var e3 = this.onsuccess, t3 = this.onerror;
+        this.onsuccess = this.onerror = null, r3.apply(this, arguments), e3 && (this.onsuccess = this.onsuccess ? J(e3, this.onsuccess) : e3), t3 && (this.onerror = this.onerror ? J(t3, this.onerror) : t3);
       };
     }
-    function Za(t, n) {
-      return t === ie ? n : function(o) {
-        var u = t.apply(this, arguments);
-        v(o, u);
-        var l = this.onsuccess, f = this.onerror;
-        return this.onsuccess = null, this.onerror = null, o = n.apply(this, arguments), l && (this.onsuccess = this.onsuccess ? dt(l, this.onsuccess) : l), f && (this.onerror = this.onerror ? dt(f, this.onerror) : f), u === void 0 ? o === void 0 ? void 0 : o : v(u, o);
+    function te(i3, o3) {
+      return i3 === G ? o3 : function(e3) {
+        var t3 = i3.apply(this, arguments);
+        a2(e3, t3);
+        var n4 = this.onsuccess, r3 = this.onerror;
+        this.onsuccess = null, this.onerror = null;
+        e3 = o3.apply(this, arguments);
+        return n4 && (this.onsuccess = this.onsuccess ? J(n4, this.onsuccess) : n4), r3 && (this.onerror = this.onerror ? J(r3, this.onerror) : r3), void 0 === t3 ? void 0 === e3 ? void 0 : e3 : a2(t3, e3);
       };
     }
-    function Ba(t, n) {
-      return t === ie ? n : function() {
-        return n.apply(this, arguments) !== !1 && t.apply(this, arguments);
+    function ne(e3, t3) {
+      return e3 === G ? t3 : function() {
+        return false !== t3.apply(this, arguments) && e3.apply(this, arguments);
       };
     }
-    function jr(t, n) {
-      return t === ie ? n : function() {
-        var o = t.apply(this, arguments);
-        if (o && typeof o.then == "function") {
-          for (var u = this, l = arguments.length, f = new Array(l); l--; ) f[l] = arguments[l];
-          return o.then(function() {
-            return n.apply(u, f);
+    function re(i3, o3) {
+      return i3 === G ? o3 : function() {
+        var e3 = i3.apply(this, arguments);
+        if (e3 && "function" == typeof e3.then) {
+          for (var t3 = this, n4 = arguments.length, r3 = new Array(n4); n4--; ) r3[n4] = arguments[n4];
+          return e3.then(function() {
+            return o3.apply(t3, r3);
           });
         }
-        return n.apply(this, arguments);
+        return o3.apply(this, arguments);
       };
     }
-    Wn.ModifyError = jn, Wn.DexieError = Dt, Wn.BulkError = $t;
-    var Ve = typeof location < "u" && /^(http|https):\/\/(localhost|127\.0\.0\.1)/.test(location.href);
-    function os(t) {
-      Ve = t;
+    Q.ModifyError = U, Q.DexieError = N2, Q.BulkError = V2;
+    var ie = "undefined" != typeof location && /^(http|https):\/\/(localhost|127\.0\.0\.1)/.test(location.href);
+    function oe(e3) {
+      ie = e3;
     }
-    var ln = {}, as = 100, Ke = typeof Promise > "u" ? [] : function() {
-      var t = Promise.resolve();
-      if (typeof crypto > "u" || !crypto.subtle) return [t, A(t), t];
-      var n = crypto.subtle.digest("SHA-512", new Uint8Array([0]));
-      return [n, A(n), t];
-    }(), cn = Ke[0], Ee = Ke[1], Ke = Ke[2], Ee = Ee && Ee.then, fn = cn && cn.constructor, Wr = !!Ke, hn = function(t, n) {
-      dn.push([t, n]), Kn && (queueMicrotask(Ya), Kn = !1);
-    }, Kr = !0, Kn = !0, mt = [], zn = [], zr = un, He = { id: "global", global: !0, ref: 0, unhandleds: [], onunhandled: ie, pgp: !1, env: {}, finalize: ie }, U = He, dn = [], pt = 0, Zn = [];
-    function L(t) {
-      if (typeof this != "object") throw new TypeError("Promises must be constructed via new");
-      this._listeners = [], this._lib = !1;
-      var n = this._PSD = U;
-      if (typeof t != "function") {
-        if (t !== ln) throw new TypeError("Not a function");
-        return this._state = arguments[1], this._value = arguments[2], void (this._state === !1 && Br(this, this._value));
+    var ae = {}, ue = 100, e2 = "undefined" == typeof Promise ? [] : function() {
+      var e3 = Promise.resolve();
+      if ("undefined" == typeof crypto || !crypto.subtle) return [e3, c2(e3), e3];
+      var t3 = crypto.subtle.digest("SHA-512", new Uint8Array([0]));
+      return [t3, c2(t3), e3];
+    }(), R2 = e2[0], F = e2[1], e2 = e2[2], F = F && F.then, se = R2 && R2.constructor, ce = !!e2;
+    var le = function(e3, t3) {
+      be.push([e3, t3]), he && (queueMicrotask(Se), he = false);
+    }, fe = true, he = true, de = [], pe = [], ye = X, ve = { id: "global", global: true, ref: 0, unhandleds: [], onunhandled: G, pgp: false, env: {}, finalize: G }, me = ve, be = [], ge = 0, we = [];
+    function _e(e3) {
+      if ("object" != typeof this) throw new TypeError("Promises must be constructed via new");
+      this._listeners = [], this._lib = false;
+      var t3 = this._PSD = me;
+      if ("function" != typeof e3) {
+        if (e3 !== ae) throw new TypeError("Not a function");
+        return this._state = arguments[1], this._value = arguments[2], void (false === this._state && Oe(this, this._value));
       }
-      this._state = null, this._value = null, ++n.ref, function o(u, l) {
+      this._state = null, this._value = null, ++t3.ref, function t4(r3, e4) {
         try {
-          l(function(f) {
-            if (u._state === null) {
-              if (f === u) throw new TypeError("A promise cannot be resolved with itself.");
-              var d = u._lib && Nt();
-              f && typeof f.then == "function" ? o(u, function(p, w) {
-                f instanceof L ? f._then(p, w) : f.then(p, w);
-              }) : (u._state = !0, u._value = f, ls(u)), d && Mt();
+          e4(function(n4) {
+            if (null === r3._state) {
+              if (n4 === r3) throw new TypeError("A promise cannot be resolved with itself.");
+              var e5 = r3._lib && je();
+              n4 && "function" == typeof n4.then ? t4(r3, function(e6, t5) {
+                n4 instanceof _e ? n4._then(e6, t5) : n4.then(e6, t5);
+              }) : (r3._state = true, r3._value = n4, Pe(r3)), e5 && Ae();
             }
-          }, Br.bind(null, u));
-        } catch (f) {
-          Br(u, f);
+          }, Oe.bind(null, r3));
+        } catch (e5) {
+          Oe(r3, e5);
         }
-      }(this, t);
+      }(this, e3);
     }
-    var Zr = { get: function() {
-      var t = U, n = Gn;
-      function o(u, l) {
-        var f = this, d = !t.global && (t !== U || n !== Gn), p = d && !Ge(), w = new L(function(g, S) {
-          Hr(f, new us(fs(u, t, d, p), fs(l, t, d, p), g, S, t));
+    var xe = { get: function() {
+      var u3 = me, t3 = Fe;
+      function e3(n4, r3) {
+        var i3 = this, o3 = !u3.global && (u3 !== me || t3 !== Fe), a3 = o3 && !Ue(), e4 = new _e(function(e5, t4) {
+          Ee(i3, new ke(Qe(n4, u3, o3, a3), Qe(r3, u3, o3, a3), e5, t4, u3));
         });
-        return this._consoleTask && (w._consoleTask = this._consoleTask), w;
+        return this._consoleTask && (e4._consoleTask = this._consoleTask), e4;
       }
-      return o.prototype = ln, o;
-    }, set: function(t) {
-      ee(this, "then", t && t.prototype === ln ? Zr : { get: function() {
-        return t;
-      }, set: Zr.set });
+      return e3.prototype = ae, e3;
+    }, set: function(e3) {
+      l2(this, "then", e3 && e3.prototype === ae ? xe : { get: function() {
+        return e3;
+      }, set: xe.set });
     } };
-    function us(t, n, o, u, l) {
-      this.onFulfilled = typeof t == "function" ? t : null, this.onRejected = typeof n == "function" ? n : null, this.resolve = o, this.reject = u, this.psd = l;
+    function ke(e3, t3, n4, r3, i3) {
+      this.onFulfilled = "function" == typeof e3 ? e3 : null, this.onRejected = "function" == typeof t3 ? t3 : null, this.resolve = n4, this.reject = r3, this.psd = i3;
     }
-    function Br(t, n) {
-      var o, u;
-      zn.push(n), t._state === null && (o = t._lib && Nt(), n = zr(n), t._state = !1, t._value = n, u = t, mt.some(function(l) {
-        return l._value === u._value;
-      }) || mt.push(u), ls(t), o && Mt());
+    function Oe(e3, t3) {
+      var n4, r3;
+      pe.push(t3), null === e3._state && (n4 = e3._lib && je(), t3 = ye(t3), e3._state = false, e3._value = t3, r3 = e3, de.some(function(e4) {
+        return e4._value === r3._value;
+      }) || de.push(r3), Pe(e3), n4 && Ae());
     }
-    function ls(t) {
-      var n = t._listeners;
-      t._listeners = [];
-      for (var o = 0, u = n.length; o < u; ++o) Hr(t, n[o]);
-      var l = t._PSD;
-      --l.ref || l.finalize(), pt === 0 && (++pt, hn(function() {
-        --pt == 0 && Yr();
+    function Pe(e3) {
+      var t3 = e3._listeners;
+      e3._listeners = [];
+      for (var n4 = 0, r3 = t3.length; n4 < r3; ++n4) Ee(e3, t3[n4]);
+      var i3 = e3._PSD;
+      --i3.ref || i3.finalize(), 0 === ge && (++ge, le(function() {
+        0 == --ge && Ce();
       }, []));
     }
-    function Hr(t, n) {
-      if (t._state !== null) {
-        var o = t._state ? n.onFulfilled : n.onRejected;
-        if (o === null) return (t._state ? n.resolve : n.reject)(t._value);
-        ++n.psd.ref, ++pt, hn(Ha, [o, t, n]);
-      } else t._listeners.push(n);
+    function Ee(e3, t3) {
+      if (null !== e3._state) {
+        var n4 = e3._state ? t3.onFulfilled : t3.onRejected;
+        if (null === n4) return (e3._state ? t3.resolve : t3.reject)(e3._value);
+        ++t3.psd.ref, ++ge, le(Ke, [n4, e3, t3]);
+      } else e3._listeners.push(t3);
     }
-    function Ha(t, n, o) {
+    function Ke(e3, t3, n4) {
       try {
-        var u, l = n._value;
-        !n._state && zn.length && (zn = []), u = Ve && n._consoleTask ? n._consoleTask.run(function() {
-          return t(l);
-        }) : t(l), n._state || zn.indexOf(l) !== -1 || function(f) {
-          for (var d = mt.length; d; ) if (mt[--d]._value === f._value) return mt.splice(d, 1);
-        }(n), o.resolve(u);
-      } catch (f) {
-        o.reject(f);
+        var r3, i3 = t3._value;
+        !t3._state && pe.length && (pe = []), r3 = ie && t3._consoleTask ? t3._consoleTask.run(function() {
+          return e3(i3);
+        }) : e3(i3), t3._state || -1 !== pe.indexOf(i3) || function(e4) {
+          var t4 = de.length;
+          for (; t4; ) if (de[--t4]._value === e4._value) return de.splice(t4, 1);
+        }(t3), n4.resolve(r3);
+      } catch (e4) {
+        n4.reject(e4);
       } finally {
-        --pt == 0 && Yr(), --o.psd.ref || o.psd.finalize();
+        0 == --ge && Ce(), --n4.psd.ref || n4.psd.finalize();
       }
     }
-    function Ya() {
-      yt(He, function() {
-        Nt() && Mt();
+    function Se() {
+      $e(ve, function() {
+        je() && Ae();
       });
     }
-    function Nt() {
-      var t = Kr;
-      return Kn = Kr = !1, t;
+    function je() {
+      var e3 = fe;
+      return he = fe = false, e3;
     }
-    function Mt() {
-      var t, n, o;
-      do
-        for (; 0 < dn.length; ) for (t = dn, dn = [], o = t.length, n = 0; n < o; ++n) {
-          var u = t[n];
-          u[0].apply(null, u[1]);
+    function Ae() {
+      var e3, t3, n4;
+      do {
+        for (; 0 < be.length; ) for (e3 = be, be = [], n4 = e3.length, t3 = 0; t3 < n4; ++t3) {
+          var r3 = e3[t3];
+          r3[0].apply(null, r3[1]);
         }
-      while (0 < dn.length);
-      Kn = Kr = !0;
+      } while (0 < be.length);
+      he = fe = true;
     }
-    function Yr() {
-      var t = mt;
-      mt = [], t.forEach(function(u) {
-        u._PSD.onunhandled.call(null, u._value, u);
+    function Ce() {
+      var e3 = de;
+      de = [], e3.forEach(function(e4) {
+        e4._PSD.onunhandled.call(null, e4._value, e4);
       });
-      for (var n = Zn.slice(0), o = n.length; o; ) n[--o]();
+      for (var t3 = we.slice(0), n4 = t3.length; n4; ) t3[--n4]();
     }
-    function Bn(t) {
-      return new L(ln, !1, t);
+    function De(e3) {
+      return new _e(ae, false, e3);
     }
-    function oe(t, n) {
-      var o = U;
+    function Te(n4, r3) {
+      var i3 = me;
       return function() {
-        var u = Nt(), l = U;
+        var e3 = je(), t3 = me;
         try {
-          return Je(o, !0), t.apply(this, arguments);
-        } catch (f) {
-          n && n(f);
+          return We(i3, true), n4.apply(this, arguments);
+        } catch (e4) {
+          r3 && r3(e4);
         } finally {
-          Je(l, !1), u && Mt();
+          We(t3, false), e3 && Ae();
         }
       };
     }
-    z(L.prototype, { then: Zr, _then: function(t, n) {
-      Hr(this, new us(null, null, t, n, U));
-    }, catch: function(t) {
-      if (arguments.length === 1) return this.then(null, t);
-      var n = t, o = arguments[1];
-      return typeof n == "function" ? this.then(null, function(u) {
-        return (u instanceof n ? o : Bn)(u);
-      }) : this.then(null, function(u) {
-        return (u && u.name === n ? o : Bn)(u);
+    r2(_e.prototype, { then: xe, _then: function(e3, t3) {
+      Ee(this, new ke(null, null, e3, t3, me));
+    }, catch: function(e3) {
+      if (1 === arguments.length) return this.then(null, e3);
+      var t3 = e3, n4 = arguments[1];
+      return "function" == typeof t3 ? this.then(null, function(e4) {
+        return (e4 instanceof t3 ? n4 : De)(e4);
+      }) : this.then(null, function(e4) {
+        return (e4 && e4.name === t3 ? n4 : De)(e4);
       });
-    }, finally: function(t) {
-      return this.then(function(n) {
-        return L.resolve(t()).then(function() {
-          return n;
+    }, finally: function(t3) {
+      return this.then(function(e3) {
+        return _e.resolve(t3()).then(function() {
+          return e3;
         });
-      }, function(n) {
-        return L.resolve(t()).then(function() {
-          return Bn(n);
+      }, function(e3) {
+        return _e.resolve(t3()).then(function() {
+          return De(e3);
         });
       });
-    }, timeout: function(t, n) {
-      var o = this;
-      return t < 1 / 0 ? new L(function(u, l) {
-        var f = setTimeout(function() {
-          return l(new W.Timeout(n));
-        }, t);
-        o.then(u, l).finally(clearTimeout.bind(null, f));
+    }, timeout: function(r3, i3) {
+      var o3 = this;
+      return r3 < 1 / 0 ? new _e(function(e3, t3) {
+        var n4 = setTimeout(function() {
+          return t3(new Y.Timeout(i3));
+        }, r3);
+        o3.then(e3, t3).finally(clearTimeout.bind(null, n4));
       }) : this;
-    } }), typeof Symbol < "u" && Symbol.toStringTag && ee(L.prototype, Symbol.toStringTag, "Dexie.Promise"), He.env = cs(), z(L, { all: function() {
-      var t = je.apply(null, arguments).map(Jn);
-      return new L(function(n, o) {
-        t.length === 0 && n([]);
-        var u = t.length;
-        t.forEach(function(l, f) {
-          return L.resolve(l).then(function(d) {
-            t[f] = d, --u || n(t);
-          }, o);
+    } }), "undefined" != typeof Symbol && Symbol.toStringTag && l2(_e.prototype, Symbol.toStringTag, "Dexie.Promise"), ve.env = Ye(), r2(_e, { all: function() {
+      var o3 = I2.apply(null, arguments).map(Ve);
+      return new _e(function(n4, r3) {
+        0 === o3.length && n4([]);
+        var i3 = o3.length;
+        o3.forEach(function(e3, t3) {
+          return _e.resolve(e3).then(function(e4) {
+            o3[t3] = e4, --i3 || n4(o3);
+          }, r3);
         });
       });
-    }, resolve: function(t) {
-      return t instanceof L ? t : t && typeof t.then == "function" ? new L(function(n, o) {
-        t.then(n, o);
-      }) : new L(ln, !0, t);
-    }, reject: Bn, race: function() {
-      var t = je.apply(null, arguments).map(Jn);
-      return new L(function(n, o) {
-        t.map(function(u) {
-          return L.resolve(u).then(n, o);
+    }, resolve: function(n4) {
+      return n4 instanceof _e ? n4 : n4 && "function" == typeof n4.then ? new _e(function(e3, t3) {
+        n4.then(e3, t3);
+      }) : new _e(ae, true, n4);
+    }, reject: De, race: function() {
+      var e3 = I2.apply(null, arguments).map(Ve);
+      return new _e(function(t3, n4) {
+        e3.map(function(e4) {
+          return _e.resolve(e4).then(t3, n4);
         });
       });
     }, PSD: { get: function() {
-      return U;
-    }, set: function(t) {
-      return U = t;
+      return me;
+    }, set: function(e3) {
+      return me = e3;
     } }, totalEchoes: { get: function() {
-      return Gn;
-    } }, newPSD: Ye, usePSD: yt, scheduler: { get: function() {
-      return hn;
-    }, set: function(t) {
-      hn = t;
+      return Fe;
+    } }, newPSD: Ne, usePSD: $e, scheduler: { get: function() {
+      return le;
+    }, set: function(e3) {
+      le = e3;
     } }, rejectionMapper: { get: function() {
-      return zr;
-    }, set: function(t) {
-      zr = t;
-    } }, follow: function(t, n) {
-      return new L(function(o, u) {
-        return Ye(function(l, f) {
-          var d = U;
-          d.unhandleds = [], d.onunhandled = f, d.finalize = dt(function() {
-            var p, w = this;
-            p = function() {
-              w.unhandleds.length === 0 ? l() : f(w.unhandleds[0]);
-            }, Zn.push(function g() {
-              p(), Zn.splice(Zn.indexOf(g), 1);
-            }), ++pt, hn(function() {
-              --pt == 0 && Yr();
+      return ye;
+    }, set: function(e3) {
+      ye = e3;
+    } }, follow: function(i3, n4) {
+      return new _e(function(e3, t3) {
+        return Ne(function(n5, r3) {
+          var e4 = me;
+          e4.unhandleds = [], e4.onunhandled = r3, e4.finalize = J(function() {
+            var t4, e5 = this;
+            t4 = function() {
+              0 === e5.unhandleds.length ? n5() : r3(e5.unhandleds[0]);
+            }, we.push(function e6() {
+              t4(), we.splice(we.indexOf(e6), 1);
+            }), ++ge, le(function() {
+              0 == --ge && Ce();
             }, []);
-          }, d.finalize), t();
-        }, n, o, u);
+          }, e4.finalize), i3();
+        }, n4, e3, t3);
       });
-    } }), fn && (fn.allSettled && ee(L, "allSettled", function() {
-      var t = je.apply(null, arguments).map(Jn);
-      return new L(function(n) {
-        t.length === 0 && n([]);
-        var o = t.length, u = new Array(o);
-        t.forEach(function(l, f) {
-          return L.resolve(l).then(function(d) {
-            return u[f] = { status: "fulfilled", value: d };
-          }, function(d) {
-            return u[f] = { status: "rejected", reason: d };
+    } }), se && (se.allSettled && l2(_e, "allSettled", function() {
+      var e3 = I2.apply(null, arguments).map(Ve);
+      return new _e(function(n4) {
+        0 === e3.length && n4([]);
+        var r3 = e3.length, i3 = new Array(r3);
+        e3.forEach(function(e4, t3) {
+          return _e.resolve(e4).then(function(e5) {
+            return i3[t3] = { status: "fulfilled", value: e5 };
+          }, function(e5) {
+            return i3[t3] = { status: "rejected", reason: e5 };
           }).then(function() {
-            return --o || n(u);
+            return --r3 || n4(i3);
           });
         });
       });
-    }), fn.any && typeof AggregateError < "u" && ee(L, "any", function() {
-      var t = je.apply(null, arguments).map(Jn);
-      return new L(function(n, o) {
-        t.length === 0 && o(new AggregateError([]));
-        var u = t.length, l = new Array(u);
-        t.forEach(function(f, d) {
-          return L.resolve(f).then(function(p) {
-            return n(p);
-          }, function(p) {
-            l[d] = p, --u || o(new AggregateError(l));
+    }), se.any && "undefined" != typeof AggregateError && l2(_e, "any", function() {
+      var e3 = I2.apply(null, arguments).map(Ve);
+      return new _e(function(n4, r3) {
+        0 === e3.length && r3(new AggregateError([]));
+        var i3 = e3.length, o3 = new Array(i3);
+        e3.forEach(function(e4, t3) {
+          return _e.resolve(e4).then(function(e5) {
+            return n4(e5);
+          }, function(e5) {
+            o3[t3] = e5, --i3 || r3(new AggregateError(o3));
           });
         });
       });
     }));
-    var de = { awaits: 0, echoes: 0, id: 0 }, Ga = 0, Hn = [], Yn = 0, Gn = 0, Ja = 0;
-    function Ye(t, n, o, u) {
-      var l = U, f = Object.create(l);
-      return f.parent = l, f.ref = 0, f.global = !1, f.id = ++Ja, He.env, f.env = Wr ? { Promise: L, PromiseProp: { value: L, configurable: !0, writable: !0 }, all: L.all, race: L.race, allSettled: L.allSettled, any: L.any, resolve: L.resolve, reject: L.reject } : {}, n && v(f, n), ++l.ref, f.finalize = function() {
+    var qe = { awaits: 0, echoes: 0, id: 0 }, Ie = 0, Be = [], Re = 0, Fe = 0, Me = 0;
+    function Ne(e3, t3, n4, r3) {
+      var i3 = me, o3 = Object.create(i3);
+      o3.parent = i3, o3.ref = 0, o3.global = false, o3.id = ++Me, ve.env, o3.env = ce ? { Promise: _e, PromiseProp: { value: _e, configurable: true, writable: true }, all: _e.all, race: _e.race, allSettled: _e.allSettled, any: _e.any, resolve: _e.resolve, reject: _e.reject } : {}, t3 && a2(o3, t3), ++i3.ref, o3.finalize = function() {
         --this.parent.ref || this.parent.finalize();
-      }, u = yt(f, t, o, u), f.ref === 0 && f.finalize(), u;
+      };
+      r3 = $e(o3, e3, n4, r3);
+      return 0 === o3.ref && o3.finalize(), r3;
     }
-    function Pt() {
-      return de.id || (de.id = ++Ga), ++de.awaits, de.echoes += as, de.id;
+    function Le() {
+      return qe.id || (qe.id = ++Ie), ++qe.awaits, qe.echoes += ue, qe.id;
     }
-    function Ge() {
-      return !!de.awaits && (--de.awaits == 0 && (de.id = 0), de.echoes = de.awaits * as, !0);
+    function Ue() {
+      return !!qe.awaits && (0 == --qe.awaits && (qe.id = 0), qe.echoes = qe.awaits * ue, true);
     }
-    function Jn(t) {
-      return de.echoes && t && t.constructor === fn ? (Pt(), t.then(function(n) {
-        return Ge(), n;
-      }, function(n) {
-        return Ge(), le(n);
-      })) : t;
+    function Ve(e3) {
+      return qe.echoes && e3 && e3.constructor === se ? (Le(), e3.then(function(e4) {
+        return Ue(), e4;
+      }, function(e4) {
+        return Ue(), Xe(e4);
+      })) : e3;
     }
-    function Xa() {
-      var t = Hn[Hn.length - 1];
-      Hn.pop(), Je(t, !1);
+    function ze() {
+      var e3 = Be[Be.length - 1];
+      Be.pop(), We(e3, false);
     }
-    function Je(t, n) {
-      var o, u = U;
-      (n ? !de.echoes || Yn++ && t === U : !Yn || --Yn && t === U) || queueMicrotask(n ? (function(l) {
-        ++Gn, de.echoes && --de.echoes != 0 || (de.echoes = de.awaits = de.id = 0), Hn.push(U), Je(l, !0);
-      }).bind(null, t) : Xa), t !== U && (U = t, u === He && (He.env = cs()), Wr && (o = He.env.Promise, n = t.env, (u.global || t.global) && (Object.defineProperty(c, "Promise", n.PromiseProp), o.all = n.all, o.race = n.race, o.resolve = n.resolve, o.reject = n.reject, n.allSettled && (o.allSettled = n.allSettled), n.any && (o.any = n.any))));
+    function We(e3, t3) {
+      var n4, r3 = me;
+      (t3 ? !qe.echoes || Re++ && e3 === me : !Re || --Re && e3 === me) || queueMicrotask(t3 ? (function(e4) {
+        ++Fe, qe.echoes && 0 != --qe.echoes || (qe.echoes = qe.awaits = qe.id = 0), Be.push(me), We(e4, true);
+      }).bind(null, e3) : ze), e3 !== me && (me = e3, r3 === ve && (ve.env = Ye()), ce && (n4 = ve.env.Promise, t3 = e3.env, (r3.global || e3.global) && (Object.defineProperty(f2, "Promise", t3.PromiseProp), n4.all = t3.all, n4.race = t3.race, n4.resolve = t3.resolve, n4.reject = t3.reject, t3.allSettled && (n4.allSettled = t3.allSettled), t3.any && (n4.any = t3.any))));
     }
-    function cs() {
-      var t = c.Promise;
-      return Wr ? { Promise: t, PromiseProp: Object.getOwnPropertyDescriptor(c, "Promise"), all: t.all, race: t.race, allSettled: t.allSettled, any: t.any, resolve: t.resolve, reject: t.reject } : {};
+    function Ye() {
+      var e3 = f2.Promise;
+      return ce ? { Promise: e3, PromiseProp: Object.getOwnPropertyDescriptor(f2, "Promise"), all: e3.all, race: e3.race, allSettled: e3.allSettled, any: e3.any, resolve: e3.resolve, reject: e3.reject } : {};
     }
-    function yt(t, n, o, u, l) {
-      var f = U;
+    function $e(e3, t3, n4, r3, i3) {
+      var o3 = me;
       try {
-        return Je(t, !0), n(o, u, l);
+        return We(e3, true), t3(n4, r3, i3);
       } finally {
-        Je(f, !1);
+        We(o3, false);
       }
     }
-    function fs(t, n, o, u) {
-      return typeof t != "function" ? t : function() {
-        var l = U;
-        o && Pt(), Je(n, !0);
+    function Qe(t3, n4, r3, i3) {
+      return "function" != typeof t3 ? t3 : function() {
+        var e3 = me;
+        r3 && Le(), We(n4, true);
         try {
-          return t.apply(this, arguments);
+          return t3.apply(this, arguments);
         } finally {
-          Je(l, !1), u && queueMicrotask(Ge);
+          We(e3, false), i3 && queueMicrotask(Ue);
         }
       };
     }
-    function Gr(t) {
-      Promise === fn && de.echoes === 0 ? Yn === 0 ? t() : enqueueNativeMicroTask(t) : setTimeout(t, 0);
+    function Ge(e3) {
+      Promise === se && 0 === qe.echoes ? 0 === Re ? e3() : enqueueNativeMicroTask(e3) : setTimeout(e3, 0);
     }
-    ("" + Ee).indexOf("[native code]") === -1 && (Pt = Ge = ie);
-    var le = L.reject, gt = "￿", We = "Invalid key provided. Keys must be of type string, number, Date or Array<string | number | Date>.", hs = "String expected.", Ft = [], Xn = "__dbnames", Jr = "readonly", Xr = "readwrite";
-    function vt(t, n) {
-      return t ? n ? function() {
-        return t.apply(this, arguments) && n.apply(this, arguments);
-      } : t : n;
+    -1 === ("" + F).indexOf("[native code]") && (Le = Ue = G);
+    var Xe = _e.reject;
+    var He = String.fromCharCode(65535), Je = "Invalid key provided. Keys must be of type string, number, Date or Array<string | number | Date>.", Ze = "String expected.", et = [], tt = "__dbnames", nt = "readonly", rt = "readwrite";
+    function it(e3, t3) {
+      return e3 ? t3 ? function() {
+        return e3.apply(this, arguments) && t3.apply(this, arguments);
+      } : e3 : t3;
     }
-    var ds = { type: 3, lower: -1 / 0, lowerOpen: !1, upper: [[]], upperOpen: !1 };
-    function Qn(t) {
-      return typeof t != "string" || /\./.test(t) ? function(n) {
-        return n;
-      } : function(n) {
-        return n[t] === void 0 && t in n && delete (n = ft(n))[t], n;
+    var ot = { type: 3, lower: -1 / 0, lowerOpen: false, upper: [[]], upperOpen: false };
+    function at(t3) {
+      return "string" != typeof t3 || /\./.test(t3) ? function(e3) {
+        return e3;
+      } : function(e3) {
+        return void 0 === e3[t3] && t3 in e3 && delete (e3 = S2(e3))[t3], e3;
       };
     }
-    function ms() {
-      throw W.Type();
+    function ut() {
+      throw Y.Type();
     }
-    function Q(t, n) {
+    function st(e3, t3) {
       try {
-        var o = ps(t), u = ps(n);
-        if (o !== u) return o === "Array" ? 1 : u === "Array" ? -1 : o === "binary" ? 1 : u === "binary" ? -1 : o === "string" ? 1 : u === "string" ? -1 : o === "Date" ? 1 : u !== "Date" ? NaN : -1;
-        switch (o) {
+        var n4 = ct(e3), r3 = ct(t3);
+        if (n4 !== r3) return "Array" === n4 ? 1 : "Array" === r3 ? -1 : "binary" === n4 ? 1 : "binary" === r3 ? -1 : "string" === n4 ? 1 : "string" === r3 ? -1 : "Date" === n4 ? 1 : "Date" !== r3 ? NaN : -1;
+        switch (n4) {
           case "number":
           case "Date":
           case "string":
-            return n < t ? 1 : t < n ? -1 : 0;
+            return t3 < e3 ? 1 : e3 < t3 ? -1 : 0;
           case "binary":
-            return function(l, f) {
-              for (var d = l.length, p = f.length, w = d < p ? d : p, g = 0; g < w; ++g) if (l[g] !== f[g]) return l[g] < f[g] ? -1 : 1;
-              return d === p ? 0 : d < p ? -1 : 1;
-            }(ys(t), ys(n));
+            return function(e4, t4) {
+              for (var n5 = e4.length, r4 = t4.length, i3 = n5 < r4 ? n5 : r4, o3 = 0; o3 < i3; ++o3) if (e4[o3] !== t4[o3]) return e4[o3] < t4[o3] ? -1 : 1;
+              return n5 === r4 ? 0 : n5 < r4 ? -1 : 1;
+            }(lt(e3), lt(t3));
           case "Array":
-            return function(l, f) {
-              for (var d = l.length, p = f.length, w = d < p ? d : p, g = 0; g < w; ++g) {
-                var S = Q(l[g], f[g]);
-                if (S !== 0) return S;
+            return function(e4, t4) {
+              for (var n5 = e4.length, r4 = t4.length, i3 = n5 < r4 ? n5 : r4, o3 = 0; o3 < i3; ++o3) {
+                var a3 = st(e4[o3], t4[o3]);
+                if (0 !== a3) return a3;
               }
-              return d === p ? 0 : d < p ? -1 : 1;
-            }(t, n);
+              return n5 === r4 ? 0 : n5 < r4 ? -1 : 1;
+            }(e3, t3);
         }
-      } catch {
+      } catch (e4) {
       }
       return NaN;
     }
-    function ps(t) {
-      var n = typeof t;
-      return n != "object" ? n : ArrayBuffer.isView(t) ? "binary" : (t = Vr(t), t === "ArrayBuffer" ? "binary" : t);
+    function ct(e3) {
+      var t3 = typeof e3;
+      if ("object" != t3) return t3;
+      if (ArrayBuffer.isView(e3)) return "binary";
+      e3 = A2(e3);
+      return "ArrayBuffer" === e3 ? "binary" : e3;
     }
-    function ys(t) {
-      return t instanceof Uint8Array ? t : ArrayBuffer.isView(t) ? new Uint8Array(t.buffer, t.byteOffset, t.byteLength) : new Uint8Array(t);
+    function lt(e3) {
+      return e3 instanceof Uint8Array ? e3 : ArrayBuffer.isView(e3) ? new Uint8Array(e3.buffer, e3.byteOffset, e3.byteLength) : new Uint8Array(e3);
     }
-    var gs = (se.prototype._trans = function(t, n, o) {
-      var u = this._tx || U.trans, l = this.name, f = Ve && typeof console < "u" && console.createTask && console.createTask("Dexie: ".concat(t === "readonly" ? "read" : "write", " ").concat(this.name));
-      function d(g, S, y) {
-        if (!y.schema[l]) throw new W.NotFound("Table " + l + " not part of transaction");
-        return n(y.idbtrans, y);
+    var ft = (ht.prototype._trans = function(e3, r3, t3) {
+      var n4 = this._tx || me.trans, i3 = this.name, o3 = ie && "undefined" != typeof console && console.createTask && console.createTask("Dexie: ".concat("readonly" === e3 ? "read" : "write", " ").concat(this.name));
+      function a3(e4, t4, n5) {
+        if (!n5.schema[i3]) throw new Y.NotFound("Table " + i3 + " not part of transaction");
+        return r3(n5.idbtrans, n5);
       }
-      var p = Nt();
+      var u3 = je();
       try {
-        var w = u && u.db._novip === this.db._novip ? u === U.trans ? u._promise(t, d, o) : Ye(function() {
-          return u._promise(t, d, o);
-        }, { trans: u, transless: U.transless || U }) : function g(S, y, x, b) {
-          if (S.idbdb && (S._state.openComplete || U.letThrough || S._vip)) {
-            var _ = S._createTransaction(y, x, S._dbSchema);
+        var s3 = n4 && n4.db._novip === this.db._novip ? n4 === me.trans ? n4._promise(e3, a3, t3) : Ne(function() {
+          return n4._promise(e3, a3, t3);
+        }, { trans: n4, transless: me.transless || me }) : function t4(n5, r4, i4, o4) {
+          if (n5.idbdb && (n5._state.openComplete || me.letThrough || n5._vip)) {
+            var a4 = n5._createTransaction(r4, i4, n5._dbSchema);
             try {
-              _.create(), S._state.PR1398_maxLoop = 3;
-            } catch (T) {
-              return T.name === Ur.InvalidState && S.isOpen() && 0 < --S._state.PR1398_maxLoop ? (console.warn("Dexie: Need to reopen db"), S.close({ disableAutoOpen: !1 }), S.open().then(function() {
-                return g(S, y, x, b);
-              })) : le(T);
+              a4.create(), n5._state.PR1398_maxLoop = 3;
+            } catch (e4) {
+              return e4.name === z.InvalidState && n5.isOpen() && 0 < --n5._state.PR1398_maxLoop ? (console.warn("Dexie: Need to reopen db"), n5.close({ disableAutoOpen: false }), n5.open().then(function() {
+                return t4(n5, r4, i4, o4);
+              })) : Xe(e4);
             }
-            return _._promise(y, function(T, k) {
-              return Ye(function() {
-                return U.trans = _, b(T, k, _);
+            return a4._promise(r4, function(e4, t5) {
+              return Ne(function() {
+                return me.trans = a4, o4(e4, t5, a4);
               });
-            }).then(function(T) {
-              if (y === "readwrite") try {
-                _.idbtrans.commit();
-              } catch {
+            }).then(function(e4) {
+              if ("readwrite" === r4) try {
+                a4.idbtrans.commit();
+              } catch (e5) {
               }
-              return y === "readonly" ? T : _._completion.then(function() {
-                return T;
+              return "readonly" === r4 ? e4 : a4._completion.then(function() {
+                return e4;
               });
             });
           }
-          if (S._state.openComplete) return le(new W.DatabaseClosed(S._state.dbOpenError));
-          if (!S._state.isBeingOpened) {
-            if (!S._state.autoOpen) return le(new W.DatabaseClosed());
-            S.open().catch(ie);
+          if (n5._state.openComplete) return Xe(new Y.DatabaseClosed(n5._state.dbOpenError));
+          if (!n5._state.isBeingOpened) {
+            if (!n5._state.autoOpen) return Xe(new Y.DatabaseClosed());
+            n5.open().catch(G);
           }
-          return S._state.dbReadyPromise.then(function() {
-            return g(S, y, x, b);
+          return n5._state.dbReadyPromise.then(function() {
+            return t4(n5, r4, i4, o4);
           });
-        }(this.db, t, [this.name], d);
-        return f && (w._consoleTask = f, w = w.catch(function(g) {
-          return console.trace(g), le(g);
-        })), w;
+        }(this.db, e3, [this.name], a3);
+        return o3 && (s3._consoleTask = o3, s3 = s3.catch(function(e4) {
+          return console.trace(e4), Xe(e4);
+        })), s3;
       } finally {
-        p && Mt();
+        u3 && Ae();
       }
-    }, se.prototype.get = function(t, n) {
-      var o = this;
-      return t && t.constructor === Object ? this.where(t).first(n) : t == null ? le(new W.Type("Invalid argument to Table.get()")) : this._trans("readonly", function(u) {
-        return o.core.get({ trans: u, key: t }).then(function(l) {
-          return o.hook.reading.fire(l);
+    }, ht.prototype.get = function(t3, e3) {
+      var n4 = this;
+      return t3 && t3.constructor === Object ? this.where(t3).first(e3) : null == t3 ? Xe(new Y.Type("Invalid argument to Table.get()")) : this._trans("readonly", function(e4) {
+        return n4.core.get({ trans: e4, key: t3 }).then(function(e5) {
+          return n4.hook.reading.fire(e5);
         });
-      }).then(n);
-    }, se.prototype.where = function(t) {
-      if (typeof t == "string") return new this.db.WhereClause(this, t);
-      if (m(t)) return new this.db.WhereClause(this, "[".concat(t.join("+"), "]"));
-      var n = h(t);
-      if (n.length === 1) return this.where(n[0]).equals(t[n[0]]);
-      var o = this.schema.indexes.concat(this.schema.primKey).filter(function(w) {
-        if (w.compound && n.every(function(S) {
-          return 0 <= w.keyPath.indexOf(S);
+      }).then(e3);
+    }, ht.prototype.where = function(o3) {
+      if ("string" == typeof o3) return new this.db.WhereClause(this, o3);
+      if (x2(o3)) return new this.db.WhereClause(this, "[".concat(o3.join("+"), "]"));
+      var n4 = _2(o3);
+      if (1 === n4.length) return this.where(n4[0]).equals(o3[n4[0]]);
+      var e3 = this.schema.indexes.concat(this.schema.primKey).filter(function(t4) {
+        if (t4.compound && n4.every(function(e5) {
+          return 0 <= t4.keyPath.indexOf(e5);
         })) {
-          for (var g = 0; g < n.length; ++g) if (n.indexOf(w.keyPath[g]) === -1) return !1;
-          return !0;
+          for (var e4 = 0; e4 < n4.length; ++e4) if (-1 === n4.indexOf(t4.keyPath[e4])) return false;
+          return true;
         }
-        return !1;
-      }).sort(function(w, g) {
-        return w.keyPath.length - g.keyPath.length;
+        return false;
+      }).sort(function(e4, t4) {
+        return e4.keyPath.length - t4.keyPath.length;
       })[0];
-      if (o && this.db._maxKey !== gt) {
-        var d = o.keyPath.slice(0, n.length);
-        return this.where(d).equals(d.map(function(g) {
-          return t[g];
+      if (e3 && this.db._maxKey !== He) {
+        var t3 = e3.keyPath.slice(0, n4.length);
+        return this.where(t3).equals(t3.map(function(e4) {
+          return o3[e4];
         }));
       }
-      !o && Ve && console.warn("The query ".concat(JSON.stringify(t), " on ").concat(this.name, " would benefit from a ") + "compound index [".concat(n.join("+"), "]"));
-      var u = this.schema.idxByName, l = this.db._deps.indexedDB;
-      function f(w, g) {
-        return l.cmp(w, g) === 0;
+      !e3 && ie && console.warn("The query ".concat(JSON.stringify(o3), " on ").concat(this.name, " would benefit from a ") + "compound index [".concat(n4.join("+"), "]"));
+      var a3 = this.schema.idxByName, r3 = this.db._deps.indexedDB;
+      function u3(e4, t4) {
+        return 0 === r3.cmp(e4, t4);
       }
-      var p = n.reduce(function(x, g) {
-        var S = x[0], y = x[1], x = u[g], b = t[g];
-        return [S || x, S || !x ? vt(y, x && x.multi ? function(_) {
-          return _ = De(_, g), m(_) && _.some(function(T) {
-            return f(b, T);
+      var i3 = n4.reduce(function(e4, t4) {
+        var n5 = e4[0], r4 = e4[1], e4 = a3[t4], i4 = o3[t4];
+        return [n5 || e4, n5 || !e4 ? it(r4, e4 && e4.multi ? function(e5) {
+          e5 = k2(e5, t4);
+          return x2(e5) && e5.some(function(e6) {
+            return u3(i4, e6);
           });
-        } : function(_) {
-          return f(b, De(_, g));
-        }) : y];
-      }, [null, null]), d = p[0], p = p[1];
-      return d ? this.where(d.name).equals(t[d.keyPath]).filter(p) : o ? this.filter(p) : this.where(n).equals("");
-    }, se.prototype.filter = function(t) {
-      return this.toCollection().and(t);
-    }, se.prototype.count = function(t) {
-      return this.toCollection().count(t);
-    }, se.prototype.offset = function(t) {
-      return this.toCollection().offset(t);
-    }, se.prototype.limit = function(t) {
-      return this.toCollection().limit(t);
-    }, se.prototype.each = function(t) {
-      return this.toCollection().each(t);
-    }, se.prototype.toArray = function(t) {
-      return this.toCollection().toArray(t);
-    }, se.prototype.toCollection = function() {
+        } : function(e5) {
+          return u3(i4, k2(e5, t4));
+        }) : r4];
+      }, [null, null]), t3 = i3[0], i3 = i3[1];
+      return t3 ? this.where(t3.name).equals(o3[t3.keyPath]).filter(i3) : e3 ? this.filter(i3) : this.where(n4).equals("");
+    }, ht.prototype.filter = function(e3) {
+      return this.toCollection().and(e3);
+    }, ht.prototype.count = function(e3) {
+      return this.toCollection().count(e3);
+    }, ht.prototype.offset = function(e3) {
+      return this.toCollection().offset(e3);
+    }, ht.prototype.limit = function(e3) {
+      return this.toCollection().limit(e3);
+    }, ht.prototype.each = function(e3) {
+      return this.toCollection().each(e3);
+    }, ht.prototype.toArray = function(e3) {
+      return this.toCollection().toArray(e3);
+    }, ht.prototype.toCollection = function() {
       return new this.db.Collection(new this.db.WhereClause(this));
-    }, se.prototype.orderBy = function(t) {
-      return new this.db.Collection(new this.db.WhereClause(this, m(t) ? "[".concat(t.join("+"), "]") : t));
-    }, se.prototype.reverse = function() {
+    }, ht.prototype.orderBy = function(e3) {
+      return new this.db.Collection(new this.db.WhereClause(this, x2(e3) ? "[".concat(e3.join("+"), "]") : e3));
+    }, ht.prototype.reverse = function() {
       return this.toCollection().reverse();
-    }, se.prototype.mapToClass = function(t) {
-      var n, o = this.db, u = this.name;
-      function l() {
-        return n !== null && n.apply(this, arguments) || this;
+    }, ht.prototype.mapToClass = function(r3) {
+      var e3, t3 = this.db, n4 = this.name;
+      function i3() {
+        return null !== e3 && e3.apply(this, arguments) || this;
       }
-      (this.schema.mappedClass = t).prototype instanceof ms && (function(w, g) {
-        if (typeof g != "function" && g !== null) throw new TypeError("Class extends value " + String(g) + " is not a constructor or null");
-        function S() {
-          this.constructor = w;
+      (this.schema.mappedClass = r3).prototype instanceof ut && (function(e4, t4) {
+        if ("function" != typeof t4 && null !== t4) throw new TypeError("Class extends value " + String(t4) + " is not a constructor or null");
+        function n5() {
+          this.constructor = e4;
         }
-        r(w, g), w.prototype = g === null ? Object.create(g) : (S.prototype = g.prototype, new S());
-      }(l, n = t), Object.defineProperty(l.prototype, "db", { get: function() {
-        return o;
-      }, enumerable: !1, configurable: !0 }), l.prototype.table = function() {
-        return u;
-      }, t = l);
-      for (var f = /* @__PURE__ */ new Set(), d = t.prototype; d; d = A(d)) Object.getOwnPropertyNames(d).forEach(function(w) {
-        return f.add(w);
+        s2(e4, t4), e4.prototype = null === t4 ? Object.create(t4) : (n5.prototype = t4.prototype, new n5());
+      }(i3, e3 = r3), Object.defineProperty(i3.prototype, "db", { get: function() {
+        return t3;
+      }, enumerable: false, configurable: true }), i3.prototype.table = function() {
+        return n4;
+      }, r3 = i3);
+      for (var o3 = /* @__PURE__ */ new Set(), a3 = r3.prototype; a3; a3 = c2(a3)) Object.getOwnPropertyNames(a3).forEach(function(e4) {
+        return o3.add(e4);
       });
-      function p(w) {
-        if (!w) return w;
-        var g, S = Object.create(t.prototype);
-        for (g in w) if (!f.has(g)) try {
-          S[g] = w[g];
-        } catch {
+      function u3(e4) {
+        if (!e4) return e4;
+        var t4, n5 = Object.create(r3.prototype);
+        for (t4 in e4) if (!o3.has(t4)) try {
+          n5[t4] = e4[t4];
+        } catch (e5) {
         }
-        return S;
+        return n5;
       }
-      return this.schema.readHook && this.hook.reading.unsubscribe(this.schema.readHook), this.schema.readHook = p, this.hook("reading", p), t;
-    }, se.prototype.defineClass = function() {
-      return this.mapToClass(function(t) {
-        v(this, t);
+      return this.schema.readHook && this.hook.reading.unsubscribe(this.schema.readHook), this.schema.readHook = u3, this.hook("reading", u3), r3;
+    }, ht.prototype.defineClass = function() {
+      return this.mapToClass(function(e3) {
+        a2(this, e3);
       });
-    }, se.prototype.add = function(t, n) {
-      var o = this, u = this.schema.primKey, l = u.auto, f = u.keyPath, d = t;
-      return f && l && (d = Qn(f)(t)), this._trans("readwrite", function(p) {
-        return o.core.mutate({ trans: p, type: "add", keys: n != null ? [n] : null, values: [d] });
-      }).then(function(p) {
-        return p.numFailures ? L.reject(p.failures[0]) : p.lastResult;
-      }).then(function(p) {
-        if (f) try {
-          we(t, f, p);
-        } catch {
+    }, ht.prototype.add = function(t3, n4) {
+      var r3 = this, e3 = this.schema.primKey, i3 = e3.auto, o3 = e3.keyPath, a3 = t3;
+      return o3 && i3 && (a3 = at(o3)(t3)), this._trans("readwrite", function(e4) {
+        return r3.core.mutate({ trans: e4, type: "add", keys: null != n4 ? [n4] : null, values: [a3] });
+      }).then(function(e4) {
+        return e4.numFailures ? _e.reject(e4.failures[0]) : e4.lastResult;
+      }).then(function(e4) {
+        if (o3) try {
+          P2(t3, o3, e4);
+        } catch (e5) {
         }
-        return p;
+        return e4;
       });
-    }, se.prototype.update = function(t, n) {
-      return typeof t != "object" || m(t) ? this.where(":id").equals(t).modify(n) : (t = De(t, this.schema.primKey.keyPath), t === void 0 ? le(new W.InvalidArgument("Given object does not contain its primary key")) : this.where(":id").equals(t).modify(n));
-    }, se.prototype.put = function(t, n) {
-      var o = this, u = this.schema.primKey, l = u.auto, f = u.keyPath, d = t;
-      return f && l && (d = Qn(f)(t)), this._trans("readwrite", function(p) {
-        return o.core.mutate({ trans: p, type: "put", values: [d], keys: n != null ? [n] : null });
-      }).then(function(p) {
-        return p.numFailures ? L.reject(p.failures[0]) : p.lastResult;
-      }).then(function(p) {
-        if (f) try {
-          we(t, f, p);
-        } catch {
+    }, ht.prototype.update = function(e3, t3) {
+      if ("object" != typeof e3 || x2(e3)) return this.where(":id").equals(e3).modify(t3);
+      e3 = k2(e3, this.schema.primKey.keyPath);
+      return void 0 === e3 ? Xe(new Y.InvalidArgument("Given object does not contain its primary key")) : this.where(":id").equals(e3).modify(t3);
+    }, ht.prototype.put = function(t3, n4) {
+      var r3 = this, e3 = this.schema.primKey, i3 = e3.auto, o3 = e3.keyPath, a3 = t3;
+      return o3 && i3 && (a3 = at(o3)(t3)), this._trans("readwrite", function(e4) {
+        return r3.core.mutate({ trans: e4, type: "put", values: [a3], keys: null != n4 ? [n4] : null });
+      }).then(function(e4) {
+        return e4.numFailures ? _e.reject(e4.failures[0]) : e4.lastResult;
+      }).then(function(e4) {
+        if (o3) try {
+          P2(t3, o3, e4);
+        } catch (e5) {
         }
-        return p;
+        return e4;
       });
-    }, se.prototype.delete = function(t) {
-      var n = this;
-      return this._trans("readwrite", function(o) {
-        return n.core.mutate({ trans: o, type: "delete", keys: [t] });
-      }).then(function(o) {
-        return o.numFailures ? L.reject(o.failures[0]) : void 0;
+    }, ht.prototype.delete = function(t3) {
+      var n4 = this;
+      return this._trans("readwrite", function(e3) {
+        return n4.core.mutate({ trans: e3, type: "delete", keys: [t3] });
+      }).then(function(e3) {
+        return e3.numFailures ? _e.reject(e3.failures[0]) : void 0;
       });
-    }, se.prototype.clear = function() {
-      var t = this;
-      return this._trans("readwrite", function(n) {
-        return t.core.mutate({ trans: n, type: "deleteRange", range: ds });
-      }).then(function(n) {
-        return n.numFailures ? L.reject(n.failures[0]) : void 0;
+    }, ht.prototype.clear = function() {
+      var t3 = this;
+      return this._trans("readwrite", function(e3) {
+        return t3.core.mutate({ trans: e3, type: "deleteRange", range: ot });
+      }).then(function(e3) {
+        return e3.numFailures ? _e.reject(e3.failures[0]) : void 0;
       });
-    }, se.prototype.bulkGet = function(t) {
-      var n = this;
-      return this._trans("readonly", function(o) {
-        return n.core.getMany({ keys: t, trans: o }).then(function(u) {
-          return u.map(function(l) {
-            return n.hook.reading.fire(l);
+    }, ht.prototype.bulkGet = function(t3) {
+      var n4 = this;
+      return this._trans("readonly", function(e3) {
+        return n4.core.getMany({ keys: t3, trans: e3 }).then(function(e4) {
+          return e4.map(function(e5) {
+            return n4.hook.reading.fire(e5);
           });
         });
       });
-    }, se.prototype.bulkAdd = function(t, n, o) {
-      var u = this, l = Array.isArray(n) ? n : void 0, f = (o = o || (l ? void 0 : n)) ? o.allKeys : void 0;
-      return this._trans("readwrite", function(d) {
-        var g = u.schema.primKey, p = g.auto, g = g.keyPath;
-        if (g && l) throw new W.InvalidArgument("bulkAdd(): keys argument invalid on tables with inbound keys");
-        if (l && l.length !== t.length) throw new W.InvalidArgument("Arguments objects and keys must have the same length");
-        var w = t.length, g = g && p ? t.map(Qn(g)) : t;
-        return u.core.mutate({ trans: d, type: "add", keys: l, values: g, wantResults: f }).then(function(_) {
-          var y = _.numFailures, x = _.results, b = _.lastResult, _ = _.failures;
-          if (y === 0) return f ? x : b;
-          throw new $t("".concat(u.name, ".bulkAdd(): ").concat(y, " of ").concat(w, " operations failed"), _);
+    }, ht.prototype.bulkAdd = function(r3, e3, t3) {
+      var o3 = this, a3 = Array.isArray(e3) ? e3 : void 0, u3 = (t3 = t3 || (a3 ? void 0 : e3)) ? t3.allKeys : void 0;
+      return this._trans("readwrite", function(e4) {
+        var t4 = o3.schema.primKey, n4 = t4.auto, t4 = t4.keyPath;
+        if (t4 && a3) throw new Y.InvalidArgument("bulkAdd(): keys argument invalid on tables with inbound keys");
+        if (a3 && a3.length !== r3.length) throw new Y.InvalidArgument("Arguments objects and keys must have the same length");
+        var i3 = r3.length, t4 = t4 && n4 ? r3.map(at(t4)) : r3;
+        return o3.core.mutate({ trans: e4, type: "add", keys: a3, values: t4, wantResults: u3 }).then(function(e5) {
+          var t5 = e5.numFailures, n5 = e5.results, r4 = e5.lastResult, e5 = e5.failures;
+          if (0 === t5) return u3 ? n5 : r4;
+          throw new V2("".concat(o3.name, ".bulkAdd(): ").concat(t5, " of ").concat(i3, " operations failed"), e5);
         });
       });
-    }, se.prototype.bulkPut = function(t, n, o) {
-      var u = this, l = Array.isArray(n) ? n : void 0, f = (o = o || (l ? void 0 : n)) ? o.allKeys : void 0;
-      return this._trans("readwrite", function(d) {
-        var g = u.schema.primKey, p = g.auto, g = g.keyPath;
-        if (g && l) throw new W.InvalidArgument("bulkPut(): keys argument invalid on tables with inbound keys");
-        if (l && l.length !== t.length) throw new W.InvalidArgument("Arguments objects and keys must have the same length");
-        var w = t.length, g = g && p ? t.map(Qn(g)) : t;
-        return u.core.mutate({ trans: d, type: "put", keys: l, values: g, wantResults: f }).then(function(_) {
-          var y = _.numFailures, x = _.results, b = _.lastResult, _ = _.failures;
-          if (y === 0) return f ? x : b;
-          throw new $t("".concat(u.name, ".bulkPut(): ").concat(y, " of ").concat(w, " operations failed"), _);
+    }, ht.prototype.bulkPut = function(r3, e3, t3) {
+      var o3 = this, a3 = Array.isArray(e3) ? e3 : void 0, u3 = (t3 = t3 || (a3 ? void 0 : e3)) ? t3.allKeys : void 0;
+      return this._trans("readwrite", function(e4) {
+        var t4 = o3.schema.primKey, n4 = t4.auto, t4 = t4.keyPath;
+        if (t4 && a3) throw new Y.InvalidArgument("bulkPut(): keys argument invalid on tables with inbound keys");
+        if (a3 && a3.length !== r3.length) throw new Y.InvalidArgument("Arguments objects and keys must have the same length");
+        var i3 = r3.length, t4 = t4 && n4 ? r3.map(at(t4)) : r3;
+        return o3.core.mutate({ trans: e4, type: "put", keys: a3, values: t4, wantResults: u3 }).then(function(e5) {
+          var t5 = e5.numFailures, n5 = e5.results, r4 = e5.lastResult, e5 = e5.failures;
+          if (0 === t5) return u3 ? n5 : r4;
+          throw new V2("".concat(o3.name, ".bulkPut(): ").concat(t5, " of ").concat(i3, " operations failed"), e5);
         });
       });
-    }, se.prototype.bulkUpdate = function(t) {
-      var n = this, o = this.core, u = t.map(function(d) {
-        return d.key;
-      }), l = t.map(function(d) {
-        return d.changes;
-      }), f = [];
-      return this._trans("readwrite", function(d) {
-        return o.getMany({ trans: d, keys: u, cache: "clone" }).then(function(p) {
-          var w = [], g = [];
-          t.forEach(function(y, x) {
-            var b = y.key, _ = y.changes, T = p[x];
-            if (T) {
-              for (var k = 0, O = Object.keys(_); k < O.length; k++) {
-                var E = O[k], I = _[E];
-                if (E === n.schema.primKey.keyPath) {
-                  if (Q(I, b) !== 0) throw new W.Constraint("Cannot update primary key in bulkUpdate()");
-                } else we(T, E, I);
+    }, ht.prototype.bulkUpdate = function(t3) {
+      var h3 = this, n4 = this.core, r3 = t3.map(function(e3) {
+        return e3.key;
+      }), i3 = t3.map(function(e3) {
+        return e3.changes;
+      }), d3 = [];
+      return this._trans("readwrite", function(e3) {
+        return n4.getMany({ trans: e3, keys: r3, cache: "clone" }).then(function(c3) {
+          var l3 = [], f3 = [];
+          t3.forEach(function(e4, t4) {
+            var n5 = e4.key, r4 = e4.changes, i4 = c3[t4];
+            if (i4) {
+              for (var o3 = 0, a3 = Object.keys(r4); o3 < a3.length; o3++) {
+                var u3 = a3[o3], s4 = r4[u3];
+                if (u3 === h3.schema.primKey.keyPath) {
+                  if (0 !== st(s4, n5)) throw new Y.Constraint("Cannot update primary key in bulkUpdate()");
+                } else P2(i4, u3, s4);
               }
-              f.push(x), w.push(b), g.push(T);
+              d3.push(t4), l3.push(n5), f3.push(i4);
             }
           });
-          var S = w.length;
-          return o.mutate({ trans: d, type: "put", keys: w, values: g, updates: { keys: u, changeSpecs: l } }).then(function(y) {
-            var x = y.numFailures, b = y.failures;
-            if (x === 0) return S;
-            for (var _ = 0, T = Object.keys(b); _ < T.length; _++) {
-              var k, O = T[_], E = f[Number(O)];
-              E != null && (k = b[O], delete b[O], b[E] = k);
+          var s3 = l3.length;
+          return n4.mutate({ trans: e3, type: "put", keys: l3, values: f3, updates: { keys: r3, changeSpecs: i3 } }).then(function(e4) {
+            var t4 = e4.numFailures, n5 = e4.failures;
+            if (0 === t4) return s3;
+            for (var r4 = 0, i4 = Object.keys(n5); r4 < i4.length; r4++) {
+              var o3, a3 = i4[r4], u3 = d3[Number(a3)];
+              null != u3 && (o3 = n5[a3], delete n5[a3], n5[u3] = o3);
             }
-            throw new $t("".concat(n.name, ".bulkUpdate(): ").concat(x, " of ").concat(S, " operations failed"), b);
+            throw new V2("".concat(h3.name, ".bulkUpdate(): ").concat(t4, " of ").concat(s3, " operations failed"), n5);
           });
         });
       });
-    }, se.prototype.bulkDelete = function(t) {
-      var n = this, o = t.length;
-      return this._trans("readwrite", function(u) {
-        return n.core.mutate({ trans: u, type: "delete", keys: t });
-      }).then(function(d) {
-        var l = d.numFailures, f = d.lastResult, d = d.failures;
-        if (l === 0) return f;
-        throw new $t("".concat(n.name, ".bulkDelete(): ").concat(l, " of ").concat(o, " operations failed"), d);
+    }, ht.prototype.bulkDelete = function(t3) {
+      var r3 = this, i3 = t3.length;
+      return this._trans("readwrite", function(e3) {
+        return r3.core.mutate({ trans: e3, type: "delete", keys: t3 });
+      }).then(function(e3) {
+        var t4 = e3.numFailures, n4 = e3.lastResult, e3 = e3.failures;
+        if (0 === t4) return n4;
+        throw new V2("".concat(r3.name, ".bulkDelete(): ").concat(t4, " of ").concat(i3, " operations failed"), e3);
       });
-    }, se);
-    function se() {
+    }, ht);
+    function ht() {
     }
-    function mn(t) {
-      function n(d, p) {
-        if (p) {
-          for (var w = arguments.length, g = new Array(w - 1); --w; ) g[w - 1] = arguments[w];
-          return o[d].subscribe.apply(null, g), t;
+    function dt(i3) {
+      function t3(e4, t4) {
+        if (t4) {
+          for (var n5 = arguments.length, r3 = new Array(n5 - 1); --n5; ) r3[n5 - 1] = arguments[n5];
+          return a3[e4].subscribe.apply(null, r3), i3;
         }
-        if (typeof d == "string") return o[d];
+        if ("string" == typeof e4) return a3[e4];
       }
-      var o = {};
-      n.addEventType = f;
-      for (var u = 1, l = arguments.length; u < l; ++u) f(arguments[u]);
-      return n;
-      function f(d, p, w) {
-        if (typeof d != "object") {
-          var g;
-          p = p || Ba;
-          var S = { subscribers: [], fire: w = w || ie, subscribe: function(y) {
-            S.subscribers.indexOf(y) === -1 && (S.subscribers.push(y), S.fire = p(S.fire, y));
-          }, unsubscribe: function(y) {
-            S.subscribers = S.subscribers.filter(function(x) {
-              return x !== y;
-            }), S.fire = S.subscribers.reduce(p, w);
+      var a3 = {};
+      t3.addEventType = u3;
+      for (var e3 = 1, n4 = arguments.length; e3 < n4; ++e3) u3(arguments[e3]);
+      return t3;
+      function u3(e4, n5, r3) {
+        if ("object" != typeof e4) {
+          var i4;
+          n5 = n5 || ne;
+          var o3 = { subscribers: [], fire: r3 = r3 || G, subscribe: function(e5) {
+            -1 === o3.subscribers.indexOf(e5) && (o3.subscribers.push(e5), o3.fire = n5(o3.fire, e5));
+          }, unsubscribe: function(t4) {
+            o3.subscribers = o3.subscribers.filter(function(e5) {
+              return e5 !== t4;
+            }), o3.fire = o3.subscribers.reduce(n5, r3);
           } };
-          return o[d] = n[d] = S;
+          return a3[e4] = t3[e4] = o3;
         }
-        h(g = d).forEach(function(y) {
-          var x = g[y];
-          if (m(x)) f(y, g[y][0], g[y][1]);
+        _2(i4 = e4).forEach(function(e5) {
+          var t4 = i4[e5];
+          if (x2(t4)) u3(e5, i4[e5][0], i4[e5][1]);
           else {
-            if (x !== "asap") throw new W.InvalidArgument("Invalid event config");
-            var b = f(y, un, function() {
-              for (var _ = arguments.length, T = new Array(_); _--; ) T[_] = arguments[_];
-              b.subscribers.forEach(function(k) {
-                on(function() {
-                  k.apply(null, T);
+            if ("asap" !== t4) throw new Y.InvalidArgument("Invalid event config");
+            var n6 = u3(e5, X, function() {
+              for (var e6 = arguments.length, t5 = new Array(e6); e6--; ) t5[e6] = arguments[e6];
+              n6.subscribers.forEach(function(e7) {
+                v2(function() {
+                  e7.apply(null, t5);
                 });
               });
             });
@@ -7254,2160 +8374,2232 @@ var Va = { exports: {} };
         });
       }
     }
-    function pn(t, n) {
-      return Se(n).from({ prototype: t }), n;
+    function pt(e3, t3) {
+      return o2(t3).from({ prototype: e3 }), t3;
     }
-    function Rt(t, n) {
-      return !(t.filter || t.algorithm || t.or) && (n ? t.justLimit : !t.replayFilter);
+    function yt(e3, t3) {
+      return !(e3.filter || e3.algorithm || e3.or) && (t3 ? e3.justLimit : !e3.replayFilter);
     }
-    function Qr(t, n) {
-      t.filter = vt(t.filter, n);
+    function vt(e3, t3) {
+      e3.filter = it(e3.filter, t3);
     }
-    function ei(t, n, o) {
-      var u = t.replayFilter;
-      t.replayFilter = u ? function() {
-        return vt(u(), n());
-      } : n, t.justLimit = o && !u;
+    function mt(e3, t3, n4) {
+      var r3 = e3.replayFilter;
+      e3.replayFilter = r3 ? function() {
+        return it(r3(), t3());
+      } : t3, e3.justLimit = n4 && !r3;
     }
-    function er(t, n) {
-      if (t.isPrimKey) return n.primaryKey;
-      var o = n.getIndexByKeyPath(t.index);
-      if (!o) throw new W.Schema("KeyPath " + t.index + " on object store " + n.name + " is not indexed");
-      return o;
+    function bt(e3, t3) {
+      if (e3.isPrimKey) return t3.primaryKey;
+      var n4 = t3.getIndexByKeyPath(e3.index);
+      if (!n4) throw new Y.Schema("KeyPath " + e3.index + " on object store " + t3.name + " is not indexed");
+      return n4;
     }
-    function vs(t, n, o) {
-      var u = er(t, n.schema);
-      return n.openCursor({ trans: o, values: !t.keysOnly, reverse: t.dir === "prev", unique: !!t.unique, query: { index: u, range: t.range } });
+    function gt(e3, t3, n4) {
+      var r3 = bt(e3, t3.schema);
+      return t3.openCursor({ trans: n4, values: !e3.keysOnly, reverse: "prev" === e3.dir, unique: !!e3.unique, query: { index: r3, range: e3.range } });
     }
-    function tr(t, n, o, u) {
-      var l = t.replayFilter ? vt(t.filter, t.replayFilter()) : t.filter;
-      if (t.or) {
-        var f = {}, d = function(p, w, g) {
-          var S, y;
-          l && !l(w, g, function(x) {
-            return w.stop(x);
-          }, function(x) {
-            return w.fail(x);
-          }) || ((y = "" + (S = w.primaryKey)) == "[object ArrayBuffer]" && (y = "" + new Uint8Array(S)), M(f, y) || (f[y] = !0, n(p, w, g)));
+    function wt(e3, o3, t3, n4) {
+      var a3 = e3.replayFilter ? it(e3.filter, e3.replayFilter()) : e3.filter;
+      if (e3.or) {
+        var u3 = {}, r3 = function(e4, t4, n5) {
+          var r4, i3;
+          a3 && !a3(t4, n5, function(e5) {
+            return t4.stop(e5);
+          }, function(e5) {
+            return t4.fail(e5);
+          }) || ("[object ArrayBuffer]" === (i3 = "" + (r4 = t4.primaryKey)) && (i3 = "" + new Uint8Array(r4)), m2(u3, i3) || (u3[i3] = true, o3(e4, t4, n5)));
         };
-        return Promise.all([t.or._iterate(d, o), bs(vs(t, u, o), t.algorithm, d, !t.keysOnly && t.valueMapper)]);
+        return Promise.all([e3.or._iterate(r3, t3), _t(gt(e3, n4, t3), e3.algorithm, r3, !e3.keysOnly && e3.valueMapper)]);
       }
-      return bs(vs(t, u, o), vt(t.algorithm, l), n, !t.keysOnly && t.valueMapper);
+      return _t(gt(e3, n4, t3), it(e3.algorithm, a3), o3, !e3.keysOnly && e3.valueMapper);
     }
-    function bs(t, n, o, u) {
-      var l = oe(u ? function(f, d, p) {
-        return o(u(f), d, p);
-      } : o);
-      return t.then(function(f) {
-        if (f) return f.start(function() {
-          var d = function() {
-            return f.continue();
+    function _t(e3, r3, i3, o3) {
+      var a3 = Te(o3 ? function(e4, t3, n4) {
+        return i3(o3(e4), t3, n4);
+      } : i3);
+      return e3.then(function(n4) {
+        if (n4) return n4.start(function() {
+          var t3 = function() {
+            return n4.continue();
           };
-          n && !n(f, function(p) {
-            return d = p;
-          }, function(p) {
-            f.stop(p), d = ie;
-          }, function(p) {
-            f.fail(p), d = ie;
-          }) || l(f.value, f, function(p) {
-            return d = p;
-          }), d();
+          r3 && !r3(n4, function(e4) {
+            return t3 = e4;
+          }, function(e4) {
+            n4.stop(e4), t3 = G;
+          }, function(e4) {
+            n4.fail(e4), t3 = G;
+          }) || a3(n4.value, n4, function(e4) {
+            return t3 = e4;
+          }), t3();
         });
       });
     }
-    var Ke = Symbol(), yn = (ws.prototype.execute = function(t) {
-      if (this.add !== void 0) {
-        var n = this.add;
-        if (m(n)) return a(a([], m(t) ? t : [], !0), n).sort();
-        if (typeof n == "number") return (Number(t) || 0) + n;
-        if (typeof n == "bigint") try {
-          return BigInt(t) + n;
-        } catch {
-          return BigInt(0) + n;
+    var e2 = Symbol(), xt = (kt.prototype.execute = function(e3) {
+      if (void 0 !== this.add) {
+        var t3 = this.add;
+        if (x2(t3)) return i2(i2([], x2(e3) ? e3 : [], true), t3).sort();
+        if ("number" == typeof t3) return (Number(e3) || 0) + t3;
+        if ("bigint" == typeof t3) try {
+          return BigInt(e3) + t3;
+        } catch (e4) {
+          return BigInt(0) + t3;
         }
-        throw new TypeError("Invalid term ".concat(n));
+        throw new TypeError("Invalid term ".concat(t3));
       }
-      if (this.remove !== void 0) {
-        var o = this.remove;
-        if (m(o)) return m(t) ? t.filter(function(u) {
-          return !o.includes(u);
+      if (void 0 !== this.remove) {
+        var n4 = this.remove;
+        if (x2(n4)) return x2(e3) ? e3.filter(function(e4) {
+          return !n4.includes(e4);
         }).sort() : [];
-        if (typeof o == "number") return Number(t) - o;
-        if (typeof o == "bigint") try {
-          return BigInt(t) - o;
-        } catch {
-          return BigInt(0) - o;
+        if ("number" == typeof n4) return Number(e3) - n4;
+        if ("bigint" == typeof n4) try {
+          return BigInt(e3) - n4;
+        } catch (e4) {
+          return BigInt(0) - n4;
         }
-        throw new TypeError("Invalid subtrahend ".concat(o));
+        throw new TypeError("Invalid subtrahend ".concat(n4));
       }
-      return n = (n = this.replacePrefix) === null || n === void 0 ? void 0 : n[0], n && typeof t == "string" && t.startsWith(n) ? this.replacePrefix[1] + t.substring(n.length) : t;
-    }, ws);
-    function ws(t) {
-      Object.assign(this, t);
+      t3 = null === (t3 = this.replacePrefix) || void 0 === t3 ? void 0 : t3[0];
+      return t3 && "string" == typeof e3 && e3.startsWith(t3) ? this.replacePrefix[1] + e3.substring(t3.length) : e3;
+    }, kt);
+    function kt(e3) {
+      Object.assign(this, e3);
     }
-    var Qa = (te.prototype._read = function(t, n) {
-      var o = this._ctx;
-      return o.error ? o.table._trans(null, le.bind(null, o.error)) : o.table._trans("readonly", t).then(n);
-    }, te.prototype._write = function(t) {
-      var n = this._ctx;
-      return n.error ? n.table._trans(null, le.bind(null, n.error)) : n.table._trans("readwrite", t, "locked");
-    }, te.prototype._addAlgorithm = function(t) {
-      var n = this._ctx;
-      n.algorithm = vt(n.algorithm, t);
-    }, te.prototype._iterate = function(t, n) {
-      return tr(this._ctx, t, n, this._ctx.table.core);
-    }, te.prototype.clone = function(t) {
-      var n = Object.create(this.constructor.prototype), o = Object.create(this._ctx);
-      return t && v(o, t), n._ctx = o, n;
-    }, te.prototype.raw = function() {
+    var Ot = (Pt.prototype._read = function(e3, t3) {
+      var n4 = this._ctx;
+      return n4.error ? n4.table._trans(null, Xe.bind(null, n4.error)) : n4.table._trans("readonly", e3).then(t3);
+    }, Pt.prototype._write = function(e3) {
+      var t3 = this._ctx;
+      return t3.error ? t3.table._trans(null, Xe.bind(null, t3.error)) : t3.table._trans("readwrite", e3, "locked");
+    }, Pt.prototype._addAlgorithm = function(e3) {
+      var t3 = this._ctx;
+      t3.algorithm = it(t3.algorithm, e3);
+    }, Pt.prototype._iterate = function(e3, t3) {
+      return wt(this._ctx, e3, t3, this._ctx.table.core);
+    }, Pt.prototype.clone = function(e3) {
+      var t3 = Object.create(this.constructor.prototype), n4 = Object.create(this._ctx);
+      return e3 && a2(n4, e3), t3._ctx = n4, t3;
+    }, Pt.prototype.raw = function() {
       return this._ctx.valueMapper = null, this;
-    }, te.prototype.each = function(t) {
-      var n = this._ctx;
-      return this._read(function(o) {
-        return tr(n, t, o, n.table.core);
+    }, Pt.prototype.each = function(t3) {
+      var n4 = this._ctx;
+      return this._read(function(e3) {
+        return wt(n4, t3, e3, n4.table.core);
       });
-    }, te.prototype.count = function(t) {
-      var n = this;
-      return this._read(function(o) {
-        var u = n._ctx, l = u.table.core;
-        if (Rt(u, !0)) return l.count({ trans: o, query: { index: er(u, l.schema), range: u.range } }).then(function(d) {
-          return Math.min(d, u.limit);
+    }, Pt.prototype.count = function(e3) {
+      var i3 = this;
+      return this._read(function(e4) {
+        var t3 = i3._ctx, n4 = t3.table.core;
+        if (yt(t3, true)) return n4.count({ trans: e4, query: { index: bt(t3, n4.schema), range: t3.range } }).then(function(e5) {
+          return Math.min(e5, t3.limit);
         });
-        var f = 0;
-        return tr(u, function() {
-          return ++f, !1;
-        }, o, l).then(function() {
-          return f;
+        var r3 = 0;
+        return wt(t3, function() {
+          return ++r3, false;
+        }, e4, n4).then(function() {
+          return r3;
         });
-      }).then(t);
-    }, te.prototype.sortBy = function(t, n) {
-      var o = t.split(".").reverse(), u = o[0], l = o.length - 1;
-      function f(w, g) {
-        return g ? f(w[o[g]], g - 1) : w[u];
+      }).then(e3);
+    }, Pt.prototype.sortBy = function(e3, t3) {
+      var n4 = e3.split(".").reverse(), r3 = n4[0], i3 = n4.length - 1;
+      function o3(e4, t4) {
+        return t4 ? o3(e4[n4[t4]], t4 - 1) : e4[r3];
       }
-      var d = this._ctx.dir === "next" ? 1 : -1;
-      function p(w, g) {
-        return w = f(w, l), g = f(g, l), w < g ? -d : g < w ? d : 0;
+      var a3 = "next" === this._ctx.dir ? 1 : -1;
+      function u3(e4, t4) {
+        e4 = o3(e4, i3), t4 = o3(t4, i3);
+        return e4 < t4 ? -a3 : t4 < e4 ? a3 : 0;
       }
-      return this.toArray(function(w) {
-        return w.sort(p);
-      }).then(n);
-    }, te.prototype.toArray = function(t) {
-      var n = this;
-      return this._read(function(o) {
-        var u = n._ctx;
-        if (u.dir === "next" && Rt(u, !0) && 0 < u.limit) {
-          var l = u.valueMapper, f = er(u, u.table.core.schema);
-          return u.table.core.query({ trans: o, limit: u.limit, values: !0, query: { index: f, range: u.range } }).then(function(p) {
-            return p = p.result, l ? p.map(l) : p;
+      return this.toArray(function(e4) {
+        return e4.sort(u3);
+      }).then(t3);
+    }, Pt.prototype.toArray = function(e3) {
+      var o3 = this;
+      return this._read(function(e4) {
+        var t3 = o3._ctx;
+        if ("next" === t3.dir && yt(t3, true) && 0 < t3.limit) {
+          var n4 = t3.valueMapper, r3 = bt(t3, t3.table.core.schema);
+          return t3.table.core.query({ trans: e4, limit: t3.limit, values: true, query: { index: r3, range: t3.range } }).then(function(e5) {
+            e5 = e5.result;
+            return n4 ? e5.map(n4) : e5;
           });
         }
-        var d = [];
-        return tr(u, function(p) {
-          return d.push(p);
-        }, o, u.table.core).then(function() {
-          return d;
+        var i3 = [];
+        return wt(t3, function(e5) {
+          return i3.push(e5);
+        }, e4, t3.table.core).then(function() {
+          return i3;
         });
-      }, t);
-    }, te.prototype.offset = function(t) {
-      var n = this._ctx;
-      return t <= 0 || (n.offset += t, Rt(n) ? ei(n, function() {
-        var o = t;
-        return function(u, l) {
-          return o === 0 || (o === 1 ? --o : l(function() {
-            u.advance(o), o = 0;
-          }), !1);
+      }, e3);
+    }, Pt.prototype.offset = function(t3) {
+      var e3 = this._ctx;
+      return t3 <= 0 || (e3.offset += t3, yt(e3) ? mt(e3, function() {
+        var n4 = t3;
+        return function(e4, t4) {
+          return 0 === n4 || (1 === n4 ? --n4 : t4(function() {
+            e4.advance(n4), n4 = 0;
+          }), false);
         };
-      }) : ei(n, function() {
-        var o = t;
+      }) : mt(e3, function() {
+        var e4 = t3;
         return function() {
-          return --o < 0;
+          return --e4 < 0;
         };
       })), this;
-    }, te.prototype.limit = function(t) {
-      return this._ctx.limit = Math.min(this._ctx.limit, t), ei(this._ctx, function() {
-        var n = t;
-        return function(o, u, l) {
-          return --n <= 0 && u(l), 0 <= n;
+    }, Pt.prototype.limit = function(e3) {
+      return this._ctx.limit = Math.min(this._ctx.limit, e3), mt(this._ctx, function() {
+        var r3 = e3;
+        return function(e4, t3, n4) {
+          return --r3 <= 0 && t3(n4), 0 <= r3;
         };
-      }, !0), this;
-    }, te.prototype.until = function(t, n) {
-      return Qr(this._ctx, function(o, u, l) {
-        return !t(o.value) || (u(l), n);
+      }, true), this;
+    }, Pt.prototype.until = function(r3, i3) {
+      return vt(this._ctx, function(e3, t3, n4) {
+        return !r3(e3.value) || (t3(n4), i3);
       }), this;
-    }, te.prototype.first = function(t) {
-      return this.limit(1).toArray(function(n) {
-        return n[0];
-      }).then(t);
-    }, te.prototype.last = function(t) {
-      return this.reverse().first(t);
-    }, te.prototype.filter = function(t) {
-      var n;
-      return Qr(this._ctx, function(o) {
-        return t(o.value);
-      }), (n = this._ctx).isMatch = vt(n.isMatch, t), this;
-    }, te.prototype.and = function(t) {
-      return this.filter(t);
-    }, te.prototype.or = function(t) {
-      return new this.db.WhereClause(this._ctx.table, t, this);
-    }, te.prototype.reverse = function() {
-      return this._ctx.dir = this._ctx.dir === "prev" ? "next" : "prev", this._ondirectionchange && this._ondirectionchange(this._ctx.dir), this;
-    }, te.prototype.desc = function() {
+    }, Pt.prototype.first = function(e3) {
+      return this.limit(1).toArray(function(e4) {
+        return e4[0];
+      }).then(e3);
+    }, Pt.prototype.last = function(e3) {
+      return this.reverse().first(e3);
+    }, Pt.prototype.filter = function(t3) {
+      var e3;
+      return vt(this._ctx, function(e4) {
+        return t3(e4.value);
+      }), (e3 = this._ctx).isMatch = it(e3.isMatch, t3), this;
+    }, Pt.prototype.and = function(e3) {
+      return this.filter(e3);
+    }, Pt.prototype.or = function(e3) {
+      return new this.db.WhereClause(this._ctx.table, e3, this);
+    }, Pt.prototype.reverse = function() {
+      return this._ctx.dir = "prev" === this._ctx.dir ? "next" : "prev", this._ondirectionchange && this._ondirectionchange(this._ctx.dir), this;
+    }, Pt.prototype.desc = function() {
       return this.reverse();
-    }, te.prototype.eachKey = function(t) {
-      var n = this._ctx;
-      return n.keysOnly = !n.isMatch, this.each(function(o, u) {
-        t(u.key, u);
+    }, Pt.prototype.eachKey = function(n4) {
+      var e3 = this._ctx;
+      return e3.keysOnly = !e3.isMatch, this.each(function(e4, t3) {
+        n4(t3.key, t3);
       });
-    }, te.prototype.eachUniqueKey = function(t) {
-      return this._ctx.unique = "unique", this.eachKey(t);
-    }, te.prototype.eachPrimaryKey = function(t) {
-      var n = this._ctx;
-      return n.keysOnly = !n.isMatch, this.each(function(o, u) {
-        t(u.primaryKey, u);
+    }, Pt.prototype.eachUniqueKey = function(e3) {
+      return this._ctx.unique = "unique", this.eachKey(e3);
+    }, Pt.prototype.eachPrimaryKey = function(n4) {
+      var e3 = this._ctx;
+      return e3.keysOnly = !e3.isMatch, this.each(function(e4, t3) {
+        n4(t3.primaryKey, t3);
       });
-    }, te.prototype.keys = function(t) {
-      var n = this._ctx;
-      n.keysOnly = !n.isMatch;
-      var o = [];
-      return this.each(function(u, l) {
-        o.push(l.key);
+    }, Pt.prototype.keys = function(e3) {
+      var t3 = this._ctx;
+      t3.keysOnly = !t3.isMatch;
+      var n4 = [];
+      return this.each(function(e4, t4) {
+        n4.push(t4.key);
       }).then(function() {
-        return o;
-      }).then(t);
-    }, te.prototype.primaryKeys = function(t) {
-      var n = this._ctx;
-      if (n.dir === "next" && Rt(n, !0) && 0 < n.limit) return this._read(function(u) {
-        var l = er(n, n.table.core.schema);
-        return n.table.core.query({ trans: u, values: !1, limit: n.limit, query: { index: l, range: n.range } });
-      }).then(function(u) {
-        return u.result;
-      }).then(t);
-      n.keysOnly = !n.isMatch;
-      var o = [];
-      return this.each(function(u, l) {
-        o.push(l.primaryKey);
+        return n4;
+      }).then(e3);
+    }, Pt.prototype.primaryKeys = function(e3) {
+      var n4 = this._ctx;
+      if ("next" === n4.dir && yt(n4, true) && 0 < n4.limit) return this._read(function(e4) {
+        var t3 = bt(n4, n4.table.core.schema);
+        return n4.table.core.query({ trans: e4, values: false, limit: n4.limit, query: { index: t3, range: n4.range } });
+      }).then(function(e4) {
+        return e4.result;
+      }).then(e3);
+      n4.keysOnly = !n4.isMatch;
+      var r3 = [];
+      return this.each(function(e4, t3) {
+        r3.push(t3.primaryKey);
       }).then(function() {
-        return o;
-      }).then(t);
-    }, te.prototype.uniqueKeys = function(t) {
-      return this._ctx.unique = "unique", this.keys(t);
-    }, te.prototype.firstKey = function(t) {
-      return this.limit(1).keys(function(n) {
-        return n[0];
-      }).then(t);
-    }, te.prototype.lastKey = function(t) {
-      return this.reverse().firstKey(t);
-    }, te.prototype.distinct = function() {
-      var t = this._ctx, t = t.index && t.table.schema.idxByName[t.index];
-      if (!t || !t.multi) return this;
-      var n = {};
-      return Qr(this._ctx, function(l) {
-        var u = l.primaryKey.toString(), l = M(n, u);
-        return n[u] = !0, !l;
+        return r3;
+      }).then(e3);
+    }, Pt.prototype.uniqueKeys = function(e3) {
+      return this._ctx.unique = "unique", this.keys(e3);
+    }, Pt.prototype.firstKey = function(e3) {
+      return this.limit(1).keys(function(e4) {
+        return e4[0];
+      }).then(e3);
+    }, Pt.prototype.lastKey = function(e3) {
+      return this.reverse().firstKey(e3);
+    }, Pt.prototype.distinct = function() {
+      var e3 = this._ctx, e3 = e3.index && e3.table.schema.idxByName[e3.index];
+      if (!e3 || !e3.multi) return this;
+      var n4 = {};
+      return vt(this._ctx, function(e4) {
+        var t3 = e4.primaryKey.toString(), e4 = m2(n4, t3);
+        return n4[t3] = true, !e4;
       }), this;
-    }, te.prototype.modify = function(t) {
-      var n = this, o = this._ctx;
-      return this._write(function(u) {
-        var l, f, d;
-        d = typeof t == "function" ? t : (l = h(t), f = l.length, function(k) {
-          for (var O = !1, E = 0; E < f; ++E) {
-            var I = l[E], C = t[I], $ = De(k, I);
-            C instanceof yn ? (we(k, I, C.execute($)), O = !0) : $ !== C && (we(k, I, C), O = !0);
+    }, Pt.prototype.modify = function(w3) {
+      var n4 = this, r3 = this._ctx;
+      return this._write(function(d3) {
+        var a3, u3, p3;
+        p3 = "function" == typeof w3 ? w3 : (a3 = _2(w3), u3 = a3.length, function(e4) {
+          for (var t4 = false, n5 = 0; n5 < u3; ++n5) {
+            var r4 = a3[n5], i3 = w3[r4], o3 = k2(e4, r4);
+            i3 instanceof xt ? (P2(e4, r4, i3.execute(o3)), t4 = true) : o3 !== i3 && (P2(e4, r4, i3), t4 = true);
           }
-          return O;
+          return t4;
         });
-        function p(k, I) {
-          var E = I.failures, I = I.numFailures;
-          _ += k - I;
-          for (var C = 0, $ = h(E); C < $.length; C++) {
-            var F = $[C];
-            b.push(E[F]);
+        function y3(e4, t4) {
+          var n5 = t4.failures, t4 = t4.numFailures;
+          c3 += e4 - t4;
+          for (var r4 = 0, i3 = _2(n5); r4 < i3.length; r4++) {
+            var o3 = i3[r4];
+            s3.push(n5[o3]);
           }
         }
-        var w = o.table.core, g = w.schema.primaryKey, S = g.outbound, y = g.extractKey, x = n.db._options.modifyChunkSize || 200, b = [], _ = 0, T = [];
-        return n.clone().primaryKeys().then(function(k) {
-          function O(I) {
-            var C = Math.min(x, k.length - I);
-            return w.getMany({ trans: u, keys: k.slice(I, I + C), cache: "immutable" }).then(function($) {
-              for (var F = [], N = [], P = S ? [] : null, R = [], D = 0; D < C; ++D) {
-                var B = $[D], H = { value: ft(B), primKey: k[I + D] };
-                d.call(H, H.value, H) !== !1 && (H.value == null ? R.push(k[I + D]) : S || Q(y(B), y(H.value)) === 0 ? (N.push(H.value), S && P.push(k[I + D])) : (R.push(k[I + D]), F.push(H.value)));
+        var v3 = r3.table.core, e3 = v3.schema.primaryKey, m3 = e3.outbound, b3 = e3.extractKey, g3 = n4.db._options.modifyChunkSize || 200, s3 = [], c3 = 0, t3 = [];
+        return n4.clone().primaryKeys().then(function(l3) {
+          function f3(s4) {
+            var c4 = Math.min(g3, l3.length - s4);
+            return v3.getMany({ trans: d3, keys: l3.slice(s4, s4 + c4), cache: "immutable" }).then(function(e4) {
+              for (var n5 = [], t4 = [], r4 = m3 ? [] : null, i3 = [], o3 = 0; o3 < c4; ++o3) {
+                var a4 = e4[o3], u4 = { value: S2(a4), primKey: l3[s4 + o3] };
+                false !== p3.call(u4, u4.value, u4) && (null == u4.value ? i3.push(l3[s4 + o3]) : m3 || 0 === st(b3(a4), b3(u4.value)) ? (t4.push(u4.value), m3 && r4.push(l3[s4 + o3])) : (i3.push(l3[s4 + o3]), n5.push(u4.value)));
               }
-              return Promise.resolve(0 < F.length && w.mutate({ trans: u, type: "add", values: F }).then(function(J) {
-                for (var Y in J.failures) R.splice(parseInt(Y), 1);
-                p(F.length, J);
+              return Promise.resolve(0 < n5.length && v3.mutate({ trans: d3, type: "add", values: n5 }).then(function(e5) {
+                for (var t5 in e5.failures) i3.splice(parseInt(t5), 1);
+                y3(n5.length, e5);
               })).then(function() {
-                return (0 < N.length || E && typeof t == "object") && w.mutate({ trans: u, type: "put", keys: P, values: N, criteria: E, changeSpec: typeof t != "function" && t, isAdditionalChunk: 0 < I }).then(function(J) {
-                  return p(N.length, J);
+                return (0 < t4.length || h3 && "object" == typeof w3) && v3.mutate({ trans: d3, type: "put", keys: r4, values: t4, criteria: h3, changeSpec: "function" != typeof w3 && w3, isAdditionalChunk: 0 < s4 }).then(function(e5) {
+                  return y3(t4.length, e5);
                 });
               }).then(function() {
-                return (0 < R.length || E && t === ti) && w.mutate({ trans: u, type: "delete", keys: R, criteria: E, isAdditionalChunk: 0 < I }).then(function(J) {
-                  return p(R.length, J);
+                return (0 < i3.length || h3 && w3 === Et) && v3.mutate({ trans: d3, type: "delete", keys: i3, criteria: h3, isAdditionalChunk: 0 < s4 }).then(function(e5) {
+                  return y3(i3.length, e5);
                 });
               }).then(function() {
-                return k.length > I + C && O(I + x);
+                return l3.length > s4 + c4 && f3(s4 + g3);
               });
             });
           }
-          var E = Rt(o) && o.limit === 1 / 0 && (typeof t != "function" || t === ti) && { index: o.index, range: o.range };
-          return O(0).then(function() {
-            if (0 < b.length) throw new jn("Error modifying one or more objects", b, _, T);
-            return k.length;
+          var h3 = yt(r3) && r3.limit === 1 / 0 && ("function" != typeof w3 || w3 === Et) && { index: r3.index, range: r3.range };
+          return f3(0).then(function() {
+            if (0 < s3.length) throw new U("Error modifying one or more objects", s3, c3, t3);
+            return l3.length;
           });
         });
       });
-    }, te.prototype.delete = function() {
-      var t = this._ctx, n = t.range;
-      return Rt(t) && (t.isPrimKey || n.type === 3) ? this._write(function(o) {
-        var u = t.table.core.schema.primaryKey, l = n;
-        return t.table.core.count({ trans: o, query: { index: u, range: l } }).then(function(f) {
-          return t.table.core.mutate({ trans: o, type: "deleteRange", range: l }).then(function(d) {
-            var p = d.failures;
-            if (d.lastResult, d.results, d = d.numFailures, d) throw new jn("Could not delete some values", Object.keys(p).map(function(w) {
-              return p[w];
-            }), f - d);
-            return f - d;
+    }, Pt.prototype.delete = function() {
+      var i3 = this._ctx, n4 = i3.range;
+      return yt(i3) && (i3.isPrimKey || 3 === n4.type) ? this._write(function(e3) {
+        var t3 = i3.table.core.schema.primaryKey, r3 = n4;
+        return i3.table.core.count({ trans: e3, query: { index: t3, range: r3 } }).then(function(n5) {
+          return i3.table.core.mutate({ trans: e3, type: "deleteRange", range: r3 }).then(function(e4) {
+            var t4 = e4.failures;
+            e4.lastResult, e4.results;
+            e4 = e4.numFailures;
+            if (e4) throw new U("Could not delete some values", Object.keys(t4).map(function(e5) {
+              return t4[e5];
+            }), n5 - e4);
+            return n5 - e4;
           });
         });
-      }) : this.modify(ti);
-    }, te);
-    function te() {
+      }) : this.modify(Et);
+    }, Pt);
+    function Pt() {
     }
-    var ti = function(t, n) {
-      return n.value = null;
+    var Et = function(e3, t3) {
+      return t3.value = null;
     };
-    function eu(t, n) {
-      return t < n ? -1 : t === n ? 0 : 1;
+    function Kt(e3, t3) {
+      return e3 < t3 ? -1 : e3 === t3 ? 0 : 1;
     }
-    function tu(t, n) {
-      return n < t ? -1 : t === n ? 0 : 1;
+    function St(e3, t3) {
+      return t3 < e3 ? -1 : e3 === t3 ? 0 : 1;
     }
-    function xe(t, n, o) {
-      return t = t instanceof _s ? new t.Collection(t) : t, t._ctx.error = new (o || TypeError)(n), t;
+    function jt(e3, t3, n4) {
+      e3 = e3 instanceof qt ? new e3.Collection(e3) : e3;
+      return e3._ctx.error = new (n4 || TypeError)(t3), e3;
     }
-    function Vt(t) {
-      return new t.Collection(t, function() {
-        return ks("");
+    function At(e3) {
+      return new e3.Collection(e3, function() {
+        return Tt("");
       }).limit(0);
     }
-    function nr(t, n, o, u) {
-      var l, f, d, p, w, g, S, y = o.length;
-      if (!o.every(function(_) {
-        return typeof _ == "string";
-      })) return xe(t, hs);
-      function x(_) {
-        l = _ === "next" ? function(k) {
-          return k.toUpperCase();
-        } : function(k) {
-          return k.toLowerCase();
-        }, f = _ === "next" ? function(k) {
-          return k.toLowerCase();
-        } : function(k) {
-          return k.toUpperCase();
-        }, d = _ === "next" ? eu : tu;
-        var T = o.map(function(k) {
-          return { lower: f(k), upper: l(k) };
-        }).sort(function(k, O) {
-          return d(k.lower, O.lower);
+    function Ct(e3, s3, n4, r3) {
+      var i3, c3, l3, f3, h3, d3, p3, y3 = n4.length;
+      if (!n4.every(function(e4) {
+        return "string" == typeof e4;
+      })) return jt(e3, Ze);
+      function t3(e4) {
+        i3 = "next" === e4 ? function(e5) {
+          return e5.toUpperCase();
+        } : function(e5) {
+          return e5.toLowerCase();
+        }, c3 = "next" === e4 ? function(e5) {
+          return e5.toLowerCase();
+        } : function(e5) {
+          return e5.toUpperCase();
+        }, l3 = "next" === e4 ? Kt : St;
+        var t4 = n4.map(function(e5) {
+          return { lower: c3(e5), upper: i3(e5) };
+        }).sort(function(e5, t5) {
+          return l3(e5.lower, t5.lower);
         });
-        p = T.map(function(k) {
-          return k.upper;
-        }), w = T.map(function(k) {
-          return k.lower;
-        }), S = (g = _) === "next" ? "" : u;
+        f3 = t4.map(function(e5) {
+          return e5.upper;
+        }), h3 = t4.map(function(e5) {
+          return e5.lower;
+        }), p3 = "next" === (d3 = e4) ? "" : r3;
       }
-      x("next"), t = new t.Collection(t, function() {
-        return Xe(p[0], w[y - 1] + u);
-      }), t._ondirectionchange = function(_) {
-        x(_);
+      t3("next");
+      e3 = new e3.Collection(e3, function() {
+        return Dt(f3[0], h3[y3 - 1] + r3);
+      });
+      e3._ondirectionchange = function(e4) {
+        t3(e4);
       };
-      var b = 0;
-      return t._addAlgorithm(function(_, T, k) {
-        var O = _.key;
-        if (typeof O != "string") return !1;
-        var E = f(O);
-        if (n(E, w, b)) return !0;
-        for (var I = null, C = b; C < y; ++C) {
-          var $ = function(F, N, P, R, D, B) {
-            for (var H = Math.min(F.length, R.length), J = -1, Y = 0; Y < H; ++Y) {
-              var $e = N[Y];
-              if ($e !== R[Y]) return D(F[Y], P[Y]) < 0 ? F.substr(0, Y) + P[Y] + P.substr(Y + 1) : D(F[Y], R[Y]) < 0 ? F.substr(0, Y) + R[Y] + P.substr(Y + 1) : 0 <= J ? F.substr(0, J) + N[J] + P.substr(J + 1) : null;
-              D(F[Y], $e) < 0 && (J = Y);
+      var v3 = 0;
+      return e3._addAlgorithm(function(e4, t4, n5) {
+        var r4 = e4.key;
+        if ("string" != typeof r4) return false;
+        var i4 = c3(r4);
+        if (s3(i4, h3, v3)) return true;
+        for (var o3 = null, a3 = v3; a3 < y3; ++a3) {
+          var u3 = function(e5, t5, n6, r5, i5, o4) {
+            for (var a4 = Math.min(e5.length, r5.length), u4 = -1, s4 = 0; s4 < a4; ++s4) {
+              var c4 = t5[s4];
+              if (c4 !== r5[s4]) return i5(e5[s4], n6[s4]) < 0 ? e5.substr(0, s4) + n6[s4] + n6.substr(s4 + 1) : i5(e5[s4], r5[s4]) < 0 ? e5.substr(0, s4) + r5[s4] + n6.substr(s4 + 1) : 0 <= u4 ? e5.substr(0, u4) + t5[u4] + n6.substr(u4 + 1) : null;
+              i5(e5[s4], c4) < 0 && (u4 = s4);
             }
-            return H < R.length && B === "next" ? F + P.substr(F.length) : H < F.length && B === "prev" ? F.substr(0, P.length) : J < 0 ? null : F.substr(0, J) + R[J] + P.substr(J + 1);
-          }(O, E, p[C], w[C], d, g);
-          $ === null && I === null ? b = C + 1 : (I === null || 0 < d(I, $)) && (I = $);
+            return a4 < r5.length && "next" === o4 ? e5 + n6.substr(e5.length) : a4 < e5.length && "prev" === o4 ? e5.substr(0, n6.length) : u4 < 0 ? null : e5.substr(0, u4) + r5[u4] + n6.substr(u4 + 1);
+          }(r4, i4, f3[a3], h3[a3], l3, d3);
+          null === u3 && null === o3 ? v3 = a3 + 1 : (null === o3 || 0 < l3(o3, u3)) && (o3 = u3);
         }
-        return T(I !== null ? function() {
-          _.continue(I + S);
-        } : k), !1;
-      }), t;
+        return t4(null !== o3 ? function() {
+          e4.continue(o3 + p3);
+        } : n5), false;
+      }), e3;
     }
-    function Xe(t, n, o, u) {
-      return { type: 2, lower: t, upper: n, lowerOpen: o, upperOpen: u };
+    function Dt(e3, t3, n4, r3) {
+      return { type: 2, lower: e3, upper: t3, lowerOpen: n4, upperOpen: r3 };
     }
-    function ks(t) {
-      return { type: 1, lower: t, upper: t };
+    function Tt(e3) {
+      return { type: 1, lower: e3, upper: e3 };
     }
-    var _s = (Object.defineProperty(me.prototype, "Collection", { get: function() {
+    var qt = (Object.defineProperty(It.prototype, "Collection", { get: function() {
       return this._ctx.table.db.Collection;
-    }, enumerable: !1, configurable: !0 }), me.prototype.between = function(t, n, o, u) {
-      o = o !== !1, u = u === !0;
+    }, enumerable: false, configurable: true }), It.prototype.between = function(e3, t3, n4, r3) {
+      n4 = false !== n4, r3 = true === r3;
       try {
-        return 0 < this._cmp(t, n) || this._cmp(t, n) === 0 && (o || u) && (!o || !u) ? Vt(this) : new this.Collection(this, function() {
-          return Xe(t, n, !o, !u);
+        return 0 < this._cmp(e3, t3) || 0 === this._cmp(e3, t3) && (n4 || r3) && (!n4 || !r3) ? At(this) : new this.Collection(this, function() {
+          return Dt(e3, t3, !n4, !r3);
         });
-      } catch {
-        return xe(this, We);
+      } catch (e4) {
+        return jt(this, Je);
       }
-    }, me.prototype.equals = function(t) {
-      return t == null ? xe(this, We) : new this.Collection(this, function() {
-        return ks(t);
+    }, It.prototype.equals = function(e3) {
+      return null == e3 ? jt(this, Je) : new this.Collection(this, function() {
+        return Tt(e3);
       });
-    }, me.prototype.above = function(t) {
-      return t == null ? xe(this, We) : new this.Collection(this, function() {
-        return Xe(t, void 0, !0);
+    }, It.prototype.above = function(e3) {
+      return null == e3 ? jt(this, Je) : new this.Collection(this, function() {
+        return Dt(e3, void 0, true);
       });
-    }, me.prototype.aboveOrEqual = function(t) {
-      return t == null ? xe(this, We) : new this.Collection(this, function() {
-        return Xe(t, void 0, !1);
+    }, It.prototype.aboveOrEqual = function(e3) {
+      return null == e3 ? jt(this, Je) : new this.Collection(this, function() {
+        return Dt(e3, void 0, false);
       });
-    }, me.prototype.below = function(t) {
-      return t == null ? xe(this, We) : new this.Collection(this, function() {
-        return Xe(void 0, t, !1, !0);
+    }, It.prototype.below = function(e3) {
+      return null == e3 ? jt(this, Je) : new this.Collection(this, function() {
+        return Dt(void 0, e3, false, true);
       });
-    }, me.prototype.belowOrEqual = function(t) {
-      return t == null ? xe(this, We) : new this.Collection(this, function() {
-        return Xe(void 0, t);
+    }, It.prototype.belowOrEqual = function(e3) {
+      return null == e3 ? jt(this, Je) : new this.Collection(this, function() {
+        return Dt(void 0, e3);
       });
-    }, me.prototype.startsWith = function(t) {
-      return typeof t != "string" ? xe(this, hs) : this.between(t, t + gt, !0, !0);
-    }, me.prototype.startsWithIgnoreCase = function(t) {
-      return t === "" ? this.startsWith(t) : nr(this, function(n, o) {
-        return n.indexOf(o[0]) === 0;
-      }, [t], gt);
-    }, me.prototype.equalsIgnoreCase = function(t) {
-      return nr(this, function(n, o) {
-        return n === o[0];
-      }, [t], "");
-    }, me.prototype.anyOfIgnoreCase = function() {
-      var t = je.apply(Ct, arguments);
-      return t.length === 0 ? Vt(this) : nr(this, function(n, o) {
-        return o.indexOf(n) !== -1;
-      }, t, "");
-    }, me.prototype.startsWithAnyOfIgnoreCase = function() {
-      var t = je.apply(Ct, arguments);
-      return t.length === 0 ? Vt(this) : nr(this, function(n, o) {
-        return o.some(function(u) {
-          return n.indexOf(u) === 0;
+    }, It.prototype.startsWith = function(e3) {
+      return "string" != typeof e3 ? jt(this, Ze) : this.between(e3, e3 + He, true, true);
+    }, It.prototype.startsWithIgnoreCase = function(e3) {
+      return "" === e3 ? this.startsWith(e3) : Ct(this, function(e4, t3) {
+        return 0 === e4.indexOf(t3[0]);
+      }, [e3], He);
+    }, It.prototype.equalsIgnoreCase = function(e3) {
+      return Ct(this, function(e4, t3) {
+        return e4 === t3[0];
+      }, [e3], "");
+    }, It.prototype.anyOfIgnoreCase = function() {
+      var e3 = I2.apply(q, arguments);
+      return 0 === e3.length ? At(this) : Ct(this, function(e4, t3) {
+        return -1 !== t3.indexOf(e4);
+      }, e3, "");
+    }, It.prototype.startsWithAnyOfIgnoreCase = function() {
+      var e3 = I2.apply(q, arguments);
+      return 0 === e3.length ? At(this) : Ct(this, function(t3, e4) {
+        return e4.some(function(e5) {
+          return 0 === t3.indexOf(e5);
         });
-      }, t, gt);
-    }, me.prototype.anyOf = function() {
-      var t = this, n = je.apply(Ct, arguments), o = this._cmp;
+      }, e3, He);
+    }, It.prototype.anyOf = function() {
+      var t3 = this, i3 = I2.apply(q, arguments), o3 = this._cmp;
       try {
-        n.sort(o);
-      } catch {
-        return xe(this, We);
+        i3.sort(o3);
+      } catch (e4) {
+        return jt(this, Je);
       }
-      if (n.length === 0) return Vt(this);
-      var u = new this.Collection(this, function() {
-        return Xe(n[0], n[n.length - 1]);
+      if (0 === i3.length) return At(this);
+      var e3 = new this.Collection(this, function() {
+        return Dt(i3[0], i3[i3.length - 1]);
       });
-      u._ondirectionchange = function(f) {
-        o = f === "next" ? t._ascending : t._descending, n.sort(o);
+      e3._ondirectionchange = function(e4) {
+        o3 = "next" === e4 ? t3._ascending : t3._descending, i3.sort(o3);
       };
-      var l = 0;
-      return u._addAlgorithm(function(f, d, p) {
-        for (var w = f.key; 0 < o(w, n[l]); ) if (++l === n.length) return d(p), !1;
-        return o(w, n[l]) === 0 || (d(function() {
-          f.continue(n[l]);
-        }), !1);
-      }), u;
-    }, me.prototype.notEqual = function(t) {
-      return this.inAnyRange([[-1 / 0, t], [t, this.db._maxKey]], { includeLowers: !1, includeUppers: !1 });
-    }, me.prototype.noneOf = function() {
-      var t = je.apply(Ct, arguments);
-      if (t.length === 0) return new this.Collection(this);
+      var a3 = 0;
+      return e3._addAlgorithm(function(e4, t4, n4) {
+        for (var r3 = e4.key; 0 < o3(r3, i3[a3]); ) if (++a3 === i3.length) return t4(n4), false;
+        return 0 === o3(r3, i3[a3]) || (t4(function() {
+          e4.continue(i3[a3]);
+        }), false);
+      }), e3;
+    }, It.prototype.notEqual = function(e3) {
+      return this.inAnyRange([[-1 / 0, e3], [e3, this.db._maxKey]], { includeLowers: false, includeUppers: false });
+    }, It.prototype.noneOf = function() {
+      var e3 = I2.apply(q, arguments);
+      if (0 === e3.length) return new this.Collection(this);
       try {
-        t.sort(this._ascending);
-      } catch {
-        return xe(this, We);
+        e3.sort(this._ascending);
+      } catch (e4) {
+        return jt(this, Je);
       }
-      var n = t.reduce(function(o, u) {
-        return o ? o.concat([[o[o.length - 1][1], u]]) : [[-1 / 0, u]];
+      var t3 = e3.reduce(function(e4, t4) {
+        return e4 ? e4.concat([[e4[e4.length - 1][1], t4]]) : [[-1 / 0, t4]];
       }, null);
-      return n.push([t[t.length - 1], this.db._maxKey]), this.inAnyRange(n, { includeLowers: !1, includeUppers: !1 });
-    }, me.prototype.inAnyRange = function(O, n) {
-      var o = this, u = this._cmp, l = this._ascending, f = this._descending, d = this._min, p = this._max;
-      if (O.length === 0) return Vt(this);
-      if (!O.every(function(E) {
-        return E[0] !== void 0 && E[1] !== void 0 && l(E[0], E[1]) <= 0;
-      })) return xe(this, "First argument to inAnyRange() must be an Array of two-value Arrays [lower,upper] where upper must not be lower than lower", W.InvalidArgument);
-      var w = !n || n.includeLowers !== !1, g = n && n.includeUppers === !0, S, y = l;
-      function x(E, I) {
-        return y(E[0], I[0]);
+      return t3.push([e3[e3.length - 1], this.db._maxKey]), this.inAnyRange(t3, { includeLowers: false, includeUppers: false });
+    }, It.prototype.inAnyRange = function(e3, t3) {
+      var o3 = this, a3 = this._cmp, u3 = this._ascending, n4 = this._descending, s3 = this._min, c3 = this._max;
+      if (0 === e3.length) return At(this);
+      if (!e3.every(function(e4) {
+        return void 0 !== e4[0] && void 0 !== e4[1] && u3(e4[0], e4[1]) <= 0;
+      })) return jt(this, "First argument to inAnyRange() must be an Array of two-value Arrays [lower,upper] where upper must not be lower than lower", Y.InvalidArgument);
+      var r3 = !t3 || false !== t3.includeLowers, i3 = t3 && true === t3.includeUppers;
+      var l3, f3 = u3;
+      function h3(e4, t4) {
+        return f3(e4[0], t4[0]);
       }
       try {
-        (S = O.reduce(function(E, I) {
-          for (var C = 0, $ = E.length; C < $; ++C) {
-            var F = E[C];
-            if (u(I[0], F[1]) < 0 && 0 < u(I[1], F[0])) {
-              F[0] = d(F[0], I[0]), F[1] = p(F[1], I[1]);
+        (l3 = e3.reduce(function(e4, t4) {
+          for (var n5 = 0, r4 = e4.length; n5 < r4; ++n5) {
+            var i4 = e4[n5];
+            if (a3(t4[0], i4[1]) < 0 && 0 < a3(t4[1], i4[0])) {
+              i4[0] = s3(i4[0], t4[0]), i4[1] = c3(i4[1], t4[1]);
               break;
             }
           }
-          return C === $ && E.push(I), E;
-        }, [])).sort(x);
-      } catch {
-        return xe(this, We);
+          return n5 === r4 && e4.push(t4), e4;
+        }, [])).sort(h3);
+      } catch (e4) {
+        return jt(this, Je);
       }
-      var b = 0, _ = g ? function(E) {
-        return 0 < l(E, S[b][1]);
-      } : function(E) {
-        return 0 <= l(E, S[b][1]);
-      }, T = w ? function(E) {
-        return 0 < f(E, S[b][0]);
-      } : function(E) {
-        return 0 <= f(E, S[b][0]);
-      }, k = _, O = new this.Collection(this, function() {
-        return Xe(S[0][0], S[S.length - 1][1], !w, !g);
+      var d3 = 0, p3 = i3 ? function(e4) {
+        return 0 < u3(e4, l3[d3][1]);
+      } : function(e4) {
+        return 0 <= u3(e4, l3[d3][1]);
+      }, y3 = r3 ? function(e4) {
+        return 0 < n4(e4, l3[d3][0]);
+      } : function(e4) {
+        return 0 <= n4(e4, l3[d3][0]);
+      };
+      var v3 = p3, e3 = new this.Collection(this, function() {
+        return Dt(l3[0][0], l3[l3.length - 1][1], !r3, !i3);
       });
-      return O._ondirectionchange = function(E) {
-        y = E === "next" ? (k = _, l) : (k = T, f), S.sort(x);
-      }, O._addAlgorithm(function(E, I, C) {
-        for (var $, F = E.key; k(F); ) if (++b === S.length) return I(C), !1;
-        return !_($ = F) && !T($) || (o._cmp(F, S[b][1]) === 0 || o._cmp(F, S[b][0]) === 0 || I(function() {
-          y === l ? E.continue(S[b][0]) : E.continue(S[b][1]);
-        }), !1);
-      }), O;
-    }, me.prototype.startsWithAnyOf = function() {
-      var t = je.apply(Ct, arguments);
-      return t.every(function(n) {
-        return typeof n == "string";
-      }) ? t.length === 0 ? Vt(this) : this.inAnyRange(t.map(function(n) {
-        return [n, n + gt];
-      })) : xe(this, "startsWithAnyOf() only works with strings");
-    }, me);
-    function me() {
+      return e3._ondirectionchange = function(e4) {
+        f3 = "next" === e4 ? (v3 = p3, u3) : (v3 = y3, n4), l3.sort(h3);
+      }, e3._addAlgorithm(function(e4, t4, n5) {
+        for (var r4, i4 = e4.key; v3(i4); ) if (++d3 === l3.length) return t4(n5), false;
+        return !p3(r4 = i4) && !y3(r4) || (0 === o3._cmp(i4, l3[d3][1]) || 0 === o3._cmp(i4, l3[d3][0]) || t4(function() {
+          f3 === u3 ? e4.continue(l3[d3][0]) : e4.continue(l3[d3][1]);
+        }), false);
+      }), e3;
+    }, It.prototype.startsWithAnyOf = function() {
+      var e3 = I2.apply(q, arguments);
+      return e3.every(function(e4) {
+        return "string" == typeof e4;
+      }) ? 0 === e3.length ? At(this) : this.inAnyRange(e3.map(function(e4) {
+        return [e4, e4 + He];
+      })) : jt(this, "startsWithAnyOf() only works with strings");
+    }, It);
+    function It() {
     }
-    function qe(t) {
-      return oe(function(n) {
-        return gn(n), t(n.target.error), !1;
+    function Bt(t3) {
+      return Te(function(e3) {
+        return Rt(e3), t3(e3.target.error), false;
       });
     }
-    function gn(t) {
-      t.stopPropagation && t.stopPropagation(), t.preventDefault && t.preventDefault();
+    function Rt(e3) {
+      e3.stopPropagation && e3.stopPropagation(), e3.preventDefault && e3.preventDefault();
     }
-    var vn = "storagemutated", ni = "x-storagemutated-1", Qe = mn(null, vn), nu = (Le.prototype._lock = function() {
-      return lt(!U.global), ++this._reculock, this._reculock !== 1 || U.global || (U.lockOwnerFor = this), this;
-    }, Le.prototype._unlock = function() {
-      if (lt(!U.global), --this._reculock == 0) for (U.global || (U.lockOwnerFor = null); 0 < this._blockedFuncs.length && !this._locked(); ) {
-        var t = this._blockedFuncs.shift();
+    var Ft = "storagemutated", Mt = "x-storagemutated-1", Nt = dt(null, Ft), Lt = (Ut.prototype._lock = function() {
+      return y2(!me.global), ++this._reculock, 1 !== this._reculock || me.global || (me.lockOwnerFor = this), this;
+    }, Ut.prototype._unlock = function() {
+      if (y2(!me.global), 0 == --this._reculock) for (me.global || (me.lockOwnerFor = null); 0 < this._blockedFuncs.length && !this._locked(); ) {
+        var e3 = this._blockedFuncs.shift();
         try {
-          yt(t[1], t[0]);
-        } catch {
+          $e(e3[1], e3[0]);
+        } catch (e4) {
         }
       }
       return this;
-    }, Le.prototype._locked = function() {
-      return this._reculock && U.lockOwnerFor !== this;
-    }, Le.prototype.create = function(t) {
-      var n = this;
+    }, Ut.prototype._locked = function() {
+      return this._reculock && me.lockOwnerFor !== this;
+    }, Ut.prototype.create = function(t3) {
+      var n4 = this;
       if (!this.mode) return this;
-      var o = this.db.idbdb, u = this.db._state.dbOpenError;
-      if (lt(!this.idbtrans), !t && !o) switch (u && u.name) {
+      var e3 = this.db.idbdb, r3 = this.db._state.dbOpenError;
+      if (y2(!this.idbtrans), !t3 && !e3) switch (r3 && r3.name) {
         case "DatabaseClosedError":
-          throw new W.DatabaseClosed(u);
+          throw new Y.DatabaseClosed(r3);
         case "MissingAPIError":
-          throw new W.MissingAPI(u.message, u);
+          throw new Y.MissingAPI(r3.message, r3);
         default:
-          throw new W.OpenFailed(u);
+          throw new Y.OpenFailed(r3);
       }
-      if (!this.active) throw new W.TransactionInactive();
-      return lt(this._completion._state === null), (t = this.idbtrans = t || (this.db.core || o).transaction(this.storeNames, this.mode, { durability: this.chromeTransactionDurability })).onerror = oe(function(l) {
-        gn(l), n._reject(t.error);
-      }), t.onabort = oe(function(l) {
-        gn(l), n.active && n._reject(new W.Abort(t.error)), n.active = !1, n.on("abort").fire(l);
-      }), t.oncomplete = oe(function() {
-        n.active = !1, n._resolve(), "mutatedParts" in t && Qe.storagemutated.fire(t.mutatedParts);
+      if (!this.active) throw new Y.TransactionInactive();
+      return y2(null === this._completion._state), (t3 = this.idbtrans = t3 || (this.db.core || e3).transaction(this.storeNames, this.mode, { durability: this.chromeTransactionDurability })).onerror = Te(function(e4) {
+        Rt(e4), n4._reject(t3.error);
+      }), t3.onabort = Te(function(e4) {
+        Rt(e4), n4.active && n4._reject(new Y.Abort(t3.error)), n4.active = false, n4.on("abort").fire(e4);
+      }), t3.oncomplete = Te(function() {
+        n4.active = false, n4._resolve(), "mutatedParts" in t3 && Nt.storagemutated.fire(t3.mutatedParts);
       }), this;
-    }, Le.prototype._promise = function(t, n, o) {
-      var u = this;
-      if (t === "readwrite" && this.mode !== "readwrite") return le(new W.ReadOnly("Transaction is readonly"));
-      if (!this.active) return le(new W.TransactionInactive());
-      if (this._locked()) return new L(function(f, d) {
-        u._blockedFuncs.push([function() {
-          u._promise(t, n, o).then(f, d);
-        }, U]);
+    }, Ut.prototype._promise = function(n4, r3, i3) {
+      var o3 = this;
+      if ("readwrite" === n4 && "readwrite" !== this.mode) return Xe(new Y.ReadOnly("Transaction is readonly"));
+      if (!this.active) return Xe(new Y.TransactionInactive());
+      if (this._locked()) return new _e(function(e4, t3) {
+        o3._blockedFuncs.push([function() {
+          o3._promise(n4, r3, i3).then(e4, t3);
+        }, me]);
       });
-      if (o) return Ye(function() {
-        var f = new L(function(d, p) {
-          u._lock();
-          var w = n(d, p, u);
-          w && w.then && w.then(d, p);
+      if (i3) return Ne(function() {
+        var e4 = new _e(function(e5, t3) {
+          o3._lock();
+          var n5 = r3(e5, t3, o3);
+          n5 && n5.then && n5.then(e5, t3);
         });
-        return f.finally(function() {
-          return u._unlock();
-        }), f._lib = !0, f;
+        return e4.finally(function() {
+          return o3._unlock();
+        }), e4._lib = true, e4;
       });
-      var l = new L(function(f, d) {
-        var p = n(f, d, u);
-        p && p.then && p.then(f, d);
+      var e3 = new _e(function(e4, t3) {
+        var n5 = r3(e4, t3, o3);
+        n5 && n5.then && n5.then(e4, t3);
       });
-      return l._lib = !0, l;
-    }, Le.prototype._root = function() {
+      return e3._lib = true, e3;
+    }, Ut.prototype._root = function() {
       return this.parent ? this.parent._root() : this;
-    }, Le.prototype.waitFor = function(t) {
-      var n, o = this._root(), u = L.resolve(t);
-      o._waitingFor ? o._waitingFor = o._waitingFor.then(function() {
-        return u;
-      }) : (o._waitingFor = u, o._waitingQueue = [], n = o.idbtrans.objectStore(o.storeNames[0]), function f() {
-        for (++o._spinCount; o._waitingQueue.length; ) o._waitingQueue.shift()();
-        o._waitingFor && (n.get(-1 / 0).onsuccess = f);
+    }, Ut.prototype.waitFor = function(e3) {
+      var t3, r3 = this._root(), i3 = _e.resolve(e3);
+      r3._waitingFor ? r3._waitingFor = r3._waitingFor.then(function() {
+        return i3;
+      }) : (r3._waitingFor = i3, r3._waitingQueue = [], t3 = r3.idbtrans.objectStore(r3.storeNames[0]), function e4() {
+        for (++r3._spinCount; r3._waitingQueue.length; ) r3._waitingQueue.shift()();
+        r3._waitingFor && (t3.get(-1 / 0).onsuccess = e4);
       }());
-      var l = o._waitingFor;
-      return new L(function(f, d) {
-        u.then(function(p) {
-          return o._waitingQueue.push(oe(f.bind(null, p)));
-        }, function(p) {
-          return o._waitingQueue.push(oe(d.bind(null, p)));
+      var o3 = r3._waitingFor;
+      return new _e(function(t4, n4) {
+        i3.then(function(e4) {
+          return r3._waitingQueue.push(Te(t4.bind(null, e4)));
+        }, function(e4) {
+          return r3._waitingQueue.push(Te(n4.bind(null, e4)));
         }).finally(function() {
-          o._waitingFor === l && (o._waitingFor = null);
+          r3._waitingFor === o3 && (r3._waitingFor = null);
         });
       });
-    }, Le.prototype.abort = function() {
-      this.active && (this.active = !1, this.idbtrans && this.idbtrans.abort(), this._reject(new W.Abort()));
-    }, Le.prototype.table = function(t) {
-      var n = this._memoizedTables || (this._memoizedTables = {});
-      if (M(n, t)) return n[t];
-      var o = this.schema[t];
-      if (!o) throw new W.NotFound("Table " + t + " not part of transaction");
-      return o = new this.db.Table(t, o, this), o.core = this.db.core.table(t), n[t] = o;
-    }, Le);
-    function Le() {
+    }, Ut.prototype.abort = function() {
+      this.active && (this.active = false, this.idbtrans && this.idbtrans.abort(), this._reject(new Y.Abort()));
+    }, Ut.prototype.table = function(e3) {
+      var t3 = this._memoizedTables || (this._memoizedTables = {});
+      if (m2(t3, e3)) return t3[e3];
+      var n4 = this.schema[e3];
+      if (!n4) throw new Y.NotFound("Table " + e3 + " not part of transaction");
+      n4 = new this.db.Table(e3, n4, this);
+      return n4.core = this.db.core.table(e3), t3[e3] = n4;
+    }, Ut);
+    function Ut() {
     }
-    function ri(t, n, o, u, l, f, d) {
-      return { name: t, keyPath: n, unique: o, multi: u, auto: l, compound: f, src: (o && !d ? "&" : "") + (u ? "*" : "") + (l ? "++" : "") + Ss(n) };
+    function Vt(e3, t3, n4, r3, i3, o3, a3) {
+      return { name: e3, keyPath: t3, unique: n4, multi: r3, auto: i3, compound: o3, src: (n4 && !a3 ? "&" : "") + (r3 ? "*" : "") + (i3 ? "++" : "") + zt(t3) };
     }
-    function Ss(t) {
-      return typeof t == "string" ? t : t ? "[" + [].join.call(t, "+") + "]" : "";
+    function zt(e3) {
+      return "string" == typeof e3 ? e3 : e3 ? "[" + [].join.call(e3, "+") + "]" : "";
     }
-    function ii(t, n, o) {
-      return { name: t, primKey: n, indexes: o, mappedClass: null, idxByName: (u = function(l) {
-        return [l.name, l];
-      }, o.reduce(function(l, f, d) {
-        return d = u(f, d), d && (l[d[0]] = d[1]), l;
+    function Wt(e3, t3, n4) {
+      return { name: e3, primKey: t3, indexes: n4, mappedClass: null, idxByName: (r3 = function(e4) {
+        return [e4.name, e4];
+      }, n4.reduce(function(e4, t4, n5) {
+        n5 = r3(t4, n5);
+        return n5 && (e4[n5[0]] = n5[1]), e4;
       }, {})) };
-      var u;
+      var r3;
     }
-    var bn = function(t) {
+    var Yt = function(e3) {
       try {
-        return t.only([[]]), bn = function() {
+        return e3.only([[]]), Yt = function() {
           return [[]];
         }, [[]];
-      } catch {
-        return bn = function() {
-          return gt;
-        }, gt;
+      } catch (e4) {
+        return Yt = function() {
+          return He;
+        }, He;
       }
     };
-    function si(t) {
-      return t == null ? function() {
-      } : typeof t == "string" ? (n = t).split(".").length === 1 ? function(o) {
-        return o[n];
-      } : function(o) {
-        return De(o, n);
-      } : function(o) {
-        return De(o, t);
+    function $t(t3) {
+      return null == t3 ? function() {
+      } : "string" == typeof t3 ? 1 === (n4 = t3).split(".").length ? function(e3) {
+        return e3[n4];
+      } : function(e3) {
+        return k2(e3, n4);
+      } : function(e3) {
+        return k2(e3, t3);
       };
-      var n;
+      var n4;
     }
-    function xs(t) {
-      return [].slice.call(t);
+    function Qt(e3) {
+      return [].slice.call(e3);
     }
-    var ru = 0;
-    function wn(t) {
-      return t == null ? ":id" : typeof t == "string" ? t : "[".concat(t.join("+"), "]");
+    var Gt = 0;
+    function Xt(e3) {
+      return null == e3 ? ":id" : "string" == typeof e3 ? e3 : "[".concat(e3.join("+"), "]");
     }
-    function iu(t, n, w) {
-      function u(k) {
-        if (k.type === 3) return null;
-        if (k.type === 4) throw new Error("Cannot convert never type to IDBKeyRange");
-        var b = k.lower, _ = k.upper, T = k.lowerOpen, k = k.upperOpen;
-        return b === void 0 ? _ === void 0 ? null : n.upperBound(_, !!k) : _ === void 0 ? n.lowerBound(b, !!T) : n.bound(b, _, !!T, !!k);
+    function Ht(e3, i3, t3) {
+      function _3(e4) {
+        if (3 === e4.type) return null;
+        if (4 === e4.type) throw new Error("Cannot convert never type to IDBKeyRange");
+        var t4 = e4.lower, n5 = e4.upper, r4 = e4.lowerOpen, e4 = e4.upperOpen;
+        return void 0 === t4 ? void 0 === n5 ? null : i3.upperBound(n5, !!e4) : void 0 === n5 ? i3.lowerBound(t4, !!r4) : i3.bound(t4, n5, !!r4, !!e4);
       }
-      function l(x) {
-        var b, _ = x.name;
-        return { name: _, schema: x, mutate: function(T) {
-          var k = T.trans, O = T.type, E = T.keys, I = T.values, C = T.range;
-          return new Promise(function($, F) {
-            $ = oe($);
-            var N = k.objectStore(_), P = N.keyPath == null, R = O === "put" || O === "add";
-            if (!R && O !== "delete" && O !== "deleteRange") throw new Error("Invalid operation type: " + O);
-            var D, B = (E || I || { length: 1 }).length;
-            if (E && I && E.length !== I.length) throw new Error("Given keys array must have same length as given values array.");
-            if (B === 0) return $({ numFailures: 0, failures: {}, results: [], lastResult: void 0 });
-            function H(_e) {
-              ++$e, gn(_e);
+      function n4(e4) {
+        var h3, w3 = e4.name;
+        return { name: w3, schema: e4, mutate: function(e5) {
+          var y3 = e5.trans, v3 = e5.type, m3 = e5.keys, b3 = e5.values, g3 = e5.range;
+          return new Promise(function(t4, e6) {
+            t4 = Te(t4);
+            var n5 = y3.objectStore(w3), r4 = null == n5.keyPath, i4 = "put" === v3 || "add" === v3;
+            if (!i4 && "delete" !== v3 && "deleteRange" !== v3) throw new Error("Invalid operation type: " + v3);
+            var o4, a4 = (m3 || b3 || { length: 1 }).length;
+            if (m3 && b3 && m3.length !== b3.length) throw new Error("Given keys array must have same length as given values array.");
+            if (0 === a4) return t4({ numFailures: 0, failures: {}, results: [], lastResult: void 0 });
+            function u4(e7) {
+              ++l3, Rt(e7);
             }
-            var J = [], Y = [], $e = 0;
-            if (O === "deleteRange") {
-              if (C.type === 4) return $({ numFailures: $e, failures: Y, results: [], lastResult: void 0 });
-              C.type === 3 ? J.push(D = N.clear()) : J.push(D = N.delete(u(C)));
+            var s4 = [], c4 = [], l3 = 0;
+            if ("deleteRange" === v3) {
+              if (4 === g3.type) return t4({ numFailures: l3, failures: c4, results: [], lastResult: void 0 });
+              3 === g3.type ? s4.push(o4 = n5.clear()) : s4.push(o4 = n5.delete(_3(g3)));
             } else {
-              var P = R ? P ? [I, E] : [I, null] : [E, null], G = P[0], pe = P[1];
-              if (R) for (var ye = 0; ye < B; ++ye) J.push(D = pe && pe[ye] !== void 0 ? N[O](G[ye], pe[ye]) : N[O](G[ye])), D.onerror = H;
-              else for (ye = 0; ye < B; ++ye) J.push(D = N[O](G[ye])), D.onerror = H;
+              var r4 = i4 ? r4 ? [b3, m3] : [b3, null] : [m3, null], f3 = r4[0], h4 = r4[1];
+              if (i4) for (var d3 = 0; d3 < a4; ++d3) s4.push(o4 = h4 && void 0 !== h4[d3] ? n5[v3](f3[d3], h4[d3]) : n5[v3](f3[d3])), o4.onerror = u4;
+              else for (d3 = 0; d3 < a4; ++d3) s4.push(o4 = n5[v3](f3[d3])), o4.onerror = u4;
             }
-            function pr(_e) {
-              _e = _e.target.result, J.forEach(function(kt, Si) {
-                return kt.error != null && (Y[Si] = kt.error);
-              }), $({ numFailures: $e, failures: Y, results: O === "delete" ? E : J.map(function(kt) {
-                return kt.result;
-              }), lastResult: _e });
+            function p3(e7) {
+              e7 = e7.target.result, s4.forEach(function(e8, t5) {
+                return null != e8.error && (c4[t5] = e8.error);
+              }), t4({ numFailures: l3, failures: c4, results: "delete" === v3 ? m3 : s4.map(function(e8) {
+                return e8.result;
+              }), lastResult: e7 });
             }
-            D.onerror = function(_e) {
-              H(_e), pr(_e);
-            }, D.onsuccess = pr;
+            o4.onerror = function(e7) {
+              u4(e7), p3(e7);
+            }, o4.onsuccess = p3;
           });
-        }, getMany: function(T) {
-          var k = T.trans, O = T.keys;
-          return new Promise(function(E, I) {
-            E = oe(E);
-            for (var C, $ = k.objectStore(_), F = O.length, N = new Array(F), P = 0, R = 0, D = function(J) {
-              J = J.target, N[J._pos] = J.result, ++R === P && E(N);
-            }, B = qe(I), H = 0; H < F; ++H) O[H] != null && ((C = $.get(O[H]))._pos = H, C.onsuccess = D, C.onerror = B, ++P);
-            P === 0 && E(N);
+        }, getMany: function(e5) {
+          var f3 = e5.trans, h4 = e5.keys;
+          return new Promise(function(t4, e6) {
+            t4 = Te(t4);
+            for (var n5, r4 = f3.objectStore(w3), i4 = h4.length, o4 = new Array(i4), a4 = 0, u4 = 0, s4 = function(e7) {
+              e7 = e7.target;
+              o4[e7._pos] = e7.result, ++u4 === a4 && t4(o4);
+            }, c4 = Bt(e6), l3 = 0; l3 < i4; ++l3) null != h4[l3] && ((n5 = r4.get(h4[l3]))._pos = l3, n5.onsuccess = s4, n5.onerror = c4, ++a4);
+            0 === a4 && t4(o4);
           });
-        }, get: function(T) {
-          var k = T.trans, O = T.key;
-          return new Promise(function(E, I) {
-            E = oe(E);
-            var C = k.objectStore(_).get(O);
-            C.onsuccess = function($) {
-              return E($.target.result);
-            }, C.onerror = qe(I);
+        }, get: function(e5) {
+          var r4 = e5.trans, i4 = e5.key;
+          return new Promise(function(t4, e6) {
+            t4 = Te(t4);
+            var n5 = r4.objectStore(w3).get(i4);
+            n5.onsuccess = function(e7) {
+              return t4(e7.target.result);
+            }, n5.onerror = Bt(e6);
           });
-        }, query: (b = g, function(T) {
-          return new Promise(function(k, O) {
-            k = oe(k);
-            var E, I, C, P = T.trans, $ = T.values, F = T.limit, D = T.query, N = F === 1 / 0 ? void 0 : F, R = D.index, D = D.range, P = P.objectStore(_), R = R.isPrimaryKey ? P : P.index(R.name), D = u(D);
-            if (F === 0) return k({ result: [] });
-            b ? ((N = $ ? R.getAll(D, N) : R.getAllKeys(D, N)).onsuccess = function(B) {
-              return k({ result: B.target.result });
-            }, N.onerror = qe(O)) : (E = 0, I = !$ && "openKeyCursor" in R ? R.openKeyCursor(D) : R.openCursor(D), C = [], I.onsuccess = function(B) {
-              var H = I.result;
-              return H ? (C.push($ ? H.value : H.primaryKey), ++E === F ? k({ result: C }) : void H.continue()) : k({ result: C });
-            }, I.onerror = qe(O));
+        }, query: (h3 = s3, function(f3) {
+          return new Promise(function(n5, e5) {
+            n5 = Te(n5);
+            var r4, i4, o4, t4 = f3.trans, a4 = f3.values, u4 = f3.limit, s4 = f3.query, c4 = u4 === 1 / 0 ? void 0 : u4, l3 = s4.index, s4 = s4.range, t4 = t4.objectStore(w3), l3 = l3.isPrimaryKey ? t4 : t4.index(l3.name), s4 = _3(s4);
+            if (0 === u4) return n5({ result: [] });
+            h3 ? ((c4 = a4 ? l3.getAll(s4, c4) : l3.getAllKeys(s4, c4)).onsuccess = function(e6) {
+              return n5({ result: e6.target.result });
+            }, c4.onerror = Bt(e5)) : (r4 = 0, i4 = !a4 && "openKeyCursor" in l3 ? l3.openKeyCursor(s4) : l3.openCursor(s4), o4 = [], i4.onsuccess = function(e6) {
+              var t5 = i4.result;
+              return t5 ? (o4.push(a4 ? t5.value : t5.primaryKey), ++r4 === u4 ? n5({ result: o4 }) : void t5.continue()) : n5({ result: o4 });
+            }, i4.onerror = Bt(e5));
           });
-        }), openCursor: function(T) {
-          var k = T.trans, O = T.values, E = T.query, I = T.reverse, C = T.unique;
-          return new Promise(function($, F) {
-            $ = oe($);
-            var R = E.index, N = E.range, P = k.objectStore(_), P = R.isPrimaryKey ? P : P.index(R.name), R = I ? C ? "prevunique" : "prev" : C ? "nextunique" : "next", D = !O && "openKeyCursor" in P ? P.openKeyCursor(u(N), R) : P.openCursor(u(N), R);
-            D.onerror = qe(F), D.onsuccess = oe(function(B) {
-              var H, J, Y, $e, G = D.result;
-              G ? (G.___id = ++ru, G.done = !1, H = G.continue.bind(G), J = (J = G.continuePrimaryKey) && J.bind(G), Y = G.advance.bind(G), $e = function() {
+        }), openCursor: function(e5) {
+          var c4 = e5.trans, o4 = e5.values, a4 = e5.query, u4 = e5.reverse, l3 = e5.unique;
+          return new Promise(function(t4, n5) {
+            t4 = Te(t4);
+            var e6 = a4.index, r4 = a4.range, i4 = c4.objectStore(w3), i4 = e6.isPrimaryKey ? i4 : i4.index(e6.name), e6 = u4 ? l3 ? "prevunique" : "prev" : l3 ? "nextunique" : "next", s4 = !o4 && "openKeyCursor" in i4 ? i4.openKeyCursor(_3(r4), e6) : i4.openCursor(_3(r4), e6);
+            s4.onerror = Bt(n5), s4.onsuccess = Te(function(e7) {
+              var r5, i5, o5, a5, u5 = s4.result;
+              u5 ? (u5.___id = ++Gt, u5.done = false, r5 = u5.continue.bind(u5), i5 = (i5 = u5.continuePrimaryKey) && i5.bind(u5), o5 = u5.advance.bind(u5), a5 = function() {
                 throw new Error("Cursor not stopped");
-              }, G.trans = k, G.stop = G.continue = G.continuePrimaryKey = G.advance = function() {
+              }, u5.trans = c4, u5.stop = u5.continue = u5.continuePrimaryKey = u5.advance = function() {
                 throw new Error("Cursor not started");
-              }, G.fail = oe(F), G.next = function() {
-                var pe = this, ye = 1;
+              }, u5.fail = Te(n5), u5.next = function() {
+                var e8 = this, t5 = 1;
                 return this.start(function() {
-                  return ye-- ? pe.continue() : pe.stop();
+                  return t5-- ? e8.continue() : e8.stop();
                 }).then(function() {
-                  return pe;
+                  return e8;
                 });
-              }, G.start = function(pe) {
-                function ye() {
-                  if (D.result) try {
-                    pe();
-                  } catch (_e) {
-                    G.fail(_e);
+              }, u5.start = function(e8) {
+                function t5() {
+                  if (s4.result) try {
+                    e8();
+                  } catch (e9) {
+                    u5.fail(e9);
                   }
-                  else G.done = !0, G.start = function() {
+                  else u5.done = true, u5.start = function() {
                     throw new Error("Cursor behind last entry");
-                  }, G.stop();
+                  }, u5.stop();
                 }
-                var pr = new Promise(function(_e, kt) {
-                  _e = oe(_e), D.onerror = qe(kt), G.fail = kt, G.stop = function(Si) {
-                    G.stop = G.continue = G.continuePrimaryKey = G.advance = $e, _e(Si);
+                var n6 = new Promise(function(t6, e9) {
+                  t6 = Te(t6), s4.onerror = Bt(e9), u5.fail = e9, u5.stop = function(e10) {
+                    u5.stop = u5.continue = u5.continuePrimaryKey = u5.advance = a5, t6(e10);
                   };
                 });
-                return D.onsuccess = oe(function(_e) {
-                  D.onsuccess = ye, ye();
-                }), G.continue = H, G.continuePrimaryKey = J, G.advance = Y, ye(), pr;
-              }, $(G)) : $(null);
-            }, F);
+                return s4.onsuccess = Te(function(e9) {
+                  s4.onsuccess = t5, t5();
+                }), u5.continue = r5, u5.continuePrimaryKey = i5, u5.advance = o5, t5(), n6;
+              }, t4(u5)) : t4(null);
+            }, n5);
           });
-        }, count: function(T) {
-          var k = T.query, O = T.trans, E = k.index, I = k.range;
-          return new Promise(function(C, $) {
-            var F = O.objectStore(_), N = E.isPrimaryKey ? F : F.index(E.name), F = u(I), N = F ? N.count(F) : N.count();
-            N.onsuccess = oe(function(P) {
-              return C(P.target.result);
-            }), N.onerror = qe($);
+        }, count: function(e5) {
+          var t4 = e5.query, i4 = e5.trans, o4 = t4.index, a4 = t4.range;
+          return new Promise(function(t5, e6) {
+            var n5 = i4.objectStore(w3), r4 = o4.isPrimaryKey ? n5 : n5.index(o4.name), n5 = _3(a4), r4 = n5 ? r4.count(n5) : r4.count();
+            r4.onsuccess = Te(function(e7) {
+              return t5(e7.target.result);
+            }), r4.onerror = Bt(e6);
           });
         } };
       }
-      var f, d, p, S = (d = w, p = xs((f = t).objectStoreNames), { schema: { name: f.name, tables: p.map(function(x) {
-        return d.objectStore(x);
-      }).map(function(x) {
-        var b = x.keyPath, k = x.autoIncrement, _ = m(b), T = {}, k = { name: x.name, primaryKey: { name: null, isPrimaryKey: !0, outbound: b == null, compound: _, keyPath: b, autoIncrement: k, unique: !0, extractKey: si(b) }, indexes: xs(x.indexNames).map(function(O) {
-          return x.index(O);
-        }).map(function(C) {
-          var E = C.name, I = C.unique, $ = C.multiEntry, C = C.keyPath, $ = { name: E, compound: m(C), keyPath: C, unique: I, multiEntry: $, extractKey: si(C) };
-          return T[wn(C)] = $;
-        }), getIndexByKeyPath: function(O) {
-          return T[wn(O)];
+      var r3, o3, a3, u3 = (o3 = t3, a3 = Qt((r3 = e3).objectStoreNames), { schema: { name: r3.name, tables: a3.map(function(e4) {
+        return o3.objectStore(e4);
+      }).map(function(t4) {
+        var e4 = t4.keyPath, n5 = t4.autoIncrement, r4 = x2(e4), i4 = {}, n5 = { name: t4.name, primaryKey: { name: null, isPrimaryKey: true, outbound: null == e4, compound: r4, keyPath: e4, autoIncrement: n5, unique: true, extractKey: $t(e4) }, indexes: Qt(t4.indexNames).map(function(e5) {
+          return t4.index(e5);
+        }).map(function(e5) {
+          var t5 = e5.name, n6 = e5.unique, r5 = e5.multiEntry, e5 = e5.keyPath, r5 = { name: t5, compound: x2(e5), keyPath: e5, unique: n6, multiEntry: r5, extractKey: $t(e5) };
+          return i4[Xt(e5)] = r5;
+        }), getIndexByKeyPath: function(e5) {
+          return i4[Xt(e5)];
         } };
-        return T[":id"] = k.primaryKey, b != null && (T[wn(b)] = k.primaryKey), k;
-      }) }, hasGetAll: 0 < p.length && "getAll" in d.objectStore(p[0]) && !(typeof navigator < "u" && /Safari/.test(navigator.userAgent) && !/(Chrome\/|Edge\/)/.test(navigator.userAgent) && [].concat(navigator.userAgent.match(/Safari\/(\d*)/))[1] < 604) }), w = S.schema, g = S.hasGetAll, S = w.tables.map(l), y = {};
-      return S.forEach(function(x) {
-        return y[x.name] = x;
-      }), { stack: "dbcore", transaction: t.transaction.bind(t), table: function(x) {
-        if (!y[x]) throw new Error("Table '".concat(x, "' not found"));
-        return y[x];
-      }, MIN_KEY: -1 / 0, MAX_KEY: bn(n), schema: w };
+        return i4[":id"] = n5.primaryKey, null != e4 && (i4[Xt(e4)] = n5.primaryKey), n5;
+      }) }, hasGetAll: 0 < a3.length && "getAll" in o3.objectStore(a3[0]) && !("undefined" != typeof navigator && /Safari/.test(navigator.userAgent) && !/(Chrome\/|Edge\/)/.test(navigator.userAgent) && [].concat(navigator.userAgent.match(/Safari\/(\d*)/))[1] < 604) }), t3 = u3.schema, s3 = u3.hasGetAll, u3 = t3.tables.map(n4), c3 = {};
+      return u3.forEach(function(e4) {
+        return c3[e4.name] = e4;
+      }), { stack: "dbcore", transaction: e3.transaction.bind(e3), table: function(e4) {
+        if (!c3[e4]) throw new Error("Table '".concat(e4, "' not found"));
+        return c3[e4];
+      }, MIN_KEY: -1 / 0, MAX_KEY: Yt(i3), schema: t3 };
     }
-    function su(t, n, o, u) {
-      var l = o.IDBKeyRange;
-      return o.indexedDB, { dbcore: (u = iu(n, l, u), t.dbcore.reduce(function(f, d) {
-        return d = d.create, i(i({}, f), d(f));
-      }, u)) };
+    function Jt(e3, t3, n4, r3) {
+      var i3 = n4.IDBKeyRange;
+      return n4.indexedDB, { dbcore: (r3 = Ht(t3, i3, r3), e3.dbcore.reduce(function(e4, t4) {
+        t4 = t4.create;
+        return w2(w2({}, e4), t4(e4));
+      }, r3)) };
     }
-    function rr(t, u) {
-      var o = u.db, u = su(t._middlewares, o, t._deps, u);
-      t.core = u.dbcore, t.tables.forEach(function(l) {
-        var f = l.name;
-        t.core.schema.tables.some(function(d) {
-          return d.name === f;
-        }) && (l.core = t.core.table(f), t[f] instanceof t.Table && (t[f].core = l.core));
+    function Zt(n4, e3) {
+      var t3 = e3.db, e3 = Jt(n4._middlewares, t3, n4._deps, e3);
+      n4.core = e3.dbcore, n4.tables.forEach(function(e4) {
+        var t4 = e4.name;
+        n4.core.schema.tables.some(function(e5) {
+          return e5.name === t4;
+        }) && (e4.core = n4.core.table(t4), n4[t4] instanceof n4.Table && (n4[t4].core = e4.core));
       });
     }
-    function ir(t, n, o, u) {
-      o.forEach(function(l) {
-        var f = u[l];
-        n.forEach(function(d) {
-          var p = function w(g, S) {
-            return Oe(g, S) || (g = A(g)) && w(g, S);
-          }(d, l);
-          (!p || "value" in p && p.value === void 0) && (d === t.Transaction.prototype || d instanceof t.Transaction ? ee(d, l, { get: function() {
-            return this.table(l);
-          }, set: function(w) {
-            j(this, l, { value: w, writable: !0, configurable: !0, enumerable: !0 });
-          } }) : d[l] = new t.Table(l, f));
+    function en(i3, e3, t3, o3) {
+      t3.forEach(function(n4) {
+        var r3 = o3[n4];
+        e3.forEach(function(e4) {
+          var t4 = function e5(t5, n5) {
+            return h2(t5, n5) || (t5 = c2(t5)) && e5(t5, n5);
+          }(e4, n4);
+          (!t4 || "value" in t4 && void 0 === t4.value) && (e4 === i3.Transaction.prototype || e4 instanceof i3.Transaction ? l2(e4, n4, { get: function() {
+            return this.table(n4);
+          }, set: function(e5) {
+            u2(this, n4, { value: e5, writable: true, configurable: true, enumerable: true });
+          } }) : e4[n4] = new i3.Table(n4, r3));
         });
       });
     }
-    function oi(t, n) {
-      n.forEach(function(o) {
-        for (var u in o) o[u] instanceof t.Table && delete o[u];
+    function tn(n4, e3) {
+      e3.forEach(function(e4) {
+        for (var t3 in e4) e4[t3] instanceof n4.Table && delete e4[t3];
       });
     }
-    function ou(t, n) {
-      return t._cfg.version - n._cfg.version;
+    function nn(e3, t3) {
+      return e3._cfg.version - t3._cfg.version;
     }
-    function au(t, n, o, u) {
-      var l = t._dbSchema;
-      o.objectStoreNames.contains("$meta") && !l.$meta && (l.$meta = ii("$meta", Os("")[0], []), t._storeNames.push("$meta"));
-      var f = t._createTransaction("readwrite", t._storeNames, l);
-      f.create(o), f._completion.catch(u);
-      var d = f._reject.bind(f), p = U.transless || U;
-      Ye(function() {
-        return U.trans = f, U.transless = p, n !== 0 ? (rr(t, o), g = n, ((w = f).storeNames.includes("$meta") ? w.table("$meta").get("version").then(function(S) {
-          return S ?? g;
-        }) : L.resolve(g)).then(function(S) {
-          return x = S, b = f, _ = o, T = [], S = (y = t)._versions, k = y._dbSchema = or(0, y.idbdb, _), (S = S.filter(function(O) {
-            return O._cfg.version >= x;
-          })).length !== 0 ? (S.forEach(function(O) {
-            T.push(function() {
-              var E = k, I = O._cfg.dbschema;
-              ar(y, E, _), ar(y, I, _), k = y._dbSchema = I;
-              var C = ai(E, I);
-              C.add.forEach(function(R) {
-                ui(_, R[0], R[1].primKey, R[1].indexes);
-              }), C.change.forEach(function(R) {
-                if (R.recreate) throw new W.Upgrade("Not yet support for changing primary key");
-                var D = _.objectStore(R.name);
-                R.add.forEach(function(B) {
-                  return sr(D, B);
-                }), R.change.forEach(function(B) {
-                  D.deleteIndex(B.name), sr(D, B);
-                }), R.del.forEach(function(B) {
-                  return D.deleteIndex(B);
+    function rn(n4, r3, i3, e3) {
+      var o3 = n4._dbSchema;
+      i3.objectStoreNames.contains("$meta") && !o3.$meta && (o3.$meta = Wt("$meta", hn("")[0], []), n4._storeNames.push("$meta"));
+      var a3 = n4._createTransaction("readwrite", n4._storeNames, o3);
+      a3.create(i3), a3._completion.catch(e3);
+      var u3 = a3._reject.bind(a3), s3 = me.transless || me;
+      Ne(function() {
+        return me.trans = a3, me.transless = s3, 0 !== r3 ? (Zt(n4, i3), t3 = r3, ((e4 = a3).storeNames.includes("$meta") ? e4.table("$meta").get("version").then(function(e5) {
+          return null != e5 ? e5 : t3;
+        }) : _e.resolve(t3)).then(function(e5) {
+          return c3 = e5, l3 = a3, f3 = i3, t4 = [], e5 = (s4 = n4)._versions, h3 = s4._dbSchema = ln(0, s4.idbdb, f3), 0 !== (e5 = e5.filter(function(e6) {
+            return e6._cfg.version >= c3;
+          })).length ? (e5.forEach(function(u4) {
+            t4.push(function() {
+              var t5 = h3, e6 = u4._cfg.dbschema;
+              fn(s4, t5, f3), fn(s4, e6, f3), h3 = s4._dbSchema = e6;
+              var n5 = an(t5, e6);
+              n5.add.forEach(function(e7) {
+                un(f3, e7[0], e7[1].primKey, e7[1].indexes);
+              }), n5.change.forEach(function(e7) {
+                if (e7.recreate) throw new Y.Upgrade("Not yet support for changing primary key");
+                var t6 = f3.objectStore(e7.name);
+                e7.add.forEach(function(e8) {
+                  return cn(t6, e8);
+                }), e7.change.forEach(function(e8) {
+                  t6.deleteIndex(e8.name), cn(t6, e8);
+                }), e7.del.forEach(function(e8) {
+                  return t6.deleteIndex(e8);
                 });
               });
-              var $ = O._cfg.contentUpgrade;
-              if ($ && O._cfg.version > x) {
-                rr(y, _), b._memoizedTables = {};
-                var F = Ln(I);
-                C.del.forEach(function(R) {
-                  F[R] = E[R];
-                }), oi(y, [y.Transaction.prototype]), ir(y, [y.Transaction.prototype], h(F), F), b.schema = F;
-                var N, P = Lr($);
-                return P && Pt(), C = L.follow(function() {
-                  var R;
-                  (N = $(b)) && P && (R = Ge.bind(null, null), N.then(R, R));
-                }), N && typeof N.then == "function" ? L.resolve(N) : C.then(function() {
-                  return N;
+              var r4 = u4._cfg.contentUpgrade;
+              if (r4 && u4._cfg.version > c3) {
+                Zt(s4, f3), l3._memoizedTables = {};
+                var i4 = g2(e6);
+                n5.del.forEach(function(e7) {
+                  i4[e7] = t5[e7];
+                }), tn(s4, [s4.Transaction.prototype]), en(s4, [s4.Transaction.prototype], _2(i4), i4), l3.schema = i4;
+                var o4, a4 = B(r4);
+                a4 && Le();
+                n5 = _e.follow(function() {
+                  var e7;
+                  (o4 = r4(l3)) && a4 && (e7 = Ue.bind(null, null), o4.then(e7, e7));
+                });
+                return o4 && "function" == typeof o4.then ? _e.resolve(o4) : n5.then(function() {
+                  return o4;
                 });
               }
-            }), T.push(function(E) {
-              var I, C, $ = O._cfg.dbschema;
-              I = $, C = E, [].slice.call(C.db.objectStoreNames).forEach(function(F) {
-                return I[F] == null && C.db.deleteObjectStore(F);
-              }), oi(y, [y.Transaction.prototype]), ir(y, [y.Transaction.prototype], y._storeNames, y._dbSchema), b.schema = y._dbSchema;
-            }), T.push(function(E) {
-              y.idbdb.objectStoreNames.contains("$meta") && (Math.ceil(y.idbdb.version / 10) === O._cfg.version ? (y.idbdb.deleteObjectStore("$meta"), delete y._dbSchema.$meta, y._storeNames = y._storeNames.filter(function(I) {
-                return I !== "$meta";
-              })) : E.objectStore("$meta").put(O._cfg.version, "version"));
+            }), t4.push(function(e6) {
+              var t5, n5, r4 = u4._cfg.dbschema;
+              t5 = r4, n5 = e6, [].slice.call(n5.db.objectStoreNames).forEach(function(e7) {
+                return null == t5[e7] && n5.db.deleteObjectStore(e7);
+              }), tn(s4, [s4.Transaction.prototype]), en(s4, [s4.Transaction.prototype], s4._storeNames, s4._dbSchema), l3.schema = s4._dbSchema;
+            }), t4.push(function(e6) {
+              s4.idbdb.objectStoreNames.contains("$meta") && (Math.ceil(s4.idbdb.version / 10) === u4._cfg.version ? (s4.idbdb.deleteObjectStore("$meta"), delete s4._dbSchema.$meta, s4._storeNames = s4._storeNames.filter(function(e7) {
+                return "$meta" !== e7;
+              })) : e6.objectStore("$meta").put(u4._cfg.version, "version"));
             });
-          }), function O() {
-            return T.length ? L.resolve(T.shift()(b.idbtrans)).then(O) : L.resolve();
+          }), function e6() {
+            return t4.length ? _e.resolve(t4.shift()(l3.idbtrans)).then(e6) : _e.resolve();
           }().then(function() {
-            Ts(k, _);
-          })) : L.resolve();
-          var y, x, b, _, T, k;
-        }).catch(d)) : (h(l).forEach(function(S) {
-          ui(o, S, l[S].primKey, l[S].indexes);
-        }), rr(t, o), void L.follow(function() {
-          return t.on.populate.fire(f);
-        }).catch(d));
-        var w, g;
+            sn(h3, f3);
+          })) : _e.resolve();
+          var s4, c3, l3, f3, t4, h3;
+        }).catch(u3)) : (_2(o3).forEach(function(e5) {
+          un(i3, e5, o3[e5].primKey, o3[e5].indexes);
+        }), Zt(n4, i3), void _e.follow(function() {
+          return n4.on.populate.fire(a3);
+        }).catch(u3));
+        var e4, t3;
       });
     }
-    function uu(t, n) {
-      Ts(t._dbSchema, n), n.db.version % 10 != 0 || n.objectStoreNames.contains("$meta") || n.db.createObjectStore("$meta").add(Math.ceil(n.db.version / 10 - 1), "version");
-      var o = or(0, t.idbdb, n);
-      ar(t, t._dbSchema, n);
-      for (var u = 0, l = ai(o, t._dbSchema).change; u < l.length; u++) {
-        var f = function(d) {
-          if (d.change.length || d.recreate) return console.warn("Unable to patch indexes of table ".concat(d.name, " because it has changes on the type of index or primary key.")), { value: void 0 };
-          var p = n.objectStore(d.name);
-          d.add.forEach(function(w) {
-            Ve && console.debug("Dexie upgrade patch: Creating missing index ".concat(d.name, ".").concat(w.src)), sr(p, w);
+    function on(e3, r3) {
+      sn(e3._dbSchema, r3), r3.db.version % 10 != 0 || r3.objectStoreNames.contains("$meta") || r3.db.createObjectStore("$meta").add(Math.ceil(r3.db.version / 10 - 1), "version");
+      var t3 = ln(0, e3.idbdb, r3);
+      fn(e3, e3._dbSchema, r3);
+      for (var n4 = 0, i3 = an(t3, e3._dbSchema).change; n4 < i3.length; n4++) {
+        var o3 = function(t4) {
+          if (t4.change.length || t4.recreate) return console.warn("Unable to patch indexes of table ".concat(t4.name, " because it has changes on the type of index or primary key.")), { value: void 0 };
+          var n5 = r3.objectStore(t4.name);
+          t4.add.forEach(function(e4) {
+            ie && console.debug("Dexie upgrade patch: Creating missing index ".concat(t4.name, ".").concat(e4.src)), cn(n5, e4);
           });
-        }(l[u]);
-        if (typeof f == "object") return f.value;
+        }(i3[n4]);
+        if ("object" == typeof o3) return o3.value;
       }
     }
-    function ai(t, n) {
-      var o, u = { del: [], add: [], change: [] };
-      for (o in t) n[o] || u.del.push(o);
-      for (o in n) {
-        var l = t[o], f = n[o];
-        if (l) {
-          var d = { name: o, def: f, recreate: !1, del: [], add: [], change: [] };
-          if ("" + (l.primKey.keyPath || "") != "" + (f.primKey.keyPath || "") || l.primKey.auto !== f.primKey.auto) d.recreate = !0, u.change.push(d);
+    function an(e3, t3) {
+      var n4, r3 = { del: [], add: [], change: [] };
+      for (n4 in e3) t3[n4] || r3.del.push(n4);
+      for (n4 in t3) {
+        var i3 = e3[n4], o3 = t3[n4];
+        if (i3) {
+          var a3 = { name: n4, def: o3, recreate: false, del: [], add: [], change: [] };
+          if ("" + (i3.primKey.keyPath || "") != "" + (o3.primKey.keyPath || "") || i3.primKey.auto !== o3.primKey.auto) a3.recreate = true, r3.change.push(a3);
           else {
-            var p = l.idxByName, w = f.idxByName, g = void 0;
-            for (g in p) w[g] || d.del.push(g);
-            for (g in w) {
-              var S = p[g], y = w[g];
-              S ? S.src !== y.src && d.change.push(y) : d.add.push(y);
+            var u3 = i3.idxByName, s3 = o3.idxByName, c3 = void 0;
+            for (c3 in u3) s3[c3] || a3.del.push(c3);
+            for (c3 in s3) {
+              var l3 = u3[c3], f3 = s3[c3];
+              l3 ? l3.src !== f3.src && a3.change.push(f3) : a3.add.push(f3);
             }
-            (0 < d.del.length || 0 < d.add.length || 0 < d.change.length) && u.change.push(d);
+            (0 < a3.del.length || 0 < a3.add.length || 0 < a3.change.length) && r3.change.push(a3);
           }
-        } else u.add.push([o, f]);
+        } else r3.add.push([n4, o3]);
       }
-      return u;
+      return r3;
     }
-    function ui(t, n, o, u) {
-      var l = t.db.createObjectStore(n, o.keyPath ? { keyPath: o.keyPath, autoIncrement: o.auto } : { autoIncrement: o.auto });
-      return u.forEach(function(f) {
-        return sr(l, f);
-      }), l;
+    function un(e3, t3, n4, r3) {
+      var i3 = e3.db.createObjectStore(t3, n4.keyPath ? { keyPath: n4.keyPath, autoIncrement: n4.auto } : { autoIncrement: n4.auto });
+      return r3.forEach(function(e4) {
+        return cn(i3, e4);
+      }), i3;
     }
-    function Ts(t, n) {
-      h(t).forEach(function(o) {
-        n.db.objectStoreNames.contains(o) || (Ve && console.debug("Dexie: Creating missing table", o), ui(n, o, t[o].primKey, t[o].indexes));
+    function sn(t3, n4) {
+      _2(t3).forEach(function(e3) {
+        n4.db.objectStoreNames.contains(e3) || (ie && console.debug("Dexie: Creating missing table", e3), un(n4, e3, t3[e3].primKey, t3[e3].indexes));
       });
     }
-    function sr(t, n) {
-      t.createIndex(n.name, n.keyPath, { unique: n.unique, multiEntry: n.multi });
+    function cn(e3, t3) {
+      e3.createIndex(t3.name, t3.keyPath, { unique: t3.unique, multiEntry: t3.multi });
     }
-    function or(t, n, o) {
-      var u = {};
-      return Re(n.objectStoreNames, 0).forEach(function(l) {
-        for (var f = o.objectStore(l), d = ri(Ss(g = f.keyPath), g || "", !0, !1, !!f.autoIncrement, g && typeof g != "string", !0), p = [], w = 0; w < f.indexNames.length; ++w) {
-          var S = f.index(f.indexNames[w]), g = S.keyPath, S = ri(S.name, g, !!S.unique, !!S.multiEntry, !1, g && typeof g != "string", !1);
-          p.push(S);
+    function ln(e3, t3, u3) {
+      var s3 = {};
+      return b2(t3.objectStoreNames, 0).forEach(function(e4) {
+        for (var t4 = u3.objectStore(e4), n4 = Vt(zt(a3 = t4.keyPath), a3 || "", true, false, !!t4.autoIncrement, a3 && "string" != typeof a3, true), r3 = [], i3 = 0; i3 < t4.indexNames.length; ++i3) {
+          var o3 = t4.index(t4.indexNames[i3]), a3 = o3.keyPath, o3 = Vt(o3.name, a3, !!o3.unique, !!o3.multiEntry, false, a3 && "string" != typeof a3, false);
+          r3.push(o3);
         }
-        u[l] = ii(l, d, p);
-      }), u;
+        s3[e4] = Wt(e4, n4, r3);
+      }), s3;
     }
-    function ar(t, n, o) {
-      for (var u = o.db.objectStoreNames, l = 0; l < u.length; ++l) {
-        var f = u[l], d = o.objectStore(f);
-        t._hasGetAll = "getAll" in d;
-        for (var p = 0; p < d.indexNames.length; ++p) {
-          var w = d.indexNames[p], g = d.index(w).keyPath, S = typeof g == "string" ? g : "[" + Re(g).join("+") + "]";
-          !n[f] || (g = n[f].idxByName[S]) && (g.name = w, delete n[f].idxByName[S], n[f].idxByName[w] = g);
+    function fn(e3, t3, n4) {
+      for (var r3 = n4.db.objectStoreNames, i3 = 0; i3 < r3.length; ++i3) {
+        var o3 = r3[i3], a3 = n4.objectStore(o3);
+        e3._hasGetAll = "getAll" in a3;
+        for (var u3 = 0; u3 < a3.indexNames.length; ++u3) {
+          var s3 = a3.indexNames[u3], c3 = a3.index(s3).keyPath, l3 = "string" == typeof c3 ? c3 : "[" + b2(c3).join("+") + "]";
+          !t3[o3] || (c3 = t3[o3].idxByName[l3]) && (c3.name = s3, delete t3[o3].idxByName[l3], t3[o3].idxByName[s3] = c3);
         }
       }
-      typeof navigator < "u" && /Safari/.test(navigator.userAgent) && !/(Chrome\/|Edge\/)/.test(navigator.userAgent) && c.WorkerGlobalScope && c instanceof c.WorkerGlobalScope && [].concat(navigator.userAgent.match(/Safari\/(\d*)/))[1] < 604 && (t._hasGetAll = !1);
+      "undefined" != typeof navigator && /Safari/.test(navigator.userAgent) && !/(Chrome\/|Edge\/)/.test(navigator.userAgent) && f2.WorkerGlobalScope && f2 instanceof f2.WorkerGlobalScope && [].concat(navigator.userAgent.match(/Safari\/(\d*)/))[1] < 604 && (e3._hasGetAll = false);
     }
-    function Os(t) {
-      return t.split(",").map(function(n, o) {
-        var u = (n = n.trim()).replace(/([&*]|\+\+)/g, ""), l = /^\[/.test(u) ? u.match(/^\[(.*)\]$/)[1].split("+") : u;
-        return ri(u, l || null, /\&/.test(n), /\*/.test(n), /\+\+/.test(n), m(l), o === 0);
+    function hn(e3) {
+      return e3.split(",").map(function(e4, t3) {
+        var n4 = (e4 = e4.trim()).replace(/([&*]|\+\+)/g, ""), r3 = /^\[/.test(n4) ? n4.match(/^\[(.*)\]$/)[1].split("+") : n4;
+        return Vt(n4, r3 || null, /\&/.test(e4), /\*/.test(e4), /\+\+/.test(e4), x2(r3), 0 === t3);
       });
     }
-    var lu = (ur.prototype._parseStoresSpec = function(t, n) {
-      h(t).forEach(function(o) {
-        if (t[o] !== null) {
-          var u = Os(t[o]), l = u.shift();
-          if (l.unique = !0, l.multi) throw new W.Schema("Primary key cannot be multi-valued");
-          u.forEach(function(f) {
-            if (f.auto) throw new W.Schema("Only primary key can be marked as autoIncrement (++)");
-            if (!f.keyPath) throw new W.Schema("Index must have a name and cannot be an empty string");
-          }), n[o] = ii(o, l, u);
+    var dn = (pn.prototype._parseStoresSpec = function(r3, i3) {
+      _2(r3).forEach(function(e3) {
+        if (null !== r3[e3]) {
+          var t3 = hn(r3[e3]), n4 = t3.shift();
+          if (n4.unique = true, n4.multi) throw new Y.Schema("Primary key cannot be multi-valued");
+          t3.forEach(function(e4) {
+            if (e4.auto) throw new Y.Schema("Only primary key can be marked as autoIncrement (++)");
+            if (!e4.keyPath) throw new Y.Schema("Index must have a name and cannot be an empty string");
+          }), i3[e3] = Wt(e3, n4, t3);
         }
       });
-    }, ur.prototype.stores = function(o) {
-      var n = this.db;
-      this._cfg.storesSource = this._cfg.storesSource ? v(this._cfg.storesSource, o) : o;
-      var o = n._versions, u = {}, l = {};
-      return o.forEach(function(f) {
-        v(u, f._cfg.storesSource), l = f._cfg.dbschema = {}, f._parseStoresSpec(u, l);
-      }), n._dbSchema = l, oi(n, [n._allTables, n, n.Transaction.prototype]), ir(n, [n._allTables, n, n.Transaction.prototype, this._cfg.tables], h(l), l), n._storeNames = h(l), this;
-    }, ur.prototype.upgrade = function(t) {
-      return this._cfg.contentUpgrade = jr(this._cfg.contentUpgrade || ie, t), this;
-    }, ur);
-    function ur() {
+    }, pn.prototype.stores = function(e3) {
+      var t3 = this.db;
+      this._cfg.storesSource = this._cfg.storesSource ? a2(this._cfg.storesSource, e3) : e3;
+      var e3 = t3._versions, n4 = {}, r3 = {};
+      return e3.forEach(function(e4) {
+        a2(n4, e4._cfg.storesSource), r3 = e4._cfg.dbschema = {}, e4._parseStoresSpec(n4, r3);
+      }), t3._dbSchema = r3, tn(t3, [t3._allTables, t3, t3.Transaction.prototype]), en(t3, [t3._allTables, t3, t3.Transaction.prototype, this._cfg.tables], _2(r3), r3), t3._storeNames = _2(r3), this;
+    }, pn.prototype.upgrade = function(e3) {
+      return this._cfg.contentUpgrade = re(this._cfg.contentUpgrade || G, e3), this;
+    }, pn);
+    function pn() {
     }
-    function li(t, n) {
-      var o = t._dbNamesDB;
-      return o || (o = t._dbNamesDB = new ze(Xn, { addons: [], indexedDB: t, IDBKeyRange: n })).version(1).stores({ dbnames: "name" }), o.table("dbnames");
+    function yn(e3, t3) {
+      var n4 = e3._dbNamesDB;
+      return n4 || (n4 = e3._dbNamesDB = new er(tt, { addons: [], indexedDB: e3, IDBKeyRange: t3 })).version(1).stores({ dbnames: "name" }), n4.table("dbnames");
     }
-    function ci(t) {
-      return t && typeof t.databases == "function";
+    function vn(e3) {
+      return e3 && "function" == typeof e3.databases;
     }
-    function fi(t) {
-      return Ye(function() {
-        return U.letThrough = !0, t();
+    function mn(e3) {
+      return Ne(function() {
+        return me.letThrough = true, e3();
       });
     }
-    function hi(t) {
-      return !("from" in t);
+    function bn(e3) {
+      return !("from" in e3);
     }
-    var ke = function(t, n) {
+    var gn = function(e3, t3) {
       if (!this) {
-        var o = new ke();
-        return t && "d" in t && v(o, t), o;
+        var n4 = new gn();
+        return e3 && "d" in e3 && a2(n4, e3), n4;
       }
-      v(this, arguments.length ? { d: 1, from: t, to: 1 < arguments.length ? n : t } : { d: 0 });
+      a2(this, arguments.length ? { d: 1, from: e3, to: 1 < arguments.length ? t3 : e3 } : { d: 0 });
     };
-    function kn(t, n, o) {
-      var u = Q(n, o);
-      if (!isNaN(u)) {
-        if (0 < u) throw RangeError();
-        if (hi(t)) return v(t, { from: n, to: o, d: 1 });
-        var l = t.l, u = t.r;
-        if (Q(o, t.from) < 0) return l ? kn(l, n, o) : t.l = { from: n, to: o, d: 1, l: null, r: null }, Is(t);
-        if (0 < Q(n, t.to)) return u ? kn(u, n, o) : t.r = { from: n, to: o, d: 1, l: null, r: null }, Is(t);
-        Q(n, t.from) < 0 && (t.from = n, t.l = null, t.d = u ? u.d + 1 : 1), 0 < Q(o, t.to) && (t.to = o, t.r = null, t.d = t.l ? t.l.d + 1 : 1), o = !t.r, l && !t.l && _n(t, l), u && o && _n(t, u);
+    function wn(e3, t3, n4) {
+      var r3 = st(t3, n4);
+      if (!isNaN(r3)) {
+        if (0 < r3) throw RangeError();
+        if (bn(e3)) return a2(e3, { from: t3, to: n4, d: 1 });
+        var i3 = e3.l, r3 = e3.r;
+        if (st(n4, e3.from) < 0) return i3 ? wn(i3, t3, n4) : e3.l = { from: t3, to: n4, d: 1, l: null, r: null }, On(e3);
+        if (0 < st(t3, e3.to)) return r3 ? wn(r3, t3, n4) : e3.r = { from: t3, to: n4, d: 1, l: null, r: null }, On(e3);
+        st(t3, e3.from) < 0 && (e3.from = t3, e3.l = null, e3.d = r3 ? r3.d + 1 : 1), 0 < st(n4, e3.to) && (e3.to = n4, e3.r = null, e3.d = e3.l ? e3.l.d + 1 : 1);
+        n4 = !e3.r;
+        i3 && !e3.l && _n(e3, i3), r3 && n4 && _n(e3, r3);
       }
     }
-    function _n(t, n) {
-      hi(n) || function o(u, w) {
-        var f = w.from, d = w.to, p = w.l, w = w.r;
-        kn(u, f, d), p && o(u, p), w && o(u, w);
-      }(t, n);
+    function _n(e3, t3) {
+      bn(t3) || function e4(t4, n4) {
+        var r3 = n4.from, i3 = n4.to, o3 = n4.l, n4 = n4.r;
+        wn(t4, r3, i3), o3 && e4(t4, o3), n4 && e4(t4, n4);
+      }(e3, t3);
     }
-    function Es(t, n) {
-      var o = lr(n), u = o.next();
-      if (u.done) return !1;
-      for (var l = u.value, f = lr(t), d = f.next(l.from), p = d.value; !u.done && !d.done; ) {
-        if (Q(p.from, l.to) <= 0 && 0 <= Q(p.to, l.from)) return !0;
-        Q(l.from, p.from) < 0 ? l = (u = o.next(p.from)).value : p = (d = f.next(l.from)).value;
+    function xn(e3, t3) {
+      var n4 = kn(t3), r3 = n4.next();
+      if (r3.done) return false;
+      for (var i3 = r3.value, o3 = kn(e3), a3 = o3.next(i3.from), u3 = a3.value; !r3.done && !a3.done; ) {
+        if (st(u3.from, i3.to) <= 0 && 0 <= st(u3.to, i3.from)) return true;
+        st(i3.from, u3.from) < 0 ? i3 = (r3 = n4.next(u3.from)).value : u3 = (a3 = o3.next(i3.from)).value;
       }
-      return !1;
+      return false;
     }
-    function lr(t) {
-      var n = hi(t) ? null : { s: 0, n: t };
-      return { next: function(o) {
-        for (var u = 0 < arguments.length; n; ) switch (n.s) {
+    function kn(e3) {
+      var n4 = bn(e3) ? null : { s: 0, n: e3 };
+      return { next: function(e4) {
+        for (var t3 = 0 < arguments.length; n4; ) switch (n4.s) {
           case 0:
-            if (n.s = 1, u) for (; n.n.l && Q(o, n.n.from) < 0; ) n = { up: n, n: n.n.l, s: 1 };
-            else for (; n.n.l; ) n = { up: n, n: n.n.l, s: 1 };
+            if (n4.s = 1, t3) for (; n4.n.l && st(e4, n4.n.from) < 0; ) n4 = { up: n4, n: n4.n.l, s: 1 };
+            else for (; n4.n.l; ) n4 = { up: n4, n: n4.n.l, s: 1 };
           case 1:
-            if (n.s = 2, !u || Q(o, n.n.to) <= 0) return { value: n.n, done: !1 };
+            if (n4.s = 2, !t3 || st(e4, n4.n.to) <= 0) return { value: n4.n, done: false };
           case 2:
-            if (n.n.r) {
-              n.s = 3, n = { up: n, n: n.n.r, s: 0 };
+            if (n4.n.r) {
+              n4.s = 3, n4 = { up: n4, n: n4.n.r, s: 0 };
               continue;
             }
           case 3:
-            n = n.up;
+            n4 = n4.up;
         }
-        return { done: !0 };
+        return { done: true };
       } };
     }
-    function Is(t) {
-      var n, o, u = (((n = t.r) === null || n === void 0 ? void 0 : n.d) || 0) - (((o = t.l) === null || o === void 0 ? void 0 : o.d) || 0), l = 1 < u ? "r" : u < -1 ? "l" : "";
-      l && (n = l == "r" ? "l" : "r", o = i({}, t), u = t[l], t.from = u.from, t.to = u.to, t[l] = u[l], o[l] = u[n], (t[n] = o).d = As(o)), t.d = As(t);
+    function On(e3) {
+      var t3, n4, r3 = ((null === (t3 = e3.r) || void 0 === t3 ? void 0 : t3.d) || 0) - ((null === (n4 = e3.l) || void 0 === n4 ? void 0 : n4.d) || 0), i3 = 1 < r3 ? "r" : r3 < -1 ? "l" : "";
+      i3 && (t3 = "r" == i3 ? "l" : "r", n4 = w2({}, e3), r3 = e3[i3], e3.from = r3.from, e3.to = r3.to, e3[i3] = r3[i3], n4[i3] = r3[t3], (e3[t3] = n4).d = Pn(n4)), e3.d = Pn(e3);
     }
-    function As(o) {
-      var n = o.r, o = o.l;
-      return (n ? o ? Math.max(n.d, o.d) : n.d : o ? o.d : 0) + 1;
+    function Pn(e3) {
+      var t3 = e3.r, e3 = e3.l;
+      return (t3 ? e3 ? Math.max(t3.d, e3.d) : t3.d : e3 ? e3.d : 0) + 1;
     }
-    function cr(t, n) {
-      return h(n).forEach(function(o) {
-        t[o] ? _n(t[o], n[o]) : t[o] = function u(l) {
-          var f, d, p = {};
-          for (f in l) M(l, f) && (d = l[f], p[f] = !d || typeof d != "object" || Un.has(d.constructor) ? d : u(d));
-          return p;
-        }(n[o]);
-      }), t;
+    function En(t3, n4) {
+      return _2(n4).forEach(function(e3) {
+        t3[e3] ? _n(t3[e3], n4[e3]) : t3[e3] = function e4(t4) {
+          var n5, r3, i3 = {};
+          for (n5 in t4) m2(t4, n5) && (r3 = t4[n5], i3[n5] = !r3 || "object" != typeof r3 || E2.has(r3.constructor) ? r3 : e4(r3));
+          return i3;
+        }(n4[e3]);
+      }), t3;
     }
-    function di(t, n) {
-      return t.all || n.all || Object.keys(t).some(function(o) {
-        return n[o] && Es(n[o], t[o]);
+    function Kn(t3, n4) {
+      return t3.all || n4.all || Object.keys(t3).some(function(e3) {
+        return n4[e3] && xn(n4[e3], t3[e3]);
       });
     }
-    z(ke.prototype, ((Ee = { add: function(t) {
-      return _n(this, t), this;
-    }, addKey: function(t) {
-      return kn(this, t, t), this;
-    }, addKeys: function(t) {
-      var n = this;
-      return t.forEach(function(o) {
-        return kn(n, o, o);
+    r2(gn.prototype, ((F = { add: function(e3) {
+      return _n(this, e3), this;
+    }, addKey: function(e3) {
+      return wn(this, e3, e3), this;
+    }, addKeys: function(e3) {
+      var t3 = this;
+      return e3.forEach(function(e4) {
+        return wn(t3, e4, e4);
       }), this;
-    }, hasKey: function(t) {
-      var n = lr(this).next(t).value;
-      return n && Q(n.from, t) <= 0 && 0 <= Q(n.to, t);
-    } })[qr] = function() {
-      return lr(this);
-    }, Ee));
-    var bt = {}, mi = {}, pi = !1;
-    function fr(t) {
-      cr(mi, t), pi || (pi = !0, setTimeout(function() {
-        pi = !1, yi(mi, !(mi = {}));
+    }, hasKey: function(e3) {
+      var t3 = kn(this).next(e3).value;
+      return t3 && st(t3.from, e3) <= 0 && 0 <= st(t3.to, e3);
+    } })[C2] = function() {
+      return kn(this);
+    }, F));
+    var Sn = {}, jn = {}, An = false;
+    function Cn(e3) {
+      En(jn, e3), An || (An = true, setTimeout(function() {
+        An = false, Dn(jn, !(jn = {}));
       }, 0));
     }
-    function yi(t, n) {
-      n === void 0 && (n = !1);
-      var o = /* @__PURE__ */ new Set();
-      if (t.all) for (var u = 0, l = Object.values(bt); u < l.length; u++) Cs(d = l[u], t, o, n);
-      else for (var f in t) {
-        var d, p = /^idb\:\/\/(.*)\/(.*)\//.exec(f);
-        p && (f = p[1], p = p[2], (d = bt["idb://".concat(f, "/").concat(p)]) && Cs(d, t, o, n));
+    function Dn(e3, t3) {
+      void 0 === t3 && (t3 = false);
+      var n4 = /* @__PURE__ */ new Set();
+      if (e3.all) for (var r3 = 0, i3 = Object.values(Sn); r3 < i3.length; r3++) Tn(a3 = i3[r3], e3, n4, t3);
+      else for (var o3 in e3) {
+        var a3, u3 = /^idb\:\/\/(.*)\/(.*)\//.exec(o3);
+        u3 && (o3 = u3[1], u3 = u3[2], (a3 = Sn["idb://".concat(o3, "/").concat(u3)]) && Tn(a3, e3, n4, t3));
       }
-      o.forEach(function(w) {
-        return w();
+      n4.forEach(function(e4) {
+        return e4();
       });
     }
-    function Cs(t, n, o, u) {
-      for (var l = [], f = 0, d = Object.entries(t.queries.query); f < d.length; f++) {
-        for (var p = d[f], w = p[0], g = [], S = 0, y = p[1]; S < y.length; S++) {
-          var x = y[S];
-          di(n, x.obsSet) ? x.subscribers.forEach(function(k) {
-            return o.add(k);
-          }) : u && g.push(x);
+    function Tn(e3, t3, n4, r3) {
+      for (var i3 = [], o3 = 0, a3 = Object.entries(e3.queries.query); o3 < a3.length; o3++) {
+        for (var u3 = a3[o3], s3 = u3[0], c3 = [], l3 = 0, f3 = u3[1]; l3 < f3.length; l3++) {
+          var h3 = f3[l3];
+          Kn(t3, h3.obsSet) ? h3.subscribers.forEach(function(e4) {
+            return n4.add(e4);
+          }) : r3 && c3.push(h3);
         }
-        u && l.push([w, g]);
+        r3 && i3.push([s3, c3]);
       }
-      if (u) for (var b = 0, _ = l; b < _.length; b++) {
-        var T = _[b], w = T[0], g = T[1];
-        t.queries.query[w] = g;
+      if (r3) for (var d3 = 0, p3 = i3; d3 < p3.length; d3++) {
+        var y3 = p3[d3], s3 = y3[0], c3 = y3[1];
+        e3.queries.query[s3] = c3;
       }
     }
-    function cu(t) {
-      var n = t._state, o = t._deps.indexedDB;
-      if (n.isBeingOpened || t.idbdb) return n.dbReadyPromise.then(function() {
-        return n.dbOpenError ? le(n.dbOpenError) : t;
+    function qn(f3) {
+      var h3 = f3._state, r3 = f3._deps.indexedDB;
+      if (h3.isBeingOpened || f3.idbdb) return h3.dbReadyPromise.then(function() {
+        return h3.dbOpenError ? Xe(h3.dbOpenError) : f3;
       });
-      n.isBeingOpened = !0, n.dbOpenError = null, n.openComplete = !1;
-      var u = n.openCanceller, l = Math.round(10 * t.verno), f = !1;
-      function d() {
-        if (n.openCanceller !== u) throw new W.DatabaseClosed("db.open() was cancelled");
+      h3.isBeingOpened = true, h3.dbOpenError = null, h3.openComplete = false;
+      var t3 = h3.openCanceller, d3 = Math.round(10 * f3.verno), p3 = false;
+      function e3() {
+        if (h3.openCanceller !== t3) throw new Y.DatabaseClosed("db.open() was cancelled");
       }
-      function p() {
-        return new L(function(x, b) {
-          if (d(), !o) throw new W.MissingAPI();
-          var _ = t.name, T = n.autoSchema || !l ? o.open(_) : o.open(_, l);
-          if (!T) throw new W.MissingAPI();
-          T.onerror = qe(b), T.onblocked = oe(t._fireOnBlocked), T.onupgradeneeded = oe(function(k) {
-            var O;
-            S = T.transaction, n.autoSchema && !t._options.allowEmptyDB ? (T.onerror = gn, S.abort(), T.result.close(), (O = o.deleteDatabase(_)).onsuccess = O.onerror = oe(function() {
-              b(new W.NoSuchDatabase("Database ".concat(_, " doesnt exist")));
-            })) : (S.onerror = qe(b), k = k.oldVersion > Math.pow(2, 62) ? 0 : k.oldVersion, y = k < 1, t.idbdb = T.result, f && uu(t, S), au(t, k / 10, S, b));
-          }, b), T.onsuccess = oe(function() {
-            S = null;
-            var k, O, E, I, C, $ = t.idbdb = T.result, F = Re($.objectStoreNames);
-            if (0 < F.length) try {
-              var N = $.transaction((I = F).length === 1 ? I[0] : I, "readonly");
-              if (n.autoSchema) O = $, E = N, (k = t).verno = O.version / 10, E = k._dbSchema = or(0, O, E), k._storeNames = Re(O.objectStoreNames, 0), ir(k, [k._allTables], h(E), E);
-              else if (ar(t, t._dbSchema, N), ((C = ai(or(0, (C = t).idbdb, N), C._dbSchema)).add.length || C.change.some(function(P) {
-                return P.add.length || P.change.length;
-              })) && !f) return console.warn("Dexie SchemaDiff: Schema was extended without increasing the number passed to db.version(). Dexie will add missing parts and increment native version number to workaround this."), $.close(), l = $.version + 1, f = !0, x(p());
-              rr(t, N);
-            } catch {
+      function y3() {
+        return new _e(function(s3, n5) {
+          if (e3(), !r3) throw new Y.MissingAPI();
+          var c3 = f3.name, l3 = h3.autoSchema || !d3 ? r3.open(c3) : r3.open(c3, d3);
+          if (!l3) throw new Y.MissingAPI();
+          l3.onerror = Bt(n5), l3.onblocked = Te(f3._fireOnBlocked), l3.onupgradeneeded = Te(function(e4) {
+            var t4;
+            v3 = l3.transaction, h3.autoSchema && !f3._options.allowEmptyDB ? (l3.onerror = Rt, v3.abort(), l3.result.close(), (t4 = r3.deleteDatabase(c3)).onsuccess = t4.onerror = Te(function() {
+              n5(new Y.NoSuchDatabase("Database ".concat(c3, " doesnt exist")));
+            })) : (v3.onerror = Bt(n5), e4 = e4.oldVersion > Math.pow(2, 62) ? 0 : e4.oldVersion, m3 = e4 < 1, f3.idbdb = l3.result, p3 && on(f3, v3), rn(f3, e4 / 10, v3, n5));
+          }, n5), l3.onsuccess = Te(function() {
+            v3 = null;
+            var e4, t4, n6, r4, i4, o3 = f3.idbdb = l3.result, a3 = b2(o3.objectStoreNames);
+            if (0 < a3.length) try {
+              var u3 = o3.transaction(1 === (r4 = a3).length ? r4[0] : r4, "readonly");
+              if (h3.autoSchema) t4 = o3, n6 = u3, (e4 = f3).verno = t4.version / 10, n6 = e4._dbSchema = ln(0, t4, n6), e4._storeNames = b2(t4.objectStoreNames, 0), en(e4, [e4._allTables], _2(n6), n6);
+              else if (fn(f3, f3._dbSchema, u3), ((i4 = an(ln(0, (i4 = f3).idbdb, u3), i4._dbSchema)).add.length || i4.change.some(function(e5) {
+                return e5.add.length || e5.change.length;
+              })) && !p3) return console.warn("Dexie SchemaDiff: Schema was extended without increasing the number passed to db.version(). Dexie will add missing parts and increment native version number to workaround this."), o3.close(), d3 = o3.version + 1, p3 = true, s3(y3());
+              Zt(f3, u3);
+            } catch (e5) {
             }
-            Ft.push(t), $.onversionchange = oe(function(P) {
-              n.vcFired = !0, t.on("versionchange").fire(P);
-            }), $.onclose = oe(function(P) {
-              t.on("close").fire(P);
-            }), y && (C = t._deps, N = _, $ = C.indexedDB, C = C.IDBKeyRange, ci($) || N === Xn || li($, C).put({ name: N }).catch(ie)), x();
-          }, b);
-        }).catch(function(x) {
-          switch (x == null ? void 0 : x.name) {
+            et.push(f3), o3.onversionchange = Te(function(e5) {
+              h3.vcFired = true, f3.on("versionchange").fire(e5);
+            }), o3.onclose = Te(function(e5) {
+              f3.on("close").fire(e5);
+            }), m3 && (i4 = f3._deps, u3 = c3, o3 = i4.indexedDB, i4 = i4.IDBKeyRange, vn(o3) || u3 === tt || yn(o3, i4).put({ name: u3 }).catch(G)), s3();
+          }, n5);
+        }).catch(function(e4) {
+          switch (null == e4 ? void 0 : e4.name) {
             case "UnknownError":
-              if (0 < n.PR1398_maxLoop) return n.PR1398_maxLoop--, console.warn("Dexie: Workaround for Chrome UnknownError on open()"), p();
+              if (0 < h3.PR1398_maxLoop) return h3.PR1398_maxLoop--, console.warn("Dexie: Workaround for Chrome UnknownError on open()"), y3();
               break;
             case "VersionError":
-              if (0 < l) return l = 0, p();
+              if (0 < d3) return d3 = 0, y3();
           }
-          return L.reject(x);
+          return _e.reject(e4);
         });
       }
-      var w, g = n.dbReadyResolve, S = null, y = !1;
-      return L.race([u, (typeof navigator > "u" ? L.resolve() : !navigator.userAgentData && /Safari\//.test(navigator.userAgent) && !/Chrom(e|ium)\//.test(navigator.userAgent) && indexedDB.databases ? new Promise(function(x) {
-        function b() {
-          return indexedDB.databases().finally(x);
+      var n4, i3 = h3.dbReadyResolve, v3 = null, m3 = false;
+      return _e.race([t3, ("undefined" == typeof navigator ? _e.resolve() : !navigator.userAgentData && /Safari\//.test(navigator.userAgent) && !/Chrom(e|ium)\//.test(navigator.userAgent) && indexedDB.databases ? new Promise(function(e4) {
+        function t4() {
+          return indexedDB.databases().finally(e4);
         }
-        w = setInterval(b, 100), b();
+        n4 = setInterval(t4, 100), t4();
       }).finally(function() {
-        return clearInterval(w);
-      }) : Promise.resolve()).then(p)]).then(function() {
-        return d(), n.onReadyBeingFired = [], L.resolve(fi(function() {
-          return t.on.ready.fire(t.vip);
-        })).then(function x() {
-          if (0 < n.onReadyBeingFired.length) {
-            var b = n.onReadyBeingFired.reduce(jr, ie);
-            return n.onReadyBeingFired = [], L.resolve(fi(function() {
-              return b(t.vip);
-            })).then(x);
+        return clearInterval(n4);
+      }) : Promise.resolve()).then(y3)]).then(function() {
+        return e3(), h3.onReadyBeingFired = [], _e.resolve(mn(function() {
+          return f3.on.ready.fire(f3.vip);
+        })).then(function e4() {
+          if (0 < h3.onReadyBeingFired.length) {
+            var t4 = h3.onReadyBeingFired.reduce(re, G);
+            return h3.onReadyBeingFired = [], _e.resolve(mn(function() {
+              return t4(f3.vip);
+            })).then(e4);
           }
         });
       }).finally(function() {
-        n.openCanceller === u && (n.onReadyBeingFired = null, n.isBeingOpened = !1);
-      }).catch(function(x) {
-        n.dbOpenError = x;
+        h3.openCanceller === t3 && (h3.onReadyBeingFired = null, h3.isBeingOpened = false);
+      }).catch(function(e4) {
+        h3.dbOpenError = e4;
         try {
-          S && S.abort();
-        } catch {
+          v3 && v3.abort();
+        } catch (e5) {
         }
-        return u === n.openCanceller && t._close(), le(x);
+        return t3 === h3.openCanceller && f3._close(), Xe(e4);
       }).finally(function() {
-        n.openComplete = !0, g();
+        h3.openComplete = true, i3();
       }).then(function() {
-        var x;
-        return y && (x = {}, t.tables.forEach(function(b) {
-          b.schema.indexes.forEach(function(_) {
-            _.name && (x["idb://".concat(t.name, "/").concat(b.name, "/").concat(_.name)] = new ke(-1 / 0, [[[]]]));
-          }), x["idb://".concat(t.name, "/").concat(b.name, "/")] = x["idb://".concat(t.name, "/").concat(b.name, "/:dels")] = new ke(-1 / 0, [[[]]]);
-        }), Qe(vn).fire(x), yi(x, !0)), t;
+        var n5;
+        return m3 && (n5 = {}, f3.tables.forEach(function(t4) {
+          t4.schema.indexes.forEach(function(e4) {
+            e4.name && (n5["idb://".concat(f3.name, "/").concat(t4.name, "/").concat(e4.name)] = new gn(-1 / 0, [[[]]]));
+          }), n5["idb://".concat(f3.name, "/").concat(t4.name, "/")] = n5["idb://".concat(f3.name, "/").concat(t4.name, "/:dels")] = new gn(-1 / 0, [[[]]]);
+        }), Nt(Ft).fire(n5), Dn(n5, true)), f3;
       });
     }
-    function gi(t) {
-      function n(f) {
-        return t.next(f);
+    function In(t3) {
+      function e3(e4) {
+        return t3.next(e4);
       }
-      var o = l(n), u = l(function(f) {
-        return t.throw(f);
+      var r3 = n4(e3), i3 = n4(function(e4) {
+        return t3.throw(e4);
       });
-      function l(f) {
-        return function(w) {
-          var p = f(w), w = p.value;
-          return p.done ? w : w && typeof w.then == "function" ? w.then(o, u) : m(w) ? Promise.all(w).then(o, u) : o(w);
+      function n4(n5) {
+        return function(e4) {
+          var t4 = n5(e4), e4 = t4.value;
+          return t4.done ? e4 : e4 && "function" == typeof e4.then ? e4.then(r3, i3) : x2(e4) ? Promise.all(e4).then(r3, i3) : r3(e4);
         };
       }
-      return l(n)();
+      return n4(e3)();
     }
-    function hr(t, n, o) {
-      for (var u = m(t) ? t.slice() : [t], l = 0; l < o; ++l) u.push(n);
-      return u;
+    function Bn(e3, t3, n4) {
+      for (var r3 = x2(e3) ? e3.slice() : [e3], i3 = 0; i3 < n4; ++i3) r3.push(t3);
+      return r3;
     }
-    var fu = { stack: "dbcore", name: "VirtualIndexMiddleware", level: 1, create: function(t) {
-      return i(i({}, t), { table: function(n) {
-        var o = t.table(n), u = o.schema, l = {}, f = [];
-        function d(y, x, b) {
-          var _ = wn(y), T = l[_] = l[_] || [], k = y == null ? 0 : typeof y == "string" ? 1 : y.length, O = 0 < x, O = i(i({}, b), { name: O ? "".concat(_, "(virtual-from:").concat(b.name, ")") : b.name, lowLevelIndex: b, isVirtual: O, keyTail: x, keyLength: k, extractKey: si(y), unique: !O && b.unique });
-          return T.push(O), O.isPrimaryKey || f.push(O), 1 < k && d(k === 2 ? y[0] : y.slice(0, k - 1), x + 1, b), T.sort(function(E, I) {
-            return E.keyTail - I.keyTail;
-          }), O;
+    var Rn = { stack: "dbcore", name: "VirtualIndexMiddleware", level: 1, create: function(f3) {
+      return w2(w2({}, f3), { table: function(e3) {
+        var a3 = f3.table(e3), t3 = a3.schema, u3 = {}, s3 = [];
+        function c3(e4, t4, n5) {
+          var r4 = Xt(e4), i4 = u3[r4] = u3[r4] || [], o3 = null == e4 ? 0 : "string" == typeof e4 ? 1 : e4.length, a4 = 0 < t4, a4 = w2(w2({}, n5), { name: a4 ? "".concat(r4, "(virtual-from:").concat(n5.name, ")") : n5.name, lowLevelIndex: n5, isVirtual: a4, keyTail: t4, keyLength: o3, extractKey: $t(e4), unique: !a4 && n5.unique });
+          return i4.push(a4), a4.isPrimaryKey || s3.push(a4), 1 < o3 && c3(2 === o3 ? e4[0] : e4.slice(0, o3 - 1), t4 + 1, n5), i4.sort(function(e5, t5) {
+            return e5.keyTail - t5.keyTail;
+          }), a4;
         }
-        n = d(u.primaryKey.keyPath, 0, u.primaryKey), l[":id"] = [n];
-        for (var p = 0, w = u.indexes; p < w.length; p++) {
-          var g = w[p];
-          d(g.keyPath, 0, g);
+        e3 = c3(t3.primaryKey.keyPath, 0, t3.primaryKey);
+        u3[":id"] = [e3];
+        for (var n4 = 0, r3 = t3.indexes; n4 < r3.length; n4++) {
+          var i3 = r3[n4];
+          c3(i3.keyPath, 0, i3);
         }
-        function S(y) {
-          var x, b = y.query.index;
-          return b.isVirtual ? i(i({}, y), { query: { index: b.lowLevelIndex, range: (x = y.query.range, b = b.keyTail, { type: x.type === 1 ? 2 : x.type, lower: hr(x.lower, x.lowerOpen ? t.MAX_KEY : t.MIN_KEY, b), lowerOpen: !0, upper: hr(x.upper, x.upperOpen ? t.MIN_KEY : t.MAX_KEY, b), upperOpen: !0 }) } }) : y;
+        function l3(e4) {
+          var t4, n5 = e4.query.index;
+          return n5.isVirtual ? w2(w2({}, e4), { query: { index: n5.lowLevelIndex, range: (t4 = e4.query.range, n5 = n5.keyTail, { type: 1 === t4.type ? 2 : t4.type, lower: Bn(t4.lower, t4.lowerOpen ? f3.MAX_KEY : f3.MIN_KEY, n5), lowerOpen: true, upper: Bn(t4.upper, t4.upperOpen ? f3.MIN_KEY : f3.MAX_KEY, n5), upperOpen: true }) } }) : e4;
         }
-        return i(i({}, o), { schema: i(i({}, u), { primaryKey: n, indexes: f, getIndexByKeyPath: function(y) {
-          return (y = l[wn(y)]) && y[0];
-        } }), count: function(y) {
-          return o.count(S(y));
-        }, query: function(y) {
-          return o.query(S(y));
-        }, openCursor: function(y) {
-          var x = y.query.index, b = x.keyTail, _ = x.isVirtual, T = x.keyLength;
-          return _ ? o.openCursor(S(y)).then(function(O) {
-            return O && k(O);
-          }) : o.openCursor(y);
-          function k(O) {
-            return Object.create(O, { continue: { value: function(E) {
-              E != null ? O.continue(hr(E, y.reverse ? t.MAX_KEY : t.MIN_KEY, b)) : y.unique ? O.continue(O.key.slice(0, T).concat(y.reverse ? t.MIN_KEY : t.MAX_KEY, b)) : O.continue();
-            } }, continuePrimaryKey: { value: function(E, I) {
-              O.continuePrimaryKey(hr(E, t.MAX_KEY, b), I);
+        return w2(w2({}, a3), { schema: w2(w2({}, t3), { primaryKey: e3, indexes: s3, getIndexByKeyPath: function(e4) {
+          return (e4 = u3[Xt(e4)]) && e4[0];
+        } }), count: function(e4) {
+          return a3.count(l3(e4));
+        }, query: function(e4) {
+          return a3.query(l3(e4));
+        }, openCursor: function(t4) {
+          var e4 = t4.query.index, r4 = e4.keyTail, n5 = e4.isVirtual, i4 = e4.keyLength;
+          return n5 ? a3.openCursor(l3(t4)).then(function(e5) {
+            return e5 && o3(e5);
+          }) : a3.openCursor(t4);
+          function o3(n6) {
+            return Object.create(n6, { continue: { value: function(e5) {
+              null != e5 ? n6.continue(Bn(e5, t4.reverse ? f3.MAX_KEY : f3.MIN_KEY, r4)) : t4.unique ? n6.continue(n6.key.slice(0, i4).concat(t4.reverse ? f3.MIN_KEY : f3.MAX_KEY, r4)) : n6.continue();
+            } }, continuePrimaryKey: { value: function(e5, t5) {
+              n6.continuePrimaryKey(Bn(e5, f3.MAX_KEY, r4), t5);
             } }, primaryKey: { get: function() {
-              return O.primaryKey;
+              return n6.primaryKey;
             } }, key: { get: function() {
-              var E = O.key;
-              return T === 1 ? E[0] : E.slice(0, T);
+              var e5 = n6.key;
+              return 1 === i4 ? e5[0] : e5.slice(0, i4);
             } }, value: { get: function() {
-              return O.value;
+              return n6.value;
             } } });
           }
         } });
       } });
     } };
-    function vi(t, n, o, u) {
-      return o = o || {}, u = u || "", h(t).forEach(function(l) {
-        var f, d, p;
-        M(n, l) ? (f = t[l], d = n[l], typeof f == "object" && typeof d == "object" && f && d ? (p = Vr(f)) !== Vr(d) ? o[u + l] = n[l] : p === "Object" ? vi(f, d, o, u + l + ".") : f !== d && (o[u + l] = n[l]) : f !== d && (o[u + l] = n[l])) : o[u + l] = void 0;
-      }), h(n).forEach(function(l) {
-        M(t, l) || (o[u + l] = n[l]);
-      }), o;
+    function Fn(i3, o3, a3, u3) {
+      return a3 = a3 || {}, u3 = u3 || "", _2(i3).forEach(function(e3) {
+        var t3, n4, r3;
+        m2(o3, e3) ? (t3 = i3[e3], n4 = o3[e3], "object" == typeof t3 && "object" == typeof n4 && t3 && n4 ? (r3 = A2(t3)) !== A2(n4) ? a3[u3 + e3] = o3[e3] : "Object" === r3 ? Fn(t3, n4, a3, u3 + e3 + ".") : t3 !== n4 && (a3[u3 + e3] = o3[e3]) : t3 !== n4 && (a3[u3 + e3] = o3[e3])) : a3[u3 + e3] = void 0;
+      }), _2(o3).forEach(function(e3) {
+        m2(i3, e3) || (a3[u3 + e3] = o3[e3]);
+      }), a3;
     }
-    function bi(t, n) {
-      return n.type === "delete" ? n.keys : n.keys || n.values.map(t.extractKey);
+    function Mn(e3, t3) {
+      return "delete" === t3.type ? t3.keys : t3.keys || t3.values.map(e3.extractKey);
     }
-    var hu = { stack: "dbcore", name: "HooksMiddleware", level: 2, create: function(t) {
-      return i(i({}, t), { table: function(n) {
-        var o = t.table(n), u = o.schema.primaryKey;
-        return i(i({}, o), { mutate: function(l) {
-          var f = U.trans, d = f.table(n).hook, p = d.deleting, w = d.creating, g = d.updating;
-          switch (l.type) {
+    var Nn = { stack: "dbcore", name: "HooksMiddleware", level: 2, create: function(e3) {
+      return w2(w2({}, e3), { table: function(r3) {
+        var y3 = e3.table(r3), v3 = y3.schema.primaryKey;
+        return w2(w2({}, y3), { mutate: function(e4) {
+          var t3 = me.trans, n4 = t3.table(r3).hook, h3 = n4.deleting, d3 = n4.creating, p3 = n4.updating;
+          switch (e4.type) {
             case "add":
-              if (w.fire === ie) break;
-              return f._promise("readwrite", function() {
-                return S(l);
-              }, !0);
+              if (d3.fire === G) break;
+              return t3._promise("readwrite", function() {
+                return a3(e4);
+              }, true);
             case "put":
-              if (w.fire === ie && g.fire === ie) break;
-              return f._promise("readwrite", function() {
-                return S(l);
-              }, !0);
+              if (d3.fire === G && p3.fire === G) break;
+              return t3._promise("readwrite", function() {
+                return a3(e4);
+              }, true);
             case "delete":
-              if (p.fire === ie) break;
-              return f._promise("readwrite", function() {
-                return S(l);
-              }, !0);
+              if (h3.fire === G) break;
+              return t3._promise("readwrite", function() {
+                return a3(e4);
+              }, true);
             case "deleteRange":
-              if (p.fire === ie) break;
-              return f._promise("readwrite", function() {
-                return function y(x, b, _) {
-                  return o.query({ trans: x, values: !1, query: { index: u, range: b }, limit: _ }).then(function(T) {
-                    var k = T.result;
-                    return S({ type: "delete", keys: k, trans: x }).then(function(O) {
-                      return 0 < O.numFailures ? Promise.reject(O.failures[0]) : k.length < _ ? { failures: [], numFailures: 0, lastResult: void 0 } : y(x, i(i({}, b), { lower: k[k.length - 1], lowerOpen: !0 }), _);
+              if (h3.fire === G) break;
+              return t3._promise("readwrite", function() {
+                return function n5(r4, i3, o3) {
+                  return y3.query({ trans: r4, values: false, query: { index: v3, range: i3 }, limit: o3 }).then(function(e5) {
+                    var t4 = e5.result;
+                    return a3({ type: "delete", keys: t4, trans: r4 }).then(function(e6) {
+                      return 0 < e6.numFailures ? Promise.reject(e6.failures[0]) : t4.length < o3 ? { failures: [], numFailures: 0, lastResult: void 0 } : n5(r4, w2(w2({}, i3), { lower: t4[t4.length - 1], lowerOpen: true }), o3);
                     });
                   });
-                }(l.trans, l.range, 1e4);
-              }, !0);
+                }(e4.trans, e4.range, 1e4);
+              }, true);
           }
-          return o.mutate(l);
-          function S(y) {
-            var x, b, _, T = U.trans, k = y.keys || bi(u, y);
-            if (!k) throw new Error("Keys missing");
-            return (y = y.type === "add" || y.type === "put" ? i(i({}, y), { keys: k }) : i({}, y)).type !== "delete" && (y.values = a([], y.values)), y.keys && (y.keys = a([], y.keys)), x = o, _ = k, ((b = y).type === "add" ? Promise.resolve([]) : x.getMany({ trans: b.trans, keys: _, cache: "immutable" })).then(function(O) {
-              var E = k.map(function(I, C) {
-                var $, F, N, P = O[C], R = { onerror: null, onsuccess: null };
-                return y.type === "delete" ? p.fire.call(R, I, P, T) : y.type === "add" || P === void 0 ? ($ = w.fire.call(R, I, y.values[C], T), I == null && $ != null && (y.keys[C] = I = $, u.outbound || we(y.values[C], u.keyPath, I))) : ($ = vi(P, y.values[C]), (F = g.fire.call(R, $, I, P, T)) && (N = y.values[C], Object.keys(F).forEach(function(D) {
-                  M(N, D) ? N[D] = F[D] : we(N, D, F[D]);
-                }))), R;
+          return y3.mutate(e4);
+          function a3(c3) {
+            var e5, t4, n5, l3 = me.trans, f3 = c3.keys || Mn(v3, c3);
+            if (!f3) throw new Error("Keys missing");
+            return "delete" !== (c3 = "add" === c3.type || "put" === c3.type ? w2(w2({}, c3), { keys: f3 }) : w2({}, c3)).type && (c3.values = i2([], c3.values)), c3.keys && (c3.keys = i2([], c3.keys)), e5 = y3, n5 = f3, ("add" === (t4 = c3).type ? Promise.resolve([]) : e5.getMany({ trans: t4.trans, keys: n5, cache: "immutable" })).then(function(u3) {
+              var s3 = f3.map(function(e6, t5) {
+                var n6, r4, i3, o3 = u3[t5], a4 = { onerror: null, onsuccess: null };
+                return "delete" === c3.type ? h3.fire.call(a4, e6, o3, l3) : "add" === c3.type || void 0 === o3 ? (n6 = d3.fire.call(a4, e6, c3.values[t5], l3), null == e6 && null != n6 && (c3.keys[t5] = e6 = n6, v3.outbound || P2(c3.values[t5], v3.keyPath, e6))) : (n6 = Fn(o3, c3.values[t5]), (r4 = p3.fire.call(a4, n6, e6, o3, l3)) && (i3 = c3.values[t5], Object.keys(r4).forEach(function(e7) {
+                  m2(i3, e7) ? i3[e7] = r4[e7] : P2(i3, e7, r4[e7]);
+                }))), a4;
               });
-              return o.mutate(y).then(function(I) {
-                for (var C = I.failures, $ = I.results, F = I.numFailures, I = I.lastResult, N = 0; N < k.length; ++N) {
-                  var P = ($ || k)[N], R = E[N];
-                  P == null ? R.onerror && R.onerror(C[N]) : R.onsuccess && R.onsuccess(y.type === "put" && O[N] ? y.values[N] : P);
+              return y3.mutate(c3).then(function(e6) {
+                for (var t5 = e6.failures, n6 = e6.results, r4 = e6.numFailures, e6 = e6.lastResult, i3 = 0; i3 < f3.length; ++i3) {
+                  var o3 = (n6 || f3)[i3], a4 = s3[i3];
+                  null == o3 ? a4.onerror && a4.onerror(t5[i3]) : a4.onsuccess && a4.onsuccess("put" === c3.type && u3[i3] ? c3.values[i3] : o3);
                 }
-                return { failures: C, results: $, numFailures: F, lastResult: I };
-              }).catch(function(I) {
-                return E.forEach(function(C) {
-                  return C.onerror && C.onerror(I);
-                }), Promise.reject(I);
+                return { failures: t5, results: n6, numFailures: r4, lastResult: e6 };
+              }).catch(function(t5) {
+                return s3.forEach(function(e6) {
+                  return e6.onerror && e6.onerror(t5);
+                }), Promise.reject(t5);
               });
             });
           }
         } });
       } });
     } };
-    function Ds(t, n, o) {
+    function Ln(e3, t3, n4) {
       try {
-        if (!n || n.keys.length < t.length) return null;
-        for (var u = [], l = 0, f = 0; l < n.keys.length && f < t.length; ++l) Q(n.keys[l], t[f]) === 0 && (u.push(o ? ft(n.values[l]) : n.values[l]), ++f);
-        return u.length === t.length ? u : null;
-      } catch {
+        if (!t3) return null;
+        if (t3.keys.length < e3.length) return null;
+        for (var r3 = [], i3 = 0, o3 = 0; i3 < t3.keys.length && o3 < e3.length; ++i3) 0 === st(t3.keys[i3], e3[o3]) && (r3.push(n4 ? S2(t3.values[i3]) : t3.values[i3]), ++o3);
+        return r3.length === e3.length ? r3 : null;
+      } catch (e4) {
         return null;
       }
     }
-    var du = { stack: "dbcore", level: -1, create: function(t) {
-      return { table: function(n) {
-        var o = t.table(n);
-        return i(i({}, o), { getMany: function(u) {
-          if (!u.cache) return o.getMany(u);
-          var l = Ds(u.keys, u.trans._cache, u.cache === "clone");
-          return l ? L.resolve(l) : o.getMany(u).then(function(f) {
-            return u.trans._cache = { keys: u.keys, values: u.cache === "clone" ? ft(f) : f }, f;
+    var Un = { stack: "dbcore", level: -1, create: function(t3) {
+      return { table: function(e3) {
+        var n4 = t3.table(e3);
+        return w2(w2({}, n4), { getMany: function(t4) {
+          if (!t4.cache) return n4.getMany(t4);
+          var e4 = Ln(t4.keys, t4.trans._cache, "clone" === t4.cache);
+          return e4 ? _e.resolve(e4) : n4.getMany(t4).then(function(e5) {
+            return t4.trans._cache = { keys: t4.keys, values: "clone" === t4.cache ? S2(e5) : e5 }, e5;
           });
-        }, mutate: function(u) {
-          return u.type !== "add" && (u.trans._cache = null), o.mutate(u);
+        }, mutate: function(e4) {
+          return "add" !== e4.type && (e4.trans._cache = null), n4.mutate(e4);
         } });
       } };
     } };
-    function $s(t, n) {
-      return t.trans.mode === "readonly" && !!t.subscr && !t.trans.explicit && t.trans.db._options.cache !== "disabled" && !n.schema.primaryKey.outbound;
+    function Vn(e3, t3) {
+      return "readonly" === e3.trans.mode && !!e3.subscr && !e3.trans.explicit && "disabled" !== e3.trans.db._options.cache && !t3.schema.primaryKey.outbound;
     }
-    function Ns(t, n) {
-      switch (t) {
+    function zn(e3, t3) {
+      switch (e3) {
         case "query":
-          return n.values && !n.unique;
+          return t3.values && !t3.unique;
         case "get":
         case "getMany":
         case "count":
         case "openCursor":
-          return !1;
+          return false;
       }
     }
-    var mu = { stack: "dbcore", level: 0, name: "Observability", create: function(t) {
-      var n = t.schema.name, o = new ke(t.MIN_KEY, t.MAX_KEY);
-      return i(i({}, t), { transaction: function(u, l, f) {
-        if (U.subscr && l !== "readonly") throw new W.ReadOnly("Readwrite transaction in liveQuery context. Querier source: ".concat(U.querier));
-        return t.transaction(u, l, f);
-      }, table: function(u) {
-        var l = t.table(u), f = l.schema, d = f.primaryKey, y = f.indexes, p = d.extractKey, w = d.outbound, g = d.autoIncrement && y.filter(function(b) {
-          return b.compound && b.keyPath.includes(d.keyPath);
-        }), S = i(i({}, l), { mutate: function(b) {
-          function _(D) {
-            return D = "idb://".concat(n, "/").concat(u, "/").concat(D), I[D] || (I[D] = new ke());
+    var Wn = { stack: "dbcore", level: 0, name: "Observability", create: function(r3) {
+      var b3 = r3.schema.name, g3 = new gn(r3.MIN_KEY, r3.MAX_KEY);
+      return w2(w2({}, r3), { transaction: function(e3, t3, n4) {
+        if (me.subscr && "readonly" !== t3) throw new Y.ReadOnly("Readwrite transaction in liveQuery context. Querier source: ".concat(me.querier));
+        return r3.transaction(e3, t3, n4);
+      }, table: function(d3) {
+        var p3 = r3.table(d3), y3 = p3.schema, v3 = y3.primaryKey, e3 = y3.indexes, c3 = v3.extractKey, l3 = v3.outbound, m3 = v3.autoIncrement && e3.filter(function(e4) {
+          return e4.compound && e4.keyPath.includes(v3.keyPath);
+        }), t3 = w2(w2({}, p3), { mutate: function(i3) {
+          function o3(e5) {
+            return e5 = "idb://".concat(b3, "/").concat(d3, "/").concat(e5), n4[e5] || (n4[e5] = new gn());
           }
-          var T, k, O, E = b.trans, I = b.mutatedParts || (b.mutatedParts = {}), C = _(""), $ = _(":dels"), F = b.type, R = b.type === "deleteRange" ? [b.range] : b.type === "delete" ? [b.keys] : b.values.length < 50 ? [bi(d, b).filter(function(D) {
-            return D;
-          }), b.values] : [], N = R[0], P = R[1], R = b.trans._cache;
-          return m(N) ? (C.addKeys(N), (R = F === "delete" || N.length === P.length ? Ds(N, R) : null) || $.addKeys(N), (R || P) && (T = _, k = R, O = P, f.indexes.forEach(function(D) {
-            var B = T(D.name || "");
-            function H(Y) {
-              return Y != null ? D.extractKey(Y) : null;
+          var e4, a3, u3, t4 = i3.trans, n4 = i3.mutatedParts || (i3.mutatedParts = {}), r4 = o3(""), s3 = o3(":dels"), c4 = i3.type, l4 = "deleteRange" === i3.type ? [i3.range] : "delete" === i3.type ? [i3.keys] : i3.values.length < 50 ? [Mn(v3, i3).filter(function(e5) {
+            return e5;
+          }), i3.values] : [], f4 = l4[0], h3 = l4[1], l4 = i3.trans._cache;
+          return x2(f4) ? (r4.addKeys(f4), (l4 = "delete" === c4 || f4.length === h3.length ? Ln(f4, l4) : null) || s3.addKeys(f4), (l4 || h3) && (e4 = o3, a3 = l4, u3 = h3, y3.indexes.forEach(function(t5) {
+            var n5 = e4(t5.name || "");
+            function r5(e5) {
+              return null != e5 ? t5.extractKey(e5) : null;
             }
-            function J(Y) {
-              return D.multiEntry && m(Y) ? Y.forEach(function($e) {
-                return B.addKey($e);
-              }) : B.addKey(Y);
+            function i4(e5) {
+              return t5.multiEntry && x2(e5) ? e5.forEach(function(e6) {
+                return n5.addKey(e6);
+              }) : n5.addKey(e5);
             }
-            (k || O).forEach(function(Y, pe) {
-              var G = k && H(k[pe]), pe = O && H(O[pe]);
-              Q(G, pe) !== 0 && (G != null && J(G), pe != null && J(pe));
+            (a3 || u3).forEach(function(e5, t6) {
+              var n6 = a3 && r5(a3[t6]), t6 = u3 && r5(u3[t6]);
+              0 !== st(n6, t6) && (null != n6 && i4(n6), null != t6 && i4(t6));
             });
-          }))) : N ? (P = { from: N.lower, to: N.upper }, $.add(P), C.add(P)) : (C.add(o), $.add(o), f.indexes.forEach(function(D) {
-            return _(D.name).add(o);
-          })), l.mutate(b).then(function(D) {
-            return !N || b.type !== "add" && b.type !== "put" || (C.addKeys(D.results), g && g.forEach(function(B) {
-              var H = b.values.map(function(Y) {
-                return B.extractKey(Y);
-              }), J = B.keyPath.findIndex(function(Y) {
-                return Y === d.keyPath;
+          }))) : f4 ? (h3 = { from: f4.lower, to: f4.upper }, s3.add(h3), r4.add(h3)) : (r4.add(g3), s3.add(g3), y3.indexes.forEach(function(e5) {
+            return o3(e5.name).add(g3);
+          })), p3.mutate(i3).then(function(e5) {
+            return !f4 || "add" !== i3.type && "put" !== i3.type || (r4.addKeys(e5.results), m3 && m3.forEach(function(t5) {
+              var n5 = i3.values.map(function(e6) {
+                return t5.extractKey(e6);
+              }), r5 = t5.keyPath.findIndex(function(e6) {
+                return e6 === v3.keyPath;
               });
-              D.results.forEach(function(Y) {
-                return H[J] = Y;
-              }), _(B.name).addKeys(H);
-            })), E.mutatedParts = cr(E.mutatedParts || {}, I), D;
+              e5.results.forEach(function(e6) {
+                return n5[r5] = e6;
+              }), o3(t5.name).addKeys(n5);
+            })), t4.mutatedParts = En(t4.mutatedParts || {}, n4), e5;
           });
-        } }), y = function(_) {
-          var T = _.query, _ = T.index, T = T.range;
-          return [_, new ke((_ = T.lower) !== null && _ !== void 0 ? _ : t.MIN_KEY, (T = T.upper) !== null && T !== void 0 ? T : t.MAX_KEY)];
-        }, x = { get: function(b) {
-          return [d, new ke(b.key)];
-        }, getMany: function(b) {
-          return [d, new ke().addKeys(b.keys)];
-        }, count: y, query: y, openCursor: y };
-        return h(x).forEach(function(b) {
-          S[b] = function(_) {
-            var T = U.subscr, k = !!T, O = $s(U, l) && Ns(b, _) ? _.obsSet = {} : T;
-            if (k) {
-              var E = function(P) {
-                return P = "idb://".concat(n, "/").concat(u, "/").concat(P), O[P] || (O[P] = new ke());
-              }, I = E(""), C = E(":dels"), T = x[b](_), k = T[0], T = T[1];
-              if ((b === "query" && k.isPrimaryKey && !_.values ? C : E(k.name || "")).add(T), !k.isPrimaryKey) {
-                if (b !== "count") {
-                  var $ = b === "query" && w && _.values && l.query(i(i({}, _), { values: !1 }));
-                  return l[b].apply(this, arguments).then(function(P) {
-                    if (b === "query") {
-                      if (w && _.values) return $.then(function(H) {
-                        return H = H.result, I.addKeys(H), P;
+        } }), e3 = function(e4) {
+          var t4 = e4.query, e4 = t4.index, t4 = t4.range;
+          return [e4, new gn(null !== (e4 = t4.lower) && void 0 !== e4 ? e4 : r3.MIN_KEY, null !== (t4 = t4.upper) && void 0 !== t4 ? t4 : r3.MAX_KEY)];
+        }, f3 = { get: function(e4) {
+          return [v3, new gn(e4.key)];
+        }, getMany: function(e4) {
+          return [v3, new gn().addKeys(e4.keys)];
+        }, count: e3, query: e3, openCursor: e3 };
+        return _2(f3).forEach(function(s3) {
+          t3[s3] = function(i3) {
+            var e4 = me.subscr, t4 = !!e4, n4 = Vn(me, p3) && zn(s3, i3) ? i3.obsSet = {} : e4;
+            if (t4) {
+              var r4 = function(e5) {
+                e5 = "idb://".concat(b3, "/").concat(d3, "/").concat(e5);
+                return n4[e5] || (n4[e5] = new gn());
+              }, o3 = r4(""), a3 = r4(":dels"), e4 = f3[s3](i3), t4 = e4[0], e4 = e4[1];
+              if (("query" === s3 && t4.isPrimaryKey && !i3.values ? a3 : r4(t4.name || "")).add(e4), !t4.isPrimaryKey) {
+                if ("count" !== s3) {
+                  var u3 = "query" === s3 && l3 && i3.values && p3.query(w2(w2({}, i3), { values: false }));
+                  return p3[s3].apply(this, arguments).then(function(t5) {
+                    if ("query" === s3) {
+                      if (l3 && i3.values) return u3.then(function(e6) {
+                        e6 = e6.result;
+                        return o3.addKeys(e6), t5;
                       });
-                      var R = _.values ? P.result.map(p) : P.result;
-                      (_.values ? I : C).addKeys(R);
-                    } else if (b === "openCursor") {
-                      var D = P, B = _.values;
-                      return D && Object.create(D, { key: { get: function() {
-                        return C.addKey(D.primaryKey), D.key;
+                      var e5 = i3.values ? t5.result.map(c3) : t5.result;
+                      (i3.values ? o3 : a3).addKeys(e5);
+                    } else if ("openCursor" === s3) {
+                      var n5 = t5, r5 = i3.values;
+                      return n5 && Object.create(n5, { key: { get: function() {
+                        return a3.addKey(n5.primaryKey), n5.key;
                       } }, primaryKey: { get: function() {
-                        var H = D.primaryKey;
-                        return C.addKey(H), H;
+                        var e6 = n5.primaryKey;
+                        return a3.addKey(e6), e6;
                       } }, value: { get: function() {
-                        return B && I.addKey(D.primaryKey), D.value;
+                        return r5 && o3.addKey(n5.primaryKey), n5.value;
                       } } });
                     }
-                    return P;
+                    return t5;
                   });
                 }
-                C.add(o);
+                a3.add(g3);
               }
             }
-            return l[b].apply(this, arguments);
+            return p3[s3].apply(this, arguments);
           };
-        }), S;
+        }), t3;
       } });
     } };
-    function Ms(t, n, o) {
-      if (o.numFailures === 0) return n;
-      if (n.type === "deleteRange") return null;
-      var u = n.keys ? n.keys.length : "values" in n && n.values ? n.values.length : 1;
-      return o.numFailures === u ? null : (n = i({}, n), m(n.keys) && (n.keys = n.keys.filter(function(l, f) {
-        return !(f in o.failures);
-      })), "values" in n && m(n.values) && (n.values = n.values.filter(function(l, f) {
-        return !(f in o.failures);
-      })), n);
+    function Yn(e3, t3, n4) {
+      if (0 === n4.numFailures) return t3;
+      if ("deleteRange" === t3.type) return null;
+      var r3 = t3.keys ? t3.keys.length : "values" in t3 && t3.values ? t3.values.length : 1;
+      if (n4.numFailures === r3) return null;
+      t3 = w2({}, t3);
+      return x2(t3.keys) && (t3.keys = t3.keys.filter(function(e4, t4) {
+        return !(t4 in n4.failures);
+      })), "values" in t3 && x2(t3.values) && (t3.values = t3.values.filter(function(e4, t4) {
+        return !(t4 in n4.failures);
+      })), t3;
     }
-    function wi(t, n) {
-      return o = t, ((u = n).lower === void 0 || (u.lowerOpen ? 0 < Q(o, u.lower) : 0 <= Q(o, u.lower))) && (t = t, (n = n).upper === void 0 || (n.upperOpen ? Q(t, n.upper) < 0 : Q(t, n.upper) <= 0));
-      var o, u;
+    function $n(e3, t3) {
+      return n4 = e3, (void 0 === (r3 = t3).lower || (r3.lowerOpen ? 0 < st(n4, r3.lower) : 0 <= st(n4, r3.lower))) && (e3 = e3, void 0 === (t3 = t3).upper || (t3.upperOpen ? st(e3, t3.upper) < 0 : st(e3, t3.upper) <= 0));
+      var n4, r3;
     }
-    function Ps(t, n, x, u, l, f) {
-      if (!x || x.length === 0) return t;
-      var d = n.query.index, p = d.multiEntry, w = n.query.range, g = u.schema.primaryKey.extractKey, S = d.extractKey, y = (d.lowLevelIndex || d).extractKey, x = x.reduce(function(b, _) {
-        var T = b, k = [];
-        if (_.type === "add" || _.type === "put") for (var O = new ke(), E = _.values.length - 1; 0 <= E; --E) {
-          var I, C = _.values[E], $ = g(C);
-          O.hasKey($) || (I = S(C), (p && m(I) ? I.some(function(R) {
-            return wi(R, w);
-          }) : wi(I, w)) && (O.addKey($), k.push(C)));
+    function Qn(e3, h3, t3, n4, r3, i3) {
+      if (!t3 || 0 === t3.length) return e3;
+      var o3 = h3.query.index, d3 = o3.multiEntry, p3 = h3.query.range, y3 = n4.schema.primaryKey.extractKey, v3 = o3.extractKey, a3 = (o3.lowLevelIndex || o3).extractKey, t3 = t3.reduce(function(e4, t4) {
+        var n5 = e4, r4 = [];
+        if ("add" === t4.type || "put" === t4.type) for (var i4 = new gn(), o4 = t4.values.length - 1; 0 <= o4; --o4) {
+          var a4, u3 = t4.values[o4], s3 = y3(u3);
+          i4.hasKey(s3) || (a4 = v3(u3), (d3 && x2(a4) ? a4.some(function(e5) {
+            return $n(e5, p3);
+          }) : $n(a4, p3)) && (i4.addKey(s3), r4.push(u3)));
         }
-        switch (_.type) {
+        switch (t4.type) {
           case "add":
-            T = b.concat(n.values ? k : k.map(function(D) {
-              return g(D);
+            n5 = e4.concat(h3.values ? r4 : r4.map(function(e5) {
+              return y3(e5);
             }));
             break;
           case "put":
-            var F = new ke().addKeys(_.values.map(function(D) {
-              return g(D);
-            })), T = b.filter(function(D) {
-              return !F.hasKey(n.values ? g(D) : D);
-            }).concat(n.values ? k : k.map(function(D) {
-              return g(D);
+            var c3 = new gn().addKeys(t4.values.map(function(e5) {
+              return y3(e5);
+            })), n5 = e4.filter(function(e5) {
+              return !c3.hasKey(h3.values ? y3(e5) : e5);
+            }).concat(h3.values ? r4 : r4.map(function(e5) {
+              return y3(e5);
             }));
             break;
           case "delete":
-            var N = new ke().addKeys(_.keys);
-            T = b.filter(function(D) {
-              return !N.hasKey(n.values ? g(D) : D);
+            var l3 = new gn().addKeys(t4.keys);
+            n5 = e4.filter(function(e5) {
+              return !l3.hasKey(h3.values ? y3(e5) : e5);
             });
             break;
           case "deleteRange":
-            var P = _.range;
-            T = b.filter(function(D) {
-              return !wi(g(D), P);
+            var f3 = t4.range;
+            n5 = e4.filter(function(e5) {
+              return !$n(y3(e5), f3);
             });
         }
-        return T;
-      }, t);
-      return x === t ? t : (x.sort(function(b, _) {
-        return Q(y(b), y(_)) || Q(g(b), g(_));
-      }), n.limit && n.limit < 1 / 0 && (x.length > n.limit ? x.length = n.limit : t.length === n.limit && x.length < n.limit && (l.dirty = !0)), f ? Object.freeze(x) : x);
+        return n5;
+      }, e3);
+      return t3 === e3 ? e3 : (t3.sort(function(e4, t4) {
+        return st(a3(e4), a3(t4)) || st(y3(e4), y3(t4));
+      }), h3.limit && h3.limit < 1 / 0 && (t3.length > h3.limit ? t3.length = h3.limit : e3.length === h3.limit && t3.length < h3.limit && (r3.dirty = true)), i3 ? Object.freeze(t3) : t3);
     }
-    function Fs(t, n) {
-      return Q(t.lower, n.lower) === 0 && Q(t.upper, n.upper) === 0 && !!t.lowerOpen == !!n.lowerOpen && !!t.upperOpen == !!n.upperOpen;
+    function Gn(e3, t3) {
+      return 0 === st(e3.lower, t3.lower) && 0 === st(e3.upper, t3.upper) && !!e3.lowerOpen == !!t3.lowerOpen && !!e3.upperOpen == !!t3.upperOpen;
     }
-    function pu(t, n) {
-      return function(o, u, l, f) {
-        if (o === void 0) return u !== void 0 ? -1 : 0;
-        if (u === void 0) return 1;
-        if ((u = Q(o, u)) === 0) {
-          if (l && f) return 0;
-          if (l) return 1;
-          if (f) return -1;
+    function Xn(e3, t3) {
+      return function(e4, t4, n4, r3) {
+        if (void 0 === e4) return void 0 !== t4 ? -1 : 0;
+        if (void 0 === t4) return 1;
+        if (0 === (t4 = st(e4, t4))) {
+          if (n4 && r3) return 0;
+          if (n4) return 1;
+          if (r3) return -1;
         }
-        return u;
-      }(t.lower, n.lower, t.lowerOpen, n.lowerOpen) <= 0 && 0 <= function(o, u, l, f) {
-        if (o === void 0) return u !== void 0 ? 1 : 0;
-        if (u === void 0) return -1;
-        if ((u = Q(o, u)) === 0) {
-          if (l && f) return 0;
-          if (l) return -1;
-          if (f) return 1;
+        return t4;
+      }(e3.lower, t3.lower, e3.lowerOpen, t3.lowerOpen) <= 0 && 0 <= function(e4, t4, n4, r3) {
+        if (void 0 === e4) return void 0 !== t4 ? 1 : 0;
+        if (void 0 === t4) return -1;
+        if (0 === (t4 = st(e4, t4))) {
+          if (n4 && r3) return 0;
+          if (n4) return -1;
+          if (r3) return 1;
         }
-        return u;
-      }(t.upper, n.upper, t.upperOpen, n.upperOpen);
+        return t4;
+      }(e3.upper, t3.upper, e3.upperOpen, t3.upperOpen);
     }
-    function yu(t, n, o, u) {
-      t.subscribers.add(o), u.addEventListener("abort", function() {
-        var l, f;
-        t.subscribers.delete(o), t.subscribers.size === 0 && (l = t, f = n, setTimeout(function() {
-          l.subscribers.size === 0 && ht(f, l);
+    function Hn(n4, r3, i3, e3) {
+      n4.subscribers.add(i3), e3.addEventListener("abort", function() {
+        var e4, t3;
+        n4.subscribers.delete(i3), 0 === n4.subscribers.size && (e4 = n4, t3 = r3, setTimeout(function() {
+          0 === e4.subscribers.size && T2(t3, e4);
         }, 3e3));
       });
     }
-    var gu = { stack: "dbcore", level: 0, name: "Cache", create: function(t) {
-      var n = t.schema.name;
-      return i(i({}, t), { transaction: function(o, u, l) {
-        var f, d, p = t.transaction(o, u, l);
-        return u === "readwrite" && (d = (f = new AbortController()).signal, l = function(w) {
+    var Jn = { stack: "dbcore", level: 0, name: "Cache", create: function(k3) {
+      var O2 = k3.schema.name;
+      return w2(w2({}, k3), { transaction: function(g3, w3, e3) {
+        var _3, t3, x3 = k3.transaction(g3, w3, e3);
+        return "readwrite" === w3 && (t3 = (_3 = new AbortController()).signal, e3 = function(b3) {
           return function() {
-            if (f.abort(), u === "readwrite") {
-              for (var g = /* @__PURE__ */ new Set(), S = 0, y = o; S < y.length; S++) {
-                var x = y[S], b = bt["idb://".concat(n, "/").concat(x)];
-                if (b) {
-                  var _ = t.table(x), T = b.optimisticOps.filter(function(B) {
-                    return B.trans === p;
+            if (_3.abort(), "readwrite" === w3) {
+              for (var t4 = /* @__PURE__ */ new Set(), e4 = 0, n4 = g3; e4 < n4.length; e4++) {
+                var r3 = n4[e4], i3 = Sn["idb://".concat(O2, "/").concat(r3)];
+                if (i3) {
+                  var o3 = k3.table(r3), a3 = i3.optimisticOps.filter(function(e5) {
+                    return e5.trans === x3;
                   });
-                  if (p._explicit && w && p.mutatedParts) for (var k = 0, O = Object.values(b.queries.query); k < O.length; k++) for (var E = 0, I = (F = O[k]).slice(); E < I.length; E++) di((N = I[E]).obsSet, p.mutatedParts) && (ht(F, N), N.subscribers.forEach(function(B) {
-                    return g.add(B);
+                  if (x3._explicit && b3 && x3.mutatedParts) for (var u3 = 0, s3 = Object.values(i3.queries.query); u3 < s3.length; u3++) for (var c3 = 0, l3 = (d3 = s3[u3]).slice(); c3 < l3.length; c3++) Kn((p3 = l3[c3]).obsSet, x3.mutatedParts) && (T2(d3, p3), p3.subscribers.forEach(function(e5) {
+                    return t4.add(e5);
                   }));
-                  else if (0 < T.length) {
-                    b.optimisticOps = b.optimisticOps.filter(function(B) {
-                      return B.trans !== p;
+                  else if (0 < a3.length) {
+                    i3.optimisticOps = i3.optimisticOps.filter(function(e5) {
+                      return e5.trans !== x3;
                     });
-                    for (var C = 0, $ = Object.values(b.queries.query); C < $.length; C++) for (var F, N, P, R = 0, D = (F = $[C]).slice(); R < D.length; R++) (N = D[R]).res != null && p.mutatedParts && (w && !N.dirty ? (P = Object.isFrozen(N.res), P = Ps(N.res, N.req, T, _, N, P), N.dirty ? (ht(F, N), N.subscribers.forEach(function(B) {
-                      return g.add(B);
-                    })) : P !== N.res && (N.res = P, N.promise = L.resolve({ result: P }))) : (N.dirty && ht(F, N), N.subscribers.forEach(function(B) {
-                      return g.add(B);
+                    for (var f3 = 0, h3 = Object.values(i3.queries.query); f3 < h3.length; f3++) for (var d3, p3, y3, v3 = 0, m3 = (d3 = h3[f3]).slice(); v3 < m3.length; v3++) null != (p3 = m3[v3]).res && x3.mutatedParts && (b3 && !p3.dirty ? (y3 = Object.isFrozen(p3.res), y3 = Qn(p3.res, p3.req, a3, o3, p3, y3), p3.dirty ? (T2(d3, p3), p3.subscribers.forEach(function(e5) {
+                      return t4.add(e5);
+                    })) : y3 !== p3.res && (p3.res = y3, p3.promise = _e.resolve({ result: y3 }))) : (p3.dirty && T2(d3, p3), p3.subscribers.forEach(function(e5) {
+                      return t4.add(e5);
                     })));
                   }
                 }
               }
-              g.forEach(function(B) {
-                return B();
+              t4.forEach(function(e5) {
+                return e5();
               });
             }
           };
-        }, p.addEventListener("abort", l(!1), { signal: d }), p.addEventListener("error", l(!1), { signal: d }), p.addEventListener("complete", l(!0), { signal: d })), p;
-      }, table: function(o) {
-        var u = t.table(o), l = u.schema.primaryKey;
-        return i(i({}, u), { mutate: function(f) {
-          var d = U.trans;
-          if (l.outbound || d.db._options.cache === "disabled" || d.explicit) return u.mutate(f);
-          var p = bt["idb://".concat(n, "/").concat(o)];
-          return p ? (d = u.mutate(f), f.type !== "add" && f.type !== "put" || !(50 <= f.values.length || bi(l, f).some(function(w) {
-            return w == null;
-          })) ? (p.optimisticOps.push(f), f.mutatedParts && fr(f.mutatedParts), d.then(function(w) {
-            0 < w.numFailures && (ht(p.optimisticOps, f), (w = Ms(0, f, w)) && p.optimisticOps.push(w), f.mutatedParts && fr(f.mutatedParts));
-          }), d.catch(function() {
-            ht(p.optimisticOps, f), f.mutatedParts && fr(f.mutatedParts);
-          })) : d.then(function(w) {
-            var g = Ms(0, i(i({}, f), { values: f.values.map(function(b, y) {
-              var x, b = (x = l.keyPath) !== null && x !== void 0 && x.includes(".") ? ft(b) : i({}, b);
-              return we(b, l.keyPath, w.results[y]), b;
-            }) }), w);
-            p.optimisticOps.push(g), queueMicrotask(function() {
-              return f.mutatedParts && fr(f.mutatedParts);
+        }, x3.addEventListener("abort", e3(false), { signal: t3 }), x3.addEventListener("error", e3(false), { signal: t3 }), x3.addEventListener("complete", e3(true), { signal: t3 })), x3;
+      }, table: function(c3) {
+        var l3 = k3.table(c3), i3 = l3.schema.primaryKey;
+        return w2(w2({}, l3), { mutate: function(t3) {
+          var e3 = me.trans;
+          if (i3.outbound || "disabled" === e3.db._options.cache || e3.explicit) return l3.mutate(t3);
+          var n4 = Sn["idb://".concat(O2, "/").concat(c3)];
+          if (!n4) return l3.mutate(t3);
+          e3 = l3.mutate(t3);
+          return "add" !== t3.type && "put" !== t3.type || !(50 <= t3.values.length || Mn(i3, t3).some(function(e4) {
+            return null == e4;
+          })) ? (n4.optimisticOps.push(t3), t3.mutatedParts && Cn(t3.mutatedParts), e3.then(function(e4) {
+            0 < e4.numFailures && (T2(n4.optimisticOps, t3), (e4 = Yn(0, t3, e4)) && n4.optimisticOps.push(e4), t3.mutatedParts && Cn(t3.mutatedParts));
+          }), e3.catch(function() {
+            T2(n4.optimisticOps, t3), t3.mutatedParts && Cn(t3.mutatedParts);
+          })) : e3.then(function(r3) {
+            var e4 = Yn(0, w2(w2({}, t3), { values: t3.values.map(function(e5, t4) {
+              var n5, e5 = null !== (n5 = i3.keyPath) && void 0 !== n5 && n5.includes(".") ? S2(e5) : w2({}, e5);
+              return P2(e5, i3.keyPath, r3.results[t4]), e5;
+            }) }), r3);
+            n4.optimisticOps.push(e4), queueMicrotask(function() {
+              return t3.mutatedParts && Cn(t3.mutatedParts);
             });
-          }), d) : u.mutate(f);
-        }, query: function(f) {
-          if (!$s(U, u) || !Ns("query", f)) return u.query(f);
-          var d = ((g = U.trans) === null || g === void 0 ? void 0 : g.db._options.cache) === "immutable", y = U, p = y.requery, w = y.signal, g = function(_, T, k, O) {
-            var E = bt["idb://".concat(_, "/").concat(T)];
-            if (!E) return [];
-            if (!(T = E.queries[k])) return [null, !1, E, null];
-            var I = T[(O.query ? O.query.index.name : null) || ""];
-            if (!I) return [null, !1, E, null];
-            switch (k) {
+          }), e3;
+        }, query: function(t3) {
+          if (!Vn(me, l3) || !zn("query", t3)) return l3.query(t3);
+          var i4 = "immutable" === (null === (o3 = me.trans) || void 0 === o3 ? void 0 : o3.db._options.cache), e3 = me, n4 = e3.requery, r3 = e3.signal, o3 = function(e4, t4, n5, r4) {
+            var i5 = Sn["idb://".concat(e4, "/").concat(t4)];
+            if (!i5) return [];
+            if (!(t4 = i5.queries[n5])) return [null, false, i5, null];
+            var o4 = t4[(r4.query ? r4.query.index.name : null) || ""];
+            if (!o4) return [null, false, i5, null];
+            switch (n5) {
               case "query":
-                var C = I.find(function($) {
-                  return $.req.limit === O.limit && $.req.values === O.values && Fs($.req.query.range, O.query.range);
+                var a4 = o4.find(function(e5) {
+                  return e5.req.limit === r4.limit && e5.req.values === r4.values && Gn(e5.req.query.range, r4.query.range);
                 });
-                return C ? [C, !0, E, I] : [I.find(function($) {
-                  return ("limit" in $.req ? $.req.limit : 1 / 0) >= O.limit && (!O.values || $.req.values) && pu($.req.query.range, O.query.range);
-                }), !1, E, I];
+                return a4 ? [a4, true, i5, o4] : [o4.find(function(e5) {
+                  return ("limit" in e5.req ? e5.req.limit : 1 / 0) >= r4.limit && (!r4.values || e5.req.values) && Xn(e5.req.query.range, r4.query.range);
+                }), false, i5, o4];
               case "count":
-                return C = I.find(function($) {
-                  return Fs($.req.query.range, O.query.range);
-                }), [C, !!C, E, I];
+                a4 = o4.find(function(e5) {
+                  return Gn(e5.req.query.range, r4.query.range);
+                });
+                return [a4, !!a4, i5, o4];
             }
-          }(n, o, "query", f), S = g[0], y = g[1], x = g[2], b = g[3];
-          return S && y ? S.obsSet = f.obsSet : (y = u.query(f).then(function(_) {
-            var T = _.result;
-            if (S && (S.res = T), d) {
-              for (var k = 0, O = T.length; k < O; ++k) Object.freeze(T[k]);
-              Object.freeze(T);
-            } else _.result = ft(T);
-            return _;
-          }).catch(function(_) {
-            return b && S && ht(b, S), Promise.reject(_);
-          }), S = { obsSet: f.obsSet, promise: y, subscribers: /* @__PURE__ */ new Set(), type: "query", req: f, dirty: !1 }, b ? b.push(S) : (b = [S], (x = x || (bt["idb://".concat(n, "/").concat(o)] = { queries: { query: {}, count: {} }, objs: /* @__PURE__ */ new Map(), optimisticOps: [], unsignaledParts: {} })).queries.query[f.query.index.name || ""] = b)), yu(S, b, p, w), S.promise.then(function(_) {
-            return { result: Ps(_.result, f, x == null ? void 0 : x.optimisticOps, u, S, d) };
+          }(O2, c3, "query", t3), a3 = o3[0], e3 = o3[1], u3 = o3[2], s3 = o3[3];
+          return a3 && e3 ? a3.obsSet = t3.obsSet : (e3 = l3.query(t3).then(function(e4) {
+            var t4 = e4.result;
+            if (a3 && (a3.res = t4), i4) {
+              for (var n5 = 0, r4 = t4.length; n5 < r4; ++n5) Object.freeze(t4[n5]);
+              Object.freeze(t4);
+            } else e4.result = S2(t4);
+            return e4;
+          }).catch(function(e4) {
+            return s3 && a3 && T2(s3, a3), Promise.reject(e4);
+          }), a3 = { obsSet: t3.obsSet, promise: e3, subscribers: /* @__PURE__ */ new Set(), type: "query", req: t3, dirty: false }, s3 ? s3.push(a3) : (s3 = [a3], (u3 = u3 || (Sn["idb://".concat(O2, "/").concat(c3)] = { queries: { query: {}, count: {} }, objs: /* @__PURE__ */ new Map(), optimisticOps: [], unsignaledParts: {} })).queries.query[t3.query.index.name || ""] = s3)), Hn(a3, s3, n4, r3), a3.promise.then(function(e4) {
+            return { result: Qn(e4.result, t3, null == u3 ? void 0 : u3.optimisticOps, l3, a3, i4) };
           });
         } });
       } });
     } };
-    function dr(t, n) {
-      return new Proxy(t, { get: function(o, u, l) {
-        return u === "db" ? n : Reflect.get(o, u, l);
+    function Zn(e3, r3) {
+      return new Proxy(e3, { get: function(e4, t3, n4) {
+        return "db" === t3 ? r3 : Reflect.get(e4, t3, n4);
       } });
     }
-    var ze = (ce.prototype.version = function(t) {
-      if (isNaN(t) || t < 0.1) throw new W.Type("Given version is not a positive number");
-      if (t = Math.round(10 * t) / 10, this.idbdb || this._state.isBeingOpened) throw new W.Schema("Cannot add version when database is open");
-      this.verno = Math.max(this.verno, t);
-      var n = this._versions, o = n.filter(function(u) {
-        return u._cfg.version === t;
+    var er = (tr.prototype.version = function(t3) {
+      if (isNaN(t3) || t3 < 0.1) throw new Y.Type("Given version is not a positive number");
+      if (t3 = Math.round(10 * t3) / 10, this.idbdb || this._state.isBeingOpened) throw new Y.Schema("Cannot add version when database is open");
+      this.verno = Math.max(this.verno, t3);
+      var e3 = this._versions, n4 = e3.filter(function(e4) {
+        return e4._cfg.version === t3;
       })[0];
-      return o || (o = new this.Version(t), n.push(o), n.sort(ou), o.stores({}), this._state.autoSchema = !1, o);
-    }, ce.prototype._whenReady = function(t) {
-      var n = this;
-      return this.idbdb && (this._state.openComplete || U.letThrough || this._vip) ? t() : new L(function(o, u) {
-        if (n._state.openComplete) return u(new W.DatabaseClosed(n._state.dbOpenError));
-        if (!n._state.isBeingOpened) {
-          if (!n._state.autoOpen) return void u(new W.DatabaseClosed());
-          n.open().catch(ie);
+      return n4 || (n4 = new this.Version(t3), e3.push(n4), e3.sort(nn), n4.stores({}), this._state.autoSchema = false, n4);
+    }, tr.prototype._whenReady = function(e3) {
+      var n4 = this;
+      return this.idbdb && (this._state.openComplete || me.letThrough || this._vip) ? e3() : new _e(function(e4, t3) {
+        if (n4._state.openComplete) return t3(new Y.DatabaseClosed(n4._state.dbOpenError));
+        if (!n4._state.isBeingOpened) {
+          if (!n4._state.autoOpen) return void t3(new Y.DatabaseClosed());
+          n4.open().catch(G);
         }
-        n._state.dbReadyPromise.then(o, u);
-      }).then(t);
-    }, ce.prototype.use = function(t) {
-      var n = t.stack, o = t.create, u = t.level, l = t.name;
-      return l && this.unuse({ stack: n, name: l }), t = this._middlewares[n] || (this._middlewares[n] = []), t.push({ stack: n, create: o, level: u ?? 10, name: l }), t.sort(function(f, d) {
-        return f.level - d.level;
+        n4._state.dbReadyPromise.then(e4, t3);
+      }).then(e3);
+    }, tr.prototype.use = function(e3) {
+      var t3 = e3.stack, n4 = e3.create, r3 = e3.level, i3 = e3.name;
+      i3 && this.unuse({ stack: t3, name: i3 });
+      e3 = this._middlewares[t3] || (this._middlewares[t3] = []);
+      return e3.push({ stack: t3, create: n4, level: null == r3 ? 10 : r3, name: i3 }), e3.sort(function(e4, t4) {
+        return e4.level - t4.level;
       }), this;
-    }, ce.prototype.unuse = function(t) {
-      var n = t.stack, o = t.name, u = t.create;
-      return n && this._middlewares[n] && (this._middlewares[n] = this._middlewares[n].filter(function(l) {
-        return u ? l.create !== u : !!o && l.name !== o;
+    }, tr.prototype.unuse = function(e3) {
+      var t3 = e3.stack, n4 = e3.name, r3 = e3.create;
+      return t3 && this._middlewares[t3] && (this._middlewares[t3] = this._middlewares[t3].filter(function(e4) {
+        return r3 ? e4.create !== r3 : !!n4 && e4.name !== n4;
       })), this;
-    }, ce.prototype.open = function() {
-      var t = this;
-      return yt(He, function() {
-        return cu(t);
+    }, tr.prototype.open = function() {
+      var e3 = this;
+      return $e(ve, function() {
+        return qn(e3);
       });
-    }, ce.prototype._close = function() {
-      var t = this._state, n = Ft.indexOf(this);
-      if (0 <= n && Ft.splice(n, 1), this.idbdb) {
+    }, tr.prototype._close = function() {
+      var n4 = this._state, e3 = et.indexOf(this);
+      if (0 <= e3 && et.splice(e3, 1), this.idbdb) {
         try {
           this.idbdb.close();
-        } catch {
+        } catch (e4) {
         }
         this.idbdb = null;
       }
-      t.isBeingOpened || (t.dbReadyPromise = new L(function(o) {
-        t.dbReadyResolve = o;
-      }), t.openCanceller = new L(function(o, u) {
-        t.cancelOpen = u;
+      n4.isBeingOpened || (n4.dbReadyPromise = new _e(function(e4) {
+        n4.dbReadyResolve = e4;
+      }), n4.openCanceller = new _e(function(e4, t3) {
+        n4.cancelOpen = t3;
       }));
-    }, ce.prototype.close = function(o) {
-      var n = (o === void 0 ? { disableAutoOpen: !0 } : o).disableAutoOpen, o = this._state;
-      n ? (o.isBeingOpened && o.cancelOpen(new W.DatabaseClosed()), this._close(), o.autoOpen = !1, o.dbOpenError = new W.DatabaseClosed()) : (this._close(), o.autoOpen = this._options.autoOpen || o.isBeingOpened, o.openComplete = !1, o.dbOpenError = null);
-    }, ce.prototype.delete = function(t) {
-      var n = this;
-      t === void 0 && (t = { disableAutoOpen: !0 });
-      var o = 0 < arguments.length && typeof arguments[0] != "object", u = this._state;
-      return new L(function(l, f) {
-        function d() {
-          n.close(t);
-          var p = n._deps.indexedDB.deleteDatabase(n.name);
-          p.onsuccess = oe(function() {
-            var w, g, S;
-            w = n._deps, g = n.name, S = w.indexedDB, w = w.IDBKeyRange, ci(S) || g === Xn || li(S, w).delete(g).catch(ie), l();
-          }), p.onerror = qe(f), p.onblocked = n._fireOnBlocked;
+    }, tr.prototype.close = function(e3) {
+      var t3 = (void 0 === e3 ? { disableAutoOpen: true } : e3).disableAutoOpen, e3 = this._state;
+      t3 ? (e3.isBeingOpened && e3.cancelOpen(new Y.DatabaseClosed()), this._close(), e3.autoOpen = false, e3.dbOpenError = new Y.DatabaseClosed()) : (this._close(), e3.autoOpen = this._options.autoOpen || e3.isBeingOpened, e3.openComplete = false, e3.dbOpenError = null);
+    }, tr.prototype.delete = function(n4) {
+      var i3 = this;
+      void 0 === n4 && (n4 = { disableAutoOpen: true });
+      var o3 = 0 < arguments.length && "object" != typeof arguments[0], a3 = this._state;
+      return new _e(function(r3, t3) {
+        function e3() {
+          i3.close(n4);
+          var e4 = i3._deps.indexedDB.deleteDatabase(i3.name);
+          e4.onsuccess = Te(function() {
+            var e5, t4, n5;
+            e5 = i3._deps, t4 = i3.name, n5 = e5.indexedDB, e5 = e5.IDBKeyRange, vn(n5) || t4 === tt || yn(n5, e5).delete(t4).catch(G), r3();
+          }), e4.onerror = Bt(t3), e4.onblocked = i3._fireOnBlocked;
         }
-        if (o) throw new W.InvalidArgument("Invalid closeOptions argument to db.delete()");
-        u.isBeingOpened ? u.dbReadyPromise.then(d) : d();
+        if (o3) throw new Y.InvalidArgument("Invalid closeOptions argument to db.delete()");
+        a3.isBeingOpened ? a3.dbReadyPromise.then(e3) : e3();
       });
-    }, ce.prototype.backendDB = function() {
+    }, tr.prototype.backendDB = function() {
       return this.idbdb;
-    }, ce.prototype.isOpen = function() {
-      return this.idbdb !== null;
-    }, ce.prototype.hasBeenClosed = function() {
-      var t = this._state.dbOpenError;
-      return t && t.name === "DatabaseClosed";
-    }, ce.prototype.hasFailed = function() {
-      return this._state.dbOpenError !== null;
-    }, ce.prototype.dynamicallyOpened = function() {
+    }, tr.prototype.isOpen = function() {
+      return null !== this.idbdb;
+    }, tr.prototype.hasBeenClosed = function() {
+      var e3 = this._state.dbOpenError;
+      return e3 && "DatabaseClosed" === e3.name;
+    }, tr.prototype.hasFailed = function() {
+      return null !== this._state.dbOpenError;
+    }, tr.prototype.dynamicallyOpened = function() {
       return this._state.autoSchema;
-    }, Object.defineProperty(ce.prototype, "tables", { get: function() {
-      var t = this;
-      return h(this._allTables).map(function(n) {
-        return t._allTables[n];
+    }, Object.defineProperty(tr.prototype, "tables", { get: function() {
+      var t3 = this;
+      return _2(this._allTables).map(function(e3) {
+        return t3._allTables[e3];
       });
-    }, enumerable: !1, configurable: !0 }), ce.prototype.transaction = function() {
-      var t = (function(n, o, u) {
-        var l = arguments.length;
-        if (l < 2) throw new W.InvalidArgument("Too few arguments");
-        for (var f = new Array(l - 1); --l; ) f[l - 1] = arguments[l];
-        return u = f.pop(), [n, Be(f), u];
+    }, enumerable: false, configurable: true }), tr.prototype.transaction = function() {
+      var e3 = (function(e4, t3, n4) {
+        var r3 = arguments.length;
+        if (r3 < 2) throw new Y.InvalidArgument("Too few arguments");
+        for (var i3 = new Array(r3 - 1); --r3; ) i3[r3 - 1] = arguments[r3];
+        return n4 = i3.pop(), [e4, O(i3), n4];
       }).apply(this, arguments);
-      return this._transaction.apply(this, t);
-    }, ce.prototype._transaction = function(t, n, o) {
-      var u = this, l = U.trans;
-      l && l.db === this && t.indexOf("!") === -1 || (l = null);
-      var f, d, p = t.indexOf("?") !== -1;
-      t = t.replace("!", "").replace("?", "");
+      return this._transaction.apply(this, e3);
+    }, tr.prototype._transaction = function(e3, t3, n4) {
+      var r3 = this, i3 = me.trans;
+      i3 && i3.db === this && -1 === e3.indexOf("!") || (i3 = null);
+      var o3, a3, u3 = -1 !== e3.indexOf("?");
+      e3 = e3.replace("!", "").replace("?", "");
       try {
-        if (d = n.map(function(g) {
-          if (g = g instanceof u.Table ? g.name : g, typeof g != "string") throw new TypeError("Invalid table argument to Dexie.transaction(). Only Table or String are allowed");
-          return g;
-        }), t == "r" || t === Jr) f = Jr;
+        if (a3 = t3.map(function(e4) {
+          e4 = e4 instanceof r3.Table ? e4.name : e4;
+          if ("string" != typeof e4) throw new TypeError("Invalid table argument to Dexie.transaction(). Only Table or String are allowed");
+          return e4;
+        }), "r" == e3 || e3 === nt) o3 = nt;
         else {
-          if (t != "rw" && t != Xr) throw new W.InvalidArgument("Invalid transaction mode: " + t);
-          f = Xr;
+          if ("rw" != e3 && e3 != rt) throw new Y.InvalidArgument("Invalid transaction mode: " + e3);
+          o3 = rt;
         }
-        if (l) {
-          if (l.mode === Jr && f === Xr) {
-            if (!p) throw new W.SubTransaction("Cannot enter a sub-transaction with READWRITE mode when parent transaction is READONLY");
-            l = null;
+        if (i3) {
+          if (i3.mode === nt && o3 === rt) {
+            if (!u3) throw new Y.SubTransaction("Cannot enter a sub-transaction with READWRITE mode when parent transaction is READONLY");
+            i3 = null;
           }
-          l && d.forEach(function(g) {
-            if (l && l.storeNames.indexOf(g) === -1) {
-              if (!p) throw new W.SubTransaction("Table " + g + " not included in parent transaction.");
-              l = null;
+          i3 && a3.forEach(function(e4) {
+            if (i3 && -1 === i3.storeNames.indexOf(e4)) {
+              if (!u3) throw new Y.SubTransaction("Table " + e4 + " not included in parent transaction.");
+              i3 = null;
             }
-          }), p && l && !l.active && (l = null);
+          }), u3 && i3 && !i3.active && (i3 = null);
         }
-      } catch (g) {
-        return l ? l._promise(null, function(S, y) {
-          y(g);
-        }) : le(g);
+      } catch (n5) {
+        return i3 ? i3._promise(null, function(e4, t4) {
+          t4(n5);
+        }) : Xe(n5);
       }
-      var w = (function g(S, y, x, b, _) {
-        return L.resolve().then(function() {
-          var T = U.transless || U, k = S._createTransaction(y, x, S._dbSchema, b);
-          if (k.explicit = !0, T = { trans: k, transless: T }, b) k.idbtrans = b.idbtrans;
+      var s3 = (function i4(o4, a4, u4, s4, c3) {
+        return _e.resolve().then(function() {
+          var e4 = me.transless || me, t4 = o4._createTransaction(a4, u4, o4._dbSchema, s4);
+          if (t4.explicit = true, e4 = { trans: t4, transless: e4 }, s4) t4.idbtrans = s4.idbtrans;
           else try {
-            k.create(), k.idbtrans._explicit = !0, S._state.PR1398_maxLoop = 3;
-          } catch (I) {
-            return I.name === Ur.InvalidState && S.isOpen() && 0 < --S._state.PR1398_maxLoop ? (console.warn("Dexie: Need to reopen db"), S.close({ disableAutoOpen: !1 }), S.open().then(function() {
-              return g(S, y, x, null, _);
-            })) : le(I);
+            t4.create(), t4.idbtrans._explicit = true, o4._state.PR1398_maxLoop = 3;
+          } catch (e5) {
+            return e5.name === z.InvalidState && o4.isOpen() && 0 < --o4._state.PR1398_maxLoop ? (console.warn("Dexie: Need to reopen db"), o4.close({ disableAutoOpen: false }), o4.open().then(function() {
+              return i4(o4, a4, u4, null, c3);
+            })) : Xe(e5);
           }
-          var O, E = Lr(_);
-          return E && Pt(), T = L.follow(function() {
-            var I;
-            (O = _.call(k, k)) && (E ? (I = Ge.bind(null, null), O.then(I, I)) : typeof O.next == "function" && typeof O.throw == "function" && (O = gi(O)));
-          }, T), (O && typeof O.then == "function" ? L.resolve(O).then(function(I) {
-            return k.active ? I : le(new W.PrematureCommit("Transaction committed too early. See http://bit.ly/2kdckMn"));
-          }) : T.then(function() {
-            return O;
-          })).then(function(I) {
-            return b && k._resolve(), k._completion.then(function() {
-              return I;
+          var n5, r4 = B(c3);
+          return r4 && Le(), e4 = _e.follow(function() {
+            var e5;
+            (n5 = c3.call(t4, t4)) && (r4 ? (e5 = Ue.bind(null, null), n5.then(e5, e5)) : "function" == typeof n5.next && "function" == typeof n5.throw && (n5 = In(n5)));
+          }, e4), (n5 && "function" == typeof n5.then ? _e.resolve(n5).then(function(e5) {
+            return t4.active ? e5 : Xe(new Y.PrematureCommit("Transaction committed too early. See http://bit.ly/2kdckMn"));
+          }) : e4.then(function() {
+            return n5;
+          })).then(function(e5) {
+            return s4 && t4._resolve(), t4._completion.then(function() {
+              return e5;
             });
-          }).catch(function(I) {
-            return k._reject(I), le(I);
+          }).catch(function(e5) {
+            return t4._reject(e5), Xe(e5);
           });
         });
-      }).bind(null, this, f, d, l, o);
-      return l ? l._promise(f, w, "lock") : U.trans ? yt(U.transless, function() {
-        return u._whenReady(w);
-      }) : this._whenReady(w);
-    }, ce.prototype.table = function(t) {
-      if (!M(this._allTables, t)) throw new W.InvalidTable("Table ".concat(t, " does not exist"));
-      return this._allTables[t];
-    }, ce);
-    function ce(t, n) {
-      var o = this;
+      }).bind(null, this, o3, a3, i3, n4);
+      return i3 ? i3._promise(o3, s3, "lock") : me.trans ? $e(me.transless, function() {
+        return r3._whenReady(s3);
+      }) : this._whenReady(s3);
+    }, tr.prototype.table = function(e3) {
+      if (!m2(this._allTables, e3)) throw new Y.InvalidTable("Table ".concat(e3, " does not exist"));
+      return this._allTables[e3];
+    }, tr);
+    function tr(e3, t3) {
+      var o3 = this;
       this._middlewares = {}, this.verno = 0;
-      var u = ce.dependencies;
-      this._options = n = i({ addons: ce.addons, autoOpen: !0, indexedDB: u.indexedDB, IDBKeyRange: u.IDBKeyRange, cache: "cloned" }, n), this._deps = { indexedDB: n.indexedDB, IDBKeyRange: n.IDBKeyRange }, u = n.addons, this._dbSchema = {}, this._versions = [], this._storeNames = [], this._allTables = {}, this.idbdb = null, this._novip = this;
-      var l, f, d, p, w, g = { dbOpenError: null, isBeingOpened: !1, onReadyBeingFired: null, openComplete: !1, dbReadyResolve: ie, dbReadyPromise: null, cancelOpen: ie, openCanceller: null, autoSchema: !0, PR1398_maxLoop: 3, autoOpen: n.autoOpen };
-      g.dbReadyPromise = new L(function(y) {
-        g.dbReadyResolve = y;
-      }), g.openCanceller = new L(function(y, x) {
-        g.cancelOpen = x;
-      }), this._state = g, this.name = t, this.on = mn(this, "populate", "blocked", "versionchange", "close", { ready: [jr, ie] }), this.on.ready.subscribe = sn(this.on.ready.subscribe, function(y) {
-        return function(x, b) {
-          ce.vip(function() {
-            var _, T = o._state;
-            T.openComplete ? (T.dbOpenError || L.resolve().then(x), b && y(x)) : T.onReadyBeingFired ? (T.onReadyBeingFired.push(x), b && y(x)) : (y(x), _ = o, b || y(function k() {
-              _.on.ready.unsubscribe(x), _.on.ready.unsubscribe(k);
+      var n4 = tr.dependencies;
+      this._options = t3 = w2({ addons: tr.addons, autoOpen: true, indexedDB: n4.indexedDB, IDBKeyRange: n4.IDBKeyRange, cache: "cloned" }, t3), this._deps = { indexedDB: t3.indexedDB, IDBKeyRange: t3.IDBKeyRange };
+      n4 = t3.addons;
+      this._dbSchema = {}, this._versions = [], this._storeNames = [], this._allTables = {}, this.idbdb = null, this._novip = this;
+      var a3, r3, u3, i3, s3, c3 = { dbOpenError: null, isBeingOpened: false, onReadyBeingFired: null, openComplete: false, dbReadyResolve: G, dbReadyPromise: null, cancelOpen: G, openCanceller: null, autoSchema: true, PR1398_maxLoop: 3, autoOpen: t3.autoOpen };
+      c3.dbReadyPromise = new _e(function(e4) {
+        c3.dbReadyResolve = e4;
+      }), c3.openCanceller = new _e(function(e4, t4) {
+        c3.cancelOpen = t4;
+      }), this._state = c3, this.name = e3, this.on = dt(this, "populate", "blocked", "versionchange", "close", { ready: [re, G] }), this.on.ready.subscribe = p2(this.on.ready.subscribe, function(i4) {
+        return function(n5, r4) {
+          tr.vip(function() {
+            var t4, e4 = o3._state;
+            e4.openComplete ? (e4.dbOpenError || _e.resolve().then(n5), r4 && i4(n5)) : e4.onReadyBeingFired ? (e4.onReadyBeingFired.push(n5), r4 && i4(n5)) : (i4(n5), t4 = o3, r4 || i4(function e5() {
+              t4.on.ready.unsubscribe(n5), t4.on.ready.unsubscribe(e5);
             }));
           });
         };
-      }), this.Collection = (l = this, pn(Qa.prototype, function(O, k) {
-        this.db = l;
-        var b = ds, _ = null;
-        if (k) try {
-          b = k();
-        } catch (E) {
-          _ = E;
+      }), this.Collection = (a3 = this, pt(Ot.prototype, function(e4, t4) {
+        this.db = a3;
+        var n5 = ot, r4 = null;
+        if (t4) try {
+          n5 = t4();
+        } catch (e5) {
+          r4 = e5;
         }
-        var T = O._ctx, k = T.table, O = k.hook.reading.fire;
-        this._ctx = { table: k, index: T.index, isPrimKey: !T.index || k.schema.primKey.keyPath && T.index === k.schema.primKey.name, range: b, keysOnly: !1, dir: "next", unique: "", algorithm: null, filter: null, replayFilter: null, justLimit: !0, isMatch: null, offset: 0, limit: 1 / 0, error: _, or: T.or, valueMapper: O !== un ? O : null };
-      })), this.Table = (f = this, pn(gs.prototype, function(y, x, b) {
-        this.db = f, this._tx = b, this.name = y, this.schema = x, this.hook = f._allTables[y] ? f._allTables[y].hook : mn(null, { creating: [Ka, ie], reading: [Wa, un], updating: [Za, ie], deleting: [za, ie] });
-      })), this.Transaction = (d = this, pn(nu.prototype, function(y, x, b, _, T) {
-        var k = this;
-        this.db = d, this.mode = y, this.storeNames = x, this.schema = b, this.chromeTransactionDurability = _, this.idbtrans = null, this.on = mn(this, "complete", "error", "abort"), this.parent = T || null, this.active = !0, this._reculock = 0, this._blockedFuncs = [], this._resolve = null, this._reject = null, this._waitingFor = null, this._waitingQueue = null, this._spinCount = 0, this._completion = new L(function(O, E) {
-          k._resolve = O, k._reject = E;
+        var i4 = e4._ctx, t4 = i4.table, e4 = t4.hook.reading.fire;
+        this._ctx = { table: t4, index: i4.index, isPrimKey: !i4.index || t4.schema.primKey.keyPath && i4.index === t4.schema.primKey.name, range: n5, keysOnly: false, dir: "next", unique: "", algorithm: null, filter: null, replayFilter: null, justLimit: true, isMatch: null, offset: 0, limit: 1 / 0, error: r4, or: i4.or, valueMapper: e4 !== X ? e4 : null };
+      })), this.Table = (r3 = this, pt(ft.prototype, function(e4, t4, n5) {
+        this.db = r3, this._tx = n5, this.name = e4, this.schema = t4, this.hook = r3._allTables[e4] ? r3._allTables[e4].hook : dt(null, { creating: [Z2, G], reading: [H2, X], updating: [te, G], deleting: [ee, G] });
+      })), this.Transaction = (u3 = this, pt(Lt.prototype, function(e4, t4, n5, r4, i4) {
+        var o4 = this;
+        this.db = u3, this.mode = e4, this.storeNames = t4, this.schema = n5, this.chromeTransactionDurability = r4, this.idbtrans = null, this.on = dt(this, "complete", "error", "abort"), this.parent = i4 || null, this.active = true, this._reculock = 0, this._blockedFuncs = [], this._resolve = null, this._reject = null, this._waitingFor = null, this._waitingQueue = null, this._spinCount = 0, this._completion = new _e(function(e5, t5) {
+          o4._resolve = e5, o4._reject = t5;
         }), this._completion.then(function() {
-          k.active = !1, k.on.complete.fire();
-        }, function(O) {
-          var E = k.active;
-          return k.active = !1, k.on.error.fire(O), k.parent ? k.parent._reject(O) : E && k.idbtrans && k.idbtrans.abort(), le(O);
+          o4.active = false, o4.on.complete.fire();
+        }, function(e5) {
+          var t5 = o4.active;
+          return o4.active = false, o4.on.error.fire(e5), o4.parent ? o4.parent._reject(e5) : t5 && o4.idbtrans && o4.idbtrans.abort(), Xe(e5);
         });
-      })), this.Version = (p = this, pn(lu.prototype, function(y) {
-        this.db = p, this._cfg = { version: y, storesSource: null, dbschema: {}, tables: {}, contentUpgrade: null };
-      })), this.WhereClause = (w = this, pn(_s.prototype, function(y, x, b) {
-        if (this.db = w, this._ctx = { table: y, index: x === ":id" ? null : x, or: b }, this._cmp = this._ascending = Q, this._descending = function(_, T) {
-          return Q(T, _);
-        }, this._max = function(_, T) {
-          return 0 < Q(_, T) ? _ : T;
-        }, this._min = function(_, T) {
-          return Q(_, T) < 0 ? _ : T;
-        }, this._IDBKeyRange = w._deps.IDBKeyRange, !this._IDBKeyRange) throw new W.MissingAPI();
-      })), this.on("versionchange", function(y) {
-        0 < y.newVersion ? console.warn("Another connection wants to upgrade database '".concat(o.name, "'. Closing db now to resume the upgrade.")) : console.warn("Another connection wants to delete database '".concat(o.name, "'. Closing db now to resume the delete request.")), o.close({ disableAutoOpen: !1 });
-      }), this.on("blocked", function(y) {
-        !y.newVersion || y.newVersion < y.oldVersion ? console.warn("Dexie.delete('".concat(o.name, "') was blocked")) : console.warn("Upgrade '".concat(o.name, "' blocked by other connection holding version ").concat(y.oldVersion / 10));
-      }), this._maxKey = bn(n.IDBKeyRange), this._createTransaction = function(y, x, b, _) {
-        return new o.Transaction(y, x, b, o._options.chromeTransactionDurability, _);
-      }, this._fireOnBlocked = function(y) {
-        o.on("blocked").fire(y), Ft.filter(function(x) {
-          return x.name === o.name && x !== o && !x._state.vcFired;
-        }).map(function(x) {
-          return x.on("versionchange").fire(y);
+      })), this.Version = (i3 = this, pt(dn.prototype, function(e4) {
+        this.db = i3, this._cfg = { version: e4, storesSource: null, dbschema: {}, tables: {}, contentUpgrade: null };
+      })), this.WhereClause = (s3 = this, pt(qt.prototype, function(e4, t4, n5) {
+        if (this.db = s3, this._ctx = { table: e4, index: ":id" === t4 ? null : t4, or: n5 }, this._cmp = this._ascending = st, this._descending = function(e5, t5) {
+          return st(t5, e5);
+        }, this._max = function(e5, t5) {
+          return 0 < st(e5, t5) ? e5 : t5;
+        }, this._min = function(e5, t5) {
+          return st(e5, t5) < 0 ? e5 : t5;
+        }, this._IDBKeyRange = s3._deps.IDBKeyRange, !this._IDBKeyRange) throw new Y.MissingAPI();
+      })), this.on("versionchange", function(e4) {
+        0 < e4.newVersion ? console.warn("Another connection wants to upgrade database '".concat(o3.name, "'. Closing db now to resume the upgrade.")) : console.warn("Another connection wants to delete database '".concat(o3.name, "'. Closing db now to resume the delete request.")), o3.close({ disableAutoOpen: false });
+      }), this.on("blocked", function(e4) {
+        !e4.newVersion || e4.newVersion < e4.oldVersion ? console.warn("Dexie.delete('".concat(o3.name, "') was blocked")) : console.warn("Upgrade '".concat(o3.name, "' blocked by other connection holding version ").concat(e4.oldVersion / 10));
+      }), this._maxKey = Yt(t3.IDBKeyRange), this._createTransaction = function(e4, t4, n5, r4) {
+        return new o3.Transaction(e4, t4, n5, o3._options.chromeTransactionDurability, r4);
+      }, this._fireOnBlocked = function(t4) {
+        o3.on("blocked").fire(t4), et.filter(function(e4) {
+          return e4.name === o3.name && e4 !== o3 && !e4._state.vcFired;
+        }).map(function(e4) {
+          return e4.on("versionchange").fire(t4);
         });
-      }, this.use(du), this.use(gu), this.use(mu), this.use(fu), this.use(hu);
-      var S = new Proxy(this, { get: function(y, x, b) {
-        if (x === "_vip") return !0;
-        if (x === "table") return function(T) {
-          return dr(o.table(T), S);
+      }, this.use(Un), this.use(Jn), this.use(Wn), this.use(Rn), this.use(Nn);
+      var l3 = new Proxy(this, { get: function(e4, t4, n5) {
+        if ("_vip" === t4) return true;
+        if ("table" === t4) return function(e5) {
+          return Zn(o3.table(e5), l3);
         };
-        var _ = Reflect.get(y, x, b);
-        return _ instanceof gs ? dr(_, S) : x === "tables" ? _.map(function(T) {
-          return dr(T, S);
-        }) : x === "_createTransaction" ? function() {
-          return dr(_.apply(this, arguments), S);
-        } : _;
+        var r4 = Reflect.get(e4, t4, n5);
+        return r4 instanceof ft ? Zn(r4, l3) : "tables" === t4 ? r4.map(function(e5) {
+          return Zn(e5, l3);
+        }) : "_createTransaction" === t4 ? function() {
+          return Zn(r4.apply(this, arguments), l3);
+        } : r4;
       } });
-      this.vip = S, u.forEach(function(y) {
-        return y(o);
+      this.vip = l3, n4.forEach(function(e4) {
+        return e4(o3);
       });
     }
-    var mr, Ee = typeof Symbol < "u" && "observable" in Symbol ? Symbol.observable : "@@observable", vu = (ki.prototype.subscribe = function(t, n, o) {
-      return this._subscribe(t && typeof t != "function" ? t : { next: t, error: n, complete: o });
-    }, ki.prototype[Ee] = function() {
+    var nr, F = "undefined" != typeof Symbol && "observable" in Symbol ? Symbol.observable : "@@observable", rr = (ir.prototype.subscribe = function(e3, t3, n4) {
+      return this._subscribe(e3 && "function" != typeof e3 ? e3 : { next: e3, error: t3, complete: n4 });
+    }, ir.prototype[F] = function() {
       return this;
-    }, ki);
-    function ki(t) {
-      this._subscribe = t;
+    }, ir);
+    function ir(e3) {
+      this._subscribe = e3;
     }
     try {
-      mr = { indexedDB: c.indexedDB || c.mozIndexedDB || c.webkitIndexedDB || c.msIndexedDB, IDBKeyRange: c.IDBKeyRange || c.webkitIDBKeyRange };
-    } catch {
-      mr = { indexedDB: null, IDBKeyRange: null };
+      nr = { indexedDB: f2.indexedDB || f2.mozIndexedDB || f2.webkitIndexedDB || f2.msIndexedDB, IDBKeyRange: f2.IDBKeyRange || f2.webkitIDBKeyRange };
+    } catch (e3) {
+      nr = { indexedDB: null, IDBKeyRange: null };
     }
-    function Rs(t) {
-      var n, o = !1, u = new vu(function(l) {
-        var f = Lr(t), d, p = !1, w = {}, g = {}, S = { get closed() {
-          return p;
+    function or(h3) {
+      var d3, p3 = false, e3 = new rr(function(r3) {
+        var i3 = B(h3);
+        var o3, a3 = false, u3 = {}, s3 = {}, e4 = { get closed() {
+          return a3;
         }, unsubscribe: function() {
-          p || (p = !0, d && d.abort(), y && Qe.storagemutated.unsubscribe(b));
+          a3 || (a3 = true, o3 && o3.abort(), c3 && Nt.storagemutated.unsubscribe(f3));
         } };
-        l.start && l.start(S);
-        var y = !1, x = function() {
-          return Gr(_);
-        }, b = function(T) {
-          cr(w, T), di(g, w) && x();
-        }, _ = function() {
-          var T, k, O;
-          !p && mr.indexedDB && (w = {}, T = {}, d && d.abort(), d = new AbortController(), O = function(E) {
-            var I = Nt();
+        r3.start && r3.start(e4);
+        var c3 = false, l3 = function() {
+          return Ge(t3);
+        };
+        var f3 = function(e5) {
+          En(u3, e5), Kn(s3, u3) && l3();
+        }, t3 = function() {
+          var t4, n4, e5;
+          !a3 && nr.indexedDB && (u3 = {}, t4 = {}, o3 && o3.abort(), o3 = new AbortController(), e5 = function(e6) {
+            var t5 = je();
             try {
-              f && Pt();
-              var C = Ye(t, E);
-              return C = f ? C.finally(Ge) : C;
+              i3 && Le();
+              var n5 = Ne(h3, e6);
+              return n5 = i3 ? n5.finally(Ue) : n5;
             } finally {
-              I && Mt();
+              t5 && Ae();
             }
-          }(k = { subscr: T, signal: d.signal, requery: x, querier: t, trans: null }), Promise.resolve(O).then(function(E) {
-            o = !0, n = E, p || k.signal.aborted || (w = {}, function(I) {
-              for (var C in I) if (M(I, C)) return;
+          }(n4 = { subscr: t4, signal: o3.signal, requery: l3, querier: h3, trans: null }), Promise.resolve(e5).then(function(e6) {
+            p3 = true, d3 = e6, a3 || n4.signal.aborted || (u3 = {}, function(e7) {
+              for (var t5 in e7) if (m2(e7, t5)) return;
               return 1;
-            }(g = T) || y || (Qe(vn, b), y = !0), Gr(function() {
-              return !p && l.next && l.next(E);
+            }(s3 = t4) || c3 || (Nt(Ft, f3), c3 = true), Ge(function() {
+              return !a3 && r3.next && r3.next(e6);
             }));
-          }, function(E) {
-            o = !1, ["DatabaseClosedError", "AbortError"].includes(E == null ? void 0 : E.name) || p || Gr(function() {
-              p || l.error && l.error(E);
+          }, function(e6) {
+            p3 = false, ["DatabaseClosedError", "AbortError"].includes(null == e6 ? void 0 : e6.name) || a3 || Ge(function() {
+              a3 || r3.error && r3.error(e6);
             });
           }));
         };
-        return setTimeout(x, 0), S;
+        return setTimeout(l3, 0), e4;
       });
-      return u.hasValue = function() {
-        return o;
-      }, u.getValue = function() {
-        return n;
-      }, u;
+      return e3.hasValue = function() {
+        return p3;
+      }, e3.getValue = function() {
+        return d3;
+      }, e3;
     }
-    var wt = ze;
-    function _i(t) {
-      var n = et;
+    var ar = er;
+    function ur(e3) {
+      var t3 = cr;
       try {
-        et = !0, Qe.storagemutated.fire(t), yi(t, !0);
+        cr = true, Nt.storagemutated.fire(e3), Dn(e3, true);
       } finally {
-        et = n;
+        cr = t3;
       }
     }
-    z(wt, i(i({}, Wn), { delete: function(t) {
-      return new wt(t, { addons: [] }).delete();
-    }, exists: function(t) {
-      return new wt(t, { addons: [] }).open().then(function(n) {
-        return n.close(), !0;
+    r2(ar, w2(w2({}, Q), { delete: function(e3) {
+      return new ar(e3, { addons: [] }).delete();
+    }, exists: function(e3) {
+      return new ar(e3, { addons: [] }).open().then(function(e4) {
+        return e4.close(), true;
       }).catch("NoSuchDatabaseError", function() {
-        return !1;
+        return false;
       });
-    }, getDatabaseNames: function(t) {
+    }, getDatabaseNames: function(e3) {
       try {
-        return n = wt.dependencies, o = n.indexedDB, n = n.IDBKeyRange, (ci(o) ? Promise.resolve(o.databases()).then(function(u) {
-          return u.map(function(l) {
-            return l.name;
-          }).filter(function(l) {
-            return l !== Xn;
+        return t3 = ar.dependencies, n4 = t3.indexedDB, t3 = t3.IDBKeyRange, (vn(n4) ? Promise.resolve(n4.databases()).then(function(e4) {
+          return e4.map(function(e5) {
+            return e5.name;
+          }).filter(function(e5) {
+            return e5 !== tt;
           });
-        }) : li(o, n).toCollection().primaryKeys()).then(t);
-      } catch {
-        return le(new W.MissingAPI());
+        }) : yn(n4, t3).toCollection().primaryKeys()).then(e3);
+      } catch (e4) {
+        return Xe(new Y.MissingAPI());
       }
-      var n, o;
+      var t3, n4;
     }, defineClass: function() {
-      return function(t) {
-        v(this, t);
+      return function(e3) {
+        a2(this, e3);
       };
-    }, ignoreTransaction: function(t) {
-      return U.trans ? yt(U.transless, t) : t();
-    }, vip: fi, async: function(t) {
+    }, ignoreTransaction: function(e3) {
+      return me.trans ? $e(me.transless, e3) : e3();
+    }, vip: mn, async: function(t3) {
       return function() {
         try {
-          var n = gi(t.apply(this, arguments));
-          return n && typeof n.then == "function" ? n : L.resolve(n);
-        } catch (o) {
-          return le(o);
+          var e3 = In(t3.apply(this, arguments));
+          return e3 && "function" == typeof e3.then ? e3 : _e.resolve(e3);
+        } catch (e4) {
+          return Xe(e4);
         }
       };
-    }, spawn: function(t, n, o) {
+    }, spawn: function(e3, t3, n4) {
       try {
-        var u = gi(t.apply(o, n || []));
-        return u && typeof u.then == "function" ? u : L.resolve(u);
-      } catch (l) {
-        return le(l);
+        var r3 = In(e3.apply(n4, t3 || []));
+        return r3 && "function" == typeof r3.then ? r3 : _e.resolve(r3);
+      } catch (e4) {
+        return Xe(e4);
       }
     }, currentTransaction: { get: function() {
-      return U.trans || null;
-    } }, waitFor: function(t, n) {
-      return n = L.resolve(typeof t == "function" ? wt.ignoreTransaction(t) : t).timeout(n || 6e4), U.trans ? U.trans.waitFor(n) : n;
-    }, Promise: L, debug: { get: function() {
-      return Ve;
-    }, set: function(t) {
-      os(t);
-    } }, derive: Se, extend: v, props: z, override: sn, Events: mn, on: Qe, liveQuery: Rs, extendObservabilitySet: cr, getByKeyPath: De, setByKeyPath: we, delByKeyPath: function(t, n) {
-      typeof n == "string" ? we(t, n, void 0) : "length" in n && [].map.call(n, function(o) {
-        we(t, o, void 0);
+      return me.trans || null;
+    } }, waitFor: function(e3, t3) {
+      t3 = _e.resolve("function" == typeof e3 ? ar.ignoreTransaction(e3) : e3).timeout(t3 || 6e4);
+      return me.trans ? me.trans.waitFor(t3) : t3;
+    }, Promise: _e, debug: { get: function() {
+      return ie;
+    }, set: function(e3) {
+      oe(e3);
+    } }, derive: o2, extend: a2, props: r2, override: p2, Events: dt, on: Nt, liveQuery: or, extendObservabilitySet: En, getByKeyPath: k2, setByKeyPath: P2, delByKeyPath: function(t3, e3) {
+      "string" == typeof e3 ? P2(t3, e3, void 0) : "length" in e3 && [].map.call(e3, function(e4) {
+        P2(t3, e4, void 0);
       });
-    }, shallowClone: Ln, deepClone: ft, getObjectDiff: vi, cmp: Q, asap: on, minKey: -1 / 0, addons: [], connections: Ft, errnames: Ur, dependencies: mr, cache: bt, semVer: "4.0.8", version: "4.0.8".split(".").map(function(t) {
-      return parseInt(t);
-    }).reduce(function(t, n, o) {
-      return t + n / Math.pow(10, 2 * o);
-    }) })), wt.maxKey = bn(wt.dependencies.IDBKeyRange), typeof dispatchEvent < "u" && typeof addEventListener < "u" && (Qe(vn, function(t) {
-      et || (t = new CustomEvent(ni, { detail: t }), et = !0, dispatchEvent(t), et = !1);
-    }), addEventListener(ni, function(t) {
-      t = t.detail, et || _i(t);
+    }, shallowClone: g2, deepClone: S2, getObjectDiff: Fn, cmp: st, asap: v2, minKey: -1 / 0, addons: [], connections: et, errnames: z, dependencies: nr, cache: Sn, semVer: "4.0.8", version: "4.0.8".split(".").map(function(e3) {
+      return parseInt(e3);
+    }).reduce(function(e3, t3, n4) {
+      return e3 + t3 / Math.pow(10, 2 * n4);
+    }) })), ar.maxKey = Yt(ar.dependencies.IDBKeyRange), "undefined" != typeof dispatchEvent && "undefined" != typeof addEventListener && (Nt(Ft, function(e3) {
+      cr || (e3 = new CustomEvent(Mt, { detail: e3 }), cr = true, dispatchEvent(e3), cr = false);
+    }), addEventListener(Mt, function(e3) {
+      e3 = e3.detail;
+      cr || ur(e3);
     }));
-    var qt, et = !1, Vs = function() {
+    var sr, cr = false, lr = function() {
     };
-    return typeof BroadcastChannel < "u" && ((Vs = function() {
-      (qt = new BroadcastChannel(ni)).onmessage = function(t) {
-        return t.data && _i(t.data);
+    return "undefined" != typeof BroadcastChannel && ((lr = function() {
+      (sr = new BroadcastChannel(Mt)).onmessage = function(e3) {
+        return e3.data && ur(e3.data);
       };
-    })(), typeof qt.unref == "function" && qt.unref(), Qe(vn, function(t) {
-      et || qt.postMessage(t);
-    })), typeof addEventListener < "u" && (addEventListener("pagehide", function(t) {
-      if (!ze.disableBfCache && t.persisted) {
-        Ve && console.debug("Dexie: handling persisted pagehide"), qt != null && qt.close();
-        for (var n = 0, o = Ft; n < o.length; n++) o[n].close({ disableAutoOpen: !1 });
+    })(), "function" == typeof sr.unref && sr.unref(), Nt(Ft, function(e3) {
+      cr || sr.postMessage(e3);
+    })), "undefined" != typeof addEventListener && (addEventListener("pagehide", function(e3) {
+      if (!er.disableBfCache && e3.persisted) {
+        ie && console.debug("Dexie: handling persisted pagehide"), null != sr && sr.close();
+        for (var t3 = 0, n4 = et; t3 < n4.length; t3++) n4[t3].close({ disableAutoOpen: false });
       }
-    }), addEventListener("pageshow", function(t) {
-      !ze.disableBfCache && t.persisted && (Ve && console.debug("Dexie: handling persisted pageshow"), Vs(), _i({ all: new ke(-1 / 0, [[]]) }));
-    })), L.rejectionMapper = function(t, n) {
-      return !t || t instanceof Dt || t instanceof TypeError || t instanceof SyntaxError || !t.name || !ss[t.name] ? t : (n = new ss[t.name](n || t.message, t), "stack" in t && ee(n, "stack", { get: function() {
+    }), addEventListener("pageshow", function(e3) {
+      !er.disableBfCache && e3.persisted && (ie && console.debug("Dexie: handling persisted pageshow"), lr(), ur({ all: new gn(-1 / 0, [[]]) }));
+    })), _e.rejectionMapper = function(e3, t3) {
+      return !e3 || e3 instanceof N2 || e3 instanceof TypeError || e3 instanceof SyntaxError || !e3.name || !$2[e3.name] ? e3 : (t3 = new $2[e3.name](t3 || e3.message, e3), "stack" in e3 && l2(t3, "stack", { get: function() {
         return this.inner.stack;
-      } }), n);
-    }, os(Ve), i(ze, Object.freeze({ __proto__: null, Dexie: ze, liveQuery: Rs, Entity: ms, cmp: Q, PropModSymbol: Ke, PropModification: yn, replacePrefix: function(t, n) {
-      return new yn({ replacePrefix: [t, n] });
-    }, add: function(t) {
-      return new yn({ add: t });
-    }, remove: function(t) {
-      return new yn({ remove: t });
-    }, default: ze, RangeSet: ke, mergeRanges: _n, rangesOverlap: Es }), { default: ze }), ze;
+      } }), t3);
+    }, oe(ie), w2(er, Object.freeze({ __proto__: null, Dexie: er, liveQuery: or, Entity: ut, cmp: st, PropModSymbol: e2, PropModification: xt, replacePrefix: function(e3, t3) {
+      return new xt({ replacePrefix: [e3, t3] });
+    }, add: function(e3) {
+      return new xt({ add: e3 });
+    }, remove: function(e3) {
+      return new xt({ remove: e3 });
+    }, default: er, RangeSet: gn, mergeRanges: _n, rangesOverlap: xn }), { default: er }), er;
   });
-})(Va);
-var Hc = Va.exports;
-const Ki = /* @__PURE__ */ Bc(Hc), Io = Symbol.for("Dexie"), zi = globalThis[Io] || (globalThis[Io] = Ki);
-if (Ki.semVer !== zi.semVer)
-  throw new Error(`Two different versions of Dexie loaded in the same app: ${Ki.semVer} and ${zi.semVer}`);
-class Qc {
-  constructor(e) {
-    this.apiContext = void 0, this.db = void 0, this.hasRefreshedFavourites = !1, this.hasRefreshedAll = !1, this.apiContext = e, this.db = this.initDb();
+})(dexie_min);
+var dexie_minExports = dexie_min.exports;
+const _Dexie = /* @__PURE__ */ getDefaultExportFromCjs(dexie_minExports);
+const DexieSymbol = Symbol.for("Dexie");
+const Dexie = globalThis[DexieSymbol] || (globalThis[DexieSymbol] = _Dexie);
+if (_Dexie.semVer !== Dexie.semVer) {
+  throw new Error(`Two different versions of Dexie loaded in the same app: ${_Dexie.semVer} and ${Dexie.semVer}`);
+}
+class KioskTimeZones {
+  constructor(kioskApi) {
+    this.apiContext = void 0;
+    this.db = void 0;
+    this.hasRefreshedFavourites = false;
+    this.hasRefreshedAll = false;
+    this.localCache = /* @__PURE__ */ new Map();
+    this.apiContext = kioskApi;
+    this.db = this.initDb();
   }
   initDb() {
-    const e = new zi("KioskTimeZones");
-    return e.version(1).stores({
+    const db = new Dexie("KioskTimeZones");
+    db.version(1).stores({
       kioskTimeZones: "&id, tz_long, tz_IANA, deprecated, version, favourite"
-    }), e;
+    });
+    return db;
   }
-  async getFavouriteTimeZones(e = !1, r = !1) {
+  getLocalCache() {
+    return this.localCache;
+  }
+  async getFavouriteTimeZones(includeDeprecated = false, refreshAfterwards = false) {
     if (this.db) {
-      const i = await this.db.kioskTimeZones.count();
-      let a;
-      return i == 0 && await this.refreshFavourites(), e ? a = await this.db.kioskTimeZones.where({ favourite: 1 }).toArray() : a = await this.db.kioskTimeZones.where({ deprecated: 0, favourite: 1 }).toArray(), r && this.refreshFavourites().finally(() => {
-        console.log("refreshed favourites");
-      }), a;
+      const c2 = await this.db.kioskTimeZones.count();
+      let favourites;
+      if (c2 == 0) {
+        await this.refreshFavourites();
+      }
+      if (!includeDeprecated) {
+        favourites = await this.db.kioskTimeZones.where({ "deprecated": 0, "favourite": 1 }).toArray();
+      } else {
+        favourites = await this.db.kioskTimeZones.where({ "favourite": 1 }).toArray();
+      }
+      if (refreshAfterwards) {
+        this.refreshFavourites().finally(() => {
+          console.log("refreshed favourites");
+        });
+      }
+      return favourites;
     } else return [];
   }
   async refreshFavourites() {
-    var e, r;
+    var _a2, _b;
     if (!this.db) return [];
     if (!this.hasRefreshedFavourites) {
-      const i = await this.fetchFavouriteTimeZones();
-      if (i && i.length > 0) {
-        let a = await ((e = this.db) == null ? void 0 : e.kioskTimeZones.where("favourite").equals(1).delete());
-        console.log(`Deleted ${a} favourite time zones`);
-        const c = i.map((m) => ({
-          id: m.id,
-          tz_IANA: m.tz_IANA,
-          tz_long: m.tz_long,
-          deprecated: m.deprecated ? 1 : 0,
-          version: m.version,
-          favourite: 1
-        }));
-        let h = await ((r = this.db) == null ? void 0 : r.kioskTimeZones.bulkAdd(c));
-        return console.log(`Added ${h} new favourite time zones`), this.hasRefreshedFavourites = !0, c;
+      const json = await this.fetchFavouriteTimeZones();
+      if (json && json.length > 0) {
+        let cDeleted = await ((_a2 = this.db) == null ? void 0 : _a2.kioskTimeZones.where("favourite").equals(1).delete());
+        console.log(`Deleted ${cDeleted} favourite time zones`);
+        const timeZones = json.map((tz) => {
+          return {
+            id: tz.id,
+            tz_IANA: tz.tz_IANA,
+            tz_long: tz.tz_long,
+            deprecated: tz.deprecated ? 1 : 0,
+            version: tz.version,
+            favourite: 1
+          };
+        });
+        let c2 = await ((_b = this.db) == null ? void 0 : _b.kioskTimeZones.bulkAdd(timeZones));
+        console.log(`Added ${c2} new favourite time zones`);
+        this.hasRefreshedFavourites = true;
+        return timeZones;
       }
     }
     return [];
   }
   async fetchFavouriteTimeZones() {
-    var e;
-    return await ((e = this.apiContext) == null ? void 0 : e.fetchFromApi(
+    var _a2;
+    return await ((_a2 = this.apiContext) == null ? void 0 : _a2.fetchFromApi(
       "",
       "favouritetimezones",
       {
         method: "GET",
         caller: "app.fetchFavouriteTimeZones"
       }
-    ).then((r) => (console.log("favourite time zone information fetched"), r)).catch((r) => (console.log(`fetching time zone information failed: ${r}`), [])));
+    ).then((json) => {
+      console.log("favourite time zone information fetched");
+      return json;
+    }).catch((e2) => {
+      console.log(`fetching time zone information failed: ${e2}`);
+      return [];
+    }));
   }
-  async fetchAllTimeZones(e = 0) {
-    var i;
-    const r = new URLSearchParams();
-    return r.append("include_deprecated", "true"), e > 0 && r.append("newer_than", `${e}`), await ((i = this.apiContext) == null ? void 0 : i.fetchFromApi(
+  async fetchAllTimeZones(newerThan = 0) {
+    var _a2;
+    const urlSearchParams = new URLSearchParams();
+    urlSearchParams.append("include_deprecated", "true");
+    if (newerThan > 0) urlSearchParams.append("newer_than", `${newerThan}`);
+    return await ((_a2 = this.apiContext) == null ? void 0 : _a2.fetchFromApi(
       "",
       "timezones",
       {
@@ -9415,49 +10607,99 @@ class Qc {
         caller: "app.fetchFavouriteTimeZones"
       },
       "v1",
-      r
-    ).then((a) => (console.log("time zone information fetched"), a)).catch((a) => (console.log(`time zone information failed: ${a}`), [])));
+      urlSearchParams
+    ).then((json) => {
+      console.log("time zone information fetched");
+      return json;
+    }).catch((e2) => {
+      console.log(`time zone information failed: ${e2}`);
+      return [];
+    }));
   }
-  async getAllTimeZones(e = !1, r = !1) {
-    var a;
-    await this.refreshAllTimeZones(r);
-    let i = await ((a = this.db) == null ? void 0 : a.kioskTimeZones.toArray());
-    return i == null ? void 0 : i.filter((c) => c.deprecated == 0 || e);
+  async getAllTimeZones(deprecated = false, forceReload = false) {
+    var _a2;
+    await this.refreshAllTimeZones(forceReload);
+    let allTimeZones = await ((_a2 = this.db) == null ? void 0 : _a2.kioskTimeZones.toArray());
+    return allTimeZones == null ? void 0 : allTimeZones.filter((tz) => tz.deprecated == 0 || deprecated);
   }
-  async getTimeZoneByIndex(e, r = !1) {
+  async getTimeZoneByIndex(tzIndex, forceReload = false) {
     if (!this.db) return;
-    await this.refreshAllTimeZones(r);
-    let i = await this.db.kioskTimeZones.where("id").equals(e).toArray();
-    return i.length > 0 ? i[0] : null;
+    await this.refreshAllTimeZones(forceReload);
+    let results = await this.db.kioskTimeZones.where("id").equals(tzIndex).toArray();
+    return results.length > 0 ? results[0] : void 0;
   }
-  async refreshAllTimeZones(e) {
-    let r = [];
-    if (this.db && (e || !this.hasRefreshedAll)) {
-      let i = 0;
-      const a = (await this.getFavouriteTimeZones()).filter((h) => h.favourite == 1).map((h) => h.id);
-      if (!e)
+  /**
+   * Asynchronously caches the time zone information locally based on the provided timezone index.
+   * Locally cached time zone information can be retrieved synchronously using getTimeZoneInfoFromLocalCache
+   * @param tzIndex a Kiosk Time Zone Index
+   * @param tryRefresh Flag indicating whether to refresh the timezone information if not found in the cache.
+   * @returns A Promise that resolves to the cached TimeZone object if found, otherwise undefined.
+   */
+  async cacheLocally(tzIndex, tryRefresh = false) {
+    if (!this.db) return void 0;
+    if (typeof tzIndex !== "number") return void 0;
+    let tzInfo = this.localCache.get(tzIndex);
+    if (tzInfo) return tzInfo;
+    tzInfo = await this.getTimeZoneByIndex(tzIndex);
+    if (!tzInfo) {
+      if (!tryRefresh) return void 0;
+      await this.refreshAllTimeZones(false);
+      tzInfo = await this.getTimeZoneByIndex(tzIndex);
+    }
+    if (tzInfo) {
+      console.log("Cached TimeZone", tzInfo);
+      this.localCache.set(tzIndex, tzInfo);
+    }
+    return this.localCache.get(tzIndex);
+  }
+  /**
+   * Retrieves timezone information from the local cache based on the provided timezone index.
+   * Unlike other methods this is synchronous.
+   * @param tzIndex - The index of the timezone to retrieve information for.
+   * @returns a TimeZone instance if found in the local cache, otherwise undefined.
+   */
+  getTimeZoneInfoFromLocalCache(tzIndex) {
+    if (typeof tzIndex === "string") tzIndex = parseInt(tzIndex);
+    if (!tzIndex) return;
+    return this.localCache.get(tzIndex);
+  }
+  async refreshAllTimeZones(forceReload) {
+    let allTimeZones = [];
+    if (!this.db) return;
+    if (forceReload || !this.hasRefreshedAll) {
+      let maxVersion = 0;
+      const favourites = (await this.getFavouriteTimeZones()).filter((t2) => t2.favourite == 1).map((t2) => t2.id);
+      if (!forceReload) {
         try {
-          i = (await this.db.kioskTimeZones.where("favourite").equals(0).reverse().sortBy("version"))[0].version, console.log(`max version was ${i}`);
+          maxVersion = (await this.db.kioskTimeZones.where("favourite").equals(0).reverse().sortBy("version"))[0].version;
+          console.log(`max version was ${maxVersion}`);
         } catch {
         }
-      const c = await this.fetchAllTimeZones(i);
-      if (c && c.length > 0) {
-        let h = await this.db.kioskTimeZones.where("version").above(i).delete();
-        console.log(`delete ${h} time zones above version ${i}`), r = c.map((m) => ({
-          id: m.id,
-          tz_IANA: m.tz_IANA,
-          tz_long: m.tz_long,
-          deprecated: m.deprecated ? 1 : 0,
-          version: m.version,
-          favourite: a.includes(m.id) ? 1 : 0
-        })), h = await this.db.kioskTimeZones.bulkAdd(r), console.log(`added ${h} new time zones `), this.hasRefreshedAll = !0;
       }
+      const json = await this.fetchAllTimeZones(maxVersion);
+      if (json && json.length > 0) {
+        let c2 = await this.db.kioskTimeZones.where("version").above(maxVersion).delete();
+        console.log(`delete ${c2} time zones above version ${maxVersion}`);
+        allTimeZones = json.map((tz) => {
+          return {
+            id: tz.id,
+            tz_IANA: tz.tz_IANA,
+            tz_long: tz.tz_long,
+            deprecated: tz.deprecated ? 1 : 0,
+            version: tz.version,
+            favourite: favourites.includes(tz.id) ? 1 : 0
+          };
+        });
+        c2 = await this.db.kioskTimeZones.bulkAdd(allTimeZones);
+        console.log(`added ${c2} new time zones `);
+      }
+      this.hasRefreshedAll = true;
     }
   }
 }
 export {
-  Qc as KioskTimeZones,
-  Jc as kioskdatetime,
-  Yc as kioskstandardlib,
-  Gc as luxon
+  KioskTimeZones,
+  kioskdatetime,
+  kioskstandardlib,
+  luxon
 };

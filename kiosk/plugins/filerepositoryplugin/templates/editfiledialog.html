@@ -130,13 +130,12 @@
 
                             <div class="col">
                                 {{ ef_form.ef_file_datetime.label(class="kiosk-dialog-label") }}
-                                <!-- Next line had formerly: "(contexts and ef_form.ef_file_datetime.data) or" See #960  -->
                                 {% if ("modify data" not in authorized_to ) %}
                                     <div class="kiosk-dialog-disabled-textfield">
-                  <span class="kiosk-tz-span" data-tz-index="{{ ef_form.ef_file_datetime_tz.tz_index }}"
-                        data-recording-iana-tz="{{ ef_form.ef_file_datetime_tz.data }}">
-                      {{ ef_form.ef_file_datetime.data }}
-                  </span>
+                                      <span class="kiosk-tz-span" data-tz-index="{{ ef_form.ef_file_datetime_tz.tz_index if ef_form.ef_file_datetime_tz.tz_index }}"
+                                            data-recording-iana-tz="{{ ef_form.ef_file_datetime_tz.data }}">
+                                          {{ ef_form.ef_file_datetime.data }}
+                                      </span>
                                     </div>
                                 {% else %}
                                     {{ ef_form.ef_file_datetime(class="kiosk-dialog-textfield") }}

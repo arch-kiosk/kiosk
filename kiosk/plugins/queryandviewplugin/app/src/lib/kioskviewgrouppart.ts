@@ -14,6 +14,7 @@ import { DSDRecordAccessor } from "./dsdrecordaccessor";
 import { KioskViewDocument } from "./kioskviewdocument";
 import { compareISODateTime, safeLocaleCompare } from "./applib";
 import { DataSetDefinition } from "../../kioskapplib/datasetdefinition";
+import { KioskView } from "../kioskview";
 
 type FieldOrderComparer = (v1: any,v2: any) => number
 
@@ -36,6 +37,7 @@ export class KioskViewGroupPart {
     private _UIDFieldIdx: number = -1;
     private _sort_order: Array<OrderedColumn> = []
     private _cachedElements: AnyDict = {};
+    private _types:{[key: string]: Array<string>} = {}
 
     get interpreter() {
         return this._interpreter
@@ -65,7 +67,8 @@ export class KioskViewGroupPart {
             throw `KioskViewDocument layout ${layoutId} has no layout_settings`
     }
 
-    constructor(data: ApiKioskViewDocument, groupId: string, partId: string, dataContext: DataContext=undefined) {
+    constructor(data: ApiKioskViewDocument, groupId: string, partId: string,
+                types:{[key: string]: Array<string>}, dataContext: DataContext=undefined) {
         KioskViewGroupPart.check_part(groupId, partId, data)
         this._groupId = groupId
         this._part = data.compilation.groups[groupId].parts[partId]
@@ -73,6 +76,7 @@ export class KioskViewGroupPart {
         this._document = data
         this._dataContext = dataContext
         this._partData = undefined
+        this._types = types
         this._initInterpreter()
     }
 
@@ -228,6 +232,7 @@ export class KioskViewGroupPart {
         let recordAccessor: DSDRecordAccessor
         let record: Array<any>
 
+        if (this.layout.record_type === "locus_photo") debugger;
         this._partData = viewDocument.getData()[this.layout.record_type]
         if (!this._partData || this._partData.length < 2) {
             if (!this.layout.hasOwnProperty("on_record_missing") || this.layout.on_record_missing === "hide") {
@@ -256,7 +261,8 @@ export class KioskViewGroupPart {
             {
                 fields: this._partData[0],
                 record: record
-            })
+            },
+            viewDocument.types[this.recordType])
 
         if (recordAccessor) {
             console.log(recordAccessor)
@@ -299,7 +305,9 @@ export class KioskViewGroupPart {
             {
                 fields: this._partData[0],
                 record: this._partData[rowIndex]
-            })
+            },
+            this._types[this.recordType]
+            )
         this._dataContext.registerAccessor(recordAccessor)
         return rowIndex.toString()
     }

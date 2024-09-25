@@ -89,7 +89,7 @@ class KioskFileMakerWorkstation(KioskWorkstation):
         if self.sync_ws.user_time_zone_index:
             user_ktz.user_tz_index = self.sync_ws.user_time_zone_index
         if self.sync_ws.recording_time_zone_index:
-            user_ktz.user_tz_index = self.sync_ws.recording_time_zone_index
+            user_ktz.recording_tz_index = self.sync_ws.recording_time_zone_index
 
         self.sync_ws.current_tz = user_ktz
 

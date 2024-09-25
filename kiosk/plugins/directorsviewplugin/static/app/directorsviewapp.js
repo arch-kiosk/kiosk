@@ -1055,19 +1055,29 @@ var gg = Qn((Ug, go) => {
   const Fs = ".col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}div,p{font-family:var(--standard-text-font)}:host{display:block;position:sticky;top:0}", Hs = ".col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}:host{display:block}div,p{font-family:var(--standard-text-font);-webkit-user-select:none;user-select:none}.date-selector{width:100%;background-color:var(--col-bg-1);display:flex;flex-direction:row;align-items:center;justify-content:center}.date-selector-date{padding:.5em;cursor:pointer;color:var(--col-primary-bg-1);--lumo-body-text-color: $col-accent-bg-1}.selected-date{background-color:var(--col-bg-2);color:var(--col-accent-bg-1);font-weight:700;font-size:1.2em}";
   /**
    * @license
-   * Copyright (c) 2017 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   class Bs extends HTMLElement {
     static get version() {
-      return "23.3.29";
+      return "23.5.5";
     }
   }
   customElements.define("vaadin-lumo-styles", Bs);
   /**
    * @license
-   * Copyright (c) 2017 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const js = (r) => class extends r {
     static get properties() {
@@ -1126,8 +1136,13 @@ var gg = Qn((Ug, go) => {
   };
   /**
    * @license
-   * Copyright (c) 2017 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const va = [];
   function $(r, e, t = {}) {
@@ -1213,8 +1228,13 @@ var gg = Qn((Ug, go) => {
   };
   /**
    * @license
-   * Copyright (c) 2017 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const Ks = A`
   :host {
@@ -1411,8 +1431,13 @@ var gg = Qn((Ug, go) => {
   $("", [wa, Xs], { moduleId: "lumo-color-legacy" });
   /**
    * @license
-   * Copyright (c) 2017 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const Js = A`
   :host {
@@ -1434,8 +1459,13 @@ var gg = Qn((Ug, go) => {
   document.head.appendChild(Ca.content);
   /**
    * @license
-   * Copyright (c) 2017 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const Qs = A`
   :host {
@@ -1467,8 +1497,13 @@ var gg = Qn((Ug, go) => {
   document.head.appendChild(Aa.content);
   /**
    * @license
-   * Copyright (c) 2017 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const Zs = A`
   :host {
@@ -5792,8 +5827,13 @@ var gg = Qn((Ug, go) => {
   const ue = Ga(HTMLElement);
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   class Dr {
     /**
@@ -5856,8 +5896,13 @@ var gg = Qn((Ug, go) => {
   }
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const te = [];
   function xc() {
@@ -5946,8 +5991,13 @@ var gg = Qn((Ug, go) => {
   };
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   class Ii extends it(dr(ue)) {
     static get is() {
@@ -6044,8 +6094,13 @@ var gg = Qn((Ug, go) => {
   customElements.define(Ii.is, Ii);
   /**
    * @license
-   * Copyright (c) 2017 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const Cc = A`
   :host {
@@ -6075,8 +6130,13 @@ var gg = Qn((Ug, go) => {
   document.head.appendChild(Qa.content);
   /**
    * @license
-   * Copyright (c) 2017 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const Co = A`
   :host {
@@ -6837,8 +6897,13 @@ var gg = Qn((Ug, go) => {
   }
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const ur = (r) => r.test(navigator.userAgent), ro = (r) => r.test(navigator.platform), Kc = (r) => r.test(navigator.vendor);
   ur(/Android/);
@@ -6854,8 +6919,13 @@ var gg = Qn((Ug, go) => {
   })();
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const at = S(
     (r) => class extends r {
@@ -6896,8 +6966,13 @@ var gg = Qn((Ug, go) => {
   );
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   let So = !1;
   window.addEventListener(
@@ -6973,8 +7048,13 @@ var gg = Qn((Ug, go) => {
   }
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const Or = [];
   class ld {
@@ -7071,8 +7151,13 @@ var gg = Qn((Ug, go) => {
   }
   /**
    * @license
-   * Copyright (c) 2017 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   class oe extends it(dr(at(ue))) {
     static get template() {
@@ -7113,7 +7198,8 @@ var gg = Qn((Ug, go) => {
         }
 
         :host([hidden]),
-        :host(:not([opened]):not([closing])) {
+        :host(:not([opened]):not([closing])),
+        :host(:not([opened]):not([closing])) [part='overlay'] {
           display: none !important;
         }
 
@@ -7294,6 +7380,8 @@ var gg = Qn((Ug, go) => {
     ready() {
       super.ready(), this._observer.flush(), this.addEventListener("click", () => {
       }), this.$.backdrop.addEventListener("click", () => {
+      }), this.addEventListener("mouseup", () => {
+        document.activeElement === document.body && this.$.overlay.getAttribute("tabindex") === "0" && this.$.overlay.focus();
       }), this.addController(this.__focusTrapController);
     }
     /** @private */
@@ -7607,8 +7695,13 @@ var gg = Qn((Ug, go) => {
   customElements.define(oe.is, oe);
   /**
    * @license
-   * Copyright (c) 2017 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const cn = A`
   :host([opening]),
@@ -8054,6 +8147,485 @@ var gg = Qn((Ug, go) => {
   };
   window.Vaadin.developmentMode === void 0 && (window.Vaadin.developmentMode = gd());
   function _d() {
+    /*! vaadin-dev-mode:start
+      (function () {
+    'use strict';
+    
+    var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+      return typeof obj;
+    } : function (obj) {
+      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+    };
+    
+    var classCallCheck = function (instance, Constructor) {
+      if (!(instance instanceof Constructor)) {
+        throw new TypeError("Cannot call a class as a function");
+      }
+    };
+    
+    var createClass = function () {
+      function defineProperties(target, props) {
+        for (var i = 0; i < props.length; i++) {
+          var descriptor = props[i];
+          descriptor.enumerable = descriptor.enumerable || false;
+          descriptor.configurable = true;
+          if ("value" in descriptor) descriptor.writable = true;
+          Object.defineProperty(target, descriptor.key, descriptor);
+        }
+      }
+    
+      return function (Constructor, protoProps, staticProps) {
+        if (protoProps) defineProperties(Constructor.prototype, protoProps);
+        if (staticProps) defineProperties(Constructor, staticProps);
+        return Constructor;
+      };
+    }();
+    
+    var getPolymerVersion = function getPolymerVersion() {
+      return window.Polymer && window.Polymer.version;
+    };
+    
+    var StatisticsGatherer = function () {
+      function StatisticsGatherer(logger) {
+        classCallCheck(this, StatisticsGatherer);
+    
+        this.now = new Date().getTime();
+        this.logger = logger;
+      }
+    
+      createClass(StatisticsGatherer, [{
+        key: 'frameworkVersionDetectors',
+        value: function frameworkVersionDetectors() {
+          return {
+            'Flow': function Flow() {
+              if (window.Vaadin && window.Vaadin.Flow && window.Vaadin.Flow.clients) {
+                var flowVersions = Object.keys(window.Vaadin.Flow.clients).map(function (key) {
+                  return window.Vaadin.Flow.clients[key];
+                }).filter(function (client) {
+                  return client.getVersionInfo;
+                }).map(function (client) {
+                  return client.getVersionInfo().flow;
+                });
+                if (flowVersions.length > 0) {
+                  return flowVersions[0];
+                }
+              }
+            },
+            'Vaadin Framework': function VaadinFramework() {
+              if (window.vaadin && window.vaadin.clients) {
+                var frameworkVersions = Object.values(window.vaadin.clients).filter(function (client) {
+                  return client.getVersionInfo;
+                }).map(function (client) {
+                  return client.getVersionInfo().vaadinVersion;
+                });
+                if (frameworkVersions.length > 0) {
+                  return frameworkVersions[0];
+                }
+              }
+            },
+            'AngularJs': function AngularJs() {
+              if (window.angular && window.angular.version && window.angular.version) {
+                return window.angular.version.full;
+              }
+            },
+            'Angular': function Angular() {
+              if (window.ng) {
+                var tags = document.querySelectorAll("[ng-version]");
+                if (tags.length > 0) {
+                  return tags[0].getAttribute("ng-version");
+                }
+                return "Unknown";
+              }
+            },
+            'Backbone.js': function BackboneJs() {
+              if (window.Backbone) {
+                return window.Backbone.VERSION;
+              }
+            },
+            'React': function React() {
+              var reactSelector = '[data-reactroot], [data-reactid]';
+              if (!!document.querySelector(reactSelector)) {
+                // React does not publish the version by default
+                return "unknown";
+              }
+            },
+            'Ember': function Ember() {
+              if (window.Em && window.Em.VERSION) {
+                return window.Em.VERSION;
+              } else if (window.Ember && window.Ember.VERSION) {
+                return window.Ember.VERSION;
+              }
+            },
+            'jQuery': function (_jQuery) {
+              function jQuery() {
+                return _jQuery.apply(this, arguments);
+              }
+    
+              jQuery.toString = function () {
+                return _jQuery.toString();
+              };
+    
+              return jQuery;
+            }(function () {
+              if (typeof jQuery === 'function' && jQuery.prototype.jquery !== undefined) {
+                return jQuery.prototype.jquery;
+              }
+            }),
+            'Polymer': function Polymer() {
+              var version = getPolymerVersion();
+              if (version) {
+                return version;
+              }
+            },
+            'LitElement': function LitElement() {
+              var version = window.litElementVersions && window.litElementVersions[0];
+              if (version) {
+                return version;
+              }
+            },
+            'LitHtml': function LitHtml() {
+              var version = window.litHtmlVersions && window.litHtmlVersions[0];
+              if (version) {
+                return version;
+              }
+            },
+            'Vue.js': function VueJs() {
+              if (window.Vue) {
+                return window.Vue.version;
+              }
+            }
+          };
+        }
+      }, {
+        key: 'getUsedVaadinElements',
+        value: function getUsedVaadinElements(elements) {
+          var version = getPolymerVersion();
+          var elementClasses = void 0;
+          // NOTE: In case you edit the code here, YOU MUST UPDATE any statistics reporting code in Flow.
+          // Check all locations calling the method getEntries() in
+          // https://github.com/vaadin/flow/blob/master/flow-server/src/main/java/com/vaadin/flow/internal/UsageStatistics.java#L106
+          // Currently it is only used by BootstrapHandler.
+          if (version && version.indexOf('2') === 0) {
+            // Polymer 2: components classes are stored in window.Vaadin
+            elementClasses = Object.keys(window.Vaadin).map(function (c) {
+              return window.Vaadin[c];
+            }).filter(function (c) {
+              return c.is;
+            });
+          } else {
+            // Polymer 3: components classes are stored in window.Vaadin.registrations
+            elementClasses = window.Vaadin.registrations || [];
+          }
+          elementClasses.forEach(function (klass) {
+            var version = klass.version ? klass.version : "0.0.0";
+            elements[klass.is] = { version: version };
+          });
+        }
+      }, {
+        key: 'getUsedVaadinThemes',
+        value: function getUsedVaadinThemes(themes) {
+          ['Lumo', 'Material'].forEach(function (themeName) {
+            var theme;
+            var version = getPolymerVersion();
+            if (version && version.indexOf('2') === 0) {
+              // Polymer 2: themes are stored in window.Vaadin
+              theme = window.Vaadin[themeName];
+            } else {
+              // Polymer 3: themes are stored in custom element registry
+              theme = customElements.get('vaadin-' + themeName.toLowerCase() + '-styles');
+            }
+            if (theme && theme.version) {
+              themes[themeName] = { version: theme.version };
+            }
+          });
+        }
+      }, {
+        key: 'getFrameworks',
+        value: function getFrameworks(frameworks) {
+          var detectors = this.frameworkVersionDetectors();
+          Object.keys(detectors).forEach(function (framework) {
+            var detector = detectors[framework];
+            try {
+              var version = detector();
+              if (version) {
+                frameworks[framework] = { version: version };
+              }
+            } catch (e) {}
+          });
+        }
+      }, {
+        key: 'gather',
+        value: function gather(storage) {
+          var storedStats = storage.read();
+          var gatheredStats = {};
+          var types = ["elements", "frameworks", "themes"];
+    
+          types.forEach(function (type) {
+            gatheredStats[type] = {};
+            if (!storedStats[type]) {
+              storedStats[type] = {};
+            }
+          });
+    
+          var previousStats = JSON.stringify(storedStats);
+    
+          this.getUsedVaadinElements(gatheredStats.elements);
+          this.getFrameworks(gatheredStats.frameworks);
+          this.getUsedVaadinThemes(gatheredStats.themes);
+    
+          var now = this.now;
+          types.forEach(function (type) {
+            var keys = Object.keys(gatheredStats[type]);
+            keys.forEach(function (key) {
+              if (!storedStats[type][key] || _typeof(storedStats[type][key]) != _typeof({})) {
+                storedStats[type][key] = { firstUsed: now };
+              }
+              // Discards any previously logged version number
+              storedStats[type][key].version = gatheredStats[type][key].version;
+              storedStats[type][key].lastUsed = now;
+            });
+          });
+    
+          var newStats = JSON.stringify(storedStats);
+          storage.write(newStats);
+          if (newStats != previousStats && Object.keys(storedStats).length > 0) {
+            this.logger.debug("New stats: " + newStats);
+          }
+        }
+      }]);
+      return StatisticsGatherer;
+    }();
+    
+    var StatisticsStorage = function () {
+      function StatisticsStorage(key) {
+        classCallCheck(this, StatisticsStorage);
+    
+        this.key = key;
+      }
+    
+      createClass(StatisticsStorage, [{
+        key: 'read',
+        value: function read() {
+          var localStorageStatsString = localStorage.getItem(this.key);
+          try {
+            return JSON.parse(localStorageStatsString ? localStorageStatsString : '{}');
+          } catch (e) {
+            return {};
+          }
+        }
+      }, {
+        key: 'write',
+        value: function write(data) {
+          localStorage.setItem(this.key, data);
+        }
+      }, {
+        key: 'clear',
+        value: function clear() {
+          localStorage.removeItem(this.key);
+        }
+      }, {
+        key: 'isEmpty',
+        value: function isEmpty() {
+          var storedStats = this.read();
+          var empty = true;
+          Object.keys(storedStats).forEach(function (key) {
+            if (Object.keys(storedStats[key]).length > 0) {
+              empty = false;
+            }
+          });
+    
+          return empty;
+        }
+      }]);
+      return StatisticsStorage;
+    }();
+    
+    var StatisticsSender = function () {
+      function StatisticsSender(url, logger) {
+        classCallCheck(this, StatisticsSender);
+    
+        this.url = url;
+        this.logger = logger;
+      }
+    
+      createClass(StatisticsSender, [{
+        key: 'send',
+        value: function send(data, errorHandler) {
+          var logger = this.logger;
+    
+          if (navigator.onLine === false) {
+            logger.debug("Offline, can't send");
+            errorHandler();
+            return;
+          }
+          logger.debug("Sending data to " + this.url);
+    
+          var req = new XMLHttpRequest();
+          req.withCredentials = true;
+          req.addEventListener("load", function () {
+            // Stats sent, nothing more to do
+            logger.debug("Response: " + req.responseText);
+          });
+          req.addEventListener("error", function () {
+            logger.debug("Send failed");
+            errorHandler();
+          });
+          req.addEventListener("abort", function () {
+            logger.debug("Send aborted");
+            errorHandler();
+          });
+          req.open("POST", this.url);
+          req.setRequestHeader("Content-Type", "application/json");
+          req.send(data);
+        }
+      }]);
+      return StatisticsSender;
+    }();
+    
+    var StatisticsLogger = function () {
+      function StatisticsLogger(id) {
+        classCallCheck(this, StatisticsLogger);
+    
+        this.id = id;
+      }
+    
+      createClass(StatisticsLogger, [{
+        key: '_isDebug',
+        value: function _isDebug() {
+          return localStorage.getItem("vaadin." + this.id + ".debug");
+        }
+      }, {
+        key: 'debug',
+        value: function debug(msg) {
+          if (this._isDebug()) {
+            console.info(this.id + ": " + msg);
+          }
+        }
+      }]);
+      return StatisticsLogger;
+    }();
+    
+    var UsageStatistics = function () {
+      function UsageStatistics() {
+        classCallCheck(this, UsageStatistics);
+    
+        this.now = new Date();
+        this.timeNow = this.now.getTime();
+        this.gatherDelay = 10; // Delay between loading this file and gathering stats
+        this.initialDelay = 24 * 60 * 60;
+    
+        this.logger = new StatisticsLogger("statistics");
+        this.storage = new StatisticsStorage("vaadin.statistics.basket");
+        this.gatherer = new StatisticsGatherer(this.logger);
+        this.sender = new StatisticsSender("https://tools.vaadin.com/usage-stats/submit", this.logger);
+      }
+    
+      createClass(UsageStatistics, [{
+        key: 'maybeGatherAndSend',
+        value: function maybeGatherAndSend() {
+          var _this = this;
+    
+          if (localStorage.getItem(UsageStatistics.optOutKey)) {
+            return;
+          }
+          this.gatherer.gather(this.storage);
+          setTimeout(function () {
+            _this.maybeSend();
+          }, this.gatherDelay * 1000);
+        }
+      }, {
+        key: 'lottery',
+        value: function lottery() {
+          return true;
+        }
+      }, {
+        key: 'currentMonth',
+        value: function currentMonth() {
+          return this.now.getYear() * 12 + this.now.getMonth();
+        }
+      }, {
+        key: 'maybeSend',
+        value: function maybeSend() {
+          var firstUse = Number(localStorage.getItem(UsageStatistics.firstUseKey));
+          var monthProcessed = Number(localStorage.getItem(UsageStatistics.monthProcessedKey));
+    
+          if (!firstUse) {
+            // Use a grace period to avoid interfering with tests, incognito mode etc
+            firstUse = this.timeNow;
+            localStorage.setItem(UsageStatistics.firstUseKey, firstUse);
+          }
+    
+          if (this.timeNow < firstUse + this.initialDelay * 1000) {
+            this.logger.debug("No statistics will be sent until the initial delay of " + this.initialDelay + "s has passed");
+            return;
+          }
+          if (this.currentMonth() <= monthProcessed) {
+            this.logger.debug("This month has already been processed");
+            return;
+          }
+          localStorage.setItem(UsageStatistics.monthProcessedKey, this.currentMonth());
+          // Use random sampling
+          if (this.lottery()) {
+            this.logger.debug("Congratulations, we have a winner!");
+          } else {
+            this.logger.debug("Sorry, no stats from you this time");
+            return;
+          }
+    
+          this.send();
+        }
+      }, {
+        key: 'send',
+        value: function send() {
+          // Ensure we have the latest data
+          this.gatherer.gather(this.storage);
+    
+          // Read, send and clean up
+          var data = this.storage.read();
+          data["firstUse"] = Number(localStorage.getItem(UsageStatistics.firstUseKey));
+          data["usageStatisticsVersion"] = UsageStatistics.version;
+          var info = 'This request contains usage statistics gathered from the application running in development mode. \n\nStatistics gathering is automatically disabled and excluded from production builds.\n\nFor details and to opt-out, see https://github.com/vaadin/vaadin-usage-statistics.\n\n\n\n';
+          var self = this;
+          this.sender.send(info + JSON.stringify(data), function () {
+            // Revert the 'month processed' flag
+            localStorage.setItem(UsageStatistics.monthProcessedKey, self.currentMonth() - 1);
+          });
+        }
+      }], [{
+        key: 'version',
+        get: function get$1() {
+          return '2.1.2';
+        }
+      }, {
+        key: 'firstUseKey',
+        get: function get$1() {
+          return 'vaadin.statistics.firstuse';
+        }
+      }, {
+        key: 'monthProcessedKey',
+        get: function get$1() {
+          return 'vaadin.statistics.monthProcessed';
+        }
+      }, {
+        key: 'optOutKey',
+        get: function get$1() {
+          return 'vaadin.statistics.optout';
+        }
+      }]);
+      return UsageStatistics;
+    }();
+    
+    try {
+      window.Vaadin = window.Vaadin || {};
+      window.Vaadin.usageStatsChecker = window.Vaadin.usageStatsChecker || new UsageStatistics();
+      window.Vaadin.usageStatsChecker.maybeGatherAndSend();
+    } catch (e) {
+      // Intentionally ignored as this is not a problem in the app being developed
+    }
+    
+    }());
+    
+      vaadin-dev-mode:end **/
   }
   const vd = function() {
     if (typeof zi == "function")
@@ -8284,8 +8856,13 @@ var gg = Qn((Ug, go) => {
   }
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   window.Vaadin = window.Vaadin || {};
   window.Vaadin.registrations = window.Vaadin.registrations || [];
@@ -8296,7 +8873,7 @@ var gg = Qn((Ug, go) => {
   let $r;
   const Fi = /* @__PURE__ */ new Set(), gn = (r) => class extends dr(r) {
     static get version() {
-      return "23.3.29";
+      return "23.5.5";
     }
     /** @protected */
     static finalize() {
@@ -8312,8 +8889,13 @@ var gg = Qn((Ug, go) => {
   };
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   let Cd = 0;
   function Ad() {
@@ -8321,8 +8903,13 @@ var gg = Qn((Ug, go) => {
   }
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   class Se extends EventTarget {
     /**
@@ -8403,8 +8990,13 @@ var gg = Qn((Ug, go) => {
   }
   /**
    * @license
-   * Copyright (c) 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   class fn extends Se {
     constructor(e) {
@@ -8480,8 +9072,13 @@ var gg = Qn((Ug, go) => {
   }
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const bn = S(
     (r) => class extends r {
@@ -8952,8 +9549,13 @@ var gg = Qn((Ug, go) => {
   }
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const Io = S(
     (r) => class extends r {
@@ -9014,8 +9616,13 @@ var gg = Qn((Ug, go) => {
   );
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const jd = (r) => class extends bn(Io(r)) {
     /**
@@ -9077,8 +9684,13 @@ var gg = Qn((Ug, go) => {
   };
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const No = S(
     (r) => class extends r {
@@ -9134,8 +9746,13 @@ var gg = Qn((Ug, go) => {
   );
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const kn = (r) => class extends bn(r) {
     static get properties() {
@@ -9185,8 +9802,13 @@ var gg = Qn((Ug, go) => {
   };
   /**
    * @license
-   * Copyright (c) 2017 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const Ud = (r) => class extends jd(kn(No(r))) {
     static get properties() {
@@ -9238,8 +9860,13 @@ var gg = Qn((Ug, go) => {
   };
   /**
    * @license
-   * Copyright (c) 2017 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   class Vi extends Ud(gn(it(at(ue)))) {
     static get is() {
@@ -9664,8 +10291,13 @@ var gg = Qn((Ug, go) => {
   document.head.appendChild(xn.content);
   /**
    * @license
-   * Copyright (c) 2017 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const wn = document.createElement("template");
   wn.innerHTML = `
@@ -9726,8 +10358,13 @@ var gg = Qn((Ug, go) => {
   document.head.appendChild(wn.content);
   /**
    * @license
-   * Copyright (c) 2017 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const Cn = A`
   [part$='button'] {
@@ -9760,8 +10397,13 @@ var gg = Qn((Ug, go) => {
   $("", Cn, { moduleId: "lumo-field-button" });
   /**
    * @license
-   * Copyright (c) 2017 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const Vd = A`
   :host([has-helper]) [part='helper-text']::before {
@@ -9817,8 +10459,13 @@ var gg = Qn((Ug, go) => {
 `;
   /**
    * @license
-   * Copyright (c) 2017 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const An = A`
   [part='label'] {
@@ -9920,8 +10567,13 @@ var gg = Qn((Ug, go) => {
   $("", An, { moduleId: "lumo-required-field" });
   /**
    * @license
-   * Copyright (c) 2017 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const qd = A`
   :host {
@@ -10163,8 +10815,13 @@ var gg = Qn((Ug, go) => {
   });
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   function Kd(r) {
     const e = [];
@@ -10205,8 +10862,13 @@ var gg = Qn((Ug, go) => {
   }
   /**
    * @license
-   * Copyright (c) 2017 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const zr = {
     start: "top",
@@ -10345,7 +11007,12 @@ var gg = Qn((Ug, go) => {
     _updatePosition() {
       if (!this.positionTarget || !this.opened)
         return;
-      const t = this.positionTarget.getBoundingClientRect(), o = this.__shouldAlignStartVertically(t);
+      const t = this.positionTarget.getBoundingClientRect();
+      if (t.width === 0 && t.height === 0 && this.opened) {
+        this.opened = !1;
+        return;
+      }
+      const o = this.__shouldAlignStartVertically(t);
       this.style.justifyContent = o ? "flex-start" : "flex-end";
       const i = this.__shouldAlignStartHorizontally(t, this.__isRTL), a = !this.__isRTL && i || this.__isRTL && !i;
       this.style.alignItems = a ? "flex-start" : "flex-end";
@@ -10442,8 +11109,13 @@ var gg = Qn((Ug, go) => {
   };
   /**
    * @license
-   * Copyright (c) 2016 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const Zd = A`
   :host([dir='rtl']) [part='input-field'] {
@@ -10466,8 +11138,13 @@ var gg = Qn((Ug, go) => {
 `;
   /**
    * @license
-   * Copyright (c) 2016 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   $("vaadin-date-picker-overlay", eu, {
     moduleId: "vaadin-date-picker-overlay-styles"
@@ -11095,8 +11772,13 @@ var gg = Qn((Ug, go) => {
   customElements.define(Gi.is, Gi);
   /**
    * @license
-   * Copyright (c) 2016 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   function nu(r) {
     let e = r.getDay();
@@ -11146,8 +11828,13 @@ var gg = Qn((Ug, go) => {
   }
   /**
    * @license
-   * Copyright (c) 2016 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   class Ki extends No(it(ue)) {
     static get template() {
@@ -11432,8 +12119,13 @@ var gg = Qn((Ug, go) => {
   customElements.define(Ki.is, Ki);
   /**
    * @license
-   * Copyright (c) 2016 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   class It extends ue {
     static get template() {
@@ -11677,8 +12369,13 @@ var gg = Qn((Ug, go) => {
   customElements.define(It.is, It);
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   class On {
     constructor(e, t) {
@@ -11705,8 +12402,13 @@ var gg = Qn((Ug, go) => {
   }
   /**
    * @license
-   * Copyright (c) 2016 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   class Xi extends at(it(dr(ue))) {
     static get template() {
@@ -12335,8 +13037,13 @@ var gg = Qn((Ug, go) => {
   customElements.define(Xi.is, Xi);
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const $n = S(
     (r) => class extends No(kn(r)) {
@@ -12483,8 +13190,13 @@ var gg = Qn((Ug, go) => {
   );
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   class lu extends Se {
     constructor(e) {
@@ -12565,8 +13277,13 @@ var gg = Qn((Ug, go) => {
   }
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   class cu {
     constructor(e) {
@@ -12676,8 +13393,13 @@ var gg = Qn((Ug, go) => {
   }
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   class du extends Se {
     constructor(e) {
@@ -12794,8 +13516,13 @@ var gg = Qn((Ug, go) => {
   }
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   class uu extends Se {
     constructor(e) {
@@ -12921,8 +13648,13 @@ var gg = Qn((Ug, go) => {
   }
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const hu = S(
     (r) => class extends at(r) {
@@ -12961,8 +13693,13 @@ var gg = Qn((Ug, go) => {
   );
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const Mn = S(
     (r) => class extends r {
@@ -13033,8 +13770,13 @@ var gg = Qn((Ug, go) => {
   );
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const pu = (r) => class extends Mn(hu(at(r))) {
     static get properties() {
@@ -13152,8 +13894,13 @@ var gg = Qn((Ug, go) => {
   };
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const gu = S(
     (r) => class extends r {
@@ -13233,8 +13980,13 @@ var gg = Qn((Ug, go) => {
   );
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const fu = S(
     (r) => class extends r {
@@ -13407,8 +14159,13 @@ var gg = Qn((Ug, go) => {
   );
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const In = S(
     (r) => class extends gu(Mn(fu(r))) {
@@ -13492,8 +14249,13 @@ var gg = Qn((Ug, go) => {
   );
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const Rr = /* @__PURE__ */ new WeakMap();
   function bu(r) {
@@ -13527,8 +14289,13 @@ var gg = Qn((Ug, go) => {
   );
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const vu = (r) => class extends _u(
     $n(In(pu(Io(r))))
@@ -13764,8 +14531,13 @@ var gg = Qn((Ug, go) => {
   };
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   class yu extends Se {
     constructor(e, t) {
@@ -13782,8 +14554,13 @@ var gg = Qn((Ug, go) => {
   }
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   class ku {
     constructor(e, t) {
@@ -13815,8 +14592,13 @@ var gg = Qn((Ug, go) => {
   }
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd..
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const xu = A`
   [part='clear-button'] {
@@ -13834,8 +14616,13 @@ var gg = Qn((Ug, go) => {
 `;
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd..
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const wu = A`
   :host {
@@ -13861,8 +14648,13 @@ var gg = Qn((Ug, go) => {
 `;
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd..
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const Cu = A`
   [class$='container'] {
@@ -13875,14 +14667,24 @@ var gg = Qn((Ug, go) => {
 `;
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd..
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const Au = [wu, Cu, xu];
   /**
    * @license
-   * Copyright (c) 2021 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   class Eu {
     /**
@@ -13900,8 +14702,13 @@ var gg = Qn((Ug, go) => {
   }
   /**
    * @license
-   * Copyright (c) 2016 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   const Pu = (r) => class extends at(
     $n(In(Io(r)))
@@ -14275,7 +15082,7 @@ var gg = Qn((Ug, go) => {
         this.__userConfirmedDate = !!t.detail.date, this._selectDate(t.detail.date);
       }), this._overlayContent.addEventListener("focusin", () => {
         this._keyboardActive && this._setFocused(!0);
-      }), this.addEventListener("mousedown", () => this.__bringToFront()), this.addEventListener("touchstart", () => this.__bringToFront());
+      }), this._overlayContent.addEventListener("click", (t) => t.stopPropagation()), this.addEventListener("mousedown", () => this.__bringToFront()), this.addEventListener("touchstart", () => this.__bringToFront());
     }
     /**
      * Returns true if the current input value satisfies all constraints (if any)
@@ -14583,8 +15390,13 @@ var gg = Qn((Ug, go) => {
   };
   /**
    * @license
-   * Copyright (c) 2016 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   $("vaadin-date-picker", [Au, Zd], { moduleId: "vaadin-date-picker-styles" });
   class Ji extends Pu(vu(it(gn(ue)))) {
@@ -14694,8 +15506,13 @@ var gg = Qn((Ug, go) => {
   customElements.define(Ji.is, Ji);
   /**
    * @license
-   * Copyright (c) 2016 - 2022 Vaadin Ltd.
-   * This program is available under Apache License Version 2.0, available at https://vaadin.com/license/
+   * Copyright (c) 2000 - 2024 Vaadin Ltd.
+   *
+   * This program is available under Vaadin Commercial License and Service Terms.
+   *
+   *
+   * See https://vaadin.com/commercial-license-and-service-terms for the full
+   * license.
    */
   var Su = Object.defineProperty, Tu = Object.getOwnPropertyDescriptor, Du = (r, e, t, o) => {
     for (var i = o > 1 ? void 0 : o ? Tu(e, t) : e, a = r.length - 1, n; a >= 0; a--)

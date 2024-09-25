@@ -416,7 +416,6 @@ class KioskDateTimeTzFieldWidget(wtforms.widgets.TextInput):
         kwargs.setdefault('type', self.input_type)
         kwargs["data-utc-date"] = field.data
         kwargs["value"] = ""
-
         markup_super = super().__call__(field, **kwargs)
         return markup_super
 
@@ -439,7 +438,7 @@ class KioskTzFieldWidget(wtforms.widgets.HiddenInput):
     def __call__(self, field, **kwargs):
         kwargs.setdefault('id', field.id)
         kwargs.setdefault('type', self.input_type)
-        kwargs["data-tz-index"] = field.tz_index if hasattr(field, "tz_index") else ""
+        kwargs["data-tz-index"] = field.tz_index if (hasattr(field, "tz_index") and field.tz_index) else ""
 
         markup_super = super().__call__(field, **kwargs)
         return markup_super

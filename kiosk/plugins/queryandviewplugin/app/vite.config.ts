@@ -13,15 +13,6 @@ export default defineConfig(({ command, mode }) => {
                 },
 
             }),
-            // copy({
-            //   targets: [ { src: '../../kioskfilemakerworkstationplugin/static/kioskfilemakerworkstation.css',
-            //     dest:'./kioskfilemakerworkstation/static'
-            //   }, {
-            //     src: '../../kioskfilemakerworkstationplugin/static/scripts',
-            //     dest:'./kioskfilemakerworkstation/static'
-            //   }],
-            //   hook: 'buildStart'
-            // }),
         ],
         esbuild:
             command == "build"

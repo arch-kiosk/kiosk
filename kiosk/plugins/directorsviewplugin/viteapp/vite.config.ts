@@ -11,15 +11,7 @@ export default defineConfig(({ command, mode }) => {
         },
         plugins: [
             createHtmlPlugin(),
-            // copy({
-            //   targets: [ { src: '../../kioskfilemakerworkstationplugin/static/kioskfilemakerworkstation.css',
-            //     dest:'./kioskfilemakerworkstation/static'
-            //   }, {
-            //     src: '../../kioskfilemakerworkstationplugin/static/scripts',
-            //     dest:'./kioskfilemakerworkstation/static'
-            //   }],
-            //   hook: 'buildStart'
-            // }),
+
         ],
         esbuild:
             command == "build"
@@ -35,7 +27,7 @@ export default defineConfig(({ command, mode }) => {
                 formats: ["es"],
             },
             // rollupOptions: {
-            //   external: /^lit/,
+            //   external: [/^@vaadin/],
             // },
         },
         server: {

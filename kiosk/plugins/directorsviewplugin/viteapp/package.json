@@ -31,7 +31,7 @@
   "dependencies": {
     "lit": "^2.6.1",
     "nanoid": "^4.0.1",
-    "@vaadin/vaadin-date-picker": "~23.3.29",
+    "@vaadin/vaadin-date-picker": "~23.5.5",
     "@popperjs/core": "~2.11.8",
     "blob-util": "~2.0.2",
     "deepfreeze": "~2.0.0",
