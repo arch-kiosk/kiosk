@@ -189,6 +189,7 @@ export class StructuredKioskQuery extends KioskAppComponent {
                     body: JSON.stringify(apiData),
                 }, "v1",
                 urlfetchParams);
+            debugger;
             if ("result_msg" in data && data.result_msg !== "ok") {
                 console.log(`Error: `, data);
                 return [null, 0];
@@ -233,8 +234,7 @@ export class StructuredKioskQuery extends KioskAppComponent {
             } else {
                 (<HTMLElement>ui).style.display = "None";
                 this._inputData = {}
-                this.fetchAllData()
-
+                // this.fetchAllData()
             }
         }
         if (_changedProperties.has("activeChart") || _changedProperties.has("activeView") || _changedProperties.has("isChartMaximized") || _changedProperties.has("data") && this.data) {
@@ -299,14 +299,18 @@ export class StructuredKioskQuery extends KioskAppComponent {
         callback: GridDataProviderCallback<AnyDict>,
     ) => {
         const { page, pageSize, sortOrders } = params;
-        console.log("params", params);
+        let rc: [Array<any>, number]
         if (this._inputData) {
-            const rc = await this.fetchQueryResults({
-                page: page + 1,
-                pageSize: pageSize,
-                sortOrders: sortOrders,
-                searchTerm: "",
-            });
+            if (this.uiSchema && Object.keys(this.uiSchema).length > 0) {
+                let rc = await this.fetchQueryResults({
+                    page: page + 1,
+                    pageSize: pageSize,
+                    sortOrders: sortOrders,
+                    searchTerm: "",
+                })
+            } else {
+                let rc = await this.fetchAllData()
+            }
             let data, count;
             [data, count] = rc;
             if (count > 0 || page == 0) {
