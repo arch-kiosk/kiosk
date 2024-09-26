@@ -52,10 +52,13 @@ def user_profile(uuid):
 
     class WtfUserProfile(FlaskForm):
         user_uuid = StringField('id')
-        user_id = StringField('User-Id', id="mup-user-id", validators=[DataRequired()])
+        user_id = StringField('User-Id', id="mup-user-id",
+                              render_kw={"autocorrect": "off", "autocapitalize": "none", "autocomplete":"off"},
+                              validators=[DataRequired()])
         user_name = StringField('Name', id="mup-user-name", validators=[DataRequired()])
         set_password = BooleanField('set password', id="mup-set-password")
-        user_password = PasswordField('Password', id="mup-user-password", validators=[])
+        user_password = PasswordField('Password', id="mup-user-password", validators=[],
+                                      render_kw={"autocorrect": "off", "autocapitalize": "none", "autocomplete":"off"})
         user_password_check = PasswordField('Repeat password', id="mup-user-password-check", validators=[])
 
         def load_data(self, user):

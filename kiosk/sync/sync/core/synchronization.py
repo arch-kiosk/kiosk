@@ -640,6 +640,7 @@ class Synchronization(PluginLoader):
 
         self._init_rewiring_files()
 
+        rewire_duplicates = kioskstdlib.try_get_dict_entry(self.options, "rewire_duplicates", False)
         for workstation_id, identifier in self._files_to_synchronize:
             ok = False
             if identifier:
@@ -655,7 +656,8 @@ class Synchronization(PluginLoader):
                             if contextual_file.upload(src_file,
                                                       override=True,
                                                       keep_image_data=True,
-                                                      commit=False):
+                                                      commit=False,
+                                                      log_duplicate_errors=not rewire_duplicates):
                                 c += 1
                                 ok = True
                             else:
@@ -739,7 +741,8 @@ class Synchronization(PluginLoader):
                 logging.info(
                     f"File {src_file} with uid {contextual_file.uid} could not be uploaded to file repository because "
                     f"the same file is already known as "
-                    f"{contextual_file.last_error_details['uid_existing_file']}.")
+                    f"{contextual_file.last_error_details['uid_existing_file']}. "
+                    f"It will be rewired instead (that's a good thing!).")
                 return self._add_file_to_rewire(contextual_file.uid,
                                                 contextual_file.last_error_details['uid_existing_file'])
             elif kioskstdlib.try_get_dict_entry(self.options, "drop_duplicates", False):

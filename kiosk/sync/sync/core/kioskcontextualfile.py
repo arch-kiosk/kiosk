@@ -197,7 +197,8 @@ class KioskContextualFile(KioskLogicalFile):
                no_auto_representations=False,
                commit=True,
                keep_image_data=False,
-               push_contexts=False):
+               push_contexts=False,
+               log_duplicate_errors=True):
         """
         uploads a file from outside of the file repository
         into the file repository under the uid set at __init__.
@@ -217,6 +218,7 @@ class KioskContextualFile(KioskLogicalFile):
         if a file with the same hash already exists, this returns "None" and last_error will be set to
         "Duplicate". The uid of the existing file is stored in last_error_details["uid_existing_file"]
 
+        :param log_duplicate_errors:
         :param src_path_and_filename: the file to upload
         :param override: Optional. Set to True if an existing file should be replaced
         :param backup_old: Optional. Set to False if an existing file should not be saved before replacing it.
@@ -255,11 +257,18 @@ class KioskContextualFile(KioskLogicalFile):
                     self._last_error_details = {
                         "uid_existing_file": uid_hash,
                     }
-                    logging.error(f"{self.__class__.__name__}.upload: "
+                    if log_duplicate_errors:
+                        logging.error(f"{self.__class__.__name__}.upload: "
                                   f"The repository file \"{uid_hash}\" is identical to the import"
                                   f" candidate {src_path_and_filename}. It is not allowed to import a duplicate.")
-                    logging.error(f"{self.__class__.__name__}.upload: "
-                                  f"md5 hash is {md5_hash}")
+                        logging.debug(f"{self.__class__.__name__}.upload: "
+                                      f"md5 hash is {md5_hash}")
+                    else:
+                        logging.debug(f"{self.__class__.__name__}.upload: "
+                                  f"The repository file \"{uid_hash}\" is identical to the import"
+                                  f" candidate {src_path_and_filename}. It is not allowed to import a duplicate.")
+                        logging.debug(f"{self.__class__.__name__}.upload: "
+                                      f"md5 hash is {md5_hash}")
                     return None
         else:
             logging.warning(f"KioskContextualFile.upload: md5 hash could not be created for {src_path_and_filename}")
