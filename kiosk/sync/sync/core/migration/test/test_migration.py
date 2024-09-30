@@ -1,3 +1,4 @@
+# todo time zone simpliciation
 import time
 
 import pytest
@@ -28,7 +29,7 @@ class TestMigration(KioskPyTestHelper):
 
     @pytest.fixture(scope="module")
     def cfg(self):
-        return self.get_config(config_file)
+        return self.get_config(config_file,log_file=log_file)
 
     @pytest.fixture(scope="module")
     def db(self, cfg):
@@ -121,13 +122,12 @@ class TestMigration(KioskPyTestHelper):
 
         unit_narrative = self.sort_structure([('repl_tag', 'integer', 'YES', None),
                                               ('uid', 'uuid', 'NO', 'gen_random_uuid()'),
-                                              ('created', 'timestamp with time zone', 'NO', None),
-                                              ('created_tz', 'integer', 'YES', None),
+                                              ('created', 'timestamp without time zone', 'NO', None),
                                               ('modified', 'timestamp with time zone', 'YES', None),
                                               ('modified_tz', 'integer', 'YES', None),
+                                              ('modified_ww', 'timestamp without time zone', 'YES', None),
                                               ('repl_deleted', 'boolean', 'YES', 'false'),
-                                              ('date', 'timestamp with time zone', 'YES', None),
-                                              ('date_tz', 'integer', 'YES', None),
+                                              ('date', 'timestamp without time zone', 'YES', None),
                                               ('id_excavator', 'text', 'YES', None),
                                               ('narrative', 'text', 'YES', None),
                                               ('modified_by', 'text', 'YES', "'sys'::text"),
@@ -135,10 +135,8 @@ class TestMigration(KioskPyTestHelper):
 
         assert self.sort_structure(helper.get_table_fields_info("unit_narrative")) == unit_narrative
 
-        collected_material = self.sort_structure([('created', 'timestamp with time zone', 'NO', None),
-                                                  ('created_tz', 'integer', 'YES', None),
-                                                  ('date', 'timestamp with time zone', 'YES', None),
-                                                  ('date_tz', 'integer', 'YES', None),
+        collected_material = self.sort_structure([('created', 'timestamp without time zone', 'NO', None),
+                                                  ('date', 'timestamp without time zone', 'YES', None),
                                                   ('dearregistrar', 'character varying', 'YES', None),
                                                   ('description', 'character varying', 'YES', None),
                                                   ('external_id', 'character varying', 'YES', None),
@@ -147,6 +145,7 @@ class TestMigration(KioskPyTestHelper):
                                                   ('modified', 'timestamp with time zone', 'YES', None),
                                                   ('modified_by', 'character varying', 'YES', None),
                                                   ('modified_tz', 'integer', 'YES', None),
+                                                  ('modified_ww', 'timestamp without time zone', 'YES', None),
                                                   ('period', 'character varying', 'YES', None),
                                                   ('pottery_remarks', 'character varying', 'YES', None),
                                                   ('quantity', 'numeric', 'YES', None),
@@ -163,12 +162,12 @@ class TestMigration(KioskPyTestHelper):
 
         assert self.sort_structure(helper.get_table_fields_info("collected_material")) == collected_material
 
-        collected_material_photo = self.sort_structure([('created', 'timestamp with time zone', 'NO', None),
-                                                        ('created_tz', 'integer', 'YES', None),
+        collected_material_photo = self.sort_structure([('created', 'timestamp without time zone', 'NO', None),
                                                         ('description', 'character varying', 'YES', None),
                                                         ('modified', 'timestamp with time zone', 'YES', None),
                                                         ('modified_by', 'character varying', 'YES', None),
                                                         ('modified_tz', 'integer', 'YES', None),
+                                                        ('modified_ww', 'timestamp without time zone', 'YES', None),
                                                         ('repl_deleted', 'boolean', 'YES', 'false'),
                                                         ('repl_tag', 'integer', 'YES', None),
                                                         ('uid', 'uuid', 'NO', 'gen_random_uuid()'),
@@ -178,13 +177,13 @@ class TestMigration(KioskPyTestHelper):
 
         assert self.sort_structure(helper.get_table_fields_info("collected_material_photo")) == collected_material_photo
 
-        dayplan = self.sort_structure([('created', 'timestamp with time zone', 'NO', None),
-                                       ('created_tz', 'integer', 'YES', None),
+        dayplan = self.sort_structure([('created', 'timestamp without time zone', 'NO', None),
                                        ('id_unit', 'character varying', 'YES', None),
                                        ('image_description', 'character varying', 'YES', None),
                                        ('modified', 'timestamp with time zone', 'YES', None),
                                        ('modified_by', 'character varying', 'YES', None),
                                        ('modified_tz', 'integer', 'YES', None),
+                                       ('modified_ww', 'timestamp without time zone', 'YES', None),
                                        ('repl_deleted', 'boolean', 'YES', 'false'),
                                        ('repl_tag', 'integer', 'YES', None),
                                        ('uid', 'uuid', 'NO', 'gen_random_uuid()'),
@@ -193,12 +192,12 @@ class TestMigration(KioskPyTestHelper):
 
         assert self.sort_structure(helper.get_table_fields_info("dayplan")) == dayplan
 
-        excavator = self.sort_structure([('created', 'timestamp with time zone', 'NO', None),
-                                         ('created_tz', 'integer', 'YES', None),
+        excavator = self.sort_structure([('created', 'timestamp without time zone', 'NO', None),
                                          ('id', 'character varying', 'YES', None),
                                          ('modified', 'timestamp with time zone', 'YES', None),
                                          ('modified_by', 'character varying', 'YES', None),
                                          ('modified_tz', 'integer', 'YES', None),
+                                         ('modified_ww', 'timestamp without time zone', 'YES', None),
                                          ('name', 'character varying', 'YES', None),
                                          ('properties', 'character varying', 'YES', None),
                                          ('repl_deleted', 'boolean', 'YES', 'false'),
@@ -208,8 +207,7 @@ class TestMigration(KioskPyTestHelper):
 
         assert self.sort_structure(helper.get_table_fields_info("excavator")) == excavator
 
-        feature_unit = self.sort_structure([('created', 'timestamp with time zone', 'NO', None),
-                                            ('created_tz', 'integer', 'YES', None),
+        feature_unit = self.sort_structure([('created', 'timestamp without time zone', 'NO', None),
                                             ('elevation', 'integer', 'YES', None),
                                             ('feature_type', 'character varying', 'YES', None),
                                             ('length', 'integer', 'YES', None),
@@ -217,6 +215,7 @@ class TestMigration(KioskPyTestHelper):
                                             ('modified', 'timestamp with time zone', 'YES', None),
                                             ('modified_by', 'character varying', 'YES', None),
                                             ('modified_tz', 'integer', 'YES', None),
+                                            ('modified_ww', 'timestamp without time zone', 'YES', None),
                                             ('repl_deleted', 'boolean', 'YES', 'false'),
                                             ('repl_tag', 'integer', 'YES', None),
                                             ('revisit', 'character varying', 'YES', None),
@@ -227,23 +226,21 @@ class TestMigration(KioskPyTestHelper):
 
         assert self.sort_structure(helper.get_table_fields_info("feature_unit")) == feature_unit
 
-        images = self.sort_structure([('created', 'timestamp with time zone', 'NO', None),
-                                      ('created_tz', 'integer', 'YES', None),
+        images = self.sort_structure([('created', 'timestamp without time zone', 'NO', None),
                                       ('description', 'character varying', 'YES', None),
-                                      ('file_datetime', 'timestamp with time zone', 'YES', None),
-                                      ('file_datetime_tz', 'integer', 'YES', None),
+                                      ('file_datetime', 'timestamp without time zone', 'YES', None),
                                       ('filename', 'character varying', 'YES', None),
                                       ('id_cm', 'integer', 'YES', None),
                                       ('id_locus', 'integer', 'YES', None),
                                       ('id_site', 'character varying', 'YES', None),
                                       ('id_unit', 'character varying', 'YES', None),
                                       ('image_attributes', 'jsonb', 'YES', None),
-                                      ('img_proxy', 'timestamp with time zone', 'YES', None),
-                                      ('img_proxy_tz', 'integer', 'YES', None),
+                                      ('img_proxy', 'timestamp without time zone', 'YES', None),
                                       ('md5_hash', 'character varying', 'YES', None),
                                       ('modified', 'timestamp with time zone', 'YES', None),
                                       ('modified_by', 'character varying', 'YES', None),
                                       ('modified_tz', 'integer', 'YES', None),
+                                      ('modified_ww', 'timestamp without time zone', 'YES', None),
                                       ('original_md5', 'character varying', 'YES', None),
                                       ('ref_uid', 'uuid', 'YES', None),
                                       ('repl_deleted', 'boolean', 'YES', 'false'),
@@ -255,8 +252,7 @@ class TestMigration(KioskPyTestHelper):
 
         locus = self.sort_structure([('closing elevations', 'character varying', 'YES', None),
                                      ('colour', 'character varying', 'YES', None),
-                                     ('created', 'timestamp with time zone', 'NO', None),
-                                     ('created_tz', 'integer', 'YES', None),
+                                     ('created', 'timestamp without time zone', 'NO', None),
                                      ('date_closed', 'date', 'YES', None),
                                      ('date_defined', 'date', 'YES', None),
                                      ('description', 'character varying', 'YES', None),
@@ -265,6 +261,7 @@ class TestMigration(KioskPyTestHelper):
                                      ('modified', 'timestamp with time zone', 'YES', None),
                                      ('modified_by', 'character varying', 'YES', None),
                                      ('modified_tz', 'integer', 'YES', None),
+                                     ('modified_ww', 'timestamp without time zone', 'YES', None),
                                      ('opening elevations', 'character varying', 'YES', None),
                                      ('phase', 'character varying', 'YES', None),
                                      ('repl_deleted', 'boolean', 'YES', 'false'),
@@ -277,13 +274,13 @@ class TestMigration(KioskPyTestHelper):
         assert self.sort_structure(helper.get_table_fields_info("locus")) == locus
 
         locus_architecture = self.sort_structure([('brick_size', 'character varying', 'YES', None),
-                                                  ('created', 'timestamp with time zone', 'NO', None),
-                                                  ('created_tz', 'integer', 'YES', None),
+                                                  ('created', 'timestamp without time zone', 'NO', None),
                                                   ('features', 'character varying', 'YES', None),
                                                   ('material', 'character varying', 'YES', None),
                                                   ('modified', 'timestamp with time zone', 'YES', None),
                                                   ('modified_by', 'character varying', 'YES', None),
                                                   ('modified_tz', 'integer', 'YES', None),
+                                                  ('modified_ww', 'timestamp without time zone', 'YES', None),
                                                   ('mortar_desc', 'character varying', 'YES', None),
                                                   ('preserved_height', 'numeric', 'YES', None),
                                                   ('repl_deleted', 'boolean', 'YES', 'false'),
@@ -298,8 +295,7 @@ class TestMigration(KioskPyTestHelper):
 
         locus_deposit = self.sort_structure([('clay_prc', 'numeric', 'YES', None),
                                              ('compositions', 'character varying', 'YES', None),
-                                             ('created', 'timestamp with time zone', 'NO', None),
-                                             ('created_tz', 'integer', 'YES', None),
+                                             ('created', 'timestamp without time zone', 'NO', None),
                                              ('description', 'character varying', 'YES', None),
                                              ('gravel_prc', 'numeric', 'YES', None),
                                              ('inclusions', 'character varying', 'YES', None),
@@ -307,6 +303,7 @@ class TestMigration(KioskPyTestHelper):
                                              ('modified', 'timestamp with time zone', 'YES', None),
                                              ('modified_by', 'character varying', 'YES', None),
                                              ('modified_tz', 'integer', 'YES', None),
+                                             ('modified_ww', 'timestamp without time zone', 'YES', None),
                                              ('repl_deleted', 'boolean', 'YES', 'false'),
                                              ('repl_tag', 'integer', 'YES', None),
                                              ('sand_prc', 'numeric', 'YES', None),
@@ -317,12 +314,12 @@ class TestMigration(KioskPyTestHelper):
 
         assert self.sort_structure(helper.get_table_fields_info("locus_deposit")) == locus_deposit
 
-        locus_othertype = self.sort_structure([('created', 'timestamp with time zone', 'NO', None),
-                                               ('created_tz', 'integer', 'YES', None),
+        locus_othertype = self.sort_structure([('created', 'timestamp without time zone', 'NO', None),
                                                ('description', 'character varying', 'YES', None),
                                                ('modified', 'timestamp with time zone', 'YES', None),
                                                ('modified_by', 'character varying', 'YES', None),
                                                ('modified_tz', 'integer', 'YES', None),
+                                               ('modified_ww', 'timestamp without time zone', 'YES', None),
                                                ('repl_deleted', 'boolean', 'YES', 'false'),
                                                ('repl_tag', 'integer', 'YES', None),
                                                ('type', 'character varying', 'YES', None),
@@ -332,12 +329,12 @@ class TestMigration(KioskPyTestHelper):
 
         assert self.sort_structure(helper.get_table_fields_info("locus_othertype")) == locus_othertype
 
-        locus_photo = self.sort_structure([('created', 'timestamp with time zone', 'NO', None),
-                                           ('created_tz', 'integer', 'YES', None),
+        locus_photo = self.sort_structure([('created', 'timestamp without time zone', 'NO', None),
                                            ('description', 'character varying', 'YES', None),
                                            ('modified', 'timestamp with time zone', 'YES', None),
                                            ('modified_by', 'character varying', 'YES', None),
                                            ('modified_tz', 'integer', 'YES', None),
+                                           ('modified_ww', 'timestamp without time zone', 'YES', None),
                                            ('repl_deleted', 'boolean', 'YES', 'false'),
                                            ('repl_tag', 'integer', 'YES', None),
                                            ('uid', 'uuid', 'NO', 'gen_random_uuid()'),
@@ -347,11 +344,11 @@ class TestMigration(KioskPyTestHelper):
 
         assert self.sort_structure(helper.get_table_fields_info("locus_photo")) == locus_photo
 
-        locus_relations = self.sort_structure([('created', 'timestamp with time zone', 'NO', None),
-                                               ('created_tz', 'integer', 'YES', None),
+        locus_relations = self.sort_structure([('created', 'timestamp without time zone', 'NO', None),
                                                ('modified', 'timestamp with time zone', 'YES', None),
                                                ('modified_by', 'character varying', 'YES', None),
                                                ('modified_tz', 'integer', 'YES', None),
+                                               ('modified_ww', 'timestamp without time zone', 'YES', None),
                                                ('repl_deleted', 'boolean', 'YES', 'false'),
                                                ('repl_tag', 'integer', 'YES', None),
                                                ('sketch_description', 'character varying', 'YES', None),
@@ -364,12 +361,12 @@ class TestMigration(KioskPyTestHelper):
 
         assert self.sort_structure(helper.get_table_fields_info("locus_relations")) == locus_relations
 
-        locus_types = self.sort_structure([('created', 'timestamp with time zone', 'NO', None),
-                                           ('created_tz', 'integer', 'YES', None),
+        locus_types = self.sort_structure([('created', 'timestamp without time zone', 'NO', None),
                                            ('id', 'character varying', 'YES', None),
                                            ('modified', 'timestamp with time zone', 'YES', None),
                                            ('modified_by', 'character varying', 'YES', None),
                                            ('modified_tz', 'integer', 'YES', None),
+                                           ('modified_ww', 'timestamp without time zone', 'YES', None),
                                            ('repl_deleted', 'boolean', 'YES', 'false'),
                                            ('repl_tag', 'integer', 'YES', None),
                                            ('type_name', 'character varying', 'YES', None),
@@ -379,13 +376,12 @@ class TestMigration(KioskPyTestHelper):
         assert self.sort_structure(helper.get_table_fields_info("locus_types")) == locus_types
 
         lot = self.sort_structure([('closing_elevations', 'character varying', 'YES', None),
-                                   ('created', 'timestamp with time zone', 'NO', None),
-                                   ('created_tz', 'integer', 'YES', None),
-                                   ('date', 'timestamp with time zone', 'YES', None),
-                                   ('date_tz', 'integer', 'YES', None),
+                                   ('created', 'timestamp without time zone', 'NO', None),
+                                   ('date', 'timestamp without time zone', 'YES', None),
                                    ('id', 'integer', 'YES', None),
                                    ('modified', 'timestamp with time zone', 'YES', None),
                                    ('modified_by', 'character varying', 'YES', None),
+                                   ('modified_ww', 'timestamp without time zone', 'YES', None),
                                    ('modified_tz', 'integer', 'YES', None),
                                    ('opening_elevations', 'character varying', 'YES', None),
                                    ('purpose', 'character varying', 'YES', None),
@@ -416,19 +412,18 @@ class TestMigration(KioskPyTestHelper):
         repl_deleted_uids = self.sort_structure([('deleted_uid', 'uuid', 'NO', None),
                                                  ('modified', 'timestamp with time zone', 'YES', None),
                                                  ('modified_tz', 'integer', 'YES', None),
+                                                 ('modified_ww', 'timestamp without time zone', 'YES', None),
                                                  ('repl_workstation_id', 'character varying', 'YES', None),
                                                  ('table', 'character varying', 'YES', None),
                                                  ('uid', 'uuid', 'NO', 'gen_random_uuid()')]
                                                 )
         assert self.sort_structure(self.get_table_fields_info("repl_deleted_uids")) == repl_deleted_uids
         repl_file_picking_rules = self.sort_structure(
-            [('created', 'timestamp with time zone', 'NO', 'now()'),
-             ('created_tz', 'integer', 'YES', None),
+            [('created', 'timestamp without time zone', 'NO', 'now()'),
              ('disable_changes', 'boolean', 'YES', 'false'),
              ('misc', 'character varying', 'YES', None),
-             ('modified', 'timestamp with time zone', 'NO', 'now()'),
+             ('modified', 'timestamp without time zone', 'NO', 'now()'),
              ('modified_by', 'character varying', 'YES', None),
-             ('modified_tz', 'integer', 'YES', None),
              ('operator', 'character varying', 'YES', None),
              ('order', 'integer', 'NO', None),
              ('recording_group', 'character varying', 'NO', "'default'::character varying"),
@@ -443,10 +438,8 @@ class TestMigration(KioskPyTestHelper):
         repl_workstation = self.sort_structure(
             [('description', 'character varying', 'YES', None),
              ('dsd_version', 'character varying', 'YES', None),
-             ('fork_sync_time', 'timestamp with time zone', 'YES', None),
-             ('fork_sync_time_tz', 'integer', 'YES', None),
-             ('fork_time', 'timestamp with time zone', 'YES', None),
-             ('fork_time_tz', 'integer', 'YES', None),
+             ('fork_sync_time', 'timestamp without time zone', 'YES', None),
+             ('fork_time', 'timestamp without time zone', 'YES', None),
              ('id', 'character varying', 'NO', None),
              ('recording_group', 'character varying', 'YES', None),
              ('state', 'smallint', 'NO', '0'),
@@ -475,12 +468,10 @@ class TestMigration(KioskPyTestHelper):
         for table in tables:
             helper.assert_table(table)
 
-        kiosk_file_cache = self.sort_structure([('created', 'timestamp with time zone', 'NO', 'now()'),
-                                                ('created_tz', 'integer', 'YES', None),
+        kiosk_file_cache = self.sort_structure([('created', 'timestamp without time zone', 'NO', 'now()'),
                                                 ('image_attributes', 'jsonb', 'YES', None),
                                                 ('invalid', 'boolean', 'NO', 'true'),
-                                                ('modified', 'timestamp with time zone', 'NO', 'now()'),
-                                                ('modified_tz', 'integer', 'YES', None),
+                                                ('modified', 'timestamp without time zone', 'NO', 'now()'),
                                                 ('path_and_filename', 'character varying', 'YES', None),
                                                 ('representation_type', 'character varying', 'YES', None),
                                                 ('uid', 'uuid', 'NO', 'gen_random_uuid()'),
@@ -505,8 +496,7 @@ class TestMigration(KioskPyTestHelper):
         assert self.sort_structure(helper.get_table_fields_info("kiosk_user")) == kiosk_user
 
         kiosk_workstation = self.sort_structure([('download_upload_status', 'integer', 'NO', '0'),
-                                                 ('ts_status', 'timestamp with time zone', 'YES', None),
-                                                 ('ts_status_tz', 'integer', 'YES', None),
+                                                 ('ts_status', 'timestamp without time zone', 'YES', None),
                                                  ('id', 'character varying', 'NO', None)]
                                                 )
         assert self.sort_structure(helper.get_table_fields_info("kiosk_workstation")) == kiosk_workstation
@@ -567,23 +557,21 @@ class TestMigration(KioskPyTestHelper):
         assert migration
         migration.migrate_dataset()
 
-        file = self.sort_structure([('created', 'timestamp with time zone', 'NO', None),
-                                    ('created_tz', 'integer', 'YES', None),
+        file = self.sort_structure([('created', 'timestamp without time zone', 'NO', None),
                                     ('description', 'character varying', 'YES', None),
-                                    ('file_datetime', 'timestamp with time zone', 'YES', None),
-                                    ('file_datetime_tz', 'integer', 'YES', None),
+                                    ('file_datetime', 'timestamp without time zone', 'YES', None),
                                     ('filename', 'character varying', 'YES', None),
                                     ('id_cm', 'integer', 'YES', None),
                                     ('id_locus', 'integer', 'YES', None),
                                     ('id_site', 'character varying', 'YES', None),
                                     ('id_unit', 'character varying', 'YES', None),
                                     ('image_attributes', 'jsonb', 'YES', None),
-                                    ('img_proxy', 'timestamp with time zone', 'YES', None),
-                                    ('img_proxy_tz', 'integer', 'YES', None),
+                                    ('img_proxy', 'timestamp without time zone', 'YES', None),
                                     ('md5_hash', 'character varying', 'YES', None),
                                     ('modified', 'timestamp with time zone', 'YES', None),
                                     ('modified_by', 'character varying', 'YES', None),
                                     ('modified_tz', 'integer', 'YES', None),
+                                    ('modified_ww', 'timestamp without time zone', 'YES', None),
                                     ('original_md5', 'character varying', 'YES', None),
                                     ('ref_uid', 'uuid', 'YES', None),
                                     ('repl_deleted', 'boolean', 'YES', 'false'),
@@ -595,8 +583,7 @@ class TestMigration(KioskPyTestHelper):
 
         locus = self.sort_structure([('closing elevations txt', 'character varying', 'YES', None),
                                      ('colour', 'character varying', 'YES', None),
-                                     ('created', 'timestamp with time zone', 'NO', None),
-                                     ('created_tz', 'integer', 'YES', None),
+                                     ('created', 'timestamp without time zone', 'NO', None),
                                      ('date_closed', 'date', 'YES', None),
                                      ('date_defined', 'date', 'YES', None),
                                      ('description', 'character varying', 'YES', None),
@@ -605,6 +592,7 @@ class TestMigration(KioskPyTestHelper):
                                      ('modified', 'timestamp with time zone', 'YES', None),
                                      ('modified_by', 'character varying', 'YES', None),
                                      ('modified_tz', 'integer', 'YES', None),
+                                     ('modified_ww', 'timestamp without time zone', 'YES', None),
                                      ('opening elevations txt', 'character varying', 'YES', None),
                                      ('phase', 'character varying', 'YES', None),
                                      ('repl_deleted', 'boolean', 'YES', 'false'),
@@ -616,8 +604,7 @@ class TestMigration(KioskPyTestHelper):
         assert self.sort_structure(helper.get_table_fields_info("locus")) == locus
 
         replication = self.sort_structure([('id', 'character varying', 'NO', None),
-                                           ('ts', 'timestamp with time zone', 'YES', 'now()'),
-                                           ('ts_tz', 'integer', 'YES', None),
+                                           ('ts', 'timestamp without time zone', 'YES', 'now()'),
                                            ('value', 'character varying', 'YES', None)]
                                           )
         assert self.sort_structure(helper.get_table_fields_info("replication")) == replication

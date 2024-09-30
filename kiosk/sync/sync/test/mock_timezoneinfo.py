@@ -1,3 +1,4 @@
+# todo time zone simpliciation
 import pytest
 
 from tz.kiosktimezones import KioskTimeZones

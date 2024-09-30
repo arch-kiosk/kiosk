@@ -1,3 +1,4 @@
+# todo time zone simpliciation
 import os
 import pprint
 import shutil

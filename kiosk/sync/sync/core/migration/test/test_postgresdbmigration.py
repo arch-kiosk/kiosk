@@ -1,3 +1,4 @@
+# todo time zone simpliciation
 import pytest
 import psycopg2
 import datetime

@@ -1,3 +1,4 @@
+# todo time zone simpliciation
 import logging
 from dsd.dsd3 import DataSetDefinition
 

@@ -1,3 +1,4 @@
+# todo time zone simpliciation
 import datetime
 import logging
 

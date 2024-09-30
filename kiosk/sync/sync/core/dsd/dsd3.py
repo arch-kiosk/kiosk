@@ -15,6 +15,7 @@ from dsd.dsderrors import *
 from kiosksqldb import KioskSQLDb
 from dicttools import dict_merge
 
+# todo time zone simpliciation (done)
 
 class Join:
     def __init__(self, root_table, related_table, _type="inner", root_field="", related_field="", quantifier="1",
@@ -96,6 +97,7 @@ class DataSetDefinition:
         "TIME": "TIME",
         "SERIAL": "SERIAL",
         "TZ": "TZ",
+        "TIMESTAMPTZ": "TIMESTAMPTZ"
     }
 
     def __init__(self, dsd_store=None):
@@ -183,33 +185,45 @@ class DataSetDefinition:
         version = version if version else self.get_current_version(table)
         self._dsd_data.set([table, KEY_TABLE_STRUCTURE, version, field], instructions)
 
-    @staticmethod
-    def get_virtual_fields(raw_dsd: dict):
+    def get_virtual_fields(self, raw_dsd: dict):
         """
         adds fields that are not explicitly defined in the dsd file like the tz fields for datatimes and timestamps
         :param raw_dsd: a complete dsd structure
         :return: a dictionary with table: version: fields: parameters to add
         """
 
-        def _append_virtual_fields_to_table(raw_dsd_table: dict):
+        def _gather_virtual_fields_for_table(raw_dsd_table: dict):
             new_fields = {}
+            parser = SimpleFunctionParser()
             for ver in raw_dsd_table:
                 if isinstance(ver, int):
                     structure = raw_dsd_table[ver]
                     if isinstance(structure, dict):
-                        for field, params in structure.items():
+                        for field, instructions in structure.items():
                             try:
-                                for param in params:
-                                    p = param.lower()
-                                    if p.startswith("datatype") and ("datetime" in p or "timestamp" in p):
-                                        if ver not in new_fields:
-                                            new_fields[ver] = {}
-                                        new_fields[ver][field + "_tz"] = ['datatype(TZ)', ]
-                                        break
+                                add_tz_fields = False
+                                data_type = ""
+                                for instruction in instructions:
+                                    p = instruction.lower()
+                                    if "datatype" in p:
+                                        parser.parse(p)
+                                        if parser.ok:
+                                            data_type = self.translate_datatype(parser.parameters[0])
+                                    if "replfield_modified" in p:
+                                        add_tz_fields = True
+
+                                if data_type.startswith("timestamp") and add_tz_fields:
+                                    for idx, instruction in enumerate(instructions):
+                                        if instruction.lower().startswith("datatype"):
+                                           structure[field][idx] = "datatype(TIMESTAMPTZ)"
+                                    if ver not in new_fields:
+                                        new_fields[ver] = {}
+                                    new_fields[ver][field + "_tz"] = ['datatype(TZ)', ]
+                                    new_fields[ver][field + "_ww"] = ['datatype(TIMESTAMP)', ]
+                                    break
+
                             except BaseException as e:
                                 raise DSDStructuralIssue(f"version {ver} field definition for {field} not correct")
-                # else:
-                #     raise DSDStructuralIssue(f"numeric version expected, got {ver}")
             return new_fields
 
         structural_modifications = {}
@@ -217,7 +231,7 @@ class DataSetDefinition:
             if top_level not in ['config', 'migration_catalog', 'migration_flags']:
                 if 'structure' in raw_dsd[top_level]:
                     try:
-                        added_fields = _append_virtual_fields_to_table(raw_dsd[top_level]["structure"])
+                        added_fields = _gather_virtual_fields_for_table(raw_dsd[top_level]["structure"])
                         if added_fields:
                             structural_modifications[top_level] = added_fields
 
@@ -1577,33 +1591,33 @@ class DataSetDefinition:
 
         return False
 
-    def get_tz_type_for_field(self, tablename: str, field_name: str, version: int = 0) -> str:
-        """
-        checks if a field must be rendered in user's time zone or recording time zone (or default rendering is on).
-        Note that field with the "replfield_modified" instruction will always be "u".
-
-        Default is "" -> no type specified or called for
-
-        :param tablename: the table
-        :param field_name: the field
-        :param version: optional version
-        :return: "u" for user's time zone, "r" for recording time zone, "" for not specified
-        """
-        params = self.get_instruction_parameters(tablename, field_name, "tz_type", version=version)
-        u_instructions = self.get_field_instructions(tablename,
-                                                     field_name,
-                                                     patterns=["replfield_modified", "replfield_created","proxy_for"])
-        if params:
-            if params[0] in ["r", "u"]:
-                if params[0] == "r":
-                    if u_instructions:  # and ("replfield_modified" in u_instructions or "proxy_for" in u_instructions):
-                        logging.warning(f"{self.__class__.__name__}.get_tz_type_for_field: "
-                                        f"The replfield_modified field {tablename}.{field_name} "
-                                        f"has a tz_type(r) definition which is ignored.")
-                        return "u"
-                return params[0]
-
-            raise DSDInstructionValueError(f"field {tablename}.{field_name} "
-                                           f"has wrong parameter for instruction 'tz_type'")
-
-        return "u" if u_instructions else ""
+    # def get_tz_type_for_field(self, tablename: str, field_name: str, version: int = 0) -> str:
+    #     """
+    #     checks if a field must be rendered in user's time zone or recording time zone (or default rendering is on).
+    #     Note that field with the "replfield_modified" instruction will always be "u".
+    #
+    #     Default is "" -> no type specified or called for
+    #
+    #     :param tablename: the table
+    #     :param field_name: the field
+    #     :param version: optional version
+    #     :return: "u" for user's time zone, "r" for recording time zone, "" for not specified
+    #     """
+    #     params = self.get_instruction_parameters(tablename, field_name, "tz_type", version=version)
+    #     u_instructions = self.get_field_instructions(tablename,
+    #                                                  field_name,
+    #                                                  patterns=["replfield_modified", "replfield_created","proxy_for"])
+    #     if params:
+    #         if params[0] in ["r", "u"]:
+    #             if params[0] == "r":
+    #                 if u_instructions:  # and ("replfield_modified" in u_instructions or "proxy_for" in u_instructions):
+    #                     logging.warning(f"{self.__class__.__name__}.get_tz_type_for_field: "
+    #                                     f"The replfield_modified field {tablename}.{field_name} "
+    #                                     f"has a tz_type(r) definition which is ignored.")
+    #                     return "u"
+    #             return params[0]
+    #
+    #         raise DSDInstructionValueError(f"field {tablename}.{field_name} "
+    #                                        f"has wrong parameter for instruction 'tz_type'")
+    #
+    #     return "u" if u_instructions else ""

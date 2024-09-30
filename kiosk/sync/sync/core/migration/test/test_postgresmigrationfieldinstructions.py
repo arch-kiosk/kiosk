@@ -1,3 +1,4 @@
+# todo time zone simpliciation
 import psycopg2
 import pytest
 from migration.postgresmigrationfieldinstructions import *

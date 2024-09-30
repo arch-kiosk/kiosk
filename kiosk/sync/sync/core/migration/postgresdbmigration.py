@@ -1,3 +1,4 @@
+# todo time zone simpliciation (done)
 import logging
 import sys
 import os
@@ -13,7 +14,6 @@ from migration.postgrestablemigration import _PostgresTableMigration
 from kioskstdlib import get_file_extension
 
 from migration.postgresmigrationfieldinstructions import *
-
 
 
 class PostgresDbMigration(DatabaseMigration):
@@ -229,14 +229,16 @@ class PostgresDbMigration(DatabaseMigration):
             fields["repl_workstation_id"] = {"datatype": ["VARCHAR"], "not_null": []}
 
         # add tz fields
-        date_fields = []
+        tz_fields = []
         for field_name, field_params in fields.items():
             if ("datatype" in field_params.keys() and
-                    self.dsd.translate_datatype(field_params["datatype"][0]) == "timestamp"):
-                date_fields.append(field_name)
+                self.dsd.translate_datatype(field_params["datatype"][0]) == "timestamp" and
+                    "replfield_modified" in field_params.keys()):
+                tz_fields.append(field_name)
 
-        for f in date_fields:
+        for f in tz_fields:
             fields[f + "_tz"] = {"datatype": ["TZ"], "default": ["NULL"]}
+            fields[f + "_ww"] = {"datatype": ["timestamp"], "default": ["NULL"]}
 
         primary_key_field = ""
         for field_name in fields.keys():

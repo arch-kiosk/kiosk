@@ -1,3 +1,4 @@
+# todo time zone simpliciation (done)
 import logging
 
 from dsd.dsd3 import DataSetDefinition
@@ -35,7 +36,7 @@ class TZMigration:
 
     def migrate_table(self, table: str):
         c_migrated = 0
-        fields = self.dsd.get_fields_with_datatype(table, "TIMESTAMP")
+        fields = self.dsd.get_fields_with_instruction(table, "replfield_modified")
         if fields:
             if KioskSQLDb.does_table_exist(table):
                 fields_with_tz = [x[0] for x in KioskSQLDb.get_records(f"""select column_name 
@@ -49,6 +50,7 @@ class TZMigration:
                         sql += (", " if sql else "ALTER " + f" TABLE \"{table}\" ")
                         sql += f"ALTER COLUMN \"{field}\" TYPE TIMESTAMP WITH TIME ZONE, "
                         sql += f"ADD COLUMN \"{field + '_tz'}\" INTEGER DEFAULT NULL"
+                        sql += f"ADD COLUMN \"{field + '_ww'}\" TIMESTAMP DEFAULT NULL"
                     else:
                         logging.debug(f"{self.__class__.__name__}.migrate_table: field {table}.{field}"
                                       f" is already of type timestamp with time zone")

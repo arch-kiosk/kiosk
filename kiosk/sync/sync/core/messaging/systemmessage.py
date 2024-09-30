@@ -1,3 +1,4 @@
+# todo time zone simpliciation (done)
 from __future__ import annotations
 
 import datetime

@@ -36,6 +36,15 @@ kiosk_privilege:
 
 kiosk_user:
   structure:
+    5:
+      uid: [datatype(UUID), uuid_key())]
+      user_id: ["datatype(VARCHAR,20)", not_null(), unique()]
+      user_name: [datatype(VARCHAR), not_null()]
+      pwd_hash: [datatype(VARCHAR), not_null(), default("''")]
+      repl_user_id: ["datatype(VARCHAR,20)"]
+      groups: [datatype(VARCHAR)]
+      must_change_pwd: [datatype(BOOL)]
+      force_tz_index: [datatype(INT)]
     4:
       uid: [datatype(UUID), uuid_key())]
       user_id: ["datatype(VARCHAR,20)", not_null(), unique()]
@@ -71,6 +80,9 @@ kiosk_user:
       groups: [datatype(VARCHAR)]
       must_change_pwd: [datatype(BOOL)]
   migration:
+    5:
+      upgrade:
+        - drop("recording_tz_index")
     4:
       upgrade:
         - add("force_tz_index")

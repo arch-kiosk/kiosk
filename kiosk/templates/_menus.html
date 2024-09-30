@@ -9,21 +9,12 @@
           {% if current_user.is_time_zone_forced() %}<i class="fas fa-location-dot"></i>{% endif %}
           {{ current_user.get_active_time_zone_name()|truncate(16,True) }}
       </p>
-      {% if current_user.get_recording_tz_index() %}
-          <p class="time-zone-indicator time-zone-forced">
-              <i class="fas fa-pen"></i>
-              {{ current_user.get_recording_time_zone_name()|truncate(16,True) }}
-          </p>
-      {% endif %}
 
 
     </div>
     <div class="dropdown-content" id="user-menu">
       {% if current_user.is_time_zone_forced() %}
           <div class="warning-time-zone-differs"><i class="fas fa-location-dot"></i><span>{{ current_user.get_active_time_zone_name() }} differs from your operating system's time zone</span></div>
-      {% endif %}
-      {% if current_user.get_recording_tz_index() %}
-          <div class="warning-time-zone-differs"><i class="fas fa-pen"></i><span>You have explicitly set {{ current_user.get_recording_time_zone_name() }} as recording time zone </span></div>
       {% endif %}
       <a href="#" onclick="userMenuClick('manage_time_zone','{{ url_for('login_controller.manage_time_zone',uuid=current_user.id) }}')">manage time zone</a>
       <a href="#"

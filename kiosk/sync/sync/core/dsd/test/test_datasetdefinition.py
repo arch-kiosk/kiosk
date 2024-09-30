@@ -21,7 +21,7 @@ dsd3_images_file2 = os.path.join(data_dir, "dsd3_unit.yml")
 dsd3_images_file = os.path.join(data_dir, "dsd3_images.yml")
 dsd2_file = os.path.join(data_dir, "dsd2.yml")
 dsd3_test_file = os.path.join(data_dir, "dsd3_test.yml")
-dsd3_test_tz_type_file = os.path.join(data_dir, "dsd3_test_tz_type.yml")
+dsd3_test_tz_file = os.path.join(data_dir, "dsd3_test_tz.yml")
 dsd3_external_test_base_file = os.path.join(data_dir, "dsd3_external_test_base.yml")
 dsd3_import_test_base_file = os.path.join(data_dir, "dsd3_import_test_base_file.yml")
 dsd3_rename_table_test = os.path.join(data_dir, "dsd3_rename_table_test.yml")
@@ -896,21 +896,10 @@ class TestDataSetDefinition(KioskPyTestHelper):
             "feld2_tz": ["datatype(TZ)"]
         }}}
 
-    def test_get_tz_type_for_field(self, dsd_images_and_units):
-        dsd: DataSetDefinition = dsd_images_and_units
-        assert dsd.append_file(dsd3_test_tz_type_file)
-        assert dsd.get_tz_type_for_field("test", "some_date") == ""
-        assert dsd.get_tz_type_for_field("test", "explicit_r") == "r"
-        assert dsd.get_tz_type_for_field("test", "modified") == "u"
-        assert dsd.get_tz_type_for_field("test", "created") == "u"
-        assert dsd.get_tz_type_for_field("test", "dontsync") == "u"
-
-        # tests if a tz_type(r) is ignored for a modified field
-        assert dsd.get_tz_type_for_field("test2", "modified") == "u"
 
     def test_omit_fields_by_datatype(self, dsd_images_and_units):
         dsd: DataSetDefinition = dsd_images_and_units
-        assert dsd.append_file(dsd3_test_tz_type_file)
+        assert dsd.append_file(dsd3_test_tz_file)
         field_list = dsd.list_fields("test")
         assert field_list == ['name',
                               'description',
@@ -944,13 +933,13 @@ class TestDataSetDefinition(KioskPyTestHelper):
 
     def test_get_field_instructiuons_for_tz(self, cfg, dsd_images_and_units):
         dsd: DataSetDefinition = dsd_images_and_units
-        assert dsd.append_file(dsd3_test_tz_type_file)
+        assert dsd.append_file(dsd3_test_tz_file)
         assert dsd.get_field_datatype("test", "some_date_tz") == "tz"
         assert dsd.get_field_instructions("test", "some_date_tz") == {'datatype': ['TZ']}
 
     def test_get_proxy_field_reference_for_tz(self, cfg, dsd_images_and_units):
         dsd: DataSetDefinition = dsd_images_and_units
-        assert dsd.append_file(dsd3_test_tz_type_file)
+        assert dsd.append_file(dsd3_test_tz_file)
         assert dsd.get_proxy_field_reference("test", "some_date_tz", test=True) == ""
 
         dsd_workstation_view = DSDView(dsd)

@@ -3,12 +3,26 @@ config:
 
 repl_deleted_uids:
   structure:
+    2:
+      uid: [datatype(UUID), primary(), unique(), default('gen_random_uuid()')]
+      deleted_uid: [datatype(UUID), not_null()]
+      table: [datatype(VARCHAR)]
+      repl_workstation_id: [datatype(VARCHAR)]
+      modified: [datatype(TIMESTAMPTZ)]
+      modified_tz: [datatype(TZ)]
+      modified_ww: [datatype(TIMESTAMP)]
     1:
       uid: [datatype(UUID), primary(), unique(), default('gen_random_uuid()')]
       deleted_uid: [datatype(UUID), not_null()]
       table: [datatype(VARCHAR)]
       repl_workstation_id: [datatype(VARCHAR)]
       modified: [datatype(TIMESTAMP)]
+  migration:
+    2:
+      upgrade:
+        - alter(modified)
+        - add(modified_tz)
+        - add(modified_ww)
 
 repl_image_resolution:
   structure:
