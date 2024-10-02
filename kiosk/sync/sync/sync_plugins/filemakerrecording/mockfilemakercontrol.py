@@ -148,8 +148,9 @@ class FileMakerControlMock(FileMakerControl):
             comma = ""
             # todo time zone: this should only return the Zulu timestamp fields but not the _tz fields
             for f in dsd.omit_fields_by_datatype(tablename, dsd.list_fields(tablename, version=version), "tz"):
-                sql_select = sql_select + comma + '"' + f + '"'
-                comma = ", "
+                if not f.endswith("_ww"):
+                    sql_select = sql_select + comma + '"' + f + '"'
+                    comma = ", "
             sql_select = sql_select + ' FROM "' + tablename + '"'
             if import_filter:
                 sql_select += " WHERE " + import_filter

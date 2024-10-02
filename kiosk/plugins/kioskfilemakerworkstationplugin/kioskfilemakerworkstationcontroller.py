@@ -1,3 +1,4 @@
+# todo time zone simpliciation
 import datetime
 import logging
 import flake8
@@ -165,7 +166,6 @@ def create_filemaker_workstation(form: KioskFileMakerWorkstationForm, general_er
                             "description": form.description.data,
                             "recording_group": form.recording_group.data,
                             "user_time_zone_index": form.user_time_zone_index.data,
-                            "recording_time_zone_index": form.recording_time_zone_index.data,
                             "grant_access_to": form.grant_access_to.data,
                             "options": form.options.data
                             }
@@ -899,7 +899,6 @@ def kfw_edit(ws_id):
                 sync_ws.description = kfw_form.description.data
                 sync_ws.recording_group = kfw_form.recording_group.data
                 sync_ws.set_user_time_zone_index(kfw_form.user_time_zone_index.data)
-                sync_ws.set_recording_time_zone_index(kfw_form.recording_time_zone_index.data)
                 sync_ws.grant_access_to = kfw_form.grant_access_to.data
                 sync_ws.options = kfw_form.options.data
                 if sync_ws.save():
@@ -912,7 +911,6 @@ def kfw_edit(ws_id):
             kfw_form.workstation_id.data = sync_ws.get_id()
             kfw_form.description.data = sync_ws.description
             kfw_form.user_time_zone_index.data = sync_ws.user_time_zone_index
-            kfw_form.recording_time_zone_index.data = sync_ws.recording_time_zone_index
             kfw_form.grant_access_to.data = sync_ws.grant_access_to
             kfw_form.options.data = sync_ws.options
 

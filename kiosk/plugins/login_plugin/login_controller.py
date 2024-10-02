@@ -91,25 +91,6 @@ def process_client_time_zone(response: Response, user: KioskUser):
         response.set_cookie("kiosk_tz_name", kiosk_tz_name)
         response.set_cookie("kiosk_iana_time_zone", kiosk_iana_time_zone)
 
-        kiosk_recording_tz_index = kiosk_tz_index
-        kiosk_recording_tz_name = kiosk_tz_name
-        kiosk_recording_iana_time_zone = kiosk_iana_time_zone
-
-        if user.get_recording_tz_index():
-            try:
-                kiosk_recording_tz_index = user.get_recording_tz_index()
-                tz_info = kiosk_time_zones.get_time_zone_info(kiosk_recording_tz_index)
-                kiosk_recording_tz_name = tz_info[1]
-                kiosk_recording_iana_time_zone = tz_info[2]
-            except BaseException as e:
-                logging.warning(f"login_controller.process_client_time_zone: "
-                                f"Error when setting the user's recording time zone: {repr(e)}. "
-                                f"Falling back to the default recording time zone")
-
-        response.set_cookie("kiosk_recording_tz_index", str(kiosk_recording_tz_index))
-        response.set_cookie("kiosk_recording_tz_name", kiosk_recording_tz_name)
-        response.set_cookie("kiosk_recording_iana_time_zone", kiosk_recording_iana_time_zone)
-
         return response
     else:
         raise Exception("It is not possible to determine your Browser's time zone. Please contact support.")
@@ -212,13 +193,8 @@ def manage_time_zone(uuid):
         if force_tz_index == 0:
             force_tz_index = None
 
-        recording_tz_index = request.json["recording_tz_index"]
-        if recording_tz_index == 0:
-            recording_tz_index = None
-
-        if force_tz_index != user.force_tz_index or recording_tz_index != user._recording_tz_index:
+        if force_tz_index != user.force_tz_index:
             user.force_tz_index = force_tz_index
-            user._recording_tz_index = recording_tz_index
             if not user.save():
                 return jsonify(result="error", message="For some reason the new time zone settings could not be saved")
             else:

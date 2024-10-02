@@ -49,7 +49,7 @@ class TZMigration:
                         c_migrated += 1
                         sql += (", " if sql else "ALTER " + f" TABLE \"{table}\" ")
                         sql += f"ALTER COLUMN \"{field}\" TYPE TIMESTAMP WITH TIME ZONE, "
-                        sql += f"ADD COLUMN \"{field + '_tz'}\" INTEGER DEFAULT NULL"
+                        sql += f"ADD COLUMN \"{field + '_tz'}\" INTEGER DEFAULT NULL,"
                         sql += f"ADD COLUMN \"{field + '_ww'}\" TIMESTAMP DEFAULT NULL"
                     else:
                         logging.debug(f"{self.__class__.__name__}.migrate_table: field {table}.{field}"

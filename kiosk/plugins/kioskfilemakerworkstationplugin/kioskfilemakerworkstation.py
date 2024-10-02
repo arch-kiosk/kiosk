@@ -1,3 +1,5 @@
+# todo time zone simpliciation
+
 import copy
 import logging
 import textwrap
@@ -88,8 +90,6 @@ class KioskFileMakerWorkstation(KioskWorkstation):
         # override user settings with dock settings if there are any
         if self.sync_ws.user_time_zone_index:
             user_ktz.user_tz_index = self.sync_ws.user_time_zone_index
-        if self.sync_ws.recording_time_zone_index:
-            user_ktz.recording_tz_index = self.sync_ws.recording_time_zone_index
 
         self.sync_ws.current_tz = user_ktz
 
@@ -232,14 +232,6 @@ class KioskFileMakerWorkstation(KioskWorkstation):
             else:
                 time_zone_info = f" (invalid time zone)"
 
-        if self._sync_ws.recording_time_zone_index:
-            time_zone = kioskglobals.kiosk_time_zones.get_time_zone_info(self._sync_ws.recording_time_zone_index)
-            if time_zone:
-                time_zone_info_2 = f"\n({textwrap.shorten(time_zone[1], width=30, placeholder='...')})"
-            else:
-                time_zone_info_2 = f" (invalid time zone)"
-            time_zone_info += ("/" + time_zone_info_2) if time_zone_info else time_zone_info_2
-
         return result + time_zone_info
 
     @property
@@ -313,8 +305,7 @@ class KioskFileMakerWorkstation(KioskWorkstation):
         return self._sync_ws
 
     def create_workstation(self, ws_name, recording_group, user_time_zone_index: int = None,
-                           options: str = "", grant_access_to: str = "",
-                           recording_time_zone_index: int = None) -> bool:
+                           options: str = "", grant_access_to: str = "") -> bool:
         """
         creates a FileMakerWorkstation by creating the corresponding FileMakerWorkstation class of the sync subsystem
         :param ws_name:  the workstation's description
@@ -322,7 +313,6 @@ class KioskFileMakerWorkstation(KioskWorkstation):
         :param user_time_zone_index: the workstation's time zone or None
         :param options: special options for the workstation. A ;-separated string
         :param grant_access_to: empty string or a user-id the workstation will be restricted to
-        :param recording_time_zone_index: the recording time zone index if any
         :return: True if the workstation was successfully created and loaded.
                  Raises Exceptions on failure
         """
@@ -331,7 +321,6 @@ class KioskFileMakerWorkstation(KioskWorkstation):
 
         ws = self.sync.create_workstation("FileMakerWorkstation", self._id, ws_name, recording_group=recording_group)
         ws._user_time_zone_index = user_time_zone_index
-        ws._recording_time_zone_index = recording_time_zone_index
         ws.options = options
         ws.grant_access_to = grant_access_to
         if ws:

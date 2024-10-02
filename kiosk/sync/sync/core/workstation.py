@@ -1,4 +1,4 @@
-# todo time zone simpliciation
+# todo time zone simpliciation (done)
 import logging
 from typing import Union
 
@@ -83,19 +83,6 @@ class Dock:
 
     def set_user_time_zone_index(self, tz_index: int):
         self._user_time_zone_index = tz_index
-
-    @property
-    def recording_time_zone_index(self) -> Union[int, None]:
-        """
-        The recording time zone index stored for this workstation.
-        Note that this is not necessarily the one to use in an operation
-
-        :return: int | None
-        """
-        return self._recording_time_zone_index
-
-    def set_recording_time_zone_index(self, tz_index: int):
-        self._recording_time_zone_index = tz_index
 
     @classmethod
     def get_workstation_type(cls) -> str:
@@ -203,7 +190,7 @@ class Dock:
             try:
                 cur.execute(
                     f'select ' + f'description, state, recording_group, user_time_zone_index,'
-                                 f'grant_access_to, recording_time_zone_index from "repl_workstation" '
+                                 f'grant_access_to from "repl_workstation" '
                                  f'where id=%s;',
                     [self._id])
                 r = cur.fetchone()
@@ -212,7 +199,6 @@ class Dock:
                     self.recording_group = r[2]
                     self._user_time_zone_index = r[3]
                     self.grant_access_to = r[4] if r[4] else "*"
-                    self._recording_time_zone_index = r[5]
                     state = self.get_state_from_code(r[1])
                     self.state_machine.set_initial_state(state)
                     cur.close()
@@ -321,9 +307,8 @@ class Dock:
 
                 cur.execute("DELETE " + "FROM \"repl_workstation\" where \"id\" = %s", [self._id])
                 sql = "INSERT " + ("INTO \"repl_workstation\"(\"id\",\"description\",\"recording_group\", \"state\", "
-                                   "\"workstation_type\", \"user_time_zone_index\", \"grant_access_to\", "
-                                   "\"recording_time_zone_index\") "
-                                   "VALUES(%s, %s, %s, %s, %s, %s, %s, %s)")
+                                   "\"workstation_type\", \"user_time_zone_index\", \"grant_access_to\") "
+                                   "VALUES(%s, %s, %s, %s, %s, %s, %s)")
 
                 cur.execute(sql, [self._id,
                                   self.description,
@@ -331,8 +316,7 @@ class Dock:
                                   self.get_code_from_state("IDLE"),
                                   self.get_workstation_type(),
                                   self._user_time_zone_index,
-                                  self.grant_access_to,
-                                  self.recording_time_zone_index])
+                                  self.grant_access_to])
                 KioskSQLDb.commit()
                 self.state_machine.set_initial_state("IDLE")
 
@@ -388,12 +372,11 @@ class Dock:
                 self._on_update_workstation(cur)
 
                 sql = (f"\"repl_workstation\" set \"description\"=%s, \"recording_group\"=%s, "
-                       f"\"user_time_zone_index\"=%s, \"grant_access_to\"=%s,\"recording_time_zone_index\"=%s "
+                       f"\"user_time_zone_index\"=%s, \"grant_access_to\"=%s "
                        f"where \"id\"=%s")
 
                 cur.execute("Update " + sql, [self.description, self.recording_group,
                                               self.user_time_zone_index, self.grant_access_to,
-                                              self.recording_time_zone_index,
                                               self._id])
                 KioskSQLDb.commit()
 

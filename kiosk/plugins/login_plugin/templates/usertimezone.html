@@ -47,25 +47,6 @@
                                             value={{ user.force_tz_index }}></kiosk-tz-combo-box>
                     </div>
                 </div>
-                <div style="margin-top:2em">
-                    <p class="sub-heading"><i class="fas fa-pen"></i>to which time zone does the archaeological<br>data you intend to enter belong?</p>
-                    <div class="dialog-radio-div">
-                        <input type="radio" id="mtz-auto-recording-tz" name="mtz-recording-tz-mode"
-                               value="mtz-auto-recording-tz" {{ "checked" if not user.get_recording_tz_index() else None }}/>
-                        <label for="mtz-auto-recording-tz">to the same time zone as above
-                            <br>(this is the usual setting)</label>
-                    </div>
-                    {#                    <div class="mtz-client-tz">(currently {{ client_tz_name }})</div>#}
-                    <div class="dialog-radio-div">
-                        <input type="radio" id="mtz-force-recording-tz" name="mtz-recording-tz-mode"
-                               value="mtz-force-recording-tz" {{ "checked" if user.get_recording_tz_index() else None }}/>
-                        <label for="mtz-force-recording-tz">always to this time zone:</label>
-                    </div>
-                    <div>
-                        <kiosk-tz-combo-box id="popup-recording-tz-combo-box" tabindex="2"
-                                            value={{ user.get_recording_tz_index() }}></kiosk-tz-combo-box>
-                    </div>
-                </div>
             </div>
         </div>
         {#    </div>#}
@@ -80,7 +61,6 @@
 
             function updateDialog() {
                 configureTzCombobox("mtz-auto-tz", "popup-tz-combo-box");
-                configureTzCombobox("mtz-auto-recording-tz", "popup-recording-tz-combo-box");
             }
 
             function popupApiConnected(api) {
@@ -119,11 +99,9 @@
 
                 let json = {
                     "force_tz_index": 0,
-                    "recording_tz_index": 0
                 }
                 try {
                     json.force_tz_index = getTzValue("mtz-force-tz", "popup-tz-combo-box")
-                    json.recording_tz_index = getTzValue("mtz-force-recording-tz", "popup-recording-tz-combo-box")
                 } catch (e) {
                     if (e instanceof EmptyTzError) {
                         if (e.id === "popup-tz-combo-box") {
@@ -163,11 +141,10 @@
                     opt.addEventListener("change", updateDialog)
                 }
 
-                {#let recording_tz = document.getElementById("popup-recording-tz-combo-box")#}
-                let recording_options = document.getElementsByName("mtz-recording-tz-mode")
-                for (const opt of recording_options) {
-                    opt.addEventListener("change", updateDialog)
-                }
+                {#let recording_options = document.getElementsByName("mtz-recording-tz-mode")#}
+                {#for (const opt of recording_options) {#}
+                {#    opt.addEventListener("change", updateDialog)#}
+                {#}#}
 
                 kioskShowFooter(true);
                 bindReturnKeyToButtons("time-zone-dialog", "bt-ok", ["bt-cancel"]);

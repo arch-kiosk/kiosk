@@ -4,7 +4,6 @@ import_configurations:
   - kiosk_secure.yml
 
 config:
-  project_id: 'pasu'
   autoload_plugins_buap:
     - 'buap_ancdb_bridge'
 

@@ -1,5 +1,5 @@
 import datetime
 
-kiosk_version = "1.6.4.4"
+kiosk_version = "1.6.5"
 kiosk_version_name = "tiddly times"
-kiosk_date = datetime.datetime(2024, 9, 26)
+kiosk_date = datetime.datetime(2024, 9, 30)

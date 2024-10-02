@@ -66,13 +66,9 @@ class WorkstationManagerWorker:
             if user.get_active_tz_index() is None or not user.get_active_time_zone_name(iana=True):
                 raise Exception(f"User has no active time zone setting. That is not permitted.")
 
-            ws.current_tz = KioskTimeZoneInstance(kiosk_time_zones,
-                                                  user.get_active_recording_tz_index(),
-                                                  user.get_active_tz_index())
+            ws.current_tz = KioskTimeZoneInstance(kiosk_time_zones, user.get_active_tz_index())
             logging.info(f"{self.__class__.__name__}.init_dock: Dock {ws_id} is using "
-                         f"user's time zone {ws.current_tz.user_tz_index}/{ws.current_tz.user_tz_long_name} and "
-                         f"recording time zone "
-                         f"{ws.current_tz.recording_tz_index}/{ws.current_tz.recording_tz_long_name}")
+                         f"user time zone {ws.current_tz.user_tz_index}/{ws.current_tz.user_tz_long_name}")
         return ws
 
     def job_is_ok(self, current_operation_label=""):

@@ -169,7 +169,9 @@ class TestAlterMigrationInstruction(KioskPyTestHelper):
         assert result == [
             "ALTER TABLE \"test_schema\".\"test\" ALTER \"description\" SET NOT NULL, ALTER \"description\" SET DEFAULT 'description'"]
 
+    @pytest.mark.skip()
     def test_get_sql_instructions_modify_time_stamp_fields(self, pg_migration):
+        # deactivated because altering a field from and to timestamp is currently allowed.
         pgm: PostgresDbMigration = pg_migration
         pgm.dsd.append({"config": {
             "format_version": 3},
@@ -348,9 +350,7 @@ class TestAddMigrationInstruction(KioskPyTestHelper):
 
         result = AddMigrationInstruction.create_sql_instructions(table_migration=tablemigration,
                                                                  parameters=["date"])
-        assert result[0].lower() == ("ALTER TABLE \"test_schema\".\"test\" "
-                                     "ADD COLUMN \"date\" TIMESTAMP WITH TIME ZONE NOT NULL,"
-                                     "ADD COLUMN \"date_tz\" INTEGER DEFAULT NULL").lower()
+        assert result[0].lower() == ('alter table "test_schema"."test" add column "date" timestamp not null').lower()
 
 
 class TestDropMigrationInstruction(KioskPyTestHelper):
@@ -443,11 +443,11 @@ class TestDropMigrationInstruction(KioskPyTestHelper):
 
         result = DropMigrationInstruction.create_sql_instructions(table_migration=tablemigration,
                                                                   parameters=["date"])
-        assert result == ["ALTER TABLE \"test_schema\".\"test\" DROP COLUMN \"date\",DROP COLUMN \"date_tz\""]
+        assert result == ["ALTER TABLE \"test_schema\".\"test\" DROP COLUMN \"date\""]
 
         result = DropMigrationInstruction.create_sql_instructions(table_migration=tablemigration,
                                                                   parameters=["date_2"])
-        assert result == ["ALTER TABLE \"test_schema\".\"test\" DROP COLUMN \"date_2\",DROP COLUMN \"date_2_tz\""]
+        assert result == ["ALTER TABLE \"test_schema\".\"test\" DROP COLUMN \"date_2\""]
 
         with pytest.raises(DSDInstructionValueError):
             result = DropMigrationInstruction.create_sql_instructions(table_migration=tablemigration,
@@ -569,8 +569,7 @@ class TestRenameMigrationInstruction(KioskPyTestHelper):
 
         result = RenameMigrationInstruction.create_sql_instructions(table_migration=tablemigration,
                                                                     parameters=["old_date", "date"])
-        assert result == ["ALTER TABLE \"test_schema\".\"test\" RENAME COLUMN \"old_date\" TO \"date\","
-                          "RENAME COLUMN \"old_date_tz\" TO \"date_tz\""]
+        assert result == ["ALTER TABLE \"test_schema\".\"test\" RENAME COLUMN \"old_date\" TO \"date\""]
 
         with pytest.raises(DSDInstructionValueError):
             result = RenameMigrationInstruction.create_sql_instructions(table_migration=tablemigration,

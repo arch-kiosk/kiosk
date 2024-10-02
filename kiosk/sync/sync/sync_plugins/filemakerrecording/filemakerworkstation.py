@@ -48,7 +48,7 @@ class FileMakerWorkstation(RecordingWorkstation):
     IMPORT_ERROR_FM_PREPARE = 'FM_PREPARE'
     IMPORT_ERROR_FM_IMPORT_RECORD = 'FM_IMPORT_RECORD'
 
-    debug_fork_sync_time = None
+    debug_fork_time = None
     debug_dont_check_open_state = False
 
     def __init__(self, workstation_id, description="", sync=None, *args, **kwargs):
@@ -305,9 +305,9 @@ class FileMakerWorkstation(RecordingWorkstation):
         sql += "id serial NOT NULL, "
         sql += "tablename varchar NOT NULL, "
         sql += "uid uuid NOT NULL, "
-        # sql += "modified varchar NOT NULL, "
         sql += "modified timestamp with time zone NOT NULL, "
-        sql += "modified_tz varchar, "
+        sql += "modified_tz int, "
+        sql += "modified_ww timestamp, "
         sql += "modified_by varchar NOT NULL "
         sql += ");"
         cur.execute(sql)
@@ -531,7 +531,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                               f"{images_with_recent_modified_date} image records have a "
                               f"all too recent modification timestamp in the filemaker db at the beginning of export")
 
-                # todo: time zone
+                # todo time zone simpliciation
                 # this was originally set in terms of what was then the user time zone. So this is not UTC!
                 # it is only being used to determine whether or not the file identifier cache needs to be updated
                 self.ws_fork_sync_time = fm.get_ts_constant("fork_sync_time")
@@ -547,7 +547,6 @@ class FileMakerWorkstation(RecordingWorkstation):
                                         "Transferring images to FileMaker...")
                         if self._import_images_into_filemaker(fm,
                                                               callback_progress=self.interruptable_callback_progress):
-
                             rc = self._transfer_file_identifier_cache(fm, current_tz=self.current_tz)
                             if not rc:
                                 logging.error("FileMakerWorkstation.export: _transfer_file_identifier_cache failed.")
@@ -889,7 +888,11 @@ class FileMakerWorkstation(RecordingWorkstation):
 
     def _sync_file_tables_in_filemaker(self, fm: FileMakerControl, current_tz: KioskTimeZoneInstance):
         dsd = self._get_workstation_dsd()
-        columns = dsd.omit_fields_by_datatype(dsd.files_table, dsd.list_fields(dsd.files_table), "tz")
+        replfield_modified = dsd.get_modified_field(dsd.files_table)
+        modified_ww = f"{replfield_modified}_ww" if replfield_modified else ""
+
+        columns = dsd.omit_fields_by_datatype(dsd.files_table, [x for x in dsd.list_fields(dsd.files_table)
+                                                                if x != modified_ww], "tz")
         if self._table_didnt_need_transfer(dsd.files_table):
             cur = KioskSQLDb.get_dict_cursor()
             if cur is None:
@@ -965,7 +968,6 @@ class FileMakerWorkstation(RecordingWorkstation):
         field_list = {"id": ("int", False),
                       "tablename": ("varchar", False),
                       "uid": ("uuid", False),
-                      # that's why the dsd instruction "tz_type()" is not allowed on modified fields:
                       "modified": ("timestamp", True),
                       "modified_tz": ("tz", False),
                       "modified_by": ("varchar", False)}
@@ -1166,7 +1168,7 @@ class FileMakerWorkstation(RecordingWorkstation):
 
         """
         cfg = SyncConfig.get_config()
-        rc = fm.set_constant("export_date", self.current_tz.utc_dt_to_user_dt(datetime.datetime.today()))
+        rc = fm.set_constant("export_date", self.current_tz.utc_dt_to_user_dt(kioskdatetimelib.get_utc_now()))
         if rc:
             rc = fm.set_constant("export_device_id", self._id)
         if rc:
@@ -1184,9 +1186,6 @@ class FileMakerWorkstation(RecordingWorkstation):
                 rc = rc and fm.set_constant("user_time_zone", self.current_tz.user_tz_long_name)
                 rc = rc and fm.set_constant("user_iana_time_zone", self.current_tz.user_tz_iana_name)
 
-                rc = rc and fm.set_constant("recording_time_zone", self.current_tz.recording_tz_long_name)
-                rc = rc and fm.set_constant("recording_time_zone_index", self.current_tz.recording_tz_index)
-                rc = rc and fm.set_constant("recording_iana_time_zone", self.current_tz.recording_tz_iana_name)
                 if rc:
                     logging.info(f"{self.__class__.__name__}._set_workstation_constants: "
                                  f"Workstation {self.get_id()} in time_zone {self.current_tz.user_tz_long_name}: "
@@ -1338,13 +1337,13 @@ class FileMakerWorkstation(RecordingWorkstation):
     def get_fork_time(self):
         """
             returns the utc fork time of the workstation as stored in the Kiosk database.
-            If debug_fork_sync_time is set, that one will be returned instead.
+            If debug_fork_time is set, that one will be returned instead.
 
             In any case, microseconds will be set to 0, time zone information will be dropped.
             :returns a datetime or None (should not happen)
         """
-        if self.debug_fork_sync_time and isinstance(self.debug_fork_sync_time, datetime.datetime):
-            fork_time = self.debug_fork_sync_time
+        if self.debug_fork_time and isinstance(self.debug_fork_time, datetime.datetime):
+            fork_time = self.debug_fork_time
         else:
             fork_time = self._get_workstation_attribute_from_db("fork_time")
 
@@ -1396,8 +1395,8 @@ class FileMakerWorkstation(RecordingWorkstation):
 
             report_progress(self.interruptable_callback_progress, 5, None,
                             "checking database consistency ...")
-            ws_time_zones = self._check_fm_database_before_import(fm)
-            if ws_time_zones:
+            ws_time_zone = self._check_fm_database_before_import(fm)
+            if ws_time_zone:
                 report_progress(self.interruptable_callback_progress, 15, None,
                                 "Database ok, importing data ...")
                 prepare_rc = self._prepare_import_from_filemaker(fm,
@@ -1422,9 +1421,9 @@ class FileMakerWorkstation(RecordingWorkstation):
 
                 if prepare_rc or self.fix_import_errors:
                     logging.info(f"{self.__class__.__name__}._import_from_filemaker: "
-                                 f"import will run with user time zone {ws_time_zones.user_tz_iana_name} "
-                                 f"and recording time zone {ws_time_zones.user_tz_iana_name}.")
-                    if self._import_tables_from_filemaker(fm, ws_time_zones):
+                                 f"import will run with user time zone {ws_time_zone.user_tz_iana_name} "
+                                 f"and recording time zone {ws_time_zone.user_tz_iana_name}.")
+                    if self._import_tables_from_filemaker(fm, ws_time_zone):
                         if self._import_containerfiles_from_filemaker(fm,
                                                                       callback_progress=
                                                                       self.interruptable_callback_progress):
@@ -1466,30 +1465,25 @@ class FileMakerWorkstation(RecordingWorkstation):
 
     def _import_check_fm_time_zones(self, fm: FileMakerControl) -> Optional[KioskTimeZoneInstance]:
         """
-        checks if the time zones in the FileMaker database match those of the current_tz
+        checks if the time zone in the FileMaker database match those of the current_tz
         :return: A KioskTimeZoneInstance with the time_zone information from the FileMake database or
                  None in case of an error
         """
         fm_tz = self.current_tz.clone()
         fm_user_time_zone_index = fm.get_constant("user_time_zone_index")
-        fm_recording_time_zone_index = fm.get_constant("recording_time_zone_index")
         if fm_user_time_zone_index is None:
             logging.error((f"FileMakerWorkstation._import_check_fm_time_zones: "
                            f"The uploaded FileMaker database has no time zone information. "
                            f"That must not happen with this version of Kiosk. Are you sure "
                            f"you uploaded the right file? "
-                           f"(user time zone in FM: {fm_user_time_zone_index}, "
-                           f"recording time zone in FM: {fm_recording_time_zone_index}.) "))
+                           f"(user time zone in FM: {fm_user_time_zone_index}) "))
             return None
         else:
             logging.debug((f"FileMakerWorkstation._import_check_fm_time_zones:"
-                           f"FileMaker source user time zone: {fm_user_time_zone_index}, "
-                           f"recording time zone: {fm_recording_time_zone_index}. "))
+                           f"FileMaker source user time zone: {fm_user_time_zone_index}"))
 
         try:
             fm_tz.user_time_zone_index = int(fm_user_time_zone_index)
-            if fm_recording_time_zone_index:
-                fm_tz.recording_time_zone_index = int(fm_recording_time_zone_index)
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}._import_check_fm_time_zones: An error occured "
                           f"when trying to process the time zones reported by the dock: {repr(e)}. "
@@ -1499,40 +1493,24 @@ class FileMakerWorkstation(RecordingWorkstation):
         rc = fm_tz
 
         logging.debug((f"FileMakerWorkstation._import_check_fm_time_zones:"
-                       f"current user time zone: {self.current_tz.user_tz_index}, "
-                       f"current recording time zone: {self.current_tz.recording_tz_index}. "))
+                       f"current user time zone: {self.current_tz.user_tz_index}"))
 
-        if fm_tz.recording_time_zone_index != self.current_tz.recording_tz_index:
+
+        if fm_tz.user_time_zone_index != self.current_tz.user_tz_index:
             if self.fix_import_errors:
                 logging.warning((f"FileMakerWorkstation._import_check_fm_time_zones:"
                                  f"Error importing data from a filemaker source that on export "
-                                 f"was set to recording time zone"
-                                 f"{fm_tz.recording_tz_long_name} but is expected now in time zone "
-                                 f"{self.current_tz.recording_tz_long_name}). "
+                                 f"was set to user time zone"
+                                 f"{fm_tz.user_tz_long_name} but now is expected in user time zone "
+                                 f"{self.current_tz.user_tz_long_name}). "
                                  f"This is ignored as the import is using repair mode."))
             else:
                 logging.error(f"FileMakerWorkstation._import_check_fm_time_zones:"
                               f"Error importing data from a filemaker source that on export "
-                              f"was set to recording time zone"
-                              f"{fm_tz.recording_tz_long_name} but is expected now in time zone "
-                              f"{self.current_tz.recording_tz_long_name}). This error can be ignored in repair mode.")
+                              f"was set to user time zone"
+                              f"{fm_tz.user_tz_long_name} but now is expected in user time zone "
+                              f"{self.current_tz.user_tz_long_name}). This error can be ignored in repair mode.")
                 rc = None
-
-            if fm_tz.user_time_zone_index != self.current_tz.user_tz_index:
-                if self.fix_import_errors:
-                    logging.warning((f"FileMakerWorkstation._import_check_fm_time_zones:"
-                                     f"Error importing data from a filemaker source that on export "
-                                     f"was set to user time zone"
-                                     f"{fm_tz.user_tz_long_name} but now is expected in user time zone "
-                                     f"{self.current_tz.user_tz_long_name}). "
-                                     f"This is ignored as the import is using repair mode."))
-                else:
-                    logging.error(f"FileMakerWorkstation._import_check_fm_time_zones:"
-                                  f"Error importing data from a filemaker source that on export "
-                                  f"was set to user time zone"
-                                  f"{fm_tz.user_tz_long_name} but now is expected in user time zone "
-                                  f"{self.current_tz.user_tz_long_name}). This error can be ignored in repair mode.")
-                    rc = None
 
         return rc
 
@@ -1580,7 +1558,7 @@ class FileMakerWorkstation(RecordingWorkstation):
         """
 
         :param fm: FileMakerControl instance
-        :return: the time zone indexes to use during the import or None in case of an error
+        :return: the time zone index to use during the import or None in case of an error
 
         todo: document
         todo: refactor - every single check could be its own method
@@ -1595,21 +1573,21 @@ class FileMakerWorkstation(RecordingWorkstation):
         if not self._import_check_device_id(fm):
             return None
 
-        ws_time_zones = self._import_check_fm_time_zones(fm)
-        if not ws_time_zones:
+        ws_time_zone = self._import_check_fm_time_zones(fm)
+        if not ws_time_zone:
             return None
         else:
             logging.debug(
                 f"{self.__class__.__name__}._check_fm_database_before_import: fm time zones check successful.")
 
-        if self.debug_fork_sync_time and \
-                isinstance(self.debug_fork_sync_time, datetime.datetime):
-            fm.set_constant("fork_time", self.debug_fork_sync_time)
-            logging.warning(f"TESTMODE: fork time set to {self.debug_fork_sync_time}")
+        if self.debug_fork_time and \
+                isinstance(self.debug_fork_time, datetime.datetime):
+            fm.set_constant("fork_time", self.debug_fork_time)
+            logging.warning(f"TESTMODE: fork time set to {self.debug_fork_time}")
 
         ws_fork_time = fm.get_ts_constant("fork_time")  # returns fork_time in exported user time zone
         logging.debug(f"{self.__class__.__name__}._check_fm_database_before_import: fork time is {ws_fork_time}")
-        cmp_result = self._compare_imported_fork_time(ws_fork_time, ws_time_zones)
+        cmp_result = self._compare_imported_fork_time(ws_fork_time, ws_time_zone)
         if cmp_result != 0:
             if cmp_result == -1:
                 # ws_fork_time in the fm database is earlier than the fork time stored with the workstation im kiosk
@@ -1675,10 +1653,10 @@ class FileMakerWorkstation(RecordingWorkstation):
                     "The template file for this project does not have the config key 'has_been_opened'. The "
                     "check cannot be done.")
 
-        if ws_time_zones and rc:
+        if ws_time_zone and rc:
             logging.info(("FileMakerWorkstation._check_fm_database_before_import: "
                           "workstation database %s can be imported." % fm.opened_filename))
-        return ws_time_zones if rc else rc
+        return ws_time_zone if rc else rc
 
     def _prepare_import_from_filemaker(self, fm, callback_progress=None):
         """ calls a preprocessing script in filemaker that prepares the
@@ -1809,21 +1787,19 @@ class FileMakerWorkstation(RecordingWorkstation):
         return tables
 
     @staticmethod
-    def _import_table_get_update_field_sql(f: str, data_type: str, tz_type: Optional[str], value, value_list: List,
+    def _import_table_get_update_field_sql(f: str, data_type: str, value, value_list: List,
                                            tz: KioskTimeZoneInstance) -> str:
         """
-        returns the sql fragment to update a single field. This takes the tz_type into account.
-        This is completely independent of the tz_type that might be set in the dsd!
+        returns the sql fragment to update a single field.
 
         :param f: the dsd field name
         :param data_type: the dsd data type
-        :param tz_type: the time zone type (u/r) or None
         :param value: the value as it comes back from FileMaker (so timestamps are wristwatch or legacy or None!)
         :param value_list:
         :param tz:
         :return:
         """
-        if data_type == "timestamp" and value is not None:
+        if data_type == "timestamptz" and value is not None:
             f_dt = '"' + f + '"'
             f_tz = '"' + f + '_tz"'
 
@@ -1841,12 +1817,11 @@ class FileMakerWorkstation(RecordingWorkstation):
             value_list.append(
                 value.replace(tzinfo=datetime.timezone.utc))  # when ({f_tz} is null and {f_dt} != %s::timestamptz)
             value_list.append(v_tz)  # ({f_tz} is not null  and {f_dt} != %s::timestamptz)
-            # interpreting the wrist watch time either in terms of user time zone or recording time zone:
             value_list.append(
-                v_tz + f' {tz.user_tz_iana_name if tz_type == "u" else tz.recording_tz_iana_name}')  # THEN %s::timestamptz
+                v_tz + f' {tz.user_tz_iana_name}')  # THEN %s::timestamptz
             value_list.append(value.replace(tzinfo=datetime.timezone.utc))  # and {f_dt} != %s)
             value_list.append(v_tz)  # OR ({f_tz} is not null and {f_dt} != %s::timestamptz)
-            value_list.append(tz.user_tz_index if tz_type == "u" else tz.recording_tz_index)  # THEN %s
+            value_list.append(tz.user_tz_index)  # THEN %s
         else:
             sql_update = '"' + f + '"=%s'
             value_list.append(value)
@@ -1858,9 +1833,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                                                    value_list: List,
                                                    tz: KioskTimeZoneInstance) -> str:
         """
-        This is only for fields that are always converted to user time zone and back.
-        This would be fields with instructions replfield_modified, proxy_for and replfield_created.
-        This is completely independent of the tz_type that might be set in the dsd!
+        This is only for the replfield_modified field which is always converted to user time zone and back.
 
         :param f: the dsd field name of the field
         :param value: the value as it comes back from FileMaker (so timestamps are wristwatch or legacy or None!)
@@ -1870,43 +1843,58 @@ class FileMakerWorkstation(RecordingWorkstation):
         """
         f_dt = '"' + f + '"'
         f_tz = '"' + f + '_tz"'
-        f_tz_iana = '"iana_time_zones"."' + f + '_tz_iana"'
-        sql_update = f"{f_dt}=case when ({f_tz_iana} is null and {f_dt} != %s) OR " \
-                     f"({f_tz_iana} is not null" \
+        f_ww = '"' + f + '_ww"'
+        sql_update = f"{f_dt}=case when ({f_tz} is null and {f_dt} != %s) OR " \
+                     f"({f_tz} is not null" \
                      f" and {f_dt} != %s::timestamptz) THEN %s::timestamptz ELSE {f_dt} END, " \
-                     f"{f_tz}=case when ({f_tz_iana} is null" + \
+                     f"{f_tz}=case when ({f_tz} is null" + \
                      f" and {f_dt} != %s)" + \
-                     f" OR ({f_tz_iana} is not null and {f_dt} != %s::timestamptz) THEN %s" + \
-                     f" ELSE {f_tz} END"
-        v_tz = tz.user_dt_to_utc_dt(value)  # that's wristwatch time without time zone!
-        value_list.append(
-            value.replace(tzinfo=datetime.timezone.utc))  # when ({f_tz} is null and {f_dt} != %s::timestamptz)
-        value_list.append(v_tz)  # ({f_tz} is not null  and {f_dt} != %s::timestamptz)
-        value_list.append(v_tz)  # THEN %s::timestamptz
-        value_list.append(value.replace(tzinfo=datetime.timezone.utc))  # and {f_dt} != %s)
-        value_list.append(v_tz)  # OR ({f_tz} is not null and {f_dt} != %s::timestamptz)
+                     f" OR ({f_tz} is not null and {f_dt} != %s::timestamptz) THEN %s" + \
+                     f" ELSE {f_tz} END, " + \
+                     f"{f_ww}=case when ({f_tz} is null" + \
+                     f" and {f_dt} != %s)" + \
+                     f" OR ({f_tz} is not null and {f_dt} != %s::timestamptz) THEN %s" + \
+                     f" ELSE {f_ww} END "
+
+        v_ww = value.replace(tzinfo=datetime.timezone.utc)
+        v_utc = tz.user_dt_to_utc_dt(value).replace(tzinfo=datetime.timezone.utc)  # that's wristwatch time converted to UTC without time zone!
+
+        value_list.append(v_ww)  # when ({f_tz} is null and {f_dt} != %s OR
+        value_list.append(v_utc)  # ({f_tz} is not null  and {f_dt} != %s::timestamptz)
+        value_list.append(v_utc)  # THEN %s::timestamptz
+        value_list.append(v_ww)  # when ({f_tz} is null and {f_dt} != %s OR
+        value_list.append(v_utc)  # ({f_tz} is not null  and {f_dt} != %s::timestamptz)
         value_list.append(tz.user_tz_index)  # THEN %s
+        value_list.append(v_ww)  # when ({f_tz} is null and {f_dt} != %s OR
+        value_list.append(v_utc)  # ({f_tz} is not null  and {f_dt} != %s::timestamptz)
+        value_list.append(v_ww)  # THEN %s
 
         return sql_update
 
     @staticmethod
-    def _import_table_get_insert_field_sql(f: str, data_type: str, tz_type: Optional[str], value, value_list: List,
+    def _import_table_get_insert_field_sql(replfield_modified: bool, f: str, data_type: str, value, value_list: List,
                                            tz: KioskTimeZoneInstance) -> Tuple[str, str]:
         """
 
+        :param replfield_modified: is this the replfield_modified field?
         :param f: the dsd field name
-        :param data_type: the dsd data type
-        :param tz_type: the time zone type (u/r) or None with None leading to the same as 'r'
+        :param data_type: the dsd data type. Must be "timestamptz" only if there is a _tz field
+                otherwise use "timestamp"
         :param value: the value as it comes back from FileMaker (so timestamps are wristwatch or legacy!)
         :param value_list: the value parameters for the insert sql statement
         :param tz: the time zone information to use
         :return:
         """
-        if data_type == "timestamp":
-            v_tz = tz.user_dt_to_utc_dt(value) if tz_type == "u" else tz.recording_dt_to_utc_dt(value)
+        if data_type == "timestamptz":
+            v_tz = tz.user_dt_to_utc_dt(value)
             value_list.append(v_tz)
-            value_list.append(tz.user_tz_index if tz_type == "u" else tz.recording_tz_index)
-            return f"\"{f}\", \"{f}_tz\"", "%s,%s"
+            value_list.append(tz.user_tz_index)
+
+            if replfield_modified:
+                value_list.append(value)
+                return f"\"{f}\", \"{f}_tz\", \"{f}_ww\"", "%s,%s,%s"
+            else:
+                return f"\"{f}\", \"{f}_tz\"", "%s,%s"
         else:
             value_list.append(value)
             return f"\"{f}\"", "%s"
@@ -2013,7 +2001,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                 if r:
                     delete_counter = r["c"]
             else:
-                # todo time zone: does the modified manipulation still work?
+                # todo time zone: does the modified manipulation still work? (yup)
                 # it should, shouldn't it? The fork time should be utc and modified is expected to be utc, too.
                 sql = f'update ' + f' {dest_table_name} set "repl_deleted"=true,' \
                                    f'"modified"=%s + (interval \'2 seconds\') where "repl_tag"=0'
@@ -2036,7 +2024,7 @@ class FileMakerWorkstation(RecordingWorkstation):
         return ok
 
     def _import_table_get_sqls(self, dest_table_name, dsd: DataSetDefinition, dsd_table_name, dsd_version, fm, fm_rec,
-                               tz, uid):
+                               tz: KioskTimeZoneInstance, uid):
         update_values = []
         insert_values = []
         sql_with_select = ""
@@ -2047,42 +2035,45 @@ class FileMakerWorkstation(RecordingWorkstation):
         sql_insert = f'{"INSERT"} INTO {dest_table_name}('
         sql_insert_values = "VALUES("
         comma = ""
+        tz_fields = dsd.get_fields_with_datatype(dsd_table_name, "tz", dsd_version)
         # modified_fields = list(dsd.get_fields_with_instructions(dsd_table_name,
         #                                                         ["replfield_modified", "proxy_for"]).keys())
         # modified_field_name = modified_fields[0] if modified_fields else ""
         # proxy_field_name = dsd.get_proxy_field_reference(dsd_table_name)
         # dsd: DataSetDefinition
+        replfield_modified = dsd.get_modified_field(dsd_table_name)
         for f in dsd.omit_fields_by_datatype(dsd_table_name,
                                              dsd.list_fields(dsd_table_name, version=dsd_version), 'tz'):
+
+            if f == f"{replfield_modified}_ww":
+                continue
+
             data_type = dsd.get_field_datatype(dsd_table_name, f, version=dsd_version)
             argv = {"f": f,
                     "data_type": data_type,
-                    "tz_type": dsd.get_tz_type_for_field(dsd_table_name, f,
-                                                         version=dsd_version) if data_type == "timestamp" else "",
                     "value": fm.getfieldvalue(fm_rec, f),
                     "value_list": update_values,
                     "tz": tz}
 
-            replfield_modified = dsd.get_modified_field(dsd_table_name)
-            if argv["data_type"] == "timestamp":
-                c_join += 1
-                sql_with_select += f", tz{c_join}.\"tz_IANA\"::varchar {f}_tz_iana"
-                sql_with_joins += (f" left outer join kiosk_time_zones tz{c_join} on "
-                                   f"{dest_table_name}.\"{f}_tz\" = tz{c_join}.id")
 
-            # if f in modified_fields:   # modified_field_name == f or proxy_field_name == f:
-            #     sql_field_update = self._import_table_get_update_user_tz_field_sql(f, argv["value"],
-            #                                                                        update_values, tz)
             if f == replfield_modified:
                 sql_field_update = self._import_table_get_update_user_tz_field_sql(f, argv["value"],
                                                                                    update_values, tz)
             else:
+                if argv["data_type"] == "timestamptz":
+                    if f"{f}_tz" in tz_fields:
+                        c_join += 1
+                        sql_with_select += f", tz{c_join}.\"tz_IANA\"::varchar {f}_tz_iana"
+                        sql_with_joins += (f" left outer join kiosk_time_zones tz{c_join} on "
+                                           f"{dest_table_name}.\"{f}_tz\" = tz{c_join}.id")
+                    else:
+                        argv["data_type"] = "timestamp" # value is being transported as is -> no conversion
                 sql_field_update = self._import_table_get_update_field_sql(**argv)
 
             sql_update = sql_update + comma + sql_field_update
 
             argv["value_list"] = insert_values
-            sql_field_insert, sql_field_insert_values = self._import_table_get_insert_field_sql(**argv)
+            sql_field_insert, sql_field_insert_values = self._import_table_get_insert_field_sql(f == replfield_modified, **argv)
 
             sql_insert = sql_insert + comma + sql_field_insert
             sql_insert_values = sql_insert_values + comma + sql_field_insert_values

@@ -68,14 +68,18 @@ class TestTZMigration(KioskPyTestHelper):
             assert record[0] == "timestamp without time zone"
             assert f"{field}_tz" not in fields
 
-        assert tz_migration.migrate_table("unit_narrative") == 3
+        assert tz_migration.migrate_table("unit_narrative") == 1
 
         fields = tz_migration.dbAdapter._adapter_get_database_table_field_names("unit_narrative")
         for field in ["date", "created", "modified"]:
             record = KioskSQLDb.get_first_record_from_sql(f"""select data_type 
                         from information_schema.columns where table_name = 'unit_narrative' and column_name = '{field}'""")
-            assert record[0] == "timestamp with time zone"
-            assert f"{field}_tz" in fields
+            assert record[0] == ("timestamp without time zone" if field != "modified" else "timestamp with time zone")
+            if field == "modified":
+                assert f"{field}_tz" in fields
+                assert f"{field}_ww" in fields
+            else:
+                assert f"{field}_tz" not in fields
 
         assert tz_migration.migrate_table("unit_narrative") == 0
 
@@ -119,6 +123,9 @@ class TestTZMigration(KioskPyTestHelper):
         for field in ["date", "created", "modified"]:
             record = KioskSQLDb.get_first_record_from_sql(f"""select data_type 
                         from information_schema.columns where table_name = 'unit_narrative' and column_name = '{field}'""")
-            assert record[0] == "timestamp with time zone"
-            assert f"{field}_tz" in fields
-
+            assert record[0] == ("timestamp without time zone" if field != "modified" else "timestamp with time zone")
+            if field == "modified":
+                assert f"{field}_tz" in fields
+                assert f"{field}_ww" in fields
+            else:
+                assert f"{field}_tz" not in fields

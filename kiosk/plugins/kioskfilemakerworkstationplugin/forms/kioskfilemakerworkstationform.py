@@ -33,7 +33,6 @@ class KioskFileMakerWorkstationForm(FlaskForm, KioskGeneralFormErrors):
                                               )
     grant_access_to = KioskLabeledStringField(label="grant access to")
     user_time_zone_index = KioskTimeZoneSelectorField(label="user's time zone")
-    recording_time_zone_index = KioskTimeZoneSelectorField(label="time zone of recorded data")
 
     options = KioskLabeledStringField(label="workstation options")
 
@@ -48,8 +47,3 @@ class KioskFileMakerWorkstationForm(FlaskForm, KioskGeneralFormErrors):
                 raise ValidationError(f"The users's time zone is not a valid time zone. "
                                       f"Please select something valid from the list.")
 
-    def validate_recording_time_zone_index(self, field):
-        if field.data:
-            if not kioskglobals.kiosk_time_zones.get_time_zone_info(int(field.data)):
-                raise ValidationError(f"The time zone for the recording data is not a valid time zone. "
-                                      f"Please select something valid from the list.")

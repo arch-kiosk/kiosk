@@ -142,8 +142,8 @@ class TestFilemakerWorkstationTransferTableToFileMaker(KioskPyTestHelper):
             VALUES (45966874, 'Chatham Time (NZ-CHAT)', 'NZ-CHAT', false, 1720205986);
         """)
         KioskSQLDb.execute("create table test_table_src(uid uuid, field1 varchar, "
-                           "field2 timestamp with time zone, field2_tz varchar,"
-                           "modified timestamp with time zone, modified_tz varchar,"
+                           "field2 timestamp, field2_tz varchar,"
+                           "modified timestamp with time zone, modified_tz varchar, modified_ww timestamp,"
                            "modified_by varchar)")
 
         KioskSQLDb.execute("create table test_table(uid uuid, field1 varchar, field2 timestamp, "
@@ -166,7 +166,8 @@ class TestFilemakerWorkstationTransferTableToFileMaker(KioskPyTestHelper):
                     1: {
                         "uid": ["datatype('UUID')"],
                         "field1": ["datatype('TEXT')"],
-                        "field2": ["datatype('timestamp')"],
+                        "field2": ["datatype('timestamptz')"],
+                        "field2_tz": ["datatype(tz)"],
                         "modified": ["datatype('timestamp')", "replfield_modified()"],
                         "modified_by": ["datatype('varchar')", "replfield_modified_by()"],
                     }
@@ -191,6 +192,7 @@ class TestFilemakerWorkstationTransferTableToFileMaker(KioskPyTestHelper):
                 null,
                 '{datetime.datetime.fromisoformat('2024-09-11T08:16:12')}',
                 null,
+                null,
                 'ups'
                 )
         """)
@@ -214,15 +216,14 @@ class TestFilemakerWorkstationTransferTableToFileMaker(KioskPyTestHelper):
     def test_transfer_table_data_to_filemaker_tz(self, dsd_test_table):
         prepared_by_fixture = dsd_test_table
         # tz.user_tz_index = 96554373  # Central European Time (Europe/Berlin)
-        # tz.recording_tz_index = 27743346  # Mountain Time (US/Mountain)
 
         dsd = prepared_by_fixture["dsd"]
         tablename = "test_table"
         fm: FileMakerControlWindows = prepared_by_fixture["fm"]
 
         insert_sql = f"""
-            INSERT INTO test_table_src (uid, field1, field2, field2_tz, modified, modified_tz, modified_by)  
-            VALUES (%s, %s,%s,%s,%s,%s,%s)"""
+            INSERT INTO test_table_src (uid, field1, field2, field2_tz, modified, modified_ww, modified_tz, modified_by)  
+            VALUES (%s, %s,%s,%s,%s,%s,%s,%s)"""
 
         KioskSQLDb.execute(insert_sql, [
             '37aefbe7-e45d-4f85-bf4b-30618da16980',
@@ -230,7 +231,8 @@ class TestFilemakerWorkstationTransferTableToFileMaker(KioskPyTestHelper):
             datetime.datetime.fromisoformat('2024-09-11T08:15:12'),  # shall be 08:15:12
             None,
             datetime.datetime.fromisoformat('2024-09-11T08:16:12'),  # shall be 10:16:12, _ww the same
-            96554373,  # berlin
+            datetime.datetime.fromisoformat('2024-09-11T10:16:12'),
+            96554373,  # (irrelevant, current user time zone is being used here)
             'ups'
         ])
         KioskSQLDb.execute(insert_sql, [
@@ -239,7 +241,8 @@ class TestFilemakerWorkstationTransferTableToFileMaker(KioskPyTestHelper):
             datetime.datetime.fromisoformat('2024-09-11T15:15:12'),  # shall be 15:15:12
             None,
             datetime.datetime.fromisoformat('2024-09-11T15:16:12'),  # shall be 17:16:12, __ww 09:16:12
-            27743346,  # US mountain time
+            datetime.datetime.fromisoformat('2024-09-11T09:16:12'),
+            27743346,  # US mountain time (irrelevant, current user time zone is being used here)
             'ups']
         )
         KioskSQLDb.execute(insert_sql, [
@@ -248,6 +251,7 @@ class TestFilemakerWorkstationTransferTableToFileMaker(KioskPyTestHelper):
             datetime.datetime.fromisoformat('2024-09-11T15:15:12'),  # shall be 17:15:12 because it ain't matter in this direction that the current recording time is US/Mountain
             96554373,  # Berlin
             datetime.datetime.fromisoformat('2024-09-11T15:16:12'),  # shall be 17:16:12, __ww 09:16:12
+            datetime.datetime.fromisoformat('2024-09-11T09:16:12'),
             27743346,  # US mountain time
             'ups']
         )
@@ -264,79 +268,19 @@ class TestFilemakerWorkstationTransferTableToFileMaker(KioskPyTestHelper):
                 '1',
                 datetime.datetime(2024, 9, 11, 8, 15, 12),
                 datetime.datetime(2024, 9, 11, 10, 16, 12),
-                datetime.datetime(2024, 9, 11, 10, 16, 12)
+                datetime.datetime(2024, 9, 11, 10, 16, 12) # original recording time
             ],
             [
                 '2',
                 datetime.datetime(2024, 9, 11, 15, 15, 12),
                 datetime.datetime(2024, 9, 11, 17, 16, 12),  # modified should always be user time zone in FM
-                datetime.datetime(2024, 9, 11, 9, 16, 12),  # Mountain Time
+                datetime.datetime(2024, 9, 11, 9, 16, 12),  # original recording time
             ],
             [
                 '3',
                 datetime.datetime(2024, 9, 11, 17, 15, 12),
                 datetime.datetime(2024, 9, 11, 17, 16, 12),  # modified should always be user time zone in FM
-                datetime.datetime(2024, 9, 11, 9, 16, 12),  # Mountain Time
-            ],
-        ]
-
-    def test_transfer_table_data_to_filemaker_tz_with_dsd_settings(self, prepare__exporting_to_filemaker):
-        prepared_by_fixture = prepare__exporting_to_filemaker
-        # tz.user_tz_index = 96554373  # Central European Time (Europe/Berlin)
-
-        prepared_by_fixture = prepare__exporting_to_filemaker
-        assert prepared_by_fixture["tz"].user_tz_index == 96554373  # Mountain Time (US/Mountain)
-        assert prepared_by_fixture["tz"].recording_tz_index == 27743346  # Mountain Time (US/Mountain)
-
-        dsd = prepare__exporting_to_filemaker["dsd"]
-        dsd.append({"config": {
-            "format_version": 3},
-            "test_table": {
-                "structure": {
-                    1: {
-                        "uid": ["datatype('UUID')"],
-                        "field1": ["datatype('TEXT')"],
-                        "field2": ["datatype('timestamp')", "tz_type('r')"],
-                        "modified": ["datatype('timestamp')", "replfield_modified()"],
-                        "modified_by": ["datatype('varchar')", "replfield_modified_by()"],
-                    }
-                }
-            }
-        })
-        # return prepare__exporting_to_filemaker
-
-        tablename = "test_table"
-        fm: FileMakerControlWindows = prepared_by_fixture["fm"]
-
-        insert_sql = f"""
-            INSERT INTO test_table_src (uid, field1, field2, field2_tz, modified, modified_tz, modified_by)  
-            VALUES (%s, %s,%s,%s,%s,%s,%s)"""
-
-        KioskSQLDb.execute(insert_sql, [
-            '62aefbe7-e45d-4f85-bf4b-30618da16980',
-            '3',
-            datetime.datetime.fromisoformat('2024-09-11T15:15:12').replace(tzinfo=None),  # shall be 17:15:12 because even with a tz_type('r')
-                                                                     #  it ain't matter in this direction that the current recording time is US/Mountain
-            96554373,  # Berlin
-            datetime.datetime.fromisoformat('2024-09-11T15:16:12'),  # shall be 17:16:12, __ww 09:16:12
-            27743346,  # US mountain time
-            'ups']
-        )
-
-        cur = KioskSQLDb.execute_return_cursor("select * from test_table_src")
-        assert fm.transfer_table_data_to_filemaker(cur,
-                                                   dsd,
-                                                   tablename,
-                                                   current_tz=prepared_by_fixture["tz"]) > 0
-        cur.close()
-
-        records = KioskSQLDb.get_records("select field1, field2, modified, modified_ww from test_table order by field1")
-        assert records == [
-            [
-                '3',
-                datetime.datetime(2024, 9, 11, 17, 15, 12),
-                datetime.datetime(2024, 9, 11, 17, 16, 12),  # modified should always be user time zone in FM
-                datetime.datetime(2024, 9, 11, 9, 16, 12),  # Mountain Time
+                datetime.datetime(2024, 9, 11, 9, 16, 12),  # original recording time
             ],
         ]
 
@@ -346,26 +290,24 @@ class TestFilemakerWorkstationTransferTableToFileMaker(KioskPyTestHelper):
 
         KioskSQLDb.execute("drop table if exists test_table")
         KioskSQLDb.execute("create table test_table(uid uuid, field1 varchar, field2 timestamp, "
-                           "modified timestamp, created timestamp, modified_by varchar)")
+                           "modified timestamp, modified_ww timestamp, created timestamp, modified_by varchar)")
 
         KioskSQLDb.execute("drop table if exists test_table_src")
         KioskSQLDb.execute("create table test_table_src(uid uuid, field1 varchar, "
-                           "field2 timestamp with time zone, field2_tz varchar,"
-                           "modified timestamp with time zone, modified_tz varchar,"
-                           "created timestamp with time zone, created_tz varchar,"
+                           "field2 timestamp,"
+                           "modified timestamp with time zone, modified_ww timestamp, modified_tz varchar,"
+                           "created timestamp with time zone, created_tz int,"
                            "modified_by varchar)")
 
         prepared_by_fixture = prepare__exporting_to_filemaker
         assert prepared_by_fixture["tz"].user_tz_index == 96554373  # Mountain Time (US/Mountain)
-        assert prepared_by_fixture["tz"].recording_tz_index == 27743346  # Mountain Time (US/Mountain)
 
         field_list = {"uid": ("uuid", False),
                         "field1": ("varchar", False),
                         "field2": ("timestamp", False),
-                        "field2_tz": ("tz", False),
                         "modified": ("timestamp", True),
                         "modified_tz": ("tz", False),
-                        "created": ("timestamp", False),
+                        "created": ("timestamptz", False),
                         "created_tz": ("tz", False),
                         "modified_by": ("varchar", False),}
 
@@ -375,17 +317,17 @@ class TestFilemakerWorkstationTransferTableToFileMaker(KioskPyTestHelper):
         fm: FileMakerControlWindows = prepared_by_fixture["fm"]
 
         insert_sql = f"""
-            INSERT INTO test_table_src (uid, field1, field2, field2_tz, modified, 
-                    modified_tz, created, created_tz, modified_by)  
-            VALUES (%s, %s,%s,%s,%s,%s,%s,%s,%s)"""
+            INSERT INTO test_table_src (uid, field1, field2, modified, 
+                    modified_tz, modified_ww, created, created_tz, modified_by)  
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
 
         KioskSQLDb.execute(insert_sql, [
             '62aefbe7-e45d-4f85-bf4b-30618da16980',
             '3',
-            datetime.datetime.fromisoformat('2024-09-11T15:15:12').replace(tzinfo=None),  # -> UTC to Berlin 17:15:12
-            96554373,  # Berlin
+            datetime.datetime.fromisoformat('2024-09-11T15:15:12').replace(tzinfo=None), #  shall be 15:15:12
             datetime.datetime.fromisoformat('2024-09-11T15:16:12'),  # shall be Berlin: 17:16:12
             27743346,  # US mountain time, but irrelevant for a modified field
+            datetime.datetime.fromisoformat('2024-09-11T17:16:12'),  # shall be 17:16:12
             datetime.datetime.fromisoformat('2024-09-11T15:16:12'),  # shall be US/Mountain: 09:16:12
             27743346,
             'ups']
@@ -402,7 +344,7 @@ class TestFilemakerWorkstationTransferTableToFileMaker(KioskPyTestHelper):
         assert records == [
             [
                 '3',
-                datetime.datetime(2024, 9, 11, 17, 15, 12),
+                datetime.datetime(2024, 9, 11, 15, 15, 12),
                 datetime.datetime(2024, 9, 11, 17, 16, 12),  # modified should always be user time zone in FM
                 datetime.datetime(2024, 9, 11, 9, 16, 12)  # Mountain Time
             ],

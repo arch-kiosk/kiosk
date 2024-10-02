@@ -28,7 +28,6 @@ function submitPage() {
 
     const form = document.getElementById("new-workstation-form")
     addHiddenInput("user-time-zone-index", "user_time_zone_index");
-    addHiddenInput("recording-time-zone-index", "recording_time_zone_index");
     form.submit();
 }
 

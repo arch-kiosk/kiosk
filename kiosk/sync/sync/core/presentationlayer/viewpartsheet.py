@@ -38,8 +38,11 @@ class ViewPartSheet(ViewPart):
     def render(self):
         part_definition = copy.deepcopy(self.part_definition)
         table_def = self.dsd.get_table_definition(self.view_record_type)
+        replfield_modified = self.dsd.get_modified_field(self.view_record_type)
+        modified_ww = f"{replfield_modified}_ww" if replfield_modified else ""
         dsd_fields_to_render = self.dsd.omit_fields_by_datatype(self.view_record_type,
-                                                                [field_name for field_name in table_def.keys()], "tz")
+                                                                [field_name for field_name in table_def.keys()
+                                                                 if field_name != modified_ww], "tz")
 
         elements_to_render: dict = self.get_elements_to_render(dsd_fields_to_render,
                                                                part_definition) if dsd_fields_to_render else {}

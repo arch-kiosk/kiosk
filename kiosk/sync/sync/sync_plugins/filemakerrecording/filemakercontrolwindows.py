@@ -462,7 +462,6 @@ class FileMakerControlWindows(FileMakerControl):
                                        the modified_field_name (usually "modified") is
                                        different between the src and dest or if the number of records differs
                                        between the two tables. If Null, the transfer will always proceed.
-                                       Note: The latest_record_data is in UTC time zone.
             :param current_tz: required current time zone information to user for FileMaker
             :return: 0: method did not succeed
                      1: data was transferred successfully
@@ -532,26 +531,25 @@ class FileMakerControlWindows(FileMakerControl):
                 fieldlist = [f for f in dsd.list_fields(tablename) if dsd.get_field_datatype(tablename, f) != "tz"]
 
             varchar_fields = []
-            timestamp_fields = []
+            timestamptz_fields = []
 
-            # u_fields = list(dsd.get_fields_with_instructions(tablename, ["replfield_modified"]).keys())
-            modified_fields = dsd.list_fields_with_instruction(tablename, "replfield_modified")
-            modified_field_name = modified_fields[0] if modified_fields else ""
-            if modified_field_name:
-                fieldlist.append("modified_ww")
+            # modified_fields = dsd.list_fields_with_instruction(tablename, "replfield_modified")
+            # modified_field_name = modified_fields[0] if modified_fields else ""
+            modified_field_name = dsd.get_modified_field(tablename)
+            # if modified_field_name:
+            #     fieldlist.append(f"{modified_field_name}_ww")
 
             for f in fieldlist:
                 fm_sql_insert = fm_sql_insert + comma + '"' + f + '"'
                 fm_sql_insert_values = fm_sql_insert_values + comma + "?"
                 comma = ", "
-                if f != "modified_ww":
-                    field_data_type = dsd.get_field_datatype(tablename, f)
-                    if field_data_type in ["varchar", "text"] or \
-                            (tablename == "fm_repldata_transfer" and f == "modified_by"):  # todo: That looks hacky. Why the direct reference to "modified_by"?
-                        varchar_fields.append(f)
-                    else:
-                        if field_data_type == "timestamp":
-                            timestamp_fields.append(f)  # = dsd.get_tz_type_for_field(tablename, f) if dsd else ""
+                field_data_type = dsd.get_field_datatype(tablename, f)
+                if field_data_type in ["varchar", "text"] or \
+                        (tablename == "fm_repldata_transfer" and f == "modified_by"):  # todo: That looks hacky. Why the direct reference to "modified_by"?
+                    varchar_fields.append(f)
+                else:
+                    if field_data_type == "timestamptz":
+                        timestamptz_fields.append(f)
 
             fm_sql_insert = fm_sql_insert + ") VALUES(" + fm_sql_insert_values + ")"
 
@@ -562,7 +560,7 @@ class FileMakerControlWindows(FileMakerControl):
             # culprits = []
             c_ts_values = 0
             c_ts_to_u = 0
-            c_ts_to_r = 0
+            c_ts_to_tz = 0
 
             row = db_cur.fetchone()
             while row:
@@ -574,28 +572,33 @@ class FileMakerControlWindows(FileMakerControl):
                 params = []
                 for f in fieldlist:
                     try:
-                        # noinspection PyComparisonWithNone
-                        if f == "modified_ww":
-                            modified_value = row["modified"]
-                            modified_tz_value = row["modified_tz"]
-                            field_value = current_tz.utc_dt_to_tz_dt(modified_value, modified_tz_value) \
-                                if modified_tz_value else modified_value
+                        # the modified_ww value is either taken straight from the record or
+                        # created from modified and modified_tz if exists or defaults on modified
+                        if f == f"{modified_field_name}_ww":
+                            field_value = row[f]
+                            if not field_value:
+                                modified_value = row["modified"]
+                                modified_tz_value = row["modified_tz"]
+                                field_value = current_tz.utc_dt_to_tz_dt(modified_value, modified_tz_value) \
+                                    if modified_tz_value else modified_value
                         else:
                             field_value = row[f]
                             if field_value is not None:
                                 if f in varchar_fields:
                                     field_value = self._handle_gobbledygook(f, field_value, row, tablename)
-                                elif f in timestamp_fields:
+                                elif f in timestamptz_fields or f == modified_field_name:
                                     c_ts_values += 1
-                                    tz_value = row[f + "_tz"]
+                                    tz_value = row[f + "_tz"] if f + "_tz" in row else None
                                     if tz_value:
                                         # only the repl_modified field is always converted into user time zone
                                         # and expected back from FileMaker in user time zone
                                         if f == modified_field_name:
                                             field_value = current_tz.utc_dt_to_user_dt(field_value)
+                                            c_ts_to_u += 1
                                         else:
                                             # timestamp in its originally recorded time zone
                                             field_value = current_tz.utc_dt_to_tz_dt(field_value, tz_value)
+                                            c_ts_to_tz += 1
                     except BaseException as e:
                         logging.error(f"{self.__class__.__name__}.transfer_table_data_to_filemaker: "
                                       f"Exception when processing field {f}...")
@@ -628,14 +631,14 @@ class FileMakerControlWindows(FileMakerControl):
             logging.info(f"About to commit {str(r_count - 1)} lines in {dest_tablename}")
             self.cnxn.commit()
             logging.info(f"Copied {str(r_count - 1)} lines from {tablename} to filemaker: {dest_tablename}")
-            logging.info(f"sum_time is {sum_time}. max_time_elapsed is {max_time_elapsed}. "
+            logging.debug(f"sum_time is {sum_time}. max_time_elapsed is {max_time_elapsed}. "
                          f"Average is {sum_time / r_count} ")
-            logging.info(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
+            logging.debug(f"{self.__class__.__name__}.transfer_table_data_to_filemaker: "
                          f"Converted {str(c_ts_to_u)} of {str(c_ts_values)} timestamps "
                          f"to user time zone {current_tz.user_tz_iana_name}")
-            logging.info(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
-                         f"Converted {str(c_ts_to_r)} of {str(c_ts_values)} timestamps "
-                         f"to recording time zone {current_tz.recording_tz_iana_name}")
+            logging.info(f"{self.__class__.__name__}.transfer_table_data_to_filemaker: "
+                         f"Converted {str(c_ts_to_tz)} of {str(c_ts_values)} timestamptz fields "
+                         f"to the recorded time zone. Using timestamptz fields is rather experimental.")
 
             return 1
         except BaseException as e:
@@ -747,7 +750,7 @@ class FileMakerControlWindows(FileMakerControl):
             comma = ""
 
             varchar_fields = []
-            timestamp_fields = []
+            timestamptz_fields = []
             modified_field_name = ""
 
             # get rid of tz fields
@@ -766,8 +769,8 @@ class FileMakerControlWindows(FileMakerControl):
                         modified_field_name = f
                     if dest_tablename == "fm_repldata_transfer" and f == "modified_by":
                         varchar_fields.append(f)
-                    if field_data_type == "timestamp":
-                        timestamp_fields.append(f)  # = dsd.get_tz_type_for_field(tablename, f) if dsd else ""
+                    if field_data_type == "timestamptz":
+                        timestamptz_fields.append(f)  # = dsd.get_tz_type_for_field(tablename, f) if dsd else ""
 
             fm_sql_insert = fm_sql_insert + ") VALUES(" + fm_sql_insert_values + ")"
 
@@ -780,7 +783,7 @@ class FileMakerControlWindows(FileMakerControl):
             # culprits = []
             c_ts_values = 0
             c_ts_to_u = 0
-            c_ts_to_r = 0
+            c_ts_to_tz = 0
             while row:
                 if not truncate:
                     # in this case every single record has to be deleted first.
@@ -791,21 +794,22 @@ class FileMakerControlWindows(FileMakerControl):
                 for f in fieldlist.keys():
                     try:
                         field_value = row[f]
-                        # noinspection PyComparisonWithNone
                         if field_value is not None:
                             if f in varchar_fields:
                                 field_value = self._handle_gobbledygook(f, field_value, row, dest_tablename)
-                            elif f in timestamp_fields:
+                            elif f in timestamptz_fields or f == modified_field_name:
                                 c_ts_values += 1
-                                tz_value = row[f + "_tz"]
+                                tz_value = row[f + "_tz"] if f + "_tz" in row else None
                                 if tz_value:
                                     # only the repl_modified field is always converted into user time zone
                                     # and expected back from FileMaker in user time zone
                                     if f == modified_field_name:
                                         field_value = current_tz.utc_dt_to_user_dt(field_value)
+                                        c_ts_to_u += 1
                                     else:
                                         # timestamp in its originally recorded time zone
                                         field_value = current_tz.utc_dt_to_tz_dt(field_value, tz_value)
+                                        c_ts_to_tz += 1
                     except BaseException as e:
                         logging.error(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
                                       f"Exception when processing field '{f}'...")
@@ -835,15 +839,15 @@ class FileMakerControlWindows(FileMakerControl):
             self.cnxn.commit()
             logging.info(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
                          f"Copied {str(r_count - 1)} lines from {dest_tablename} to filemaker: {dest_tablename}")
-            logging.info(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
+            logging.debug(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
                          f"sum_time is {sum_time}. max_time_elapsed is {max_time_elapsed}. "
                          f"Average is {sum_time / r_count} ")
-            logging.info(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
+            logging.debug(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
                          f"Converted {str(c_ts_to_u)} of {str(c_ts_values)} timestamps "
                          f"to user time zone {current_tz.user_tz_iana_name}")
             logging.info(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
-                         f"Converted {str(c_ts_to_r)} of {str(c_ts_values)} timestamps "
-                         f"to recording time zone {current_tz.recording_tz_iana_name}")
+                         f"Converted {str(c_ts_to_tz)} of {str(c_ts_values)} timestamptz fields "
+                         f"to the recorded time zone. Using timestamptz fields is rather experimental.")
 
             return 1
         except BaseException as e:
@@ -875,7 +879,8 @@ class FileMakerControlWindows(FileMakerControl):
         :param dest_tablename the destination table, where records are about to be copied to
         :param fm_cur a cursor to the filemaker database
         :param modified_field_name : this is the name of the modified field in the dest_table
-        :param max_modified this is the UTC timestamp value max(modified_field_name) needs to meet.
+        :param max_modified this is the timestamp value max(modified_field_name) needs to meet.
+                It is either in user time zone or a legacy time stamp
         :param record_count this is the value count(modified_field_name) needs to meet
         :param current_tz - required time zone info to be used for the FileMaker database
         :return: True if the dest table fulfills the requirements.
@@ -893,20 +898,15 @@ class FileMakerControlWindows(FileMakerControl):
             if not fm_record:
                 raise Exception("Can't read from FileMaker cursor")
 
-            # time zone: The max_modified from postgres is always in UTC,
-            #  so the FM max modified needs a conversion from user time zone to utc
+            # time zone: The max_modified from postgres is always in user time zone (or a legacy date, which counts as the same here),
+            #  so the FM max modified needs NO conversion
             #  what if user time zone has changed since the last export?
             #  That leads to a different template, so we can be sure that the dates we find in the modified field
             #  have been transformed to the same user time zone as the current user time zone
 
-            # pg_utc_dt: datetime.datetime = max_modified
-            # fm_utc_dt: datetime.datetime = current_tz.user_dt_to_utc_dt(fm_record[0])
-            # logging.debug(f"{self.__class__.__name__}._is_table_already_up_to_date: "
-            #               f"{dest_tablename}: max_modified={fm_record[0]} -> UTC:{fm_utc_dt}, count={fm_record[1]}")
 
-
-            pg_utc_dt: datetime.datetime = max_modified   # this is either user time zone or a legacy time stamp
-            fm_utc_dt: datetime.datetime = fm_record[0]
+            pg_utc_dt: datetime.datetime = max_modified   # this is either utc or a legacy time stamp
+            fm_utc_dt: datetime.datetime = fm_record[0]   # this is user time zone
 
             logging.debug(f"{self.__class__.__name__}._is_table_already_up_to_date: "
                           f"FM {dest_tablename}: max_modified={fm_record[0]}, count={fm_record[1]}")
@@ -1129,11 +1129,14 @@ class FileMakerControlWindows(FileMakerControl):
         try:
             sql_select = 'SELECT '
             comma = ""
+            replfield_modified = dsd.get_modified_field(tablename)
+            modified_ww = f"{replfield_modified}_ww"
             for f in dsd.omit_fields_by_datatype(tablename,
                                                  dsd.list_fields(tablename, version=version),
                                                  "tz"):
-                sql_select = sql_select + comma + '"' + f + '"'
-                comma = ", "
+                if f != modified_ww:
+                    sql_select = sql_select + comma + '"' + f + '"'
+                    comma = ", "
             sql_select = sql_select + ' FROM "' + tablename + '"'
             if import_filter:
                 sql_select += " WHERE " + import_filter
@@ -1154,7 +1157,7 @@ class FileMakerControlWindows(FileMakerControl):
         asks the filemaker database to unload all the images into the given path.
 
         todo time zone: Check if this still works when running on the server's FileMaker. The FM Code must only
-         use the dates like fork_sync_time etc. from the constants and never now() or so!
+         use the dates like fork_time etc. from the constants and never now() or so!
         """
         try:
             path = workstation.get_and_init_files_dir("import")
