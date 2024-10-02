@@ -239,8 +239,7 @@ class FileRepositoryFile:
         """
         todo: This is really not great because it sidestep KioskContextualFile!
         :param modified_by:
-        :param user_time_zone_index: the user's time zone index (don't use recordig time zone because this is being used
-                                     only for the modified field)
+        :param user_time_zone_index: the user's time zone index
         :return:
         """
         if not self.r or not self.r["uid"]:
@@ -251,22 +250,27 @@ class FileRepositoryFile:
         sql += "description=%s, "
         sql += "tags=%s, "
         sql += "file_datetime=%s, "
-        sql += "file_datetime_tz=%s, "
         sql += "export_filename=%s, "
         sql += "modified=%s, "
         sql += "modified_tz=%s, "
+        sql += "modified_ww=%s, "
         sql += "modified_by=%s "
         sql += "where uid=%s"
 
+        now_utc = kioskdatetimelib.get_utc_now()
+
+        now_ww = kioskdatetimelib.utc_ts_to_timezone_ts(
+            now_utc,
+            kioskglobals.kiosk_time_zones.get_iana_time_zone(user_time_zone_index))
         cur = KioskSQLDb.get_dict_cursor()
         try:
             params = [self.r["description"],
                       self.r["tags"],
                       self.r["file_datetime"],
-                      self.r["file_datetime_tz"],
                       self.r["export_filename"],
-                      kioskdatetimelib.get_utc_now(),
+                      now_utc,
                       user_time_zone_index,
+                      now_ww,
                       modified_by,
                       self.r["uid"]]
             # print(sql, params)

@@ -341,12 +341,13 @@ def js_to_python_utc_datetime_str(utc_datetime_str):
         return utc_datetime_str
 
 
-def utc_ts_to_timezone_ts(utc_datetime: Union[datetime.datetime, str], time_zone: str) -> datetime.datetime:
+def utc_ts_to_timezone_ts(utc_datetime: Union[datetime.datetime, str], time_zone: str, replace_ms=False) -> datetime.datetime:
     """
     converts a utc timestamp to the local time of the time zone and drops the time zone information
     :param utc_datetime: either a datetime object or a string in iso8601 format.
                          No matter if this value has a time zone info itself or not, "utc" will be assigned.
     :param time_zone: a IANA time zone string
+    :param replace_ms: set to true if you want to drop microseconds
     :returns: a datetime with local time of the time zone and the time zone information dropped.
     """
     if not time_zone or not utc_datetime:
@@ -368,7 +369,10 @@ def utc_ts_to_timezone_ts(utc_datetime: Union[datetime.datetime, str], time_zone
 
     dt_tz = dt.astimezone(tz)
 
-    return dt_tz.replace(tzinfo=None)
+    if replace_ms:
+        return dt_tz.replace(tzinfo=None, microsecond=0)
+    else:
+        return dt_tz.replace(tzinfo=None)
 
 
 def get_utc_now(no_tz_info=False, no_ms=False) -> datetime.datetime:

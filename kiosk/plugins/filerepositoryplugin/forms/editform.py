@@ -13,9 +13,8 @@ class ModalFileEditForm(FlaskForm):
     ef_description = TextAreaField(id="ef-description", label='context-independent description')
     ef_tags = StringField(label="tags", id="mef-tags")
     ef_export_filename = StringField(label="file name", id="ef-export-filename")
-    ef_file_datetime = KioskDateTimeTzField(label="date and time of creation (for photos: when was the photo shot?)",
-                                            id="ef-file-datetime")
-    ef_file_datetime_tz = KioskTzField(id="ef-file-datetime-tz")
+    ef_file_datetime = StringField(label="date and time of creation (for photos: when was the photo shot?)",
+                                   id="ef-file-datetime")
 
     def __init__(self, file_repos, *args, **kwargs):
         self.file_repos: filerepository.FileRepository = None
