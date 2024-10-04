@@ -54,7 +54,6 @@ class Dock:
         self._sync = sync
         self.recording_group = ""
         self._user_time_zone_index = None
-        self._recording_time_zone_index = None
         self.grant_access_to = ""
         self.current_tz: Union[KioskTimeZoneInstance, None] = None
 

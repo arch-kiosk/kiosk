@@ -25,7 +25,6 @@ class MockWorkstation(Dock):
         self.description = "dock"
         self.recording_group = "default"
         self.user_time_zone_index = 96554373  # Central European Time (Europe/Berlin)
-        self.recording_time_zone_index = 27743346  # Mountain Time (US/Mountain)
         self.grant_access_to = "*"
         state = "IDLE"
         self.state_machine.set_initial_state(state)

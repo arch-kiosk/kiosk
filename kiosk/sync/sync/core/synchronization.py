@@ -137,7 +137,6 @@ class Synchronization(PluginLoader):
                 pass
             dsd = Dsd3Singleton.get_dsd3()
             for table in dsd.list_tables():
-                logging.info("Truncating table " + table)
                 if not special_tables and table in ["excavator",
                                                     "locus_types",
                                                     "site",
@@ -162,6 +161,7 @@ class Synchronization(PluginLoader):
                                                     "repl_workstation_filemaker"]:
                     logging.info(f"Skipped {table}")
                 else:
+                    logging.info("Truncating table " + table)
                     KioskSQLDb.truncate_table(table)
             KioskSQLDb.commit()
 

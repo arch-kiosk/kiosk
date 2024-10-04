@@ -379,17 +379,6 @@ class KioskTimeZones:
 
             return utc_ts_to_timezone_ts(dt, source_time_zone), 1
 
-    def get_recording_timestamp_with_time_zone(self, kiosk_time_stamp: datetime.datetime, tz_field, latin=True):
-        record_ts, ts_type = self.kiosk_timestamp_to_display_timestamp(
-            kiosk_time_stamp,
-            tz_field)
-        if ts_type == 1:
-            time_zone = self.get_time_zone_info(tz_field)[1]
-        else:
-            time_zone = "(legacy)"
-        return (kioskstdlib.latin_date(record_ts) if latin else f"{record_ts}") + " " + time_zone
-
-
 # if __name__ == '__main__':
 #     # cfg = SyncConfig.get_config({'config_file': r'C:\notebook_source\kiosk\server\kiosk\kiosk\config\kiosk_config.yml'})
 #     # kiosk_tz = KioskTimeZones()

@@ -107,7 +107,6 @@ class TestFilemakerWorkstationTransferTableToFileMaker(KioskPyTestHelper):
     def prepare__exporting_to_filemaker(self, db, config, mocker, mock_kiosk_time_zones, mocked_fm_instance):
         tz = KioskTimeZoneInstance(kiosk_time_zones=KioskTimeZones())
         tz.user_tz_index = 96554373  # Central European Time (Europe/Berlin)
-        tz.recording_tz_index = 27743346  # Mountain Time (US/Mountain)
 
         utc_now = kioskdatetimelib.get_utc_now()
 

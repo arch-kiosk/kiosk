@@ -1921,13 +1921,6 @@ involved_as:
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
 
-replication:
-  structure:
-    1:
-      id: [datatype(VARCHAR), primary(), unique(), not_null()]
-      value: [datatype(VARCHAR)]
-      ts: [datatype(TIMESTAMP), default('now()')]
-
 constants:
   meta:
     flags: [export_dont_truncate, sync_ignore_unique_key_violation, no_file_export]

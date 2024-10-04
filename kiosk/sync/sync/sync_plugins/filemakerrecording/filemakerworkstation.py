@@ -1872,7 +1872,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                      f"{f_ww}=case when ({f_tz} is null" + \
                      f" and {f_dt} != %s)" + \
                      f" OR ({f_tz} is not null and {f_dt} != %s::timestamptz) THEN %s" + \
-                     f" ELSE {f_ww} END "
+                     f" ELSE {f_ww} END"
 
         v_ww = value.replace(tzinfo=datetime.timezone.utc)
         v_utc = tz.user_dt_to_utc_dt(value).replace(tzinfo=datetime.timezone.utc)  # that's wristwatch time converted to UTC without time zone!

@@ -116,8 +116,24 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
     def test__import_table_get_insert_field_sql(self, mock_kiosk_time_zones):
         tz = KioskTimeZoneInstance(kiosk_time_zones=KioskTimeZones())
         tz.user_tz_index = 96554373  # Central European Time (Europe/Berlin)
-        tz.recording_tz_index = 27743346  # Mountain Time (US/Mountain)
 
+        ### test 1: timestamptz field
+        argv = {
+            "f": "created",
+            "data_type": "timestamptz",
+            "value": datetime.datetime.fromisoformat("2024-08-01T12:00:00"),
+            "value_list": [],
+            "tz": tz
+        }
+
+        sql_insert, sql_values = FileMakerWorkstation._import_table_get_insert_field_sql(False, **argv)
+        value_list = [f"{datetime.datetime.isoformat(x)}" if isinstance(x, datetime.datetime) else x
+                      for x in argv["value_list"]]
+        assert sql_insert == "\"created\", \"created_tz\""
+        assert sql_values == "%s,%s"
+        assert value_list == ['2024-08-01T10:00:00', 96554373]
+
+        ### test 2: relfield_modified
         argv = {
             "f": "modified",
             "data_type": "timestamptz",
@@ -126,12 +142,12 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
             "tz": tz
         }
 
-        sql_insert, sql_values = FileMakerWorkstation._import_table_get_insert_field_sql(**argv)
+        sql_insert, sql_values = FileMakerWorkstation._import_table_get_insert_field_sql(True, **argv)
         value_list = [f"{datetime.datetime.isoformat(x)}" if isinstance(x, datetime.datetime) else x
                       for x in argv["value_list"]]
-        assert sql_insert == "\"modified\", \"modified_tz\""
-        assert sql_values == "%s,%s"
-        assert value_list == ['2024-08-01T10:00:00', 96554373]
+        assert sql_insert == "\"modified\", \"modified_tz\", \"modified_ww\""
+        assert sql_values == "%s,%s,%s"
+        assert value_list == ['2024-08-01T10:00:00', 96554373, '2024-08-01T12:00:00']
 
         ### test 3
         argv = {
@@ -142,7 +158,7 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
             "tz": tz
         }
 
-        sql_insert, sql_values = FileMakerWorkstation._import_table_get_insert_field_sql(**argv)
+        sql_insert, sql_values = FileMakerWorkstation._import_table_get_insert_field_sql(False, **argv)
         value_list = [f"{datetime.datetime.isoformat(x)}" if isinstance(x, datetime.datetime) else x
                       for x in argv["value_list"]]
         assert sql_insert == "\"some_field\""
@@ -227,7 +243,6 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
         # tz.user_tz_index = 96554373  # Central European Time (Europe/Berlin)
 
         ws: FileMakerWorkstation = prepare__import_table_from_filemaker["ws"]
-        prepare__import_table_from_filemaker["tz"].recording_tz_index = None
         fm: FileMakerControlMock = prepare__import_table_from_filemaker["fm"]
         uid1 = uuid4()
         uid2 = uuid4()
@@ -259,7 +274,9 @@ class TestFilemakerWorkstation2(KioskPyTestHelper):
                               '%s::timestamptz) THEN %s::timestamptz ELSE "modified" END, '
                               '"modified_tz"=case when ("modified_tz" is null and "modified" != %s) OR '
                               '("modified_tz" is not null and "modified" != %s::timestamptz) THEN %s ELSE '
-                              '"modified_tz" END, "modified_ww"=%s, "modified_by"=%s, "file_proxy"=%s, '
+                              '"modified_tz" END, "modified_ww"=case when ("modified_tz" is null and '
+                              '"modified" != %s) OR ("modified_tz" is not null and "modified" != '
+                              '%s::timestamptz) THEN %s ELSE "modified_ww" END, "modified_by"=%s, "file_proxy"=%s, '
                               '"created"=case when ("iana_time_zones"."created_tz_iana" is null and '
                               '"created" != %s) OR ("iana_time_zones"."created_tz_iana" is not null and '
                               '"created" != (%s || \' \' || '

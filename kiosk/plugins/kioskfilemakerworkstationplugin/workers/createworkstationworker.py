@@ -19,7 +19,6 @@ class CreateWorkstationWorker(WorkstationManagerWorker):
                 ws.create_workstation(ws_name=ws_name,
                                       recording_group=recording_group,
                                       user_time_zone_index=user_time_zone_index,
-                                      recording_time_zone_index=recording_time_zone_index,
                                       options=options,
                                       grant_access_to=grant_access_to)
                 rc = "ok"
@@ -40,7 +39,6 @@ class CreateWorkstationWorker(WorkstationManagerWorker):
                 ws_name = self.job.job_data["description"]
                 recording_group = self.job.job_data["recording_group"]
                 user_time_zone_index = self.job.job_data["user_time_zone_index"]
-                recording_time_zone_index = self.job.job_data["recording_time_zone_index"]
                 options = self.job.job_data["options"]
                 grant_access_to = self.job.job_data["grant_access_to"] if self.job.job_data["grant_access_to"] else "*"
 

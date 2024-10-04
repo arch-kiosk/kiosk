@@ -6408,18 +6408,7 @@ class KioskDateTime {
       fullName: getCookie("kiosk_tz_name")
     };
   }
-  /**
-   * returns a TimeZoneInfo object with id, ianaName and fullName of the
-   * active recording time zone.
-   * The active recording time zone is derived from the kiosk_recording_tz_... cookies.
-   */
-  static getActiveRecordingTimeZone() {
-    return {
-      id: parseInt(getCookie("kiosk_recording_tz_index")),
-      ianaName: getCookie("kiosk_recording_iana_time_zone"),
-      fullName: getCookie("kiosk_recording_tz_name")
-    };
-  }
+
   /**
    * Initializes a kiosk date-time field (a HTMLInput Element) based on the provided ID.
    * Retrieves the UTC date from the specified field, converts it to a Luxon DateTime object in UTC zone,
@@ -6496,10 +6485,9 @@ class KioskDateTime {
    * @param elementId The id of the element
    * @param errorClass default is "kiosk-error-border". class name that signals an error for the field
    * @param focusOnError default is true: in case of an error the element gets the focus
-   * @param useRecordingTz default is true: uses the active recording time zone. False uses the active user time zone.
    * @returns the result of guessDateTime: A ISO8601 string of the date/time in UTC time zone
    */
-  validateDateTimeField(elementId, errorClass = "kiosk-error-border", focusOnError = true, useRecordingTz = true) {
+  validateDateTimeField(elementId, errorClass = "kiosk-error-border", focusOnError = true) {
     var _a2;
     const dtElement = document.getElementById(elementId);
     let result = "";
@@ -6509,7 +6497,7 @@ class KioskDateTime {
       }
       let dt = dtElement.value;
       if (dt && dt.trim()) {
-        const tz = useRecordingTz ? KioskDateTime.getActiveRecordingTimeZone().ianaName : KioskDateTime.getActiveUserTimeZone().ianaName;
+        const tz = KioskDateTime.getActiveUserTimeZone().ianaName
         const kdt = new KioskDateTime();
         try {
           result = (_a2 = kdt.guessDateTime(dt, false, tz)) == null ? void 0 : _a2.toISO({
