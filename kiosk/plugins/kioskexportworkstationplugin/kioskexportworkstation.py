@@ -1,3 +1,5 @@
+import kioskdatetimelib
+import kioskstdlib
 from authorization import ENTER_ADMINISTRATION_PRIVILEGE, FILE_EXPORT_PRIVILEGE, get_local_authorization_strings
 from kioskfilemanagerbridge import KioskFileManagerBridge
 from sync_plugins.fileexportworkstation.fileexport import FileExport
@@ -90,7 +92,9 @@ class KioskExportWorkstation(KioskWorkstation):
                 self._state_text = "forked, waiting for file export"
             if self._sync_ws.get_fork_time():
                 self._state_description = "last export on " + \
-                                          self._sync_ws.get_fork_time().isoformat(" ")[:19]
+                                          kioskstdlib.latin_date(kioskdatetimelib.utc_ts_to_timezone_ts(
+                                              self._sync_ws.get_fork_time(),
+                                              current_user.get_active_time_zone_name(iana=True)))
 
     def load_workstation(self):
         self._sync_ws = self.sync.get_workstation("FileExportWorkstation", self._id)

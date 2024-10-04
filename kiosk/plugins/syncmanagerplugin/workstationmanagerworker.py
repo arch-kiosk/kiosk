@@ -55,18 +55,18 @@ class WorkstationManagerWorker:
             return None
 
     def init_dock(self, ws_id: str, sync, kiosk_time_zones):
+        try:
+            user = self.get_kiosk_user()
+        except BaseException as e:
+            raise Exception(f" When initializing user {repr(e)}")
+
+        if not user or user.get_active_tz_index() is None or not user.get_active_time_zone_name(iana=True):
+            raise Exception(f"User has no active time zone setting. That is not permitted.")
+
         ws = KioskFileMakerWorkstation(ws_id, sync=sync)
-        ws.load_workstation()
         if ws:
-            try:
-                user = self.get_kiosk_user()
-            except BaseException as e:
-                raise Exception(f" When initializing user {repr(e)}")
+            ws.load_workstation(KioskTimeZoneInstance(kiosk_time_zones, user.get_active_tz_index()))
 
-            if user.get_active_tz_index() is None or not user.get_active_time_zone_name(iana=True):
-                raise Exception(f"User has no active time zone setting. That is not permitted.")
-
-            ws.current_tz = KioskTimeZoneInstance(kiosk_time_zones, user.get_active_tz_index())
             logging.info(f"{self.__class__.__name__}.init_dock: Dock {ws_id} is using "
                          f"user time zone {ws.current_tz.user_tz_index}/{ws.current_tz.user_tz_long_name}")
         return ws

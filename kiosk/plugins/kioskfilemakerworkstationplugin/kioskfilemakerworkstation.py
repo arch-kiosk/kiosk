@@ -6,8 +6,10 @@ import textwrap
 import zoneinfo
 from typing import List
 
+from charset_normalizer.utils import iana_name
 from werkzeug import datastructures
 
+import kioskdatetimelib
 import kioskglobals
 
 from flask_login import current_user
@@ -151,11 +153,13 @@ class KioskFileMakerWorkstation(KioskWorkstation):
         for group in recording_groups:
             FileMakerWorkstation.reset_template(group)
 
-    def load_workstation(self) -> bool:
+    def load_workstation(self, current_tz: KioskTimeZoneInstance = None) -> bool:
         self._reset_attributes()
         # noinspection PyTypeChecker
         self._sync_ws: FileMakerWorkstation = self.sync.get_workstation("FileMakerWorkstation", self._id)
         if self._sync_ws:
+            if current_tz:
+                self.current_tz = current_tz
             self._download_upload_status_text = self.download_upload_status_texts[
                 str(self._sync_ws.download_upload_status)]
             self._calc_status_text(self.status, self._sync_ws.download_upload_status)
@@ -203,7 +207,10 @@ class KioskFileMakerWorkstation(KioskWorkstation):
                     self._sync_ws.download_upload_ts and \
                     fork_time < self._sync_ws.download_upload_ts:
                 self._state_description = self._download_upload_status_text + " on " + \
-                                          self._sync_ws.download_upload_ts.isoformat(" ")[:19]
+                                          kioskstdlib.latin_date(kioskdatetimelib.utc_ts_to_timezone_ts(
+                                              self._sync_ws.download_upload_ts,
+                                              self.current_tz.user_tz_iana_name if self.current_tz else \
+                                                  current_user.get_active_time_zone_name(iana=True)))
             else:
                 self._state_description = self._download_upload_status_text
         else:
@@ -598,6 +605,11 @@ class KioskFileMakerWorkstation(KioskWorkstation):
                         add_to_option_list(self._get_option("import_repair_option"), low=True)
 
                 add_to_option_list(self._get_option("upload_option"), low=True)
+            elif (self.status == "BACK_FROM_FIELD" and
+                    kioskglobals.get_development_option("allow_repeat_export_ws").lower() == "true"):
+                self._modify_option("import_option", "description",
+                                    "import workstation from FileMaker AGAIN (developers only).")
+                add_to_option_list(self._get_option("import_option"), low=True)
 
             if self.status == "IN_THE_FIELD" and self.allow_download:
                 self._modify_option("fork_export_option", "description",

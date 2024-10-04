@@ -1,4 +1,6 @@
 import logging
+
+import kioskglobals
 from kioskresult import KioskResult
 from mcpinterface.mcpjob import MCPJobStatus
 from plugins.kioskfilemakerworkstationplugin import KioskFileMakerWorkstation
@@ -14,8 +16,7 @@ class DeleteWorkstationWorker(WorkstationManagerWorker):
                 logging.debug("Delete-worker starts")
                 self.init_dsd()
                 sync = Synchronization()
-                ws = KioskFileMakerWorkstation(ws_id, sync=sync)
-                ws.load_workstation()
+                ws = self.init_dock(ws_id, sync, kioskglobals.kiosk_time_zones)
                 name = ws.description
                 self.job.publish_progress(10)
                 if ws:

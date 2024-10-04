@@ -1,6 +1,6 @@
 // @ts-ignore
 // import {developMode} from './lib/const.js'
-import { html, unsafeCSS } from "lit";
+import { html, LitElement, unsafeCSS } from "lit";
 import { customElement } from "lit/decorators.js";
 
 // @ts-ignore
@@ -24,7 +24,7 @@ import {
     JOB_STATUS_DONE,
     JOB_STATUS_REGISTERED,
     JOB_STATUS_CANCELED,
-} from "./lib/applib.ts";
+} from "./lib/applib";
 import { Workstation } from "./lib/workstation";
 import { kioskErrorToast, kioskOpenModalDialog, kioskYesNoToast } from "./lib/types/externalglobalfunctions";
 import "./progress-ring/progress-ring";
@@ -286,7 +286,7 @@ class WorkstationCard extends KioskApp {
                 this.triggerReloadWorkstations();
             })
             .catch((e: FetchException) => {
-                handleCommonFetchErrors(this, e, "workstationlist.fetchWorkstations", () => {
+                handleCommonFetchErrors(this as LitElement, e, "workstationlist.fetchWorkstations", () => {
                     kioskErrorToast(`It was not possible to cancel the job because of an error ${e}.`);
                 });
             });

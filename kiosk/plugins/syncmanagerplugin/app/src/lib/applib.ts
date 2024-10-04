@@ -2,7 +2,7 @@
 import {FetchException} from "../../../../../static/scripts/kioskapputils.js"
 //@ts-ignore
 import {MessageData, MSG_NETWORK_ERROR, MSG_LOGGED_OUT, sendMessage} from "./appmessaging.ts"
-import {LitElement} from "lit-element";
+import {LitElement} from "lit";
 //@ts-ignore
 
 export const JOB_STATUS_GHOST = 0;

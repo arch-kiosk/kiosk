@@ -1001,7 +1001,8 @@ class Synchronization(PluginLoader):
         # todo: time zone what about modified_tz? and created_tz?
         #  since created does not ever get modified, neither does created_tz!
 
-        exclude_fields = ["modified", "modified_by", "modified_tz", "created_tz", "uid", "repl_deleted", "repl_tag", "created"]
+        exclude_fields = ["modified", "modified_by", "modified_tz", "modified_ww",
+                          "created_tz", "uid", "repl_deleted", "repl_tag", "created"]
 
         try:
             ctable = 0
@@ -1024,16 +1025,22 @@ class Synchronization(PluginLoader):
                         break
                     else:
                         sql = f"{'with'} mods as ("
-                        sql = sql + " select tmp.\"uid\", tmp.\"repl_workstation_id\", tmp.\"modified\", tmp.\"modified_tz\", tmp.\"modified_by\","
-                        sql = sql + " row_number() OVER(partition by tmp.\"uid\" order by coalesce(tmp.\"modified\", tmp.\"created\") desc) \"sync_modified_records_nr\""
+                        sql = sql + (" select tmp.\"uid\", tmp.\"repl_workstation_id\", "
+                                     "tmp.\"modified\", tmp.\"modified_tz\", tmp.\"modified_ww\",  "
+                                     "tmp.\"modified_by\",")
+                        sql = sql + (" row_number() OVER(partition by tmp.\"uid\" "
+                                     "order by coalesce(tmp.\"modified\", tmp.\"created\") "
+                                     "desc) \"sync_modified_records_nr\"")
                         sql = sql + " from \"" + temp_table + "\" tmp"
                         sql = sql + " where NOT COALESCE(tmp.\"repl_deleted\", false)"
                         sql = sql + " )"
                         sql = sql + " update \"" + table + "\" set \"modified\"=upd.\"modified\","
-                        sql = sql + " \"modified_tz\"=upd.\"modified_tz\", \"modified_by\"=upd.\"modified_by\""
+                        sql = sql + (" \"modified_tz\"=upd.\"modified_tz\", \"modified_ww\"=upd.\"modified_ww\", "
+                                     "\"modified_by\"=upd.\"modified_by\"")
                         sql = sql + " from"
                         sql = sql + " ("
-                        sql = sql + f" {'select'} m.\"uid\", m.\"modified\", m.\"modified_tz\", m.\"modified_by\" from mods m where m.sync_modified_records_nr=1"
+                        sql = sql + (f" {'select'} m.\"uid\", m.\"modified\", m.\"modified_tz\", m.\"modified_ww\", "
+                                     f"m.\"modified_by\" from mods m where m.sync_modified_records_nr=1")
                         sql = sql + " ) upd where \"" + table + "\".\"uid\" = upd.\"uid\""
                         cur.execute(sql)
                         if cur.rowcount > 0:
@@ -1057,14 +1064,15 @@ class Synchronization(PluginLoader):
             TODO: document
         """
 
+        dsd = Dsd3Singleton.get_dsd3()
         ok = False
         logging.debug("Syncing \"" + table + "\".\"" + "\"" + field + "\"")
         cur = KioskSQLDb.get_cursor()
         try:
-            self._check_field_modification(cur, table, field)
+            self._check_field_modification(table, field, dsd)
             # currently apart from logging them we simply ignore colliding changes and let the newest modification win!
 
-            ok = self._solve_field_modification(cur, table, field)
+            ok = self._solve_field_modification(cur, table, field, dsd)
 
             return ok
 
@@ -1077,7 +1085,7 @@ class Synchronization(PluginLoader):
 
         return ok
 
-    def _check_field_modification(self, cur, table, field):
+    def _check_field_modification(self, table, field, dsd: DataSetDefinition):
         """ checks whether there is a collision due to modifications of field-values
             of the same fields in the same record by different workstations. The
             function returns TRUE if a collision is detected, FALSE if not and throws
@@ -1089,11 +1097,16 @@ class Synchronization(PluginLoader):
         temp_table = "temp_" + table
         collision = False
         cur = KioskSQLDb.get_cursor()
-
         sql = "SELECT tmp.\"uid\" FROM \"" + temp_table + "\" tmp"
         sql = sql + " INNER JOIN \"" + table + "\" main on tmp.uid = main.uid"
         sql = sql + " WHERE tmp.repl_deleted = false"
-        sql = sql + " AND (tmp.\"" + field + "\" is distinct from main.\"" + field + "\" )"
+        # todo time zone simplification:
+        #  cut off microseconds when comparing timestamps
+        if dsd.get_field_datatype(table, field).startswith("timestamp"):
+            sql = sql + " AND (date_trunc('second', tmp.\"" + field + \
+                  "\") is distinct from date_trunc('second', main.\"" + field + "\"))"
+        else:
+            sql = sql + " AND (tmp.\"" + field + "\" is distinct from main.\"" + field + "\" )"
         sql = sql + " GROUP BY tmp.\"uid\""
         sql = sql + " HAVING COUNT(DISTINCT tmp.\"repl_workstation_id\") > 1"
         sql = sql + ";"
@@ -1129,7 +1142,7 @@ class Synchronization(PluginLoader):
 
         return collision
 
-    def _solve_field_modification(self, cur, table, field):
+    def _solve_field_modification(self, cur, table, field, dsd):
         """ updates field values in a master table from the most recent modification
             that can be found in the temporary table.
             The function returns TRUE if everything was fine, FALSE if not. It catches Exceptions
@@ -1141,7 +1154,6 @@ class Synchronization(PluginLoader):
         try:
             temp_table = "temp_" + table
             cur = KioskSQLDb.get_cursor()
-            dsd = Dsd3Singleton.get_dsd3()
             file_field = dsd.get_proxy_field_reference(table, field, test=bool("proxy_field" in self.debug_mode))
             if file_field:
                 sql = ""
@@ -1152,7 +1164,13 @@ class Synchronization(PluginLoader):
                 sql = sql + "FROM \"" + temp_table + "\" tmp "
                 sql = sql + "INNER JOIN \"" + table + "\" main ON tmp.\"uid\" = main.\"uid\" "
                 sql = sql + "WHERE COALESCE(tmp.\"repl_deleted\", false) = false "
-                sql = sql + "AND (tmp.\"" + field + "\" IS DISTINCT FROM main.\"" + field + "\") "
+                # todo time zone simplification:
+                #  cut off microseconds when comparing timestamps
+                if dsd.get_field_datatype(table, field).startswith("timestamp"):
+                    sql = sql + " AND (date_trunc('second', tmp.\"" + field + \
+                          "\") is distinct from date_trunc('second', main.\"" + field + "\"))"
+                else:
+                    sql = sql + "AND (tmp.\"" + field + "\" IS DISTINCT FROM main.\"" + field + "\") "
                 sql = sql + ") "
                 sql = sql + "select upd.\"workstation_id\" \"workstation_id\", upd.\"file_field\" \"file_id\", upd.\"proxy_field\" \"proxy_field\" "
                 sql = sql + "FROM "
@@ -1172,7 +1190,13 @@ class Synchronization(PluginLoader):
             sql = sql + " FROM \"" + temp_table + "\" \"tmp\""
             sql = sql + " INNER JOIN \"" + table + "\" main ON tmp.\"uid\" = main.\"uid\""
             sql = sql + " WHERE COALESCE(tmp.repl_deleted, false) = false"
-            sql = sql + " AND (\"tmp\".\"" + field + "\" IS DISTINCT FROM main.\"" + field + "\")"
+            # todo time zone simplification:
+            #  cut off microseconds when comparing timestamps
+            if dsd.get_field_datatype(table, field).startswith("timestamp"):
+                sql = sql + " AND (date_trunc('second', tmp.\"" + field + \
+                      "\") is distinct from date_trunc('second', main.\"" + field + "\"))"
+            else:
+                sql = sql + " AND (\"tmp\".\"" + field + "\" IS DISTINCT FROM main.\"" + field + "\")"
             sql = sql + ")"
             sql = sql + " UPDATE \"" + table + "\" SET \"" + field + "\"=upd.newval"
             sql = sql + " FROM"

@@ -307,7 +307,6 @@ class FileMakerWorkstation(RecordingWorkstation):
         sql += "uid uuid NOT NULL, "
         sql += "modified timestamp with time zone NOT NULL, "
         sql += "modified_tz int, "
-        sql += "modified_ww timestamp, "
         sql += "modified_by varchar NOT NULL "
         sql += ");"
         cur.execute(sql)
@@ -526,7 +525,12 @@ class FileMakerWorkstation(RecordingWorkstation):
                 raise Exception(f"filemaker database check failed ({repr(e)}) ")
 
             if fm.set_constant("TRANSACTION_STATE", "CORRUPT"):
-                images_with_recent_modified_date = fm.count_images_modified_recently()
+                images_with_recent_modified_date = 0
+                try:
+                    images_with_recent_modified_date = fm.count_images_modified_recently()
+                except Exception:
+                    pass
+
                 logging.debug(f"{self.__class__.__name__}.export: "
                               f"{images_with_recent_modified_date} image records have a "
                               f"all too recent modification timestamp in the filemaker db at the beginning of export")
@@ -562,17 +566,23 @@ class FileMakerWorkstation(RecordingWorkstation):
                                 if self._finish_and_check_import(fm):
                                     report_progress(self.interruptable_callback_progress, 94, None,
                                                     "finalizing ...")
-                                    images_with_recent_modified_date_after = fm.count_images_modified_recently()
-                                    diff = int(
-                                        images_with_recent_modified_date_after - images_with_recent_modified_date)
-                                    if diff >= 1:
-                                        logging.warning(f"{self.__class__.__name__}.export: {diff} image records "
-                                                        f"have a very recent modification time. This is usually not "
-                                                        f"a disaster but it is strange and you should report it before "
-                                                        f"you continue if you have time to wait.")
-                                    logging.debug(f"{self.__class__.__name__}.export: "
-                                                  f"{images_with_recent_modified_date_after} image records have a "
-                                                  f"recent modification timestamp in the filemaker db after the export")
+                                    try:
+                                        images_with_recent_modified_date_after = fm.count_images_modified_recently()
+                                        diff = int(
+                                            images_with_recent_modified_date_after - images_with_recent_modified_date)
+                                        if diff >= 1:
+                                            logging.warning(f"{self.__class__.__name__}.export: {diff} image records "
+                                                            f"have a very recent modification time. This is usually not "
+                                                            f"a disaster but it is strange and you should report it before "
+                                                            f"you continue if you have time to wait.")
+                                        logging.debug(f"{self.__class__.__name__}.export: "
+                                                      f"{images_with_recent_modified_date_after} image records have a "
+                                                      f"recent modification timestamp in the filemaker db after the export")
+                                    except BaseException as e:
+                                        logging.warning(f"{self.__class__.__name__}.export : when checking "
+                                                        f"images with too recent modification dates "
+                                                        f"an error occured:{repr(e)}. This is not critical "
+                                                        f"but might hint at an underlying issue.")
 
                                     rc = fm._apply_config_patches()
 
@@ -819,7 +829,7 @@ class FileMakerWorkstation(RecordingWorkstation):
 
         san_fm_repldata_transfer = KioskSQLDb.sql_safe_namespaced_table(namespace=self._db_namespace,
                                                                         db_table=self._id + "_fm_repldata_transfer")
-        fm_repldata_transfer = db_table = self._id + "_fm_repldata_transfer"
+        fm_repldata_transfer = self._id + "_fm_repldata_transfer"
         KioskSQLDb.truncate_table(table=fm_repldata_transfer, namespace=self._db_namespace)
 
         tables = dsd.list_tables()
@@ -891,8 +901,7 @@ class FileMakerWorkstation(RecordingWorkstation):
         replfield_modified = dsd.get_modified_field(dsd.files_table)
         modified_ww = f"{replfield_modified}_ww" if replfield_modified else ""
 
-        columns = dsd.omit_fields_by_datatype(dsd.files_table, [x for x in dsd.list_fields(dsd.files_table)
-                                                                if x != modified_ww], "tz")
+        columns = dsd.omit_fields_by_datatype(dsd.files_table, dsd.list_fields(dsd.files_table), "tz")
         if self._table_didnt_need_transfer(dsd.files_table):
             cur = KioskSQLDb.get_dict_cursor()
             if cur is None:
@@ -1009,7 +1018,8 @@ class FileMakerWorkstation(RecordingWorkstation):
                                                                   db_table=self._id + "_fm_repldata_transfer")
 
             sql_repldata_insert = f"INSERT INTO {transfer_table}"
-            sql_repldata_insert += "(\"tablename\", \"uid\", \"modified\", \"modified_tz\", \"modified_by\")"
+            sql_repldata_insert += ("(\"tablename\", \"uid\", \"modified\", \"modified_tz\", "
+                                    "\"modified_ww\", \"modified_by\")")
             ok = True
             for instruction_name in ["replfield_uuid", "replfield_modified", "replfield_modified_by"]:
                 fld = dsd.get_fields_with_instructions(tablename, [instruction_name])
@@ -1024,6 +1034,14 @@ class FileMakerWorkstation(RecordingWorkstation):
                             ok = False
                             logging.debug(f"{self.__class__.__name__}._gather_repl_data: "
                                           f"dsd table {tablename} lacks _tz field {tz_field_name}")
+                            break
+                        ww_field_name = fld_name + "_ww"
+                        if dsd.get_field_datatype(tablename, ww_field_name) == "timestamp":
+                            fld_names.append(ww_field_name)
+                        else:
+                            ok = False
+                            logging.debug(f"{self.__class__.__name__}._gather_repl_data: "
+                                          f"dsd table {tablename} lacks _ww field {ww_field_name}")
                             break
                 else:
                     ok = False
@@ -1168,7 +1186,7 @@ class FileMakerWorkstation(RecordingWorkstation):
 
         """
         cfg = SyncConfig.get_config()
-        rc = fm.set_constant("export_date", self.current_tz.utc_dt_to_user_dt(kioskdatetimelib.get_utc_now()))
+        rc = fm.set_constant("export_date", self.current_tz.utc_dt_to_user_dt(kioskdatetimelib.get_utc_now(no_ms=True)))
         if rc:
             rc = fm.set_constant("export_device_id", self._id)
         if rc:

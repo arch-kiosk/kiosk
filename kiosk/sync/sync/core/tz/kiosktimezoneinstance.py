@@ -72,12 +72,12 @@ class KioskTimeZoneInstance:
         dt_from = user_dt.replace(tzinfo=None)
         return kioskdatetimelib.time_zone_ts_to_utc(dt_from, self.user_tz_iana_name)
 
-    def utc_dt_to_tz_dt(self, utc_dt: Union[datetime.datetime, None], tz: Union[str | int], drop_ms=True):
+    def utc_dt_to_tz_dt(self, utc_dt: Union[datetime.datetime, None], tz: Union[str | int], drop_ms=False):
         """
         expects utc_dt as a utc datetime and returns that time in terms of the tz_iana_name time zone
         :param utc_dt: a utc datetime (with or without tzinfo)
         :param tz: either the IANA name of the target time zone or a Kiosk tz index
-        :param drop_ms: drop the milliseconds from the datetime. That's the default
+        :param drop_ms: drop the milliseconds from the datetime. Default is false
         :return: new datetime with tzinfo.
         """
         if not utc_dt or not isinstance(utc_dt, datetime.datetime):
@@ -97,11 +97,11 @@ class KioskTimeZoneInstance:
             dt_from = dt_from.replace(microsecond=0)
 
         return kioskdatetimelib.utc_ts_to_timezone_ts(dt_from, tz_info)
-    def utc_dt_to_user_dt(self, utc_dt: Union[datetime.datetime, None], drop_ms: bool = True):
+    def utc_dt_to_user_dt(self, utc_dt: Union[datetime.datetime, None], drop_ms: bool = False):
         """
         interprets dt as a utc datetime returns a datetime in terms of the user's time zone BUT without a tz_info!
         :param utc_dt: a utc datetime
-        :param drop_ms: drop the milliseconds from the datetime. That's the default
+        :param drop_ms: drop the milliseconds from the datetime. Default is false.
         :return: a date time without a time zone part. None if utc_dt is not a datetime or None.
         """
         return self.utc_dt_to_tz_dt(utc_dt, self.user_tz_iana_name, drop_ms=drop_ms)

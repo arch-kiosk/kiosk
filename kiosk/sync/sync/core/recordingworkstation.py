@@ -216,9 +216,21 @@ class RecordingWorkstation(Dock):
             sql_insert = f'INSERT INTO {dst_table} ('
             sql_select = 'SELECT '
             comma = ""
+            replfield_modified = dsd.get_modified_field(src_table)
             for f in dsd.list_fields(src_table):
+                data_type = dsd.get_field_datatype(src_table, f)
+                # because FileMaker can't deal with microseconds, we have to cut off the microseconds
+                #   for the replfield_modified when branching off the shadow table.
+                #   Otherwise comparing what comes back from FileMaker with what was originally in the shadow table
+                #   would falsely lead to a discrepancy.
+                #   the same goes for other timestamptz fields, except there it isn't as consequential.
+
+                if f == replfield_modified or data_type == "timestamptz":
+                    sql_select = sql_select + comma + f"date_trunc('second',{KioskSQLDb.sql_safe_ident(f)})"
+                else:
+                    sql_select = sql_select + comma + '"' + f + '"'
+
                 sql_insert = sql_insert + comma + '"' + f + '"'
-                sql_select = sql_select + comma + '"' + f + '"'
                 comma = ", "
             sql_insert = sql_insert + ') '
             sql_select = sql_select + ' FROM "' + src_table + '"'

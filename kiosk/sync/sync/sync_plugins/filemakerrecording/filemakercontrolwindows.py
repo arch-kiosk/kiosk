@@ -4,6 +4,7 @@ import logging
 import ntpath
 import time
 import winreg
+from datetime import tzinfo
 from os import path
 # import yappi
 from timeit import default_timer as timer
@@ -12,6 +13,7 @@ from typing import List
 import pyodbc
 import pythoncom
 
+import kioskdatetimelib
 import kioskstdlib
 from dsd.dsd3 import DataSetDefinition, KEY_TABLE_FLAG_EXPORT_DONT_TRUNCATE
 from sync_config import SyncConfig
@@ -349,19 +351,45 @@ class FileMakerControlWindows(FileMakerControl):
         self._quit_fm_db()
         return None
 
-    def count_images_modified_recently(self):
+    def get_current_time_stamp_in_user_tz(self) -> datetime:
+        """
+        get a current time stamp in terms of the time zone that is being used for "modified" fields in this FileMaker Db.
+        :return: datetime without tz_info
+        """
+        user_tz = self.get_constant("user_iana_time_zone")
+        if not user_tz:
+            raise Exception(f"{self.__class__.__name__}.get_current_time_stamp_in_user_tz: "
+                            f"Can't get user_iana_time_zone from database")
+        return kioskdatetimelib.utc_ts_to_timezone_ts(kioskdatetimelib.get_utc_now(), user_tz, replace_ms=True)
+
+    @staticmethod
+    def get_filemaker_timestamp_str(ts: datetime.datetime):
+        """
+        creates a filemaker timestamp in the format "TIMESTAMP YYYY-MM-DD HH:MM:SS"
+        :return: timestamp in the format "TIMESTAMP YYYY-MM-DD HH:MM:SS"
+        """
+        ts = ts.replace(tzinfo=None, microsecond=0)
+        return f"TIMESTAMP '{ts.isoformat(sep=' ')}'"
+
+    def count_images_modified_recently(self, current_timestamp: datetime.datetime=None):
         """
         This checks how many records in the images table have been modified within the last 5 minutes
+        # todo: time zone
+        :param current_timestamp: a time stamp in the user time zone that is being used in this FileMaker Db.
+                                    leave empty to have it fetched from the db first.
         :return: the number of images that have been modified in the last 5 minutes
         """
-        # todo: time zone
-        # this us using something like a current time in FileMaker. Think about it in terms of time zones
-
         result = -1
+        if not current_timestamp:
+            current_timestamp = self.get_current_time_stamp_in_user_tz()
+        current_ts_fm = self.get_filemaker_timestamp_str(current_timestamp)
         cur = self.cnxn.cursor()
+
         try:
-            cur.execute("select " + "count(uid) from images where hour(CURTIMESTAMP - modified) = 0 and "
-                                    "minute(CURTIMESTAMP - modified) < 5 ")
+            sql = (f"{'select'} count(uid) from images where hour({current_ts_fm} - modified) = 0 and "
+                   f"minute({current_ts_fm} - modified) < 5 ")
+
+            cur.execute(sql)
             result = cur.fetchone()[0]
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.count_images_modified_recently : {repr(e)}")
@@ -579,7 +607,7 @@ class FileMakerControlWindows(FileMakerControl):
                             if not field_value:
                                 modified_value = row["modified"]
                                 modified_tz_value = row["modified_tz"]
-                                field_value = current_tz.utc_dt_to_tz_dt(modified_value, modified_tz_value) \
+                                field_value = current_tz.utc_dt_to_tz_dt(modified_value, modified_tz_value,drop_ms=True) \
                                     if modified_tz_value else modified_value
                         else:
                             field_value = row[f]
