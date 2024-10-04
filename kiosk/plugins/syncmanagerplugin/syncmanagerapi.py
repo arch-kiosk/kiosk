@@ -7,6 +7,7 @@ from flask_allows import requires
 from flask_restful import Resource, abort
 from marshmallow import Schema, fields
 
+import kioskdatetimelib
 import kioskglobals
 import kioskrepllib
 import kioskstdlib
@@ -202,7 +203,7 @@ class V1SyncManagerWorkstations(Resource):
             'poll_delay': poll_delay,
             'sync_status': sync_status,
             'workstations': list(result.values()),
-            'last_sync_ts': sync_manager.last_sync_ts
+            'last_sync_ts': kioskstdlib.iso8601_to_str(sync_manager.last_sync_ts) if sync_manager.last_sync_ts else ""
         })
 
     @classmethod

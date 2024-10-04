@@ -59,7 +59,8 @@ export class SyncManagerApp extends KioskApp {
     }
     syncManagerInfoReceived (e: CustomEvent) {
         if (e.detail) {
-            this.last_sync_date = DateTime.fromISO(e.detail)
+            console.log(`Server reported sync time ${e.detail}`)
+            this.last_sync_date = DateTime.fromISO(e.detail,{zone: "utc",setZone: true}).setZone()
         }
     }
 

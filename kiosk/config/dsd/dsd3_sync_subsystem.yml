@@ -35,7 +35,7 @@ repl_deleted_uids:
   migration:
     2:
       upgrade:
-        alter("modified")
+        - alter("modified")
 repl_image_resolution:
   structure:
     3: dropped

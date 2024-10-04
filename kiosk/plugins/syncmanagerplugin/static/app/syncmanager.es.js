@@ -5724,7 +5724,8 @@ class SyncManagerApp extends KioskApp {
   }
   syncManagerInfoReceived(e2) {
     if (e2.detail) {
-      this.last_sync_date = DateTime.fromISO(e2.detail);
+      console.log(`Server reported sync time ${e2.detail}`);
+      this.last_sync_date = DateTime.fromISO(e2.detail, { zone: "utc", setZone: true }).setZone();
     }
   }
   apiRender() {

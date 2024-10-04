@@ -30,7 +30,7 @@ from .kioskworkstationjobs import JOB_META_TAG_WORKSTATION, JOB_META_TAG_SYNCHRO
 _plugin_name_ = "syncmanagerplugin"
 _controller_name_ = "syncmanager"
 _url_prefix_ = '/' + _controller_name_
-plugin_version = 0.1
+plugin_version = 1.0
 
 LOCAL_PRIVILEGES = {
     EDIT_WORKSTATION_PRIVILEGE: "edit workstation",
