@@ -2,7 +2,7 @@ import { LitElement, html, unsafeCSS } from 'lit';
 import { customElement, property, query } from 'lit/decorators.js';
 // import { watch } from '../../internal/decorators';
 //@ts-ignore
-import styles from './progress-ring.scss';
+import styles from './progress-ring.scss?inline';
 
 /**
  * @since 2.0
@@ -13,6 +13,7 @@ import styles from './progress-ring.scss';
  * @part base - The component's base wrapper.
  * @part label - The progress ring label.
  */
+
 @customElement('sl-progress-ring')
 export default class SlProgressRing extends LitElement {
   static styles = unsafeCSS(styles);

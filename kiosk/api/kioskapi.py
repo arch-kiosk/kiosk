@@ -180,6 +180,7 @@ class ApiLogin(Resource):
             logging.info(f"ApiLogin.login/POST: Attempt to login by user {parameters['userid']}")
             user = KioskUser.authenticate(parameters['userid'], parameters['password'])
             if not user:
+                print("not authorized:", parameters)
                 return LoginError().dump({"err": "authentication failed"}), HTTPStatus.UNAUTHORIZED
 
             return LoginSuccess().dump({"token": user.get_token()}), 200
@@ -275,6 +276,7 @@ class ApiLoginV2(Resource):
 
             user = KioskUser.authenticate(parameters['userid'], parameters['password'])
             if not user:
+                print("login data", parameters)
                 return LoginError().dump({"err": "authentication failed"}), HTTPStatus.UNAUTHORIZED
 
             csrf_token = generate_csrf()
