@@ -24,7 +24,7 @@ export class DSDRecordAccessor extends DataContextAccessor {
         super(id, dataContext);
         this.rootKey = "/" + id;
         this._dataContext = dataContext;
-        if (types.length == 0) debugger;
+        // if (types.length == 0) debugger;
         this._types = types
         this.assignData(data);
     }
@@ -56,9 +56,11 @@ export class DSDRecordAccessor extends DataContextAccessor {
             }
         }
         const data_type = this._data[key][1]
-        if (key === "modified") debugger;
-        if (data_type === "TIMESTAMP") {
-
+        // if (key === "modified") debugger;
+        if (data_type === "TIMESTAMPTZ") {
+            if (this._data.hasOwnProperty(key + "_ww") && this._data[key + "_ww"][0]) {
+                return this._data[key + "_ww"][0];
+            }
             const tz = this._data.hasOwnProperty(key + "_tz")?this._data[key + "_tz"][0]:"-"
             return `${this._data[key][0]}${tz?'@'+tz:''}`;
         }

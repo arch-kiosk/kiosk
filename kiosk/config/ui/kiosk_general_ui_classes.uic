@@ -5,7 +5,7 @@ version: 1
 element_type:
   name: TextField
 
-# datatype(timestamp) || datatype(datetime)
+# datatype(timestamp) || datatype(datetime) || datatype(timestamptz)
 element_type:
   name: DateTimeField
 

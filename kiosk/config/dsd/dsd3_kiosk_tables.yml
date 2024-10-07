@@ -136,6 +136,11 @@ file_identifier_cache:
 
 kiosk_system_message:
   structure:
+    3:
+      nid: [datatype(varchar), not_null(), primary(), unique()]
+      deleted: [datatype(BOOL)]
+      modified: [datatype(TIMESTAMPTZ), not_null(), default(now())]
+      message: [datatype(json)]
     2:
       nid: [datatype(varchar), not_null(), primary(), unique()]
       deleted: [datatype(BOOL)]
@@ -146,6 +151,9 @@ kiosk_system_message:
       deleted: [datatype(BOOL)]
       message: [datatype(json)]
   migration:
+    3:
+      upgrade:
+        - alter(modified)
     2:
       upgrade:
         - add(modified)

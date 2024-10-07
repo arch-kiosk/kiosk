@@ -1333,7 +1333,7 @@ class DataSetDefinition:
         join: Join = None
         if not fields:
             raise DSDJoinError(f"DataSetDefinition.get_default_join: Table {table} "
-                               f"has no default join.")
+                               f"has no default join on any field.")
 
         for field in fields.keys():
             join_params = fields[field]["join"]
@@ -1425,7 +1425,7 @@ class DataSetDefinition:
         join: Join = None
         if not fields:
             raise DSDJoinError(f"DataSetDefinition.get_lookup_join: Table {table} "
-                               f"has no lookup join.")
+                               f"has no lookup join on any field to connect table {root_table}")
 
         for field in fields.keys():
             join_params = fields[field]["lookup"]

@@ -3,11 +3,10 @@ config:
   imports:
     - dsd3_sync_subsystem.yml
     - dsd3_kiosk_tables.yml
-#    - wc_pottery_dsd3.yml
     - contexts.yml
     - fts_contexts.yml
     - default_migration_scripts.yml
-    - su_ceramics_dsd3.yml
+
 
 migration_catalog:
   meta:

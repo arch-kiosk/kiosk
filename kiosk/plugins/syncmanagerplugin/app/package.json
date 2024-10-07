@@ -1,15 +1,15 @@
 {
   "name": "syncmanager",
-  "version": "1.2.1",
+  "version": "1.3",
   "description": "SyncManager App",
-  "main": "dist/syncmanagerapp.js",
+  "main": "dist/syncmanagerapp.es.js",
   "type": "module",
   "exports": {
-    ".": "./dist/syncmanagerapp.js"
+    ".": "./dist/syncmanagerapp.es.js"
   },
   "scripts": {
     "dev": "vite --host",
-    "build": "vite build --emptyOutDir"
+    "build": "tsc && vite build --emptyOutDir"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +22,8 @@
     "tabWidth": 4
   },
   "devDependencies": {
+    "@types/ejs": "^3.1.5",
+    "@types/html-minifier-terser": "^7.0.2",
     "@types/jquery": "^3.5.31",
     "@types/luxon": "^3.4.2",
     "prettier": "3.3.3",

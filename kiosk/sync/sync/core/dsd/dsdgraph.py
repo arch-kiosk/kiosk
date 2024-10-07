@@ -240,7 +240,9 @@ class DsdGraph:
                         if r_depth > 0 and root_table:
                             try:
                                 join = self._dsd.get_default_join(root_table, t)
-                            except DSDJoinError:
+                            except DSDJoinError as e:
+                                logging.debug(f"{self.__class__.__name__}._add_tables: "
+                                              f"table {root_table} without any default join: {e}")
                                 join = self._dsd.get_lookup_join(root_table, t)
 
                         if "relates_to" in _scope[t]:

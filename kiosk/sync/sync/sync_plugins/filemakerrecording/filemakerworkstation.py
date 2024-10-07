@@ -1019,7 +1019,7 @@ class FileMakerWorkstation(RecordingWorkstation):
 
             sql_repldata_insert = f"INSERT INTO {transfer_table}"
             sql_repldata_insert += ("(\"tablename\", \"uid\", \"modified\", \"modified_tz\", "
-                                    "\"modified_ww\", \"modified_by\")")
+                                    "\"modified_by\")")
             ok = True
             for instruction_name in ["replfield_uuid", "replfield_modified", "replfield_modified_by"]:
                 fld = dsd.get_fields_with_instructions(tablename, [instruction_name])
@@ -1035,14 +1035,14 @@ class FileMakerWorkstation(RecordingWorkstation):
                             logging.debug(f"{self.__class__.__name__}._gather_repl_data: "
                                           f"dsd table {tablename} lacks _tz field {tz_field_name}")
                             break
-                        ww_field_name = fld_name + "_ww"
-                        if dsd.get_field_datatype(tablename, ww_field_name) == "timestamp":
-                            fld_names.append(ww_field_name)
-                        else:
-                            ok = False
-                            logging.debug(f"{self.__class__.__name__}._gather_repl_data: "
-                                          f"dsd table {tablename} lacks _ww field {ww_field_name}")
-                            break
+                        # ww_field_name = fld_name + "_ww"
+                        # if dsd.get_field_datatype(tablename, ww_field_name) == "timestamp":
+                        #     fld_names.append(ww_field_name)
+                        # else:
+                        #     ok = False
+                        #     logging.debug(f"{self.__class__.__name__}._gather_repl_data: "
+                        #                   f"dsd table {tablename} lacks _ww field {ww_field_name}")
+                        #     break
                 else:
                     ok = False
                     logging.debug(f"{self.__class__.__name__}._gather_repl_data: "
