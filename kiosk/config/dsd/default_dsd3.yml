@@ -1992,7 +1992,7 @@ constants:
       created: [datatype(TIMESTAMP), replfield_created(), default('now()')]
       modified: [datatype(TIMESTAMP), replfield_modified(), default('now()')]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('null')]
-    3:
+    3:git s
       id: [datatype(VARCHAR)]
       value: [datatype(VARCHAR)]
       value_ts: [datatype(TIMESTAMP)]
