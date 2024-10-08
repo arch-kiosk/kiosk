@@ -56,6 +56,41 @@ collected_material:
       is_grave_good: [datatype(NUMBER)]
       collection_method: [datatype(VARCHAR)]
       analysis_method: [datatype(VARCHAR)]
+      period_uncertain: [datatype(NUMBER)]
+      research_notes: [datatype(VARCHAR)]
+      id: [datatype(NUMBER), local_id("arch_context")]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier(), "label(#(/$/constants/labels/label_bulk_number))"]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    7:
+      uid_locus: [datatype(UUID), join("locus")]
+      external_id: [datatype(VARCHAR), identifier("additional")]
+      uid_lot: [datatype(UUID), "lookup(lot,uid)", "label(lot)"]
+      type: [datatype(VARCHAR), label("material")]
+      material_specified: [datatype(VARCHAR), label('material specified')]
+      cm_type: [datatype(VARCHAR), label("type"), "lookup('collected_material_types', 'id')"]
+      description: [datatype(VARCHAR), record_description()]
+      isobject: [datatype(NUMBER)]
+      date: [datatype(TIMESTAMP)]
+      storage: [datatype(VARCHAR)]
+      pottery_remarks: [datatype(VARCHAR)]
+      number_of_bags: [datatype(int)]
+      coord_x: [datatype(FLOAT)]
+      coord_y: [datatype(FLOAT)]
+      coord_z: [datatype(FLOAT)]
+      status_done: [datatype(VARCHAR)]
+      status_todo: [datatype(VARCHAR)]
+      dearregistrar: [datatype(VARCHAR), label("dear registrar")]
+      weight: [datatype(DECIMAL), default(0)]
+      volume: [datatype(DECIMAL), default(0)]
+      period: [datatype(VARCHAR)]
+      quantity: [datatype(DECIMAL), default(0)]
+      is_grave_good: [datatype(NUMBER)]
+      collection_method: [datatype(VARCHAR)]
+      analysis_method: [datatype(VARCHAR)]
       id: [datatype(NUMBER), local_id("arch_context")]
       arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
       arch_context: [datatype(VARCHAR), identifier(), "label(#(/$/constants/labels/label_bulk_number))"]
@@ -221,6 +256,10 @@ collected_material:
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
   migration:
+    8:
+      upgrade:
+        - add("research_notes")
+        - add("period_uncertain")
     7:
       upgrade:
         - add("material_specified")
@@ -1915,6 +1954,20 @@ involved_as:
       involved_from: [datatype(DATE)]
       involved_to: [datatype(DATE)]
       notes: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+
+todos:
+  structure:
+    1:
+      title: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      involved: [datatype(VARCHAR)]
+      priority: [datatype(VARCHAR)]
+      state: [datatype(VARCHAR)]
+      until: [datatype(DATE)]
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
