@@ -1,0 +1,22 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+variables:
+  involved: ["dsd(excavator, id)", "label(participant)"]
+queries:
+  'todos':
+    name: 'tasks on the to-do list'
+    description: 'Shows all tasks that are currently on the to-do list'
+    type: 'SQL'
+    output_type: 'list'
+    query: "
+      select todos.title \"to-do\",
+       todos.involved participants,
+       todos.priority priority,
+       todos.until \"date\",
+       todos.state state 
+       from {{todos}} todos
+       where todos.involved ilike {{#involved}} or coalesce({{#involved}},'')=''
+      order by state, until, priority, title
+    "

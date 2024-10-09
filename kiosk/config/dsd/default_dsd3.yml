@@ -1368,6 +1368,29 @@ site_note_photo:
 
 small_find:
   structure:
+    3:
+      smallfindsnr: [datatype(NUMBER)]
+      uid_cm: [datatype(UUID), join("collected_material")]
+      external_id: [datatype(VARCHAR)]
+      material: [datatype(VARCHAR)]
+      condition: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      length: [datatype(VARCHAR)]
+      width: [datatype(VARCHAR)]
+      thickness: [datatype(VARCHAR)]
+      height: [datatype(VARCHAR)]
+      diameter: [datatype(VARCHAR)]
+      weight: [datatype(VARCHAR)]
+      id_registrar: [datatype(VARCHAR), label("registrar")]
+      measured_in_situ: [datatype(NUMBER)]
+      colour: [datatype(VARCHAR)]
+      period: [datatype(VARCHAR)]
+      period_uncertain: [datatype(NUMBER)]
+      cost: [datatype(DECIMAL)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
     2:
       smallfindsnr: [datatype(NUMBER)]
       uid_cm: [datatype(UUID), join("collected_material")]
@@ -1413,6 +1436,9 @@ small_find:
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
   migration:
+    3:
+      upgrade:
+        - add("period_uncertain")
     2:
       upgrade:
         - alter("modified_by")
