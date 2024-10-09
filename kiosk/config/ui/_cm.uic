@@ -37,6 +37,7 @@ element_type:
 # dsd('small_find','measured_in_situ')
 # dsd('collected_material','is_grave_good')
 # dsd('collected_material','period_uncertain')
+# dsd('small_find','period_uncertain')
 element_type:
   name: "Bool"
   visible: true

@@ -146,6 +146,7 @@ small_find.sheet:
       - description
       - colour
       - period
+      - period_uncertain
       - line_3
       - measured_in_situ
       - ...
