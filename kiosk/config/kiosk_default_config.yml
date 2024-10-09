@@ -35,7 +35,6 @@ config:
     - 'locusrelationshook'
     - 'fileexportworkstation'
     - 'reportingdock'
-    - '%base_path%\plugins\pwastresstestplugin\pluginpwastresstestdock'
 
   master_view: '%base_path%\config\dsd\master_view.yml'
   filemaker_export_dir: '%sync%\filemaker\to_work_station'
