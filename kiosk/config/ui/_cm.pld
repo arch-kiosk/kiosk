@@ -44,6 +44,8 @@ cm.sheet:
       - type
       - is_grave_good
       - analysis_method
+      - period
+      - period_uncertain
       - description
       - weight
       - volume
@@ -54,6 +56,7 @@ cm.sheet:
       - coord_y
       - coord_z
       - ...
+      - research_notes
       - pottery_remarks
       - storage
       - dearregistrar
