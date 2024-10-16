@@ -31,14 +31,14 @@
   "dependencies": {
     "@lit/context": "^1.1.0",
     "@shoelace-style/shoelace": "^2.15.0",
+    "@vaadin/grid": "^24.5.0",
     "@toast-ui/chart": "^4.6.1",
-    "@vaadin/grid": "^24.3.10",
-    "@vaadin/select": "^24.3.11",
+    "@vaadin/select": "^24.5.0",
     "install": "^0.13.0",
-    "lit": "^3.1.2",
+    "lit": "^3.2.1",
     "nanoid": "^4.0.1",
     "npm": "^10.5.2",
-    "ui-component": "C:\\notebook_source\\kiosk\\lab\\uiwebcomponent\\npm\\uicomponent-0.5.12.tgz",
+    "ui-component": "C:\\notebook_source\\kiosk\\lab\\uiwebcomponent\\npm\\uicomponent-0.6.3.tgz",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
