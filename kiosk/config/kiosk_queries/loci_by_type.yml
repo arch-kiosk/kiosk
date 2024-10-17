@@ -1,0 +1,51 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+variables:
+  locus_type: ["dsd('locus', 'type')"]
+queries:
+  'loci_by_type':
+    name: '#:list all #(/$/glossary/locus:2) by type'
+    description: '#:Lists all #(/$/glossary/locus:2) of a certain type across all #(/$/glossary/unit:2)'
+    type: 'SQL'
+    output_type: 'list'
+    query: "
+      select 
+      unit.arch_context unit_id,
+      locus.arch_context locus_id,
+      locus.description locus_description,
+      locus.formation_process locus_formation_process
+       from {{locus}} locus
+         inner join {{unit}} unit on locus.uid_unit = unit.uid
+      where locus.type = {{#locus_type}}
+      order by locus.arch_context, unit.arch_context, locus.created desc
+      "
+#    charts:
+#      chart1:
+#        type: "pie"
+#        title: "#: ceramic categories in #(/$/constants/labels/locus) #(/variables/inputs/locus_id) by weight"
+#        categories: "category"
+#        values: "weight"
+#      chart2:
+#        type: "pie"
+#        title: "#: ceramic categories in #(/$/constants/labels/locus) #(/variables/inputs/locus_id) by quantity"
+#        categories: "category"
+#        values: "quantity"
+#      chart3:
+#        type: "bar"
+#        title: "#: ceramic categories by weight in #(/$/constants/labels/locus) #(/variables/inputs/locus_id)"
+#        categories: "category"
+#        values: "weight"
+#      chart4:
+#        type: "bar"
+#        title: "#: ceramic categories by quantity in #(/$/constants/labels/locus) #(/variables/inputs/locus_id)"
+#        categories: "category"
+#        values: "quantity"
+    column_information:
+      unit_id: DSD('unit','arch_context')
+      locus_id: DSD('locus','arch_context')
+      locus_description: DSD('locus','description')
+      locus_formation_process: DSD('locus','formation_process')
+
+

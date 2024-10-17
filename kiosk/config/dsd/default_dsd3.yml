@@ -578,16 +578,16 @@ locus:
   structure:
     9:
       uid_unit: [datatype(UUID), join("unit")]
-      type: [datatype(VARCHAR), label('locus type'), "lookup('locus_types', 'id')"]
+      type: [datatype(VARCHAR), label('#(/$/glossary/locus:1) type'), "lookup('locus_types', 'id')"]
       opening elevations: [datatype(VARCHAR)]
       closing elevations: [datatype(VARCHAR)]
-      description: [datatype(VARCHAR), record_description()]
+      description: [datatype(VARCHAR), record_description(), label('description')]
       date_defined: [datatype(DATE), label("opening date")]
       date_closed: [datatype(DATE), label("closing date")]
       interpretation: [datatype(VARCHAR)]
       colour: [datatype(VARCHAR)]
       excavated_with: [datatype(VARCHAR)]
-      formation_process: [datatype(VARCHAR), fts(D)]
+      formation_process: [datatype(VARCHAR), fts(D), label('formation process')]
       elevation_opening_nw: [datatype(FLOAT)]
       elevation_opening_ne: [datatype(FLOAT)]
       elevation_opening_se: [datatype(FLOAT)]
@@ -605,7 +605,7 @@ locus:
       volume: [datatype(FLOAT)]
       id: [datatype(NUMBER), local_id("arch_context")]
       arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
-      arch_context: [datatype(VARCHAR), identifier(), skip_index_on("hidden"), label("locus")]
+      arch_context: [datatype(VARCHAR), identifier(), skip_index_on("hidden"), label("#(/$/glossary/locus:1)")]
       alternate_id: [datatype(VARCHAR), identifier("additional"), skip_index_on("hidden")]
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
@@ -1665,7 +1665,7 @@ unit:
       identification_method_analysis: [datatype(VARCHAR)]
       sector: [datatype(VARCHAR), "label(#(/$/constants/labels/label_sector))"]
       arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
-      arch_context: [datatype(VARCHAR), identifier(), label("#(unit/term_for_unit)")]  # there was a unit() instruction I removed.
+      arch_context: [datatype(VARCHAR), identifier(), label("#(/$/glossary/unit:1)")]  # there was a unit() instruction I removed.
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
