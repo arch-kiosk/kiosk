@@ -38,7 +38,7 @@
     "lit": "^3.2.0",
     "nanoid": "^5.0.7",
     "npm": "^10.9.0",
-      "ui-component": "file:../../../../../../lab/uiwebcomponent/npm/uicomponent-0.6.2.tgz",
+    "ui-component": "file:../../../../../../lab/uiwebcomponent/npm/uicomponent-0.6.3.tgz",
     "kiosktsapplib": "file:../../../../../../kiosktsapplib",
     "xlsx": "^0.18.5"
   },
