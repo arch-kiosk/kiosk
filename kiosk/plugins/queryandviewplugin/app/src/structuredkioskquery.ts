@@ -189,7 +189,6 @@ export class StructuredKioskQuery extends KioskAppComponent {
                     body: JSON.stringify(apiData),
                 }, "v1",
                 urlfetchParams);
-            debugger;
             if ("result_msg" in data && data.result_msg !== "ok") {
                 console.log(`Error: `, data);
                 return [null, 0];
@@ -302,17 +301,17 @@ export class StructuredKioskQuery extends KioskAppComponent {
         let rc: [Array<any>, number]
         if (this._inputData) {
             if (this.uiSchema && Object.keys(this.uiSchema).length > 0) {
-                let rc = await this.fetchQueryResults({
+                rc = await this.fetchQueryResults({
                     page: page + 1,
                     pageSize: pageSize,
                     sortOrders: sortOrders,
                     searchTerm: "",
                 })
             } else {
-                let rc = await this.fetchAllData()
+                rc = await this.fetchAllData()
             }
             let data, count;
-            [data, count] = rc;
+            [data, count] = rc?rc:[[],0];
             if (count > 0 || page == 0) {
                 this.overall_record_count = count;
                 this.requestUpdate();

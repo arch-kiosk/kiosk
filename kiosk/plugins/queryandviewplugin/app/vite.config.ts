@@ -25,6 +25,9 @@ export default defineConfig(({ command, mode }) => {
             // commonjsOptions: {
             //   dynamicRequireTargets: "node_modules/"
             // },
+            watch: {
+                exclude: ['node_modules/**', "/__uno.css"]
+            },
             outDir: "../static/app",
             lib: {
                 entry: "src/app.ts",

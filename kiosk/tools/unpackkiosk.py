@@ -592,7 +592,8 @@ if __name__ == '__main__':
     if this_is_an_update and "nomg" not in options:
         try:
             if not KioskRestore.migrate_database(cfg_file):
-                print(f"ERROR: migrate_database returned False. Database was not properly migrated: STOPPING.")
+                print(f"ERROR: migrate_database returned False. Database was not properly migrated: "
+                      f"STOPPING UNPACKKIOSK PREMATURELY.")
                 sys.exit(0)
             else:
                 print("Database Migration successful")
@@ -602,6 +603,7 @@ if __name__ == '__main__':
                         tz_dir = os.path.join(kiosk_dir, "tools", "tz")
                         kiosk_tz = KioskTimeZones()
                         kiosk_tz.update_local_kiosk_time_zones(os.path.join(tz_dir, "kiosk_tz.json"))
+                        print("Updated local Kiosk time zones")
                     except BaseException as e:
                         print(f"ERROR when updating time zones: {repr(e)}. This is not critical. "
                               f"But you will have to update the time zone catalog manually")
