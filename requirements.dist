@@ -47,6 +47,10 @@ apispec
 marshmallow
 openpyxl
 semantic-version
+wrapt
+Babel
+tzdata
+charset-normalizer
 PyJWT
 pdfrw2
 netifaces

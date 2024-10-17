@@ -74,7 +74,7 @@ function fetchSystemMessages(seconds_till_fetch = 20, retries=0) {
 const MAX_MESSAGE_POLL_RETRIES = 10
 
   function _fetchSystemMessages() {
-  console.log("fetching system messages ...")
+    console.log("fetching system messages ...")
     try {
       if (typeof kioskAjaxGetPartial == 'undefined' || typeof kioskErrorToast == 'undefined') {
         if (retries < MAX_MESSAGE_POLL_RETRIES) {

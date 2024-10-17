@@ -80,7 +80,7 @@
         }
 
         function tryInsertScript() {
-            if (window.jQuery && typeof $.magnificPopup != 'undefined') {
+            if (window.jQuery && typeof $.magnificPopup != 'undefined' && typeof kioskAjaxGetPartial != 'undefined') {
                 console.log("initializing app html ...")
                 document.querySelector("#content-wrapper").insertAdjacentHTML("afterbegin", '<div id="kiosk-dynamic-app-container"></div>');
                 loadAppHtml()
