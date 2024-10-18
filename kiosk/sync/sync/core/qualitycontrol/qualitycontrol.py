@@ -161,10 +161,14 @@ class QualityControl:
                 cur.close()
 
     def has_messages(self, flag_group="", data_context="", severity=""):
-        self.flush_to_db()
-        sql, params = self._query_messages(data_context, flag_group, severity,
-                                           select_fields=KioskSQLDb.sql_safe_ident("flag_id_data_context"))
-        return KioskSQLDb.get_first_record_from_sql(sql, params)
+        try:
+            self.flush_to_db()
+            sql, params = self._query_messages(data_context, flag_group, severity,
+                                               select_fields=KioskSQLDb.sql_safe_ident("flag_id_data_context"))
+            return KioskSQLDb.get_first_record_from_sql(sql, params)
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.has_messages: {repr(e)}")
+            raise e
 
     def _query_messages(self, data_context, flag_group, severity, select_fields="*"):
         sql = "select " + f" {select_fields} from qc_message_cache "

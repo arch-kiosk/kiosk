@@ -38,13 +38,23 @@ class SimpleQCEngine(QCEngine):
     def trigger_qc(self, trigger_id: str, data_context_str: Optional[str]) -> None:
         # yappi.start()
         data_contexts = self._get_data_contexts(trigger_id, data_context_str)
+        warnings = 0
         if data_contexts:
             rules = self._get_rules_for_trigger(trigger_id)
             if rules:
                 for data_context in data_contexts:
                     logging.debug(f"SimpleQCEngine.trigger_qc: data_context {data_context['arch_context']}")
                     for rule in rules:
-                        self._execute_rule(trigger_id, rule, data_context)
+                        try:
+                            self._execute_rule(trigger_id, rule, data_context)
+                        except BaseException as e:
+                            warnings += 1
+                            if warnings < 10:
+                                logging.warning(f"{self.__class__.__name__}.trigger_qc: error executing rule {rule.id}: {repr(e)}")
+                            elif warnings == 10:
+                                logging.warning(f"{self.__class__.__name__}.trigger_qc: Too many warnings")
+        if warnings > 0:
+            logging.warning(f"{self.__class__.__name__}.trigger_qc: quality control rules lead to {warnings} warnings.")
 
     def _get_rules_for_trigger(self, trigger_id: str):
         rule_model = QCRuleModel()
@@ -162,28 +172,36 @@ class SimpleQCEngine(QCEngine):
             raise QCError(f"rule can't find a path from table {trigger_record_type} to {input_record_type} ")
 
     def _get_input_field_value(self, trigger_id: str, rule_input: dict, data_context):
-        input_record_type = rule_input["record_type"]
-        trigger_record_type = self._get_record_type_from_trigger(trigger_id)
-        if trigger_record_type == input_record_type:
-            return data_context[rule_input["field"]]
-        else:
-
-            sql_join = self._graph.get_join(trigger_record_type, input_record_type).get_sql()
-            if sql_join:
-                record_type = KioskSQLDb.sql_safe_ident(trigger_record_type)
-                uid_field = self._dsd.get_uuid_field(trigger_record_type)
-                record_type_uuid = data_context[uid_field]
-                sql = "select " + f"{KioskSQLDb.sql_safe_ident(rule_input['field'])}"
-                sql += f" as {KioskSQLDb.sql_safe_ident('value')}"
-                sql += f" from {record_type} "
-                sql += sql_join
-                sql += f" where {record_type}.{KioskSQLDb.sql_safe_ident(uid_field)}=%s"
-                try:
-                    value = KioskSQLDb.get_field_value_from_sql("value", sql, [record_type_uuid],
-                                                                exception_on_no_record=True)
-                except KeyError:
-                    # a related record was not even there, so the rule can't be checked in the first place
-                    raise QCNoFlag()
-                return value
+        try:
+            input_record_type = rule_input["record_type"]
+            trigger_record_type = self._get_record_type_from_trigger(trigger_id)
+            if trigger_record_type == input_record_type:
+                return data_context[rule_input["field"]]
             else:
-                raise QCError(f"rule can't find a path from table {trigger_record_type} to {input_record_type} ")
+
+                sql_join = self._graph.get_join(trigger_record_type, input_record_type).get_sql()
+                if sql_join:
+                    record_type = KioskSQLDb.sql_safe_ident(trigger_record_type)
+                    uid_field = self._dsd.get_uuid_field(trigger_record_type)
+                    record_type_uuid = data_context[uid_field]
+                    sql = "select " + (f"{input_record_type}."
+                                       f"{KioskSQLDb.sql_safe_ident(rule_input['field'])}")
+                    sql += f" as {KioskSQLDb.sql_safe_ident('value')}"
+                    sql += f" from {record_type} "
+                    sql += sql_join
+                    sql += f" where {record_type}.{KioskSQLDb.sql_safe_ident(uid_field)}=%s"
+                    try:
+                        value = KioskSQLDb.get_field_value_from_sql("value", sql, [record_type_uuid],
+                                                                    exception_on_no_record=True)
+                        if value is None:
+                            logging.debug(f"{self.__class__.__name__}._get_input_field_value: None value occured in sql"
+                                          f"{sql}")
+                    except KeyError:
+                        # a related record was not even there, so the rule can't be checked in the first place
+                        raise QCNoFlag()
+                    return value
+                else:
+                    raise QCError(f"rule can't find a path from table {trigger_record_type} to {input_record_type} ")
+        except BaseException as e:
+            logging.debug(f"{self.__class__.__name__}._get_input_field_value: {repr(e)}")
+            raise e
