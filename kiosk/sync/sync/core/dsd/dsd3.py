@@ -1,19 +1,20 @@
-import os
 import logging
+import os
 import re
+from copy import deepcopy, copy
 from typing import List
 
 import kioskstdlib
-from kioskfiletools import get_file_extension
-from dsd.dsdloader import DSDLoader
-from dsd.dsdconstants import *
-from dsd.dsdstore import DSDStore
-from dsd.dsdinmemorystore import DSDInMemoryStore
-from simplefunctionparser import SimpleFunctionParser
-from copy import deepcopy, copy
-from dsd.dsderrors import *
-from kiosksqldb import KioskSQLDb
 from dicttools import dict_merge
+from dsd.dsdconstants import *
+from dsd.dsderrors import *
+from dsd.dsdinmemorystore import DSDInMemoryStore
+from dsd.dsdloader import DSDLoader
+from dsd.dsdstore import DSDStore
+from kioskfiletools import get_file_extension
+from kiosksqldb import KioskSQLDb
+from simplefunctionparser import SimpleFunctionParser
+
 
 # todo time zone simpliciation (done)
 
@@ -97,7 +98,8 @@ class DataSetDefinition:
         "TIME": "TIME",
         "SERIAL": "SERIAL",
         "TZ": "TZ",
-        "TIMESTAMPTZ": "TIMESTAMPTZ"
+        "TIMESTAMPTZ": "TIMESTAMPTZ",
+        "UTCTIMESTAMP": "TIMESTAMPTZ"
     }
 
     def __init__(self, dsd_store=None):
@@ -641,7 +643,7 @@ class DataSetDefinition:
 
     def get_fields_with_instructions(self, table, required_instructions: [] = None, version=0) -> dict:
         """ returns a dictionary with all the fields and
-        all the instructions and their parameters for a field. 
+        all the instructions and their parameters for a field.
         The dictionary values are a dictionary with the instructions as keys pointing to a list of parameters. 
         
         :param table: a table in the dsd
@@ -755,21 +757,31 @@ class DataSetDefinition:
 
         return fieldlist
 
-    def get_field_datatype(self, table, field, version=0) -> str:
+    def get_field_datatype(self, table, field_or_instruction, version=0) -> str:
         """
         returns the datatype set by the datatype instruction for a field of a table
         :param table: the table
-        :param field: the field
+        :param field_or_instruction: the field name or an instruction name
+                                        (in which case the first field with that instruction will be used!
+                                         instruction must be a name only. No brackets!)
         :param version: optional version
         :return: the datatype (in lowercase letters) or ""
-                 if not field does not exist or the instruction is missing.
+                    if field does not exist or the datatype instruction is missing.
 
         :changes:
                 02.12.2020: now returns only lowercase types.
         """
         fields = self.get_fields_with_instructions(table, ["datatype"], version=version)
-        if field in fields:
-            return self.translate_datatype(fields[field]['datatype'][0])
+        if field_or_instruction in fields:
+            return self.translate_datatype(fields[field_or_instruction]['datatype'][0])
+
+        fields = self.get_fields_with_instructions(table, [field_or_instruction], version=version)
+
+        if fields:
+            field = next(iter(fields.values()))
+            if "datatype" in field:
+                return self.translate_datatype(field['datatype'][0])
+
         return ""
 
     def get_modified_field(self, table) -> str:
@@ -868,7 +880,7 @@ class DataSetDefinition:
         return fields
 
     def get_file_field_reference(self, table, field, version=0):
-        """ returns the field name given by the attribute "FILE_FOR()" of the given field 
+        """ returns the field name given by the attribute "FILE_FOR()" of the given field
         """
 
         if self.is_table_dropped(table_name=table, version=version):
@@ -912,7 +924,7 @@ class DataSetDefinition:
 
     def get_attribute_reference(self, table, field, attribute, version=0):
         """ returns the value given in brackets of the given attribute of the given field.
-            returns \"\" if the field does not have that attribute or whatever else happens 
+            returns \"\" if the field does not have that attribute or whatever else happens
             .. note::
 
             DEPRECATED!"""
