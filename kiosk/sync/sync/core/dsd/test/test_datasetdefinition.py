@@ -556,6 +556,7 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert dsd.get_field_datatype("images", "description") == "varchar"
         assert dsd.get_field_datatype("images", "no field") == ""
         assert dsd.get_field_datatype("images", "replfield_modified") == "timestamptz"
+        assert dsd.get_field_datatype("images", "modified_ww") == "timestamp"
 
 
     def test_get_modified_field(self, dsd_images_and_units_and_test):

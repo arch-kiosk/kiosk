@@ -189,7 +189,7 @@ class DataSetDefinition:
 
     def get_virtual_fields(self, raw_dsd: dict):
         """
-        adds fields that are not explicitly defined in the dsd file like the tz fields for datatimes and timestamps
+        adds fields that are not explicitly defined in the dsd file like the tz fields for timestamps
         :param raw_dsd: a complete dsd structure
         :return: a dictionary with table: version: fields: parameters to add
         """
@@ -220,8 +220,8 @@ class DataSetDefinition:
                                            structure[field][idx] = "datatype(TIMESTAMPTZ)"
                                     if ver not in new_fields:
                                         new_fields[ver] = {}
-                                    new_fields[ver][field + "_tz"] = ['datatype(TZ)', ]
-                                    new_fields[ver][field + "_ww"] = ['datatype(TIMESTAMP)', ]
+                                    new_fields[ver][field + "_tz"] = ['datatype(TZ)', 'modified_tz()']
+                                    new_fields[ver][field + "_ww"] = ['datatype(TIMESTAMP)', 'modified_ww()']
                                     break
 
                             except BaseException as e:
