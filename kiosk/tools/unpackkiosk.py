@@ -394,16 +394,33 @@ def refresh_full_text_index(cfg_file: str):
         from dsd.dsd3 import DataSetDefinition
         from dsd.dsd3singleton import Dsd3Singleton
 
+        print("refreshing full text index...", flush=True, end="")
         cfg = SyncConfig.get_config({'config_file': cfg_file})
         dsd = Dsd3Singleton.get_dsd3()
         assert dsd.append_file(cfg.dsdfile)
         fts = FTS(dsd, cfg)
         fts.rebuild_fts(console_output=True)
+        print("okay", flush=True, end="\n")
 
     except BaseException as e:
+        print("failed", flush=True, end="\n")
         logging.error(f"refresh_full_text_index: Exception in refresh_full_text_index: {repr(e)}. "
                       f"Continuing, though ...")
 
+
+def check_database_integrity(cfg_file: str):
+    try:
+        from sync_config import SyncConfig
+        from tools.KioskDatabaseIntegrity import KioskDatabaseIntegrity
+        print("checking database integrity...", flush=True, end="")
+        cfg = SyncConfig.get_config({'config_file': cfg_file})
+        dbint = KioskDatabaseIntegrity(cfg)
+        dbint.ensure_database_integrity()
+        print("okay", flush=True, end="\n")
+
+    except BaseException as e:
+        print("failed", flush=True, end="\n")
+        logging.error(f"Error when checking database integrity: {repr(e)}. Continuing, though ...")
 
 def delete_old_directories():
     dirs = [os.path.join(kiosk_dir, "sync", "sync", "sync_plugin", "fileimporturaphook")]
@@ -648,7 +665,9 @@ if __name__ == '__main__':
     install_default_queries(cfg_file)
 
     if this_is_an_update:
+        check_database_integrity(cfg_file)
         refresh_full_text_index(cfg_file)
+
 
     logging.info("unpackkiosk is done.")
     if "rm" in options:

@@ -173,7 +173,7 @@ def restart():
 #
 #     try:
 #         kiosklib.run_quality_control()
-#         # integrity_check = UrapDatabaseIntegrity(conf)
+#         # integrity_check = KioskDatabaseIntegrity(conf)
 #         # integrity_check.update_default_fields()
 #         result = "ok"
 #     except Exception as e:

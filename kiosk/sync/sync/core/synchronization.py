@@ -29,7 +29,7 @@ from fileidentifiercache import FileIdentifierCache
 from kioskabstractclasses import PluginLoader
 from migration.postgresdbmigration import PostgresDbMigration
 from sync_config import SyncConfig
-from tools.UrapDatabaseIntegrity import UrapDatabaseIntegrity
+from tools.KioskDatabaseIntegrity import KioskDatabaseIntegrity
 from kiosksqldb import KioskSQLDb
 from kioskstdlib import report_progress
 from filerewirerer import FileRewirerer
@@ -291,15 +291,15 @@ class Synchronization(PluginLoader):
                 runs at the very end (after the commit) of the synchronization process
                 but is considered to be part of synchronization from the perspective of kiosk, which means
                 that its log entries will be shown in the sync log.
-                Can be called independently, just instantiates UrapDatabaseIntegrity and executes
+                Can be called independently, just instantiates KioskDatabaseIntegrity and executes
                 update_default_fields.
 
                 TODO: redesign and refactor
                 TODO: document
         """
         logging.info("checking data integrity")
-        dbint = UrapDatabaseIntegrity(SyncConfig.get_config())
-        dbint.update_default_fields()
+        dbint = KioskDatabaseIntegrity(SyncConfig.get_config())
+        dbint.ensure_database_integrity()
 
     def synchronize(self, callback_progress=None):
         """

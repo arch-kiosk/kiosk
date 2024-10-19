@@ -538,10 +538,6 @@ function initEFDialog(time_zones) {
   efInitUploader();
   efInitAddContext();
   efInitDropContext();
-  // efInitDateTimeFields(time_zones).then(() => {
-  //   console.log("efInitDateTimeFields finished")
-  // })
-
 }
 //
 // async function efInitDateTimeFields(time_zones) {

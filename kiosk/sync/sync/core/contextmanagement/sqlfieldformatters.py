@@ -171,6 +171,8 @@ class SqlFieldFormatterLookupType(SqlFieldFormatter):
             raise SqlFieldFormatterError(f"SqlFieldFormatterLookupType: a default value and a source table are given:"
                                          f"{default_value}/{src_table_name}. That is ambiguous.")
         if src_table_name:
+            # todo: I am not sure this is useful code. field_or_instruction would have to be the instruction name only
+            #  and cannot have brackets!
             data_type = self._dsd.get_field_datatype(src_table_name, field_or_instruction)
             if not data_type:
                 raise SqlFieldFormatterError(
