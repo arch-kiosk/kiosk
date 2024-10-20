@@ -1,4 +1,5 @@
 import datetime
+from pprint import pprint
 
 from flask import Blueprint, request, render_template, session, redirect, url_for
 
@@ -43,13 +44,30 @@ def directors_view_index():
 @full_login_required
 # @nocache
 def directors_view_show():
-    conf = kioskglobals.cfg
-    model_daily_review = None
+    cfg = kioskglobals.cfg
+
+    main_module = False
+    try:
+        pprint(request)
+        if request.method == "POST":
+            main_module = request.form['mainModule']
+            if main_module:
+                print("client is requesting main module")
+    except KeyError:
+        pass
+
 
     print("\n*************** directorsview / ")
     print(f"\nGET: get_plugin_for_controller returns {get_plugin_for_controller(_plugin_name_)}")
     print(f"\nGET: plugin.name returns {get_plugin_for_controller(_plugin_name_).name}")
 
-    return render_template('directorsview.html')
+    load_dynamic_app = {
+        "controller_name": _controller_name_,
+        "load_from_address": "directors_view_show"
+    }
+    if not main_module:
+        return render_template('directorsview.html', load_dynamic_app=load_dynamic_app)
+    else:
+        return render_template('directorsview_main.html', load_dynamic_app=load_dynamic_app)
 
 
