@@ -493,6 +493,10 @@ class DatabaseMigration:
                     version = 1
                 rc = self.create_table(dsd_table=dsd_table, version=version,
                                        db_table=prefixed_db_table, namespace=namespace)
+                if not rc:
+                    raise Exception(f"DatabaseMigration.migrate_table: "
+                                    f"create table reported an error. Table is \"{prefixed_db_table}\", "
+                                    f"version is {version}.")
                 return tuple((version, most_recent_version))
 
         # check if there is anything to do at all

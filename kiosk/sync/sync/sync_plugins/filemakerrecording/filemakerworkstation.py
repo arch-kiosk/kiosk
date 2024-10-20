@@ -1971,7 +1971,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                                                                                                        fm_rec, tz, uid)
                     try:
                         cur.execute(sql_update, update_values)  # attempt to update an existing record
-                        print(cur.query)
+                        # print(cur.query)
                         if cur.rowcount != 0:
                             ok = True
                             update_counter += 1
