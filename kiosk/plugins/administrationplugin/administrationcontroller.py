@@ -18,6 +18,7 @@ from flask_login import current_user
 from werkzeug.exceptions import HTTPException
 
 import core.kioskuser
+import kioskdatetimelib
 import kioskglobals
 import kiosklib
 import kiosksqlalchemy
@@ -1030,7 +1031,7 @@ def log_action(action, log_id):
                                        mimetype='text/plain',
                                        download_name=kioskstdlib.get_filename(files[0]),
                                        as_attachment=True, max_age=0,
-                                       etag=str(datetime.datetime.now().timestamp())))
+                                       etag=str(kioskdatetimelib.get_utc_now(no_tz_info=True).timestamp())))
         return resp
     else:
         logging.info(f"administration_controller.log_action/download: attempt to fetch unknown log-file {log_id}")

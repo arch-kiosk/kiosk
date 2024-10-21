@@ -94,38 +94,39 @@ class KioskFileManagerDirectories(db.Model):
     server_restart = db.Column(db.Boolean())
 
 
-class KioskFileMakerRecordingConstants(db.Model):
-    __tablename__ = "constants"
+# class KioskFileMakerRecordingConstants(db.Model):
+#     __tablename__ = "constants"
+#
+#     db: SQLAlchemy
+#
+#     uid = db.Column(UUID(as_uuid=True), primary_key=True,
+#                     unique=True, nullable=False, server_default="gen_random_uuid()")
+#     id = db.Column(db.String(), unique=True, nullable=False)
+#     category = db.Column(db.String(), nullable=False)
+#     value = db.Column(db.String(), nullable=True)
+#     value_ts = db.Column(db.DateTime(), nullable=True)
+#     field_type = db.Column(db.String(), nullable=True)
+#     sync = db.Column(db.Numeric(), nullable=True)
+#     modified_by = db.Column(db.String(), nullable=False)
+#     modified = db.Column(DateTime, nullable=True, onupdate="now()", server_default=func.now())
+#     modified_tz = db.Column(DateTime, nullable=True, onupdate="now()", server_default=func.now())
+#     created = db.Column(db.DateTime(), nullable=True, server_default=func.now())
 
-    db: SQLAlchemy
 
-    uid = db.Column(UUID(as_uuid=True), primary_key=True,
-                    unique=True, nullable=False, server_default="gen_random_uuid()")
-    id = db.Column(db.String(), unique=True, nullable=False)
-    category = db.Column(db.String(), nullable=False)
-    value = db.Column(db.String(), nullable=True)
-    value_ts = db.Column(db.DateTime(), nullable=True)
-    field_type = db.Column(db.String(), nullable=True)
-    sync = db.Column(db.Numeric(), nullable=True)
-    modified_by = db.Column(db.String(), nullable=False)
-    modified = db.Column(DateTime, nullable=True, onupdate="now()", server_default=func.now())
-    created = db.Column(db.DateTime(), nullable=True, server_default=func.now())
-
-
-class KioskQueries(db.Model):
-    __tablename__="kiosk_queries"
-    uid = db.Column(UUID(as_uuid=True), primary_key=True,
-                    unique=True, nullable=False, server_default="gen_random_uuid()")
-    id = db.Column(db.String(), unique=True, nullable=False)
-    name = db.Column(db.String(), nullable=False)
-    description = db.Column(db.String())
-    query_type = db.Column(db.String())
-    privilege_read = db.Column(db.String())
-    privilege_write = db.Column(db.String())
-    query = db.Column(db.String())
-    modified_by = db.Column(db.String(), nullable=False)
-    modified = db.Column(db.DateTime(), nullable=True, onupdate="now()", server_default=func.now())
-    created = db.Column(db.DateTime(), nullable=True, server_default=func.now())
+# class KioskQueries(db.Model):
+#     __tablename__="kiosk_queries"
+#     uid = db.Column(UUID(as_uuid=True), primary_key=True,
+#                     unique=True, nullable=False, server_default="gen_random_uuid()")
+#     id = db.Column(db.String(), unique=True, nullable=False)
+#     name = db.Column(db.String(), nullable=False)
+#     description = db.Column(db.String())
+#     query_type = db.Column(db.String())
+#     privilege_read = db.Column(db.String())
+#     privilege_write = db.Column(db.String())
+#     query = db.Column(db.String())
+#     modified_by = db.Column(db.String(), nullable=False)
+#     modified = db.Column(db.DateTime(), nullable=True, onupdate="now()", server_default=func.now())
+#     created = db.Column(db.DateTime(), nullable=True, server_default=func.now())
 
 
 def test():

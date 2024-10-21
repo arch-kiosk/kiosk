@@ -27,6 +27,7 @@ class PluginLocusRelationsHook(SynchronizationPlugin):
         )
         """
 
+    # todo time zone simplified: All this needs modified, modified_tz and modified_ww!
     sql_set_r1_image = """
 -- set image in r1 if it does not have one but r2 has one
 update locus_relations set uid_sketch = r2_images.uid_sketch

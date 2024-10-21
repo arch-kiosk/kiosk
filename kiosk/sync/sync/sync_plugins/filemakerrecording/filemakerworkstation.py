@@ -1197,6 +1197,7 @@ class FileMakerWorkstation(RecordingWorkstation):
             rc = fm.set_constant("developer_mode", "false")
         if rc:
             if self.current_tz.user_tz_index:
+                # todo time zone simplified: this looks fishy. Why datetime.now()?
                 time_zone_offset_str = kioskdatetimelib.get_time_zone_offset_str(datetime.datetime.now(),
                                                                                  self.current_tz.user_tz_iana_name)
                 rc = rc and fm.set_constant("utc_time_diff", time_zone_offset_str)
@@ -2327,37 +2328,6 @@ class FileMakerWorkstation(RecordingWorkstation):
             return self.ws_fork_sync_time != fork_sync_time
         else:
             return True
-
-    # @classmethod
-    # def list_workstations(cls):
-    #     """
-    #     returns the ids of all workstations.
-    #
-    #     This lists the workstations of THIS type! Other workstation types might
-    #     store their workstation information somewhere else. That is why it is a
-    #     class method. For clarity it could move to FileMakerWorkstation but that could easily
-    #     lead to duplicate code.
-    #
-    #     :return: List of workstation-ids (which are simple strings)
-    #
-    #     """
-    #     cur = KioskSQLDb.get_dict_cursor()
-    #     try:
-    #         result_list = []
-    #         if cur:
-    #             sql = "select " + """repl_workstation.id from repl_workstation
-    #                   where repl_workstation.workstation_type = %s
-    #                   order by repl_workstation.description;"""
-    #             cur.execute(sql, [cls.get_workstation_type()])
-    #             for r in cur:
-    #                 result_list.append(r["id"])
-    #             return result_list
-    #         else:
-    #             logging.error(f"{cls.__name__}.list_workstations: KioskSQLDb.get_cursor() failed.")
-    #     except Exception as e:
-    #         logging.error(f"{cls.__name__}.list_workstations: Exception occured: {repr(e)}")
-    #
-    #     return []
 
     def _on_synchronized(self) -> bool:
         try:

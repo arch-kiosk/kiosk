@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import kioskdatetimelib
 import kioskstdlib
 from dsd.dsd3singleton import Dsd3Singleton
 from fts.kioskfulltextsearch import FTS
@@ -287,7 +288,7 @@ class Housekeeping:
             proxy = ctx_file.image_proxy
             if not proxy:
                 self.add_counter("proxy is null", 1)
-                ctx_file.image_proxy = datetime.now()
+                ctx_file.image_proxy = kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True)
                 update = True
 
             csv_tags = ctx_file.get_csv_tags()

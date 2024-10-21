@@ -14,6 +14,7 @@ from flask_login import current_user
 from werkzeug.exceptions import HTTPException
 from werkzeug.utils import secure_filename
 
+import kioskdatetimelib
 import kioskglobals
 import kioskstdlib
 from authorization import full_login_required, IsAuthorized, INSTALL_PLUGIN
@@ -490,15 +491,15 @@ def ws_download(ws_id, cmd):
                                                as_attachment=True,
                                                last_modified=0,
                                                max_age=0,
-                                               etag=str(datetime.datetime.now().timestamp())))
+                                               etag=str(kioskdatetimelib.get_utc_now(no_tz_info=True).timestamp())))
 
                 resp = send_file(fm_filename,
                                  mimetype='application/octet-stream',
                                  download_name=dest_filename,
                                  as_attachment=True,
-                                 last_modified=datetime.datetime.now().timestamp(),
+                                 last_modified=kioskdatetimelib.get_utc_now(no_tz_info=True).timestamp(),
                                  max_age=0,
-                                 etag=str(datetime.datetime.now().timestamp()))
+                                 etag=str(kioskdatetimelib.get_utc_now(no_tz_info=True).timestamp()))
 
                 # resp.headers['Last-Modified'] = str(datetime.datetime.now().timestamp())
                 # resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, ' \

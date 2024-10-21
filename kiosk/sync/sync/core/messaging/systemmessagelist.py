@@ -346,6 +346,7 @@ class SystemMessageList(object):
                 if deletion_status == 0:  # message does not exist in store
                     replace_it = True
                 else:
+                    # todo time zone simplified: Why is this not using utc?
                     if msg.get_modified() > store_modified:  # message in local list is newer, so replace it
                         replace_it = True
                 if replace_it:
@@ -364,6 +365,7 @@ class SystemMessageList(object):
                 list_msg = None
 
             if list_msg:
+                # todo time zone simplified: Why is this not using utc?
                 if msg.get_modified() > list_msg.get_modified():
                     if msg.deleted:
                         self._list.pop(msg.uid)

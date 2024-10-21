@@ -93,7 +93,9 @@ class SystemMessage:
 
     def get_modified(self):
         """
-        returns the modified timestamp as utc
+        returns the modified timestamp as utc (no, it doesn't (except if somebody set this to be utc)
+       # todo time zone simplified: Why is this not using utc?
+
         """
         return self._modified
 

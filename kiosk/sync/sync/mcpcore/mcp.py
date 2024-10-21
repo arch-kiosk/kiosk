@@ -1,4 +1,5 @@
 # Master Control Program - job scheduler for Kiosk
+import kioskdatetimelib
 
 MCP_VERSION = "0.4"
 
@@ -183,7 +184,8 @@ class MCP:
         """
         rc = 0
         if job.status >= MCPJobStatus.JOB_STATUS_DONE:
-            idle_time = (datetime.datetime.now() - job.get_job_info_attribute("ts_modified")).total_seconds()
+            idle_time = (kioskdatetimelib.get_utc_now(no_tz_info=True) - job.get_job_info_attribute(
+                "ts_modified")).total_seconds()
             if idle_time:
                 max_idling = job.get_job_info_attribute("seconds_to_idle")
                 if idle_time > max_idling:
@@ -313,7 +315,8 @@ class MCP:
                     try:
                         return self.start_process(job.job_id, job.kiosk_base_path, job.config_file, test_mode=test_mode)
                     except BaseException as e:
-                        logging.error(f"{self.__class__.__name__}.start_job: Exception when starting process: {repr(e)}")
+                        logging.error(
+                            f"{self.__class__.__name__}.start_job: Exception when starting process: {repr(e)}")
             else:
                 logging.error(f"{self.__class__.__name__}.start_job: reload of job {job.job_id} failed.")
         finally:
@@ -337,4 +340,3 @@ class MCP:
 
     def loop(self):
         pass
-

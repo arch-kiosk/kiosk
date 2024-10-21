@@ -903,7 +903,10 @@ class KioskSQLDb(SqlSafeIdentMixin):
             fail_on_key_not_found: if True, the function fails if an update statement affects 0 rows. \n
             commit: if set to True, manipulations will be persisted. \n
 
-             """
+            NOTE: This is deprecated.
+            """
+        logging.error(f"{cls.__name__}.update_table_data: call to deprecated function")
+        raise Exception(f"{cls.__name__}.update_table_data: call to deprecated function")
         overall_row_count = 0
         if filename:
             try:
@@ -968,7 +971,12 @@ class KioskSQLDb(SqlSafeIdentMixin):
 
     @classmethod
     def update_by_uuid(cls, table, uuid, data={}, user="sys", set_repl_data=True, auto_commit=True):
-        """ updates a row in a table according to the given uid """
+        """ updates a row in a table according to the given uid
+
+            deprecated.
+        """
+        logging.error(f"{cls.__name__}.update_by_uuid: call to deprecated function")
+        raise Exception(f"{cls.__name__}.update_by_uuid: call to deprecated function")
         params = []
         if not data or not table:
             return None, "KioskSQLDb.update_by_uuid: No data or no table provided", ""

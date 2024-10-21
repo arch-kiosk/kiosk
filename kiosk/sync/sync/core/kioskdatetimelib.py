@@ -389,6 +389,13 @@ def get_utc_now(no_tz_info=False, no_ms=False) -> datetime.datetime:
         ts = ts.replace(microsecond=0)
     return ts
 
+def get_utc_now_as_str():
+    """
+    returns the current utc date and time as a string like "10 April 2020 10:22:12"
+    :return: str
+    """
+    return get_utc_now(no_tz_info=True, no_ms=True).strftime("%d %b %Y %H:%M:%S")
+
 
 def time_zone_ts_to_utc(utc_datetime: Union[datetime.datetime, str], time_zone: str) -> datetime.datetime:
     """

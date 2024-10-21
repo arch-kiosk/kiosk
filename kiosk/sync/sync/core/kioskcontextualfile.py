@@ -5,6 +5,7 @@ import shutil
 import uuid
 from os.path import basename
 
+import kioskdatetimelib
 from qualitycontrol.qualitycontrol import run_quality_control
 import kioskstdlib
 from contextmanagement.memoryidentifiercache import MemoryIdentifierCache
@@ -150,7 +151,8 @@ class KioskContextualFile(KioskLogicalFile):
     def _data_to_record(self, md5_hash,
                         r: KioskFilesModel, set_modified=True):
         if set_modified:
-            r.modified = datetime.datetime.now() if not self.modified else self.modified
+            # todo time zone simplified: _ww and _tz missing!
+            r.modified = kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True) if not self.modified else self.modified
             r.modified_by = "sys" if not self.modified_by else self.modified_by
             self.modified_by = r.modified_by
         else:
@@ -162,6 +164,7 @@ class KioskContextualFile(KioskLogicalFile):
         if self.dont_set_file_datetime:
             r.file_datetime = self.ts_file
         else:
+            # todo time zone simplified: potentially the wrong time zone!
             r.file_datetime = datetime.datetime.now() if not self.ts_file else self.ts_file
         r.md5_hash = md5_hash
         r.tags = self.get_csv_tags()
@@ -281,6 +284,7 @@ class KioskContextualFile(KioskLogicalFile):
         is_new = False
         if not r:
             r = KioskFilesModel()
+            # todo time zone simplified: potentially the wrong time zone!
             r.created = datetime.datetime.now()
             is_new = True
 
@@ -288,7 +292,8 @@ class KioskContextualFile(KioskLogicalFile):
             # todo: refactor. This is done by set_filename
             r.filename = dst_filename
             if not keep_image_data:
-                r.img_proxy = datetime.datetime.now()
+                # todo time zone simplified: potentially the wrong time zone!
+                r.img_proxy = kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True)
 
             self._data_to_record(md5_hash, r)
             if is_new:
@@ -705,7 +710,8 @@ class KioskContextualFile(KioskLogicalFile):
                          KioskSQLDb.sql_safe_ident(join.related_field)]) + \
                ")"
         sql += f" values(%s,%s,%s,%s,%s)"
-        values = [self.uid, datetime.datetime.now(), datetime.datetime.now(),
+        # todo time zone simplified: wrong and _ww and _tz missing!
+        values = [self.uid, datetime.datetime.now(), kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True),
                   self.modified_by if self.modified_by else "sys", identifier_uuid]
         return sql, values
 
@@ -806,7 +812,9 @@ class KioskContextualFile(KioskLogicalFile):
                f"{modified_field}=%s, {modified_by_field}=%s " \
                f"where {KioskSQLDb.sql_safe_ident(join.related_field)}=%s and " \
                f"{KioskSQLDb.sql_safe_ident(file_location_field)}=%s"
-        values = [datetime.datetime.now(), self.modified_by, identifier_uuid, self.uid]
+        # todo time zone simplified: wrong and _ww and _tz missing!
+        values = [kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True),
+                  self.modified_by, identifier_uuid, self.uid]
         return sql, values
 
     def _get_file_location_and_uuid(self, identifier: str, required_record_type: str = "",

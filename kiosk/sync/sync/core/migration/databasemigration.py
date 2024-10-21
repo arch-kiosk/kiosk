@@ -73,6 +73,7 @@ class DatabaseMigration:
             match_str = match.group(0)
             variable = match.group(1)
             if variable == 'NOW':
+                # todo time zone simplified: What to do here?
                 substitution[match_str] = self._adapter_get_now_str()
 
         new_line = line

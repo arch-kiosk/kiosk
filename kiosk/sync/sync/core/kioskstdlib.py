@@ -1093,6 +1093,7 @@ def remove_files_in_directory(folder, remove_sub_dirs=False):
 def now_as_str():
     """
     returns the current date and time as a string like "10 April 2020 10:22:12"
+    note: This is not using time zones. Perhaps use kioskdatetimelib.get_utc_now_as_str()?
     :return: str
     """
     return datetime.datetime.now().strftime("%d %b %Y %H:%M:%S")
@@ -1289,6 +1290,9 @@ def get_datetime_template_filename(filename_template: str, dt: datetime.datetime
     :param filename_template: the template. e.G. urap_#a_#d#m#y-#H#M.log
     :param dt: a datetime.datetimte timestamp. If None now() will be used.
     :return: the filename with the current date e.g. urap_Tue_22032022-1119.log
+
+    :note that if dt is not given, this is using datetime.now()
+        which creates a time in whatever time zone Python thinks is on.
     """
     filename_template = filename_template.replace("#", "%")
     if not dt:

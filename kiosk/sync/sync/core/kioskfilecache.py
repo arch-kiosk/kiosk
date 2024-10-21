@@ -2,6 +2,7 @@ import os
 import logging
 import shutil
 
+import kioskdatetimelib
 import kioskstdlib
 from kiosksqldb import KioskSQLDb
 
@@ -151,7 +152,8 @@ class KioskFileCache:
                                               representation_type=representation_type.unique_name)
             its_new = True
 
-        cache_entry.modified = datetime.datetime.now()
+        # todo time zone simplified: Not sure what 'modified' is even for?
+        cache_entry.modified = kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True)
         cache_entry.invalid = True
         cache_entry.image_attributes = image_attributes
         if src_file_extension:
@@ -199,7 +201,8 @@ class KioskFileCache:
             raise FileNotFoundError()
 
         cache_entry.path_and_filename = path_and_filename
-        cache_entry.modified = datetime.datetime.now()
+        # todo time zone simplified: Not sure what modified is even for in this case.
+        cache_entry.modified = kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True)
         if cache_entry.invalid or reset_renew:
             cache_entry.renew = False
         cache_entry.invalid = False

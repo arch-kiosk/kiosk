@@ -453,6 +453,7 @@ class PostgresDbMigration(DatabaseMigration):
 
         return result
 
+    # todo time zone simplified: What to do here?
     @staticmethod
     def _adapter_get_now_str():
         return f"'{datetime.datetime.now().isoformat()}'"

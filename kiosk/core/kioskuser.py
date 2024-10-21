@@ -1,4 +1,5 @@
 import logging
+import datetime
 from typing import Union
 
 from dateutil.tz import tzstr
@@ -14,6 +15,7 @@ from kioskglobals import get_general_store, get_config, get_jws
 from messaging.systemmessagecatalog import *
 from kiosksqldb import KioskSQLDb
 from tz.kiosktimezones import KioskTimeZones
+import kioskdatetimelib
 
 # todo time zone simpliciation (done)
 class KioskUser(UserMixin):
@@ -411,3 +413,25 @@ class KioskUser(UserMixin):
         self._active_iana_tz_name = kioskstdlib.try_get_dict_entry(user_data, "active_iana_tz_name",
                                                                    self._active_iana_tz_name)
         self._active_tz_name = kioskstdlib.try_get_dict_entry(user_data, "active_tz_name", self._active_tz_name)
+
+    def get_user_now(self, replace_ms=True):
+        """
+        returns a current time stamp on the basis of the user's active time zone
+
+        :param replace_ms: set to False if you want to keep microseconds
+        :return: a timestamp with the time zone information dropped
+        """
+        return self.get_utc_as_user_timestamp(kioskdatetimelib.get_utc_now(no_tz_info=True), replace_ms=replace_ms)
+
+    def get_utc_as_user_timestamp(self, ts:datetime.datetime, replace_ms=True):
+        """
+        returns a time stamp on the basis of the user's active time zone
+
+        :param ts: the utc time stamp to convert into the user's time zone
+        :param replace_ms: set to False if you want to keep microseconds
+        :return: a timestamp with the time zone information dropped
+        """
+        return kioskdatetimelib.utc_ts_to_timezone_ts(
+            ts,
+            self.get_active_time_zone_name(iana=True),
+            replace_ms=replace_ms)

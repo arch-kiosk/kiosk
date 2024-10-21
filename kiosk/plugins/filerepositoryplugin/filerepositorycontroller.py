@@ -192,7 +192,7 @@ def add_caching_headers_to_response(response, timestamp=None, etag=None):
     else:
         if not timestamp:
             # no etag and not timestamp = no caching at all.
-            timestamp = datetime.datetime.now()
+            timestamp = kioskdatetimelib.get_utc_now(no_tz_info=True)
             cache_control = 'no-store,no-cache,must-revalidate,post-check=0,' \
                             'pre-check=0,max-age=0'
             # response.headers['Pragma'] = 'no-cache'
@@ -911,9 +911,9 @@ def file_repository_download_file(img, cmd):
                                            mimetype=mime_type,
                                            download_name=dest_filename,
                                            as_attachment=True,
-                                           etag=str(datetime.datetime.now().timestamp())))
+                                           etag=str(kioskdatetimelib.get_utc_now(no_tz_info=True).timestamp())))
             resp.set_cookie('fileDownload', 'true')
-            resp.headers['Last-Modified'] = str(datetime.datetime.now().timestamp())
+            resp.headers['Last-Modified'] = str(kioskdatetimelib.get_utc_now(no_tz_info=True).timestamp())
             resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, ' \
                                             'pre-check=0, max-age=0'
             resp.headers['Pragma'] = 'no-cache'

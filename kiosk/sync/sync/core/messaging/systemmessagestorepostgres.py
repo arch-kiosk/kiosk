@@ -54,6 +54,7 @@ class SystemMessageStorePostgres:
             sql_update += f" WHERE {KioskSQLDb.sql_safe_ident('nid')}=%s"
 
             savepoint = KioskSQLDb.begin_savepoint()
+            # todo time zone simplified: Why is this not using utc?
             for msg in store.messages:
                 json_msg = msg.to_json()
                 KioskSQLDb.execute(sql_insert, parameters=[msg.uid, msg.deleted])

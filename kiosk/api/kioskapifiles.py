@@ -6,6 +6,7 @@ from flask import request, make_response, send_file, current_app, send_from_dire
 from flask_restful import Resource
 from marshmallow import Schema, fields
 
+import kioskdatetimelib
 import kioskstdlib
 from core.filerepository import FileRepository
 from core.kioskrepresentationtype import KioskRepresentationTypeDimensions, KioskRepresentationType
@@ -103,7 +104,7 @@ class ApiFile(Resource):
                         resp = make_response(send_from_directory(kioskstdlib.get_file_path(fm_filename),
                                                                  kioskstdlib.get_filename(fm_filename)))
                         resp.set_cookie('fileDownload', 'true')
-                        resp.headers['Last-Modified'] = datetime.datetime.now()
+                        resp.headers['Last-Modified'] = kioskdatetimelib.get_utc_now(no_tz_info=True)
                         resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, ' \
                                                         'pre-check=0, max-age=0'
                         resp.headers['Pragma'] = 'no-cache'
