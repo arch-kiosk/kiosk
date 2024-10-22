@@ -1,4 +1,3 @@
-# todo time zone simpliciation
 import datetime
 import logging
 import typing
