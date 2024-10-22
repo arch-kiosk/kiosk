@@ -57,7 +57,7 @@ class TestKioskFileCache(KioskPyTestHelper):
         cache_path = cache.add(uid, repr_type)
         KioskSQLDb.commit()
         assert cache_path
-        assert cache_path == tmpdir.join(repr_type.unique_name)
+        assert str(cache_path) == str(tmpdir.join(repr_type.unique_name, str(uid)[:2]))
         assert KioskSQLDb.get_record_count("kiosk_file_cache", "uid", "uid_file=%s", [uid]) == 1
 
     def test_add_to_cache_and_validate(self, db_truncate_session, tmpdir):
@@ -68,7 +68,7 @@ class TestKioskFileCache(KioskPyTestHelper):
         cache = KioskFileCache(cache_dir)
         cache_filename = cache.add(uid, repr_type, src_file_extension="jpg")
         assert cache_filename
-        expected_filename = str(tmpdir.join(repr_type.unique_name, uid + ".jpg"))
+        expected_filename = str(tmpdir.join(repr_type.unique_name, str(uid)[:2], uid + ".jpg"))
         assert cache_filename == expected_filename
         assert not cache.is_valid(uid, repr_type)
 

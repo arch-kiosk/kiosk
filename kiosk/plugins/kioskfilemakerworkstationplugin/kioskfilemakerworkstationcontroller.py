@@ -1,4 +1,4 @@
-# todo time zone simpliciation
+# time zone relevant
 import datetime
 import logging
 import flake8

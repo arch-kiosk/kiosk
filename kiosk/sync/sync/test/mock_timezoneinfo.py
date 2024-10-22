@@ -1,4 +1,4 @@
-# todo time zone simpliciation
+# time zone relevant
 import pytest
 
 from tz.kiosktimezones import KioskTimeZones
@@ -16,4 +16,10 @@ def mock_kiosk_time_zones(mocker):
                                        'US/Mountain', False, 1720205986
                                        ],
                         }[tz_index])
+    mocker.patch.object(KioskTimeZones, "get_time_zone_index",
+                        lambda _, iana_name: {
+                            'Europe/Berlin': 96554373,
+                            'US/Mountain': 27743346,
+                            # 'America/New_York': 40079121
+                        }[iana_name])
     return mocker

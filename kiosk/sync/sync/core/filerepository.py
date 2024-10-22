@@ -4,13 +4,14 @@ import os
 import kioskstdlib
 import datetime
 
+from tz.kiosktimezones import KioskTimeZones
+
 from eventmanager import EventManager
 from typerepository import TypeRepository
 
 from kioskabstractclasses import PluginLoader
 from kioskcontextualfile import KioskContextualFile
 from kioskfilecache import KioskFileCache
-from kiosklogicalfile import KioskLogicalFile
 from kioskrepresentationtype import KioskRepresentationType
 from sync_config import SyncConfig
 from kiosksqldb import KioskSQLDb
@@ -20,17 +21,17 @@ from dsd.dsd3singleton import Dsd3Singleton
 
 import shutil
 
-
 class FileRepository:
     def __init__(self, conf: SyncConfig, event_manager: EventManager = None,
                  type_repository: TypeRepository = None,
-                 plugin_loader: PluginLoader = None):
+                 plugin_loader: PluginLoader = None,
+                 kiosk_time_zones: KioskTimeZones = None):
         self.conf: SyncConfig = conf
         self.dsd = Dsd3Singleton.get_dsd3()
         self._event_manager: EventManager = event_manager
         self._type_repository: TypeRepository = type_repository
         self._plugin_loader: PluginLoader = plugin_loader
-
+        self._kiosk_time_zones: KioskTimeZones = kiosk_time_zones
         self.repository_path = conf.get_file_repository(True)
         if not self.repository_path:
             raise Exception("FileRepository can't initiate repository_path")
@@ -58,6 +59,13 @@ class FileRepository:
 
         self._cache_manager: KioskFileCache = KioskFileCache(cache_base_dir=self._cache_dir,
                                                              representation_repository=self._type_repository)
+
+    @property
+    def kiosk_time_zones(self):
+        if not self._kiosk_time_zones:
+            self._kiosk_time_zones = KioskTimeZones()
+
+        return self._kiosk_time_zones
 
     def get_path(self):
         """
@@ -145,6 +153,9 @@ class FileRepository:
                          description, context information, modified_by, ts_file, tags,
                          and of course it must have a valid uid.
 
+                         It also must have modified, modified_tz and modified_ww set!
+                         That's the sole responsibility of the caller.
+
             :param override: optional. If set an existing file will be replaced.
                              Otherwise the method will fail if there is already a file.
 
@@ -152,7 +163,6 @@ class FileRepository:
                                 This is rather for testing purposes.
 
             :return: True or False
-
 
         """
         logging.info("trying to add file " + path_and_filename + " to repository.")
@@ -322,12 +332,14 @@ class FileRepository:
 
         return references
 
-    def replace_file_in_repository(self, uid, file_path_and_name, recording_user="sys"):
+    def replace_file_in_repository(self, uid, file_path_and_name, recording_user="sys", tz_index:int=None):
         """
         replaces a file in the file repository
 
         :param uid: the uid of the existing file
         :param file_path_and_name: the new file
+        :param recording_user: the user id for modified_by
+        :param tz_index: the index of the time zone within which to create a datetime
         :return: true/false. In case of false the last_error of the file is in the second return
         """
 
@@ -342,8 +354,20 @@ class FileRepository:
         if not current_filename:
             logging.warning(f"{self.__class__.__name__}.replace_file_in_repository: No file to replace "
                             f"for uid {uid}. The new file will be accepted, anyhow.")
+
+        try:
+            utc_ts, tz_index, ww_ts = self.kiosk_time_zones.get_modified_components_from_now(tz_index)
+        except Exception as e:
+            logging.error(f"{self.__class__.__name__}.replace_file_in_repository: {repr(e)}.")
+            return False, repr(e)
+
+        ctx_file.set_modified(
+            utc_ts,
+            tz_index,
+            ww_ts
+        )
+
         ctx_file.ts_file = None
-        ctx_file.modified = None
         ctx_file.modified_by = recording_user
         rc = ctx_file.upload(file_path_and_name, override=True)
         return rc, ctx_file.last_error
@@ -516,7 +540,7 @@ class FileRepository:
                                    type_repository=self._type_repository,
                                    plugin_loader=self._plugin_loader)
 
-    def do_housekeeping(self, console=False, progress_handler=None, housekeeping_tasks=[]):
+    def do_housekeeping(self, console=False, progress_handler=None, housekeeping_tasks=None):
         """
         convenience method that instantiates a Housekeeping object and calls do_housekeeping on it.
         :param console: see Housekeeping.__init__
@@ -525,6 +549,8 @@ class FileRepository:
         :return: number of files processed
         """
         import housekeeping
+        if not housekeeping_tasks:
+            housekeeping_tasks = []
         housekeeping: housekeeping.Housekeeping = housekeeping.Housekeeping(self, console)
         return housekeeping.do_housekeeping(progress_handler=progress_handler, housekeeping_tasks=housekeeping_tasks,
                                             file_tasks_only=True)

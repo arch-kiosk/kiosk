@@ -164,11 +164,13 @@ class TestKioskPhysicalFileFactory(KioskPyTestHelper):
 
         handlers = factory.get(src_file, representation)
         assert handlers
-        assert len(handlers) == 2
+        assert len(handlers) == 3
         handler = handlers[0]
         assert handler.__name__ == "KioskPhysicalPillowFile"
         handler = handlers[1]
         assert handler.__name__ == "KioskPhysicalHeicFile"
+        handler = handlers[2]
+        assert handler.__name__ == "KioskPhysicalWebPFile"
 
         done = False
         for h_class in handlers:

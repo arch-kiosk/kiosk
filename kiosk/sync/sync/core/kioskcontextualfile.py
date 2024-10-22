@@ -4,8 +4,10 @@ import os
 import shutil
 import uuid
 from os.path import basename
+from typing import Union
 
 import kioskdatetimelib
+from kioskglobals import kiosk_time_zones
 from qualitycontrol.qualitycontrol import run_quality_control
 import kioskstdlib
 from contextmanagement.memoryidentifiercache import MemoryIdentifierCache
@@ -32,8 +34,9 @@ class KioskContextualFile(KioskLogicalFile):
         self.description = None
         self.export_filename = None
         self.modified_by = None
-        self.modified = None
-        self.modified: datetime.datetime
+        self._modified: Union[datetime.datetime|None] = None
+        self._modified_tz: Union[int, None] = None
+        self._modified_ww: Union[datetime.datetime|None] = None
         self.ts_file = None
         self.ts_file: datetime.datetime
         self.image_proxy = None
@@ -58,6 +61,29 @@ class KioskContextualFile(KioskLogicalFile):
                          test_mode=test_mode)
 
         self._load_from_record()
+
+    @property
+    def modified(self):
+        return self._modified
+
+    @property
+    def modified_tz(self):
+        return self._modified_tz
+
+    @property
+    def modified_ww(self):
+        return self._modified_ww
+
+    def set_modified(self, utc: datetime.datetime, tz: int, ww:datetime.datetime):
+        """
+        sets all components of the modified field
+        :param utc: the utc datetime
+        :param tz: the time zone index
+        :param ww: the wristwatch datetime
+        """
+        self._modified = utc
+        self._modified_tz = tz
+        self._modified_ww = ww
 
     @property
     def last_error(self):
@@ -140,7 +166,9 @@ class KioskContextualFile(KioskLogicalFile):
             self._record_to_data()
 
     def _record_to_data(self):
-        self.modified = self._file_record.modified
+        self._modified = self._file_record.modified
+        self._modified_tz = self._file_record.modified_tz
+        self._modified_ww = self._file_record.modified_ww
         self.modified_by = self._file_record.modified_by
         self._tags = self.get_tags_from_csv(self._file_record.tags)
         self.description = self._file_record.description
@@ -149,23 +177,34 @@ class KioskContextualFile(KioskLogicalFile):
         self.image_proxy = self._file_record.img_proxy
 
     def _data_to_record(self, md5_hash,
-                        r: KioskFilesModel, set_modified=True):
-        if set_modified:
-            # todo time zone simplified: _ww and _tz missing!
-            r.modified = kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True) if not self.modified else self.modified
-            r.modified_by = "sys" if not self.modified_by else self.modified_by
-            self.modified_by = r.modified_by
-        else:
-            r.modified = self.modified
-            r.modified_by = self.modified_by
-            r.file_datetime = self.ts_file
-            r.img_proxy = self.image_proxy
+                        r: KioskFilesModel):
+        """
+        copies the instance attributes to the record (no database operation, though)
+        :param md5_hash:
+        :param r: the record
+        """
+        # if set_modified:
+        #     # time zone relevance
+        #     r.modified = kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True) if not self._modified else self._modified
+        #     r.modified_tz = self._modified_tz
+        #     r.modified_ww = self._modified_ww
+        #     r.modified_by = "sys" if not self.modified_by else self.modified_by
+        #     self.modified_by = r.modified_by
+        # else:
+        r.modified = self._modified
+        r.modified_tz = self._modified_tz
+        r.modified_ww = self._modified_ww
+        r.modified_by = self.modified_by
+        r.img_proxy = self.image_proxy
 
         if self.dont_set_file_datetime:
             r.file_datetime = self.ts_file
         else:
-            # todo time zone simplified: potentially the wrong time zone!
-            r.file_datetime = datetime.datetime.now() if not self.ts_file else self.ts_file
+            # time zone relevant
+            if not self.ts_file:
+                r.file_datetime = datetime.datetime.now() if not self.modified_ww else self.modified_ww
+            r.file_datetime = self.ts_file
+
         r.md5_hash = md5_hash
         r.tags = self.get_csv_tags()
         r.description = self.description
@@ -201,7 +240,8 @@ class KioskContextualFile(KioskLogicalFile):
                commit=True,
                keep_image_data=False,
                push_contexts=False,
-               log_duplicate_errors=True):
+               log_duplicate_errors=True
+               ):
         """
         uploads a file from outside of the file repository
         into the file repository under the uid set at __init__.
@@ -211,12 +251,13 @@ class KioskContextualFile(KioskLogicalFile):
         Sets proxy value and modified timestamps only if not given, e.G. when
         a contextual file is being created for the first time.
 
+        The created timestamp is set on the basis of the modified_ww field. So even if
+        a file is NEW the modified information must be set!
+
         Which means it is a caller's responsibility to set those attributes
         when a file is updated.
 
         modified_by has to be set by the caller always if it should be updated.
-
-        The created timestamp is set automatically.
 
         if a file with the same hash already exists, this returns "None" and last_error will be set to
         "Duplicate". The uid of the existing file is stored in last_error_details["uid_existing_file"]
@@ -237,7 +278,7 @@ class KioskContextualFile(KioskLogicalFile):
                  If the result is none, the property "last_error" is set to one of these strings:
                  "Unknown identifier", "Duplicate", "Exception"
 
-        todo: It is long. Can it be refactored?
+        todo: refactor because it is too long and has too many parameters. Aka: it is a mess.
         """
 
         if not os.path.isfile(src_path_and_filename):
@@ -284,16 +325,26 @@ class KioskContextualFile(KioskLogicalFile):
         is_new = False
         if not r:
             r = KioskFilesModel()
-            # todo time zone simplified: potentially the wrong time zone!
-            r.created = datetime.datetime.now()
+            # time zone relevant
+            if self.modified_ww:
+                created = self.modified_ww
+            else:
+                logging.error(f"{self.__class__.__name__}.upload: "
+                              f"The repository file \"{src_path_and_filename}\" is new but there is no information about "
+                              f"its modification date. This is an error of the time zone support "
+                              f"implementation and needs to be reported.")
+                self._last_error = "Exception"
+                return None
+
+            r.created = created
             is_new = True
 
         try:
             # todo: refactor. This is done by set_filename
             r.filename = dst_filename
             if not keep_image_data:
-                # todo time zone simplified: potentially the wrong time zone!
-                r.img_proxy = kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True)
+                # time zone relevant
+                self.image_proxy = kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True)
 
             self._data_to_record(md5_hash, r)
             if is_new:
@@ -395,13 +446,12 @@ class KioskContextualFile(KioskLogicalFile):
                           f"could not be archived: {repr(e)}")
         return False
 
-    def update(self, commit=True, set_modified=True):
+    def update(self, commit=True):
         """
         updates a file record without uploading a file. Does not process contexts changes, currently.
-        :param commit: If set to False, no commit will be triggered. Otherwise a general commit will be done.
-        :param set_modified: If set to False, the modified timestamp will NOT be actualized.
-                             Otherwise that's standard for update. BUT NOT FOR UPLOAD!
+        Note: The caller is responsible for setting the modified values on the instance with set_modified()!
 
+        :param commit: If set to False, no commit will be triggered. Otherwise, a general commit will be done.
         :return: True / False. Can throw exceptions.
         """
         r: KioskFilesModel = self._get_file_record()
@@ -409,9 +459,9 @@ class KioskContextualFile(KioskLogicalFile):
             logging.error(f"{self.__class__.__name__}.update: no record loaded.")
             return False
 
-        if set_modified:
-            self.modified = None  # to be consistent it will be set in _data_to_record
-        self._data_to_record(r.md5_hash, r, set_modified=set_modified)
+        # if set_modified:
+        #     self.modified = None  # to be consistent it will be set in _data_to_record
+        self._data_to_record(r.md5_hash, r)
         if r.update():
             if commit:
                 KioskSQLDb.commit()
@@ -677,14 +727,14 @@ class KioskContextualFile(KioskLogicalFile):
                                 identifier_uuid: str, identifier_table: str):
         """
         returns the sql string that inserts a new record into a file location
-        :param file_location: the table where the file ist stored
+        :param file_location: the table where the file is stored
         :param file_location_field: the field that holds the file's uuid
         :param identifier_uuid: the uuid of the record that holds the identifier field
         :param identifier_table: the table that holds the identifier
         :return: a tuple consisting of the sql and a list of values. In case a DSDJoinError the sql string is empty.
                  other Exceptions are thrown.
         """
-        # let's get the join fields first. If that fails the presumably because
+        # let's get the join fields first. If that fails it is presumably because
         # the two tables are not DIRECTLY connected, which is necessary (otherwise more than a record in the
         # target table would have to be created!
 
@@ -700,18 +750,24 @@ class KioskContextualFile(KioskLogicalFile):
             self._dsd.get_fields_with_instruction(file_location, KEY_INSTRUCTION_REPLFIELD_CREATED)[0])
         modified_field = KioskSQLDb.sql_safe_ident(
             self._dsd.get_fields_with_instruction(file_location, KEY_INSTRUCTION_REPLFIELD_MODIFIED)[0])
+        modified_ww_field = KioskSQLDb.sql_safe_ident(
+            self._dsd.get_fields_with_instruction(file_location, KEY_INSTRUCTION_MODIFIED_WW)[0])
+        modified_tz_field = KioskSQLDb.sql_safe_ident(
+            self._dsd.get_fields_with_instruction(file_location, KEY_INSTRUCTION_MODIFIED_TZ)[0])
         modified_by_field = KioskSQLDb.sql_safe_ident(
             self._dsd.get_fields_with_instruction(file_location, KEY_INSTRUCTION_REPLFIELD_MODIFIED_BY)[0])
 
         sql = f"insert " + f"into {KioskSQLDb.sql_safe_ident(file_location)} "
         sql += "(" + \
                ",".join([KioskSQLDb.sql_safe_ident(file_location_field),
-                         created_field, modified_field, modified_by_field,
+                         created_field,
+                         modified_field, modified_tz_field, modified_ww_field,
+                         modified_by_field,
                          KioskSQLDb.sql_safe_ident(join.related_field)]) + \
                ")"
-        sql += f" values(%s,%s,%s,%s,%s)"
-        # todo time zone simplified: wrong and _ww and _tz missing!
-        values = [self.uid, datetime.datetime.now(), kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True),
+        sql += f" values(%s,%s,%s,%s,%s,%s,%s)"
+        # time zone relevant
+        values = [self.uid, self.modified_ww, self.modified, self.modified_tz, self.modified_ww,
                   self.modified_by if self.modified_by else "sys", identifier_uuid]
         return sql, values
 
@@ -804,16 +860,23 @@ class KioskContextualFile(KioskLogicalFile):
 
         modified_field = KioskSQLDb.sql_safe_ident(
             self._dsd.get_fields_with_instruction(file_location, KEY_INSTRUCTION_REPLFIELD_MODIFIED)[0])
+        modified_ww_field = KioskSQLDb.sql_safe_ident(
+            self._dsd.get_fields_with_instruction(file_location, KEY_INSTRUCTION_MODIFIED_WW)[0])
+        modified_tz_field = KioskSQLDb.sql_safe_ident(
+            self._dsd.get_fields_with_instruction(file_location, KEY_INSTRUCTION_MODIFIED_TZ)[0])
         modified_by_field = KioskSQLDb.sql_safe_ident(
             self._dsd.get_fields_with_instruction(file_location, KEY_INSTRUCTION_REPLFIELD_MODIFIED_BY)[0])
 
         sql = f"update " + f"{KioskSQLDb.sql_safe_ident(file_location)} "
         sql += f"set {KioskSQLDb.sql_safe_ident(file_location_field)}=null, " \
-               f"{modified_field}=%s, {modified_by_field}=%s " \
+               f"{modified_field}=%s, " \
+               f"{modified_tz_field}=%s, " \
+               f"{modified_ww_field}=%s, " \
+               f"{modified_by_field}=%s " \
                f"where {KioskSQLDb.sql_safe_ident(join.related_field)}=%s and " \
                f"{KioskSQLDb.sql_safe_ident(file_location_field)}=%s"
-        # todo time zone simplified: wrong and _ww and _tz missing!
-        values = [kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True),
+        # time zone relevant
+        values = [self.modified, self.modified_tz, self.modified_ww,
                   self.modified_by, identifier_uuid, self.uid]
         return sql, values
 

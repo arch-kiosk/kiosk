@@ -150,19 +150,6 @@ class SynchronizationWorker(WorkstationManagerWorker):
             c_files = housekeeping.do_housekeeping(progress_handler=report_housekeeping_progress,
                                                    file_tasks_only=False)
 
-            # if self.job.fetch_status() == MCPJobStatus.JOB_STATUS_RUNNING:
-            #     self.job.set_status_to(MCPJobStatus.JOB_STATUS_DONE)
-            #     if c_files > 0:
-            #         self.job.publish_result({"success": True})
-            #         logging.info(f"job {self.job.job_id}: done")
-            #     else:
-            #         self.job.publish_result({"success": False,
-            #                                  "message": "An error occurred during housekeeping. Please check the logs."
-            #                                  })
-            # else:
-            #     self.job.publish_result({"success": False,
-            #                              "message": "Householding cancelled by user."})
-            #
             if c_files > 0:
                 logging.info("housekeeping after synchronization successful")
                 self.job.publish_progress(100, f"synchronization and housekeeping completed. ")

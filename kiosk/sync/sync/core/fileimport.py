@@ -7,6 +7,7 @@ from typing import List, Tuple
 
 import dicttools
 from config import Config
+from kioskglobals import kiosk_time_zones
 from textsubstitution import TextSubstitution
 from typerepository import TypeRepository
 
@@ -600,6 +601,8 @@ class FileImport:
                 rc = True
             else:
                 ctx_file.modified_by = modified_by
+                # time zone relevant
+                ctx_file.set_modified(*kiosk_time_zones.get_modified_components_from_now())
                 ctx_file.ts_file = ts_file
                 ctx_file.description = description
                 ctx_file.set_tags(tags)

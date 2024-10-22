@@ -176,9 +176,9 @@ class Housekeeping:
             if self.console:
                 print("summary:")
             for counter, v in self.counters.items():
-                logging.info(f"Householding counted {v} files marked as {counter}")
+                logging.info(f"Housekeeping counted {v} files marked as {counter}")
                 if self.console:
-                    print(f"Householding counted {v} files marked as {counter}")
+                    print(f"Housekeeping counted {v} files marked as {counter}")
         return c
 
     def housekeeping_check_file_meta_data(self, ctx_file: KioskContextualFile, console, parameters: dict):
@@ -216,9 +216,6 @@ class Housekeeping:
                 logging.info(f"{self.__class__.__name__}.housekeeping_check_broken_files: "
                              f"File {ctx_file.uid} has no filename entry in database -> solved")
                 KioskSQLDb.commit()
-            # else:
-            #     logging.warning(f"{self.__class__.__name__}.housekeeping_check_broken_files: "
-            #                     f"File {ctx_file.uid} has no filename entry in database -> trying to solve.")
 
         if not ctx_file.file_exists():
             if "BROKEN_FILE" not in ctx_file.get_tags():
@@ -231,7 +228,8 @@ class Housekeeping:
                 # if not ctx_file.are_contexts_ok():
                 #     ctx_file.add_tag("BROKEN_CONTEXT", save=False)
 
-                if not ctx_file.update(set_modified=False):
+                # in this case there is no need to change the modification time stamp, so we keep it.
+                if not ctx_file.update():
                     logging.error(f"{self.__class__.__name__}.housekeeping_check_broken_files:"
                                   f" Update went wrong. ")
         else:
@@ -243,11 +241,9 @@ class Housekeeping:
                 # todo: contexts
                 save = True
                 pass
-                # if ctx_file.are_contexts_ok():
-                #     ctx_file.drop_tag("BROKEN_CONTEXT")
-                #     save = True
             if save:
-                ctx_file.update(set_modified=False)
+                # in this case there is no need to change the modification time stamp, so we keep it.
+                ctx_file.update()
 
     def housekeeping_check_cache_files(self, ctx_file: KioskContextualFile, console, parameters: dict):
         svg = False
@@ -271,12 +267,15 @@ class Housekeeping:
                 if "NOT_AN_IMAGE" not in ctx_file.get_tags():
                     logging.error(f"{self.__class__.__name__}.housekeeping_check_cache_files: "
                                   f"create_auto_representation failed for {ctx_file.uid}. Will be tagged NOT_AN_IMAGE.")
+
                     ctx_file.add_tag("NOT_AN_IMAGE")
-                    ctx_file.update(set_modified=False)
+                    # in this case there is no need to change the modification time stamp, so we keep it.
+                    ctx_file.update()
             else:
                 if "NOT_AN_IMAGE" in ctx_file.get_tags():
                     ctx_file.drop_tag("NOT_AN_IMAGE")
-                    ctx_file.update(set_modified=False)
+                    # in this case there is no need to change the modification time stamp, so we keep it.
+                    ctx_file.update()
 
     def housekeeping_rewrite_image_record(self, ctx_file: KioskContextualFile, console, parameters: dict):
 
@@ -296,7 +295,8 @@ class Housekeeping:
                 ctx_file.set_tags(ctx_file.get_tags_from_csv(csv_tags))
                 update = True
             if update:
-                if not ctx_file.update(set_modified=False):
+                # in this case there is no need to change the modification time stamp, so we keep it.
+                if not ctx_file.update():
                     raise Exception(f"update of {ctx_file.uid} failed.")
         except BaseException as e:
             logging.warning(f"{self.__class__.__name__}.housekeeping_rewrite_image_record: {repr(e)}")

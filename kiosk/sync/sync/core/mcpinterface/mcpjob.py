@@ -378,15 +378,16 @@ class MCPJob:
             rc = self._queue.change_job_attribute(self.job_id, attribute, value, use_lock=False)
             if rc:
                 self._ts_modified = kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True)
-                rc = self._queue.change_job_attribute(self.job_id, ["ts_modified"],
-                                                      kioskstdlib.ts_to_str(self._ts_modified),
-                                                      use_lock=False) and \
+
                 # todo time zone simplified: this is not great.
                 #   It is a system specific ticker that would not compare with a second system!
                 #   So MCP and the queueing process need to be on the same system.
                 #   I think a microsecond utc time stamp would be better here.
-                self._queue.change_job_attribute(self.job_id, ["ns_modified"],
-                                                      time.monotonic_ns(), use_lock=False)
+                rc = (self._queue.change_job_attribute(self.job_id, ["ts_modified"],
+                                                      kioskstdlib.ts_to_str(self._ts_modified),
+                                                      use_lock=False) and \
+                    self._queue.change_job_attribute(self.job_id, ["ns_modified"],
+                                                          time.monotonic_ns(), use_lock=False))
             self._auto_pulse()
         finally:
             if lock and lock_queue:

@@ -16,7 +16,7 @@ from kiosksqldb import KioskSQLDb
 from simplefunctionparser import SimpleFunctionParser
 
 
-# todo time zone simpliciation (done)
+# time zone relevance
 
 class Join:
     def __init__(self, root_table, related_table, _type="inner", root_field="", related_field="", quantifier="1",

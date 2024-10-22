@@ -50,6 +50,7 @@ semantic-version
 wrapt
 Babel
 tzdata
+tzlocal
 charset-normalizer
 PyJWT
 pdfrw2

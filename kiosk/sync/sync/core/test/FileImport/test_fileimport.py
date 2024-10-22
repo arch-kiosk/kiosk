@@ -9,6 +9,7 @@ import pytest
 from win32api import SetFileAttributes, GetFileAttributes
 
 import filecontextutils
+import kioskstdlib
 import sync_plugins.fileimportstandardfilters.fileimportstandardfilters as stdfilters
 import synchronization
 from fileimport import FileImport
@@ -401,18 +402,18 @@ class TestFileImport(KioskPyTestHelper):
         file_import.modified_by = "lkh"
 
         # Folder and File contexts match, File is a collected material
-
-        assert file_import._import_single_file_to_repository(
-            os.path.join(test_path, "test_files", "build_context", "EC", "2018", "EC-001", "EC-001-1.jpg"))
+        import_file = os.path.join(test_path, "test_files", "build_context", "EC", "2018", "EC-001", "EC-001-1.jpg")
+        ts_import_file = kioskstdlib.get_earliest_date_from_file(import_file).replace(microsecond=None)
+        assert file_import._import_single_file_to_repository(import_file)
 
         test_values = {
+            'accept_duplicates': False,
             "path_and_filename": os.path.join(test_path, "test_files", "build_context", "EC", "2018", "EC-001",
                                               "EC-001-1.jpg"),
             "description": "",
             "identifier": "EC-001-1",
             "modified_by": "lkh",
-            "ts_file": datetime.datetime(2019, 7, 4, 14, 39, 2,
-                                         tzinfo=zoneinfo.ZoneInfo("US/Eastern")).astimezone().replace(tzinfo=None),
+            "ts_file": ts_import_file,
             "tags": []
         }
         mock_add_file_to_repository.assert_called_once_with(**test_values)

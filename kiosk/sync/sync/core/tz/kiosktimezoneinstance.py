@@ -1,4 +1,5 @@
-# todo time zone simpliciation (done)
+# time zone relevance
+
 from __future__ import annotations
 
 import copy

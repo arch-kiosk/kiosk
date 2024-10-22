@@ -1,4 +1,4 @@
-# todo time zone simpliciation
+# time zone relevance
 
 import copy
 import logging

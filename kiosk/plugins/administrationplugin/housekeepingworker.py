@@ -81,7 +81,7 @@ class HouseKeepingWorker:
                                              })
             else:
                 self.job.publish_result({"success": False,
-                                         "message": "Householding cancelled by user."})
+                                         "message": "Housekeeping cancelled by user."})
 
         except InterruptedError:
             if self.job.progress.get_message():

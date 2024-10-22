@@ -519,6 +519,10 @@ def update_contexts(img: FileRepositoryFile, file_repos: FileRepository, form_da
             dropped += 1
 
     if added or dropped:
+        # time zone relevant
+        utc_ts, tz_index, ww_ts = kioskglobals.kiosk_time_zones.get_modified_components_from_now(
+            current_user.get_active_tz_index())
+        ctx.set_modified(utc_ts, tz_index, ww_ts)
         ctx.modified_by = current_user.repl_user_id
         if not ctx.push_contexts(True):
             return f"error pushing contexts: {ctx.last_error}"
@@ -756,6 +760,15 @@ def repository_bulk_tag_execute():
                         f.drop_tag(tag)
                         update = True
                 if update:
+                    # time zone relevant
+                    utc_ts, tz_index, ww_ts = kioskglobals.kiosk_time_zones.get_modified_components_from_now(
+                        current_user.get_active_tz_index())
+
+                    f.set_modified(
+                        utc_ts,
+                        tz_index,
+                        ww_ts
+                    )
                     f.update(commit=False)
             KioskSQLDb.commit()
             result.success = True

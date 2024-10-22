@@ -6,12 +6,13 @@ import os
 import re
 import time
 import zoneinfo
+import tzlocal
 from typing import Tuple, List, Set, Union
 
 from babel import dates
 
 import kioskstdlib
-from kioskdatetimelib import utc_ts_to_timezone_ts
+from kioskdatetimelib import utc_ts_to_timezone_ts, extend_local_timezone, get_utc_now, utc_ts_to_timezone_ts
 from kiosksqldb import KioskSQLDb
 
 
@@ -379,6 +380,32 @@ class KioskTimeZones:
 
             return utc_ts_to_timezone_ts(dt, source_time_zone), 1
 
+
+    @classmethod
+    def get_modified_components_from_now(cls, tz_index: int=None):
+        """
+        create a current time stamp and return all components neede for a modified field
+        :param tz_index: the tz_index of the time zone within which the _ww part of the modified is expected.
+                          if None a tz_index is created from the current system settings.
+                          Whatever that'll be, so avoid it!
+        :return: a triplet: utc time stamp, tz index, wristwatch time stamp
+        :throws an exception if the tz_index or the iana_time_zone name cannot be determined
+        """
+        iana_time_zone = ""
+        time_zones = KioskTimeZones()
+        if tz_index:
+            iana_time_zone = time_zones.get_iana_time_zone(tz_index)
+
+        if not iana_time_zone:
+            iana_time_zone = cls.get_local_scripts_time_zone_name()
+            tz_index = time_zones.get_time_zone_index(iana_time_zone)
+            if tz_index is None or not iana_time_zone:
+                raise Exception(f"Cannot create time zone information. "
+                                f"IANA time {iana_time_zone} does not have a time zone index.")
+
+        utc_ts = get_utc_now()
+        return utc_ts, tz_index, utc_ts_to_timezone_ts(utc_ts,iana_time_zone,replace_ms=True)
+
 # if __name__ == '__main__':
 #     # cfg = SyncConfig.get_config({'config_file': r'C:\notebook_source\kiosk\server\kiosk\kiosk\config\kiosk_config.yml'})
 #     # kiosk_tz = KioskTimeZones()
@@ -390,3 +417,11 @@ class KioskTimeZones:
 #     kiosk_tz = KioskTimeZones()
 #     kiosk_tz.update_local_kiosk_time_zones(r"C:\notebook_source\kiosk\server\kiosk\kiosk\tools\tz\kiosk_tz.json")
 
+    @classmethod
+    def get_local_scripts_time_zone_name(cls):
+        """
+        returns the iana name of the loca system (the one on which this python script runs!).
+        So this is usually not want you want!
+        :return:
+        """
+        return tzlocal.get_localzone_name()

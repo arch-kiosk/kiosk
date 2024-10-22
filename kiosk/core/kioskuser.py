@@ -17,7 +17,7 @@ from kiosksqldb import KioskSQLDb
 from tz.kiosktimezones import KioskTimeZones
 import kioskdatetimelib
 
-# todo time zone simpliciation (done)
+# time zone relevance
 class KioskUser(UserMixin):
     def __init__(self, user_uuid, check_token=True, init_dict=None):
         self._privileges = []
