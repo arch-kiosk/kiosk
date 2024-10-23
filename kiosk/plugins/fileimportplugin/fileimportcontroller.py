@@ -24,6 +24,7 @@ from core.kioskresult import KioskResult
 from filesequenceimport import FileSequenceImport
 from image_manipulation.imagemanipulationstrategyfactory import ImageManipulationStrategyFactory
 from kioskcleanup import KioskCleanup
+from kioskuser import KioskUser
 from mcpinterface.mcpjob import MCPJob
 from sync.core.fileimport import FileImport
 from sync.core.filerepository import FileRepository
@@ -145,7 +146,7 @@ def dialoglocalimport1():
     test_cfg = user_config.get_config("file_import")
     logging.debug(f"fileimportcontroller.dialoglocalimport1: user config: {test_cfg}")
 
-    file_import = FileImport(cfg, sync, user_config=user_config)
+    file_import = FileImport(cfg, sync, user_config=user_config, tz_index=current_user.get_active_tz_index())
     general_message = ""
 
     substitute_identifiers = False
@@ -203,7 +204,7 @@ def dialoglocalimport2():
     user_config = UserConfig(kioskglobals.general_store, current_user.user_id, cfg.get_project_id())
     test_cfg = user_config.get_config("file_import")
     logging.debug(f"fileimportcontroller.dialoglocalimport2: user config: {test_cfg}")
-    file_import = FileImport(cfg, sync, user_config=user_config)
+    file_import = FileImport(cfg, sync, user_config=user_config, tz_index=current_user.get_active_tz_index())
 
     sorted_names = file_import.sort_import_filters()
     context_filters = [file_import.get_file_import_filter(x) for x in sorted_names]
@@ -317,7 +318,7 @@ def localimport():
         test_cfg = user_config.get_config("file_import")
         logging.debug(f"fileimportcontroller.localimport: user config: {test_cfg}")
         kioskglobals.general_store.delete_key("STOPTHREAD")
-        file_import = FileImport(cfg, sync, user_config=user_config)
+        file_import = FileImport(cfg, sync, user_config=user_config, tz_index=current_user.get_active_tz_index())
 
         sorted_names = file_import.sort_import_filters()
         context_filters = [file_import.get_file_import_filter(x) for x in sorted_names]
@@ -409,7 +410,8 @@ def dialogupload1():
     user_config = UserConfig(kioskglobals.general_store, current_user.user_id, cfg.get_project_id())
     test_cfg = user_config.get_config("file_import")
     logging.debug(f"fileimportcontroller.dialogupload1: user config: {test_cfg}")
-    file_import = FileImport(cfg, sync, method="upload", user_config=user_config)
+    file_import = FileImport(cfg, sync, method="upload", user_config=user_config,
+                             tz_index=current_user.get_active_tz_index())
     sorted_names = file_import.sort_import_filters()
     context_filters = [file_import.get_file_import_filter(x) for x in sorted_names]
     general_message = ""
@@ -489,7 +491,8 @@ def dialogupload2():
     max_file_uploads = kioskstdlib.try_get_dict_entry(cfg.file_import, "max_file_uploads", 5)
     sync = Synchronization()
     user_config = UserConfig(kioskglobals.general_store, current_user.user_id, cfg.get_project_id())
-    file_import = FileImport(cfg, sync, method="upload", user_config=user_config)
+    file_import = FileImport(cfg, sync, method="upload", user_config=user_config,
+                             tz_index=current_user.get_active_tz_index())
 
     uploadform2 = UploadForm2()
 
@@ -561,7 +564,8 @@ def uploadimage():
                 filename = get_secure_filename(f.filename)
                 sync = Synchronization()
                 user_config = UserConfig(kioskglobals.general_store, current_user.user_id, cfg.get_project_id())
-                file_import = FileImport(cfg, sync, method="upload", user_config=user_config)
+                file_import = FileImport(cfg, sync, method="upload", user_config=user_config,
+                                         tz_index=current_user.get_active_tz_index())
                 sorted_names = file_import.sort_import_filters()
                 context_filters = [file_import.get_file_import_filter(x) for x in sorted_names]
                 if 'dialogupload1' in session:

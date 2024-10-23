@@ -28,7 +28,7 @@ class FileImport:
       :todo: refactor _app towards separate TypeRepository/EventManager/PluginLoader classes
     """
 
-    def __init__(self, cfg: SyncConfig, app, method="local_import", user_config: UserConfig = None):
+    def __init__(self, cfg: SyncConfig, app, method="local_import", user_config: UserConfig = None, tz_index = None):
         self._config = {}
         self._user_config: UserConfig = user_config
         self._sync_config = None
@@ -49,6 +49,7 @@ class FileImport:
         self._instantiate_filters()
         self._check_identifier = None
         self._modified_by = "sys"
+        self._tz_index = tz_index
         self.move_finished_files = False
         self._stop_import = False
         self._identifier_substitutions = TextSubstitution()
@@ -68,6 +69,14 @@ class FileImport:
     @modified_by.setter
     def modified_by(self, value):
         self._modified_by = value
+
+    @property
+    def tz_index(self):
+        return self._tz_index
+
+    @tz_index.setter
+    def tz_index(self, value):
+        self._tz_index = value
 
     @property
     def identifier_evaluator(self):
@@ -522,13 +531,15 @@ class FileImport:
 
                 logging.info("Adding file to repository: %s" % s)
 
+                # time zone relevance
                 return self._add_file_to_repository(path_and_filename=f,
                                                     description=file_description,
                                                     modified_by=self.modified_by,
                                                     identifier=identifier,
                                                     ts_file=file_ts,
                                                     tags=self.tags,
-                                                    accept_duplicates=accept_duplicates)
+                                                    accept_duplicates=accept_duplicates,
+                                                    tz_index=self.tz_index)
             else:
                 logging.warning("File " + f + " not added to repository due to missing or unknown context identifier.")
                 return False
@@ -580,7 +591,7 @@ class FileImport:
             return False
 
     def _add_file_to_repository(self, path_and_filename, identifier="", description="", modified_by="",
-                                ts_file=None, tags=None, accept_duplicates=False):
+                                ts_file=None, tags=None, accept_duplicates=False, tz_index=None):
         """ adds a file to the repository
         """
         if not self.file_repository:
@@ -601,8 +612,9 @@ class FileImport:
                 rc = True
             else:
                 ctx_file.modified_by = modified_by
-                # time zone relevant
-                ctx_file.set_modified(*kiosk_time_zones.get_modified_components_from_now())
+                # time zone relevance: The tz_index comes from self.tz_index
+                #  and must be set by the caller of the file import
+                ctx_file.set_modified(*kiosk_time_zones.get_modified_components_from_now(tz_index))
                 ctx_file.ts_file = ts_file
                 ctx_file.description = description
                 ctx_file.set_tags(tags)

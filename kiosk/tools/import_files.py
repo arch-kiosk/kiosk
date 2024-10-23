@@ -216,6 +216,11 @@ if __name__ == '__main__':
     if "u" not in options:
         logging.error(f"No repl_user_id given.")
         usage()
+
+    # todo time zone simplified
+    print("TODO: THIS NEEDS A TIME ZONE INDEX TO RUN IN A PARTICULAR TIMEZONE! "
+          "EITHER FROM THE PARAMETER FILE OR FROM A COMMANDLINE PARAMETER")
+    usage()
     repl_user_id = options["u"]
     with open(options["p"], "r", encoding='utf8') as ymlfile:
         import_params = yaml.load(ymlfile, Loader=yaml.FullLoader)
