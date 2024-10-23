@@ -548,7 +548,7 @@ class SystemMessages:
 
 
 # -------------------------------------------------------------
-# a little heper function to init the system message list
+# a little helper function to init the system message list
 # -------------------------------------------------------------
 def init_system_message_list(gs, cfg, sync_immediately=True) -> SystemMessageList:
     """

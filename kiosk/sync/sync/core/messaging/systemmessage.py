@@ -1,4 +1,3 @@
-# todo time zone simpliciation (done)
 from __future__ import annotations
 
 import datetime
@@ -20,6 +19,7 @@ class SystemMessage:
         self.headline = ""
         self._message_id = ""
         self.body = ""
+        # this seems to be the utc time stamp of the creation time of the message
         self.utc_timestamp: datetime.datetime = kioskdatetimelib.get_utc_now()
         self.project = ""
         self._dirty = False
@@ -30,7 +30,7 @@ class SystemMessage:
         self.auto_delete = -1
         self._deleted = False
         self._uid = uid
-        self._modified = datetime.datetime.now()
+        self._modified = self.utc_timestamp
         if msg:
             self.init_from_message(msg)
         if not self._message_id and message_id:
@@ -93,8 +93,7 @@ class SystemMessage:
 
     def get_modified(self):
         """
-        returns the modified timestamp as utc (no, it doesn't (except if somebody set this to be utc)
-       # todo time zone simplified: Why is this not using utc?
+        returns the modified timestamp (which should be utc!)
 
         """
         return self._modified
@@ -103,7 +102,7 @@ class SystemMessage:
         """
         sets the modification timestamp of this message in utc
         :param utc_timestamp: if given, this timestamp is being used.
-                          Otherwise the current utc time
+                              Otherwise the current utc time
         :return: datetime.datetime
         """
         if not utc_timestamp:
@@ -113,6 +112,12 @@ class SystemMessage:
         return self._modified
 
     def get_format_time(self, iana_time_zone: str = ""):
+        """
+        returns the utc time as local time according to the iana_time_zone or using the system default
+        (which is the local server, so avoid it!)
+        :param iana_time_zone:
+        :return: str
+        """
         if iana_time_zone:
             ts = kioskdatetimelib.utc_ts_to_timezone_ts(self.utc_timestamp, iana_time_zone)
             return datetime.datetime.strftime(ts, "%d. %b %H:%M:%S")
