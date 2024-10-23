@@ -191,7 +191,7 @@
           <div class="admin-sysinfo-entry"><label>confirm</label></div>
           {% for msg in all_sys_messages %}
             <div class="admin-sysinfo-entry">{{ msg.sender }}</div>
-            <div class="admin-sysinfo-entry">{{ msg.format_time }}</div>
+            <div class="admin-sysinfo-entry">{{ msg.get_format_time(current_user.get_active_time_zone_name(iana=True)) }}</div>
             <div class="admin-sysinfo-entry">{{ msg.message_id }}</div>
             <div class="admin-sysinfo-entry">{{ msg.headline }}</div>
             <div>
