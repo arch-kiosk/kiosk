@@ -536,7 +536,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                               f"{images_with_recent_modified_date} image records have a "
                               f"all too recent modification timestamp in the filemaker db at the beginning of export")
 
-                # todo time zone simpliciation
+                # time zone relevance
                 # this was originally set in terms of what was then the user time zone. So this is not UTC!
                 # it is only being used to determine whether or not the file identifier cache needs to be updated
                 self.ws_fork_sync_time = fm.get_ts_constant("fork_sync_time")

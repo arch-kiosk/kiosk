@@ -92,7 +92,12 @@ class TestPostgresDbMigration(KioskPyTestHelper):
         sql = r"update " + "{{unit}} set {{unit}}.modified = {NOW};"
         iso_now = "'" + datetime.datetime.now().isoformat().split(".")[0]
 
-        result = pg_migration.substitute_variables(sql)
+        result, warnings = pg_migration.substitute_variables(sql)
+        if warnings and "NOW" in warnings:
+            print(f"{self.__class__.__name__}._adapter_get_sql_lines: "
+                            f"using the {'NOW'} variable is discouraged for migration scripts "
+                            f"because of potential time zone issues.")
+
         assert result.find(iso_now) == 40
 
     def db_execute(self, con, sql: str):

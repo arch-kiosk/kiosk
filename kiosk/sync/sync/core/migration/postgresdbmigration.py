@@ -486,12 +486,22 @@ class PostgresDbMigration(DatabaseMigration):
             sql_script: str = ""
             for _ in range(0, len(lines)):
                 line = lines[_]
-                line = self.substitute_variables(line)
+                line, warnings = self.substitute_variables(line)
+                if warnings and "NOW" in warnings:
+                    logging.warning(f"{self.__class__.__name__}._adapter_get_sql_lines: "
+                                  f"using the {'NOW'} variable is discouraged for migration scripts "
+                                  f"because of potential time zone issues. sql_instruction: {sql_instruction}")
+
                 sql_script = "\n".join([sql_script, self.schematize_curly_tables(line=line,
                                                                                  prefix=prefix,
                                                                                  namespace=namespace)])
         else:
-            lines = self.substitute_variables(sql_instruction)
+            lines, warnings = self.substitute_variables(sql_instruction)
+            if warnings and "NOW" in warnings:
+                logging.warning(f"{self.__class__.__name__}._adapter_get_sql_lines: "
+                                f"using the {'NOW'} variable is discouraged for migration scripts "
+                                f"because of potential time zone issues. sql_instruction: {sql_instruction}")
+
             sql_script = self.schematize_curly_tables(lines, prefix=prefix, namespace=namespace)
 
         return sql_script
