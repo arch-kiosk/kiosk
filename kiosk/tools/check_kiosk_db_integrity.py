@@ -48,8 +48,10 @@ if __name__ == '__main__':
     cfg = SyncConfig.get_config({'config_file': cfg_file})
     dsd = Dsd3Singleton.get_dsd3()
     assert dsd.append_file(cfg.dsdfile)
+    cfg = SyncConfig.get_config()
+    logging.info(f"Database Integrity Check running on database {cfg.database_name}")
     print("Checking Database Integrity ...", flush=True, end="")
-    db_int = KioskDatabaseIntegrity(SyncConfig.get_config())
+    db_int = KioskDatabaseIntegrity(cfg)
     db_int.ensure_database_integrity()
     print("Done", flush=True, end="\n")
 

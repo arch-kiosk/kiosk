@@ -3,6 +3,7 @@ from logging import warning
 
 from wtforms.validators import length
 
+import kioskdatetimelib
 from dsd.dsd3singleton import Dsd3Singleton
 from kiosksqldb import KioskSQLDb
 from datetime import datetime
@@ -19,6 +20,7 @@ class KioskDatabaseIntegrity:
 
     def update_default_fields(self):
         auto_commit = None
+        log_lines = 0
         try:
             auto_commit = KioskSQLDb.get_autocommit()
             KioskSQLDb.set_autocommit(True)
@@ -26,12 +28,14 @@ class KioskDatabaseIntegrity:
             for table in self.dsd.list_tables():
                 flds = self.dsd.list_fields_with_instruction(table, "default")
                 # flds = self.dsd.list_fields_with_additional_type(table, "default")
+                modified_field = self.dsd.get_modified_field(table)
                 if flds:
                     for f in flds:
                         sql = "update " + table + " SET "
                         err = False
                         sql_value = ""
                         default_parameters = self.dsd.get_instruction_parameters_and_types(table, f, "default")
+                        data_type = self.dsd.get_field_datatype(table, f)
                         if default_parameters:
                             v, a_type = default_parameters[0]
                             if a_type:
@@ -47,18 +51,41 @@ class KioskDatabaseIntegrity:
                                         continue
                                 if not err and sql_value:
                                     try:
+                                        # time zone relevance
                                         if a_type == "function":
-                                            sql += f"\"{f}\"" + f"={sql_value}"
+                                            sql += f"\"{f}\"" + f"={sql_value} "
+                                            if modified_field and f == modified_field:
+                                                sql += f",\"{f}_ww\"" + f"={sql_value} "
+                                                sql += f",\"{f}_tz\"" + f"=0 "
                                             sql += " where " + f"\"{f}\"" + " is null"
                                             cur.execute(sql)
                                         else:
                                             sql += f"\"{f}\"" + "=%s"
+                                            values = [sql_value]
+                                            if modified_field and f == modified_field:
+                                                sql += f",\"{f}_ww\"" + f"={sql_value}"
+                                                sql += f",\"{f}_tz\"" + f"=0 "
+                                                values.append(sql_value)
                                             sql += " where " + f"\"{f}\"" + " is null"
-                                            cur.execute(sql, [sql_value])
+                                            cur.execute(sql, values)
                                         if cur.rowcount:
-                                            logging.info(
-                                                "Database Integrity Check: {} default values "
-                                                "set to {} in {}.{}".format(cur.rowcount, sql_value, table, f))
+                                            log_lines+=1
+                                            if log_lines == 50:
+                                                logging.warning("Database Integrity Check: "
+                                                                "Too many default values have been mended "
+                                                                "to report them all. Logging stops here.")
+                                            if log_lines < 50:
+                                                if data_type.startswith("timestamp"):
+                                                    logging.warning(
+                                                        "Database Integrity Check: {} default values "
+                                                        "set to {} in {}.{} \n"
+                                                        "NOTE that this is a {} field that is now "
+                                                        "populated with utc time stamps".format(cur.rowcount, sql_value, table, f, data_type)
+                                                    )
+                                                else:
+                                                    logging.info(
+                                                        "Database Integrity Check: {} default values "
+                                                        "set to {} in {}.{}".format(cur.rowcount, sql_value, table, f))
                                         KioskSQLDb.commit()
                                     except Exception as e:
                                         logging.warning(f"A non-critical issue occurred when checking default "
@@ -77,8 +104,8 @@ class KioskDatabaseIntegrity:
         if value.lower().strip() == "gen_random_uuid()":
             return "gen_random_uuid()"
         if value.lower().strip() == "now()":
-            # todo time zone simplified: that looks like an evil now()
-            return f"'{datetime.now().isoformat()}'"
+            # time zone relevance
+            return f"'{kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True).isoformat()}'"
 
         return ""
 
