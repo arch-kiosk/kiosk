@@ -48,6 +48,8 @@ from (
 where r2_images.uid = locus_relations.uid;
     """
 
+    # time zone relevance
+    # this is the current using UTC time for the "modified" in repl_deleted_uids, which is okay.
     sql_delete_r2_without_image_insert_delete_uids = """
     insert into repl_deleted_uids(deleted_uid, "table", repl_workstation_id, modified)
         select distinct r2.uid, 'locus_relations', 'kiosk', now() from locus_relations r1
@@ -80,28 +82,32 @@ delete from locus_relations where uid in (
           and r2.uid_sketch is null
     );"""
 
-    sql_create_missing_relations = """
-insert into locus_relations(uid_locus, uid_locus_2_related, type, uid_sketch, created, modified, modified_by)
-select uid_locus_2_related uid_locus, uid_locus uid_locus_2_related, relation_types.r2, uid_sketch,
-       now(), now(), 'sys'  from locus_relations
-inner join locus on locus_relations.uid_locus = locus.uid
-inner join locus related_locus on locus_relations.uid_locus_2_related = related_locus.uid
-inner join relation_types on locus_relations.type=relation_types.r1
-where locus_relations.uid not in (
-select r1.uid from locus_relations r1 inner join locus_relations r2
-    on r1.uid_locus = r2.uid_locus_2_related and
-       r2.uid_locus = r1.uid_locus_2_related and
-       r2.type = relation_types.r2
-where r1.uid_locus is not null and r1.uid_locus_2_related is not null and
-      r2.uid_locus is not null and r2.uid_locus_2_related is not null and
-          r1.type is not null and r2.type is not null)
-"""
+#     sql_create_missing_relations = """
+# insert into locus_relations(uid_locus, uid_locus_2_related, type, uid_sketch, created, modified, modified_tz, modified_ww, modified_by)
+# select uid_locus_2_related uid_locus, uid_locus uid_locus_2_related, relation_types.r2, uid_sketch,
+#        now(), now(), 0, now(), 'sys'  from locus_relations
+# inner join locus on locus_relations.uid_locus = locus.uid
+# inner join locus related_locus on locus_relations.uid_locus_2_related = related_locus.uid
+# inner join relation_types on locus_relations.type=relation_types.r1
+# where locus_relations.uid not in (
+# select r1.uid from locus_relations r1 inner join locus_relations r2
+#     on r1.uid_locus = r2.uid_locus_2_related and
+#        r2.uid_locus = r1.uid_locus_2_related and
+#        r2.type = relation_types.r2
+# where r1.uid_locus is not null and r1.uid_locus_2_related is not null and
+#       r2.uid_locus is not null and r2.uid_locus_2_related is not null and
+#           r1.type is not null and r2.type is not null)
+# """
 
+    # time zone relevance: Copies the modified and created fields from the dominant relation
     sql_create_missing_relations_v3 = """
-    insert into locus_relations(uid_locus, uid_locus_2_related, type, chronology, uid_sketch, created, modified, modified_by)
+    insert into locus_relations(uid_locus, uid_locus_2_related, type, chronology, uid_sketch, created, modified, modified_tz, modified_ww, modified_by)
     select uid_locus_2_related uid_locus, uid_locus uid_locus_2_related, relation_types.r2, 
            relation_chron_types.r2, uid_sketch,
-           now(), now(), 'sys'  from locus_relations
+           locus_relations.created, 
+           locus_relations.modified, locus_relations.modified_tz, locus_relations.modified_ww, 
+           'sys'  
+    from locus_relations
     inner join locus on locus_relations.uid_locus = locus.uid
     inner join locus related_locus on locus_relations.uid_locus_2_related = related_locus.uid
     inner join relation_types on locus_relations.type=relation_types.r1
@@ -183,7 +189,10 @@ where r1.uid not in (
         if chron_types_sql:
             return self.manage_locus_relations_v3(chron_types_sql)
         else:
-            return self.manage_locus_relations_v2()
+            logging.error(f"{self.__class__.__name__}.manage_locus_relations: "
+                          f"Obsolete call on a system without chronological information for relations.")
+            raise Exception("Obsolete call on a system without chronological information for relations.")
+            # return self.manage_locus_relations_v2()
 
     def manage_locus_relations_v3(self, chron_types_sql):
         def execute(sql, text=""):
@@ -192,18 +201,23 @@ where r1.uid not in (
                 if rc:
                     logging.info(f"{rc} {text}.")
                 else:
-                    logging.debug(f"{self.__class__.__name__}.manage_locus_relations: {rc} {text}.")
+                    logging.debug(f"{self.__class__.__name__}.manage_locus_relations_v3: {rc} {text}.")
 
         try:
-            logging.debug(f"{self.__class__.__name__}.manage_locus_relations_v2: called.")
+            logging.debug(f"{self.__class__.__name__}.manage_locus_relations_v3: called.")
             config = SyncConfig.get_config()
             sql_relation_types = self.sql_relation_types_template % self.get_sql_relation_types(config)
+            logging.debug(f"{self.__class__.__name__}.manage_locus_relations_v3 (relation_types): {sql_relation_types}")
             sql_relation_chron_types = self.sql_relation_chron_types_template % self.get_sql_relation_chron_types()
-            logging.debug(f"{self.__class__.__name__}.manage_locus_relations (relation_types): {sql_relation_types}")
-            logging.debug(f"{self.__class__.__name__}.manage_locus_relations (relation_chron_types):"
+            if not sql_relation_types:
+                logging.error(f"{self.__class__.__name__}.execute: "
+                              f"Obsolete call on a system without chronological information for relations.")
+                raise Exception("Obsolete call to manage_locus_relations_v3 on a system without "
+                                "chronological information for relations.")
+            logging.debug(f"{self.__class__.__name__}.manage_locus_relations_v3 (relation_chron_types):"
                           f" {sql_relation_chron_types}")
         except BaseException as e:
-            logging.error(f"{self.__class__.__name__}.manage_locus_relations: {repr(e)}")
+            logging.error(f"{self.__class__.__name__}.manage_locus_relations_v3: {repr(e)}")
             return False
 
         try:
@@ -237,12 +251,12 @@ where r1.uid not in (
             self.test_relations(sql_relation_types)
             return True
         except BaseException as e:
-            logging.error(f"{self.__class__.__name__}.manage_locus_relations: {repr(e)}")
+            logging.error(f"{self.__class__.__name__}.manage_locus_relations_v3: {repr(e)}")
             try:
                 KioskSQLDb.rollback()
-                logging.error(f"{self.__class__.__name__}.manage_locus_relations: rolled back.")
+                logging.error(f"{self.__class__.__name__}.manage_locus_relations_v3: rolled back.")
             except BaseException as e2:
-                logging.error(f"{self.__class__.__name__}.manage_locus_relations: error when rolling back: {repr(e2)}")
+                logging.error(f"{self.__class__.__name__}.manage_locus_relations_v3: error when rolling back: {repr(e2)}")
         return False
 
     def test_relations(self, sql_relation_types):
@@ -266,78 +280,78 @@ where r1.uid not in (
             logging.warning(f"{self.__class__.__name__}.manage_locus_relations Exception when testing "
                             f"results: {repr(e)}")
 
-    def manage_locus_relations_v2(self):
-        def execute(sql, text=""):
-            rc = KioskSQLDb.execute(sql)
-            if text:
-                if rc:
-                    logging.info(f"{rc} {text}.")
-                else:
-                    logging.debug(f"{self.__class__.__name__}.manage_locus_relations: {rc} {text}.")
-
-        try:
-            logging.debug(f"{self.__class__.__name__}.manage_locus_relations_v2: called.")
-            config = SyncConfig.get_config()
-            sql_relation_types = self.sql_relation_types_template % self.get_sql_relation_types(config)
-            logging.debug(f"{self.__class__.__name__}.manage_locus_relations (relation_types): {sql_relation_types}")
-        except BaseException as e:
-            logging.error(f"{self.__class__.__name__}.manage_locus_relations: {repr(e)}")
-            return False
-
-        try:
-            # set image in dominant relation (the newer one) if the subordinate relation has one
-            sql = sql_relation_types + " " + self.sql_set_r1_image
-            execute(sql, "images copied from subordinate relation.")
-
-            # delete subordinate relations that don't have an image while the dominant relation has one
-            # add them to repl_deleted_uids first
-            sql = sql_relation_types + " " + self.sql_delete_r2_without_image_insert_delete_uids
-            execute(sql, " subordinate locus relations will be recreated because the dominant relation has an image.")
-
-            # now delete them
-            sql = sql_relation_types + " " + self.sql_delete_r2_without_image
-            execute(sql)
-
-            # we don't do this because some projects have two types of relations between the same loci and
-            # that cannot be distinguished from just two types that don't match.
-
-            # # delete subordinate relations the type of which does not match the dominant relation
-            # # add them to repl_deleted_uids first
-            # sql = sql_relation_types + " " + self.sql_delete_odd_opposites_insert_to_deleted_uids
-            # rc = KioskSQLDb.execute(sql)
-            # logging.debug(f"{self.__class__.__name__}.manage_locus_relations: "
-            #               f"{rc} rows affected by sql_delete_odd_opposites_insert_to_deleted_uids")
-            #
-            # # then delete them
-            # sql = sql_relation_types + " " + self.sql_delete_odd_opposites
-            # rc = KioskSQLDb.execute(sql)
-            # logging.debug(f"{self.__class__.__name__}.manage_locus_relations: "
-            #               f"{rc} rows affected by sql_delete_odd_opposites")
-
-            # create subordinate relations that are missing
-            sql = sql_relation_types + " " + self.sql_create_missing_relations
-            execute(sql, " opposite locus relations created.")
-
-            # set correct sketch_description
-            sql = self.sql_update_sketch_descriptions
-            execute(sql, " locus relation sketch descriptions updated.")
-
-            sql = self.sql_clear_sketch_descriptions
-            execute(sql, " locus relation sketch descriptions removed because the sketch had been deleted.")
-
-            KioskSQLDb.commit()
-            logging.info(f"locus relations successfully updated.")
-
-            self.test_relations(sql_relation_types)
-            return True
-        except BaseException as e:
-            logging.error(f"{self.__class__.__name__}.manage_locus_relations: {repr(e)}")
-            try:
-                KioskSQLDb.rollback()
-                logging.error(f"{self.__class__.__name__}.manage_locus_relations: rolled back.")
-            except BaseException as e2:
-                logging.error(f"{self.__class__.__name__}.manage_locus_relations: error when rolling back: {repr(e2)}")
-        return False
+    # def manage_locus_relations_v2(self):
+    #     def execute(sql, text=""):
+    #         rc = KioskSQLDb.execute(sql)
+    #         if text:
+    #             if rc:
+    #                 logging.info(f"{rc} {text}.")
+    #             else:
+    #                 logging.debug(f"{self.__class__.__name__}.manage_locus_relations: {rc} {text}.")
+    #
+    #     try:
+    #         logging.debug(f"{self.__class__.__name__}.manage_locus_relations_v2: called.")
+    #         config = SyncConfig.get_config()
+    #         sql_relation_types = self.sql_relation_types_template % self.get_sql_relation_types(config)
+    #         logging.debug(f"{self.__class__.__name__}.manage_locus_relations (relation_types): {sql_relation_types}")
+    #     except BaseException as e:
+    #         logging.error(f"{self.__class__.__name__}.manage_locus_relations: {repr(e)}")
+    #         return False
+    #
+    #     try:
+    #         # set image in dominant relation (the newer one) if the subordinate relation has one
+    #         sql = sql_relation_types + " " + self.sql_set_r1_image
+    #         execute(sql, "images copied from subordinate relation.")
+    #
+    #         # delete subordinate relations that don't have an image while the dominant relation has one
+    #         # add them to repl_deleted_uids first
+    #         sql = sql_relation_types + " " + self.sql_delete_r2_without_image_insert_delete_uids
+    #         execute(sql, " subordinate locus relations will be recreated because the dominant relation has an image.")
+    #
+    #         # now delete them
+    #         sql = sql_relation_types + " " + self.sql_delete_r2_without_image
+    #         execute(sql)
+    #
+    #         # we don't do this because some projects have two types of relations between the same loci and
+    #         # that cannot be distinguished from just two types that don't match.
+    #
+    #         # # delete subordinate relations the type of which does not match the dominant relation
+    #         # # add them to repl_deleted_uids first
+    #         # sql = sql_relation_types + " " + self.sql_delete_odd_opposites_insert_to_deleted_uids
+    #         # rc = KioskSQLDb.execute(sql)
+    #         # logging.debug(f"{self.__class__.__name__}.manage_locus_relations: "
+    #         #               f"{rc} rows affected by sql_delete_odd_opposites_insert_to_deleted_uids")
+    #         #
+    #         # # then delete them
+    #         # sql = sql_relation_types + " " + self.sql_delete_odd_opposites
+    #         # rc = KioskSQLDb.execute(sql)
+    #         # logging.debug(f"{self.__class__.__name__}.manage_locus_relations: "
+    #         #               f"{rc} rows affected by sql_delete_odd_opposites")
+    #
+    #         # create subordinate relations that are missing
+    #         sql = sql_relation_types + " " + self.sql_create_missing_relations
+    #         execute(sql, " opposite locus relations created.")
+    #
+    #         # set correct sketch_description
+    #         sql = self.sql_update_sketch_descriptions
+    #         execute(sql, " locus relation sketch descriptions updated.")
+    #
+    #         sql = self.sql_clear_sketch_descriptions
+    #         execute(sql, " locus relation sketch descriptions removed because the sketch had been deleted.")
+    #
+    #         KioskSQLDb.commit()
+    #         logging.info(f"locus relations successfully updated.")
+    #
+    #         self.test_relations(sql_relation_types)
+    #         return True
+    #     except BaseException as e:
+    #         logging.error(f"{self.__class__.__name__}.manage_locus_relations: {repr(e)}")
+    #         try:
+    #             KioskSQLDb.rollback()
+    #             logging.error(f"{self.__class__.__name__}.manage_locus_relations: rolled back.")
+    #         except BaseException as e2:
+    #             logging.error(f"{self.__class__.__name__}.manage_locus_relations: error when rolling back: {repr(e2)}")
+    #     return False
 
     def get_sql_relation_types(self, config):
         relation_types = self.get_relation_types_from_constants(config)
@@ -363,7 +377,7 @@ where r1.uid not in (
     def get_sql_relation_chron_types(self) -> Union[None, str]:
         """
         returns the sql string that contains the chronological relations and their opposites
-        :returns: either the sql string or None if for some reason this feature does not apply or an error occured
+        :returns: either the sql string or None if for some reason this feature does not apply or an error occurred
         """
         dsd = master_dsd = Dsd3Singleton.get_dsd3()
         if dsd.get_current_version("locus_relations") < 3:

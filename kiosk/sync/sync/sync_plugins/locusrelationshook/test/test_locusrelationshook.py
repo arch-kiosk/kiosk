@@ -121,6 +121,12 @@ abuts=is abutted
 is abutted by=abuts
 Make sure that every relation that calls for an opposite relation is mentioned on the left side if a pair. That is why both "abuts" and is "abutted by" lead in a separate line. The system will create the second term when the first one is selected. If a relation must not trigger an opposite relation, use "-" like this:
 abuts=-. But that should not be necessary.', null, 1, '036603fa-2261-5045-a5eb-4d996e54352b', '2020-02-10 21:53:39.000000', '2020-02-10 22:15:41.000000', 'lkh', false, null);                          """
+        KioskSQLDb.execute("""insert into constants(id, value, uid, created, modified, modified_by)
+        VALUES('valuelist_locus_relations_chron_opposites', 'earlier than=later than' ||
+                                                      '\rlater than = earlier than' ||
+                                                      '\rsame time as = same time as',
+        '0f6603fa-2261-5045-a5eb-4d996e54352b','2020-02-10 21:53:39.000000','2020-02-10 22:15:41.000000','sys');""")
+
         assert KioskSQLDb.execute(sql)
         assert plugin
         assert plugin.manage_locus_relations()

@@ -419,7 +419,8 @@ class Synchronization(PluginLoader):
                                                 "", commit=True)
                 except BaseException as e:
                     logging.error(f"{self.__class__.__name__}.synchronize: Exception in some hooked-in code "
-                                  f"at after_synchronization. The main synchronization has been committed, though.")
+                                  f"at after_synchronization. The main synchronization had been committed and finished "
+                                  f"successfully, though.")
                     logging.error(f"{self.__class__.__name__}.synchronize: {repr(e)}")
                     kioskrepllib.log_repl_event("synchronization", "aftermath FAILED",
                                                 "", commit=True)
