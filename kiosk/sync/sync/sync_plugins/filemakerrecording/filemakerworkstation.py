@@ -3,6 +3,7 @@ import datetime
 import logging
 import os
 import shutil
+import zoneinfo
 from datetime import tzinfo
 from shutil import copyfile
 import time
@@ -1197,9 +1198,9 @@ class FileMakerWorkstation(RecordingWorkstation):
             rc = fm.set_constant("developer_mode", "false")
         if rc:
             if self.current_tz.user_tz_index:
-                # todo time zone simplified: this looks fishy. Why datetime.now()?
-                time_zone_offset_str = kioskdatetimelib.get_time_zone_offset_str(datetime.datetime.now(),
-                                                                                 self.current_tz.user_tz_iana_name)
+                # time zone relevance
+                time_zone_offset_str = kioskdatetimelib.get_time_zone_offset_str(
+                    datetime.datetime.now(tz=zoneinfo.ZoneInfo(self.current_tz.user_tz_iana_name)))
                 rc = rc and fm.set_constant("utc_time_diff", time_zone_offset_str)
                 rc = rc and fm.set_constant("user_time_zone_index", self.current_tz.user_tz_index)
                 rc = rc and fm.set_constant("user_time_zone", self.current_tz.user_tz_long_name)
