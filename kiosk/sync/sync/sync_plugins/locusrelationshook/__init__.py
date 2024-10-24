@@ -27,7 +27,6 @@ class PluginLocusRelationsHook(SynchronizationPlugin):
         )
         """
 
-    # todo time zone simplified: All this needs modified, modified_tz and modified_ww!
     sql_set_r1_image = """
 -- set image in r1 if it does not have one but r2 has one
 update locus_relations set uid_sketch = r2_images.uid_sketch
@@ -49,7 +48,7 @@ where r2_images.uid = locus_relations.uid;
     """
 
     # time zone relevance
-    # this is the current using UTC time for the "modified" in repl_deleted_uids, which is okay.
+    # this is using the current UTC time for the "modified" in repl_deleted_uids, which is okay.
     sql_delete_r2_without_image_insert_delete_uids = """
     insert into repl_deleted_uids(deleted_uid, "table", repl_workstation_id, modified)
         select distinct r2.uid, 'locus_relations', 'kiosk', now() from locus_relations r1
