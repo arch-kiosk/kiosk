@@ -25,21 +25,10 @@ class KioskBackup:
     ]
 
     KIOSK_FILES = [
-        r"api",
-        r"config",
-        r"core",
-        r"plugins",
-        r"static",
-        r"templates",
-        r"sqlalchemy_models",
         r"__init__.py",
         r"this_is_the_kiosk_root.md",
         r"sync\sync\console.py",
         r"sync\sync\custom\default_filecontexts.py",
-        r"sync\sync\config",
-        r"sync\sync\sync_plugins",
-        r"sync\sync\core",
-        r"sync\sync\mcpcore",
         r"sync\sync\tools\UrapCreateDSDFromFM.py",
         r"sync\sync\tools\migrate_kiosk_db.py",
         r"sync\sync\tools\KioskDatabaseIntegrity.py",
@@ -51,8 +40,19 @@ class KioskBackup:
         r"tools\update_default_kiosk_queries.py",
         r"tools\refresh_full_text_search.py",
         r"tools\kiosktoolslib.py",
+        r"api",
+        r"config",
+        r"templates",
+        r"sqlalchemy_models",
+        r"sync\sync\config",
         r"tools\ps",
         r"tools\tz",
+        r"core",
+        r"plugins",
+        r"static",
+        r"sync\sync\sync_plugins",
+        r"sync\sync\core",
+        r"sync\sync\mcpcore",
     ]
 
     KIOSK_CONFIG_ONLY_FILES = [
@@ -141,9 +141,10 @@ class KioskBackup:
 
         cls._print_if_console(cmdline)
         attempts = 0
-        while attempts < 2:
+        max_attempts = 2
+        while True:
             try:
-                time.sleep(2 * (attempts + 1))
+                time.sleep(3 * (attempts + 1))
                 rc = subprocess.run(cmdline, cwd=working_directory, stdout=subprocess.PIPE)
             except OSError as e:
                 cls._abort_with_error(-1, f"Exception in zip_add_files: {repr(e)}")
@@ -152,15 +153,16 @@ class KioskBackup:
             if rc.returncode != 0:
                 cls._print_if_console(rc)
                 attempts += 1
-                if attempts == 2:
+                if attempts == max_attempts:
                     cls._abort_with_error(-1,
                                           f"_zip_add_files, subprocess.run returned "
-                                          f"something other than 0: {rc.returncode}")
-                    break
+                                          f"something other than 0: {rc.returncode} even after {attempts} attempts")
+                    return False
                 else:
                     cls._print_if_console(f"_zip_add_files, subprocess.run returned "
                                           f"something other than 0: {rc.returncode}. Trying again.")
             else:
+                cls._print_if_console(f"_zip_add_files for {files} worked after {attempts} attempts ")
                 break
 
         return True
