@@ -42,7 +42,7 @@ class KioskBackup:
         r"sync\sync\mcpcore",
         r"sync\sync\tools\UrapCreateDSDFromFM.py",
         r"sync\sync\tools\migrate_kiosk_db.py",
-        r"sync\sync\tools\UrapDatabaseIntegrity.py",
+        r"sync\sync\tools\KioskDatabaseIntegrity.py",
         r"tools\analyzefilerepository.py",
         r"tools\update_default_kiosk_queries.py",
         r"tools\kioskpatcher-cli.py",

@@ -139,7 +139,7 @@ config:
       preconditions:
         collected_material_types: 1
       flags:
-        add_collected_material_types: 1
+        add_collected_material_types: 2
 
     amend_collected_material_type:
 #     This migration script sets the cm type for a cm record if missing

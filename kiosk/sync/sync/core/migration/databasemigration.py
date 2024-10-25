@@ -1,8 +1,6 @@
 import logging
 import re
 
-from docutils.nodes import warning
-
 from dsd.dsd3 import DataSetDefinition
 from dsd.dsderrors import *
 from migration.tablemigration import _TableMigration
