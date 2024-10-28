@@ -61,13 +61,13 @@ LOCAL_PRIVILEGES = {
 }
 
 workers = {"fork": ("plugins.kioskfilemakerworkstationplugin.workers.forkworkstationworker",
-                    "ForkWorkstationWorker", PREPARE_WORKSTATIONS, False),
+                    "ForkWorkstationWorker", PREPARE_WORKSTATIONS, True),
            "export": ("plugins.kioskfilemakerworkstationplugin.workers.exportworkstationworker",
-                      "ExportWorkstationWorker", PREPARE_WORKSTATIONS, False),
+                      "ExportWorkstationWorker", PREPARE_WORKSTATIONS, True),
            "import": ("plugins.kioskfilemakerworkstationplugin.workers.importworkstationworker",
-                      "ImportWorkstationWorker", PREPARE_WORKSTATIONS, False),
+                      "ImportWorkstationWorker", PREPARE_WORKSTATIONS, True),
            "fix_import": ("plugins.kioskfilemakerworkstationplugin.workers.importworkstationworker",
-                          "ImportWorkstationWorker", PREPARE_WORKSTATIONS, False),
+                          "ImportWorkstationWorker", PREPARE_WORKSTATIONS, True),
            "reset": ("plugins.kioskfilemakerworkstationplugin.workers.resetworkstationworker",
                      "ResetWorkstationWorker", PREPARE_WORKSTATIONS, False),
            "renew": ("plugins.kioskfilemakerworkstationplugin.workers.resetworkstationworker",
@@ -75,7 +75,7 @@ workers = {"fork": ("plugins.kioskfilemakerworkstationplugin.workers.forkworksta
            "delete": ("plugins.kioskfilemakerworkstationplugin.workers.deleteworkstationworker",
                       "DeleteWorkstationWorker", EDIT_WORKSTATION_PRIVILEGE, False),
            "forknexport": ("plugins.kioskfilemakerworkstationplugin.workers.forknexportworkstationworker",
-                           "ForkNExportWorkstationWorker", PREPARE_WORKSTATIONS, False)
+                           "ForkNExportWorkstationWorker", PREPARE_WORKSTATIONS, True)
            }
 
 print(f"{_controller_name_} module loaded")
