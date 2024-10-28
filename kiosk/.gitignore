@@ -24,7 +24,6 @@ kiosk_secure.yml
 *.fmp*
 *.log
 *.dsn
-*.dmp
 *.crt
 *.key
 *reset.yml
@@ -40,3 +39,4 @@ backup.reminder
 /config/kiosk_local_config.yml
 /.run/
 /static/styles.css
+/plugins/**/static/*.css
