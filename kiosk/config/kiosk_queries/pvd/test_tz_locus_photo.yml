@@ -1,0 +1,29 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+variables:
+  identifier: ["dsd('locus', 'arch_context')"]
+queries:
+  'locus_photos':
+    name: '#:Time Zone Test: photos of a #(/$/glossary/locus)'
+    description: '#:Lists all the photo records of a #(/$/glossary/locus) with all modified fields'
+    type: 'SQL'
+    output_type: 'list'
+    query: "
+      select locus_photo.description, locus_photo.modified, locus_photo.modified_tz, tz.tz_long, locus_photo.modified_ww
+       from {{locus}} locus
+         inner join {{locus_photo}} locus_photo on locus.uid =locus_photo.uid_locus
+         left outer join {{kiosk_time_zones}} tz on locus_photo.modified_tz = tz.id
+      where locus.arch_context = {{#identifier}}
+      order by locus_photo.modified desc"
+    column_information:
+      id: ["DSD('unit','arch_context')"]
+      description: [datatype(VARCHAR)]
+      modified: [datatype(TIMESTAMPTZ)]
+      modified_tz: [datatype(TIMESTAMP)]
+      tz_long: [datatype(varchar)]
+      modified_ww: [datatype(TIMESTAMP)]
+
+
+

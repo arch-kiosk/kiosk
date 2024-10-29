@@ -408,7 +408,8 @@ def filerepository_editdialog(uid):
                                representations=representations,
                                created_latin=created_latin,
                                modified_tz=modified_tz,
-                               modified_utc=modified_utc,
+                               modified_utc=modified_utc if \
+                                   kioskglobals.get_development_option("test_time_zone_support") else None,
                                modified_ww=modified_ww,
                                )
 

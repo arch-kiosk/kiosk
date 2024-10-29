@@ -14,6 +14,9 @@
       {% endif %}
       created: {{ created_latin }}<br>
       modified: {{ modified_ww }} {{ modified_tz }}<br>
+      {% if modified_utc %}
+          <span style="color: var(--col-warning-bg-1);font-size: 14px; font-weight: bold">modified_utc: {{ modified_utc }}</span><br>
+      {% endif %}
       modified by {{ img.get_value('modified_by') }}<br>
       file type/size: {{ file_extension }} / {{ file_size }}<br>
     </div>

@@ -1,0 +1,29 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+variables:
+  identifier: ["dsd('unit', 'arch_context')"]
+queries:
+  'test_loci':
+    name: '#:Time Zone Test: Loci of a #(/$/glossary/unit)'
+    description: '#:Lists all the loci of a #(/$/glossary/unit) with all modified fields'
+    type: 'SQL'
+    output_type: 'list'
+    query: "
+      select locus.arch_context locus_id, locus.modified, locus.modified_tz, tz.tz_long, locus.modified_ww
+       from {{unit}} unit
+         inner join {{locus}} locus on unit.uid = locus.uid_unit
+         left outer join {{kiosk_time_zones}} tz on locus.modified_tz = tz.id
+      where unit.arch_context = {{#identifier}}
+      order by locus.modified desc"
+    column_information:
+      id: ["DSD('unit','arch_context')"]
+      locus_id: ["datatype(varchar)", "label('locus id')"]
+      modified: [datatype(TIMESTAMPTZ)]
+      modified_tz: [datatype(TIMESTAMP)]
+      tz_long: [datatype(varchar)]
+      modified_ww: [datatype(TIMESTAMP)]
+
+
+
