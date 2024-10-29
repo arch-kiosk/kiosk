@@ -113,20 +113,21 @@ class KioskFileManagerDirectories(db.Model):
 #     created = db.Column(db.DateTime(), nullable=True, server_default=func.now())
 
 
-# class KioskQueries(db.Model):
-#     __tablename__="kiosk_queries"
-#     uid = db.Column(UUID(as_uuid=True), primary_key=True,
-#                     unique=True, nullable=False, server_default="gen_random_uuid()")
-#     id = db.Column(db.String(), unique=True, nullable=False)
-#     name = db.Column(db.String(), nullable=False)
-#     description = db.Column(db.String())
-#     query_type = db.Column(db.String())
-#     privilege_read = db.Column(db.String())
-#     privilege_write = db.Column(db.String())
-#     query = db.Column(db.String())
-#     modified_by = db.Column(db.String(), nullable=False)
-#     modified = db.Column(db.DateTime(), nullable=True, onupdate="now()", server_default=func.now())
-#     created = db.Column(db.DateTime(), nullable=True, server_default=func.now())
+# KioskQueries are only there so that queries can be deleted.
+class KioskQueries(db.Model):
+    __tablename__="kiosk_queries"
+    uid = db.Column(UUID(as_uuid=True), primary_key=True,
+                    unique=True, nullable=False, server_default="gen_random_uuid()")
+    id = db.Column(db.String(), unique=True, nullable=False)
+    name = db.Column(db.String(), nullable=False)
+    description = db.Column(db.String())
+    query_type = db.Column(db.String())
+    privilege_read = db.Column(db.String())
+    privilege_write = db.Column(db.String())
+    query = db.Column(db.String())
+    modified_by = db.Column(db.String(), nullable=False)
+    modified = db.Column(db.DateTime(), nullable=True, onupdate="now()", server_default=func.now())
+    created = db.Column(db.DateTime(), nullable=True, server_default=func.now())
 
 
 def test():

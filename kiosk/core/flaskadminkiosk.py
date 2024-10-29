@@ -14,7 +14,7 @@ from sqlalchemy_models.adminmodel import KioskFilePickingRules
 from sqlalchemy_models.adminmodel import KioskQCRules, KioskQCFlags
 from sqlalchemy_models.adminmodel import KioskQCRules, KioskFileManagerDirectories
 # from sqlalchemy_models.adminmodel import KioskFileMakerRecordingConstants
-# from sqlalchemy_models.adminmodel import KioskQueries
+from sqlalchemy_models.adminmodel import KioskQueries
 
 
 class EmptyStringField(wtforms.fields.StringField):
@@ -243,5 +243,5 @@ def init_flask_admin(cfg, app):
         KioskFileManagerDirectoriesView(KioskFileManagerDirectories, kiosksqlalchemy.sqlalchemy_db.session))
     # kioskglobals.flask_admin.add_view(
     #     KioskFileMakerRecordingConstantsView(KioskFileMakerRecordingConstants, kiosksqlalchemy.sqlalchemy_db.session))
-    # kioskglobals.flask_admin.add_view(
-    #     KioskQueriesView(KioskQueries, kiosksqlalchemy.sqlalchemy_db.session))
+    kioskglobals.flask_admin.add_view(
+        KioskQueriesView(KioskQueries, kiosksqlalchemy.sqlalchemy_db.session))
