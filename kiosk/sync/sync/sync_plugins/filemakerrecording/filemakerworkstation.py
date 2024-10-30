@@ -1503,7 +1503,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                            f"FileMaker source user time zone: {fm_user_time_zone_index}"))
 
         try:
-            fm_tz.user_time_zone_index = int(fm_user_time_zone_index)
+            fm_tz.user_tz_index = int(fm_user_time_zone_index)
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}._import_check_fm_time_zones: An error occured "
                           f"when trying to process the time zones reported by the dock: {repr(e)}. "
@@ -1515,14 +1515,13 @@ class FileMakerWorkstation(RecordingWorkstation):
         logging.debug((f"FileMakerWorkstation._import_check_fm_time_zones:"
                        f"current user time zone: {self.current_tz.user_tz_index}"))
 
-
-        if fm_tz.user_time_zone_index != self.current_tz.user_tz_index:
+        if fm_tz.user_tz_index != self.current_tz.user_tz_index:
             if self.fix_import_errors:
                 logging.warning((f"FileMakerWorkstation._import_check_fm_time_zones:"
                                  f"Error importing data from a filemaker source that on export "
-                                 f"was set to user time zone"
-                                 f"{fm_tz.user_tz_long_name} but now is expected in user time zone "
-                                 f"{self.current_tz.user_tz_long_name}). "
+                                 f"was set to user time zone "
+                                 f"'{fm_tz.user_tz_long_name}' but now is expected in user time zone "
+                                 f"'{self.current_tz.user_tz_long_name}'). "
                                  f"This is ignored as the import is using repair mode."))
             else:
                 logging.error(f"FileMakerWorkstation._import_check_fm_time_zones:"
