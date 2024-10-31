@@ -1505,7 +1505,7 @@ class FileMakerWorkstation(RecordingWorkstation):
         try:
             fm_tz.user_tz_index = int(fm_user_time_zone_index)
         except BaseException as e:
-            logging.error(f"{self.__class__.__name__}._import_check_fm_time_zones: An error occured "
+            logging.error(f"{self.__class__.__name__}._import_check_fm_time_zones: An error occurred "
                           f"when trying to process the time zones reported by the dock: {repr(e)}. "
                           f"The dock cannot be imported like that.")
             return None
@@ -1516,20 +1516,40 @@ class FileMakerWorkstation(RecordingWorkstation):
                        f"current user time zone: {self.current_tz.user_tz_index}"))
 
         if fm_tz.user_tz_index != self.current_tz.user_tz_index:
-            if self.fix_import_errors:
-                logging.warning((f"FileMakerWorkstation._import_check_fm_time_zones:"
-                                 f"Error importing data from a filemaker source that on export "
-                                 f"was set to user time zone "
+            fm_tz_offset = kioskdatetimelib.get_time_zone_offset(datetime.datetime.now(datetime.timezone.utc),
+                                                                 fm_tz.user_tz_iana_name)
+            current_tz_offset = kioskdatetimelib.get_time_zone_offset(datetime.datetime.now(datetime.timezone.utc),
+                                                                      self.current_tz.user_tz_iana_name)
+            if fm_tz_offset and current_tz_offset and fm_tz_offset == current_tz_offset:
+                logging.info((f"FileMakerWorkstation._import_check_fm_time_zones:"
+                                 f"When importing a filemaker source it was on export "
+                                 f"set to user time zone "
                                  f"'{fm_tz.user_tz_long_name}' but now is expected in user time zone "
                                  f"'{self.current_tz.user_tz_long_name}'). "
-                                 f"This is ignored as the import is using repair mode."))
+                                 f"But it turns out the UTC offsets of these two time zones are the same, so "
+                                 f"this can proceed."))
             else:
-                logging.error(f"FileMakerWorkstation._import_check_fm_time_zones:"
-                              f"Error importing data from a filemaker source that on export "
-                              f"was set to user time zone"
-                              f"{fm_tz.user_tz_long_name} but now is expected in user time zone "
-                              f"{self.current_tz.user_tz_long_name}). This error can be ignored in repair mode.")
-                rc = None
+                logging.debug((f"FileMakerWorkstation._import_check_fm_time_zones:"
+                                 f"fm_tz_offset: {fm_tz_offset} != current_tz_offset: {current_tz_offset} "
+                                 f"set to user time zone "
+                                 f"'{fm_tz.user_tz_long_name}' but now is expected in user time zone "
+                                 f"'{self.current_tz.user_tz_long_name}'). "
+                                 f"But it turns out the UTC offsets of these two time zones are the same, so "
+                                 f"this can proceed."))
+                if self.fix_import_errors:
+                    logging.warning((f"FileMakerWorkstation._import_check_fm_time_zones:"
+                                     f"Error importing data from a filemaker source that on export "
+                                     f"was set to user time zone "
+                                     f"'{fm_tz.user_tz_long_name}' but now is expected in user time zone "
+                                     f"'{self.current_tz.user_tz_long_name}'). "
+                                     f"This is ignored as the import is using repair mode."))
+                else:
+                    logging.error(f"FileMakerWorkstation._import_check_fm_time_zones:"
+                                  f"Error importing data from a filemaker source that on export "
+                                  f"was set to user time zone "
+                                  f"'{fm_tz.user_tz_long_name}' but now is expected in user time zone "
+                                  f"'{self.current_tz.user_tz_long_name}'). This error can be ignored in repair mode.")
+                    rc = None
 
         return rc
 
@@ -2020,8 +2040,9 @@ class FileMakerWorkstation(RecordingWorkstation):
                 if r:
                     delete_counter = r["c"]
             else:
-                # todo time zone: does the modified manipulation still work? (yup)
-                # it should, shouldn't it? The fork time should be utc and modified is expected to be utc, too.
+                # time zone relevance: does the modified manipulation still work? (yup)
+                #  it should, shouldn't it? The fork time in the Kiosk database IS utc (I looked that up)
+                #  and modified is expected to be utc, too.
                 sql = f'update ' + f' {dest_table_name} set "repl_deleted"=true,' \
                                    f'"modified"=%s + (interval \'2 seconds\') where "repl_tag"=0'
                 cur.execute(sql, [self.get_fork_time()])

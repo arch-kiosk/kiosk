@@ -1250,6 +1250,7 @@ class Synchronization(PluginLoader):
                 if not r or r[0] == 0:
                     logging.debug("table " + table + ": No deleted records found -> nothing to do.")
                 else:
+                    expected_deletions = r[0]
                     if kioskstdlib.try_get_dict_entry(self.options, "safe_mode", False):
                         logging.warning(f"Synchronization._sync_deleted_records: "
                                         f"There would be deletions in table {table} but the safe mode prevents "
@@ -1280,6 +1281,13 @@ class Synchronization(PluginLoader):
                         if cur.rowcount > 0:
                             logging.info("Synchronization._sync_deleted_records: " +
                                          str(cur.rowcount) + " rows deleted from " + table)
+                        if cur.rowcount < expected_deletions:
+                            logging.info(f"Synchronization._sync_deleted_records: "
+                                         f"{str(expected_deletions - cur.rowcount)} " 
+                                         f"rows got deleted by at least one dock but REMAIN in table {table} because "
+                                         f"they were also MODIFIED by at least one dock. Kiosk resolves such "
+                                         f"peculiarities ALWAYS by keeping rather than losing data.")
+
                 ctable += 1
                 report_progress(callback_progress, progress=ctable * 100 / len(tables),
                                 topic="_sync_deleted_records")
