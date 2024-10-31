@@ -206,11 +206,14 @@ class KioskFileMakerWorkstation(KioskWorkstation):
             if self._sync_ws.download_upload_status > -1 and \
                     self._sync_ws.download_upload_ts and \
                     fork_time < self._sync_ws.download_upload_ts:
+                time_zone = self.current_tz.user_tz_iana_name if self.current_tz else \
+                                                  current_user.get_active_time_zone_name(iana=True)
+                if not time_zone:
+                    time_zone = "utc"
                 self._state_description = self._download_upload_status_text + " on " + \
                                           kioskstdlib.latin_date(kioskdatetimelib.utc_ts_to_timezone_ts(
                                               self._sync_ws.download_upload_ts,
-                                              self.current_tz.user_tz_iana_name if self.current_tz else \
-                                                  current_user.get_active_time_zone_name(iana=True)))
+                                              time_zone))
             else:
                 self._state_description = self._download_upload_status_text
         else:

@@ -351,7 +351,7 @@ def utc_ts_to_timezone_ts(utc_datetime: Union[datetime.datetime, str], time_zone
     :returns: a datetime with local time of the time zone and the time zone information dropped.
     """
     if not time_zone or not utc_datetime:
-        raise ValueError("empty parameter in utc_datetime_to_timezone")
+        raise ValueError("empty parameter in utc_ts_to_timezone_ts")
 
     if isinstance(utc_datetime, str):
         dt = kioskstdlib.str_to_iso8601(utc_datetime)
@@ -359,13 +359,13 @@ def utc_ts_to_timezone_ts(utc_datetime: Union[datetime.datetime, str], time_zone
         if isinstance(utc_datetime, datetime.datetime):
             dt = utc_datetime
         else:
-            raise ValueError("parameter utc_datetime is not string nor datetime")
+            raise ValueError("parameter utc_datetime is not string nor datetime in utc_ts_to_timezone_ts")
 
     dt = dt.replace(tzinfo=datetime.timezone.utc)
 
     tz = zoneinfo.ZoneInfo(time_zone)
     if not tz:
-        raise ValueError(f"{time_zone} is not a valid IANA time zone ")
+        raise ValueError(f"{time_zone} is not a valid IANA time zone in utc_ts_to_timezone_ts")
 
     dt_tz = dt.astimezone(tz)
 

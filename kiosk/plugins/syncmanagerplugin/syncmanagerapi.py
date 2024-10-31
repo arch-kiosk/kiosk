@@ -2,6 +2,7 @@
 import logging
 import pprint
 
+import flask
 from flask import url_for, request
 from flask_allows import requires
 from flask_restful import Resource, abort
@@ -19,6 +20,7 @@ from kioskglobals import kiosk_version, kiosk_version_name, get_global_constants
 from kioskworkstation import KioskWorkstation
 from makejsonresponse import make_json_response
 from mcpinterface.mcpconstants import *
+from tz.kiosktimezoneinstance import KioskTimeZoneInstance
 from .kiosksyncmanager import KioskSyncManager
 from .kioskworkstationjobs import KioskWorkstationJob, JOB_META_TAG_DELETED, JOB_META_TAG_CREATED
 
@@ -171,40 +173,45 @@ class V1SyncManagerWorkstations(Resource):
                         application/json:
                             schema: LoginError
         '''
-        cfg = get_config()
-        sync_manager = KioskSyncManager(kioskglobals.type_repository)
-        result = self.gather_workstation_information(sync_manager)
         try:
-            sync_job = sync_manager.get_current_synchronization_job()
-        except BaseException as e:
-            sync_job = None
+            cfg = get_config()
+            sync_manager = KioskSyncManager(kioskglobals.type_repository)
+            result = self.gather_workstation_information(sync_manager)
+            try:
+                sync_job = sync_manager.get_current_synchronization_job()
+            except BaseException as e:
+                sync_job = None
 
-        if sync_job:
-            sync_status = sync_job.status
-        else:
-            sync_status = -1
+            if sync_job:
+                sync_status = sync_job.status
+            else:
+                sync_status = -1
 
-        poll_delay = kioskstdlib.try_get_dict_entry(cfg.get_plugin_config("syncmanagerplugin"),
-                                                    "poll_intervall_slow_sec", 60)
-
-        if self.gather_job_information(result, sync_manager):
-            poll_delay = kioskstdlib.try_get_dict_entry(cfg.get_plugin_config("syncmanagerplugin"),
-                                                        "poll_intervall_fast_sec", 2)
-        else:
             poll_delay = kioskstdlib.try_get_dict_entry(cfg.get_plugin_config("syncmanagerplugin"),
                                                         "poll_intervall_slow_sec", 60)
-        try:
-            result = self.sort_by_port(result, cfg)
-        except BaseException as e:
-            logging.error(f"{self.__class__.__name__}.get: Error when sorting by port: {repr(e)}")
 
-        return SyncManagerWorkstationsV1().dump({
-            'result_msg': 'ok',
-            'poll_delay': poll_delay,
-            'sync_status': sync_status,
-            'workstations': list(result.values()),
-            'last_sync_ts': kioskstdlib.iso8601_to_str(sync_manager.last_sync_ts) if sync_manager.last_sync_ts else ""
-        })
+            if self.gather_job_information(result, sync_manager):
+                poll_delay = kioskstdlib.try_get_dict_entry(cfg.get_plugin_config("syncmanagerplugin"),
+                                                            "poll_intervall_fast_sec", 2)
+            else:
+                poll_delay = kioskstdlib.try_get_dict_entry(cfg.get_plugin_config("syncmanagerplugin"),
+                                                            "poll_intervall_slow_sec", 60)
+            try:
+                result = self.sort_by_port(result, cfg)
+            except BaseException as e:
+                logging.error(f"{self.__class__.__name__}.get: Error when sorting by port: {repr(e)}")
+
+            return SyncManagerWorkstationsV1().dump({
+                'result_msg': 'ok',
+                'poll_delay': poll_delay,
+                'sync_status': sync_status,
+                'workstations': list(result.values()),
+                'last_sync_ts': kioskstdlib.iso8601_to_str(sync_manager.last_sync_ts) if sync_manager.last_sync_ts else ""
+            })
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.get: {repr(e)}")
+            flask.abort(500, description=repr(e))
+
 
     @classmethod
     def gather_workstation_information(cls, sync_manager: KioskSyncManager):
@@ -421,7 +428,8 @@ class V1SyncManagerDock(Resource):
             params = ApiDockGetParameter().load(request.args)
             cfg = get_config()
             sync_manager = KioskSyncManager(kioskglobals.type_repository)
-            ws = sync_manager.get_workstation(params["dock_id"])
+            ws = sync_manager.get_workstation(params["dock_id"], KioskTimeZoneInstance(kioskglobals.kiosk_time_zones,
+                                                                                       user_tz_index=0))
             if ws:
                 result = get_workstation_information(ws.id, ws)
                 return SyncManagerWorkstationV1().dump(result)
@@ -429,6 +437,7 @@ class V1SyncManagerDock(Resource):
                 return ApiDockGetError().dump({"result_msg": f"dock {params['dock_id']} does not exist."}), 404
 
         except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.get: {repr(e)}")
             return ApiDockGetError().dump({"result_msg": repr(e)}), 500
 
 
