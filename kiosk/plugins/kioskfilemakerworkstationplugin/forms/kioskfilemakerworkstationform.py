@@ -32,7 +32,7 @@ class KioskFileMakerWorkstationForm(FlaskForm, KioskGeneralFormErrors):
                                                       "A recording group is mandatory")]
                                               )
     grant_access_to = KioskLabeledStringField(label="grant access to")
-    user_time_zone_index = KioskTimeZoneSelectorField(label="user's time zone")
+    user_time_zone_index = KioskTimeZoneSelectorField(label="dock's time zone")
 
     options = KioskLabeledStringField(label="workstation options")
 
