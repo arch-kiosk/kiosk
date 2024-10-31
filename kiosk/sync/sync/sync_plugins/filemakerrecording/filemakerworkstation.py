@@ -1529,13 +1529,8 @@ class FileMakerWorkstation(RecordingWorkstation):
                                  f"But it turns out the UTC offsets of these two time zones are the same, so "
                                  f"this can proceed."))
             else:
-                logging.debug((f"FileMakerWorkstation._import_check_fm_time_zones:"
-                                 f"fm_tz_offset: {fm_tz_offset} != current_tz_offset: {current_tz_offset} "
-                                 f"set to user time zone "
-                                 f"'{fm_tz.user_tz_long_name}' but now is expected in user time zone "
-                                 f"'{self.current_tz.user_tz_long_name}'). "
-                                 f"But it turns out the UTC offsets of these two time zones are the same, so "
-                                 f"this can proceed."))
+                logging.debug(f"FileMakerWorkstation._import_check_fm_time_zones: "
+                              f"fm_tz_offset {fm_tz_offset} != current_tz_offset {current_tz_offset} ")
                 if self.fix_import_errors:
                     logging.warning((f"FileMakerWorkstation._import_check_fm_time_zones:"
                                      f"Error importing data from a filemaker source that on export "
@@ -1548,7 +1543,8 @@ class FileMakerWorkstation(RecordingWorkstation):
                                   f"Error importing data from a filemaker source that on export "
                                   f"was set to user time zone "
                                   f"'{fm_tz.user_tz_long_name}' but now is expected in user time zone "
-                                  f"'{self.current_tz.user_tz_long_name}'). This error can be ignored in repair mode.")
+                                  f"'{self.current_tz.user_tz_long_name}'). Please consult the FAQ or user manual "
+                                  f"to learn about your options.")
                     rc = None
 
         return rc
