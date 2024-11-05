@@ -15,6 +15,7 @@ import kioskglobals
 from backupreminder import BackupReminder
 
 from core.kioskcontrollerplugin import get_plugin_for_controller
+from kioskconfig import KioskConfig
 from kiosklib import is_ajax_request
 from kioskresult import KioskResult
 from kioskworkstation import KioskWorkstation
@@ -158,7 +159,9 @@ def synchronize_check():
                                sync_msg="You do not have the necessary privileges to start this process.")
     else:
         sync_options_form = SyncOptionsForm()
-
+        sync_options_form.so_housekeeping.data = kioskstdlib.try_get_dict_entry(
+            kioskglobals.cfg.kiosk["syncmanagerplugin"],
+            "sync_options_run_housekeeping", True,True)
         sync = Synchronization()
         sync.list_workstations()
         sync_job = KioskSyncManager.get_current_synchronization_job()
