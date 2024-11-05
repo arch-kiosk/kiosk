@@ -206,3 +206,15 @@ config:
         kiosk_user: 3
       flags:
         kiosk_file_picking_add_defaults: 3
+
+    buap_amend_locus_domain_and_id:
+      # this is splitting the arch-context into two parts: The domain (unit) and the serial id
+      # as the serial id has to be an int the second part of the arch_context is forced into an int by
+      # interpreting only the numerical digits from it. If there aren't any at all, the record is skipped.
+      projects: ["buap"]
+      migration: "sql\\buap_amend_locus_domain_and_id.sql"
+      options: [after_table_migration]
+      preconditions:
+        kiosk_user: 3
+      flags:
+        buap_amend_locus_domain_and_id: 1

@@ -307,7 +307,8 @@ class Migration:
         try:
             sql_lines = self._db_adapter.get_sql_lines(self._dsd.dsd_root_path, sql_instruction,
                                                        prefix=prefix, namespace=namespace)
-            self._db_adapter.execute_sql(sql_lines)
+            rc = self._db_adapter.execute_sql(sql_lines)
+            logging.debug(f"{self.__class__.__name__}._run_cross_table_migration: {rc} rows affected")
             return True
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}._run_cross_table_migration: {repr(e)}")
