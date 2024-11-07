@@ -2,7 +2,7 @@ var Xn = Object.getPrototypeOf;
 var Jn = Reflect.get;
 var Qn = (r, e) => () => (e || r((e = { exports: {} }).exports, e), e.exports);
 var ei = (r, e, t) => Jn(Xn(r), t, e);
-var gg = Qn((Ug, go) => {
+var pg = Qn((jg, go) => {
   /**
    * @license
    * Copyright 2019 Google LLC
@@ -11,8 +11,7 @@ var gg = Qn((Ug, go) => {
   const Xt = window, fo = Xt.ShadowRoot && (Xt.ShadyCSS === void 0 || Xt.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, bo = Symbol(), ti = /* @__PURE__ */ new WeakMap();
   let mo = class {
     constructor(e, t, o) {
-      if (this._$cssResult$ = !0, o !== bo)
-        throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
+      if (this._$cssResult$ = !0, o !== bo) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
       this.cssText = e, this.t = t;
     }
     get styleSheet() {
@@ -30,10 +29,8 @@ var gg = Qn((Ug, go) => {
   };
   const H = (r) => new mo(typeof r == "string" ? r : r + "", void 0, bo), A = (r, ...e) => {
     const t = r.length === 1 ? r[0] : e.reduce((o, i, a) => o + ((n) => {
-      if (n._$cssResult$ === !0)
-        return n.cssText;
-      if (typeof n == "number")
-        return n;
+      if (n._$cssResult$ === !0) return n.cssText;
+      if (typeof n == "number") return n;
       throw Error("Value passed to 'css' function must be a 'css' function result: " + n + ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.");
     })(i) + r[a + 1], r[0]);
     return new mo(t, r, bo);
@@ -44,8 +41,7 @@ var gg = Qn((Ug, go) => {
     });
   }, ri = fo ? (r) => r : (r) => r instanceof CSSStyleSheet ? ((e) => {
     let t = "";
-    for (const o of e.cssRules)
-      t += o.cssText;
+    for (const o of e.cssRules) t += o.cssText;
     return H(t);
   })(r) : r;
   /**
@@ -117,14 +113,12 @@ var gg = Qn((Ug, go) => {
       return this.elementProperties.get(e) || _r;
     }
     static finalize() {
-      if (this.hasOwnProperty(Hr))
-        return !1;
+      if (this.hasOwnProperty(Hr)) return !1;
       this[Hr] = !0;
       const e = Object.getPrototypeOf(this);
       if (e.finalize(), e.h !== void 0 && (this.h = [...e.h]), this.elementProperties = new Map(e.elementProperties), this._$Ev = /* @__PURE__ */ new Map(), this.hasOwnProperty("properties")) {
         const t = this.properties, o = [...Object.getOwnPropertyNames(t), ...Object.getOwnPropertySymbols(t)];
-        for (const i of o)
-          this.createProperty(i, t[i]);
+        for (const i of o) this.createProperty(i, t[i]);
       }
       return this.elementStyles = this.finalizeStyles(this.styles), !0;
     }
@@ -132,10 +126,8 @@ var gg = Qn((Ug, go) => {
       const t = [];
       if (Array.isArray(e)) {
         const o = new Set(e.flat(1 / 0).reverse());
-        for (const i of o)
-          t.unshift(ri(i));
-      } else
-        e !== void 0 && t.push(ri(e));
+        for (const i of o) t.unshift(ri(i));
+      } else e !== void 0 && t.push(ri(e));
       return t;
     }
     static _$Ep(e, t) {
@@ -218,8 +210,7 @@ var gg = Qn((Ug, go) => {
     }
     performUpdate() {
       var e;
-      if (!this.isUpdatePending)
-        return;
+      if (!this.isUpdatePending) return;
       this.hasUpdated, this._$Ei && (this._$Ei.forEach((i, a) => this[a] = i), this._$Ei = void 0);
       let t = !1;
       const o = this._$AL;
@@ -273,8 +264,7 @@ var gg = Qn((Ug, go) => {
 \f\r]`, lt = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, ni = /-->/g, si = />/g, ve = RegExp(`>|${yr}(?:([^\\s"'>=/]+)(${yr}*=${yr}*(?:[^ 	
 \f\r"'\`<>=]|("|')|))|$)`, "g"), li = /'/g, ci = /"/g, da = /^(?:script|style|textarea|title)$/i, os = (r) => (e, ...t) => ({ _$litType$: r, strings: e, values: t }), h = os(1), Je = Symbol.for("lit-noChange"), O = Symbol.for("lit-nothing"), di = /* @__PURE__ */ new WeakMap(), ye = Ce.createTreeWalker(Ce, 129, null, !1);
   function ua(r, e) {
-    if (!Array.isArray(r) || !r.hasOwnProperty("raw"))
-      throw Error("invalid template strings array");
+    if (!Array.isArray(r) || !r.hasOwnProperty("raw")) throw Error("invalid template strings array");
     return ai !== void 0 ? ai.createHTML(e) : e;
   }
   const is = (r, e) => {
@@ -283,8 +273,7 @@ var gg = Qn((Ug, go) => {
     for (let s = 0; s < t; s++) {
       const l = r[s];
       let c, d, u = -1, p = 0;
-      for (; p < l.length && (n.lastIndex = p, d = n.exec(l), d !== null); )
-        p = n.lastIndex, n === lt ? d[1] === "!--" ? n = ni : d[1] !== void 0 ? n = si : d[2] !== void 0 ? (da.test(d[2]) && (i = RegExp("</" + d[2], "g")), n = ve) : d[3] !== void 0 && (n = ve) : n === ve ? d[0] === ">" ? (n = i ?? lt, u = -1) : d[1] === void 0 ? u = -2 : (u = n.lastIndex - d[2].length, c = d[1], n = d[3] === void 0 ? ve : d[3] === '"' ? ci : li) : n === ci || n === li ? n = ve : n === ni || n === si ? n = lt : (n = ve, i = void 0);
+      for (; p < l.length && (n.lastIndex = p, d = n.exec(l), d !== null); ) p = n.lastIndex, n === lt ? d[1] === "!--" ? n = ni : d[1] !== void 0 ? n = si : d[2] !== void 0 ? (da.test(d[2]) && (i = RegExp("</" + d[2], "g")), n = ve) : d[3] !== void 0 && (n = ve) : n === ve ? d[0] === ">" ? (n = i ?? lt, u = -1) : d[1] === void 0 ? u = -2 : (u = n.lastIndex - d[2].length, c = d[1], n = d[3] === void 0 ? ve : d[3] === '"' ? ci : li) : n === ci || n === li ? n = ve : n === ni || n === si ? n = lt : (n = ve, i = void 0);
       const g = n === ve && r[s + 1].startsWith("/>") ? " " : "";
       a += n === lt ? l + ts : u >= 0 ? (o.push(c), l.slice(0, u) + Br + l.slice(u) + le + g) : l + le + (u === -2 ? (o.push(void 0), s) : g);
     }
@@ -304,35 +293,28 @@ var gg = Qn((Ug, go) => {
         if (i.nodeType === 1) {
           if (i.hasAttributes()) {
             const u = [];
-            for (const p of i.getAttributeNames())
-              if (p.endsWith(Br) || p.startsWith(le)) {
-                const g = d[n++];
-                if (u.push(p), g !== void 0) {
-                  const b = i.getAttribute(g.toLowerCase() + Br).split(le), f = /([.?@])?(.*)/.exec(g);
-                  l.push({ type: 1, index: a, name: f[2], strings: b, ctor: f[1] === "." ? ns : f[1] === "?" ? ls : f[1] === "@" ? cs : lr });
-                } else
-                  l.push({ type: 6, index: a });
-              }
-            for (const p of u)
-              i.removeAttribute(p);
+            for (const p of i.getAttributeNames()) if (p.endsWith(Br) || p.startsWith(le)) {
+              const g = d[n++];
+              if (u.push(p), g !== void 0) {
+                const b = i.getAttribute(g.toLowerCase() + Br).split(le), f = /([.?@])?(.*)/.exec(g);
+                l.push({ type: 1, index: a, name: f[2], strings: b, ctor: f[1] === "." ? ns : f[1] === "?" ? ls : f[1] === "@" ? cs : lr });
+              } else l.push({ type: 6, index: a });
+            }
+            for (const p of u) i.removeAttribute(p);
           }
           if (da.test(i.tagName)) {
             const u = i.textContent.split(le), p = u.length - 1;
             if (p > 0) {
               i.textContent = Xe ? Xe.emptyScript : "";
-              for (let g = 0; g < p; g++)
-                i.append(u[g], wt()), ye.nextNode(), l.push({ type: 2, index: ++a });
+              for (let g = 0; g < p; g++) i.append(u[g], wt()), ye.nextNode(), l.push({ type: 2, index: ++a });
               i.append(u[p], wt());
             }
           }
-        } else if (i.nodeType === 8)
-          if (i.data === la)
-            l.push({ type: 2, index: a });
-          else {
-            let u = -1;
-            for (; (u = i.data.indexOf(le, u + 1)) !== -1; )
-              l.push({ type: 7, index: a }), u += le.length - 1;
-          }
+        } else if (i.nodeType === 8) if (i.data === la) l.push({ type: 2, index: a });
+        else {
+          let u = -1;
+          for (; (u = i.data.indexOf(le, u + 1)) !== -1; ) l.push({ type: 7, index: a }), u += le.length - 1;
+        }
         a++;
       }
     }
@@ -343,8 +325,7 @@ var gg = Qn((Ug, go) => {
   }
   function Qe(r, e, t = r, o) {
     var i, a, n, s;
-    if (e === Je)
-      return e;
+    if (e === Je) return e;
     let l = o !== void 0 ? (i = t._$Co) === null || i === void 0 ? void 0 : i[o] : t._$Cl;
     const c = Ct(e) ? void 0 : e._$litDirective$;
     return (l == null ? void 0 : l.constructor) !== c && ((a = l == null ? void 0 : l._$AO) === null || a === void 0 || a.call(l, !1), c === void 0 ? l = void 0 : (l = new c(r), l._$AT(r, t, o)), o !== void 0 ? ((n = (s = t)._$Co) !== null && n !== void 0 ? n : s._$Co = [])[o] = l : t._$Cl = l), l !== void 0 && (e = Qe(r, l._$AS(r, e.values), l, o)), e;
@@ -375,8 +356,7 @@ var gg = Qn((Ug, go) => {
     }
     v(e) {
       let t = 0;
-      for (const o of this._$AV)
-        o !== void 0 && (o.strings !== void 0 ? (o._$AI(e, o, t), t += o.strings.length - 2) : o._$AI(e[t])), t++;
+      for (const o of this._$AV) o !== void 0 && (o.strings !== void 0 ? (o._$AI(e, o, t), t += o.strings.length - 2) : o._$AI(e[t])), t++;
     }
   }
   class Lt {
@@ -414,8 +394,7 @@ var gg = Qn((Ug, go) => {
     g(e) {
       var t;
       const { values: o, _$litType$: i } = e, a = typeof i == "number" ? this._$AC(e) : (i.el === void 0 && (i.el = At.createElement(ua(i.h, i.h[0]), this.options)), i);
-      if (((t = this._$AH) === null || t === void 0 ? void 0 : t._$AD) === a)
-        this._$AH.v(o);
+      if (((t = this._$AH) === null || t === void 0 ? void 0 : t._$AD) === a) this._$AH.v(o);
       else {
         const n = new as(a, this), s = n.u(this.options);
         n.v(o), this.$(s), this._$AH = n;
@@ -429,8 +408,7 @@ var gg = Qn((Ug, go) => {
       ca(this._$AH) || (this._$AH = [], this._$AR());
       const t = this._$AH;
       let o, i = 0;
-      for (const a of e)
-        i === t.length ? t.push(o = new Lt(this.k(wt()), this.k(wt()), this, this.options)) : o = t[i], o._$AI(a), i++;
+      for (const a of e) i === t.length ? t.push(o = new Lt(this.k(wt()), this.k(wt()), this, this.options)) : o = t[i], o._$AI(a), i++;
       i < t.length && (this._$AR(o && o._$AB.nextSibling, i), t.length = i);
     }
     _$AR(e = this._$AA.nextSibling, t) {
@@ -458,13 +436,11 @@ var gg = Qn((Ug, go) => {
     _$AI(e, t = this, o, i) {
       const a = this.strings;
       let n = !1;
-      if (a === void 0)
-        e = Qe(this, e, t, 0), n = !Ct(e) || e !== this._$AH && e !== Je, n && (this._$AH = e);
+      if (a === void 0) e = Qe(this, e, t, 0), n = !Ct(e) || e !== this._$AH && e !== Je, n && (this._$AH = e);
       else {
         const s = e;
         let l, c;
-        for (e = a[0], l = 0; l < a.length - 1; l++)
-          c = Qe(this, s[o + l], t, l), c === Je && (c = this._$AH[l]), n || (n = !Ct(c) || c !== this._$AH[l]), c === O ? e = O : e !== O && (e += (c ?? "") + a[l + 1]), this._$AH[l] = c;
+        for (e = a[0], l = 0; l < a.length - 1; l++) c = Qe(this, s[o + l], t, l), c === Je && (c = this._$AH[l]), n || (n = !Ct(c) || c !== this._$AH[l]), c === O ? e = O : e !== O && (e += (c ?? "") + a[l + 1]), this._$AH[l] = c;
       }
       n && !i && this.j(e);
     }
@@ -495,8 +471,7 @@ var gg = Qn((Ug, go) => {
     }
     _$AI(e, t = this) {
       var o;
-      if ((e = (o = Qe(this, e, t, 0)) !== null && o !== void 0 ? o : O) === Je)
-        return;
+      if ((e = (o = Qe(this, e, t, 0)) !== null && o !== void 0 ? o : O) === Je) return;
       const i = this._$AH, a = e === O && i !== O || e.capture !== i.capture || e.once !== i.once || e.passive !== i.passive, n = e !== O && (i === O || a);
       a && this.element.removeEventListener(this.name, this, i), n && this.element.addEventListener(this.name, this, e), this._$AH = e;
     }
@@ -602,8 +577,7 @@ var gg = Qn((Ug, go) => {
     }
   };
   function ps(r) {
-    if (typeof r != "object" || r === null)
-      return !1;
+    if (typeof r != "object" || r === null) return !1;
     for (var e = r; Object.getPrototypeOf(e) !== null; )
       e = Object.getPrototypeOf(e);
     return Object.getPrototypeOf(r) === e;
@@ -866,16 +840,14 @@ var gg = Qn((Ug, go) => {
    * SPDX-License-Identifier: BSD-3-Clause
    */
   const xs = Symbol.for(""), ws = (r) => {
-    if ((r == null ? void 0 : r.r) === xs)
-      return r == null ? void 0 : r._$litStatic$;
+    if ((r == null ? void 0 : r.r) === xs) return r == null ? void 0 : r._$litStatic$;
   }, fi = /* @__PURE__ */ new Map(), Cs = (r) => (e, ...t) => {
     const o = t.length;
     let i, a;
     const n = [], s = [];
     let l, c = 0, d = !1;
     for (; c < o; ) {
-      for (l = e[c]; c < o && (a = t[c], (i = ws(a)) !== void 0); )
-        l += i + e[++c], d = !0;
+      for (l = e[c]; c < o && (a = t[c], (i = ws(a)) !== void 0); ) l += i + e[++c], d = !0;
       c !== o && s.push(a), n.push(l), c++;
     }
     if (c === o && n.push(e[o]), d) {
@@ -964,8 +936,7 @@ var gg = Qn((Ug, go) => {
       try {
         if (s.path === "constants/labels" && s.key === e && (i = s.value, !t))
           return i;
-        if (t && s.path === "constants/labels" && s.key === "plurals" && (a = Ms(s.value)), i && Object.keys(a).length > 0)
-          break;
+        if (t && s.path === "constants/labels" && s.key === "plurals" && (a = Ms(s.value)), i && Object.keys(a).length > 0) break;
       } catch {
       }
     }
@@ -2078,8 +2049,7 @@ var gg = Qn((Ug, go) => {
         if (n && !a._unscopedStyle) {
           const s = ki(a);
           s.setAttribute(yi, ""), a._unscopedStyle = s;
-        } else
-          a._style || (a._style = ki(a));
+        } else a._style || (a._style = ki(a));
         e.push(n ? a._unscopedStyle : a._style);
       }
     }
@@ -3684,8 +3654,7 @@ var gg = Qn((Ug, go) => {
     if (n) {
       let s = r._marshalArgs(i.args, e, t);
       return s === Dt ? Dt : n.apply(a, s);
-    } else
-      i.dynamicFn;
+    } else i.dynamicFn;
   }
   const ic = [], qa = "(?:[a-zA-Z_$][\\w.:$\\-*]*)", ac = "(?:[-+]?[0-9]*\\.?[0-9]+(?:[eE][-+]?[0-9]+)?)", nc = "(?:'(?:[^'\\\\]|\\\\.)*')", sc = '(?:"(?:[^"\\\\]|\\\\.)*")', lc = "(?:" + nc + "|" + sc + ")", Si = "(?:(" + qa + "|" + ac + "|" + lc + ")\\s*)", cc = "(?:" + Si + "(?:,\\s*" + Si + ")*)", dc = "(?:\\(\\s*(?:" + cc + "?)\\)\\s*)", uc = "(" + qa + "\\s*" + dc + "?)", hc = "(\\[\\[|{{)\\s*", pc = "(?:]]|}})", gc = "(?:(!)\\s*)?", fc = hc + gc + uc + pc, Ti = new RegExp(fc, "g");
   function Di(r) {
@@ -4438,9 +4407,8 @@ var gg = Qn((Ug, go) => {
         if (arguments.length == 1) {
           let s = { path: "" };
           a = L(this, i, s), n = s.path;
-        } else
-          Array.isArray(i) ? n = bt(i) : n = /** @type{string} */
-          i;
+        } else Array.isArray(i) ? n = bt(i) : n = /** @type{string} */
+        i;
         this._setPendingPropertyOrPath(n, a, !0, !0) && this._invalidateProperties();
       }
       /**
@@ -6627,8 +6595,7 @@ var gg = Qn((Ug, go) => {
             const i = o.__polymerReplaced__;
             i && E(E(i).parentNode).replaceChild(o, i);
           }
-        else
-          o.style && (r ? (o.__polymerDisplay__ = o.style.display, o.style.display = "none") : o.style.display = o.__polymerDisplay__);
+        else o.style && (r ? (o.__polymerDisplay__ = o.style.display, o.style.display = "none") : o.style.display = o.__polymerDisplay__);
       o.__hideTemplateChildren__ = r, o._showHideChildren && o._showHideChildren(r);
     }
   }
@@ -14917,8 +14884,7 @@ var gg = Qn((Ug, go) => {
                   const l = this.referenceDate ? gt(this.referenceDate) : /* @__PURE__ */ new Date();
                   s = su(l, s, n, a);
                 }
-              } else
-                o.length === 2 ? (n = parseInt(o[0]) - 1, a = parseInt(o[1])) : o.length === 1 && (a = parseInt(o[0]));
+              } else o.length === 2 ? (n = parseInt(o[0]) - 1, a = parseInt(o[1])) : o.length === 1 && (a = parseInt(o[0]));
               if (a !== void 0)
                 return { day: a, month: n, year: s };
             },
@@ -15226,8 +15192,7 @@ var gg = Qn((Ug, go) => {
       if (this._ignoreFocusedDateChange = !0, this.i18n.parseDate) {
         const t = this._inputValue || "", o = this._getParsedDate(t);
         this._isValidDate(o) ? this._selectDate(o) : (this.__keepInputValue = !0, this._selectDate(null), this._selectedDate = null, this.__keepInputValue = !1);
-      } else
-        this._focusedDate && this._selectDate(this._focusedDate);
+      } else this._focusedDate && this._selectDate(this._focusedDate);
       this._ignoreFocusedDateChange = !1;
     }
     /** @protected */
@@ -15514,10 +15479,10 @@ var gg = Qn((Ug, go) => {
    * See https://vaadin.com/commercial-license-and-service-terms for the full
    * license.
    */
-  var Su = Object.defineProperty, Tu = Object.getOwnPropertyDescriptor, Du = (r, e, t, o) => {
-    for (var i = o > 1 ? void 0 : o ? Tu(e, t) : e, a = r.length - 1, n; a >= 0; a--)
-      (n = r[a]) && (i = (o ? n(e, t, i) : n(i)) || i);
-    return o && i && Su(e, t, i), i;
+  var Su = Object.defineProperty, Tu = (r, e, t, o) => {
+    for (var i = void 0, a = r.length - 1, n; a >= 0; a--)
+      (n = r[a]) && (i = n(e, t, i) || i);
+    return i && Su(e, t, i), i;
   };
   const Vo = class Vo extends pa(X)(Ie) {
     constructor() {
@@ -15552,14 +15517,14 @@ var gg = Qn((Ug, go) => {
     apiContext: { type: Object }
   };
   let z = Vo;
-  Du([
+  Tu([
     Rs()
-  ], z.prototype, "showProgress", 2);
-  var Ou = Object.defineProperty, $u = Object.getOwnPropertyDescriptor, Mu = Object.getPrototypeOf, Iu = Reflect.get, Nu = (r, e, t, o) => {
-    for (var i = o > 1 ? void 0 : o ? $u(e, t) : e, a = r.length - 1, n; a >= 0; a--)
+  ], z.prototype, "showProgress");
+  var Du = Object.defineProperty, Ou = Object.getOwnPropertyDescriptor, $u = Object.getPrototypeOf, Mu = Reflect.get, Iu = (r, e, t, o) => {
+    for (var i = o > 1 ? void 0 : o ? Ou(e, t) : e, a = r.length - 1, n; a >= 0; a--)
       (n = r[a]) && (i = (o ? n(e, t, i) : n(i)) || i);
-    return o && i && Ou(e, t, i), i;
-  }, zu = (r, e, t) => Iu(Mu(r), t, e);
+    return o && i && Du(e, t, i), i;
+  }, Nu = (r, e, t) => Mu($u(r), t, e);
   let Fe = class extends z {
     constructor() {
       super(), this.login_token = "", this.api_url = "", this.selected_date = /* @__PURE__ */ new Date(), this._init();
@@ -15621,18 +15586,18 @@ var gg = Qn((Ug, go) => {
   };
   Fe.styles = H(Hs);
   Fe.properties = {
-    ...zu(Fe, Fe, "properties"),
+    ...Nu(Fe, Fe, "properties"),
     selected_date: { type: Date }
   };
-  Fe = Nu([
+  Fe = Iu([
     W("date-selector")
   ], Fe);
-  const Lu = '.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}.fa,.fas{font-family:"Font Awesome 5 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-exclamation-circle:before{content:""}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}:host{display:block}div,p{font-family:var(--standard-text-font);-webkit-user-select:none;user-select:none}.context-selector{width:100%;background-color:var(--col-bg-2);display:flex;flex-direction:row;align-items:center;justify-content:center;flex-wrap:wrap;cursor:pointer;border-bottom:2px solid var(--col-bg-1-darker)}.selected-context{background-color:var(--col-bg-ack);color:var(--col-accent-bg-ack);font-weight:700;font-size:1.2em;cursor:default}.context{padding:.2em .5em}.context:hover{background-color:#ffffff80}.context:active{background-color:var(--col-bg-ack)}';
-  var Ru = Object.defineProperty, Fu = Object.getOwnPropertyDescriptor, Hu = Object.getPrototypeOf, Bu = Reflect.get, ju = (r, e, t, o) => {
-    for (var i = o > 1 ? void 0 : o ? Fu(e, t) : e, a = r.length - 1, n; a >= 0; a--)
+  const zu = '.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}.fa,.fas{font-family:"Font Awesome 5 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-exclamation-circle:before{content:""}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}:host{display:block}div,p{font-family:var(--standard-text-font);-webkit-user-select:none;user-select:none}.context-selector{width:100%;background-color:var(--col-bg-2);display:flex;flex-direction:row;align-items:center;justify-content:center;flex-wrap:wrap;cursor:pointer;border-bottom:2px solid var(--col-bg-1-darker)}.selected-context{background-color:var(--col-bg-ack);color:var(--col-accent-bg-ack);font-weight:700;font-size:1.2em;cursor:default}.context{padding:.2em .5em}.context:hover{background-color:#ffffff80}.context:active{background-color:var(--col-bg-ack)}';
+  var Lu = Object.defineProperty, Ru = Object.getOwnPropertyDescriptor, Fu = Object.getPrototypeOf, Hu = Reflect.get, Bu = (r, e, t, o) => {
+    for (var i = o > 1 ? void 0 : o ? Ru(e, t) : e, a = r.length - 1, n; a >= 0; a--)
       (n = r[a]) && (i = (o ? n(e, t, i) : n(i)) || i);
-    return o && i && Ru(e, t, i), i;
-  }, Uu = (r, e, t) => Bu(Hu(r), t, e);
+    return o && i && Lu(e, t, i), i;
+  }, ju = (r, e, t) => Hu(Fu(r), t, e);
   let He = class extends z {
     constructor() {
       super(), this.login_token = "", this.api_url = "", this.selected_date = null, this.selected_context = "", this.contexts = [], this.fetching_contexts = !1, this.fetch_error = "", this._init();
@@ -15749,22 +15714,22 @@ var gg = Qn((Ug, go) => {
       super.firstUpdated(r);
     }
   };
-  He.styles = H(Lu);
+  He.styles = H(zu);
   He.properties = {
-    ...Uu(He, He, "properties"),
+    ...ju(He, He, "properties"),
     selected_date: { type: Date },
     selected_context: { type: String },
     fetching_contexts: { type: Boolean }
   };
-  He = ju([
+  He = Bu([
     W("context-selector")
   ], He);
-  const Vu = '.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}.fa,.fas{font-family:"Font Awesome 5 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-exclamation-circle:before{content:""}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}:host{display:block}div,p{font-family:var(--standard-text-font);-webkit-user-select:none;user-select:none}.team-selector{width:100%;background-color:var(--col-bg-2);color:var(--col-primary-bg-2);display:flex;flex-direction:row;align-items:center;justify-content:center;flex-wrap:wrap;cursor:pointer;border-bottom:2px solid var(--col-bg-1-darker)}.selected-member{background:var(--col-bg-ack);color:var(--col-accent-bg-ack);font-weight:700;font-size:1.2em;cursor:default}.team-member{padding:.2em .5em}.team-member:hover{background-color:#ffffff80}.team-member:active{background-color:var(--col-bg-ack)}';
-  var qu = Object.defineProperty, Yu = Object.getOwnPropertyDescriptor, Wu = Object.getPrototypeOf, Gu = Reflect.get, Ku = (r, e, t, o) => {
-    for (var i = o > 1 ? void 0 : o ? Yu(e, t) : e, a = r.length - 1, n; a >= 0; a--)
+  const Uu = '.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}.fa,.fas{font-family:"Font Awesome 5 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-exclamation-circle:before{content:""}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}:host{display:block}div,p{font-family:var(--standard-text-font);-webkit-user-select:none;user-select:none}.team-selector{width:100%;background-color:var(--col-bg-2);color:var(--col-primary-bg-2);display:flex;flex-direction:row;align-items:center;justify-content:center;flex-wrap:wrap;cursor:pointer;border-bottom:2px solid var(--col-bg-1-darker)}.selected-member{background:var(--col-bg-ack);color:var(--col-accent-bg-ack);font-weight:700;font-size:1.2em;cursor:default}.team-member{padding:.2em .5em}.team-member:hover{background-color:#ffffff80}.team-member:active{background-color:var(--col-bg-ack)}';
+  var Vu = Object.defineProperty, qu = Object.getOwnPropertyDescriptor, Yu = Object.getPrototypeOf, Wu = Reflect.get, Gu = (r, e, t, o) => {
+    for (var i = o > 1 ? void 0 : o ? qu(e, t) : e, a = r.length - 1, n; a >= 0; a--)
       (n = r[a]) && (i = (o ? n(e, t, i) : n(i)) || i);
-    return o && i && qu(e, t, i), i;
-  }, Xu = (r, e, t) => Gu(Wu(r), t, e);
+    return o && i && Vu(e, t, i), i;
+  }, Ku = (r, e, t) => Wu(Yu(r), t, e);
   let Be = class extends z {
     constructor() {
       super(), this.login_token = "", this.api_url = "", this.selected_date = null, this.selected_member = "", this.team = [], this.fetching_data = !1, this.fetch_error = "";
@@ -15871,20 +15836,20 @@ var gg = Qn((Ug, go) => {
       super.firstUpdated(r);
     }
   };
-  Be.styles = H(Vu);
+  Be.styles = H(Uu);
   Be.properties = {
-    ...Xu(Be, Be, "properties"),
+    ...Ku(Be, Be, "properties"),
     selected_member: { type: String },
     selected_date: { type: Date },
     fetching_data: { type: Boolean }
   };
-  Be = Ku([
+  Be = Gu([
     W("team-selector")
   ], Be);
-  var Ju = Object.defineProperty, Qu = Object.getOwnPropertyDescriptor, Zu = (r, e, t, o) => {
-    for (var i = o > 1 ? void 0 : o ? Qu(e, t) : e, a = r.length - 1, n; a >= 0; a--)
+  var Xu = Object.defineProperty, Ju = Object.getOwnPropertyDescriptor, Qu = (r, e, t, o) => {
+    for (var i = o > 1 ? void 0 : o ? Ju(e, t) : e, a = r.length - 1, n; a >= 0; a--)
       (n = r[a]) && (i = (o ? n(e, t, i) : n(i)) || i);
-    return o && i && Ju(e, t, i), i;
+    return o && i && Xu(e, t, i), i;
   };
   let co = class extends z {
     constructor() {
@@ -15912,16 +15877,16 @@ var gg = Qn((Ug, go) => {
     // }
   };
   co.styles = H(Fs);
-  co = Zu([
+  co = Qu([
     W("selection-frame")
   ], co);
-  const eh = ".col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}div,p{font-family:var(--standard-text-font)}:host{display:flex;flex-direction:row;flex-wrap:wrap;justify-content:space-between;padding-top:1em;width:100%;box-sizing:border-box}@media only screen and (max-width : 800px){:host{justify-content:left}:host>*{margin-right:1em}}locus-widget,file-widget,narrative-widget,cm-widget,feature-widget{margin-bottom:1em}unit-info-widget{width:100%;margin-bottom:2em}", th = '.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}.fa,.fas{font-family:"Font Awesome 5 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-exclamation-circle:before{content:""}.list-header{position:sticky;z-index:1;top:0}:host{max-height:45vh;background-color:var(--col-bg-body);display:block;border:solid 2px var(--col-bg-1-darker)}div,p{font-family:var(--standard-text-font)}.unit-list{display:grid;overflow-y:scroll;height:100%;max-height:calc(45vh - 2em);grid-row-gap:5px;grid-template-rows:[header] auto;grid-template-columns:repeat(6,auto);border-top:solid var(--col-bg-1-darker) 2px}.unit-list div{padding-right:1em}.list-header{background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);font-weight:700;padding-top:1em;border-bottom:solid var(--col-bg-1-darker) 1px}.list-identifier{cursor:pointer;text-decoration:underline}.headline{background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700}.controls{display:flex;flex-direction:row;background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700;justify-content:space-between}.no-data{padding:2px}#sort-type-selector{padding-right:1em}.center-col{display:flex;justify-content:center}';
-  var rh = Object.defineProperty, oh = Object.getOwnPropertyDescriptor, ih = Object.getPrototypeOf, ah = Reflect.get, nh = (r, e, t, o) => {
-    for (var i = o > 1 ? void 0 : o ? oh(e, t) : e, a = r.length - 1, n; a >= 0; a--)
+  const Zu = ".col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}div,p{font-family:var(--standard-text-font)}:host{display:flex;flex-direction:row;flex-wrap:wrap;justify-content:space-between;padding-top:1em;width:100%;box-sizing:border-box}@media only screen and (max-width : 800px){:host{justify-content:left}:host>*{margin-right:1em}}locus-widget,file-widget,narrative-widget,cm-widget,feature-widget{margin-bottom:1em}unit-info-widget{width:100%;margin-bottom:2em}", eh = '.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}.fa,.fas{font-family:"Font Awesome 5 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-exclamation-circle:before{content:""}.list-header{position:sticky;z-index:1;top:0}:host{max-height:45vh;background-color:var(--col-bg-body);display:block;border:solid 2px var(--col-bg-1-darker)}div,p{font-family:var(--standard-text-font)}.unit-list{display:grid;overflow-y:scroll;height:100%;max-height:calc(45vh - 2em);grid-row-gap:5px;grid-template-rows:[header] auto;grid-template-columns:repeat(6,auto);border-top:solid var(--col-bg-1-darker) 2px}.unit-list div{padding-right:1em}.list-header{background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);font-weight:700;padding-top:1em;border-bottom:solid var(--col-bg-1-darker) 1px}.list-identifier{cursor:pointer;text-decoration:underline}.headline{background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700}.controls{display:flex;flex-direction:row;background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700;justify-content:space-between}.no-data{padding:2px}#sort-type-selector{padding-right:1em}.center-col{display:flex;justify-content:center}';
+  var th = Object.defineProperty, rh = Object.getOwnPropertyDescriptor, oh = Object.getPrototypeOf, ih = Reflect.get, ah = (r, e, t, o) => {
+    for (var i = o > 1 ? void 0 : o ? rh(e, t) : e, a = r.length - 1, n; a >= 0; a--)
       (n = r[a]) && (i = (o ? n(e, t, i) : n(i)) || i);
-    return o && i && rh(e, t, i), i;
-  }, sh = (r, e, t) => ah(ih(r), t, e);
-  class lh {
+    return o && i && th(e, t, i), i;
+  }, nh = (r, e, t) => ih(oh(r), t, e);
+  class sh {
   }
   let je = class extends z {
     constructor() {
@@ -15945,11 +15910,11 @@ var gg = Qn((Ug, go) => {
               unit: {}
             },
             target: {
-              field_or_instruction: "replfield_modified()"
+              field_or_instruction: "modified_ww()"
             },
             additional_fields: {
               modified_date: {
-                field_or_instruction: "replfield_modified()",
+                field_or_instruction: "modified_ww()",
                 default: "",
                 format: "datetime(date)"
               },
@@ -15958,7 +15923,7 @@ var gg = Qn((Ug, go) => {
                 default: ""
               },
               modified_timestamp: {
-                field_or_instruction: "replfield_modified()",
+                field_or_instruction: "modified_ww()",
                 default: ""
               },
               created: {
@@ -16017,7 +15982,7 @@ var gg = Qn((Ug, go) => {
       r.forEach((t) => {
         const o = t.primary_identifier;
         let i;
-        o in e ? i = e[o] : (i = new lh(), e[o] = i, this.units.push(i), i.id_excavator = "", i.purpose = "", i.id_site = "?", i.method = "?", i.type = "?", i.modified = 0, i.created = 0, i.unit_creation = "?"), i.identifier = t.primary_identifier, t.modified > i.modified && (i.modified = t.modified), t.type && (i.type = t.type), t.method && (i.method = t.method), t.id_site && (i.id_site = t.id_site), t.id_excavator && (i.id_excavator = t.id_excavator), t.purpose && (i.purpose = t.purpose), t.created && (i.unit_creation = ae(t.created).toLocaleDateString(), i.created = ae(t.created).getTime());
+        o in e ? i = e[o] : (i = new sh(), e[o] = i, this.units.push(i), i.id_excavator = "", i.purpose = "", i.id_site = "?", i.method = "?", i.type = "?", i.modified = 0, i.created = 0, i.unit_creation = "?"), i.identifier = t.primary_identifier, t.modified > i.modified && (i.modified = t.modified), t.type && (i.type = t.type), t.method && (i.method = t.method), t.id_site && (i.id_site = t.id_site), t.id_excavator && (i.id_excavator = t.id_excavator), t.purpose && (i.purpose = t.purpose), t.created && (i.unit_creation = ae(t.created).toLocaleDateString(), i.created = ae(t.created).getTime());
       }), this.unitCount = Object.keys(this.units).length;
     }
     // sort_records(sort_by: Array<string>) {
@@ -16106,9 +16071,9 @@ var gg = Qn((Ug, go) => {
                 </div>`;
     }
   };
-  je.styles = H(th);
+  je.styles = H(eh);
   je.properties = {
-    ...sh(je, je, "properties"),
+    ...nh(je, je, "properties"),
     selected_context: { type: String },
     selected_date: { type: Date },
     fetching: { type: Boolean },
@@ -16116,16 +16081,16 @@ var gg = Qn((Ug, go) => {
     term_for_unit: { type: String },
     term_for_supervisor: { type: String }
   };
-  je = nh([
+  je = ah([
     W("unit-info-widget")
   ], je);
-  const ch = ".col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}:host{max-width:45vw;background-color:var(--col-bg-body);display:block;border:solid 2px var(--col-bg-1-darker);overflow-y:hidden;padding-bottom:.5em}div,p{font-family:var(--standard-text-font)}.narrative-list{overflow-y:scroll;height:100%;width:100%;max-height:35vh}.headline{background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700}.controls{display:flex;flex-direction:row;background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700;justify-content:space-between}.no-narratives{padding:2px}.narrative{font-family:var(--standard-text-font);padding:.2em;border-bottom:var(--col-bg-1-darker) 2px solid}.narrative-headline{display:flex;flex-direction:row;justify-content:space-between;font-weight:700}";
-  var dh = Object.defineProperty, uh = Object.getOwnPropertyDescriptor, hh = Object.getPrototypeOf, ph = Reflect.get, gh = (r, e, t, o) => {
-    for (var i = o > 1 ? void 0 : o ? uh(e, t) : e, a = r.length - 1, n; a >= 0; a--)
+  const lh = ".col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}:host{max-width:45vw;background-color:var(--col-bg-body);display:block;border:solid 2px var(--col-bg-1-darker);overflow-y:hidden;padding-bottom:.5em}div,p{font-family:var(--standard-text-font)}.narrative-list{overflow-y:scroll;height:100%;width:100%;max-height:35vh}.headline{background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700}.controls{display:flex;flex-direction:row;background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700;justify-content:space-between}.no-narratives{padding:2px}.narrative{font-family:var(--standard-text-font);padding:.2em;border-bottom:var(--col-bg-1-darker) 2px solid}.narrative-headline{display:flex;flex-direction:row;justify-content:space-between;font-weight:700}";
+  var ch = Object.defineProperty, dh = Object.getOwnPropertyDescriptor, uh = Object.getPrototypeOf, hh = Reflect.get, ph = (r, e, t, o) => {
+    for (var i = o > 1 ? void 0 : o ? dh(e, t) : e, a = r.length - 1, n; a >= 0; a--)
       (n = r[a]) && (i = (o ? n(e, t, i) : n(i)) || i);
-    return o && i && dh(e, t, i), i;
-  }, fh = (r, e, t) => ph(hh(r), t, e);
-  class bh {
+    return o && i && ch(e, t, i), i;
+  }, gh = (r, e, t) => hh(uh(r), t, e);
+  class fh {
   }
   let Ue = class extends z {
     constructor() {
@@ -16170,7 +16135,7 @@ var gg = Qn((Ug, go) => {
                   },
                   additional_fields: {
                     modified_date: {
-                      field_or_instruction: "replfield_modified()",
+                      field_or_instruction: "modified_ww()",
                       default: "",
                       format: "datetime(date)"
                     },
@@ -16232,7 +16197,7 @@ var gg = Qn((Ug, go) => {
     }
     load_narratives(r) {
       this.narratives = [], r.forEach((e) => {
-        let t = new bh();
+        let t = new fh();
         t.identifier = e.identifier, t.domain_identifier = e.domain_identifier, t.modified_by = e.modified_by ? e.modified_by : "?", t.modified = new Date(e.modified_timestamp), t.narrative = e.narrative, t.record_type = e.record_type, this.record_types.add(t.record_type), this.narratives.push(t);
       }), this.sort_records(this.sort_by);
     }
@@ -16341,9 +16306,9 @@ var gg = Qn((Ug, go) => {
                 </div>` : h`please select a date`;
     }
   };
-  Ue.styles = H(ch);
+  Ue.styles = H(lh);
   Ue.properties = {
-    ...fh(Ue, Ue, "properties"),
+    ...gh(Ue, Ue, "properties"),
     selected_context: { type: String },
     selected_date: { type: Date },
     selected_member: { type: String },
@@ -16351,14 +16316,14 @@ var gg = Qn((Ug, go) => {
     sort_by: { type: Array },
     show_record_types: { type: String }
   };
-  Ue = gh([
+  Ue = ph([
     W("narrative-widget")
   ], Ue);
-  var R = "top", q = "bottom", Y = "right", F = "left", zo = "auto", Rt = [R, q, Y, F], Ze = "start", Nt = "end", mh = "clippingParents", Nn = "viewport", ft = "popper", _h = "reference", Qi = /* @__PURE__ */ Rt.reduce(function(r, e) {
+  var R = "top", q = "bottom", Y = "right", F = "left", zo = "auto", Rt = [R, q, Y, F], Ze = "start", Nt = "end", bh = "clippingParents", Nn = "viewport", ft = "popper", mh = "reference", Qi = /* @__PURE__ */ Rt.reduce(function(r, e) {
     return r.concat([e + "-" + Ze, e + "-" + Nt]);
   }, []), zn = /* @__PURE__ */ [].concat(Rt, [zo]).reduce(function(r, e) {
     return r.concat([e, e + "-" + Ze, e + "-" + Nt]);
-  }, []), vh = "beforeRead", yh = "read", kh = "afterRead", xh = "beforeMain", wh = "main", Ch = "afterMain", Ah = "beforeWrite", Eh = "write", Ph = "afterWrite", Sh = [vh, yh, kh, xh, wh, Ch, Ah, Eh, Ph];
+  }, []), _h = "beforeRead", vh = "read", yh = "afterRead", kh = "beforeMain", xh = "main", wh = "afterMain", Ch = "beforeWrite", Ah = "write", Eh = "afterWrite", Ph = [_h, vh, yh, kh, xh, wh, Ch, Ah, Eh];
   function ee(r) {
     return r ? (r.nodeName || "").toLowerCase() : null;
   }
@@ -16385,7 +16350,7 @@ var gg = Qn((Ug, go) => {
     var e = U(r).ShadowRoot;
     return r instanceof e || r instanceof ShadowRoot;
   }
-  function Th(r) {
+  function Sh(r) {
     var e = r.state;
     Object.keys(e.elements).forEach(function(t) {
       var o = e.styles[t] || {}, i = e.attributes[t] || {}, a = e.elements[t];
@@ -16395,7 +16360,7 @@ var gg = Qn((Ug, go) => {
       }));
     });
   }
-  function Dh(r) {
+  function Th(r) {
     var e = r.state, t = {
       popper: {
         position: e.options.strategy,
@@ -16419,12 +16384,12 @@ var gg = Qn((Ug, go) => {
       });
     };
   }
-  const Oh = {
+  const Dh = {
     name: "applyStyles",
     enabled: !0,
     phase: "write",
-    fn: Th,
-    effect: Dh,
+    fn: Sh,
+    effect: Th,
     requires: ["computeStyles"]
   };
   function Z(r) {
@@ -16482,7 +16447,7 @@ var gg = Qn((Ug, go) => {
   function ne(r) {
     return U(r).getComputedStyle(r);
   }
-  function $h(r) {
+  function Oh(r) {
     return ["table", "td", "th"].indexOf(ee(r)) >= 0;
   }
   function pe(r) {
@@ -16507,7 +16472,7 @@ var gg = Qn((Ug, go) => {
     return !V(r) || // https://github.com/popperjs/popper-core/issues/837
     ne(r).position === "fixed" ? null : r.offsetParent;
   }
-  function Mh(r) {
+  function $h(r) {
     var e = /firefox/i.test(uo()), t = /Trident/i.test(uo());
     if (t && V(r)) {
       var o = ne(r);
@@ -16524,9 +16489,9 @@ var gg = Qn((Ug, go) => {
     return null;
   }
   function Ft(r) {
-    for (var e = U(r), t = Zi(r); t && $h(t) && ne(t).position === "static"; )
+    for (var e = U(r), t = Zi(r); t && Oh(t) && ne(t).position === "static"; )
       t = Zi(t);
-    return t && (ee(t) === "html" || ee(t) === "body" && ne(t).position === "static") ? e : t || Mh(r) || e;
+    return t && (ee(t) === "html" || ee(t) === "body" && ne(t).position === "static") ? e : t || $h(r) || e;
   }
   function Fo(r) {
     return ["top", "bottom"].indexOf(r) >= 0 ? "x" : "y";
@@ -16534,7 +16499,7 @@ var gg = Qn((Ug, go) => {
   function kt(r, e, t) {
     return we(r, sr(e, t));
   }
-  function Ih(r, e, t) {
+  function Mh(r, e, t) {
     var o = kt(r, e, t);
     return o > t ? t : o;
   }
@@ -16554,41 +16519,41 @@ var gg = Qn((Ug, go) => {
       return t[o] = r, t;
     }, {});
   }
-  var Nh = function(e, t) {
+  var Ih = function(e, t) {
     return e = typeof e == "function" ? e(Object.assign({}, t.rects, {
       placement: t.placement
     })) : e, Hn(typeof e != "number" ? e : Bn(e, Rt));
   };
-  function zh(r) {
+  function Nh(r) {
     var e, t = r.state, o = r.name, i = r.options, a = t.elements.arrow, n = t.modifiersData.popperOffsets, s = Z(t.placement), l = Fo(s), c = [F, Y].indexOf(s) >= 0, d = c ? "height" : "width";
     if (!(!a || !n)) {
-      var u = Nh(i.padding, t), p = Ro(a), g = l === "y" ? R : F, b = l === "y" ? q : Y, f = t.rects.reference[d] + t.rects.reference[l] - n[l] - t.rects.popper[d], m = n[l] - t.rects.reference[l], _ = Ft(a), v = _ ? l === "y" ? _.clientHeight || 0 : _.clientWidth || 0 : 0, x = f / 2 - m / 2, y = u[g], w = v - p[d] - u[b], C = v / 2 - p[d] / 2 + x, P = kt(y, C, w), M = l;
+      var u = Ih(i.padding, t), p = Ro(a), g = l === "y" ? R : F, b = l === "y" ? q : Y, f = t.rects.reference[d] + t.rects.reference[l] - n[l] - t.rects.popper[d], m = n[l] - t.rects.reference[l], _ = Ft(a), v = _ ? l === "y" ? _.clientHeight || 0 : _.clientWidth || 0 : 0, x = f / 2 - m / 2, y = u[g], w = v - p[d] - u[b], C = v / 2 - p[d] / 2 + x, P = kt(y, C, w), M = l;
       t.modifiersData[o] = (e = {}, e[M] = P, e.centerOffset = P - C, e);
     }
   }
-  function Lh(r) {
+  function zh(r) {
     var e = r.state, t = r.options, o = t.element, i = o === void 0 ? "[data-popper-arrow]" : o;
     i != null && (typeof i == "string" && (i = e.elements.popper.querySelector(i), !i) || Rn(e.elements.popper, i) && (e.elements.arrow = i));
   }
-  const Rh = {
+  const Lh = {
     name: "arrow",
     enabled: !0,
     phase: "main",
-    fn: zh,
-    effect: Lh,
+    fn: Nh,
+    effect: zh,
     requires: ["popperOffsets"],
     requiresIfExists: ["preventOverflow"]
   };
   function rt(r) {
     return r.split("-")[1];
   }
-  var Fh = {
+  var Rh = {
     top: "auto",
     right: "auto",
     bottom: "auto",
     left: "auto"
   };
-  function Hh(r, e) {
+  function Fh(r, e) {
     var t = r.x, o = r.y, i = e.devicePixelRatio || 1;
     return {
       x: et(t * i) / i || 0,
@@ -16626,7 +16591,7 @@ var gg = Qn((Ug, go) => {
     }
     var I = Object.assign({
       position: s
-    }, c && Fh), G = d === !0 ? Hh({
+    }, c && Rh), G = d === !0 ? Fh({
       x: g,
       y: f
     }, U(t)) : {
@@ -16639,7 +16604,7 @@ var gg = Qn((Ug, go) => {
     }
     return Object.assign({}, I, (e = {}, e[y] = v ? f + "px" : "", e[x] = _ ? g + "px" : "", e.transform = "", e));
   }
-  function Bh(r) {
+  function Hh(r) {
     var e = r.state, t = r.options, o = t.gpuAcceleration, i = o === void 0 ? !0 : o, a = t.adaptive, n = a === void 0 ? !0 : a, s = t.roundOffsets, l = s === void 0 ? !0 : s, c = {
       placement: Z(e.placement),
       variation: rt(e.placement),
@@ -16662,17 +16627,17 @@ var gg = Qn((Ug, go) => {
       "data-popper-placement": e.placement
     });
   }
-  const jh = {
+  const Bh = {
     name: "computeStyles",
     enabled: !0,
     phase: "beforeWrite",
-    fn: Bh,
+    fn: Hh,
     data: {}
   };
   var Kt = {
     passive: !0
   };
-  function Uh(r) {
+  function jh(r) {
     var e = r.state, t = r.instance, o = r.options, i = o.scroll, a = i === void 0 ? !0 : i, n = o.resize, s = n === void 0 ? !0 : n, l = U(e.elements.popper), c = [].concat(e.scrollParents.reference, e.scrollParents.popper);
     return a && c.forEach(function(d) {
       d.addEventListener("scroll", t.update, Kt);
@@ -16682,16 +16647,16 @@ var gg = Qn((Ug, go) => {
       }), s && l.removeEventListener("resize", t.update, Kt);
     };
   }
-  const Vh = {
+  const Uh = {
     name: "eventListeners",
     enabled: !0,
     phase: "write",
     fn: function() {
     },
-    effect: Uh,
+    effect: jh,
     data: {}
   };
-  var qh = {
+  var Vh = {
     left: "right",
     right: "left",
     bottom: "top",
@@ -16699,16 +16664,16 @@ var gg = Qn((Ug, go) => {
   };
   function Qt(r) {
     return r.replace(/left|right|bottom|top/g, function(e) {
-      return qh[e];
+      return Vh[e];
     });
   }
-  var Yh = {
+  var qh = {
     start: "end",
     end: "start"
   };
   function ta(r) {
     return r.replace(/start|end/g, function(e) {
-      return Yh[e];
+      return qh[e];
     });
   }
   function Ho(r) {
@@ -16721,7 +16686,7 @@ var gg = Qn((Ug, go) => {
   function Bo(r) {
     return tt(pe(r)).left + Ho(r).scrollLeft;
   }
-  function Wh(r, e) {
+  function Yh(r, e) {
     var t = U(r), o = pe(r), i = t.visualViewport, a = o.clientWidth, n = o.clientHeight, s = 0, l = 0;
     if (i) {
       a = i.width, n = i.height;
@@ -16735,7 +16700,7 @@ var gg = Qn((Ug, go) => {
       y: l
     };
   }
-  function Gh(r) {
+  function Wh(r) {
     var e, t = pe(r), o = Ho(r), i = (e = r.ownerDocument) == null ? void 0 : e.body, a = we(t.scrollWidth, t.clientWidth, i ? i.scrollWidth : 0, i ? i.clientWidth : 0), n = we(t.scrollHeight, t.clientHeight, i ? i.scrollHeight : 0, i ? i.clientHeight : 0), s = -o.scrollLeft + Bo(r), l = -o.scrollTop;
     return ne(i || t).direction === "rtl" && (s += we(t.clientWidth, i ? i.clientWidth : 0) - a), {
       width: a,
@@ -16768,21 +16733,21 @@ var gg = Qn((Ug, go) => {
       bottom: r.y + r.height
     });
   }
-  function Kh(r, e) {
+  function Gh(r, e) {
     var t = tt(r, !1, e === "fixed");
     return t.top = t.top + r.clientTop, t.left = t.left + r.clientLeft, t.bottom = t.top + r.clientHeight, t.right = t.left + r.clientWidth, t.width = r.clientWidth, t.height = r.clientHeight, t.x = t.left, t.y = t.top, t;
   }
   function ra(r, e, t) {
-    return e === Nn ? ho(Wh(r, t)) : Ae(e) ? Kh(e, t) : ho(Gh(pe(r)));
+    return e === Nn ? ho(Yh(r, t)) : Ae(e) ? Gh(e, t) : ho(Wh(pe(r)));
   }
-  function Xh(r) {
+  function Kh(r) {
     var e = xt(hr(r)), t = ["absolute", "fixed"].indexOf(ne(r).position) >= 0, o = t && V(r) ? Ft(r) : r;
     return Ae(o) ? e.filter(function(i) {
       return Ae(i) && Rn(i, o) && ee(i) !== "body";
     }) : [];
   }
-  function Jh(r, e, t, o) {
-    var i = e === "clippingParents" ? Xh(r) : [].concat(e), a = [].concat(i, [t]), n = a[0], s = a.reduce(function(l, c) {
+  function Xh(r, e, t, o) {
+    var i = e === "clippingParents" ? Kh(r) : [].concat(e), a = [].concat(i, [t]), n = a[0], s = a.reduce(function(l, c) {
       var d = ra(r, c, o);
       return l.top = we(d.top, l.top), l.right = sr(d.right, l.right), l.bottom = sr(d.bottom, l.bottom), l.left = we(d.left, l.left), l;
     }, ra(r, n, o));
@@ -16837,7 +16802,7 @@ var gg = Qn((Ug, go) => {
   }
   function zt(r, e) {
     e === void 0 && (e = {});
-    var t = e, o = t.placement, i = o === void 0 ? r.placement : o, a = t.strategy, n = a === void 0 ? r.strategy : a, s = t.boundary, l = s === void 0 ? mh : s, c = t.rootBoundary, d = c === void 0 ? Nn : c, u = t.elementContext, p = u === void 0 ? ft : u, g = t.altBoundary, b = g === void 0 ? !1 : g, f = t.padding, m = f === void 0 ? 0 : f, _ = Hn(typeof m != "number" ? m : Bn(m, Rt)), v = p === ft ? _h : ft, x = r.rects.popper, y = r.elements[b ? v : p], w = Jh(Ae(y) ? y : y.contextElement || pe(r.elements.popper), l, d, n), C = tt(r.elements.reference), P = Un({
+    var t = e, o = t.placement, i = o === void 0 ? r.placement : o, a = t.strategy, n = a === void 0 ? r.strategy : a, s = t.boundary, l = s === void 0 ? bh : s, c = t.rootBoundary, d = c === void 0 ? Nn : c, u = t.elementContext, p = u === void 0 ? ft : u, g = t.altBoundary, b = g === void 0 ? !1 : g, f = t.padding, m = f === void 0 ? 0 : f, _ = Hn(typeof m != "number" ? m : Bn(m, Rt)), v = p === ft ? mh : ft, x = r.rects.popper, y = r.elements[b ? v : p], w = Xh(Ae(y) ? y : y.contextElement || pe(r.elements.popper), l, d, n), C = tt(r.elements.reference), P = Un({
       reference: C,
       element: x,
       strategy: "absolute",
@@ -16857,7 +16822,7 @@ var gg = Qn((Ug, go) => {
     }
     return T;
   }
-  function Qh(r, e) {
+  function Jh(r, e) {
     e === void 0 && (e = {});
     var t = e, o = t.placement, i = t.boundary, a = t.rootBoundary, n = t.padding, s = t.flipVariations, l = t.allowedAutoPlacements, c = l === void 0 ? zn : l, d = rt(o), u = d ? s ? Qi : Qi.filter(function(b) {
       return rt(b) === d;
@@ -16877,17 +16842,17 @@ var gg = Qn((Ug, go) => {
       return g[b] - g[f];
     });
   }
-  function Zh(r) {
+  function Qh(r) {
     if (Z(r) === zo)
       return [];
     var e = Qt(r);
     return [ta(r), e, ta(e)];
   }
-  function ep(r) {
+  function Zh(r) {
     var e = r.state, t = r.options, o = r.name;
     if (!e.modifiersData[o]._skip) {
-      for (var i = t.mainAxis, a = i === void 0 ? !0 : i, n = t.altAxis, s = n === void 0 ? !0 : n, l = t.fallbackPlacements, c = t.padding, d = t.boundary, u = t.rootBoundary, p = t.altBoundary, g = t.flipVariations, b = g === void 0 ? !0 : g, f = t.allowedAutoPlacements, m = e.options.placement, _ = Z(m), v = _ === m, x = l || (v || !b ? [Qt(m)] : Zh(m)), y = [m].concat(x).reduce(function(Te, se) {
-        return Te.concat(Z(se) === zo ? Qh(e, {
+      for (var i = t.mainAxis, a = i === void 0 ? !0 : i, n = t.altAxis, s = n === void 0 ? !0 : n, l = t.fallbackPlacements, c = t.padding, d = t.boundary, u = t.rootBoundary, p = t.altBoundary, g = t.flipVariations, b = g === void 0 ? !0 : g, f = t.allowedAutoPlacements, m = e.options.placement, _ = Z(m), v = _ === m, x = l || (v || !b ? [Qt(m)] : Qh(m)), y = [m].concat(x).reduce(function(Te, se) {
+        return Te.concat(Z(se) === zo ? Jh(e, {
           placement: se,
           boundary: d,
           rootBoundary: u,
@@ -16926,17 +16891,16 @@ var gg = Qn((Ug, go) => {
             return D = st, "break";
         }, nt = Bt; nt > 0; nt--) {
           var jt = pr(nt);
-          if (jt === "break")
-            break;
+          if (jt === "break") break;
         }
       e.placement !== D && (e.modifiersData[o]._skip = !0, e.placement = D, e.reset = !0);
     }
   }
-  const tp = {
+  const ep = {
     name: "flip",
     enabled: !0,
     phase: "main",
-    fn: ep,
+    fn: Zh,
     requiresIfExists: ["offset"],
     data: {
       _skip: !1
@@ -16958,7 +16922,7 @@ var gg = Qn((Ug, go) => {
       return r[e] >= 0;
     });
   }
-  function rp(r) {
+  function tp(r) {
     var e = r.state, t = r.name, o = e.rects.reference, i = e.rects.popper, a = e.modifiersData.preventOverflow, n = zt(e, {
       elementContext: "reference"
     }), s = zt(e, {
@@ -16974,14 +16938,14 @@ var gg = Qn((Ug, go) => {
       "data-popper-escaped": u
     });
   }
-  const op = {
+  const rp = {
     name: "hide",
     enabled: !0,
     phase: "main",
     requiresIfExists: ["preventOverflow"],
-    fn: rp
+    fn: tp
   };
-  function ip(r, e, t) {
+  function op(r, e, t) {
     var o = Z(r), i = [F, R].indexOf(o) >= 0 ? -1 : 1, a = typeof t == "function" ? t(Object.assign({}, e, {
       placement: r
     })) : t, n = a[0], s = a[1];
@@ -16993,20 +16957,20 @@ var gg = Qn((Ug, go) => {
       y: s
     };
   }
-  function ap(r) {
+  function ip(r) {
     var e = r.state, t = r.options, o = r.name, i = t.offset, a = i === void 0 ? [0, 0] : i, n = zn.reduce(function(d, u) {
-      return d[u] = ip(u, e.rects, a), d;
+      return d[u] = op(u, e.rects, a), d;
     }, {}), s = n[e.placement], l = s.x, c = s.y;
     e.modifiersData.popperOffsets != null && (e.modifiersData.popperOffsets.x += l, e.modifiersData.popperOffsets.y += c), e.modifiersData[o] = n;
   }
-  const np = {
+  const ap = {
     name: "offset",
     enabled: !0,
     phase: "main",
     requires: ["popperOffsets"],
-    fn: ap
+    fn: ip
   };
-  function sp(r) {
+  function np(r) {
     var e = r.state, t = r.name;
     e.modifiersData[t] = Un({
       reference: e.rects.reference,
@@ -17015,23 +16979,23 @@ var gg = Qn((Ug, go) => {
       placement: e.placement
     });
   }
-  const lp = {
+  const sp = {
     name: "popperOffsets",
     enabled: !0,
     phase: "read",
-    fn: sp,
+    fn: np,
     data: {}
   };
-  function cp(r) {
+  function lp(r) {
     return r === "x" ? "y" : "x";
   }
-  function dp(r) {
+  function cp(r) {
     var e = r.state, t = r.options, o = r.name, i = t.mainAxis, a = i === void 0 ? !0 : i, n = t.altAxis, s = n === void 0 ? !1 : n, l = t.boundary, c = t.rootBoundary, d = t.altBoundary, u = t.padding, p = t.tether, g = p === void 0 ? !0 : p, b = t.tetherOffset, f = b === void 0 ? 0 : b, m = zt(e, {
       boundary: l,
       rootBoundary: c,
       padding: u,
       altBoundary: d
-    }), _ = Z(e.placement), v = rt(e.placement), x = !v, y = Fo(_), w = cp(y), C = e.modifiersData.popperOffsets, P = e.rects.reference, M = e.rects.popper, D = typeof f == "function" ? f(Object.assign({}, e.rects, {
+    }), _ = Z(e.placement), v = rt(e.placement), x = !v, y = Fo(_), w = lp(y), C = e.modifiersData.popperOffsets, P = e.rects.reference, M = e.rects.popper, D = typeof f == "function" ? f(Object.assign({}, e.rects, {
       placement: e.placement
     })) : f, T = typeof D == "number" ? {
       mainAxis: D,
@@ -17052,35 +17016,35 @@ var gg = Qn((Ug, go) => {
         C[y] = Yo, G[y] = Yo - K;
       }
       if (s) {
-        var Wo, Gn = y === "x" ? R : F, Kn = y === "x" ? q : Y, _e = C[w], Vt = w === "y" ? "height" : "width", Go = _e + m[Gn], Ko = _e - m[Kn], br = [R, F].indexOf(_) !== -1, Xo = (Wo = I == null ? void 0 : I[w]) != null ? Wo : 0, Jo = br ? Go : _e - P[Vt] - M[Vt] - Xo + T.altAxis, Qo = br ? _e + P[Vt] + M[Vt] - Xo - T.altAxis : Ko, Zo = g && br ? Ih(Jo, _e, Qo) : kt(g ? Jo : Go, _e, g ? Qo : Ko);
+        var Wo, Gn = y === "x" ? R : F, Kn = y === "x" ? q : Y, _e = C[w], Vt = w === "y" ? "height" : "width", Go = _e + m[Gn], Ko = _e - m[Kn], br = [R, F].indexOf(_) !== -1, Xo = (Wo = I == null ? void 0 : I[w]) != null ? Wo : 0, Jo = br ? Go : _e - P[Vt] - M[Vt] - Xo + T.altAxis, Qo = br ? _e + P[Vt] + M[Vt] - Xo - T.altAxis : Ko, Zo = g && br ? Mh(Jo, _e, Qo) : kt(g ? Jo : Go, _e, g ? Qo : Ko);
         C[w] = Zo, G[w] = Zo - _e;
       }
       e.modifiersData[o] = G;
     }
   }
-  const up = {
+  const dp = {
     name: "preventOverflow",
     enabled: !0,
     phase: "main",
-    fn: dp,
+    fn: cp,
     requiresIfExists: ["offset"]
   };
-  function hp(r) {
+  function up(r) {
     return {
       scrollLeft: r.scrollLeft,
       scrollTop: r.scrollTop
     };
   }
-  function pp(r) {
-    return r === U(r) || !V(r) ? Ho(r) : hp(r);
+  function hp(r) {
+    return r === U(r) || !V(r) ? Ho(r) : up(r);
   }
-  function gp(r) {
+  function pp(r) {
     var e = r.getBoundingClientRect(), t = et(e.width) / r.offsetWidth || 1, o = et(e.height) / r.offsetHeight || 1;
     return t !== 1 || o !== 1;
   }
-  function fp(r, e, t) {
+  function gp(r, e, t) {
     t === void 0 && (t = !1);
-    var o = V(e), i = V(e) && gp(e), a = pe(e), n = tt(r, i, t), s = {
+    var o = V(e), i = V(e) && pp(e), a = pe(e), n = tt(r, i, t), s = {
       scrollLeft: 0,
       scrollTop: 0
     }, l = {
@@ -17088,14 +17052,14 @@ var gg = Qn((Ug, go) => {
       y: 0
     };
     return (o || !o && !t) && ((ee(e) !== "body" || // https://github.com/popperjs/popper-core/issues/1078
-    jo(a)) && (s = pp(e)), V(e) ? (l = tt(e, !0), l.x += e.clientLeft, l.y += e.clientTop) : a && (l.x = Bo(a))), {
+    jo(a)) && (s = hp(e)), V(e) ? (l = tt(e, !0), l.x += e.clientLeft, l.y += e.clientTop) : a && (l.x = Bo(a))), {
       x: n.left + s.scrollLeft - l.x,
       y: n.top + s.scrollTop - l.y,
       width: n.width,
       height: n.height
     };
   }
-  function bp(r) {
+  function fp(r) {
     var e = /* @__PURE__ */ new Map(), t = /* @__PURE__ */ new Set(), o = [];
     r.forEach(function(a) {
       e.set(a.name, a);
@@ -17114,15 +17078,15 @@ var gg = Qn((Ug, go) => {
       t.has(a.name) || i(a);
     }), o;
   }
-  function mp(r) {
-    var e = bp(r);
-    return Sh.reduce(function(t, o) {
+  function bp(r) {
+    var e = fp(r);
+    return Ph.reduce(function(t, o) {
       return t.concat(e.filter(function(i) {
         return i.phase === o;
       }));
     }, []);
   }
-  function _p(r) {
+  function mp(r) {
     var e;
     return function() {
       return e || (e = new Promise(function(t) {
@@ -17132,7 +17096,7 @@ var gg = Qn((Ug, go) => {
       })), e;
     };
   }
-  function vp(r) {
+  function _p(r) {
     var e = r.reduce(function(t, o) {
       var i = t[o.name];
       return t[o.name] = i ? Object.assign({}, i, o, {
@@ -17156,7 +17120,7 @@ var gg = Qn((Ug, go) => {
       return !(o && typeof o.getBoundingClientRect == "function");
     });
   }
-  function yp(r) {
+  function vp(r) {
     r === void 0 && (r = {});
     var e = r, t = e.defaultModifiers, o = t === void 0 ? [] : t, i = e.defaultOptions, a = i === void 0 ? aa : i;
     return function(s, l, c) {
@@ -17180,7 +17144,7 @@ var gg = Qn((Ug, go) => {
             reference: Ae(s) ? xt(s) : s.contextElement ? xt(s.contextElement) : [],
             popper: xt(l)
           };
-          var x = mp(vp([].concat(o, d.options.modifiers)));
+          var x = bp(_p([].concat(o, d.options.modifiers)));
           return d.orderedModifiers = x.filter(function(y) {
             return y.enabled;
           }), b(), g.update();
@@ -17195,7 +17159,7 @@ var gg = Qn((Ug, go) => {
             var _ = d.elements, v = _.reference, x = _.popper;
             if (na(v, x)) {
               d.rects = {
-                reference: fp(v, Ft(x), d.options.strategy === "fixed"),
+                reference: gp(v, Ft(x), d.options.strategy === "fixed"),
                 popper: Ro(x)
               }, d.reset = !1, d.placement = d.options.placement, d.orderedModifiers.forEach(function(T) {
                 return d.modifiersData[T.name] = Object.assign({}, T.data);
@@ -17218,7 +17182,7 @@ var gg = Qn((Ug, go) => {
         },
         // Async and optimistically optimized update – it will not be executed if
         // not necessary (debounced to run at most once-per-tick)
-        update: _p(function() {
+        update: mp(function() {
           return new Promise(function(m) {
             g.forceUpdate(), m(d);
           });
@@ -17255,16 +17219,16 @@ var gg = Qn((Ug, go) => {
       return g;
     };
   }
-  var kp = [Vh, lp, jh, Oh, np, tp, up, Rh, op], xp = /* @__PURE__ */ yp({
-    defaultModifiers: kp
+  var yp = [Uh, sp, Bh, Dh, ap, ep, dp, Lh, rp], kp = /* @__PURE__ */ vp({
+    defaultModifiers: yp
   });
-  const wp = '.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}.fa,.fas{font-family:"Font Awesome 5 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-exclamation-circle:before{content:""}.list-header{position:sticky;z-index:1;top:0}:host{background-color:var(--col-bg-body);display:block;border:solid 2px var(--col-bg-1-darker);overflow-y:hidden;padding-bottom:.5em}div,p{font-family:var(--standard-text-font)}.locus-list{display:grid;overflow-y:scroll;height:100%;width:100%;max-height:35vh;grid-row-gap:5px;grid-template-rows:[header] auto;grid-template-columns:repeat(8,auto);border-top:solid var(--col-bg-1-darker) 2px}.locus-list div{padding-right:.5em}.locus-list.locus-list-with-member{grid-template-columns:repeat(9,auto)}.list-header{background:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);font-weight:700;padding-top:5px;word-wrap:break-word;border-bottom:solid var(--col-bg-1-darker) 1px}.list-header.tighter{max-width:4.5em}.headline{background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700}.controls{display:flex;flex-direction:row;background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700;justify-content:space-between}.no-loci{padding:2px}.locus{font-family:var(--standard-text-font);padding:.2em;border-bottom:var(--col-bg-1-darker) 2px solid}.locus-headline{display:flex;flex-direction:row;justify-content:space-between;font-size:1.2em;font-weight:700}.locus-body{display:flex;flex-direction:row}.locus-body div{padding:0 .5em}#sort-type-selector{padding-right:1em}.center-col{display:flex;justify-content:center}.identifier-col{display:flex;justify-content:space-between;flex-direction:row}.identifier-col i{margin-left:.2em}.fa-exclamation-circle.warning,.fa-exclamation-circle.warn{color:var(--col-bg-att)}.fa-exclamation-circle.error{color:var(--col-bg-alert)}.fa-exclamation-circle.hint{color:var(--col-bg-ack)}.tooltip{display:none;background-color:var(--col-bg-1);color:var(--col-primary-bg-1);border:solid 2px var(--col-bg-1-darker);box-shadow:2px 2px 5px var(--col-bg-1-darker)}.tooltip *{-webkit-user-select:none;user-select:none}.tooltip[data-show]{display:block}.qc-message{background-color:var(--col-bg-1)}.tooltip{z-index:1}.qc-message-view{padding:.5em}.qc-message-view p:first-child{margin-bottom:.5em;font-weight:700;color:var(--col-accent-bg-1)}.qc-message-view p{margin-bottom:.2em}.qc-message-view i{margin-right:.5em}';
-  var Cp = Object.defineProperty, Ap = Object.getOwnPropertyDescriptor, Ep = Object.getPrototypeOf, Pp = Reflect.get, Sp = (r, e, t, o) => {
-    for (var i = o > 1 ? void 0 : o ? Ap(e, t) : e, a = r.length - 1, n; a >= 0; a--)
+  const xp = '.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}.fa,.fas{font-family:"Font Awesome 5 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-exclamation-circle:before{content:""}.list-header{position:sticky;z-index:1;top:0}:host{background-color:var(--col-bg-body);display:block;border:solid 2px var(--col-bg-1-darker);overflow-y:hidden;padding-bottom:.5em}div,p{font-family:var(--standard-text-font)}.locus-list{display:grid;overflow-y:scroll;height:100%;width:100%;max-height:35vh;grid-row-gap:5px;grid-template-rows:[header] auto;grid-template-columns:repeat(8,auto);border-top:solid var(--col-bg-1-darker) 2px}.locus-list div{padding-right:.5em}.locus-list.locus-list-with-member{grid-template-columns:repeat(9,auto)}.list-header{background:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);font-weight:700;padding-top:5px;word-wrap:break-word;border-bottom:solid var(--col-bg-1-darker) 1px}.list-header.tighter{max-width:4.5em}.headline{background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700}.controls{display:flex;flex-direction:row;background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700;justify-content:space-between}.no-loci{padding:2px}.locus{font-family:var(--standard-text-font);padding:.2em;border-bottom:var(--col-bg-1-darker) 2px solid}.locus-headline{display:flex;flex-direction:row;justify-content:space-between;font-size:1.2em;font-weight:700}.locus-body{display:flex;flex-direction:row}.locus-body div{padding:0 .5em}#sort-type-selector{padding-right:1em}.center-col{display:flex;justify-content:center}.identifier-col{display:flex;justify-content:space-between;flex-direction:row}.identifier-col i{margin-left:.2em}.fa-exclamation-circle.warning,.fa-exclamation-circle.warn{color:var(--col-bg-att)}.fa-exclamation-circle.error{color:var(--col-bg-alert)}.fa-exclamation-circle.hint{color:var(--col-bg-ack)}.tooltip{display:none;background-color:var(--col-bg-1);color:var(--col-primary-bg-1);border:solid 2px var(--col-bg-1-darker);box-shadow:2px 2px 5px var(--col-bg-1-darker)}.tooltip *{-webkit-user-select:none;user-select:none}.tooltip[data-show]{display:block}.qc-message{background-color:var(--col-bg-1)}.tooltip{z-index:1}.qc-message-view{padding:.5em}.qc-message-view p:first-child{margin-bottom:.5em;font-weight:700;color:var(--col-accent-bg-1)}.qc-message-view p{margin-bottom:.2em}.qc-message-view i{margin-right:.5em}';
+  var wp = Object.defineProperty, Cp = Object.getOwnPropertyDescriptor, Ap = Object.getPrototypeOf, Ep = Reflect.get, Pp = (r, e, t, o) => {
+    for (var i = o > 1 ? void 0 : o ? Cp(e, t) : e, a = r.length - 1, n; a >= 0; a--)
       (n = r[a]) && (i = (o ? n(e, t, i) : n(i)) || i);
-    return o && i && Cp(e, t, i), i;
-  }, Tp = (r, e, t) => Pp(Ep(r), t, e);
-  class Dp {
+    return o && i && wp(e, t, i), i;
+  }, Sp = (r, e, t) => Ep(Ap(r), t, e);
+  class Tp {
   }
   let Ve = class extends z {
     constructor() {
@@ -17299,11 +17263,11 @@ var gg = Qn((Ug, go) => {
               }
             },
             target: {
-              field_or_instruction: "replfield_modified()"
+              field_or_instruction: "modified_ww()"
             },
             additional_fields: {
               modified_date: {
-                field_or_instruction: "replfield_modified()",
+                field_or_instruction: "modified_ww()",
                 default: "",
                 format: "datetime(date)"
               },
@@ -17312,7 +17276,7 @@ var gg = Qn((Ug, go) => {
                 default: ""
               },
               modified_timestamp: {
-                field_or_instruction: "replfield_modified()",
+                field_or_instruction: "modified_ww()",
                 default: ""
               },
               created: {
@@ -17385,7 +17349,7 @@ var gg = Qn((Ug, go) => {
       this.loci = {}, this.lociList = [], r.forEach((t) => {
         const o = t.primary_identifier;
         let i;
-        t.record_type != "unit" && (o in this.loci ? i = this.loci[o] : (i = new Dp(), this.loci[o] = i, this.lociList.push(i), i.photoCount = 0, i.lotCount = 0, i.type = "?", i.hasDescription = !1, i.hasInterpretation = !1, i.relationsCount = 0, i.record_type = "", i.modified = 0, i.locus_creation = "?", i.max_severity = "", i.qc_messages = []), i.identifier = t.primary_identifier, i.unitId = t.identifier, i.record_type = t.record_type, t.modified > i.modified && (i.modified = t.modified), i.modified_by = t.modified_by, t.type && (i.type = t.type), t.created && (i.locus_creation = ae(t.created).toLocaleDateString(), i.created = ae(t.created).getTime()), t.nodescription || (i.hasDescription = !0), t.nointerpretation || (i.hasInterpretation = !0), e.length > 0 && i.qc_messages.length == 0 && (i.qc_messages = this.get_locus_qc_messages(e, t.qc_data_context), i.max_severity = "", i.qc_messages.length > 0 && (i.max_severity = this.get_max_qc_severity(i.qc_messages))), t.record_type == "locus_photo" && (i.photoCount = t.c), t.record_type == "locus_relations" && (i.relationsCount = t.c), t.record_type == "lot" && (i.lotCount = t.c));
+        t.record_type != "unit" && (o in this.loci ? i = this.loci[o] : (i = new Tp(), this.loci[o] = i, this.lociList.push(i), i.photoCount = 0, i.lotCount = 0, i.type = "?", i.hasDescription = !1, i.hasInterpretation = !1, i.relationsCount = 0, i.record_type = "", i.modified = 0, i.locus_creation = "?", i.max_severity = "", i.qc_messages = []), i.identifier = t.primary_identifier, i.unitId = t.identifier, i.record_type = t.record_type, t.modified > i.modified && (i.modified = t.modified), i.modified_by = t.modified_by, t.type && (i.type = t.type), t.created && (i.locus_creation = ae(t.created).toLocaleDateString(), i.created = ae(t.created).getTime()), t.nodescription || (i.hasDescription = !0), t.nointerpretation || (i.hasInterpretation = !0), e.length > 0 && i.qc_messages.length == 0 && (i.qc_messages = this.get_locus_qc_messages(e, t.qc_data_context), i.max_severity = "", i.qc_messages.length > 0 && (i.max_severity = this.get_max_qc_severity(i.qc_messages))), t.record_type == "locus_photo" && (i.photoCount = t.c), t.record_type == "locus_relations" && (i.relationsCount = t.c), t.record_type == "lot" && (i.lotCount = t.c));
       }), this.locusCount = Object.keys(this.loci).length, this.sort_records(this.sort_by[this.selected_sort]);
     }
     sort_records(r) {
@@ -17535,7 +17499,7 @@ var gg = Qn((Ug, go) => {
       const e = this.shadowRoot.querySelectorAll(".tooltip-button");
       this.poppers = /* @__PURE__ */ new Map();
       for (const t of e) {
-        const o = xp(t, t.nextElementSibling, {
+        const o = kp(t, t.nextElementSibling, {
           placement: "right",
           modifiers: [
             {
@@ -17550,9 +17514,9 @@ var gg = Qn((Ug, go) => {
       }
     }
   };
-  Ve.styles = H(wp);
+  Ve.styles = H(xp);
   Ve.properties = {
-    ...Tp(Ve, Ve, "properties"),
+    ...Sp(Ve, Ve, "properties"),
     selected_context: { type: String },
     selected_date: { type: Date },
     selected_member: { type: String },
@@ -17560,16 +17524,16 @@ var gg = Qn((Ug, go) => {
     sort_by: { type: Array },
     term_for_locus: { type: String }
   };
-  Ve = Sp([
+  Ve = Pp([
     W("locus-widget")
   ], Ve);
-  const Op = '.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}.fa,.fas{font-family:"Font Awesome 5 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-exclamation-circle:before{content:""}.list-header{position:sticky;z-index:1;top:0}:host{display:block;background-color:var(--col-bg-body);border:solid 2px var(--col-bg-1-darker);overflow-y:hidden;padding-bottom:.5em}div,p{font-family:var(--standard-text-font)}.cm-list{display:grid;overflow-y:scroll;height:100%;width:100%;max-height:35vh;grid-row-gap:5px;grid-template-rows:[header] auto;grid-template-columns:repeat(7,auto);border-top:solid var(--col-bg-1-darker) 2px}.cm-list div{padding-right:1em}.cm-list.cm-list-with-member{grid-template-columns:repeat(8,auto)}.list-header{background:var(--col-bg-1-lighter);font-weight:700;padding-top:1em;border-bottom:solid 1px var(--col-bg-1-darker)}.headline{background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700}.controls{display:flex;flex-direction:row;background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700;justify-content:space-between}.no-data{padding:2px}#sort-type-selector{padding-right:1em}.center-col{display:flex;justify-content:center}';
-  var $p = Object.defineProperty, Mp = Object.getOwnPropertyDescriptor, Ip = Object.getPrototypeOf, Np = Reflect.get, zp = (r, e, t, o) => {
-    for (var i = o > 1 ? void 0 : o ? Mp(e, t) : e, a = r.length - 1, n; a >= 0; a--)
+  const Dp = '.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}.fa,.fas{font-family:"Font Awesome 5 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-exclamation-circle:before{content:""}.list-header{position:sticky;z-index:1;top:0}:host{display:block;background-color:var(--col-bg-body);border:solid 2px var(--col-bg-1-darker);overflow-y:hidden;padding-bottom:.5em}div,p{font-family:var(--standard-text-font)}.cm-list{display:grid;overflow-y:scroll;height:100%;width:100%;max-height:35vh;grid-row-gap:5px;grid-template-rows:[header] auto;grid-template-columns:repeat(7,auto);border-top:solid var(--col-bg-1-darker) 2px}.cm-list div{padding-right:1em}.cm-list.cm-list-with-member{grid-template-columns:repeat(8,auto)}.list-header{background:var(--col-bg-1-lighter);font-weight:700;padding-top:1em;border-bottom:solid 1px var(--col-bg-1-darker)}.headline{background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700}.controls{display:flex;flex-direction:row;background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700;justify-content:space-between}.no-data{padding:2px}#sort-type-selector{padding-right:1em}.center-col{display:flex;justify-content:center}';
+  var Op = Object.defineProperty, $p = Object.getOwnPropertyDescriptor, Mp = Object.getPrototypeOf, Ip = Reflect.get, Np = (r, e, t, o) => {
+    for (var i = o > 1 ? void 0 : o ? $p(e, t) : e, a = r.length - 1, n; a >= 0; a--)
       (n = r[a]) && (i = (o ? n(e, t, i) : n(i)) || i);
-    return o && i && $p(e, t, i), i;
-  }, Lp = (r, e, t) => Np(Ip(r), t, e);
-  class Rp {
+    return o && i && Op(e, t, i), i;
+  }, zp = (r, e, t) => Ip(Mp(r), t, e);
+  class Lp {
   }
   let qe = class extends z {
     constructor() {
@@ -17606,11 +17570,11 @@ var gg = Qn((Ug, go) => {
               }
             },
             target: {
-              field_or_instruction: "replfield_modified()"
+              field_or_instruction: "modified_ww()"
             },
             additional_fields: {
               modified_date: {
-                field_or_instruction: "replfield_modified()",
+                field_or_instruction: "modified_ww()",
                 default: "",
                 format: "datetime(date)"
               },
@@ -17619,7 +17583,7 @@ var gg = Qn((Ug, go) => {
                 default: ""
               },
               modified_timestamp: {
-                field_or_instruction: "replfield_modified()",
+                field_or_instruction: "modified_ww()",
                 default: ""
               },
               created: {
@@ -17684,7 +17648,7 @@ var gg = Qn((Ug, go) => {
       r.forEach((t) => {
         const o = t.primary_identifier;
         let i;
-        o in e ? i = e[o] : (i = new Rp(), e[o] = i, this.cm.push(i), i.photoCount = 0, i.lot = !1, i.type = "?", i.hasDescription = !1, i.cm_type = "bulk", i.record_type = "", i.modified = 0, i.cm_creation = "?"), i.identifier = t.primary_identifier, i.unitId = t.identifier, i.record_type = t.record_type, t.modified > i.modified && (i.modified = t.modified), i.modified_by = t.modified_by, t.type && (i.type = t.type), t.cm_type && (i.cm_type = this.cm_types[t.cm_type]), t.created && (i.cm_creation = ae(t.created).toLocaleDateString(), i.created = ae(t.created).getTime()), t.nodescription || (i.hasDescription = !0), t.nolot || (i.lot = !0), t.record_type == "collected_material_photo" && (i.photoCount = t.c);
+        o in e ? i = e[o] : (i = new Lp(), e[o] = i, this.cm.push(i), i.photoCount = 0, i.lot = !1, i.type = "?", i.hasDescription = !1, i.cm_type = "bulk", i.record_type = "", i.modified = 0, i.cm_creation = "?"), i.identifier = t.primary_identifier, i.unitId = t.identifier, i.record_type = t.record_type, t.modified > i.modified && (i.modified = t.modified), i.modified_by = t.modified_by, t.type && (i.type = t.type), t.cm_type && (i.cm_type = this.cm_types[t.cm_type]), t.created && (i.cm_creation = ae(t.created).toLocaleDateString(), i.created = ae(t.created).getTime()), t.nodescription || (i.hasDescription = !0), t.nolot || (i.lot = !0), t.record_type == "collected_material_photo" && (i.photoCount = t.c);
       }), this.cmCount = Object.keys(this.cm).length, this.sort_records(this.sort_by[this.selected_sort]);
     }
     sort_records(r) {
@@ -17799,9 +17763,9 @@ var gg = Qn((Ug, go) => {
                 </div>` : h`please select a date`;
     }
   };
-  qe.styles = H(Op);
+  qe.styles = H(Dp);
   qe.properties = {
-    ...Lp(qe, qe, "properties"),
+    ...zp(qe, qe, "properties"),
     selected_context: { type: String },
     selected_date: { type: Date },
     selected_member: { type: String },
@@ -17809,16 +17773,16 @@ var gg = Qn((Ug, go) => {
     sort_by: { type: Array },
     term_for_cm: { type: String }
   };
-  qe = zp([
+  qe = Np([
     W("cm-widget")
   ], qe);
-  const Fp = '.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}.fa,.fas{font-family:"Font Awesome 5 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-exclamation-circle:before{content:""}.list-header{position:sticky;z-index:1;top:0}:host{background-color:var(--col-bg-body);display:block;border:solid 2px var(--col-bg-1-darker);overflow-y:hidden;padding-bottom:.5em}div,p{font-family:var(--standard-text-font)}.feature-list{display:grid;overflow-y:scroll;height:100%;width:100%;max-height:35vh;grid-row-gap:5px;grid-template-rows:[header] auto;grid-template-columns:repeat(4,auto);border-top:solid var(--col-bg-1-darker) 2px}.feature-list div{padding-right:1em}.feature-list.feature-list-with-member{grid-template-columns:repeat(5,auto)}.list-header{background:var(--col-bg-1-lighter);font-weight:700;padding-top:1em;border-bottom:solid var(--col-bg-1-darker) 1px}.list-identifier{cursor:pointer;text-decoration:underline}.headline{background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700}.controls{display:flex;flex-direction:row;background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700;justify-content:space-between}.no-data{padding:2px}#sort-type-selector{padding-right:1em}.center-col{display:flex;justify-content:center}';
-  var Hp = Object.defineProperty, Bp = Object.getOwnPropertyDescriptor, jp = Object.getPrototypeOf, Up = Reflect.get, Vp = (r, e, t, o) => {
-    for (var i = o > 1 ? void 0 : o ? Bp(e, t) : e, a = r.length - 1, n; a >= 0; a--)
+  const Rp = '.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}.fa,.fas{font-family:"Font Awesome 5 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-exclamation-circle:before{content:""}.list-header{position:sticky;z-index:1;top:0}:host{background-color:var(--col-bg-body);display:block;border:solid 2px var(--col-bg-1-darker);overflow-y:hidden;padding-bottom:.5em}div,p{font-family:var(--standard-text-font)}.feature-list{display:grid;overflow-y:scroll;height:100%;width:100%;max-height:35vh;grid-row-gap:5px;grid-template-rows:[header] auto;grid-template-columns:repeat(4,auto);border-top:solid var(--col-bg-1-darker) 2px}.feature-list div{padding-right:1em}.feature-list.feature-list-with-member{grid-template-columns:repeat(5,auto)}.list-header{background:var(--col-bg-1-lighter);font-weight:700;padding-top:1em;border-bottom:solid var(--col-bg-1-darker) 1px}.list-identifier{cursor:pointer;text-decoration:underline}.headline{background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700}.controls{display:flex;flex-direction:row;background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700;justify-content:space-between}.no-data{padding:2px}#sort-type-selector{padding-right:1em}.center-col{display:flex;justify-content:center}';
+  var Fp = Object.defineProperty, Hp = Object.getOwnPropertyDescriptor, Bp = Object.getPrototypeOf, jp = Reflect.get, Up = (r, e, t, o) => {
+    for (var i = o > 1 ? void 0 : o ? Hp(e, t) : e, a = r.length - 1, n; a >= 0; a--)
       (n = r[a]) && (i = (o ? n(e, t, i) : n(i)) || i);
-    return o && i && Hp(e, t, i), i;
-  }, qp = (r, e, t) => Up(jp(r), t, e);
-  class Yp {
+    return o && i && Fp(e, t, i), i;
+  }, Vp = (r, e, t) => jp(Bp(r), t, e);
+  class qp {
   }
   let Ye = class extends z {
     constructor() {
@@ -17859,7 +17823,7 @@ var gg = Qn((Ug, go) => {
               }
             },
             target: {
-              field_or_instruction: "replfield_modified()"
+              field_or_instruction: "modified_ww()"
             },
             additional_fields: {
               // "id_uuid": {
@@ -17867,7 +17831,7 @@ var gg = Qn((Ug, go) => {
               //     "default": "",
               // },
               modified_date: {
-                field_or_instruction: "replfield_modified()",
+                field_or_instruction: "modified_ww()",
                 default: "",
                 format: "datetime(date)"
               },
@@ -17877,7 +17841,7 @@ var gg = Qn((Ug, go) => {
                 format: "dsd_type(varchar)"
               },
               modified_timestamp: {
-                field_or_instruction: "replfield_modified()",
+                field_or_instruction: "modified_ww()",
                 default: ""
               },
               created: {
@@ -17931,7 +17895,7 @@ var gg = Qn((Ug, go) => {
       r.forEach((t) => {
         const o = t.identifier;
         let i;
-        o in e ? i = e[o] : (i = new Yp(), e[o] = i, this.features.push(i), i.photoCount = 0, i.type = "?", i.modified = 0, i.feature_creation = "?", i.modified_by = ""), i.identifier = t.identifier, i.uid = t.id_uuid, t.modified > i.modified && (i.modified = t.modified), i.modified_by = t.modified_by, t.type && (i.type = t.type), t.created && (i.feature_creation = ae(t.created).toLocaleDateString(), i.created = ae(t.created).getTime()), t.record_type == "dayplan" && (i.photoCount = t.c);
+        o in e ? i = e[o] : (i = new qp(), e[o] = i, this.features.push(i), i.photoCount = 0, i.type = "?", i.modified = 0, i.feature_creation = "?", i.modified_by = ""), i.identifier = t.identifier, i.uid = t.id_uuid, t.modified > i.modified && (i.modified = t.modified), i.modified_by = t.modified_by, t.type && (i.type = t.type), t.created && (i.feature_creation = ae(t.created).toLocaleDateString(), i.created = ae(t.created).getTime()), t.record_type == "dayplan" && (i.photoCount = t.c);
       }), this.featureCount = Object.keys(this.features).length, this.sort_records(this.sort_by[this.selected_sort]);
     }
     sort_records(r) {
@@ -18042,9 +18006,9 @@ var gg = Qn((Ug, go) => {
                     </div>` : h`please select a date`;
     }
   };
-  Ye.styles = H(Fp);
+  Ye.styles = H(Rp);
   Ye.properties = {
-    ...qp(Ye, Ye, "properties"),
+    ...Vp(Ye, Ye, "properties"),
     selected_context: { type: String },
     selected_date: { type: Date },
     selected_member: { type: String },
@@ -18052,15 +18016,15 @@ var gg = Qn((Ug, go) => {
     sort_by: { type: Array },
     term_for_feature: { type: String }
   };
-  Ye = Vp([
+  Ye = Up([
     W("feature-widget")
   ], Ye);
-  const Wp = '.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}.fa,.fas{font-family:"Font Awesome 5 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-exclamation-circle:before{content:""}:host{width:45vw;max-width:45vw;background-color:var(--col-bg-body);display:block;border:solid 2px var(--col-bg-1-darker);box-sizing:border-box;overflow-y:hidden;height:100%}div,p{font-family:var(--standard-text-font);padding:0;box-sizing:border-box}.file-list{overflow-y:scroll;height:100%;width:100%;max-height:35vh}.headline{background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700}.controls{display:flex;flex-direction:row;background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700;justify-content:space-between}.controls i{margin:0 5px;border:1px solid rgba(0,0,0,0);padding:2px;width:1em;height:1em}.controls-left{display:flex;flex-basis:auto;flex-wrap:wrap}.controls-right{min-width:100px;flex-basis:min-content;display:flex}.controls-right i{line-height:1em;text-align:center}.selected-view-mode{background-color:var(--col-bg-ack);color:var(--col-accent-bg-ack);border:1px solid var(--col-bg-1-darker)}.control-container{display:flex;margin-right:1em}label{padding-right:.5em;text-wrap:none;white-space:nowrap}.no-files{padding:2px}.file{font-family:var(--standard-text-font);padding:.2em;border-bottom:var(--col-bg-1-darker) 2px solid;display:flex;flex-direction:row}.file-headline{display:flex;flex-direction:column;margin-left:.5em;width:calc(100% - 1em)}.main-headline{font-weight:700;display:flex;flex-direction:row;justify-content:space-between}.file-grid{display:flex;flex-direction:row;flex-wrap:wrap;overflow-y:scroll;height:100%;width:100%;max-height:35vh;justify-content:space-between}.file-view{display:flex;flex-direction:column;height:100%;padding:0;width:calc(100% - 5px);max-height:35vh;margin:2px;overflow:auto}.grid-cell{display:flex;flex-direction:column;justify-content:space-between}.grid-cell p{margin-bottom:1em}.selected-image{border:2px solid var(--col-bg-1-lighter);box-shadow:2px 2px 10px var(--col-bg-1-lighter);padding:1px}', Gp = '.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}.fa,.fas{font-family:"Font Awesome 5 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-exclamation-circle:before{content:""}:host{display:block;padding:2px;box-sizing:border-box}div,p{font-family:var(--standard-text-font);box-sizing:border-box}.placeholder{width:128px;height:128px;display:flex;justify-content:center;align-items:center}.placeholder i{font-size:2em}img{object-fit:contain;width:100%;height:100%}';
-  var Kp = Object.defineProperty, Xp = Object.getOwnPropertyDescriptor, Jp = Object.getPrototypeOf, Qp = Reflect.get, Zp = (r, e, t, o) => {
-    for (var i = o > 1 ? void 0 : o ? Xp(e, t) : e, a = r.length - 1, n; a >= 0; a--)
+  const Yp = '.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}.fa,.fas{font-family:"Font Awesome 5 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-exclamation-circle:before{content:""}:host{width:45vw;max-width:45vw;background-color:var(--col-bg-body);display:block;border:solid 2px var(--col-bg-1-darker);box-sizing:border-box;overflow-y:hidden;height:100%}div,p{font-family:var(--standard-text-font);padding:0;box-sizing:border-box}.file-list{overflow-y:scroll;height:100%;width:100%;max-height:35vh}.headline{background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700}.controls{display:flex;flex-direction:row;background-color:var(--col-bg-1-lighter);color:var(--col-primary-bg-1);padding:2px;font-weight:700;justify-content:space-between}.controls i{margin:0 5px;border:1px solid rgba(0,0,0,0);padding:2px;width:1em;height:1em}.controls-left{display:flex;flex-basis:auto;flex-wrap:wrap}.controls-right{min-width:100px;flex-basis:min-content;display:flex}.controls-right i{line-height:1em;text-align:center}.selected-view-mode{background-color:var(--col-bg-ack);color:var(--col-accent-bg-ack);border:1px solid var(--col-bg-1-darker)}.control-container{display:flex;margin-right:1em}label{padding-right:.5em;text-wrap:none;white-space:nowrap}.no-files{padding:2px}.file{font-family:var(--standard-text-font);padding:.2em;border-bottom:var(--col-bg-1-darker) 2px solid;display:flex;flex-direction:row}.file-headline{display:flex;flex-direction:column;margin-left:.5em;width:calc(100% - 1em)}.main-headline{font-weight:700;display:flex;flex-direction:row;justify-content:space-between}.file-grid{display:flex;flex-direction:row;flex-wrap:wrap;overflow-y:scroll;height:100%;width:100%;max-height:35vh;justify-content:space-between}.file-view{display:flex;flex-direction:column;height:100%;padding:0;width:calc(100% - 5px);max-height:35vh;margin:2px;overflow:auto}.grid-cell{display:flex;flex-direction:column;justify-content:space-between}.grid-cell p{margin-bottom:1em}.selected-image{border:2px solid var(--col-bg-1-lighter);box-shadow:2px 2px 10px var(--col-bg-1-lighter);padding:1px}', Wp = '.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}p,div{padding:0;margin:0;border:0px;-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}.fa,.fas{font-family:"Font Awesome 5 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-exclamation-circle:before{content:""}:host{display:block;padding:2px;box-sizing:border-box}div,p{font-family:var(--standard-text-font);box-sizing:border-box}.placeholder{width:128px;height:128px;display:flex;justify-content:center;align-items:center}.placeholder i{font-size:2em}img{object-fit:contain;width:100%;height:100%}';
+  var Gp = Object.defineProperty, Kp = Object.getOwnPropertyDescriptor, Xp = Object.getPrototypeOf, Jp = Reflect.get, Qp = (r, e, t, o) => {
+    for (var i = o > 1 ? void 0 : o ? Kp(e, t) : e, a = r.length - 1, n; a >= 0; a--)
       (n = r[a]) && (i = (o ? n(e, t, i) : n(i)) || i);
-    return o && i && Kp(e, t, i), i;
-  }, eg = (r, e, t) => Qp(Jp(r), t, e);
+    return o && i && Gp(e, t, i), i;
+  }, Zp = (r, e, t) => Jp(Xp(r), t, e);
   let We = class extends z {
     constructor() {
       super(), this._resolution = "", this.description = "", this._visible = !1, this.loaded = !1, this.imageUrl = "", this.observer = null, this._uuid_file = "", this.observerCallback = this.observerCallback.bind(this), this._init();
@@ -18106,10 +18070,8 @@ var gg = Qn((Ug, go) => {
      * @protected
      */
     initIntersectionObserver() {
-      if (!("IntersectionObserver" in window))
-        return this.visible = !0;
-      if (this.observer)
-        return;
+      if (!("IntersectionObserver" in window)) return this.visible = !0;
+      if (this.observer) return;
       const e = "10px";
       this.observer = new IntersectionObserver(this.observerCallback, { rootMargin: e }), this.observer.observe(this);
     }
@@ -18163,9 +18125,9 @@ var gg = Qn((Ug, go) => {
                     </div>`;
     }
   };
-  We.styles = H(Gp);
+  We.styles = H(Wp);
   We.properties = {
-    ...eg(We, We, "properties"),
+    ...Zp(We, We, "properties"),
     uuid_file: { type: String },
     resolution: { type: String },
     loaded: { type: Boolean },
@@ -18173,15 +18135,15 @@ var gg = Qn((Ug, go) => {
     visible: { type: Boolean },
     description: { type: String }
   };
-  We = Zp([
+  We = Qp([
     W("file-view")
   ], We);
-  var tg = Object.defineProperty, rg = Object.getOwnPropertyDescriptor, og = Object.getPrototypeOf, ig = Reflect.get, ag = (r, e, t, o) => {
-    for (var i = o > 1 ? void 0 : o ? rg(e, t) : e, a = r.length - 1, n; a >= 0; a--)
+  var eg = Object.defineProperty, tg = Object.getOwnPropertyDescriptor, rg = Object.getPrototypeOf, og = Reflect.get, ig = (r, e, t, o) => {
+    for (var i = o > 1 ? void 0 : o ? tg(e, t) : e, a = r.length - 1, n; a >= 0; a--)
       (n = r[a]) && (i = (o ? n(e, t, i) : n(i)) || i);
-    return o && i && tg(e, t, i), i;
-  }, ng = (r, e, t) => ig(og(r), t, e);
-  class sg {
+    return o && i && eg(e, t, i), i;
+  }, ag = (r, e, t) => og(rg(r), t, e);
+  class ng {
   }
   let Ge = class extends z {
     constructor() {
@@ -18239,7 +18201,7 @@ var gg = Qn((Ug, go) => {
                   },
                   additional_fields: {
                     modified_date: {
-                      field_or_instruction: "replfield_modified()",
+                      field_or_instruction: "modified_ww()",
                       default: "",
                       format: "datetime(date)"
                     },
@@ -18319,7 +18281,7 @@ var gg = Qn((Ug, go) => {
     }
     load_files(r) {
       this.files = [], this.record_types = /* @__PURE__ */ new Set(), r.forEach((e) => {
-        let t = new sg();
+        let t = new ng();
         t.identifier = e.identifier, t.modified_by = e.modified_by ? e.modified_by : "?", t.modified = new Date(e.modified_timestamp), t.uid_file = e.uid_file, t.description = e.description, t.image_description = e.image_description, t.filename = e.filename, t.record_type = e.record_type, this.record_types.add(e.record_type), this.files.push(t);
       }), this.sort_records(this.sort_by[this.selected_sort]);
     }
@@ -18548,9 +18510,9 @@ var gg = Qn((Ug, go) => {
       }
     }
   };
-  Ge.styles = H(Wp);
+  Ge.styles = H(Yp);
   Ge.properties = {
-    ...ng(Ge, Ge, "properties"),
+    ...ag(Ge, Ge, "properties"),
     selected_context: { type: String },
     selected_member: { type: String },
     selected_date: { type: Date },
@@ -18562,14 +18524,14 @@ var gg = Qn((Ug, go) => {
     viewMode: { type: String },
     show_record_types: { type: String }
   };
-  Ge = ag([
+  Ge = ig([
     W("file-widget")
   ], Ge);
-  var lg = Object.defineProperty, cg = Object.getOwnPropertyDescriptor, dg = Object.getPrototypeOf, ug = Reflect.get, hg = (r, e, t, o) => {
-    for (var i = o > 1 ? void 0 : o ? cg(e, t) : e, a = r.length - 1, n; a >= 0; a--)
+  var sg = Object.defineProperty, lg = Object.getOwnPropertyDescriptor, cg = Object.getPrototypeOf, dg = Reflect.get, ug = (r, e, t, o) => {
+    for (var i = o > 1 ? void 0 : o ? lg(e, t) : e, a = r.length - 1, n; a >= 0; a--)
       (n = r[a]) && (i = (o ? n(e, t, i) : n(i)) || i);
-    return o && i && lg(e, t, i), i;
-  }, pg = (r, e, t) => ug(dg(r), t, e);
+    return o && i && sg(e, t, i), i;
+  }, hg = (r, e, t) => dg(cg(r), t, e);
   let Ke = class extends z {
     constructor() {
       super();
@@ -18594,11 +18556,11 @@ var gg = Qn((Ug, go) => {
       return this.renderDataWidgets();
     }
   };
-  Ke.styles = H(eh);
+  Ke.styles = H(Zu);
   Ke.properties = {
-    ...pg(Ke, Ke, "properties")
+    ...hg(Ke, Ke, "properties")
   };
-  Ke = hg([
+  Ke = ug([
     W("dataview-frame")
   ], Ke);
   const Me = class Me extends Ur {
@@ -18654,4 +18616,4 @@ var gg = Qn((Ug, go) => {
   let po = Me;
   window.customElements.define("directorsview-app", po);
 });
-export default gg();
+export default pg();

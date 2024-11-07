@@ -276,7 +276,6 @@ export class StructuredKioskQuery extends KioskAppComponent {
                     refreshBarChart2(graphDiv, this.data, `${width}px`, `${height}px`,chartDefinition);
                 }
             }
-
         }
     }
 

@@ -13,7 +13,7 @@ from core.kioskcontrollerplugin import get_plugin_for_controller
 _plugin_name_ = "directorsviewplugin"
 _controller_name_ = "directorsview"
 _url_prefix_ = '/' + _controller_name_
-plugin_version = 0.10
+plugin_version = 1.0
 
 directorsview = Blueprint(_controller_name_, __name__,
                           template_folder='templates',
