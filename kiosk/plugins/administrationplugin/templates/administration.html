@@ -117,6 +117,7 @@
         </div>
         <div class="admin-gridded-info">
           <div class="admin-sysinfo-entry"><label>project-id:</label> {{ config.get_project_id() }}</div>
+          <div class="admin-sysinfo-entry"><label>PostgreSQL DB:</label> {{ config.database_name }}</div>
           <div class="admin-sysinfo-entry"><label>dsd format:</label> {{ sysinfo.dsd_format }}</div>
           <div class="admin-sysinfo-entry"><label>template
             version:</label> {{ config.expected_filemaker_template_version }}</div>
