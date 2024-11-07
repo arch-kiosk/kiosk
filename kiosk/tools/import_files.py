@@ -13,9 +13,11 @@ from kioskconfig import KioskConfig
 from sync.core.fileimport import FileImport
 from synchronization import Synchronization
 from tools.kiosktoolslib import init_dsd
+from tz.kiosktimezones import KioskTimeZones
 
 import_params = {"-import_params": "p",
                  "-repl_user_id": "u",
+                 "-tz": "tz",
                  "-?": "?"
                  }
 options = {}
@@ -26,7 +28,7 @@ def interpret_param(known_param, param):
     new_option = import_params[known_param]
     rc = None
 
-    if new_option in ["p", "u"]:
+    if new_option in ["p", "u", "tz"]:
         param_parts = param.split("=")
         if len(param_parts) == 2:
             param_2 = param_parts[1]
@@ -131,7 +133,7 @@ def init(config_file):
     logging.basicConfig(format='>[%(module)s.%(levelname)s at %(asctime)s]: %(message)s', level=logging.ERROR)
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
-    logger.handlers = []
+    # logger.handlers = []
 
     if cfg.get_logfile():
         log_pattern = cfg.get_logfile().replace("#", "%")
@@ -217,10 +219,24 @@ if __name__ == '__main__':
         logging.error(f"No repl_user_id given.")
         usage()
 
-    # todo time zone simplified
-    print("TODO: THIS NEEDS A TIME ZONE INDEX TO RUN IN A PARTICULAR TIMEZONE! "
-          "EITHER FROM THE PARAMETER FILE OR FROM A COMMANDLINE PARAMETER")
-    usage()
+    if "tz" not in options:
+        logging.error(f"Please state a tz index")
+        usage()
+
+    try:
+        tz_index = int(options["tz"])
+    except BaseException as e:
+        logging.error(f'{options["tz"]} is not a valid time zone index. Must be an integer.')
+        usage()
+
+    time_zones = KioskTimeZones()
+    tz_long = time_zones.get_long_time_zone(tz_index)
+    if not tz_long or tz_long == "-":
+        logging.error(f'{options["tz"]} is not a valid time zone')
+        usage()
+
+    print(f"Using time zone {options['tz']}, {tz_long}")
+
     repl_user_id = options["u"]
     with open(options["p"], "r", encoding='utf8') as ymlfile:
         import_params = yaml.load(ymlfile, Loader=yaml.FullLoader)
@@ -235,7 +251,7 @@ if __name__ == '__main__':
     file_repos = FileRepository(cfg, sync.events, sync.type_repository, sync)
     # files = file_repos.do_housekeeping(console=True)
 
-    file_import = FileImport(cfg, sync)
+    file_import = FileImport(cfg, sync,tz_index=tz_index)
 
     sorted_names = file_import.sort_import_filters()
     context_filters = [file_import.get_file_import_filter(x) for x in sorted_names]
