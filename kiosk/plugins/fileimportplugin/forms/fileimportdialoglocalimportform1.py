@@ -5,7 +5,7 @@ from wtforms.validators import DataRequired, Length, ValidationError
 
 import kioskstdlib
 from core.kioskwtforms import KioskLabeledBooleanField, KioskStringField, \
-    KioskLabeledStringField, KioskGeneralFormErrors
+    KioskLabeledStringField, KioskGeneralFormErrors, KioskTimeZoneSelectorField
 
 
 class LocalImportForm1(FlaskForm, KioskGeneralFormErrors):
@@ -19,6 +19,7 @@ class LocalImportForm1(FlaskForm, KioskGeneralFormErrors):
     recursive = KioskLabeledBooleanField(label="scan subfolders, too")
     add_needs_context = KioskLabeledBooleanField(label="import only files with context")
     substitute_identifiers = KioskLabeledBooleanField(label="substitute patterns in identifiers")
+    user_time_zone_index = KioskTimeZoneSelectorField(label="time zone for date and time of imported files")
 
     def validate_file_extensions(self, field):
         if field.data:

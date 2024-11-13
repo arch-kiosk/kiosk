@@ -240,7 +240,7 @@ class KioskTimeZones:
             if filter_text:
                 sql_where += (" AND " if sql_where else " WHERE ") + f"tz_long ILIKE %s"
                 sql_parameter.append(f'%{filter_text}%')
-            print(sql + sql_where)
+            # print(sql + sql_where)
             time_zone_records = KioskSQLDb.get_records(sql + sql_where, params=sql_parameter)
             self.update_cache(time_zone_records)
             return time_zone_records

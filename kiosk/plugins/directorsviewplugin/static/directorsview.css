@@ -590,4 +590,8 @@ body a {
   font-weight: bold;
 }
 
+kiosk-tz-combo-box.kiosk-dialog-textfield {
+  padding-left: 0;
+}
+
 /*# sourceMappingURL=directorsview.css.map */

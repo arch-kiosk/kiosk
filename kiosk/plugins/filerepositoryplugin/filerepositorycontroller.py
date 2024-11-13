@@ -168,7 +168,7 @@ def get_standard_image_response(extension, filename):
         response = make_response(
             send_from_directory(current_app.static_folder, "assets/images/{}".format(std_file_image)))
     else:
-        print("###### still no thumbnail file for " + filename)
+        # print("###### still no thumbnail file for " + filename)
         response = make_response(send_from_directory(current_app.static_folder,
                                                      "assets/images/dummyfile.svg"))
     return response

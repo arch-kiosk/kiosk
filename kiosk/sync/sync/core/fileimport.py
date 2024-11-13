@@ -594,6 +594,7 @@ class FileImport:
                                 ts_file=None, tags=None, accept_duplicates=False, tz_index=None):
         """ adds a file to the repository
         """
+        logging.debug(f"{self.__class__.__name__}._add_file_to_repository: using {tz_index} for file {path_and_filename}")
         if not self.file_repository:
             logging.error("FileImport.add_files_to_repository: No file_repository given")
             return False

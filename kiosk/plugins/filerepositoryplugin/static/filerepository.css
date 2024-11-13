@@ -590,6 +590,10 @@ body a {
   font-weight: bold;
 }
 
+kiosk-tz-combo-box.kiosk-dialog-textfield {
+  padding-left: 0;
+}
+
 #fr-wrapper {
   width: 100%;
   background-color: var(--col-bg-body);

@@ -590,6 +590,10 @@ body a {
   font-weight: bold;
 }
 
+kiosk-tz-combo-box.kiosk-dialog-textfield {
+  padding-left: 0;
+}
+
 .kiosk-error {
   background-color: var(--col-bg-alert);
   color: var(--col-primary-bg-alert);
@@ -863,6 +867,10 @@ body a {
 
 #sequence-import-progress .kiosk-log-view .kiosk-log-subheading {
   font-size: 1em;
+}
+
+.hide-before-init {
+  visibility: visible;
 }
 
 /*# sourceMappingURL=fileimport.css.map */
