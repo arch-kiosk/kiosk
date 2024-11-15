@@ -1544,7 +1544,8 @@ def get_kiosk_semantic_version(version: str) -> (str, str):
     returns the generation and semantic version of a kiosk version. A kiosk version has an additional leading generation
     version number that is incompatible with the semantic version.
     :param version: either a 4 digit kiosk version or a 3 digit semantic version.
-    :return: a tuple consisting of the generation and semantic version.
+    :return: a tuple consisting of the generation and semantic version. Can throw Exceptions and returns "","" if
+             it cannot figure out a correct sematic version
     """
     if re.fullmatch(r'^(\d+)\.(\d+)$', version):
         version = version + ".0"
@@ -1647,3 +1648,11 @@ def load_python_module(source, module_name):
     spec.loader.exec_module(module)
 
     return module
+
+def get_kiosk_version_from_file(kiosk_version_file_path):
+    """
+        retrieves the Kiosk version from the file "kiosk.version" in the root directory of Kiosk.
+        :param kiosk_version_file_path: path and filename of the version file
+        todo: Not implemented, yet.
+    """
+    raise NotImplementedError

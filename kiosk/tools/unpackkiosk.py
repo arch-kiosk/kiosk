@@ -113,6 +113,7 @@ def usage():
     """)
     sys.exit(0)
 
+current_kiosk_version = ""
 
 def interpret_param(known_param, param):
     new_option = params[known_param]
@@ -297,24 +298,30 @@ def check_redis():
 
 def transform_file_repository(cfg_file):
     from transformfilerepository import TransformFileRepository
-    print("Transforming the file repository if necessary: ", end="", flush=True)
-    transform = TransformFileRepository(cfg_file)
-    transform.console = True
-    if not transform.transform():
-        logging.error("Transform file repository failed miserably!")
-    if transform.get_errors() > 0:
-        logging.warning(f"Transform file repository reported trouble with {transform.get_errors()} files.")
+    if kioskstdlib.cmp_semantic_version(current_kiosk_version, "1.5") == -1:
+        print("Transforming the file repository if necessary: ", end="", flush=True)
+        transform = TransformFileRepository(cfg_file)
+        transform.console = True
+        if not transform.transform():
+            logging.error("Transform file repository failed miserably!")
+        if transform.get_errors() > 0:
+            logging.warning(f"Transform file repository reported trouble with {transform.get_errors()} files.")
+    else:
+        logging.info(f"Transform file repository skipped because we're updating a Kiosk versions > 1.5.")
 
 
 def transform_file_cache(cfg_file):
     from transformfilecache import TransformFileCache
-    print("Transforming file cache directories if necessary: ", end="", flush=True)
-    transform = TransformFileCache(cfg_file)
-    transform.console = True
-    if not transform.transform():
-        logging.error("Transform file cache failed miserably!")
-    if transform.get_errors() > 0:
-        logging.warning(f"Transform file cache reported trouble with {transform.get_errors()} files.")
+    if kioskstdlib.cmp_semantic_version(current_kiosk_version, "1.5") == -1:
+        print("Transforming file cache directories if necessary: ", end="", flush=True)
+        transform = TransformFileCache(cfg_file)
+        transform.console = True
+        if not transform.transform():
+            logging.error("Transform file cache failed miserably!")
+        if transform.get_errors() > 0:
+            logging.warning(f"Transform file cache reported trouble with {transform.get_errors()} files.")
+    else:
+        logging.info(f"Transform file cache skipped because we're updating a Kiosk versions > 1.5.")
 
 
 def clear_file_cache(cfg_file, force=False):
@@ -484,6 +491,26 @@ def renew_workstations(cfg_file: str):
         logging.error(f"unpackkiosk.renew_workstation: {repr(e)}")
         print("failed", flush=True, end="\n")
 
+def get_current_kiosk_version(kiosk_dir):
+    if kioskstdlib.file_exists(os.path.join(kiosk_dir, "kiosk.version")):
+        try:
+            return kioskstdlib.get_kiosk_version_from_file(os.path.join(kiosk_dir, "kiosk.version"))
+        except BaseException as e:
+            logging.error(f"get_current_kiosk_version: {repr(e)}")
+
+    # Must be pre kiosk.version. Let's read it from the kioskversion.py
+    import importlib.util
+    import sys
+    filepath = os.path.join(kiosk_dir, "core", "kioskversion.py")
+    if not kioskstdlib.file_exists(filepath):
+        logging.error(f"unpackkiosk.get_current_kiosk_version: No file {filepath}")
+        return "0"
+    spec = importlib.util.spec_from_file_location("updatever", filepath)
+    updatever = importlib.util.module_from_spec(spec)
+    sys.modules["updatever"] = updatever
+    spec.loader.exec_module(updatever)
+    return updatever.kiosk_version
+
 if __name__ == '__main__':
     options = {}
     logging.basicConfig(level=logging.INFO)
@@ -520,25 +547,9 @@ if __name__ == '__main__':
         else:
             print(f"parameter \"{param}\" unknown.")
             usage()
-    if "test_drive" in options:
-        logging.info("test_drive parameter recognized. unpackkiosk will stop here. Options were:")
-        logging.info(",".join([f"{k}={v}" for k, v in options.items()]))
-        logging.info(f"kiosk-dir: {kiosk_dir}")
-        logging.info(f"source-dir: {src_dir}")
-        # print("test_drive parameter recognized. unpackkiosk will stop here. Options were:")
-        # print(",".join([f"{k}={v}" for k,v in options.items()]))
-        # print(f"kiosk-dir: {kiosk_dir}")
-        # print(f"source-dir: {src_dir}")
-        sys.exit(0)
 
-    # removed: if "c" in options or
     if "p" in options:
         pip_basics()
-
-    # changed: if "c" in options:
-    # if "p" in options:
-    #     now done with the requirements.kiosk.txt file itself.
-    #     install_libraries(src_dir)
 
     if "p" in options:
         pip_install_requirements(src_dir)
@@ -567,6 +578,14 @@ if __name__ == '__main__':
                 logging.error(f"ERROR: REDIS is not installed or at least not running ...")
                 sys.exit(0)
 
+
+    if "test_drive" in options and "o" not in options:
+        logging.info("test_drive parameter for a new installation recognized. unpackkiosk will stop here. Options were:")
+        logging.info(",".join([f"{k}={v}" for k, v in options.items()]))
+        logging.info(f"kiosk-dir: {kiosk_dir}")
+        logging.info(f"source-dir: {src_dir}")
+        sys.exit(0)
+
     from kioskrestore import KioskRestore
 
     KioskRestore.in_console = True
@@ -581,6 +600,35 @@ if __name__ == '__main__':
             if not path.isfile(cfg_file):
                 logging.error(f"Configuration file {cfg_file} does not seem to exist.")
                 usage()
+            current_version = get_current_kiosk_version(kiosk_dir)
+            if not current_version:
+                logging.error("Error: Cannot read the version of the existing Kiosk")
+                sys.exit(0)
+            if current_version == "0":
+                logging.error("Error: The Kiosk you try to update is so old that it does not even have a "
+                              "kioskversion.py let alone the newer kiosk.version. "
+                              "Please make sure you really want to update this Kiosk "
+                              "(and then create a kiosk.version manually).")
+                sys.exit(0)
+            try:
+                _current_kiosk_version = kioskstdlib.get_kiosk_semantic_version(current_version)
+                if _current_kiosk_version == ("",""):
+                    raise "Cannot parse version"
+                if _current_kiosk_version[0] != "1":
+                    raise "Cannot update anything but generation 1"
+                current_kiosk_version = _current_kiosk_version[1]
+            except BaseException as e:
+                logging.error(f"Error: The Kiosk you try to update has an illegal version \"{current_version}\" ")
+                sys.exit(0)
+
+            print(f"updating an existing Kiosk version \"{current_version}\"", end="\n")
+
+            if "test_drive" in options:
+                logging.info("test_drive parameter for an update recognized. unpackkiosk will stop here. Options were:")
+                logging.info(",".join([f"{k}={v}" for k, v in options.items()]))
+                logging.info(f"kiosk-dir: {kiosk_dir}")
+                logging.info(f"source-dir: {src_dir}")
+                sys.exit(0)
 
             if "skip_installation" not in options:
                 if "noc" not in options:
