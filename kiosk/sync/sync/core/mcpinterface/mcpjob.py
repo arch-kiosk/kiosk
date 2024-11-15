@@ -3,6 +3,8 @@ import os
 import logging
 import datetime
 import time
+
+import kioskdatetimelib
 import kioskstdlib
 import uuid
 import nanoid
@@ -332,7 +334,11 @@ class MCPJob:
         self._job_info.base_path = self._config.base_path
         self._job_info.config_file = self._config.configfile
         self._job_info.project_id = self._config.get_project_id()
-        self._job_info.ts_created = datetime.datetime.now()
+        self._job_info.ts_created = kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True)
+        # todo time zone simplified: this is not great.
+        #   It is a system specific ticker that would not compare with a second system!
+        #   So MCP and the queueing process need to be on the same system.
+        #   I think a microsecond utc time stamp would be better here.
         self._job_info.ns_created = time.monotonic_ns()
 
     def _fetch_data_attribute(self, attribute, lock_queue=False):
@@ -371,12 +377,17 @@ class MCPJob:
         try:
             rc = self._queue.change_job_attribute(self.job_id, attribute, value, use_lock=False)
             if rc:
-                self._ts_modified = datetime.datetime.now()
-                rc = self._queue.change_job_attribute(self.job_id, ["ts_modified"],
+                self._ts_modified = kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True)
+
+                # todo time zone simplified: this is not great.
+                #   It is a system specific ticker that would not compare with a second system!
+                #   So MCP and the queueing process need to be on the same system.
+                #   I think a microsecond utc time stamp would be better here.
+                rc = (self._queue.change_job_attribute(self.job_id, ["ts_modified"],
                                                       kioskstdlib.ts_to_str(self._ts_modified),
                                                       use_lock=False) and \
-                     self._queue.change_job_attribute(self.job_id, ["ns_modified"],
-                                                      time.monotonic_ns(), use_lock=False)
+                    self._queue.change_job_attribute(self.job_id, ["ns_modified"],
+                                                          time.monotonic_ns(), use_lock=False))
             self._auto_pulse()
         finally:
             if lock and lock_queue:
@@ -392,7 +403,7 @@ class MCPJob:
         try:
             data = self._queue.read(self.job_id, lock_queue=lock_queue)
         except KeyError as e:
-            raise MCPJobUnknownError(f"Could not fetch {self.job_id} from queue.")
+            raise MCPJobUnknownError(f"Could not fetch {self.job_id} from queue: {repr(e)}")
         if data:
             if "job_data" in data:
                 self._payload.job_data = _copy_and_pop(data, "job_data")
@@ -590,7 +601,11 @@ class MCPJob:
 
         self.validate_job(f"{self.__class__.__name__}.queue")
 
-        self._job_info.ts_modified = datetime.datetime.now()
+        self._job_info.ts_modified = kioskdatetimelib.get_utc_now(no_tz_info=True)
+        # todo time zone simplified: this is not great.
+        #   It is a system specific ticker that would not compare with a second system!
+        #   So MCP and the queueing process need to be on the same system.
+        #   I think a microsecond utc time stamp would be better here.
         self._job_info.ns_modified = time.monotonic_ns()
         data = self._job_info.as_dict()
         data["status"] = status

@@ -5,6 +5,7 @@ import os.path
 
 
 def create_app(config_id: flask.cli.ScriptInfo):
+
     filename = inspect.getframeinfo(inspect.currentframe()).filename
     root_path = os.path.dirname(os.path.abspath(filename))
     # This should not be necessary and has never been except one day on meritaten.

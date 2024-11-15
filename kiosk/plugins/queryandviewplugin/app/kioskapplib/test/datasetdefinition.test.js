@@ -302,3 +302,15 @@ test("get_lore_tables", () => {
     expect(dsd.get_lore_tables("unit")).toStrictEqual(["site"])
     expect(dsd.get_lore_tables("unit_narrative")).toStrictEqual(["unit", "site"])
 })
+
+test("get_fields_with_datatype", () => {
+    let dsd = new DataSetDefinition()
+    expect(() => dsd.loadFromDict(test_dsd())).not.toThrowError()
+    expect(dsd.get_fields_with_datatype("unit", "timestamp")).toStrictEqual([
+        "created",
+        "modified"
+    ])
+    expect(dsd.get_fields_with_datatype("unit", "number")).toStrictEqual([
+        "id", "spider_counter"
+    ])
+})

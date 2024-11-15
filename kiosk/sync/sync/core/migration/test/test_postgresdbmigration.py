@@ -1,3 +1,4 @@
+# todo time zone simpliciation
 import pytest
 import psycopg2
 import datetime
@@ -91,7 +92,12 @@ class TestPostgresDbMigration(KioskPyTestHelper):
         sql = r"update " + "{{unit}} set {{unit}}.modified = {NOW};"
         iso_now = "'" + datetime.datetime.now().isoformat().split(".")[0]
 
-        result = pg_migration.substitute_variables(sql)
+        result, warnings = pg_migration.substitute_variables(sql)
+        if warnings and "NOW" in warnings:
+            print(f"{self.__class__.__name__}._adapter_get_sql_lines: "
+                            f"using the {'NOW'} variable is discouraged for migration scripts "
+                            f"because of potential time zone issues.")
+
         assert result.find(iso_now) == 40
 
     def db_execute(self, con, sql: str):
@@ -236,7 +242,8 @@ class TestPostgresDbMigration(KioskPyTestHelper):
 
         self.db_execute(db, "drop table if exists \"migration_catalog\";")
         assert pg_migration.create_table("test", 1)
-        assert mock_sql == "CREATE TABLE \"test\"(\"uid\" UUID,\"created\" TIMESTAMP NOT NULL);"
+        assert mock_sql == ('CREATE TABLE "test"("uid" UUID,"created" TIMESTAMP NOT '
+                            'NULL);')
 
     def test_mock_sync_tools(self, db, pg_migration, monkeypatch):
         mock_sql = ""
@@ -264,10 +271,10 @@ class TestPostgresDbMigration(KioskPyTestHelper):
         self.db_execute(db, "drop table if exists \"migration_catalog\";")
         self.db_execute(db, "drop table if exists \"test\";")
         assert pg_migration.create_table("test", 1, sync_tools=True)
-        assert mock_sql == 'CREATE TABLE "test"("uid" UUID NOT NULL DEFAULT gen_random_uuid(),"created" ' \
-                           'TIMESTAMP NOT NULL,"repl_deleted" BOOLEAN DEFAULT False,"repl_tag" INTEGER ' \
-                           'DEFAULT NULL,"repl_workstation_id" VARCHAR NOT NULL,CONSTRAINT ' \
-                           '"PK_test_SYNC" PRIMARY KEY ("uid","repl_workstation_id"));'
+        assert mock_sql == (('CREATE TABLE "test"("uid" UUID NOT NULL DEFAULT gen_random_uuid(),"created" '
+                             'TIMESTAMP NOT NULL,"repl_deleted" BOOLEAN DEFAULT False,"repl_tag" INTEGER '
+                             'DEFAULT NULL,"repl_workstation_id" VARCHAR NOT NULL,CONSTRAINT '
+                             '"PK_test_SYNC" PRIMARY KEY ("uid","repl_workstation_id"));'))
 
     def test_sync_tools(self, db, pg_migration):
         pg_migration.dsd.append({"config": {
@@ -314,16 +321,16 @@ class TestPostgresDbMigration(KioskPyTestHelper):
         self.db_execute(db, "drop table if exists \"migration_catalog\";")
         self.db_execute(db, "drop table if exists \"test\";")
         assert pg_migration.create_temporary_table("test", 1)
-        assert mock_sql == 'CREATE TEMP TABLE "test"("uid" UUID UNIQUE PRIMARY KEY NOT NULL DEFAULT ' \
-                           'gen_random_uuid(),"created" TIMESTAMP NOT NULL,"repl_deleted" BOOLEAN ' \
-                           'DEFAULT False,"repl_tag" INTEGER DEFAULT NULL);'
+        assert mock_sql == (('CREATE TEMP TABLE "test"("uid" UUID UNIQUE PRIMARY KEY NOT NULL DEFAULT '
+                             'gen_random_uuid(),"created" TIMESTAMP NOT NULL,"repl_deleted" BOOLEAN '
+                             'DEFAULT False,"repl_tag" INTEGER DEFAULT NULL);'))
         self.db_execute(db, "drop table if exists \"test\";")
         assert pg_migration.create_temporary_table("test", 1, sync_tools=True)
-        assert mock_sql == 'CREATE TEMP TABLE "test"("uid" UUID NOT NULL DEFAULT ' \
-                           'gen_random_uuid(),"created" TIMESTAMP NOT NULL,"repl_deleted" BOOLEAN ' \
-                           'DEFAULT False,"repl_tag" INTEGER DEFAULT NULL,"repl_workstation_id" VARCHAR ' \
-                           'NOT NULL,CONSTRAINT "PK_test_SYNC" PRIMARY KEY ' \
-                           '("uid","repl_workstation_id")) ON COMMIT DROP;'
+        assert mock_sql == (('CREATE TEMP TABLE "test"("uid" UUID NOT NULL DEFAULT '
+                             'gen_random_uuid(),"created" TIMESTAMP NOT NULL,"repl_deleted" BOOLEAN '
+                             'DEFAULT False,"repl_tag" INTEGER DEFAULT NULL,"repl_workstation_id" VARCHAR '
+                             'NOT NULL,CONSTRAINT "PK_test_SYNC" PRIMARY KEY '
+                             '("uid","repl_workstation_id")) ON COMMIT DROP;'))
 
     def test_create_temporary_table(self, db, pg_migration, monkeypatch, capsys):
         pg_migration.dsd.append({"config": {
@@ -512,7 +519,7 @@ class TestPostgresDbMigration(KioskPyTestHelper):
             }
         })
         assert pg_migration.create_table("test", namespace="testnamespace")
-        assert pg_migration.get_table_structure_version("test",namespace="testnamespace") == 1
+        assert pg_migration.get_table_structure_version("test", namespace="testnamespace") == 1
         assert pg_migration._adapter_table_exists(table="test", namespace="testnamespace")
         pg_migration.set_migration_flag("prefix_testnamespace_some_flag", "1")
         assert get_first_record(db, "migration_catalog", field="table", value="test")

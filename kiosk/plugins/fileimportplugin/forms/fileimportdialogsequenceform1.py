@@ -5,7 +5,7 @@ from wtforms.validators import DataRequired, Length, ValidationError
 
 import kioskstdlib
 from core.kioskwtforms import KioskLabeledBooleanField, KioskStringField, \
-    KioskLabeledStringField, KioskGeneralFormErrors, KioskLabeledSelectField
+    KioskLabeledStringField, KioskGeneralFormErrors, KioskLabeledSelectField, KioskTimeZoneSelectorField
 
 
 class SequenceImportForm1(FlaskForm, KioskGeneralFormErrors):
@@ -27,6 +27,7 @@ class SequenceImportForm1(FlaskForm, KioskGeneralFormErrors):
                                                          "Please select the best strategy")]
                                                      )
     use_exif_time = KioskLabeledBooleanField(label="set time of shot from exif data ")
+    user_time_zone_index = KioskTimeZoneSelectorField(label="time zone for date and time of imported files")
 
     def validate_file_extensions(self, field):
         if field.data:

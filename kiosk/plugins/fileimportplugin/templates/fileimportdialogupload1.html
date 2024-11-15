@@ -1,5 +1,5 @@
 {% from 'dialogmacros.html' import kiosk_error_div, kiosk_error_span, kiosk_general_form_errors %}
-<div id="upload-form-1-div">
+<div id="upload-form-1-div" class="hide-before-init">
     {{ kiosk_general_form_errors(general_errors) }}
     {% if general_message %}
         <div class="kiosk-general-message" style="display:none">{{ general_message }}</div>
@@ -28,6 +28,15 @@
                             {{ kiosk_error_span(uploadform1.__getitem__(checkbox) ) }}
                         </div>
                     {% endfor %}
+                </div>
+                <div class="grid-1">
+                    <div class="col">
+                    {{ uploadform1.user_time_zone_index(class="kiosk-dialog-textfield",
+                          labelclass="kiosk-dialog-label",
+                          errclass="kiosk-error-border",
+                          placeholder="leave empty or select a time zone",
+                          includedeprecated="True") }}
+                    </div>
                 </div>
             </div>
             <div class="col-12">
@@ -66,22 +75,61 @@
             </div>
         </div>
     </form>
+
+    {% if not ajax_result %}
+        {% include "_kioskmodaldialog_api_connector_include.html" %}
+    {% endif %}
+
     <script>
-      gotoPage = "";
-      //Initialization code
 
-      kioskShowFooter(true);
-      kioskActivateButton($("#bt-next"), uploadnextpage);
-      kioskActivateButton($("#bt-back"), null);
-      kioskActivateButton($("#bt-ok"), null);
-      kioskActivateButton($("#bt-close"), null);
-      kioskActivateButton($("#bt-cancel"), () => {
-        $.magnificPopup.close()
-      });
+    {% if not ajax_result %}
+        document.querySelector(".dialog-modal-buttons").style.visibility = "hidden"
+        document.querySelector(".hide-before-init").style.visibility = "hidden"
+    {% else %}
+        ensureLibrariesAndinitPage()
+    {% endif %}
 
-      initCollapsibles();
-      InitLocalDialog();
+    function popupApiConnected(api) {
+        for (const cb of document.querySelectorAll("kiosk-tz-combo-box")) {
+            cb.apiContext = api
+        }
+        ensureLibrariesAndinitPage();
+    }
 
+    function popupApiFailed() {
+        $.magnificPopup.close();
+        kioskErrorToast("Sorry, it was not possible to connect to Kiosk's Api. " +
+            "That's why this feature can't run. You can try again, but most likely " +
+            "you'll have to report this as a bug ");
+    }
+
+
+    function ensureLibrariesAndinitPage() {
+      if (typeof Awesomplete == 'undefined') {
+        setTimeout(ensureLibrariesAndinitPage, 500);
+      } else {
+        initPage();
+      }
+    }
+
+    function initPage() {
+        gotoPage = "";
+        //Initialization code
+
+        document.querySelector(".dialog-modal-buttons").style.visibility = "visible"
+        document.querySelector(".hide-before-init").style.visibility = "visible"
+        kioskShowFooter(true);
+        kioskActivateButton($("#bt-next"), uploadnextpage);
+        kioskActivateButton($("#bt-back"), null);
+        kioskActivateButton($("#bt-ok"), null);
+        kioskActivateButton($("#bt-close"), null);
+        kioskActivateButton($("#bt-cancel"), () => {
+            $.magnificPopup.close()
+        });
+
+        initCollapsibles();
+        InitLocalDialog();
+    }
       //methods
 
       function InitLocalDialog() {
@@ -91,6 +139,19 @@
       }
 
       function uploadnextpage() {
+        function addHiddenInput(elementId, fieldName, value) {
+            const v = document.getElementById(elementId).value
+            if (v && v !== "") {
+                const hidden = document.createElement("input")
+                hidden.setAttribute("name", fieldName)
+                hidden.setAttribute("value", v)
+                hidden.setAttribute("type", "hidden")
+                form.appendChild(hidden)
+            }
+        }
+
+        const form = document.getElementById("upload-form-1")
+        addHiddenInput("user-time-zone-index", "user_time_zone_index");
         kioskSendAjaxForm($("#bt-next").first(),
           $("#upload-form-1-div"),
           "fileimport/dialogupload1",
@@ -119,6 +180,7 @@
 
       function onLocalImportFormEvaluated(jq_form, state_data) {
         let general_message = $(".kiosk-general-message").first().text();
+        {#debugger;#}
         if (!kioskElementHasErrors($("#upload-form-1-div"))) {
           if (!("gotoPage" in state_data)) {
             kioskErrorToast(`<div>Sorry, I don't know where to go from here.</div>`,
@@ -135,7 +197,7 @@
           }
 
           let gotoPage = state_data.gotoPage
-          if (gotoPage == "next") {
+          if (gotoPage === "next") {
             let substitute_identifiers = getCookie("substitute_identifiers") === "True"
             console.log("substitute_identifiers", getCookie("substitute_identifiers"))
             if (substitute_identifiers) {
@@ -145,12 +207,13 @@
             }
           }
 
+          setTimeout( ()=>{
           kioskGetAjaxElement($("#pagecontrol"),
             gotoPage,
             null,
             $("#pagecontrol"),
             (response, status, xhr) => {
-              if (status == "error") {
+              if (status === "error") {
                 kioskErrorToast(`<div>Error loading page ${gotoPage}: ${response} </div>`,
                   {
                     onClosing: () => {
@@ -160,7 +223,7 @@
               }
             },
             false //don't delete toasts!'
-          );
+          )},100)
         }
       }
 

@@ -131,4 +131,41 @@ function onSubmit(e) {
     );
   }
 }
+
+
+/*********************************************
+Manage Time Zone: open dialog
+***********************************************/
+function triggerManageTimeZone(route) {
+  $.magnificPopup.open({
+  type: 'ajax',
+  items: {
+    src: route
+    },
+  focus: "mup-user-id",
+  removalDelay: 200,
+  mainClass: "mfp-with-anim",
+  callbacks: {
+      ajaxContentAdded: ()=>{
+        // initUserProfile(force_password_change);
+      },
+      onInit: ()=>{
+
+      },
+      beforeClose: ()=>{
+        // logout_route = $("#mup-form").attr("logout");
+      },
+      afterClose: ()=>{
+        // if (password_changed || force_password_change) {
+        //   triggerLogout(logout_route);
+        // } else {
+        //   location.reload();
+        // }
+      }
+    }
+  });
+}
+
+
 //# sourceURL=user.js
+

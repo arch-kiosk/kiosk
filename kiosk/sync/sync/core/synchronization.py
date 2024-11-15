@@ -5,6 +5,7 @@ from os import path
 from pprint import pprint, pformat
 from typing import List
 
+import kioskdatetimelib
 import kioskrepllib
 from eventmanager import EventManager
 from fts.ftsview import FTSView
@@ -27,7 +28,7 @@ from fileidentifiercache import FileIdentifierCache
 from kioskabstractclasses import PluginLoader
 from migration.postgresdbmigration import PostgresDbMigration
 from sync_config import SyncConfig
-from tools.UrapDatabaseIntegrity import UrapDatabaseIntegrity
+from tools.KioskDatabaseIntegrity import KioskDatabaseIntegrity
 from kiosksqldb import KioskSQLDb
 from kioskstdlib import report_progress
 from filerewirerer import FileRewirerer
@@ -42,8 +43,8 @@ sync_version = '0.9'
 class Synchronization(PluginLoader):
 
     def __init__(self, options=None):
-        # TODO: What's that? USE_TEMP_TABLE?
-        self.USE_TEMP_TABLE = False
+        # Set this to False for debug purposes
+        self.USE_TEMP_TABLE = True
 
         self.type_repository = TypeRepository()
         cfg: SyncConfig = SyncConfig.get_config()
@@ -135,7 +136,6 @@ class Synchronization(PluginLoader):
                 pass
             dsd = Dsd3Singleton.get_dsd3()
             for table in dsd.list_tables():
-                logging.info("Truncating table " + table)
                 if not special_tables and table in ["excavator",
                                                     "locus_types",
                                                     "site",
@@ -160,6 +160,7 @@ class Synchronization(PluginLoader):
                                                     "repl_workstation_filemaker"]:
                     logging.info(f"Skipped {table}")
                 else:
+                    logging.info("Truncating table " + table)
                     KioskSQLDb.truncate_table(table)
             KioskSQLDb.commit()
 
@@ -289,15 +290,15 @@ class Synchronization(PluginLoader):
                 runs at the very end (after the commit) of the synchronization process
                 but is considered to be part of synchronization from the perspective of kiosk, which means
                 that its log entries will be shown in the sync log.
-                Can be called independently, just instantiates UrapDatabaseIntegrity and executes
+                Can be called independently, just instantiates KioskDatabaseIntegrity and executes
                 update_default_fields.
 
                 TODO: redesign and refactor
                 TODO: document
         """
         logging.info("checking data integrity")
-        dbint = UrapDatabaseIntegrity(SyncConfig.get_config())
-        dbint.update_default_fields()
+        dbint = KioskDatabaseIntegrity(SyncConfig.get_config())
+        dbint.ensure_database_integrity()
 
     def synchronize(self, callback_progress=None):
         """
@@ -317,9 +318,9 @@ class Synchronization(PluginLoader):
             c = KioskLogicalFile.get_image_count()
             logging.debug(f"Before synchronization: image count is {c}")
 
-            dsd, dsd_workstation_view, master_dsd = self._get_dsds()
-            if not dsd:
-                logging.error("Synchronization.synchronize: Could not get a dsd.")
+            ws_dsd, dsd_workstation_view, master_dsd = self._get_dsds()
+            if not ws_dsd:
+                logging.error("Synchronization.synchronize: Could not get a workstation dsd.")
                 return False
 
             self._files_to_synchronize = []
@@ -337,21 +338,23 @@ class Synchronization(PluginLoader):
                     logging.error("Synchronization.synchronize: KioskSQLDb.get_cursor() failed")
                     return False
 
-                ok = self._sync_workstations_to_temptables(dsd, callback_progress=interruptable_callback_progress)
+                ok = self._sync_workstations_to_temptables(ws_dsd, callback_progress=interruptable_callback_progress)
                 if ok:
                     report_progress(interruptable_callback_progress, progress=100,
                                     topic="_sync_workstations_to_temptables")
-                    ok = self._sync_new_records(dsd, callback_progress=interruptable_callback_progress)
+                    ok = self._sync_new_records(ws_dsd, callback_progress=interruptable_callback_progress)
                     if ok:
                         report_progress(interruptable_callback_progress, progress=100, topic="_sync_new_records")
-                        ok = self._sync_modified_records(dsd, callback_progress=interruptable_callback_progress)
+                        ok = self._sync_modified_records(ws_dsd, callback_progress=interruptable_callback_progress)
                         if ok:
                             report_progress(interruptable_callback_progress, progress=100,
                                             topic="_sync_modified_records")
-                            ok = self._sync_deleted_records(dsd, callback_progress=interruptable_callback_progress)
+                            ok = self._sync_deleted_records(ws_dsd, callback_progress=interruptable_callback_progress)
 
                 if ok:
                     report_progress(interruptable_callback_progress, progress=100, topic="_sync_deleted_records")
+                    if "proxy_field" in  self.debug_mode:
+                        raise Exception("stopped because of debug mode")
 
                     try:
                         self.update_sync_time()
@@ -369,6 +372,7 @@ class Synchronization(PluginLoader):
                         ok = self._sync_change_workstation_states()
 
                 if ok:
+
                     report_progress(interruptable_callback_progress, progress=100, topic="synchronize_files")
                     logging.info(
                         "Synchronization.synchronize: Workstation states set successfully.")
@@ -415,7 +419,8 @@ class Synchronization(PluginLoader):
                                                 "", commit=True)
                 except BaseException as e:
                     logging.error(f"{self.__class__.__name__}.synchronize: Exception in some hooked-in code "
-                                  f"at after_synchronization. The main synchronization has been committed, though.")
+                                  f"at after_synchronization. The main synchronization had been committed and finished "
+                                  f"successfully, though.")
                     logging.error(f"{self.__class__.__name__}.synchronize: {repr(e)}")
                     kioskrepllib.log_repl_event("synchronization", "aftermath FAILED",
                                                 "", commit=True)
@@ -469,6 +474,10 @@ class Synchronization(PluginLoader):
 
     @staticmethod
     def _get_dsds():
+        """
+        Gathers all the DSDs needed
+        :return: workstation DataSetDefinition, workstation DSDView, master DataSetDefinition
+        """
         master_dsd = Dsd3Singleton.get_dsd3()
         if master_dsd is None:
             logging.error("Synchronization._get_dsds: KioskSQLDb.get_dsd() failed")
@@ -534,9 +543,6 @@ class Synchronization(PluginLoader):
             ctable = 0
             for table in tables:
                 if self._create_sync_temp_table(table=table, dsd=dsd):
-                    # if dsd.create_table(table, "temp", self.USE_TEMP_TABLE,
-                    #                     sync_tools=True):  # Attention! The second parameter needs to be True later, to make the results temporary
-                    assert KioskSQLDb.does_temp_table_exist("temp_" + table)
 
                     for ws in workstations:
                         ws: RecordingWorkstation
@@ -837,7 +843,7 @@ class Synchronization(PluginLoader):
                     # sql = "delete from \"" + temp_table + "\" where \"" + temp_table + "\".\"uid\" in"
                     sql = "update \"" + temp_table + "\" set repl_tag = 2 where \"" + temp_table + "\".\"uid\" in"
                     sql = sql + " ("
-                    sql = sql + " SELECT tmp.uid from \"" + temp_table + "\" tmp LEFT OUTER JOIN \"" + table + "\" mdb ON tmp.uid = mdb.uid"
+                    sql = sql + f" {'SELECT'} tmp.uid from \"" + temp_table + "\" tmp LEFT OUTER JOIN \"" + table + "\" mdb ON tmp.uid = mdb.uid"
                     sql = sql + " INNER JOIN repl_deleted_uids on tmp.uid = repl_deleted_uids.deleted_uid"
                     sql = sql + " WHERE mdb.uid IS NULL AND NOT tmp.repl_deleted"
                     sql = sql + " and tmp.modified <= repl_deleted_uids.modified"
@@ -847,7 +853,7 @@ class Synchronization(PluginLoader):
 
                 sql = "UPDATE \"" + temp_table + "\" set repl_tag = 1 "
                 sql = sql + "WHERE \"" + temp_table + "\".\"uid\" IN("
-                sql = sql + "SELECT tmp.\"uid\" from \"" + temp_table + "\" tmp "
+                sql = sql + f"{'SELECT'} tmp.\"uid\" from \"" + temp_table + "\" tmp "
                 sql = sql + " LEFT OUTER JOIN " + table + " mdb ON tmp.\"uid\" = mdb.\"uid\""
                 sql = sql + " WHERE mdb.uid IS NULL AND NOT tmp.repl_deleted)"
                 sql = sql + " and repl_tag <> 2"
@@ -991,7 +997,12 @@ class Synchronization(PluginLoader):
         logging.info("********** Synchronizing modified records from all workstations **********")
         ok = True
         cur = KioskSQLDb.get_cursor()
-        exclude_fields = ["modified", "modified_by", "uid", "repl_deleted", "repl_tag", "created"]
+
+        # todo: time zone what about modified_tz? and created_tz?
+        #  since created does not ever get modified, neither does created_tz!
+
+        exclude_fields = ["modified", "modified_by", "modified_tz", "modified_ww",
+                          "created_tz", "uid", "repl_deleted", "repl_tag", "created"]
 
         try:
             ctable = 0
@@ -1013,16 +1024,23 @@ class Synchronization(PluginLoader):
                     if not ok:
                         break
                     else:
-                        sql = "with mods as ("
-                        sql = sql + " select tmp.\"uid\", tmp.\"repl_workstation_id\", tmp.\"modified\", tmp.\"modified_by\","
-                        sql = sql + " row_number() OVER(partition by tmp.\"uid\" order by coalesce(tmp.\"modified\", tmp.\"created\") desc) \"sync_modified_records_nr\""
+                        sql = f"{'with'} mods as ("
+                        sql = sql + (" select tmp.\"uid\", tmp.\"repl_workstation_id\", "
+                                     "tmp.\"modified\", tmp.\"modified_tz\", tmp.\"modified_ww\",  "
+                                     "tmp.\"modified_by\",")
+                        sql = sql + (" row_number() OVER(partition by tmp.\"uid\" "
+                                     "order by coalesce(tmp.\"modified\", tmp.\"created\") "
+                                     "desc) \"sync_modified_records_nr\"")
                         sql = sql + " from \"" + temp_table + "\" tmp"
                         sql = sql + " where NOT COALESCE(tmp.\"repl_deleted\", false)"
                         sql = sql + " )"
-                        sql = sql + " update \"" + table + "\" set \"modified\"=upd.\"modified\", \"modified_by\"=upd.\"modified_by\""
+                        sql = sql + " update \"" + table + "\" set \"modified\"=upd.\"modified\","
+                        sql = sql + (" \"modified_tz\"=upd.\"modified_tz\", \"modified_ww\"=upd.\"modified_ww\", "
+                                     "\"modified_by\"=upd.\"modified_by\"")
                         sql = sql + " from"
                         sql = sql + " ("
-                        sql = sql + " select m.\"uid\", m.\"modified\", m.\"modified_by\" from mods m where m.sync_modified_records_nr=1"
+                        sql = sql + (f" {'select'} m.\"uid\", m.\"modified\", m.\"modified_tz\", m.\"modified_ww\", "
+                                     f"m.\"modified_by\" from mods m where m.sync_modified_records_nr=1")
                         sql = sql + " ) upd where \"" + table + "\".\"uid\" = upd.\"uid\""
                         cur.execute(sql)
                         if cur.rowcount > 0:
@@ -1046,14 +1064,15 @@ class Synchronization(PluginLoader):
             TODO: document
         """
 
+        dsd = Dsd3Singleton.get_dsd3()
         ok = False
         logging.debug("Syncing \"" + table + "\".\"" + "\"" + field + "\"")
         cur = KioskSQLDb.get_cursor()
         try:
-            self._check_field_modification(cur, table, field)
+            self._check_field_modification(table, field, dsd)
             # currently apart from logging them we simply ignore colliding changes and let the newest modification win!
 
-            ok = self._solve_field_modification(cur, table, field)
+            ok = self._solve_field_modification(cur, table, field, dsd)
 
             return ok
 
@@ -1066,7 +1085,7 @@ class Synchronization(PluginLoader):
 
         return ok
 
-    def _check_field_modification(self, cur, table, field):
+    def _check_field_modification(self, table, field, dsd: DataSetDefinition):
         """ checks whether there is a collision due to modifications of field-values
             of the same fields in the same record by different workstations. The
             function returns TRUE if a collision is detected, FALSE if not and throws
@@ -1078,11 +1097,16 @@ class Synchronization(PluginLoader):
         temp_table = "temp_" + table
         collision = False
         cur = KioskSQLDb.get_cursor()
-
         sql = "SELECT tmp.\"uid\" FROM \"" + temp_table + "\" tmp"
         sql = sql + " INNER JOIN \"" + table + "\" main on tmp.uid = main.uid"
         sql = sql + " WHERE tmp.repl_deleted = false"
-        sql = sql + " AND (tmp.\"" + field + "\" is distinct from main.\"" + field + "\" )"
+        # todo time zone simplification:
+        #  cut off microseconds when comparing timestamps
+        if dsd.get_field_datatype(table, field).startswith("timestamp"):
+            sql = sql + " AND (date_trunc('second', tmp.\"" + field + \
+                  "\") is distinct from date_trunc('second', main.\"" + field + "\"))"
+        else:
+            sql = sql + " AND (tmp.\"" + field + "\" is distinct from main.\"" + field + "\" )"
         sql = sql + " GROUP BY tmp.\"uid\""
         sql = sql + " HAVING COUNT(DISTINCT tmp.\"repl_workstation_id\") > 1"
         sql = sql + ";"
@@ -1118,8 +1142,8 @@ class Synchronization(PluginLoader):
 
         return collision
 
-    def _solve_field_modification(self, cur, table, field):
-        """ updates field values in a master table from the youngest modification
+    def _solve_field_modification(self, cur, table, field, dsd):
+        """ updates field values in a master table from the most recent modification
             that can be found in the temporary table.
             The function returns TRUE if everything was fine, FALSE if not. It catches Exceptions
 
@@ -1130,18 +1154,23 @@ class Synchronization(PluginLoader):
         try:
             temp_table = "temp_" + table
             cur = KioskSQLDb.get_cursor()
-            dsd = Dsd3Singleton.get_dsd3()
-            file_field = dsd.get_proxy_field_reference(table, field)
+            file_field = dsd.get_proxy_field_reference(table, field, test=bool("proxy_field" in self.debug_mode))
             if file_field:
                 sql = ""
-                sql = sql + "with collisions as ( "
+                sql = sql + "WITH" + " collisions as ( "
                 sql = sql + "SELECT tmp.\"uid\", tmp.\"" + field + "\", tmp.\"" + file_field + "\" \"file_field\", tmp.\"modified\", tmp.\"repl_workstation_id\" \"workstation_id\", "
                 sql = sql + "row_number() OVER(PARTITION BY tmp.\"uid\" "
                 sql = sql + "ORDER BY COALESCE(tmp.\"modified\", tmp.\"created\") DESC) \"_solve_field_modification_rownr\" "
                 sql = sql + "FROM \"" + temp_table + "\" tmp "
                 sql = sql + "INNER JOIN \"" + table + "\" main ON tmp.\"uid\" = main.\"uid\" "
                 sql = sql + "WHERE COALESCE(tmp.\"repl_deleted\", false) = false "
-                sql = sql + "AND (tmp.\"" + field + "\" IS DISTINCT FROM main.\"" + field + "\") "
+                # todo time zone simplification:
+                #  cut off microseconds when comparing timestamps
+                if dsd.get_field_datatype(table, field).startswith("timestamp"):
+                    sql = sql + " AND (date_trunc('second', tmp.\"" + field + \
+                          "\") is distinct from date_trunc('second', main.\"" + field + "\"))"
+                else:
+                    sql = sql + "AND (tmp.\"" + field + "\" IS DISTINCT FROM main.\"" + field + "\") "
                 sql = sql + ") "
                 sql = sql + "select upd.\"workstation_id\" \"workstation_id\", upd.\"file_field\" \"file_id\", upd.\"proxy_field\" \"proxy_field\" "
                 sql = sql + "FROM "
@@ -1155,13 +1184,19 @@ class Synchronization(PluginLoader):
                 if cur.rowcount > 0:
                     self._add_files_to_synchronize(cur)
 
-            sql = "with collisions as ("
+            sql = f"{'with'} collisions as ("
             sql = sql + " SELECT \"tmp\".\"uid\", \"tmp\".\"" + field + "\", \"tmp\".\"modified\","
             sql = sql + " row_number() OVER(PARTITION BY \"tmp\".\"uid\" ORDER BY COALESCE(\"tmp\".\"modified\", \"tmp\".\"created\") DESC) \"_solve_field_modification_rownr\""
             sql = sql + " FROM \"" + temp_table + "\" \"tmp\""
             sql = sql + " INNER JOIN \"" + table + "\" main ON tmp.\"uid\" = main.\"uid\""
             sql = sql + " WHERE COALESCE(tmp.repl_deleted, false) = false"
-            sql = sql + " AND (\"tmp\".\"" + field + "\" IS DISTINCT FROM main.\"" + field + "\")"
+            # todo time zone simplification:
+            #  cut off microseconds when comparing timestamps
+            if dsd.get_field_datatype(table, field).startswith("timestamp"):
+                sql = sql + " AND (date_trunc('second', tmp.\"" + field + \
+                      "\") is distinct from date_trunc('second', main.\"" + field + "\"))"
+            else:
+                sql = sql + " AND (\"tmp\".\"" + field + "\" IS DISTINCT FROM main.\"" + field + "\")"
             sql = sql + ")"
             sql = sql + " UPDATE \"" + table + "\" SET \"" + field + "\"=upd.newval"
             sql = sql + " FROM"
@@ -1215,13 +1250,14 @@ class Synchronization(PluginLoader):
                 if not r or r[0] == 0:
                     logging.debug("table " + table + ": No deleted records found -> nothing to do.")
                 else:
+                    expected_deletions = r[0]
                     if kioskstdlib.try_get_dict_entry(self.options, "safe_mode", False):
                         logging.warning(f"Synchronization._sync_deleted_records: "
                                         f"There would be deletions in table {table} but the safe mode prevents "
                                         f"synchronization from deleting anything")
                     else:
                         # first insert uids about to be deleted into the table repl_deleted_uids
-                        sql = "insert into \"repl_deleted_uids\"(\"deleted_uid\", \"table\", \"repl_workstation_id\", \"modified\")"
+                        sql = f"{'insert'} into \"repl_deleted_uids\"(\"deleted_uid\", \"table\", \"repl_workstation_id\", \"modified\")"
                         sql = sql + " select tmp.\"uid\", '" + table + "' \"table\", tmp.\"repl_workstation_id\", tmp.\"modified\""
                         sql = sql + " from \"" + temp_table + "\" tmp"
                         sql = sql + " inner join \"" + table + "\" main on tmp.\"uid\" = main.\"uid\""
@@ -1232,7 +1268,7 @@ class Synchronization(PluginLoader):
                         cur.execute(sql)
                         logging.debug(str(cur.rowcount) + " new deleted uids added to repl_deleted_uids")
 
-                        sql = " delete from \"" + table + "\" where \"" + table + "\".\"uid\" in "
+                        sql = f" {'delete'} from \"" + table + "\" where \"" + table + "\".\"uid\" in "
                         sql = sql + "( "
                         sql = sql + " select tmp.\"uid\""
                         sql = sql + " from \"" + temp_table + "\" tmp"
@@ -1245,6 +1281,13 @@ class Synchronization(PluginLoader):
                         if cur.rowcount > 0:
                             logging.info("Synchronization._sync_deleted_records: " +
                                          str(cur.rowcount) + " rows deleted from " + table)
+                        if cur.rowcount < expected_deletions:
+                            logging.info(f"Synchronization._sync_deleted_records: "
+                                         f"{str(expected_deletions - cur.rowcount)} " 
+                                         f"rows got deleted by at least one dock but REMAIN in table {table} because "
+                                         f"they were also MODIFIED by at least one dock. Kiosk resolves such "
+                                         f"peculiarities ALWAYS by keeping rather than losing data.")
+
                 ctable += 1
                 report_progress(callback_progress, progress=ctable * 100 / len(tables),
                                 topic="_sync_deleted_records")
@@ -1286,9 +1329,10 @@ class Synchronization(PluginLoader):
         return ok
 
     @classmethod
-    def get_sync_time(cls) -> typing.Union[None, datetime.datetime]:
+    def get_sync_time(cls) -> typing.Optional[datetime.datetime]:
         """
-            Just returns the last sync time if there is one. 
+            Just returns the last utc sync time if there is one.
+            cuts off the time zone info and microseconds
         """
 
         try:
@@ -1298,7 +1342,7 @@ class Synchronization(PluginLoader):
         except BaseException as e:
             sync_time = None
 
-        return sync_time
+        return sync_time.replace(tzinfo=None, microsecond=0) if sync_time else sync_time
 
     @staticmethod
     def update_sync_time() -> bool:
@@ -1325,7 +1369,7 @@ class Synchronization(PluginLoader):
                   f'{KioskSQLDb.sql_safe_ident("ts")}=%(value)s'
             # f' where {KioskSQLDb.sql_safe_ident("id")}=%(id)s'
 
-            sync_time = datetime.datetime.now()
+            sync_time = kioskdatetimelib.get_utc_now(no_ms=True)
             cur.execute(sql,
                         {"id": "sync_time", "value": sync_time})
             return True
@@ -1343,7 +1387,17 @@ class Synchronization(PluginLoader):
         """
         db_adapter = PostgresDbMigration(dsd=dsd, psycopg2_con=KioskSQLDb.get_con())
         try:
-            if db_adapter.create_temporary_table(dsd_table=table, db_table="temp" + "_" + table, sync_tools=True):
+            if self.USE_TEMP_TABLE:
+                rc = db_adapter.create_temporary_table(dsd_table=table, db_table="temp" + "_" + table, sync_tools=True)
+                if rc:
+                    rc = KioskSQLDb.does_temp_table_exist("temp_" + table)
+            else:
+                logging.warning(f"{self.__class__.__name__}._create_sync_temp_table: "
+                                f"YOU ARE USING NON-TEMPORARY TABLES FOR DEBUGGING: {table}")
+                rc = db_adapter.create_table(dsd_table=table, db_table="temp" + "_" + table, sync_tools=True)
+                if rc:
+                    rc = KioskSQLDb.does_table_exist("temp_" + table)
+            if rc:
                 return True
             else:
                 logging.error(f"{self.__class__.__name__}._create_sync_temp_table: "

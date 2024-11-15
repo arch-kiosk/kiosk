@@ -70,10 +70,11 @@ export class KioskApi {
         }
         let headers = this.getHeaders(mimetype)
         let apiURL = this.getApiUrl()
+        console.log("apiURL is" + apiURL)
+
         if (!apiURL.endsWith("/")) {
             apiURL += '/'
         }
-        console.log("ApiURL", apiURL)
         let address = `${apiURL}${apiRoot?apiRoot + '/':''}${apiVersion}/${apiMethod}`;
 
         if ("caller" in fetchParams)
@@ -82,7 +83,7 @@ export class KioskApi {
         let init = { ...fetchParams };
         init["headers"] = headers;
         if (urlSearchParams) {
-            address += "?" + urlSearchParams;
+            address += "?" + new URLSearchParams(urlSearchParams);
         }
         let response;
         try {
@@ -95,8 +96,13 @@ export class KioskApi {
         if (response.ok) {
             return await response.json();
         } else {
-            console.log(`caught ${response.status} in fetchFromApi`);
-            throw new FetchException(response.statusText, response);
+            const json_response = await response.json();
+            console.log(`caught ${response.status} in fetchFromApi`, json_response);
+            if (json_response && 'result_msg' in json_response) {
+                throw new FetchException(json_response.result_msg, response);
+            } else {
+                throw new FetchException(response.statusText, response);
+            }
         }
     }
 
@@ -157,5 +163,4 @@ export class KioskApi {
             }
         }
     }
-
 }

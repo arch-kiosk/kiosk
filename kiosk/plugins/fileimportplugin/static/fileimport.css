@@ -260,12 +260,17 @@ input, select {
   color: var(--col-primary-bg-1);
   padding: 2px;
   margin-bottom: 2px;
-  width: 100%;
-}
-input:focus, select:focus {
   outline: none;
 }
-input:focus, select:focus {
+
+textarea {
+  outline: none;
+}
+
+input:not([type=radio], [type=checkbox]), select, textarea {
+  width: 100%;
+}
+input:not([type=radio], [type=checkbox]):focus, select:focus, textarea:focus {
   margin-bottom: 0px;
   border-bottom: 2px solid rgb(0, 0, 0);
 }
@@ -459,6 +464,14 @@ button:disabled, .upload-btn:disabled {
   box-shadow: none;
 }
 
+.dialog-radio-div {
+  display: flex;
+  flex-direction: row;
+}
+.dialog-radio-div input[type=radio] {
+  margin-right: 0.5em;
+}
+
 .pretty * {
   line-height: 1em;
 }
@@ -485,7 +498,7 @@ button:disabled, .upload-btn:disabled {
 html {
   font-family: var(--standard-text-font);
   font-size: var(--font-size-standard, 1rem);
-  line-height: 1.5em;
+  line-height: 1.5;
 }
 
 body {
@@ -575,6 +588,10 @@ body a {
 }
 .emergency-system-message p:first-child {
   font-weight: bold;
+}
+
+kiosk-tz-combo-box.kiosk-dialog-textfield {
+  padding-left: 0;
 }
 
 .kiosk-error {
@@ -850,6 +867,10 @@ body a {
 
 #sequence-import-progress .kiosk-log-view .kiosk-log-subheading {
   font-size: 1em;
+}
+
+.hide-before-init {
+  visibility: visible;
 }
 
 /*# sourceMappingURL=fileimport.css.map */

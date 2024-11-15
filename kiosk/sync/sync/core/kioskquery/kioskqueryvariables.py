@@ -3,7 +3,7 @@ import datetime
 import logging
 
 import kioskstdlib
-import urapdatetimelib
+import kioskdatetimelib
 from databasedrivers.postgres import Postgres
 from dsd.dsd3singleton import Dsd3Singleton
 from kioskquery.kioskquerylib import *
@@ -168,7 +168,7 @@ class KioskQueryVariables:
             #         return v
             # except:
             #     pass
-            result = urapdatetimelib.check_urap_date_time(value, allow_date_only=True)
+            result = kioskdatetimelib.check_urap_date_time(value, allow_date_only=True)
             if not result[0]:
                 raise Exception(result[1])
             else:

@@ -13,7 +13,7 @@ import kiosksqlalchemy
 from sqlalchemy_models.adminmodel import KioskFilePickingRules
 from sqlalchemy_models.adminmodel import KioskQCRules, KioskQCFlags
 from sqlalchemy_models.adminmodel import KioskQCRules, KioskFileManagerDirectories
-from sqlalchemy_models.adminmodel import KioskFileMakerRecordingConstants
+# from sqlalchemy_models.adminmodel import KioskFileMakerRecordingConstants
 from sqlalchemy_models.adminmodel import KioskQueries
 
 
@@ -86,7 +86,13 @@ class UserModelView(KioskModelView):
             'validators': [InputRequired()],
             'description': 'The user id recorded when user modifies recording records. '
                            'If in doubt, repeat the short user id'
+        },
+        'force_tz_index': {
+            'label': 'override time zone index with',
+            'description': "Set this to a valid Kiosk Time Zone Index only if you want to override the"
+                           "Browser's default"
         }
+
     }
 
 
@@ -235,7 +241,7 @@ def init_flask_admin(cfg, app):
         QCFlagsModelView(KioskQCFlags, kiosksqlalchemy.sqlalchemy_db.session))
     kioskglobals.flask_admin.add_view(
         KioskFileManagerDirectoriesView(KioskFileManagerDirectories, kiosksqlalchemy.sqlalchemy_db.session))
-    kioskglobals.flask_admin.add_view(
-        KioskFileMakerRecordingConstantsView(KioskFileMakerRecordingConstants, kiosksqlalchemy.sqlalchemy_db.session))
+    # kioskglobals.flask_admin.add_view(
+    #     KioskFileMakerRecordingConstantsView(KioskFileMakerRecordingConstants, kiosksqlalchemy.sqlalchemy_db.session))
     kioskglobals.flask_admin.add_view(
         KioskQueriesView(KioskQueries, kiosksqlalchemy.sqlalchemy_db.session))

@@ -1,0 +1,29 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+variables:
+  identifier: ["dsd('locus', 'arch_context')"]
+queries:
+  'locus_cm_test':
+    name: '#:Time Zone Test: collected material of a #(/$/glossary/locus)'
+    description: '#:Lists all the cm records of a #(/$/glossary/locus) with all modified fields'
+    type: 'SQL'
+    output_type: 'list'
+    query: "
+      select cm.arch_context cm_id, cm.modified, cm.modified_tz, tz.tz_long, cm.modified_ww
+       from {{locus}} locus
+         inner join {{collected_material}} cm on locus.uid =cm.uid_locus
+         left outer join {{kiosk_time_zones}} tz on cm.modified_tz = tz.id
+      where locus.arch_context = {{#identifier}}
+      order by cm.modified desc"
+    column_information:
+      id: ["DSD('unit','arch_context')"]
+      cm_id: [datatype(VARCHAR)]
+      modified: [datatype(TIMESTAMPTZ)]
+      modified_tz: [datatype(TIMESTAMP)]
+      tz_long: [datatype(varchar)]
+      modified_ww: [datatype(TIMESTAMP)]
+
+
+

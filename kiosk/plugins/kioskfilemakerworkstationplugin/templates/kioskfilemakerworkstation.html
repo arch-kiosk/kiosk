@@ -47,10 +47,11 @@
             <option value="{{ group }}"/>
           {% endfor %}
         </datalist>
-        {{ new_fm_ws_form.gmt_time_zone(class="kiosk-dialog-textfield",
+{#        <kiosk-tz-combo-box class="kiosk-dialog-selectfield" id="popup-tz-combo-box" ></kiosk-tz-combo-box>#}
+        {{ new_fm_ws_form.user_time_zone_index(class="kiosk-dialog-textfield",
                           labelclass="kiosk-dialog-label",
                           errclass="kiosk-error-border",
-                          placeholder="leave empty or enter something like 'GMT-4'") }}
+                          placeholder="leave empty or select a time zone") }}
         {{ new_fm_ws_form.options(class="kiosk-dialog-textfield",
                           labelclass="kiosk-dialog-label",
                           errclass="kiosk-error-border",
@@ -66,8 +67,23 @@
       </div>
     </div>
   </div>
+  {% include "_kioskmodaldialog_api_connector_include.html" %}
   <script src="{{ url_for('kioskfilemakerworkstation.static', filename='scripts/kioskfilemakerworkstation.js') }}"></script>
   <script>
+
+    function popupApiConnected(api) {
+        for (const cb of document.querySelectorAll("kiosk-tz-combo-box")) {
+            cb.apiContext = api
+        }
+    }
+
+    function popupApiFailed() {
+        $.magnificPopup.close();
+        kioskErrorToast("Sorry, it was not possible to connect to Kiosk's Api. " +
+            "That's why this feature can't run. You can try again, but most likely " +
+            "you'll have to report this as a bug ");
+    }
+
     ensureLibrariesAndinitPage();
 
     function ensureLibrariesAndinitPage() {

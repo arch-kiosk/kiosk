@@ -1,6 +1,7 @@
 label
   font-family: $monospace
   font-size: .9em
+
 input, select
   -webkit-user-select: text
   -moz-user-select: text
@@ -12,23 +13,33 @@ input, select
   background-color: $col-bg-1-input
   border: none
   color: $col-primary-bg-1
-  &:focus
-    outline: none
   padding: 2px
   margin-bottom: 2px
+  outline: none
+
+
+textarea
+  outline: none
+
+input:not([type="radio"], [type="checkbox"]), select, textarea
   width: 100%
   &:focus
     margin-bottom: 0px
     border-bottom: 2px solid rgba(0, 0, 0, 1)
 
+
 h1
   font-size: $font-size-h1
+
 h2
   font-size: $font-size-h2
+
 h3
   font-size: $font-size-h3
+
 h4
   font-size: $font-size-h4
+
 small, .font-small
   font-size: $font-size-small
 
@@ -49,6 +60,7 @@ button
   &:hover, &:focus
     outline: none
     background-color: $col-bg-btn-lighter
+
   &:active
     padding-top: 3px
     color: $col-primary-bg-btn
@@ -71,6 +83,7 @@ button
   color: $col-primary-bg-btn
   height: 30px
   width: 30px
+
   .drop-down-btn
     float: left
 
@@ -114,28 +127,33 @@ button:disabled
 
 .modal-ok
   @extend .modal-round-button
+
   &:after
     content: var(--icon-bt-ok)
 
 .modal-next
   @extend .modal-round-button
+
   &:after
     padding-left: 2px
     content: var(--icon-bt-next)
 
 .modal-back
   @extend .modal-round-button
+
   &:after
     padding-right: 2px
     content: var(--icon-bt-back)
 
 .modal-cancel
   @extend .modal-round-button
+
   &:after
     content: var(--icon-bt-cancel)
 
 .modal-close
   @extend .modal-round-button
+
   &:before
     content: var(--icon-bt-close)
 
@@ -143,12 +161,15 @@ button:disabled
   @extend .modal-round-button
   background-color: $col-bg-alert
   color: $col-primary-bg-alert
+
   &:before
     content: var(--icon-bt-trash)
+
   &:hover, &:focus
     border-color: $col-bg-alert
     background-color: $col-bg-alert-lighter
     background-size: 75%
+
   &:active
     border-color: $col-bg-alert
     background-color: $col-bg-alert-darker
@@ -173,7 +194,7 @@ button:disabled
   border-radius: 15px
 
 .kiosk-shaded
-  box-shadow: 2px 2px 10px rgba(46,56,3,0.58)
+  box-shadow: 2px 2px 10px rgba(46, 56, 3, 0.58)
 
 .kiosk-margin-bottom
   margin-bottom: 1em
@@ -196,13 +217,23 @@ button:disabled
 .small-list-button
   i
     border-radius: 25px
-    box-shadow: 2px 2px 5px rgba(46,56,3,0.58)
+    box-shadow: 2px 2px 5px rgba(46, 56, 3, 0.58)
+
   &:hover
     color: $col-bg-att
+
     i
-      box-shadow: 2px 2px 5px rgba(46,56,3,0.58)
+      box-shadow: 2px 2px 5px rgba(46, 56, 3, 0.58)
+
   &:active, &:focus
     color: $col-bg-ack
     transform: translateY(5px)
+
     i
       box-shadow: none
+
+.dialog-radio-div
+  display: flex
+  flex-direction: row
+  input[type="radio"]
+    margin-right: .5em

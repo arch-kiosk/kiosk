@@ -36,6 +36,25 @@ kiosk_privilege:
 
 kiosk_user:
   structure:
+    5:
+      uid: [datatype(UUID), uuid_key())]
+      user_id: ["datatype(VARCHAR,20)", not_null(), unique()]
+      user_name: [datatype(VARCHAR), not_null()]
+      pwd_hash: [datatype(VARCHAR), not_null(), default("''")]
+      repl_user_id: ["datatype(VARCHAR,20)"]
+      groups: [datatype(VARCHAR)]
+      must_change_pwd: [datatype(BOOL)]
+      force_tz_index: [datatype(INT)]
+    4:
+      uid: [datatype(UUID), uuid_key())]
+      user_id: ["datatype(VARCHAR,20)", not_null(), unique()]
+      user_name: [datatype(VARCHAR), not_null()]
+      pwd_hash: [datatype(VARCHAR), not_null(), default("''")]
+      repl_user_id: ["datatype(VARCHAR,20)"]
+      groups: [datatype(VARCHAR)]
+      must_change_pwd: [datatype(BOOL)]
+      force_tz_index: [datatype(INT)]
+      recording_tz_index: [datatype(INT)]
     3:
       uid: [datatype(UUID), uuid_key())]
       user_id: ["datatype(VARCHAR,20)", not_null(), unique()]
@@ -61,6 +80,13 @@ kiosk_user:
       groups: [datatype(VARCHAR)]
       must_change_pwd: [datatype(BOOL)]
   migration:
+    5:
+      upgrade:
+        - drop("recording_tz_index")
+    4:
+      upgrade:
+        - add("force_tz_index")
+        - add("recording_tz_index")
     3:
       upgrade:
         - alter(pwd_hash)
@@ -110,6 +136,11 @@ file_identifier_cache:
 
 kiosk_system_message:
   structure:
+    3:
+      nid: [datatype(varchar), not_null(), primary(), unique()]
+      deleted: [datatype(BOOL)]
+      modified: [datatype(TIMESTAMPTZ), not_null(), default(now())]
+      message: [datatype(json)]
     2:
       nid: [datatype(varchar), not_null(), primary(), unique()]
       deleted: [datatype(BOOL)]
@@ -120,6 +151,9 @@ kiosk_system_message:
       deleted: [datatype(BOOL)]
       message: [datatype(json)]
   migration:
+    3:
+      upgrade:
+        - alter(modified)
     2:
       upgrade:
         - add(modified)
@@ -168,3 +202,12 @@ kiosk_queries:
       upgrade:
         - add(category)
         - add(order_priority)
+
+kiosk_time_zones:
+  structure:
+    1:
+      id: [datatype(INT), unique(), not_null()]
+      tz_long: [datatype(VARCHAR)]
+      tz_IANA: [datatype(VARCHAR)]
+      deprecated: [datatype(BOOLEAN)]
+      version: [datatype(INT), not_null()]

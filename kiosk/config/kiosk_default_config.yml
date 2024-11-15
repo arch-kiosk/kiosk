@@ -18,6 +18,22 @@ glossary:
   "pottery": ["pottery", "pottery"]
   "fragment": ["fragment", "fragments"]
 
+preferred_time_zones:
+  - "US\\/Eastern"
+  - "US\\/Central"
+  - "US\\/Pacific"
+  - "US\\/Alaska"
+  - "US\\/Mountain"
+  - "Europe\\/London"
+  - "Europe\\/Dublin"
+  - "Central European Time"
+  - "Sudan Time"
+  - "Türkiye Time"
+  - "Egypt"
+  - "Africa\\/Cairo"
+  - "Asia\\/Amman"
+  - "Canada"
+
 config:
   no_console: True
   sync: '%base_path%\sync\sync'
@@ -40,7 +56,7 @@ config:
   filemaker_export_dir: '%sync%\filemaker\to_work_station'
   filemaker_import_dir: '%sync%\filemaker\from_work_station'
   filemaker_encoding: "UTF-8"
-  expected_filemaker_template_version: '15.19'
+  expected_filemaker_template_version: '16'
   file_handling_definition: '%base_path%\config\file_handling.yml'
   default_resolution: "low"
   default_recording_group: "default"

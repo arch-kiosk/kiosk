@@ -26,6 +26,7 @@ def log_repl_event(event: str, message: str, dock="", level=1, commit=True, user
 
 def get_repl_events(dock_id: str = "", days: int = 30, lines=0) -> List:
     sql = f"select * from repl_events "
+    # that's good enough time zone wise
     since_date = datetime.datetime.now() - datetime.timedelta(days=days)
     where = " where ts >= %s "
     params = [since_date, ]

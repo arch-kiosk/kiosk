@@ -32,7 +32,6 @@ export class DevKioskApi extends KioskApi {
     }
 
     getApiUrl(apiAddress = "") {
-
         // @ts-ignore
         let route = import.meta.env.VITE_DEV_API_URL;
         if (apiAddress) {

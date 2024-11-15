@@ -439,7 +439,8 @@
   display: flex;
 }
 #ef-dialog-buttons button {
-  min-width: 64px;
+  width: 64px;
+  height: 64px;
 }
 #ef-dialog-buttons button:first-child {
   margin-left: 0px;

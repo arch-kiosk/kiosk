@@ -3,23 +3,24 @@ import logging
 import os
 import shutil
 import time
+
 import pytest
 
 import kioskstdlib
-from dsd.dsd3singleton import Dsd3Singleton
 from filerepository import FileRepository
 from kioskcontextualfile import KioskContextualFile
 from kioskfilesmodel import KioskFilesModel
 from kioskrepresentationtype import KioskRepresentationType, KioskRepresentationTypeDimensions, KioskRepresentations
+from kiosksqldb import KioskSQLDb
 from sync_config import SyncConfig
 from synchronization import Synchronization
 from test.testhelpers import KioskPyTestHelper
-from kiosksqldb import KioskSQLDb
+from tz.kiosktimezones import KioskTimeZones
 
 test_dir = os.path.dirname(os.path.abspath(__file__))
 config_file = os.path.join(test_dir, "config", r"config_kiosk_imagemanagement.yml")
 log_file = os.path.join(test_dir, r"log\test.log")
-
+from test.mock_timezoneinfo import mock_kiosk_time_zones
 
 # information about the test data:
 # -----------------------------------------------------------------------------------------
@@ -43,7 +44,7 @@ class TestFileRepository(KioskPyTestHelper):
 
     @pytest.fixture(scope="module")
     def cfg(self):
-        return self.get_config(config_file)
+        return self.get_config(config_file,log_file=log_file)
 
     @pytest.fixture()
     def urapdb(self, cfg, shared_datadir):
@@ -96,7 +97,7 @@ class TestFileRepository(KioskPyTestHelper):
         assert ctx_file._plugin_loader == file_repos._plugin_loader
         assert ctx_file._file_repository == file_repos
 
-    def test_add_new_file(self, db, shared_datadir):
+    def test_add_new_file(self, db, shared_datadir, mock_kiosk_time_zones):
         sync = Synchronization()
         file_repos = FileRepository(SyncConfig.get_config(),
                                     event_manager=sync.events,
@@ -105,6 +106,7 @@ class TestFileRepository(KioskPyTestHelper):
         ctx_file: KioskContextualFile = file_repos.get_contextual_file()
         ctx_file.description = "a test file"
         ctx_file.ts_file = datetime.datetime.now()
+        ctx_file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
         candid_file = ctx_file.upload(os.path.join(shared_datadir, "new_files", "DSC_2489.png"))
         assert ctx_file.uid
         uid = ctx_file.uid
@@ -121,7 +123,7 @@ class TestFileRepository(KioskPyTestHelper):
         assert jpg
         assert os.path.isfile(jpg)
 
-    def test_add_heic_file(self, db, shared_datadir):
+    def test_add_heic_file(self, db, shared_datadir, mock_kiosk_time_zones):
         sync = Synchronization()
         file_repos = FileRepository(SyncConfig.get_config(),
                                     event_manager=sync.events,
@@ -132,6 +134,7 @@ class TestFileRepository(KioskPyTestHelper):
         ctx_file.archaeological_context = "CC-002-1"
         ctx_file.recording_context = "locus_photo"
         ctx_file.ts_file = datetime.datetime.now()
+        ctx_file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
         ctx_file.modified_by = "lkh"
         heic_file = ctx_file.upload(os.path.join(shared_datadir, "new_files", "heic.jpg"))
         assert ctx_file.uid
@@ -145,7 +148,7 @@ class TestFileRepository(KioskPyTestHelper):
         assert png
         assert os.path.isfile(png)
 
-    def test_auto_representations(self, db, shared_datadir):
+    def test_auto_representations(self, db, shared_datadir, mock_kiosk_time_zones):
         sync = Synchronization()
         file_repos = FileRepository(SyncConfig.get_config(),
                                     event_manager=sync.events,
@@ -155,6 +158,8 @@ class TestFileRepository(KioskPyTestHelper):
         ctx_file.description = "a heic file"
         ctx_file.ts_file = datetime.datetime.now()
         ctx_file.modified_by = "lkh"
+        ctx_file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
+
         heic_file = ctx_file.upload(os.path.join(shared_datadir, "new_files", "heic.jpg"))
         assert ctx_file.uid
         uid = ctx_file.uid
@@ -249,12 +254,14 @@ class TestFileRepository(KioskPyTestHelper):
         assert not os.path.isfile(path_and_filename)
         assert not os.path.isfile(representation)
 
-    def test_replace_image(self, db, shared_datadir):
+    def test_replace_image(self, db, shared_datadir, mock_kiosk_time_zones):
         sync = Synchronization()
+        kiosk_time_zones = KioskTimeZones()
         file_repos = FileRepository(SyncConfig.get_config(),
                                     event_manager=sync.events,
                                     type_repository=sync.type_repository,
-                                    plugin_loader=sync)
+                                    plugin_loader=sync,
+                                    kiosk_time_zones=kiosk_time_zones)
         uid = "31c70ca0-6cb9-4907-8c22-c158485ed23b"
         file_repos.move_files_to_subdirectories()
         assert os.path.isfile(os.path.join(shared_datadir, "31", "31c70ca0-6cb9-4907-8c22-c158485ed23b.jpg"))
@@ -262,6 +269,7 @@ class TestFileRepository(KioskPyTestHelper):
         path_and_filename = ctx_file.get()
         assert os.path.isfile(path_and_filename)
         assert path_and_filename == os.path.join(shared_datadir, uid[:2], f"{uid}.jpg")
+        assert ctx_file.modified_tz is None
 
         references = file_repos.get_actual_file_references(uid)
         assert len(references) == 2
@@ -283,7 +291,7 @@ class TestFileRepository(KioskPyTestHelper):
         assert original_md5_hash
         assert original_md5_hash != new_md5_hash
 
-        assert file_repos.replace_file_in_repository(uid, new_file)
+        assert file_repos.replace_file_in_repository(uid, new_file, tz_index=96554373)
 
         ctx_file = file_repos.get_contextual_file(uid)
         new_original = ctx_file.get()
@@ -301,6 +309,7 @@ class TestFileRepository(KioskPyTestHelper):
 
         new_representation_md5_hash = kioskstdlib.get_file_hash(representation)
         assert new_representation_md5_hash != representation_hash
+        assert ctx_file.modified_tz == 96554373
 
     def test_move_files_to_subdirectories(self, db, shared_datadir):
         sync = Synchronization()

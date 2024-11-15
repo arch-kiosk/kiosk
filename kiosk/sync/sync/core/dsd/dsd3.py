@@ -1,19 +1,22 @@
-import os
 import logging
+import os
 import re
+from copy import deepcopy, copy
 from typing import List
 
-from kioskfiletools import get_file_extension
-from dsd.dsdloader import DSDLoader
-from dsd.dsdconstants import *
-from dsd.dsdstore import DSDStore
-from dsd.dsdinmemorystore import DSDInMemoryStore
-from simplefunctionparser import SimpleFunctionParser
-from copy import deepcopy, copy
-from dsd.dsderrors import *
-from kiosksqldb import KioskSQLDb
+import kioskstdlib
 from dicttools import dict_merge
+from dsd.dsdconstants import *
+from dsd.dsderrors import *
+from dsd.dsdinmemorystore import DSDInMemoryStore
+from dsd.dsdloader import DSDLoader
+from dsd.dsdstore import DSDStore
+from kioskfiletools import get_file_extension
+from kiosksqldb import KioskSQLDb
+from simplefunctionparser import SimpleFunctionParser
 
+
+# time zone relevance
 
 class Join:
     def __init__(self, root_table, related_table, _type="inner", root_field="", related_field="", quantifier="1",
@@ -93,7 +96,10 @@ class DataSetDefinition:
         "JSON": "JSON",
         "DATE": "DATE",
         "TIME": "TIME",
-        "SERIAL": "SERIAL"
+        "SERIAL": "SERIAL",
+        "TZ": "TZ",
+        "TIMESTAMPTZ": "TIMESTAMPTZ",
+        "UTCTIMESTAMP": "TIMESTAMPTZ"
     }
 
     def __init__(self, dsd_store=None):
@@ -123,21 +129,21 @@ class DataSetDefinition:
             pass
         return ""
 
-    # ********************************************************
-    #  deprecated stuff
-    # ********************************************************
-    def list_externally_bound_fields(self, table, version=0):
-        """ returns a list of the fields of a given version of a table definition
-            in the DataSetDefinition that have a FILE_FOR attribute, which indicates that the
-            field refers to an external file.
-
-            In fact that should only be the images / files table
-            :todo: This should not be needed any longer!
-                    Get rid of it when working on the next version of the DSD
-
-        """
-
-        raise DeprecationWarning("call to DataSetDefinition.list_externally_bound_fields is obsolete.")
+    # # ********************************************************
+    # #  deprecated stuff
+    # # ********************************************************
+    # def list_externally_bound_fields(self, table, version=0):
+    #     """ returns a list of the fields of a given version of a table definition
+    #         in the DataSetDefinition that have a FILE_FOR attribute, which indicates that the
+    #         field refers to an external file.
+    #
+    #         In fact that should only be the images / files table
+    #         :todo: This should not be needed any longer!
+    #                 Get rid of it when working on the next version of the DSD
+    #
+    #     """
+    #
+    #     raise DeprecationWarning("call to DataSetDefinition.list_externally_bound_fields is obsolete.")
 
     # ********************************************************
     #  end deprecated stuff
@@ -181,6 +187,67 @@ class DataSetDefinition:
         version = version if version else self.get_current_version(table)
         self._dsd_data.set([table, KEY_TABLE_STRUCTURE, version, field], instructions)
 
+    def get_virtual_fields(self, raw_dsd: dict):
+        """
+        adds fields that are not explicitly defined in the dsd file like the tz fields for timestamps
+        :param raw_dsd: a complete dsd structure
+        :return: a dictionary with table: version: fields: parameters to add
+        """
+
+        def _gather_virtual_fields_for_table(raw_dsd_table: dict):
+            new_fields = {}
+            parser = SimpleFunctionParser()
+            for ver in raw_dsd_table:
+                if isinstance(ver, int):
+                    structure = raw_dsd_table[ver]
+                    if isinstance(structure, dict):
+                        for field, instructions in structure.items():
+                            try:
+                                add_tz_fields = False
+                                data_type = ""
+                                for instruction in instructions:
+                                    p = instruction.lower()
+                                    if "datatype" in p:
+                                        parser.parse(p)
+                                        if parser.ok:
+                                            data_type = self.translate_datatype(parser.parameters[0])
+                                    if "replfield_modified" in p:
+                                        add_tz_fields = True
+
+                                if data_type.startswith("timestamp") and add_tz_fields:
+                                    for idx, instruction in enumerate(instructions):
+                                        if instruction.lower().startswith("datatype"):
+                                           structure[field][idx] = "datatype(TIMESTAMPTZ)"
+                                    if ver not in new_fields:
+                                        new_fields[ver] = {}
+                                    new_fields[ver][field + "_tz"] = ['datatype(TZ)', 'modified_tz()']
+                                    new_fields[ver][field + "_ww"] = ['datatype(TIMESTAMP)', 'modified_ww()']
+                                    break
+
+                            except BaseException as e:
+                                raise DSDStructuralIssue(f"version {ver} field definition for {field} not correct")
+            return new_fields
+
+        structural_modifications = {}
+        for top_level in raw_dsd.keys():
+            if top_level not in ['config', 'migration_catalog', 'migration_flags']:
+                if 'structure' in raw_dsd[top_level]:
+                    try:
+                        added_fields = _gather_virtual_fields_for_table(raw_dsd[top_level]["structure"])
+                        if added_fields:
+                            structural_modifications[top_level] = added_fields
+
+                    except DSDStructuralIssue as e:
+                        raise DSDStructuralIssue(f"Structural issue detected in table {top_level}: {e}")
+
+        return structural_modifications
+
+    @staticmethod
+    def _add_virtual_fields_to_raw_dsd(raw_dsd, virtual_fields):
+        for table, structure in virtual_fields.items():
+            for ver, fields in structure.items():
+                raw_dsd[table]["structure"][ver].update(fields)
+
     def _read_dsd_data_from_file(self, path_and_filename: str):
         if not os.path.isfile(path_and_filename):
             raise FileNotFoundError
@@ -188,6 +255,9 @@ class DataSetDefinition:
         if ext in self._loaders:
             loader: DSDLoader = self._loaders[ext]()
             dsddata = loader.read_dsd_file(file_path_and_name=path_and_filename)
+            if not self._check_version(dsddata):
+                raise DSDWrongVersionError
+
             return dsddata
         else:
             logging.debug(f"DataSetDefinition._read_dsd_data_from_file: no loader for dsd file {path_and_filename}")
@@ -237,8 +307,6 @@ class DataSetDefinition:
                 if external_dsd_part:
                     external_dsd_part_file = os.path.join(base_path, external_dsd_part)
                     more_dsd_data = self._read_dsd_data_from_file(external_dsd_part_file)
-                    if not self._check_version(more_dsd_data):
-                        raise DSDWrongVersionError
 
                     key_to_copy = _copy_dict_key(more_dsd_data, [*key_path, k])
                     dsddata[k] = key_to_copy
@@ -276,8 +344,6 @@ class DataSetDefinition:
                 try:
                     file_path_and_name = os.path.join(external_file_path, file_name)
                     more_dsd_data: dict = self._read_dsd_data_from_file(file_path_and_name)
-                    if not self._check_version(more_dsd_data):
-                        raise DSDWrongVersionError
                     self._append_imports(dsddata=more_dsd_data, external_file_path=external_file_path,
                                          recursion_counter=recursion_counter + 1)
                     # if KEY_CONFIG in more_dsd_data:
@@ -318,10 +384,20 @@ class DataSetDefinition:
         if not self._check_version(dsddata):
             raise DSDWrongVersionError
         try:
+
+
             if external_file_path:
                 self._append_imports(dsddata=dsddata, external_file_path=external_file_path)
                 self._resolve_externals(dsddata, base_path=external_file_path)
+
+            #todo time zone: I moved this down here because the _tz fields were not added.
+            # But why did that ever work anywhere?
+            virtual_fields = self.get_virtual_fields(dsddata)
+            if virtual_fields:
+                self._add_virtual_fields_to_raw_dsd(dsddata, virtual_fields)
+
             rc = self._dsd_data.merge([], dsddata)
+
             if rc:
                 if self._identify_files_table() <= 1:
                     return rc
@@ -416,8 +492,7 @@ class DataSetDefinition:
         return [table for table in tables if set(self.table_has_meta_flag(table, flags))]
 
     def list_versions(self, table):
-        logging.debug("DataSetDefinition.list_versions: call deprecated, use list_table_versions instead.")
-        return self.list_table_versions(table)
+        raise DeprecationWarning("list_versions is obsolete!")
 
     def list_table_versions(self, table) -> []:
         """ returns a list of the versions of a tabledefinition in the DataSetDefinition
@@ -450,6 +525,26 @@ class DataSetDefinition:
             raise DSDTableDropped(f"{table}, version {version} dropped.")
 
         return self._dsd_data.get_keys([table, KEY_TABLE_STRUCTURE, version])
+
+    def omit_fields_by_datatype(self, table, fields, datatype, version=0) -> List:
+        """ returns a list of the field names of a given version of a table definition
+        that don't have the given datatype.
+
+        :param table: the table in the dsd
+        :param fields: list of field names
+        :param datatype: the datatype to omit
+        :param version: if not given or set to 0 the most recent version is used
+        :result: same list as fields except for the fields with the data type
+        """
+        version = version if version else self.get_current_version(table)
+        if self.is_table_dropped(table, version):
+            raise DSDTableDropped(f"{table}, version {version} dropped.")
+
+        dt_fields = self.get_fields_with_datatype(table, datatype, version=version)
+        if not dt_fields:
+            return fields
+
+        return [f for f in fields if f not in dt_fields]
 
     def get_table_definition(self, table, version=0) -> dict:
         """ returns the complete definition (of a given version) of a table.
@@ -518,14 +613,17 @@ class DataSetDefinition:
         instructions = self._dsd_data.get([table, KEY_TABLE_STRUCTURE, version, fieldname])
         return copy(instructions)
 
-    def get_field_instructions(self, table, fieldname, version=0) -> dict:
+    def get_field_instructions(self, table, fieldname, version=0, patterns: List[str] = None) -> dict:
         """ returns a dictionary with all the instructions and their parameters for a field
         :param table: the table
         :param fieldname: the field
         :param version: the version. 0 for the most recent version.
+        :param patterns: optional. Only instructions that start with one of the patterns are returned
         :return: a dictionary with the instructions as key and a list of parameters as values.
+                 The instruction (the key) is lowercase
         :raises all kinds of exceptions.
         :todo this won't work if a field can have the same instruction twice! Not a use case so far...
+        :todo test
         """
         result = {}
         parser = SimpleFunctionParser()
@@ -534,17 +632,18 @@ class DataSetDefinition:
             raise DSDTableDropped(f"{table}, version {version} dropped.")
 
         for instruction in self._dsd_data.get([table, KEY_TABLE_STRUCTURE, version, fieldname]):
-            parser.parse(instruction)
-            if parser.ok:
-                result[parser.instruction] = parser.parameters
-            else:
-                raise DSDInstructionSyntaxError(instruction)
+            if not patterns or kioskstdlib.str_starts_with_element(instruction, patterns):
+                parser.parse(instruction)
+                if parser.ok:
+                    result[parser.instruction.lower()] = parser.parameters
+                else:
+                    raise DSDInstructionSyntaxError(instruction)
 
         return result
 
     def get_fields_with_instructions(self, table, required_instructions: [] = None, version=0) -> dict:
         """ returns a dictionary with all the fields and
-        all the instructions and their parameters for a field. 
+        all the instructions and their parameters for a field.
         The dictionary values are a dictionary with the instructions as keys pointing to a list of parameters. 
         
         :param table: a table in the dsd
@@ -658,25 +757,36 @@ class DataSetDefinition:
 
         return fieldlist
 
-    def get_field_datatype(self, table, field) -> str:
+    def get_field_datatype(self, table, field_or_instruction, version=0) -> str:
         """
         returns the datatype set by the datatype instruction for a field of a table
         :param table: the table
-        :param field: the field
+        :param field_or_instruction: the field name or an instruction name
+                                        (in which case the first field with that instruction will be used!
+                                         instruction must be a name only. No brackets!)
+        :param version: optional version
         :return: the datatype (in lowercase letters) or ""
-                 if not field does not exist or the instruction is missing.
+                    if field does not exist or the datatype instruction is missing.
 
         :changes:
                 02.12.2020: now returns only lowercase types.
         """
-        fields = self.get_fields_with_instructions(table, ["datatype"])
-        if field in fields:
-            return self.translate_datatype(fields[field]['datatype'][0])
+        fields = self.get_fields_with_instructions(table, ["datatype"], version=version)
+        if field_or_instruction in fields:
+            return self.translate_datatype(fields[field_or_instruction]['datatype'][0])
+
+        fields = self.get_fields_with_instructions(table, [field_or_instruction], version=version)
+
+        if fields:
+            field = next(iter(fields.values()))
+            if "datatype" in field:
+                return self.translate_datatype(field['datatype'][0])
+
         return ""
 
     def get_modified_field(self, table) -> str:
         """
-            returns the field with instruction REPLFIELD_MODIFED from the given table of the DSD.
+            returns the field with instruction replfield_modified from the given table of the DSD.
             :param table: the table
             :returns: the field name or ""
         """
@@ -717,23 +827,23 @@ class DataSetDefinition:
         version = version if version else self.get_current_version(table)
         return list(self.get_fields_with_instructions(table, [fieldtype], version).keys())
 
-    def get_proxy_field_reference(self, table, field, version=0):
-        """ returns the field name given by the attribute "PROXY_FOR()" of the given field 
+    def get_proxy_field_reference(self, table, field, version=0, test=False):
+        """ returns the field name given by the attribute "PROXY_FOR()" of the given field
+            works only in the files table and is a bit of relict.
         
-        .. note::
+        """
 
-           DEPRECATED!"""
-
-        if self.is_table_dropped(table_name=table, version=version):
-            raise DSDTableDropped(f"{table}, version {version} dropped.")
-
-        try:
-            version = version if version else self.get_current_version(table)
-            instructions = self.get_field_instructions(table, field, version)
-            if "proxy_for" in instructions:
-                return instructions["proxy_for"][0]
-        except Exception as e:
-            logging.error("DataSetDefinition.get_proxy_field_reference: Exception " + repr(e))
+        if table == self.files_table:
+            if self.is_table_dropped(table_name=table, version=version):
+                raise DSDTableDropped(f"{table}, version {version} dropped.")
+            try:
+                version = version if version else self.get_current_version(table)
+                instructions = self.get_field_instructions(table, field, version)
+                if "proxy_for" in instructions:
+                    return instructions["proxy_for"][0]
+            except Exception as e:
+                logging.error("DataSetDefinition.get_proxy_field_reference: Exception " + repr(e))
+                if test: raise e
 
         return ""
 
@@ -770,7 +880,7 @@ class DataSetDefinition:
         return fields
 
     def get_file_field_reference(self, table, field, version=0):
-        """ returns the field name given by the attribute "FILE_FOR()" of the given field 
+        """ returns the field name given by the attribute "FILE_FOR()" of the given field
         """
 
         if self.is_table_dropped(table_name=table, version=version):
@@ -814,7 +924,7 @@ class DataSetDefinition:
 
     def get_attribute_reference(self, table, field, attribute, version=0):
         """ returns the value given in brackets of the given attribute of the given field.
-            returns \"\" if the field does not have that attribute or whatever else happens 
+            returns \"\" if the field does not have that attribute or whatever else happens
             .. note::
 
             DEPRECATED!"""
@@ -1068,9 +1178,9 @@ class DataSetDefinition:
                 script = all_scripts[script_id]
                 if check_precondition_tables:
                     if not self.all_precondition_tables_exist(script):
-                        logging.debug(f"{self.__class__.__name__}.get_migration_scripts: "
-                                      f"cross-table-migration script {script_id} skipped because "
-                                      f"it refers to at least one table unknown to the dsd.")
+                        # logging.debug(f"{self.__class__.__name__}.get_migration_scripts: "
+                        #               f"cross-table-migration script {script_id} skipped because "
+                        #               f"it refers to at least one table unknown to the dsd.")
                         continue
 
                 if not ("disable_projects" in script and project_id in script["disable_projects"]):
@@ -1235,7 +1345,7 @@ class DataSetDefinition:
         join: Join = None
         if not fields:
             raise DSDJoinError(f"DataSetDefinition.get_default_join: Table {table} "
-                               f"has no default join.")
+                               f"has no default join on any field.")
 
         for field in fields.keys():
             join_params = fields[field]["join"]
@@ -1327,7 +1437,7 @@ class DataSetDefinition:
         join: Join = None
         if not fields:
             raise DSDJoinError(f"DataSetDefinition.get_lookup_join: Table {table} "
-                               f"has no lookup join.")
+                               f"has no lookup join on any field to connect table {root_table}")
 
         for field in fields.keys():
             join_params = fields[field]["lookup"]
@@ -1492,3 +1602,34 @@ class DataSetDefinition:
             return True
 
         return False
+
+    # def get_tz_type_for_field(self, tablename: str, field_name: str, version: int = 0) -> str:
+    #     """
+    #     checks if a field must be rendered in user's time zone or recording time zone (or default rendering is on).
+    #     Note that field with the "replfield_modified" instruction will always be "u".
+    #
+    #     Default is "" -> no type specified or called for
+    #
+    #     :param tablename: the table
+    #     :param field_name: the field
+    #     :param version: optional version
+    #     :return: "u" for user's time zone, "r" for recording time zone, "" for not specified
+    #     """
+    #     params = self.get_instruction_parameters(tablename, field_name, "tz_type", version=version)
+    #     u_instructions = self.get_field_instructions(tablename,
+    #                                                  field_name,
+    #                                                  patterns=["replfield_modified", "replfield_created","proxy_for"])
+    #     if params:
+    #         if params[0] in ["r", "u"]:
+    #             if params[0] == "r":
+    #                 if u_instructions:  # and ("replfield_modified" in u_instructions or "proxy_for" in u_instructions):
+    #                     logging.warning(f"{self.__class__.__name__}.get_tz_type_for_field: "
+    #                                     f"The replfield_modified field {tablename}.{field_name} "
+    #                                     f"has a tz_type(r) definition which is ignored.")
+    #                     return "u"
+    #             return params[0]
+    #
+    #         raise DSDInstructionValueError(f"field {tablename}.{field_name} "
+    #                                        f"has wrong parameter for instruction 'tz_type'")
+    #
+    #     return "u" if u_instructions else ""

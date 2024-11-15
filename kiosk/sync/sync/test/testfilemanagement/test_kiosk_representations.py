@@ -54,11 +54,6 @@ class TestKioskRepresentations(KioskPyTestHelper):
     def test_get_representation_labels_and_ids(self, config):
         labels_and_ids = KioskRepresentations.get_representation_labels_and_ids(config)
         assert labels_and_ids == [
-            ('fix_rotation', 'fix_rotation'),
-            ('many_masters', 'many_masters'),
-            ('master', 'master'),
-            ('master_1', 'master_1'),
-            ('master_2', 'master_2'),
             ('medium thumbnail', 'medium'),
             ('small thumbnail', 'small')
         ]

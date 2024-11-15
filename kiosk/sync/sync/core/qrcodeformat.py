@@ -1,4 +1,4 @@
-import urapdatetimelib
+import kioskdatetimelib
 import logging
 import datetime
 
@@ -52,7 +52,7 @@ class QRCodeFormat:
         if len(data_items) > 3:
             timestamp = data_items[3]
             if timestamp[0:3] == "TS:":
-                self.timestamp = urapdatetimelib.guess_datetime(timestamp[3:])
+                self.timestamp = kioskdatetimelib.guess_datetime(timestamp[3:])
             else:
                 raise Exception(f"{self.__class__.__name__}._decode_raw_data_v1: TS: missing "
                                 f"in TimeStamp part of qrcode.")
@@ -78,7 +78,7 @@ class QRCodeFormat:
                     self.data = data[2:]
 
                 elif data[0:3] == "TS:":
-                    self.timestamp = urapdatetimelib.guess_datetime(data[3:])
+                    self.timestamp = kioskdatetimelib.guess_datetime(data[3:])
                 elif data[0:2] == "T:":
                     self.qr_code_type = data[2:]
                 elif data[0:2] == "V:":

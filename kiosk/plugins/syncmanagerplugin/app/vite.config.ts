@@ -1,15 +1,20 @@
 // noinspection JSUnusedGlobalSymbols
 
 import { defineConfig, searchForWorkspaceRoot, loadEnv } from "vite";
-import { injectHtml } from 'vite-plugin-html'
+import { createHtmlPlugin } from "vite-plugin-html";
 
 import copy from 'rollup-plugin-copy'
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(({ command, mode }) => {
     const env = loadEnv(mode, "env");
     return {
         plugins: [
-            injectHtml(),
+            createHtmlPlugin({
+                inject: {
+                    ...env,
+                },
+
+            }),
             copy({
                 targets: [ { src: '../../kioskfilemakerworkstationplugin/static/kioskfilemakerworkstation.css',
                     dest:'./kioskfilemakerworkstation/static'
@@ -20,6 +25,13 @@ export default defineConfig(({ mode }) => {
                 hook: 'buildStart'
             }),
         ],
+        esbuild:
+            command == "build"
+                ? {
+                    // No console.logs in the distribution
+                    drop: ["console", "debugger"],
+                }
+                : {},
         build: {
             outDir: "../static/app",
             lib: {
@@ -37,10 +49,6 @@ export default defineConfig(({ mode }) => {
                 allow: [searchForWorkspaceRoot(process.cwd()), "../../../static/scripts/kioskapplib"],
             },
         },
-        html: {
-            injectData: {
-                ...env,
-            },
-        },
+        publicDir: "/static",
     };
 });

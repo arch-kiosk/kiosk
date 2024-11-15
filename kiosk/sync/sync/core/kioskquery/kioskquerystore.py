@@ -3,6 +3,7 @@ import os
 
 import yaml
 
+import kioskdatetimelib
 import kioskstdlib
 from uuid import uuid4
 
@@ -59,8 +60,8 @@ class KioskQueryStore:
         store_entry.category = query_definition.category
         store_entry.order_priority = query_definition.order_priority
         store_entry.query = query_definition.raw_query_definition
-        store_entry.created = datetime.datetime.now()
-        store_entry.modified = datetime.datetime.now()
+        store_entry.created = kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True)
+        store_entry.modified = kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True)
 
     @classmethod
     def add_or_update(cls, query: KioskQuery):

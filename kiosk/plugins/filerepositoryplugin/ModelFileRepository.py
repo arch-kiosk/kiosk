@@ -10,7 +10,7 @@ from flask import url_for
 
 import kioskglobals
 import kioskstdlib
-import urapdatetimelib
+import kioskdatetimelib
 from contextmanagement.sqlsourcecached import CONTEXT_CACHE_NAMESPACE
 from core.kioskcontrollerplugin import get_plugin_for_controller
 from sync.core.filerepository import FileRepository
@@ -98,14 +98,18 @@ class FileRepositoryFile:
         else:
             return url_for('static', filename='assets/images/no_file.svg')
 
-    def get_value(self, key):
+    def get_value(self, key, default=""):
         if key == "tags":
             return self.get_tags_without_parantheses()
         if key in self.r:
-            if self.r[key]:
-                return self.r[key]
+            result = self.r[key]
+            if self.r[key] is not None:
+                if isinstance(result, datetime.datetime):
+                    return result.replace(tzinfo=None)
+                else:
+                    return self.r[key]
             else:
-                return ""
+                return default
         else:
             return ""
 
@@ -231,10 +235,11 @@ class FileRepositoryFile:
             pf = resolution
         return pf
 
-    def update(self, modified_by="sys"):
+    def update(self, modified_by="sys", user_time_zone_index=0):
         """
         todo: This is really not great because it sidestep KioskContextualFile!
         :param modified_by:
+        :param user_time_zone_index: the user's time zone index
         :return:
         """
         if not self.r or not self.r["uid"]:
@@ -247,16 +252,25 @@ class FileRepositoryFile:
         sql += "file_datetime=%s, "
         sql += "export_filename=%s, "
         sql += "modified=%s, "
+        sql += "modified_tz=%s, "
+        sql += "modified_ww=%s, "
         sql += "modified_by=%s "
         sql += "where uid=%s"
 
+        now_utc = kioskdatetimelib.get_utc_now()
+
+        now_ww = kioskdatetimelib.utc_ts_to_timezone_ts(
+            now_utc,
+            kioskglobals.kiosk_time_zones.get_iana_time_zone(user_time_zone_index))
         cur = KioskSQLDb.get_dict_cursor()
         try:
             params = [self.r["description"],
                       self.r["tags"],
                       self.r["file_datetime"],
                       self.r["export_filename"],
-                      datetime.datetime.fromtimestamp(time.time()),
+                      now_utc,
+                      user_time_zone_index,
+                      now_ww,
                       modified_by,
                       self.r["uid"]]
             # print(sql, params)
@@ -352,7 +366,7 @@ class ModelFileRepository:
         if year_str.isnumeric():
             year = int(year_str)
             if 0 < year < 100 or 999 < year:
-                return urapdatetimelib.interpolate_year(year)
+                return kioskdatetimelib.interpolate_year(year)
         return 0
 
     def check_filter_option(self, option, value):
@@ -553,7 +567,7 @@ class ModelFileRepository:
             KioskSQLDb.rollback()
         return []
 
-    def get_image(self, uuid):
+    def get_image(self, uuid) -> FileRepositoryFile:
         cur = KioskSQLDb.get_dict_cursor()
         # sql = "select " + " distinct images.*, array_to_string(identifier_array, ',') identifiers from \"images\" " \
         #                   "left outer join file_identifier_cache on images.uid=file_identifier_cache.uid_file " \

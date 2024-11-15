@@ -1,4 +1,6 @@
+# todo time zone simpliciation (done)
 import logging
+from typing import Union
 
 import kioskrepllib
 import kioskstdlib
@@ -9,6 +11,7 @@ from migration.migration import Migration
 from migration.postgresdbmigration import PostgresDbMigration
 from statemachine import StateMachine
 from sync_config import SyncConfig
+from tz.kiosktimezoneinstance import KioskTimeZoneInstance
 
 
 class Dock:
@@ -50,8 +53,9 @@ class Dock:
         self._db_namespace = workstation_id.lower()
         self._sync = sync
         self.recording_group = ""
-        self.gmt_time_zone = ""
+        self._user_time_zone_index = None
         self.grant_access_to = ""
+        self.current_tz: Union[KioskTimeZoneInstance, None] = None
 
         try:
             self._exists = self._load()
@@ -61,6 +65,23 @@ class Dock:
         except Exception as e:
             logging.error(repr(e))
             raise Exception(f'Instantiation of Workstation {workstation_id} failed: {repr(e)}')
+
+    @property
+    def user_time_zone_index(self) -> Union[int, None]:
+        """
+        The user time zone index stored for this workstation.
+        Note that this is not necessarily the one to use in an operation
+
+        :return: int | None
+        """
+        return self._user_time_zone_index
+
+    @user_time_zone_index.setter
+    def user_time_zone_index(self, value):
+        self.set_user_time_zone_index(value)
+
+    def set_user_time_zone_index(self, tz_index: int):
+        self._user_time_zone_index = tz_index
 
     @classmethod
     def get_workstation_type(cls) -> str:
@@ -167,14 +188,15 @@ class Dock:
         if cur:
             try:
                 cur.execute(
-                    f'select ' + f'description, state, recording_group, gmt_time_zone, grant_access_to from "repl_workstation" '
+                    f'select ' + f'description, state, recording_group, user_time_zone_index,'
+                                 f'grant_access_to from "repl_workstation" '
                                  f'where id=%s;',
                     [self._id])
                 r = cur.fetchone()
                 if r is not None:
                     self.description = r[0]
                     self.recording_group = r[2]
-                    self.gmt_time_zone = r[3]
+                    self._user_time_zone_index = r[3]
                     self.grant_access_to = r[4] if r[4] else "*"
                     state = self.get_state_from_code(r[1])
                     self.state_machine.set_initial_state(state)
@@ -283,16 +305,16 @@ class Dock:
                 self._on_create_workstation(cur)
 
                 cur.execute("DELETE " + "FROM \"repl_workstation\" where \"id\" = %s", [self._id])
-                sql = "INSERT " + "INTO \"repl_workstation\"(\"id\",\"description\",\"recording_group\", \"state\", " \
-                                  "\"workstation_type\", \"gmt_time_zone\", \"grant_access_to\") " \
-                                  "VALUES(%s, %s, %s, %s, %s, %s, %s)"
+                sql = "INSERT " + ("INTO \"repl_workstation\"(\"id\",\"description\",\"recording_group\", \"state\", "
+                                   "\"workstation_type\", \"user_time_zone_index\", \"grant_access_to\") "
+                                   "VALUES(%s, %s, %s, %s, %s, %s, %s)")
 
                 cur.execute(sql, [self._id,
                                   self.description,
                                   self.recording_group,
                                   self.get_code_from_state("IDLE"),
                                   self.get_workstation_type(),
-                                  self.gmt_time_zone,
+                                  self._user_time_zone_index,
                                   self.grant_access_to])
                 KioskSQLDb.commit()
                 self.state_machine.set_initial_state("IDLE")
@@ -348,18 +370,20 @@ class Dock:
             try:
                 self._on_update_workstation(cur)
 
-                sql = f"\"repl_workstation\" set \"description\"=%s, \"recording_group\"=%s, " \
-                      f"\"gmt_time_zone\"=%s, \"grant_access_to\"=%s where \"id\"=%s"
+                sql = (f"\"repl_workstation\" set \"description\"=%s, \"recording_group\"=%s, "
+                       f"\"user_time_zone_index\"=%s, \"grant_access_to\"=%s "
+                       f"where \"id\"=%s")
 
                 cur.execute("Update " + sql, [self.description, self.recording_group,
-                                              self.gmt_time_zone, self.grant_access_to,
+                                              self.user_time_zone_index, self.grant_access_to,
                                               self._id])
                 KioskSQLDb.commit()
 
                 return True
             except Exception as e:
-                logging.error("Exception in RecordingWorkstation._update: " + repr(e))
+                logging.error("Exception in Workstation._update: " + repr(e))
                 KioskSQLDb.rollback()
+
         else:
             logging.error('No Model cursor in RecordingWorkstation._update')
 
@@ -383,8 +407,8 @@ class Dock:
             result_list = []
             if cur:
                 sql = "select " + """repl_workstation.id from repl_workstation  
-                      where repl_workstation.workstation_type = %s 
-                      order by repl_workstation.description;"""
+                          where repl_workstation.workstation_type = %s 
+                          order by repl_workstation.description;"""
                 cur.execute(sql, [cls.get_workstation_type()])
                 for r in cur:
                     result_list.append(r["id"])
@@ -497,15 +521,6 @@ class Dock:
                 workstation description (String)
         """
         return self.description
-
-    def get_description_with_timezone_info(self):
-        """
-            returns the workstation's description and adds an info about the timezone if any (a string)
-            :returns
-                workstation description (String)
-        """
-
-        return self.description + (f" ({self.gmt_time_zone})" if self.gmt_time_zone else "")
 
     def get_available_transitions(self) -> [str]:
         """ returns a list of available transitions relative to the workstation's current state.

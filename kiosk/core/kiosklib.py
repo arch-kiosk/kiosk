@@ -4,6 +4,7 @@ from typing import Optional
 
 from flask import request, make_response
 
+import kioskdatetimelib
 import kioskstdlib
 from sync_config import SyncConfig
 from kioskconfig import KioskConfig
@@ -37,7 +38,7 @@ def nocache(view):
     @wraps(view)
     def no_cache(*args, **kwargs):
         response = make_response(view(*args, **kwargs))
-        response.headers['Last-Modified'] = datetime.datetime.now()
+        response.headers['Last-Modified'] = kioskdatetimelib.get_utc_now(no_tz_info=True)
         response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
         response.headers['Pragma'] = 'no-cache'
         response.headers['Expires'] = '-1'
@@ -136,7 +137,7 @@ def dispatch_system_message(headline: str,
         try:
             system_messages.send_message(message)
         except BaseException as e:
-            logging.error(f"kiosklib.dispatch_system_message: {repr(e)}")
+            logging.error(f"kiosklib.dispatch_system_message: Error in send_message: {repr(e)}")
 
 
 def dispatch_user_message(headline: str,

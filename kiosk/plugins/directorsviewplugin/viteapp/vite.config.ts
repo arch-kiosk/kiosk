@@ -10,16 +10,12 @@ export default defineConfig(({ command, mode }) => {
             'process.env.NODE_ENV': JSON.stringify(mode),
         },
         plugins: [
-            createHtmlPlugin(),
-            // copy({
-            //   targets: [ { src: '../../kioskfilemakerworkstationplugin/static/kioskfilemakerworkstation.css',
-            //     dest:'./kioskfilemakerworkstation/static'
-            //   }, {
-            //     src: '../../kioskfilemakerworkstationplugin/static/scripts',
-            //     dest:'./kioskfilemakerworkstation/static'
-            //   }],
-            //   hook: 'buildStart'
-            // }),
+            createHtmlPlugin({
+                inject: {
+                    ...env,
+                },
+
+            }),
         ],
         esbuild:
             command == "build"
@@ -35,7 +31,7 @@ export default defineConfig(({ command, mode }) => {
                 formats: ["es"],
             },
             // rollupOptions: {
-            //   external: /^lit/,
+            //   external: [/^@vaadin/],
             // },
         },
         server: {
@@ -45,11 +41,6 @@ export default defineConfig(({ command, mode }) => {
                 allow: [searchForWorkspaceRoot(process.cwd()), "../../../static/scripts/kioskapplib"],
             },
         },
-        publicDir: "/static",
-        html: {
-            injectData: {
-                ...env,
-            },
-        },
+        publicDir: "/static"
     };
 });

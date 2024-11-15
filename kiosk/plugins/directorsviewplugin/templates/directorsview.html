@@ -1,13 +1,5 @@
-{% extends "kioskbasic.html" %} {% block links %}
-    <link rel="stylesheet"
-          href="{{ url_for('directorsview.static', filename='directorsview.css') }}?v=1"/>{% endblock %}
+{% extends "kioskdynamicapploader.html" %}
 {% block title %}
     <div id="subtitle-shadow">Kiosk</div>
-    <div id="subtitle">Daily Review</div>{% endblock %}
-{% block body %}
-    <directorsview-app id="kiosk-app" showprogress="true"></directorsview-app>
-    <script type="module" crossorigin
-            src="{{ url_for('directorsview.static', filename='app/directorsviewapp.js') }}"></script>
-    <script type="module" src="{{ url_for('static', filename='scripts/kioskapplib/kioskprodstarter.js') }}"></script>
+    <div id="subtitle">Director's View</div>
 {% endblock %}
-{#<script src="../static/app/directorsviewapp.es.js"></script>#}

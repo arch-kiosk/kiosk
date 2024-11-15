@@ -130,6 +130,19 @@ export class DataSetDefinition {
         }
     }
 
+    get_fields_with_datatype(tableName: string, datatype: string) {
+        if (!this.has_table(tableName)) throw `DataSetDefinition.get_fields_with_datatype: ${tableName} does not exist`
+        try {
+            datatype = datatype.toLowerCase()
+            // const searchTerm = `datatype(${datatype}})`
+            return Object.keys(this._dsd[tableName]).filter(
+                key => this._dsd[tableName][key].findIndex(instruction => instruction.toLowerCase().startsWith("datatype") && instruction.toLowerCase().includes(datatype)) > -1)
+        } catch (e) {
+            throw `DataSetDefinition.get_fields_with_datatype: ${tableName}: ${e}`
+        }
+    }
+
+
     get_field_instruction(tableName: string, fieldName: string, requestedInstruction: string): DSDInstruction | undefined {
         if (!this.has_field(tableName, fieldName)) throw `DataSetDefinition.get_field_instructions: ${tableName}.${fieldName} does not exist`
         const instructions = this._dsd[tableName][fieldName]

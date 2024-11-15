@@ -88,6 +88,12 @@
             reload all kiosk queries
         </button>
       </li>
+      <li>
+        <button id="bt-import-kiosk-tz"
+                class="admin-action kiosk-btn-128" disabled>
+            re-import time zones
+        </button>
+      </li>
     </ul>
 
     {# system info collapsible #}
@@ -106,10 +112,12 @@
           <div class="admin-sysinfo-entry"><label>PostgreSQL:</label> {{ sysinfo.postgresql_ver }}</div>
           <div class="admin-sysinfo-entry"><label>MCP:</label>{{ mcp_version }} {{ mcp_alive }}</div>
           <div class="admin-sysinfo-entry"><label>Redis:</label>{% if redis_version %}{{ redis_version }}
-          {% else %}not present{% endif %}</div>
+                                                                {% else %}not present{% endif %}</div>
+          <div class="admin-sysinfo-entry"><label>gs id:</label>{% if gs_id %}{{ gs_id }}{% else %}-{% endif %}</div>
         </div>
         <div class="admin-gridded-info">
           <div class="admin-sysinfo-entry"><label>project-id:</label> {{ config.get_project_id() }}</div>
+          <div class="admin-sysinfo-entry"><label>PostgreSQL DB:</label> {{ config.database_name }}</div>
           <div class="admin-sysinfo-entry"><label>dsd format:</label> {{ sysinfo.dsd_format }}</div>
           <div class="admin-sysinfo-entry"><label>template
             version:</label> {{ config.expected_filemaker_template_version }}</div>
@@ -184,7 +192,7 @@
           <div class="admin-sysinfo-entry"><label>confirm</label></div>
           {% for msg in all_sys_messages %}
             <div class="admin-sysinfo-entry">{{ msg.sender }}</div>
-            <div class="admin-sysinfo-entry">{{ msg.format_time }}</div>
+            <div class="admin-sysinfo-entry">{{ msg.get_format_time(current_user.get_active_time_zone_name(iana=True)) }}</div>
             <div class="admin-sysinfo-entry">{{ msg.message_id }}</div>
             <div class="admin-sysinfo-entry">{{ msg.headline }}</div>
             <div>
@@ -201,7 +209,6 @@
       {% endif %}
       </div>
     </div>
-
 
     {# plugins #}
     <div class="admin-sysinfo-wrapper kiosk-collapsible">

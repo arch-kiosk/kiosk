@@ -1,6 +1,7 @@
 import datetime
 import json
 import os
+import kioskdatetimelib
 import time
 from pprint import pprint
 
@@ -23,6 +24,7 @@ from kioskcontextualfile import KioskContextualFile
 from kioskrepresentationtype import KioskRepresentationType, KioskRepresentations
 from kioskresult import KioskResult
 from kiosksqldb import KioskSQLDb
+from kioskuser import KioskUser
 from plugins.filerepositoryplugin.forms.editform import ModalFileEditForm
 from core.kioskwtforms import KioskStringField, KioskLabeledBooleanField
 from core.kiosklib import nocache
@@ -166,7 +168,7 @@ def get_standard_image_response(extension, filename):
         response = make_response(
             send_from_directory(current_app.static_folder, "assets/images/{}".format(std_file_image)))
     else:
-        print("###### still no thumbnail file for " + filename)
+        # print("###### still no thumbnail file for " + filename)
         response = make_response(send_from_directory(current_app.static_folder,
                                                      "assets/images/dummyfile.svg"))
     return response
@@ -190,7 +192,7 @@ def add_caching_headers_to_response(response, timestamp=None, etag=None):
     else:
         if not timestamp:
             # no etag and not timestamp = no caching at all.
-            timestamp = datetime.datetime.now()
+            timestamp = kioskdatetimelib.get_utc_now(no_tz_info=True)
             cache_control = 'no-store,no-cache,must-revalidate,post-check=0,' \
                             'pre-check=0,max-age=0'
             # response.headers['Pragma'] = 'no-cache'
@@ -211,6 +213,7 @@ class FilterForm(FlaskForm):
     description = StringField(id="frf-description", label='description')
     from_date = StringField(id="frf-from-date", label='from')
     to_date = StringField(id="frf-to-date", label='to')
+
 
 #  **************************************************************
 #  ****    /file-repository redirecting index
@@ -374,6 +377,13 @@ def filerepository_editdialog(uid):
         ef_form.ef_file_datetime.data = kioskstdlib.latin_date(img.get_value("file_datetime"))
         ef_form.ef_tags.data = img.get_value("tags")
         ef_form.ef_export_filename.data = img.get_value("export_filename")
+
+        modified_utc = kioskstdlib.latin_date(img.get_value("modified"))
+        modified_tz = kioskglobals.kiosk_time_zones.get_long_time_zone(img.get_value("modified_tz"))
+        modified_ww = img.get_value("modified_ww")
+        modified_ww = kioskstdlib.latin_date(modified_ww) if modified_ww else modified_utc
+        created_latin = kioskstdlib.latin_date(img.get_value("created"))
+
         authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
         read_only = request.args.get('read_only')
         if read_only:
@@ -396,6 +406,11 @@ def filerepository_editdialog(uid):
                                file_extension=file_extension,
                                file_size=file_size,
                                representations=representations,
+                               created_latin=created_latin,
+                               modified_tz=modified_tz,
+                               modified_utc=modified_utc if \
+                                   kioskglobals.get_development_option("test_time_zone_support") else None,
+                               modified_ww=modified_ww,
                                )
 
     elif request.method == "POST":
@@ -444,7 +459,7 @@ def filerepository_editdialog(uid):
 
                 if do_update == 1:
                     logging.info(f"User {current_user.repl_user_id} modified image record {img.r['uid']}")
-                    rc = img.update(recording_user)
+                    rc = img.update(recording_user, current_user.get_active_tz_index())
                 elif do_update == -1:
                     rc = True
                 else:
@@ -505,6 +520,10 @@ def update_contexts(img: FileRepositoryFile, file_repos: FileRepository, form_da
             dropped += 1
 
     if added or dropped:
+        # time zone relevant
+        utc_ts, tz_index, ww_ts = kioskglobals.kiosk_time_zones.get_modified_components_from_now(
+            current_user.get_active_tz_index())
+        ctx.set_modified(utc_ts, tz_index, ww_ts)
         ctx.modified_by = current_user.repl_user_id
         if not ctx.push_contexts(True):
             return f"error pushing contexts: {ctx.last_error}"
@@ -742,6 +761,15 @@ def repository_bulk_tag_execute():
                         f.drop_tag(tag)
                         update = True
                 if update:
+                    # time zone relevant
+                    utc_ts, tz_index, ww_ts = kioskglobals.kiosk_time_zones.get_modified_components_from_now(
+                        current_user.get_active_tz_index())
+
+                    f.set_modified(
+                        utc_ts,
+                        tz_index,
+                        ww_ts
+                    )
                     f.update(commit=False)
             KioskSQLDb.commit()
             result.success = True
@@ -811,7 +839,8 @@ def repository_replace_file(uuid):
                                     )
         try:
             rc, msg = file_repos.replace_file_in_repository(uuid, file_path_and_name=temp_file_path_and_name,
-                                                            recording_user=current_user.repl_user_id)
+                                                            recording_user=current_user.repl_user_id,
+                                                            tz_index=current_user.get_active_tz_index())
             if rc:
                 logging.debug(f"filerepository.repository_replace_file: Received file {sec_filename} "
                               f"replaced old one as {rc} in the file repository")
@@ -897,9 +926,9 @@ def file_repository_download_file(img, cmd):
                                            mimetype=mime_type,
                                            download_name=dest_filename,
                                            as_attachment=True,
-                                           etag=str(datetime.datetime.now().timestamp())))
+                                           etag=str(kioskdatetimelib.get_utc_now(no_tz_info=True).timestamp())))
             resp.set_cookie('fileDownload', 'true')
-            resp.headers['Last-Modified'] = str(datetime.datetime.now().timestamp())
+            resp.headers['Last-Modified'] = str(kioskdatetimelib.get_utc_now(no_tz_info=True).timestamp())
             resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, ' \
                                             'pre-check=0, max-age=0'
             resp.headers['Pragma'] = 'no-cache'

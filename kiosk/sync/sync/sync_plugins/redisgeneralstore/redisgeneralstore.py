@@ -60,12 +60,14 @@ class RedisGeneralStore(GeneralStore):
     LUA_SCRIPTS = [os.path.join("lua", "lua_scripts_loaded.lua"),
                    os.path.join("lua", "set_if_keys_dont_exist.lua")
                    ]
+
     # redis_lock = Lock()
 
-    def __init__(self, config: Config, always_decode_responses=True):
+    def __init__(self, config: Config, always_decode_responses=True, gs_id=""):
         self._scripts = {}
         self.address = ""
-        self.port = ""
+        self.port = None
+        self.gs_id = gs_id.replace("_", "+").lower()
         # self._red_lock: Redlock = None
         # self._red_lock: Lock = None
 
@@ -86,11 +88,12 @@ class RedisGeneralStore(GeneralStore):
 
     def _read_config(self, config: Config):
         self.address = config["config"]["redis_address"]
-        self.port = config["config"]["redis_port"]
+        self.port = int(config["config"]["redis_port"])
 
     def _connect(self, force=False) -> Client:
-        if not self.redis or force:
-            self.redis = Client(host=self.address, port=self.port, encoding='utf-8', decode_responses=self._always_decode_responses)
+        if (not self.redis or force) and isinstance(self.port, int):
+            self.redis = Client(host=self.address, port=self.port, encoding='utf-8',
+                                decode_responses=self._always_decode_responses)
             # self._red_lock = Redlock([self.redis])
         return self.redis
 
@@ -127,11 +130,19 @@ class RedisGeneralStore(GeneralStore):
         return self.redis.execute_command('INFO')["redis_version"]
 
     def get_keys(self, prefix=""):
+        """
+
+        :param prefix:
+        :return:
+        todo: test, particularly with gs_id
+        """
         self._connect()
-        keys = prefix + "*"
-        return self.redis.keys(keys)
+        gs_id_len = len(self.gs_id)
+        keys = self.gs_id + prefix + "*"
+        return [k[gs_id_len:] for k in self.redis.keys(keys)]
 
     def put_string(self, key, value: str):
+        key = self.gs_id + key
         if isinstance(value, str):
             self._connect()
             return self.redis.set(key, value)
@@ -140,6 +151,7 @@ class RedisGeneralStore(GeneralStore):
 
     def get_string(self, key):
         self._connect()
+        key = self.gs_id + key
         rc = self.redis.get(key)
         if rc is None:
             raise KeyError(f"Key {key} not found")
@@ -149,11 +161,13 @@ class RedisGeneralStore(GeneralStore):
     # todo: unit test!
     def set_timeout(self, key, seconds):
         self._connect()
+        key = self.gs_id + key
         rc = self.redis.expire(key, seconds)
         if not rc:
             raise KeyError(f"Key {key} not found")
 
     def put_int(self, key, value: int):
+        key = self.gs_id + key
         if isinstance(value, int):
             self._connect()
             return self.redis.set(key, str(value))
@@ -168,6 +182,7 @@ class RedisGeneralStore(GeneralStore):
         :raises ValueError: a value was returned but it was not an int
         :raises KeyError: if the key is unknown
         """
+        key = self.gs_id + key
         self._connect()
         rc = self.redis.get(key)
         if rc is None:
@@ -176,6 +191,7 @@ class RedisGeneralStore(GeneralStore):
         return int(rc)
 
     def inc_int(self, key, value=1):
+        key = self.gs_id + key
         if isinstance(value, int) and value > 0:
             self._connect()
             if value == 1:
@@ -189,6 +205,7 @@ class RedisGeneralStore(GeneralStore):
                 raise TypeError(f"{value} is not an int!")
 
     def dec_int(self, key, value=1):
+        key = self.gs_id + key
         if isinstance(value, int) and value > 0:
             self._connect()
             if value == 1:
@@ -202,6 +219,7 @@ class RedisGeneralStore(GeneralStore):
                 raise TypeError(f"{value} is not an int!")
 
     def put_dict(self, key, path: [], value: object):
+        key = self.gs_id + key
         json_path = self._make_json_path(path)
 
         if isinstance(value, dict):
@@ -218,13 +236,14 @@ class RedisGeneralStore(GeneralStore):
         :param value:
         :return:
         """
+        key = self.gs_id + key
         if not path:
             raise TypeError("put_dict_value needs a path!")
 
         json_path = self._make_json_path(path)
         self._connect()
 
-        lock = Lock(self.redis, name=GENERAL_LOCK_NAME, expire=10)
+        lock = Lock(self.redis, name=self.gs_id + GENERAL_LOCK_NAME, expire=10)
         if not lock.acquire(timeout=10):
             raise Exception("Lock not acquired")
 
@@ -242,15 +261,18 @@ class RedisGeneralStore(GeneralStore):
         :param path:
         :return:
         """
+        key = self.gs_id + key
         json_path = self._make_json_path(path)
 
-        lock = Lock(self.redis, name=GENERAL_LOCK_NAME, expire=10)
+        lock = Lock(self.redis, name=self.gs_id + GENERAL_LOCK_NAME, expire=10)
         if not lock.acquire(timeout=10):
             raise Exception("Lock not acquired")
 
         try:
             # note the no_escape parameter! see https://github.com/RedisJSON/redisjson-py/pull/26
             rc = self.redis.json().get(key, json_path, no_escape=True)
+        except BaseException as e:
+            logging.debug(f"{self.__class__.__name__}.get_dict: {repr(e)}")
         finally:
             lock.release()
 
@@ -261,26 +283,32 @@ class RedisGeneralStore(GeneralStore):
 
     def append_to_array(self, key, value) -> int:
         self._connect()
+        key = self.gs_id + key
         return self.redis.rpush(key, value)
 
     def append_values_to_array(self, key, value: []) -> int:
         self._connect()
+        key = self.gs_id + key
         return self.redis.rpush(key, *value)
 
     def delete_value_from_array(self, key, value):
         self._connect()
+        key = self.gs_id + key
         return self.redis.lrem(key, 0, value)
 
     def get_array_count(self, key):
         self._connect()
+        key = self.gs_id + key
         return self.redis.llen(key)
 
     def get_array_element(self, key, index):
         self._connect()
+        key = self.gs_id + key
         return self.redis.lindex(key, index)
 
     def get_array(self, key) -> []:
         self._connect()
+        key = self.gs_id + key
         return self.redis.lrange(key, 0, -1)
 
     def in_array(self, key, value):
@@ -304,8 +332,8 @@ class RedisGeneralStore(GeneralStore):
 
         :returns bool: If True, the keys are created. If False, they are not.
         """
-        required_prefixes_str = "$".join(prefixes_to_check)
-        prefixes_to_set_str = "$".join(prefixes_to_set)
+        required_prefixes_str = "$".join([self.gs_id + key for key in prefixes_to_check])
+        prefixes_to_set_str = "$".join([self.gs_id + key for key in prefixes_to_set])
 
         rc = self.call_script("set_if_keys_dont_exist", keys=[required_prefixes_str, prefixes_to_set_str],
                               params=[value, uid, timeout])
@@ -331,18 +359,20 @@ class RedisGeneralStore(GeneralStore):
 
     def delete_key(self, key):
         self._connect()
+        key = self.gs_id + key
         return self.redis.delete(key)
 
     def get_key_idle_time(self, key) -> int:
         self._connect()
+        key = self.gs_id + key
         return self.redis.object("idletime", key)
 
-    def delete_keys(self, prefixes: [str], uid="") -> bool:
+    def delete_keys(self, prefixes: [str], uid="") -> int:
         if uid:
             keys = ["".join([x, uid]) for x in prefixes]
         else:
             keys = prefixes
-
+        keys = [self.gs_id + key for key in keys]
         logging.debug(f"deleting {keys}")
         return self.redis.delete(*keys)
 
@@ -374,7 +404,7 @@ class RedisGeneralStore(GeneralStore):
         :return: the lock or False
         """
         self._connect()
-        lock = Lock(self.redis, name=ressource, expire=expire_seconds)
+        lock = Lock(self.redis, name=self.gs_id + ressource, expire=expire_seconds)
         if lock.acquire(timeout=wait_seconds):
             return lock
         else:
@@ -399,7 +429,7 @@ class RedisGeneralStore(GeneralStore):
         :param expire_seconds: if given and > 0: number of seconds until the lock expires automatically.
         :returns: the lock or False. Can raise Exceptions, too.
         """
-        return self.red_lock_lock(ressource=key, wait_seconds=timeout, expire_seconds=expire_seconds)
+        return self.red_lock_lock(ressource=self.gs_id + key, wait_seconds=timeout, expire_seconds=expire_seconds)
 
     def release_process_lock(self, lock):
         """
@@ -411,4 +441,3 @@ class RedisGeneralStore(GeneralStore):
             self.red_lock_unlock(lock)
         except NotAcquired as e:
             pass
-

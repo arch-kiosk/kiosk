@@ -525,7 +525,11 @@ function _bulkDelete() {
 /******************************************************
  Edit Image Dialog
  *********************************************************/
-function initEFDialog() {
+function initEFDialog(time_zones) {
+  // time_zones.getTimeZoneByIndex(1820474).then(tz_info => {
+  //   alert(`1820474 is ${tz_info.tz_IANA}`)
+  // })
+
   $("#image-container").one("error", function () {
     $("#image-spinner").hide();
     $("#image-container").replaceWith("<div id='img-load-err'><span>Could not load image.</span></span></div>");
@@ -535,7 +539,23 @@ function initEFDialog() {
   efInitAddContext();
   efInitDropContext();
 }
-
+//
+// async function efInitDateTimeFields(time_zones) {
+//   // init the ef-file-datetime input field
+//   let dt = new KioskDateTime(time_zones)
+//   const efFileDateTimeInput = document.getElementById("ef-file-datetime")
+//   if (efFileDateTimeInput) {
+//     dt.initKioskDateTimeTzField("ef-file-datetime")
+//     efFileDateTimeInput.addEventListener("blur", () => {
+//       onEFFileDateTimeValidate(false)
+//     })
+//   }
+//
+//   const dialog = document.getElementById("fr-edit-dialog")
+//   await dt.initKioskDateTimeSpans(dialog)
+//
+// }
+//
 function efInitUploader() {
   $('#ef-upload-area').dmUploader({
     url: '/filerepository/replace/' + efGetCurrentImageUID(),

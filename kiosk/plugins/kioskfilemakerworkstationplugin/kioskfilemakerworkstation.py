@@ -1,8 +1,15 @@
+# time zone relevance
+
+import copy
 import logging
+import textwrap
+import zoneinfo
 from typing import List
 
+from charset_normalizer.utils import iana_name
 from werkzeug import datastructures
 
+import kioskdatetimelib
 import kioskglobals
 
 from flask_login import current_user
@@ -18,6 +25,7 @@ from synchronization import Synchronization
 from kiosksqldb import KioskSQLDb
 from authorization import EDIT_WORKSTATION_PRIVILEGE, PREPARE_WORKSTATIONS, DOWNLOAD_WORKSTATION, \
     UPLOAD_WORKSTATION, SYNCHRONIZE, get_local_authorization_strings, MANAGE_USERS, MANAGE_SERVER_PRIVILEGE
+from tz.kiosktimezoneinstance import KioskTimeZoneInstance
 
 TYPE_KIOSK_FILEMAKER_WORKSTATION = "KioskFileMakerWorkstation"
 
@@ -73,6 +81,19 @@ class KioskFileMakerWorkstation(KioskWorkstation):
     @property
     def disabled(self) -> bool:
         return self.sync_ws.disabled
+
+    @property
+    def current_tz(self) -> KioskTimeZoneInstance:
+        return self.sync_ws.current_tz
+
+    @current_tz.setter
+    def current_tz(self, user_ktz: KioskTimeZoneInstance):
+
+        # override user settings with dock settings if there are any
+        if self.sync_ws.user_time_zone_index:
+            user_ktz.user_tz_index = self.sync_ws.user_time_zone_index
+
+        self.sync_ws.current_tz = user_ktz
 
     @disabled.setter
     def disabled(self, value: bool):
@@ -132,11 +153,13 @@ class KioskFileMakerWorkstation(KioskWorkstation):
         for group in recording_groups:
             FileMakerWorkstation.reset_template(group)
 
-    def load_workstation(self) -> bool:
+    def load_workstation(self, current_tz: KioskTimeZoneInstance = None) -> bool:
         self._reset_attributes()
         # noinspection PyTypeChecker
         self._sync_ws: FileMakerWorkstation = self.sync.get_workstation("FileMakerWorkstation", self._id)
         if self._sync_ws:
+            if current_tz:
+                self.current_tz = current_tz
             self._download_upload_status_text = self.download_upload_status_texts[
                 str(self._sync_ws.download_upload_status)]
             self._calc_status_text(self.status, self._sync_ws.download_upload_status)
@@ -179,11 +202,18 @@ class KioskFileMakerWorkstation(KioskWorkstation):
         if status in ["IN_THE_FIELD", "BACK_FROM_FIELD"] \
                 and self._download_upload_status_text \
                 and not self._sync_ws.has_option('PERMANENT_DOWNLOAD'):
+            fork_time = self._sync_ws.get_fork_time()
             if self._sync_ws.download_upload_status > -1 and \
                     self._sync_ws.download_upload_ts and \
-                    self._sync_ws.get_fork_time() < self._sync_ws.download_upload_ts:
+                    fork_time < self._sync_ws.download_upload_ts:
+                time_zone = self.current_tz.user_tz_iana_name if self.current_tz else \
+                                                  current_user.get_active_time_zone_name(iana=True)
+                if not time_zone:
+                    time_zone = "utc"
                 self._state_description = self._download_upload_status_text + " on " + \
-                                          self._sync_ws.download_upload_ts.isoformat(" ")[:19]
+                                          kioskstdlib.latin_date(kioskdatetimelib.utc_ts_to_timezone_ts(
+                                              self._sync_ws.download_upload_ts,
+                                              time_zone))
             else:
                 self._state_description = self._download_upload_status_text
         else:
@@ -192,9 +222,27 @@ class KioskFileMakerWorkstation(KioskWorkstation):
     @property
     def description(self):
         if self._sync_ws:
-            return self._sync_ws.get_description_with_timezone_info()
+            return self.get_description_with_timezone_info()
         else:
             return ""
+
+    def get_description_with_timezone_info(self):
+        """
+            returns the workstation's description and adds an info about the timezone if any (a string)
+            :returns
+                workstation description (String)
+        """
+
+        result = self._sync_ws.description
+        time_zone_info = ""
+        if self._sync_ws.user_time_zone_index:
+            time_zone = kioskglobals.kiosk_time_zones.get_time_zone_info(self._sync_ws.user_time_zone_index)
+            if time_zone:
+                time_zone_info = f"\n({textwrap.shorten(time_zone[1], width=30, placeholder='...')})"
+            else:
+                time_zone_info = f" (invalid time zone)"
+
+        return result + time_zone_info
 
     @property
     def download_upload_status(self):
@@ -266,13 +314,13 @@ class KioskFileMakerWorkstation(KioskWorkstation):
     def sync_ws(self):
         return self._sync_ws
 
-    def create_workstation(self, ws_name, recording_group, gmt_time_zone: str = "",
+    def create_workstation(self, ws_name, recording_group, user_time_zone_index: int = None,
                            options: str = "", grant_access_to: str = "") -> bool:
         """
         creates a FileMakerWorkstation by creating the corresponding FileMakerWorkstation class of the sync subsystem
         :param ws_name:  the workstation's description
         :param recording_group:  the workstation's recording group
-        :param gmt_time_zone: the workstation's time zone or empty
+        :param user_time_zone_index: the workstation's time zone or None
         :param options: special options for the workstation. A ;-separated string
         :param grant_access_to: empty string or a user-id the workstation will be restricted to
         :return: True if the workstation was successfully created and loaded.
@@ -282,7 +330,7 @@ class KioskFileMakerWorkstation(KioskWorkstation):
             self.sync = Synchronization()
 
         ws = self.sync.create_workstation("FileMakerWorkstation", self._id, ws_name, recording_group=recording_group)
-        ws.gmt_time_zone = gmt_time_zone
+        ws._user_time_zone_index = user_time_zone_index
         ws.options = options
         ws.grant_access_to = grant_access_to
         if ws:
@@ -560,10 +608,19 @@ class KioskFileMakerWorkstation(KioskWorkstation):
                         add_to_option_list(self._get_option("import_repair_option"), low=True)
 
                 add_to_option_list(self._get_option("upload_option"), low=True)
+            elif (self.status == "BACK_FROM_FIELD" and
+                    kioskglobals.get_development_option("allow_repeat_export_ws").lower() == "true"):
+                self._modify_option("import_option", "description",
+                                    "import workstation from FileMaker AGAIN (developers only).")
+                add_to_option_list(self._get_option("import_option"), low=True)
 
             if self.status == "IN_THE_FIELD" and self.allow_download:
                 self._modify_option("fork_export_option", "description",
                                     "prepare workstation for download from scratch AGAIN.")
+                if kioskglobals.get_development_option("allow_repeat_export_ws").lower() == "true":
+                    self._modify_option("export_option", "description",
+                                        "export workstation to FileMaker from scratch AGAIN.")
+                    add_to_option_list(self._get_option("export_option"), low=True)
                 add_to_option_list(self._get_option("fork_export_option"), low=True)
 
             add_to_option_list(self._get_option("reset_option"), low=True)

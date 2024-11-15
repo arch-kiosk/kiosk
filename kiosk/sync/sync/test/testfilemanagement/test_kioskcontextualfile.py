@@ -1,6 +1,7 @@
 import datetime
 import logging
 import os
+import time
 from shutil import copyfile
 
 import pytest
@@ -16,6 +17,9 @@ from sync_config import SyncConfig
 from synchronization import Synchronization
 from test.testhelpers import KioskPyTestHelper
 from kiosksqldb import KioskSQLDb
+from test.mock_timezoneinfo import mock_kiosk_time_zones
+from tz.kiosktimezones import KioskTimeZones
+
 
 # information about the test data:
 # -----------------------------------------------------------------------------------------
@@ -133,7 +137,7 @@ class TestKioskContextualFile(KioskPyTestHelper):
         assert file.get_tags() == ["tag1", "tag2", "tag3"]
         assert file.get_csv_tags() == '"tag1","tag2","tag3"'
 
-    def test_uid_from_hash(self, db_files_initialized, shared_datadir):
+    def test_uid_from_hash(self, db_files_initialized, shared_datadir, mock_kiosk_time_zones):
         sync = Synchronization()
         file_repos = FileRepository(SyncConfig.get_config())
         assert sync
@@ -143,11 +147,13 @@ class TestKioskContextualFile(KioskPyTestHelper):
 
         path_and_filename = os.path.join(shared_datadir, "7DBD0FAB-1859-4C5B-91B8-DE2BC18550D4.jpg")
         file = KioskContextualFile(None, cache_manager, file_repos, sync.type_repository)
+        file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
         rc = file._get_uid_from_hash(path_and_filename)
         assert not rc
 
         md5_hash = "92f7d42c03d33d9a6ec1a8eee5d39e9a"
         file = KioskContextualFile(None, cache_manager, file_repos, sync.type_repository)
+        file.set_modified(*KioskTimeZones.get_modified_components_from_now(96554373))
         rc = file._get_uid_from_hash(md5_hash=md5_hash)
         assert rc == "f589d6a7-0b1d-4473-a133-b23f63846428"
 
@@ -156,7 +162,7 @@ class TestKioskContextualFile(KioskPyTestHelper):
         rc = file._get_uid_from_hash(path_and_filename=path_and_filename)
         assert rc == "25e2df4a-c0b5-4444-8b46-50d538ee93a9"
 
-    def test_upload_candid(self, db_files_initialized, shared_datadir):
+    def test_upload_candid(self, db_files_initialized, shared_datadir, mock_kiosk_time_zones):
         KioskSQLDb.run_sql_script(os.path.join(self.sql_context_data))
         KioskSQLDb.commit()
 
@@ -172,12 +178,14 @@ class TestKioskContextualFile(KioskPyTestHelper):
         uid = kioskstdlib.get_uuid_from_filename(path_and_filename)
         file = KioskContextualFile(uid, cache_manager, file_repos, sync.type_repository)
         assert file.uid == uid
+        file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
         dst_path_and_filename = file.upload(path_and_filename)
         assert not dst_path_and_filename
 
         # different uid but same hash like an existing file should not work
         file = KioskContextualFile(None, cache_manager, file_repos, sync.type_repository)
         assert file.uid
+        file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
         uid = file.uid
         dst_path_and_filename = file.upload(path_and_filename)
         assert not dst_path_and_filename
@@ -187,18 +195,21 @@ class TestKioskContextualFile(KioskPyTestHelper):
         uid = kioskstdlib.get_uuid_from_filename(path_and_filename)
         file = KioskContextualFile(uid, cache_manager, file_repos, sync.type_repository)
         assert file.uid == uid
+        file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
         dst_path_and_filename = file.upload(path_and_filename)
         assert dst_path_and_filename == os.path.join(shared_datadir, kioskstdlib.get_filename(path_and_filename)[:2],
                                                      kioskstdlib.get_filename(path_and_filename))
         assert os.path.exists(dst_path_and_filename)
 
         # let's override it with itself (should not work without override)
+        time.sleep(2)
         file = KioskContextualFile(uid, cache_manager, file_repos, sync.type_repository)
         assert file.uid == uid
+        file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
         no_dst_path_and_filename = file.upload(path_and_filename)
         assert not no_dst_path_and_filename
 
-        old_image_proxy = file._file_record.img_proxy
+        old_image_proxy = f"{file._file_record.img_proxy}"
         old_modified = file.modified
 
         # let's override it with something else with the override parameter given
@@ -207,6 +218,7 @@ class TestKioskContextualFile(KioskPyTestHelper):
         path_and_filename = os.path.join(shared_datadir, "new_files", "DSC_2528.jpg")
         new_hash = kioskstdlib.get_file_hash(path_and_filename)
 
+        # file.set_modified(*KioskTimeZones.get_modified_components_from_now(96554373))
         new_dst_path_and_filename = file.upload(path_and_filename, override=True)
         assert new_dst_path_and_filename == os.path.join(shared_datadir, uid[:2],
                                                          uid + ".jpg")
@@ -222,20 +234,22 @@ class TestKioskContextualFile(KioskPyTestHelper):
 
         file = KioskContextualFile(uid, cache_manager, file_repos, sync.type_repository)
         assert file.modified == old_modified
-        assert file._file_record.img_proxy != old_image_proxy
+        assert f"{file._file_record.img_proxy}" != old_image_proxy
 
         # let's override it with a different file type and check whether the old file is
         # gone
         file_to_replace = new_dst_path_and_filename
         path_and_filename = os.path.join(shared_datadir, "new_files", "DSC_2489.png")
         new_hash = kioskstdlib.get_file_hash(path_and_filename)
+        file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
         new_dst_path_and_filename = file.upload(path_and_filename, override=True)
         assert new_dst_path_and_filename == os.path.join(shared_datadir, uid[:2],
                                                          uid + ".png")
         assert os.path.isfile(new_dst_path_and_filename)
         assert not os.path.isfile(file_to_replace)
 
-    def test_upload_with_identifier(self, db_files_initialized, urapdb_with_records, shared_datadir):
+    def test_upload_with_identifier(self, db_files_initialized, urapdb_with_records, shared_datadir,
+                                    mock_kiosk_time_zones):
         KioskSQLDb.run_sql_script(os.path.join(self.sql_context_data))
         KioskSQLDb.commit()
 
@@ -252,6 +266,7 @@ class TestKioskContextualFile(KioskPyTestHelper):
                                    file_repos, sync.type_repository, plugin_loader=sync, test_mode=True)
         assert not file.contexts.get_contexts()
         assert not file._file_record
+        file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
 
         file.contexts.add_context('FA-003-1')
         file.description = "my description"
@@ -272,6 +287,7 @@ class TestKioskContextualFile(KioskPyTestHelper):
         assert self.sort_structure(file.contexts.get_contexts()) == self.sort_structure(
             [('FA-003-1', 'collected_material_photo')])
         assert file.description == "my description"
+        file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
 
         # let's do it again but with new contexts
         file.contexts.add_context("FA-003")
@@ -376,7 +392,7 @@ class TestKioskContextualFile(KioskPyTestHelper):
         assert file.get(representation_type=representation_jpg)
         assert file.get(representation_type=representation_png)
 
-    def test_update(self, db_files_initialized, shared_datadir):
+    def test_update(self, db_files_initialized, shared_datadir, mock_kiosk_time_zones):
         KioskSQLDb.run_sql_script(os.path.join(self.sql_context_data))
         KioskSQLDb.commit()
 
@@ -397,6 +413,7 @@ class TestKioskContextualFile(KioskPyTestHelper):
 
         file.description = "my description"
         assert file.uid == uid
+        file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
         dst_path_and_filename = file.upload(src_path_and_filename)
         assert dst_path_and_filename == os.path.join(shared_datadir, kioskstdlib.get_filename(src_path_and_filename)[:2],
                                                      kioskstdlib.get_filename(src_path_and_filename))
@@ -415,6 +432,8 @@ class TestKioskContextualFile(KioskPyTestHelper):
         file.archaeological_context = "CC-003-2"
         file.recording_context = "collected_material_photos"
         file.modified_by = "lkh"
+
+        file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
         assert file.update()
 
         file = KioskContextualFile(uid, cache_manager, file_repos,
@@ -428,7 +447,7 @@ class TestKioskContextualFile(KioskPyTestHelper):
         assert file._file_record.img_proxy == old_image_proxy
         assert file._file_record.created
 
-    def test_contexts(self, db_files_initialized, shared_datadir):
+    def test_contexts(self, db_files_initialized, shared_datadir, mock_kiosk_time_zones):
         sync = Synchronization()
         file_repos = FileRepository(SyncConfig.get_config())
         assert sync and file_repos
@@ -453,6 +472,7 @@ class TestKioskContextualFile(KioskPyTestHelper):
         file.contexts.add_context("PLG", "site")
         assert file.contexts.get_contexts() == [("PLG", "site")]
 
+        file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
         dst_path_and_filename = file.upload(src_path_and_filename)
         assert dst_path_and_filename == os.path.join(shared_datadir, kioskstdlib.get_filename(src_path_and_filename)[:2],
                                                      kioskstdlib.get_filename(src_path_and_filename))
@@ -490,7 +510,8 @@ class TestKioskContextualFile(KioskPyTestHelper):
         result = file._get_file_location_and_uuid("test_site")
         assert result[0] == 'site'
 
-    def test__get_insert_context_sql(self, db_files_initialized, urapdb_with_records, shared_datadir):
+    def test__get_insert_context_sql(self, db_files_initialized, urapdb_with_records, shared_datadir,
+                                     mock_kiosk_time_zones):
         sync = Synchronization()
         file_repos = FileRepository(SyncConfig.get_config())
         assert sync and file_repos
@@ -503,29 +524,36 @@ class TestKioskContextualFile(KioskPyTestHelper):
         src_path_and_filename = os.path.join(shared_datadir, "new_files", "c377be85-fa86-4772-ae30-3c0485ce1504.jpg")
         file = KioskContextualFile(uid, cache_manager,
                                    file_repos, sync.type_repository, plugin_loader=sync, test_mode=True)
+        file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
 
         sql, params = file._get_insert_context_sql("dayplan", "uid_image", "c109e19c-c73c-cc49-9f58-4ba0a3ad1339",
                                                    "unit")
         assert params[0] == 'c377be85-fa86-4772-ae30-3c0485ce1504'
-        assert isinstance(params[1], datetime.datetime)
-        assert isinstance(params[2], datetime.datetime)
-        assert params[3] == 'sys'
-        assert params[4] == 'c109e19c-c73c-cc49-9f58-4ba0a3ad1339'
-        assert sql == 'insert into "dayplan" ("uid_image","created","modified","modified_by","uid_unit") ' \
-                      'values(%s,%s,%s,%s,%s)'
+        assert isinstance(params[1], datetime.datetime) # created
+        assert isinstance(params[2], datetime.datetime) # modified
+        assert isinstance(params[3], int) # modified_ww
+        assert isinstance(params[4], datetime.datetime) # modified_ww
+        assert params[5] == 'sys'
+        assert params[6] == 'c109e19c-c73c-cc49-9f58-4ba0a3ad1339'
+        assert sql == 'insert into "dayplan" ("uid_image","created","modified","modified_tz","modified_ww",' \
+                      '"modified_by","uid_unit") ' \
+                      'values(%s,%s,%s,%s,%s,%s,%s)'
 
         file.modified_by = "lkh"
         sql, params = file._get_insert_context_sql("dayplan", "uid_image", "c109e19c-c73c-cc49-9f58-4ba0a3ad1339",
                                                    "unit")
         assert params[0] == 'c377be85-fa86-4772-ae30-3c0485ce1504'
-        assert isinstance(params[1], datetime.datetime)
-        assert isinstance(params[2], datetime.datetime)
-        assert params[3] == 'lkh'
-        assert params[4] == 'c109e19c-c73c-cc49-9f58-4ba0a3ad1339'
-        assert sql == 'insert into "dayplan" ("uid_image","created","modified","modified_by","uid_unit") ' \
-                      'values(%s,%s,%s,%s,%s)'
+        assert isinstance(params[1], datetime.datetime) # created
+        assert isinstance(params[2], datetime.datetime) # modified
+        assert isinstance(params[3], int) # modified_ww
+        assert isinstance(params[4], datetime.datetime) # modified_ww
+        assert params[5] == 'lkh'
+        assert params[6] == 'c109e19c-c73c-cc49-9f58-4ba0a3ad1339'
+        assert sql == 'insert into "dayplan" ("uid_image","created","modified","modified_tz","modified_ww",' \
+                      '"modified_by","uid_unit") ' \
+                      'values(%s,%s,%s,%s,%s,%s,%s)'
 
-    def test__push_context(self, db_files_initialized, urapdb_with_records, shared_datadir):
+    def test__push_context(self, db_files_initialized, urapdb_with_records, shared_datadir, mock_kiosk_time_zones):
         sync = Synchronization()
         file_repos = FileRepository(SyncConfig.get_config())
         assert sync and file_repos
@@ -545,6 +573,7 @@ class TestKioskContextualFile(KioskPyTestHelper):
 
         cur = KioskSQLDb.get_dict_cursor()
         try:
+            file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
             assert file._push_context(("FA", ""), cur)
         finally:
             cur.close()
@@ -566,7 +595,7 @@ class TestKioskContextualFile(KioskPyTestHelper):
         # finally:
         #     cur.close()
 
-    def test_push_contexts(self, db_files_initialized, urapdb_with_records, shared_datadir):
+    def test_push_contexts(self, db_files_initialized, urapdb_with_records, shared_datadir, mock_kiosk_time_zones):
         sync = Synchronization()
         file_repos = FileRepository(SyncConfig.get_config())
         assert sync and file_repos
@@ -586,6 +615,7 @@ class TestKioskContextualFile(KioskPyTestHelper):
 
         file.contexts.add_context("FA")
         file.contexts.add_context("CC-001")
+        file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
         assert file.push_contexts(False)
 
         assert KioskSQLDb.get_field_value("dayplan", "uid_image",

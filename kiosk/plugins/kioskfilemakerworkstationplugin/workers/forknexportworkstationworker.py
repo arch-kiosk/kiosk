@@ -1,8 +1,8 @@
 import logging
+import kioskglobals
 
 from kioskresult import KioskResult
 from mcpinterface.mcpjob import MCPJobStatus
-from plugins.kioskfilemakerworkstationplugin import KioskFileMakerWorkstation
 from plugins.syncmanagerplugin.workstationmanagerworker import WorkstationManagerWorker
 from synchronization import Synchronization
 
@@ -66,18 +66,21 @@ class ForkNExportWorkstationWorker(WorkstationManagerWorker):
         def fork_n_export():
             try:
                 logging.debug("ForkNExport Worker starts")
+                name = "?"
                 self.init_dsd()
                 sync = Synchronization()
-                ws = KioskFileMakerWorkstation(ws_id, sync=sync)
-                ws.load_workstation()
-                name = ws.description
                 self.report_fork_progress({"progress": 0, "message": "forking..."})
+                ws = self.init_dock(ws_id, sync, kioskglobals.kiosk_time_zones)
+                # if ws:
+                # ws = KioskFileMakerWorkstation(ws_id, sync=sync)
+                # ws.load_workstation()
                 # self.report_export_progress({"progress": 0, "message": "export to filemaker"})
                 if ws:
-                    try:
-                        user = self.get_kiosk_user()
-                    except BaseException as e:
-                        raise Exception(f" When initializing user {repr(e)}")
+                    name = ws.description
+                    # try:
+                    #     user = self.get_kiosk_user()
+                    # except BaseException as e:
+                    #     raise Exception(f" When initializing user {repr(e)}")
 
                     ws.reset_download_upload_status()
                     rc = ws.sync_ws.transition("FORK", param_callback_progress=self.report_fork_progress)

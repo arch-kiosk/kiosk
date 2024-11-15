@@ -7,6 +7,7 @@ from filehandlingsets import FileHandlingSet
 from kioskrepositorytypes import TYPE_KIOSK_WORKSTATION
 from synchronization import Synchronization
 from kiosksqldb import KioskSQLDb
+from tz.kiosktimezoneinstance import KioskTimeZoneInstance
 
 
 class KioskWorkstation:
@@ -78,7 +79,7 @@ class KioskWorkstation:
     def icon_code(self):
         raise NotImplementedError
 
-    def load_workstation(self) -> bool:
+    def load_workstation(self, current_tz: KioskTimeZoneInstance = None) -> bool:
         raise NotImplementedError
 
     def after_synchronization(self) -> bool:

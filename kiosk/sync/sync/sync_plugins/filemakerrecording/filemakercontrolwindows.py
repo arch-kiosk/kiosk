@@ -1,19 +1,24 @@
+# todo time zone simpliciation
 import datetime
 import logging
 import ntpath
 import time
 import winreg
+from datetime import tzinfo
 from os import path
 # import yappi
 from timeit import default_timer as timer
+from typing import List
 
 import pyodbc
 import pythoncom
 
+import kioskdatetimelib
 import kioskstdlib
 from dsd.dsd3 import DataSetDefinition, KEY_TABLE_FLAG_EXPORT_DONT_TRUNCATE
 from sync_config import SyncConfig
 from kioskstdlib import report_progress
+from tz.kiosktimezoneinstance import KioskTimeZoneInstance
 from .filemakercontrol import FileMakerControl
 
 
@@ -346,16 +351,45 @@ class FileMakerControlWindows(FileMakerControl):
         self._quit_fm_db()
         return None
 
-    def count_images_modified_recently(self):
+    def get_current_time_stamp_in_user_tz(self) -> datetime:
+        """
+        get a current time stamp in terms of the time zone that is being used for "modified" fields in this FileMaker Db.
+        :return: datetime without tz_info
+        """
+        user_tz = self.get_constant("user_iana_time_zone")
+        if not user_tz:
+            raise Exception(f"{self.__class__.__name__}.get_current_time_stamp_in_user_tz: "
+                            f"Can't get user_iana_time_zone from database")
+        return kioskdatetimelib.utc_ts_to_timezone_ts(kioskdatetimelib.get_utc_now(), user_tz, replace_ms=True)
+
+    @staticmethod
+    def get_filemaker_timestamp_str(ts: datetime.datetime):
+        """
+        creates a filemaker timestamp in the format "TIMESTAMP YYYY-MM-DD HH:MM:SS"
+        :return: timestamp in the format "TIMESTAMP YYYY-MM-DD HH:MM:SS"
+        """
+        ts = ts.replace(tzinfo=None, microsecond=0)
+        return f"TIMESTAMP '{ts.isoformat(sep=' ')}'"
+
+    def count_images_modified_recently(self, current_timestamp: datetime.datetime=None):
         """
         This checks how many records in the images table have been modified within the last 5 minutes
-        :return: the count
+        # todo: time zone
+        :param current_timestamp: a time stamp in the user time zone that is being used in this FileMaker Db.
+                                    leave empty to have it fetched from the db first.
+        :return: the number of images that have been modified in the last 5 minutes
         """
         result = -1
+        if not current_timestamp:
+            current_timestamp = self.get_current_time_stamp_in_user_tz()
+        current_ts_fm = self.get_filemaker_timestamp_str(current_timestamp)
         cur = self.cnxn.cursor()
+
         try:
-            cur.execute("select count(uid) from images where hour(CURTIMESTAMP - modified) = 0 and "
-                        "minute(CURTIMESTAMP - modified) < 5 ")
+            sql = (f"{'select'} count(uid) from images where hour({current_ts_fm} - modified) = 0 and "
+                   f"minute({current_ts_fm} - modified) < 5 ")
+
+            cur.execute(sql)
             result = cur.fetchone()[0]
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.count_images_modified_recently : {repr(e)}")
@@ -417,18 +451,20 @@ class FileMakerControlWindows(FileMakerControl):
             pass
         return rc
 
-    def check_is_table_already_up_to_date(self, tablename, latest_record_data):
+    def check_is_table_already_up_to_date(self, tablename, latest_record_data,
+                                          current_tz: KioskTimeZoneInstance = None):
         fm_cur = None
         try:
             fm_cur = self.cnxn.cursor()
-            return self._is_table_already_up_to_date(tablename, fm_cur, latest_record_data[0],
-                                                     latest_record_data[1], latest_record_data[2])
+            return self._is_table_already_up_to_date(tablename, fm_cur, latest_record_data[0], latest_record_data[1],
+                                                     latest_record_data[2], current_tz=current_tz)
         finally:
             if fm_cur:
                 fm_cur.close()
 
     def transfer_table_data_to_filemaker(self, db_cur, dsd: DataSetDefinition, tablename,
-                                         fieldlist=[], dest_tablename="", latest_record_data=None):
+                                         fieldlist=None, dest_tablename="", latest_record_data=None,
+                                         current_tz: KioskTimeZoneInstance = None):
         """ Transfers data from a table in an open odbc database to the same table in the filemaker database
             wants an open odbc database as source in db_cur, a DataSetDefinition that defines the columns to copy and
             the name of the table to copy. \n
@@ -441,36 +477,53 @@ class FileMakerControlWindows(FileMakerControl):
 
             returns True or False.
 
+            :param db_cur: open postgres cursor
             :param dsd: the dsd from which to look up the table structure. Can be None, in which case "fieldlist" must
-                        provide the table structure.
+                        provide the table structure. _tz fields will automatically be omitted from the structure.
+            :param tablename: (source) table name. The dsd table name of the source. required.
             :param fieldlist: if fieldlist is given, the table structure will not be retrieved from the dsd.
-            :param latest_record_data: a tuple: (modified_field_name, max_modified_by, record_count). If set the whole
-                transfer will only happen if the most recent value of the modified_field_name (usually "modified") is
-                different between the src and dest or if the number of records differs between the two tables. If Null,
-                the transfer will always proceed.
+                              Note that in this case the caller has to care about removing _tz fields from the list.
+                              Note also that all datetime fields are located in timezone "r"
+            :param dest_tablename: only if different from the source table name
+            :param latest_record_data: a tuple: (modified_field_name, max_modified_by, record_count).
+                                       If set the whole transfer will only happen if the most recent value of
+                                       the modified_field_name (usually "modified") is
+                                       different between the src and dest or if the number of records differs
+                                       between the two tables. If Null, the transfer will always proceed.
+            :param current_tz: required current time zone information to user for FileMaker
             :return: 0: method did not succeed
                      1: data was transferred successfully
                      2: data did not need to be transferred: Table was already up to date
-            :todo: refactor: It is a bit longish.
+            :raises nothing in particular but can let a few Exceptions through
+
+            :todo: refactor It is a bit longish.
+            :todo: test
         """
 
         # yappi.start()
+        assert tablename, f"obsolete: transfer_table_data_to_filemaker needs a table name (dest table {dest_tablename})"
+        assert dsd, f"obsolete: transfer_table_data_to_filemaker needs dsd information (table {tablename})"
+        assert current_tz, f"obsolete: transfer_table_data_to_filemaker needs a current_tz parameter (table {tablename})"
 
-        varchar_fields = []
+        if not fieldlist:
+            fieldlist = []
+
         if not dest_tablename:
             dest_tablename = tablename
+
         fm_sql_insert = ""
+        fm_sql_delete = ""
+        key_field = ""
         params = ""
-        if dsd:
-            truncate = not dsd.table_has_meta_flag(tablename, KEY_TABLE_FLAG_EXPORT_DONT_TRUNCATE)
-        else:
-            truncate = True
+
+        truncate = not dsd.table_has_meta_flag(tablename, KEY_TABLE_FLAG_EXPORT_DONT_TRUNCATE)
 
         try:
             fm_cur = self.cnxn.cursor()
             if latest_record_data:
                 if self._is_table_already_up_to_date(dest_tablename, fm_cur, latest_record_data[0],
-                                                     latest_record_data[1], latest_record_data[2]):
+                                                     latest_record_data[1], latest_record_data[2],
+                                                     current_tz=current_tz):
                     fm_cur.close()
                     return 2
                 logging.debug(f"{self.__class__.__name__}.transfer_table_data_to_filemaker:"
@@ -500,28 +553,44 @@ class FileMakerControlWindows(FileMakerControl):
             fm_sql_insert = 'INSERT INTO ' + dest_tablename + '('
             fm_sql_insert_values = ""
             comma = ""
+
             if not fieldlist:
-                fieldlist = dsd.list_fields(tablename)
+                # remove _tz fields as they are not to be transported to FileMaker
+                fieldlist = [f for f in dsd.list_fields(tablename) if dsd.get_field_datatype(tablename, f) != "tz"]
+
+            varchar_fields = []
+            timestamptz_fields = []
+
+            # modified_fields = dsd.list_fields_with_instruction(tablename, "replfield_modified")
+            # modified_field_name = modified_fields[0] if modified_fields else ""
+            modified_field_name = dsd.get_modified_field(tablename)
+            # if modified_field_name:
+            #     fieldlist.append(f"{modified_field_name}_ww")
 
             for f in fieldlist:
                 fm_sql_insert = fm_sql_insert + comma + '"' + f + '"'
                 fm_sql_insert_values = fm_sql_insert_values + comma + "?"
                 comma = ", "
-                if dsd and dsd.get_field_datatype(tablename, f).upper() in ["VARCHAR", "TEXT"]:
+                field_data_type = dsd.get_field_datatype(tablename, f)
+                if field_data_type in ["varchar", "text"] or \
+                        (tablename == "fm_repldata_transfer" and f == "modified_by"):  # todo: That looks hacky. Why the direct reference to "modified_by"?
                     varchar_fields.append(f)
                 else:
-                    if tablename == "fm_repldata_transfer" and f == "modified_by":
-                        varchar_fields.append(f)
+                    if field_data_type == "timestamptz":
+                        timestamptz_fields.append(f)
 
             fm_sql_insert = fm_sql_insert + ") VALUES(" + fm_sql_insert_values + ")"
-
-            row = db_cur.fetchone()
 
             r_count = 1
             max_time_elapsed = 0
             sum_time = 0
             average = 0
             # culprits = []
+            c_ts_values = 0
+            c_ts_to_u = 0
+            c_ts_to_tz = 0
+
+            row = db_cur.fetchone()
             while row:
                 if not truncate:
                     # in this case every single record has to be deleted first.
@@ -530,14 +599,50 @@ class FileMakerControlWindows(FileMakerControl):
 
                 params = []
                 for f in fieldlist:
-                    field_value = row[f]
-                    # noinspection PyComparisonWithNone
-                    if field_value is not None and f in varchar_fields:
-                        field_value = self._handle_gobbledygook(dsd, f, field_value, row, tablename)
+                    try:
+                        # the modified_ww value is either taken straight from the record or
+                        # created from modified and modified_tz if exists or defaults on modified
+                        if f == f"{modified_field_name}_ww":
+                            field_value = row[f]
+                            if not field_value:
+                                modified_value = row["modified"]
+                                modified_tz_value = row["modified_tz"]
+                                field_value = current_tz.utc_dt_to_tz_dt(modified_value, modified_tz_value,drop_ms=True) \
+                                    if modified_tz_value else modified_value
+                        else:
+                            field_value = row[f]
+                            if field_value is not None:
+                                if f in varchar_fields:
+                                    field_value = self._handle_gobbledygook(f, field_value, row, tablename)
+                                elif f in timestamptz_fields or f == modified_field_name:
+                                    c_ts_values += 1
+                                    tz_value = row[f + "_tz"] if f + "_tz" in row else None
+                                    if tz_value:
+                                        # only the repl_modified field is always converted into user time zone
+                                        # and expected back from FileMaker in user time zone
+                                        if f == modified_field_name:
+                                            field_value = current_tz.utc_dt_to_user_dt(field_value)
+                                            c_ts_to_u += 1
+                                        else:
+                                            # timestamp in its originally recorded time zone
+                                            field_value = current_tz.utc_dt_to_tz_dt(field_value, tz_value)
+                                            c_ts_to_tz += 1
+                    except BaseException as e:
+                        logging.error(f"{self.__class__.__name__}.transfer_table_data_to_filemaker: "
+                                      f"Exception when processing field {f}...")
+                        raise e
+
                     params.append(field_value)
 
                 start = timer()
-                fm_cur.execute(fm_sql_insert, params)
+                success = False
+                try:
+                    fm_cur.execute(fm_sql_insert, params)
+                    success = True
+                except BaseException as e:
+                    logging.error(f"{self.__class__.__name__}.transfer_table_data_to_filemaker: {repr(e)}")
+                    raise Exception(f"Error when transferring record {row['uid'] if 'uid' in row else '?'} "
+                                    f"from {tablename} to {dest_tablename}")
                 end = timer()
                 r_count = r_count + 1
                 time_elapsed = end - start
@@ -550,27 +655,26 @@ class FileMakerControlWindows(FileMakerControl):
                 average = sum_time / r_count
                 row = db_cur.fetchone()
 
+
             logging.info(f"About to commit {str(r_count - 1)} lines in {dest_tablename}")
             self.cnxn.commit()
             logging.info(f"Copied {str(r_count - 1)} lines from {tablename} to filemaker: {dest_tablename}")
-            logging.info(f"sum_time is {sum_time}. max_time_elapsed is {max_time_elapsed}. "
+            logging.debug(f"sum_time is {sum_time}. max_time_elapsed is {max_time_elapsed}. "
                          f"Average is {sum_time / r_count} ")
-            # with open(f"{tablename}_times.dmp", "w") as fp:
-            #     json.dump(culprits, fp)
-
-            # func_stats = yappi.get_func_stats()
-            # func_stats.save(f"transfer_table_data_to_filemaker_"
-            #                 f"{kioskstdlib.get_valid_filename(datetime.datetime.now().isoformat())}.out", "CALLGRIND")
-            # yappi.stop()
-            # yappi.clear_stats()
+            logging.debug(f"{self.__class__.__name__}.transfer_table_data_to_filemaker: "
+                         f"Converted {str(c_ts_to_u)} of {str(c_ts_values)} timestamps "
+                         f"to user time zone {current_tz.user_tz_iana_name}")
+            logging.info(f"{self.__class__.__name__}.transfer_table_data_to_filemaker: "
+                         f"Converted {str(c_ts_to_tz)} of {str(c_ts_values)} timestamptz fields "
+                         f"to the recorded time zone. Using timestamptz fields is rather experimental.")
 
             return 1
         except BaseException as e:
-            logging.error(f"'{e.__class__.__name__}' occurred in transfer_table_data_to_filemaker")
-            # logging.error(f"Error in transfer_table_data_to_filemaker: {repr(e)}")
+            logging.error(f"{self.__class__.__name__}.transfer_table_data_to_filemaker: "
+                          f"Exception {e.__class__.__name__} occurred: {repr(e)}")
+            logging.info(f"The last sql was: {fm_sql_insert} with params {params}")
             for s in e.args:
                 logging.error(f"Error details: {s}")
-            logging.error(f"sql was: {fm_sql_insert} with params {params}")
             try:
                 self.cnxn.commit()
             except:
@@ -580,97 +684,300 @@ class FileMakerControlWindows(FileMakerControl):
             except:
                 pass
 
-        # func_stats = yappi.get_func_stats()
-        # func_stats.save(f"transfer_table_data_to_filemaker_"
-        #                 f"{kioskstdlib.get_valid_filename(datetime.datetime.now().isoformat())}.out", "CALLGRIND")
-        # yappi.stop()
-        # yappi.clear_stats()
+        return 0
+
+    def transfer_non_dsd_table_data_to_filemaker(self, db_cur,
+                                                 fieldlist: dict, dest_tablename="", latest_record_data=None,
+                                                 current_tz: KioskTimeZoneInstance = None,
+                                                 truncate=True,
+                                                 delete_key_field=""):
+        """ Transfers data from a table in an open odbc database to the same table in the filemaker database
+            wants an open odbc database as source in db_cur, a DataSetDefinition that defines the columns to copy and
+            the name of the table to copy. \n
+
+            As an alternative to the DataSetDefinition, a list with fieldnames can be supplied.
+            The odbc database and the filemaker database need to be open. \n
+
+            if no dsd is provided the target table will always be truncated. Otherwise the dsd table flag
+            EXPORT_DONT_TRUNCATE can prevent this.
+
+            returns True or False.
+
+            :param db_cur: open postgres cursor
+            :param fieldlist: required. A dictionary with fields as keys and a tuple as value.
+                                        the field tuple consists of
+                                        [0] data type: a dsd data type,
+                                        [1] "true" if this is the replfield_modified field of the table
+            :param dest_tablename: required. The table name
+            :param latest_record_data: a tuple: (modified_field_name, max_modified_by, record_count).
+                                       If set the whole transfer will only happen if the most recent value of
+                                       the modified_field_name (usually "modified") is
+                                       different between the src and dest or if the number of records differs
+                                       between the two tables. If Null, the transfer will always proceed.
+                                       Note: The latest_record_data is in UTC time zone.
+            :param current_tz: required current time zone information to user for FileMaker
+            :param truncate: optional default True.
+                             if False every single record is deleted with a delete statement first.
+                             Needs the delete_key_field.
+            :param delete_key_field: required IF truncate is False. The field that is the key field for the table.
+                                     Usually "uid"
+            :return: 0: method did not succeed
+                     1: data was transferred successfully
+                     2: data did not need to be transferred: Table was already up to date
+            :raises nothing in particular but can let a few Exceptions through
+
+            :todo: refactor It is a bit longish.
+            :todo: test
+        """
+
+        # yappi.start()
+        assert dest_tablename, f"transfer_non_dsd_table_data_to_filemaker needs a dest_tablename parameter."
+        assert isinstance(fieldlist, dict), "transfer_non_dsd_table_data_to_filemaker " \
+                                            "needs a fieldlist parameter of type dictionary." \
+                                            f" (table {dest_tablename})"
+        assert current_tz, (f"obsolete: transfer_non_dsd_table_data_to_filemaker needs a current_tz parameter"
+                            f" (table {dest_tablename})")
+
+        fm_sql_insert = ""
+        fm_sql_delete = ""
+        params = ""
+
+        try:
+            fm_cur = self.cnxn.cursor()
+            if latest_record_data:
+                if self._is_table_already_up_to_date(dest_tablename, fm_cur, latest_record_data[0],
+                                                     latest_record_data[1], latest_record_data[2],
+                                                     current_tz=current_tz):
+                    fm_cur.close()
+                    return 2
+                logging.debug(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker:"
+                              f"table {dest_tablename} gets updated.")
+            else:
+                logging.debug(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker:"
+                              f"table {dest_tablename} always gets updated.")
+
+            if truncate:
+                logging.debug(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
+                              f"truncating {dest_tablename}")
+                fm_sql_truncate = "TRUNCATE TABLE " + dest_tablename
+                fm_cur.execute(fm_sql_truncate)
+                self.cnxn.commit()
+            else:
+                if not delete_key_field:
+                    raise Exception(f"table {dest_tablename} is not supposed to be truncated but "
+                                    f"no key field for deletion is given")
+                else:
+                    logging.debug(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
+                                  f"table {dest_tablename} will not be truncated ")
+                    fm_sql_delete = f'DELETE FROM \"{dest_tablename}\" WHERE upper(\"{delete_key_field}\")=upper(\'%s\')'
+
+            logging.debug(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
+                          f"about to insert into {dest_tablename}")
+            fm_sql_insert = 'INSERT INTO ' + dest_tablename + '('
+            fm_sql_insert_values = ""
+            comma = ""
+
+            varchar_fields = []
+            timestamptz_fields = []
+            modified_field_name = ""
+
+            # get rid of tz fields
+            for tz_f in [f for f, f_info in fieldlist.items() if f_info[0].lower() == "tz"]:
+                fieldlist.pop(tz_f)
+
+            for f, f_info in fieldlist.items():
+                fm_sql_insert = fm_sql_insert + comma + '"' + f + '"'
+                fm_sql_insert_values = fm_sql_insert_values + comma + "?"
+                comma = ", "
+                field_data_type = f_info[0].lower()
+                if field_data_type in ["varchar", "text"]:
+                    varchar_fields.append(f)
+                else:
+                    if f_info[1]:
+                        modified_field_name = f
+                    if dest_tablename == "fm_repldata_transfer" and f == "modified_by":
+                        varchar_fields.append(f)
+                    if field_data_type == "timestamptz":
+                        timestamptz_fields.append(f)  # = dsd.get_tz_type_for_field(tablename, f) if dsd else ""
+
+            fm_sql_insert = fm_sql_insert + ") VALUES(" + fm_sql_insert_values + ")"
+
+            row = db_cur.fetchone()
+
+            r_count = 1
+            max_time_elapsed = 0
+            sum_time = 0
+            # average = 0
+            # culprits = []
+            c_ts_values = 0
+            c_ts_to_u = 0
+            c_ts_to_tz = 0
+            while row:
+                if not truncate:
+                    # in this case every single record has to be deleted first.
+                    sql = fm_sql_delete % row[delete_key_field]
+                    fm_cur.execute(sql)
+
+                params = []
+                for f in fieldlist.keys():
+                    try:
+                        field_value = row[f]
+                        if field_value is not None:
+                            if f in varchar_fields:
+                                field_value = self._handle_gobbledygook(f, field_value, row, dest_tablename)
+                            elif f in timestamptz_fields or f == modified_field_name:
+                                c_ts_values += 1
+                                tz_value = row[f + "_tz"] if f + "_tz" in row else None
+                                if tz_value:
+                                    # only the repl_modified field is always converted into user time zone
+                                    # and expected back from FileMaker in user time zone
+                                    if f == modified_field_name:
+                                        field_value = current_tz.utc_dt_to_user_dt(field_value)
+                                        c_ts_to_u += 1
+                                    else:
+                                        # timestamp in its originally recorded time zone
+                                        field_value = current_tz.utc_dt_to_tz_dt(field_value, tz_value)
+                                        c_ts_to_tz += 1
+                    except BaseException as e:
+                        logging.error(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
+                                      f"Exception when processing field '{f}'...")
+                        raise e
+
+                    params.append(field_value)
+
+                start = timer()
+                try:
+                    fm_cur.execute(fm_sql_insert, params)
+                except BaseException as e:
+                    logging.error(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: {repr(e)}")
+                end = timer()
+                r_count = r_count + 1
+                time_elapsed = end - start
+                sum_time = sum_time + time_elapsed
+                # if time_elapsed > 0.06:
+                #     if "uid" in row:
+                #         culprits.append((row["uid"], time_elapsed))
+                if time_elapsed > max_time_elapsed:
+                    max_time_elapsed = time_elapsed
+                # average = sum_time / r_count
+                row = db_cur.fetchone()
+
+            logging.info(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
+                         f"About to commit {str(r_count - 1)} lines in {dest_tablename}")
+            self.cnxn.commit()
+            logging.info(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
+                         f"Copied {str(r_count - 1)} lines from {dest_tablename} to filemaker: {dest_tablename}")
+            logging.debug(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
+                         f"sum_time is {sum_time}. max_time_elapsed is {max_time_elapsed}. "
+                         f"Average is {sum_time / r_count} ")
+            logging.debug(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
+                         f"Converted {str(c_ts_to_u)} of {str(c_ts_values)} timestamps "
+                         f"to user time zone {current_tz.user_tz_iana_name}")
+            logging.info(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
+                         f"Converted {str(c_ts_to_tz)} of {str(c_ts_values)} timestamptz fields "
+                         f"to the recorded time zone. Using timestamptz fields is rather experimental.")
+
+            return 1
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
+                          f"Exception {e.__class__.__name__} occurred: {repr(e)}")
+            logging.info(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
+                         f"The last sql was: {fm_sql_insert} with params {params}")
+            for s in e.args:
+                logging.error(f"Error details: {s}")
+            try:
+                self.cnxn.commit()
+            except:
+                pass
+            try:
+                fm_cur.close()
+            except:
+                pass
 
         return 0
 
     def _is_table_already_up_to_date(self, dest_tablename, fm_cur, modified_field_name,
-                                     max_modified, record_count):
+                                     max_modified, record_count, current_tz: KioskTimeZoneInstance = None):
         """
 
         This checks if the most recent value of the modified_field_name
         (usually "modified") equals the given max_modified
         and if the number of records equals the given record_count.
 
-        :param dest_tablename: the destination table, where records are about to be copied to
-        :param fm_cur: a cursor to the filemaker database
-        :param max_modified: this is the value max(modified_field_name) needs to meet
-        :param record_count: this is the value count(modified_field_name) needs to meet
+        :param dest_tablename the destination table, where records are about to be copied to
+        :param fm_cur a cursor to the filemaker database
+        :param modified_field_name : this is the name of the modified field in the dest_table
+        :param max_modified this is the timestamp value max(modified_field_name) needs to meet.
+                It is either in user time zone or a legacy time stamp
+        :param record_count this is the value count(modified_field_name) needs to meet
+        :param current_tz - required time zone info to be used for the FileMaker database
         :return: True if the dest table fulfills the requirements.
         """
+        # todo: test
+
+        assert current_tz
         rc = False
+
         modified_field = modified_field_name
         if modified_field:
             fm_cur = fm_cur.execute(f"select max(\"{modified_field}\") \"max_modified\", "
                                     f"count(\"{modified_field}\") \"c\" from \"{dest_tablename}\"")
             fm_record = fm_cur.fetchone()
+            if not fm_record:
+                raise Exception("Can't read from FileMaker cursor")
+
+            # time zone: The max_modified from postgres is always in user time zone (or a legacy date, which counts as the same here),
+            #  so the FM max modified needs NO conversion
+            #  what if user time zone has changed since the last export?
+            #  That leads to a different template, so we can be sure that the dates we find in the modified field
+            #  have been transformed to the same user time zone as the current user time zone
+
+
+            pg_utc_dt: datetime.datetime = max_modified   # this is either utc or a legacy time stamp
+            fm_utc_dt: datetime.datetime = fm_record[0]   # this is user time zone
+
             logging.debug(f"{self.__class__.__name__}._is_table_already_up_to_date: "
-                          f"{dest_tablename}: max_modified={fm_record[0]}, count={fm_record[1]}")
-            d1: datetime.datetime = fm_record[0]
-            d2: datetime.datetime = max_modified
-            if not d1 and not d2:
+                          f"FM {dest_tablename}: max_modified={fm_record[0]}, count={fm_record[1]}")
+
+            if not fm_utc_dt and not pg_utc_dt:
                 logging.info(f"{self.__class__.__name__}._is_table_already_up_to_date: "
                              f"Skipped {dest_tablename}: No records, so there is nothing to do.")
                 return True
 
             # need to get rid of microseconds
-            if d1:
-                d1 = datetime.datetime(d1.year, d1.month, d1.day, d1.hour, d1.minute, d1.second, 0)
-            if d2:
-                d2 = datetime.datetime(d2.year, d2.month, d2.day, d2.hour, d2.minute, d2.second, 0)
+            if fm_utc_dt:
+                fm_utc_dt = fm_utc_dt.replace(microsecond=0)
+                # fm_utc_dt = datetime.datetime(fm_utc_dt.year, fm_utc_dt.month, fm_utc_dt.day, fm_utc_dt.hour,
+                #                               fm_utc_dt.minute, fm_utc_dt.second, 0)
+            if pg_utc_dt:
+                pg_utc_dt = pg_utc_dt.replace(microsecond=0)
+                # pg_utc_dt = datetime.datetime(pg_utc_dt.year, pg_utc_dt.month, pg_utc_dt.day, pg_utc_dt.hour,
+                #                               pg_utc_dt.minute, pg_utc_dt.second, 0)
 
-            if d1 == d2 and fm_record[1] == record_count:
+            if fm_utc_dt == pg_utc_dt and fm_record[1] == record_count:
                 logging.info(f"{self.__class__.__name__}._is_table_already_up_to_date: "
                              f"Skipped {dest_tablename}: Nothing to do.")
                 rc = True
             else:
                 logging.debug(f"{self.__class__.__name__}._is_table_already_up_to_date: "
-                              f"{dest_tablename} needs an update: {d1} <> {d2}")
+                              f"{dest_tablename} needs an update: {fm_utc_dt} <> {pg_utc_dt}")
         return rc
 
-    def _handle_gobbledygook(self, dsd, f, field_value, row, tablename):
+    def _handle_gobbledygook(self, f, field_value, row, tablename):
         #  strange phenomenon in filemaker in the vm only: Instead of ""
         #  some gobbledygook is put into empty VARCHAR fields
         #  The following code filters it out but it is awful and I need to
         #  find a better solution or do away with the phenomenon itself
         #  one day
-        # field_type = ""
-        #   if dsd:
-        #     field_type = dsd.get_dsd_field_type(tablename, f).upper()
-        #     if field_type == "VARCHAR":
-        #         if tablename == "images":
-        #             if row["uid"] == "aa442f65-db33-4f75-baeb-db8831d23d85" and f == "description":
-        #                 s = field_value
-        #                 logging.debug("images.uid aa442f65-db33-4f75-baeb-db8831d23d85 found:")
-        #                 logging.debug("description is '{}'".format(s.encode("utf-8")))
-        #                 logging.debug("len of description is {}".format(len(s)))
-        #
-        #             if row["uid"] == "d63cfa8e-c670-471d-8fd7-330bde4c3015" and f.strip() == "modified_by":
-        #                 s = field_value
-        #                 logging.debug("images.uid d63cfa8e-c670-471d-8fd7-330bde4c3015 found:")
-        #                 logging.debug("modified_by is '{}'".format(s.encode("utf-8")))
-        #                 logging.debug("len of modified_by is {}".format(len(s)))
-        # else:
-        #     if tablename == "fm_repldata_transfer" and f == "modified_by":
-        #         field_type = "VARCHAR"
 
-        # if field_type == "VARCHAR" and field_value != None:
         if field_value.strip() == "":
             field_value = None
         else:
             if field_value.strip().encode("utf-8")[:3] == b'\xe6\xb0\x80':
                 field_value = None
-                logging.warning("FileMakerControlWindows.transfer_table_data_to_filemaker: "
+                logging.warning(f"{self.__class__.__name__}._handle_gobbledygook: " +
                                 "Gobbledygook fix {}.{} of {} set to None".format(tablename, f, row["uid"]))
 
-            # if tablename == "fm_repldata_transfer":
-            # logging.warning("FileMakerControlWindows.transfer_table_data_to_filemaker: "
-            #                 "Gobbledygook fix {}.{} of {} set to None".format(tablename, f,
-            #
         return field_value
 
     def sync_internal_files_tables(self, files_table: str, columns_to_copy: [str]):
@@ -850,9 +1157,14 @@ class FileMakerControlWindows(FileMakerControl):
         try:
             sql_select = 'SELECT '
             comma = ""
-            for f in dsd.list_fields(tablename, version=version):
-                sql_select = sql_select + comma + '"' + f + '"'
-                comma = ", "
+            replfield_modified = dsd.get_modified_field(tablename)
+            modified_ww = f"{replfield_modified}_ww"
+            for f in dsd.omit_fields_by_datatype(tablename,
+                                                 dsd.list_fields(tablename, version=version),
+                                                 "tz"):
+                if f != modified_ww:
+                    sql_select = sql_select + comma + '"' + f + '"'
+                    comma = ", "
             sql_select = sql_select + ' FROM "' + tablename + '"'
             if import_filter:
                 sql_select += " WHERE " + import_filter
@@ -869,7 +1181,12 @@ class FileMakerControlWindows(FileMakerControl):
             raise Exception(f"Error in select_table_data for table {tablename}")
 
     def export_container_images(self, workstation, printdots, callback_progress=None):
-        """asks the filemaker database to unload all the images into the given path."""
+        """
+        asks the filemaker database to unload all the images into the given path.
+
+        todo time zone: Check if this still works when running on the server's FileMaker. The FM Code must only
+         use the dates like fork_time etc. from the constants and never now() or so!
+        """
         try:
             path = workstation.get_and_init_files_dir("import")
             kioskstdlib.remove_files_in_directory(path)
@@ -878,6 +1195,11 @@ class FileMakerControlWindows(FileMakerControl):
                           "Calling Filemaker 'ExportImages'")
             rc = self._start_fm_script_with_progress("ExportImages", "export_progress", 1, 240, True,
                                                      callback_progress=callback_progress)
+            if rc:
+                warnings = self.get_fm_script_warnings()
+                for w in warnings:
+                    logging.warning(f"{self.__class__.__name__}.export_container_images: {w}")
+
             return bool(rc != "")
 
         except Exception as e:
@@ -901,6 +1223,26 @@ class FileMakerControlWindows(FileMakerControl):
                                                    max_wait_cycles=max_wait_cycles,
                                                    printdots=printdots,
                                                    callback_progress=callback_progress)
+
+    def get_fm_script_warnings(self) -> List[str]:
+        """A FileMaker script can succeed but produce warnings.
+        This returns them as a list  """
+        rc = []
+        if self.cnxn:
+            if self.fm_doc:
+                cur = self.cnxn.cursor()
+                try:
+                    cur.execute('select "value" from "constants" where "id"=\'script_warnings\'')
+                    r = cur.fetchone()
+                    if r and r[0]:
+                        rc = list(filter(lambda x: bool(x), r[0].split("|")))
+                finally:
+                    try:
+                        cur.close()
+                    except BaseException as e:
+                        logging.debug(f"{self.__class__.__name__}.get_fm_script_warnings: {repr(e)}")
+
+        return rc
 
     def _start_fm_script_with_progress(self, script_name, progress_key, wait_seconds_per_step=1, max_wait_cycles=60,
                                        printdots=False, callback_progress=None):
@@ -933,6 +1275,15 @@ class FileMakerControlWindows(FileMakerControl):
                     self.cnxn.commit()
                 else:
                     cur.execute('UPDATE "constants" set "value"=\'\' where "id"=\'scriptresult\'')
+                    self.cnxn.commit()
+
+                cur.execute('select "value" from "constants" where "id"=\'script_warnings\'')
+                if not cur.fetchone():
+                    cur.execute('INSERT INTO "constants"("id", "value") VALUES(?, ?)', ["script_warnings", ""])
+                    logging.info("inserted scriptresult")
+                    self.cnxn.commit()
+                else:
+                    cur.execute('UPDATE "constants" set "value"=\'\' where "id"=\'script_warnings\'')
                     self.cnxn.commit()
 
                 self.fm_doc.DoFMScript(script_name)

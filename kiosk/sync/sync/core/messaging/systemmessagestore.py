@@ -1,6 +1,6 @@
 import datetime
 
-from typing import Dict, List
+from typing import List
 
 from .systemmessage import SystemMessage
 
@@ -31,9 +31,9 @@ class SystemMessageStore:
         if uid in self._messages:
             message: SystemMessage = self._messages[uid]
             if message.deleted:
-                return -1, message.utc_timestamp, message.modified
+                return -1, message.utc_timestamp, message.get_modified()
             else:
-                return 1, message.utc_timestamp, message.modified
+                return 1, message.utc_timestamp, message.get_modified()
         return 0, None, None
 
     def load(self):

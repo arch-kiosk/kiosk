@@ -18,7 +18,8 @@ class FileSequenceImport(FileImport):
 
     # SEQUENCE_SORT_OPTIONS = ["FILE_CREATION_TIME", "NUMERICAL_FILENAME"]
 
-    def __init__(self, cfg: SyncConfig, app, method="filesequence_import", user_config: UserConfig = None):
+    def __init__(self, cfg: SyncConfig, app, method="filesequence_import", user_config: UserConfig = None,
+                 tz_index = None):
         if method != "filesequence_import":
             raise Exception(f"{self.__class__.__name__}.__init__: "
                             f"Instantiation of FileSequenceImport with method {method} not possible. "
@@ -30,7 +31,7 @@ class FileSequenceImport(FileImport):
         self.use_exif_time = False
         self.image_manipulation_set = ""
 
-        super().__init__(cfg, app, method, user_config)
+        super().__init__(cfg, app, method, user_config,tz_index=tz_index)
         # print(self._config)
         self._initialize_filters()
 
@@ -46,6 +47,10 @@ class FileSequenceImport(FileImport):
             self.use_exif_time = self._config["use_exif_time"]
         if "image_manipulation_set" in self._config:
             self.image_manipulation_set = self._config["image_manipulation_set"]
+        if "time_zone_index" in self._config:
+            self.tz_index = self._config["time_zone_index"]
+        if "tz_index" in self._config:
+            self.tz_index = self._config["tz_index"]
 
     def _initialize_filters(self):
 
@@ -91,6 +96,7 @@ class FileSequenceImport(FileImport):
         values["sort_sequence_by"] = self.sort_sequence_by
         values["use_exif_time"] = self.use_exif_time
         values["image_manipulation_set"] = self.image_manipulation_set
+        values["user_time_zone_index"] = self.tz_index
         return values
 
     def form_to_config(self, form):
@@ -112,6 +118,9 @@ class FileSequenceImport(FileImport):
         if hasattr(form, "image_manipulation_set"):
             self.image_manipulation_set = form.image_manipulation_set.data
             self._config["image_manipulation_set"] = self.image_manipulation_set
+
+        if hasattr(form, "user_time_zone_index"):
+            self.tz_index = form.user_time_zone_index.data
 
         super().form_to_config(form)
 
@@ -137,6 +146,9 @@ class FileSequenceImport(FileImport):
         if "image_manipulation_set" in d:
             self.image_manipulation_set = d["image_manipulation_set"]
             self._config["image_manipulation_set"] = self.image_manipulation_set
+
+        if "user_time_zone_index" in d and d["user_time_zone_index"]:
+            self.tz_index = d["user_time_zone_index"]
 
     def check_more_import_requirements(self):
         return self.check_sequence_import_requirements()

@@ -237,4 +237,20 @@ function kioskSendAjaxForm(jq_bt_next, jq_outer_div, url, on_eval, on_failure, s
     }, state_data);
 }
 
+/**
+ * sets or replaces an element in a formdata array that was created via $.serializeArray
+ * @param formData the Array
+ * @param key the key
+ * @param value the value
+ */
+function setJSONFormData(formData, key, value) {
+  let f = formData.find(x => x.name === key)
+  if (f) {
+    f.value = value
+  } else {
+    formData.push({name: key, value: value})
+  }
+}
+
 //# sourceURL=kioskAjax.js
+

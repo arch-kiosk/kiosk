@@ -120,7 +120,7 @@ class FeatureWidget extends KioskAppComponent {
                         }
                     },
                     "target": {
-                        "field_or_instruction": "replfield_modified()"
+                        "field_or_instruction": "modified_ww()"
                     },
                     "additional_fields": {
                         // "id_uuid": {
@@ -128,7 +128,7 @@ class FeatureWidget extends KioskAppComponent {
                         //     "default": "",
                         // },
                         "modified_date": {
-                            "field_or_instruction": "replfield_modified()",
+                            "field_or_instruction": "modified_ww()",
                             "default": "",
                             "format": "datetime(date)"
                         },
@@ -138,7 +138,7 @@ class FeatureWidget extends KioskAppComponent {
                             "format": "dsd_type(varchar)"
                         },
                         "modified_timestamp": {
-                            "field_or_instruction": "replfield_modified()",
+                            "field_or_instruction": "modified_ww()",
                             "default": "",
                         },
                         "created": {

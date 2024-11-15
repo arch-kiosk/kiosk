@@ -20,6 +20,7 @@ from .kioskapifts import ApiFTS
 from .kioskapikioskquery import ApiKioskQuery
 from .kioskapilookup import ApiLookup
 from .kioskapilib import PublicApiInfo
+from .kioskapitz import ApiTimeZones, ApiFavouriteTimeZones
 
 
 def register_resources(api: KioskApi):
@@ -35,11 +36,14 @@ def register_resources(api: KioskApi):
     ApiFile.register(api)
     ApiResolution.register(api)
     ApiConstants.register(api)
+    ApiTimeZones.register(api)
+    ApiFavouriteTimeZones.register(api)
     ApiContexts.register(api)
     ApiContextsFull.register(api)
     ApiKioskQuery.register(api)
     ApiLookup.register(api)
     ApiFTS.register(api)
+
 
 
 class ApiPublic(Resource):
@@ -176,6 +180,7 @@ class ApiLogin(Resource):
             logging.info(f"ApiLogin.login/POST: Attempt to login by user {parameters['userid']}")
             user = KioskUser.authenticate(parameters['userid'], parameters['password'])
             if not user:
+                print("not authorized:", parameters)
                 return LoginError().dump({"err": "authentication failed"}), HTTPStatus.UNAUTHORIZED
 
             return LoginSuccess().dump({"token": user.get_token()}), 200
@@ -271,6 +276,7 @@ class ApiLoginV2(Resource):
 
             user = KioskUser.authenticate(parameters['userid'], parameters['password'])
             if not user:
+                print("login data", parameters)
                 return LoginError().dump({"err": "authentication failed"}), HTTPStatus.UNAUTHORIZED
 
             csrf_token = generate_csrf()

@@ -233,8 +233,7 @@ export class StructuredKioskQuery extends KioskAppComponent {
             } else {
                 (<HTMLElement>ui).style.display = "None";
                 this._inputData = {}
-                this.fetchAllData()
-
+                // this.fetchAllData()
             }
         }
         if (_changedProperties.has("activeChart") || _changedProperties.has("activeView") || _changedProperties.has("isChartMaximized") || _changedProperties.has("data") && this.data) {
@@ -277,7 +276,6 @@ export class StructuredKioskQuery extends KioskAppComponent {
                     refreshBarChart2(graphDiv, this.data, `${width}px`, `${height}px`,chartDefinition);
                 }
             }
-
         }
     }
 
@@ -299,16 +297,20 @@ export class StructuredKioskQuery extends KioskAppComponent {
         callback: GridDataProviderCallback<AnyDict>,
     ) => {
         const { page, pageSize, sortOrders } = params;
-        console.log("params", params);
+        let rc: [Array<any>, number]
         if (this._inputData) {
-            const rc = await this.fetchQueryResults({
-                page: page + 1,
-                pageSize: pageSize,
-                sortOrders: sortOrders,
-                searchTerm: "",
-            });
+            if (this.uiSchema && Object.keys(this.uiSchema).length > 0) {
+                rc = await this.fetchQueryResults({
+                    page: page + 1,
+                    pageSize: pageSize,
+                    sortOrders: sortOrders,
+                    searchTerm: "",
+                })
+            } else {
+                rc = await this.fetchAllData()
+            }
             let data, count;
-            [data, count] = rc;
+            [data, count] = rc?rc:[[],0];
             if (count > 0 || page == 0) {
                 this.overall_record_count = count;
                 this.requestUpdate();

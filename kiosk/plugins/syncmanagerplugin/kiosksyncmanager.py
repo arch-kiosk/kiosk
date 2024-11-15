@@ -14,6 +14,7 @@ from mcpinterface.mcpqueue import MCPQueue
 from plugins.syncmanagerplugin.kioskworkstationjobs import KioskWorkstationJobs, KioskWorkstationJob, \
     JOB_META_TAG_SYNCHRONIZATION
 from synchronization import Synchronization
+from tz.kiosktimezoneinstance import KioskTimeZoneInstance
 from workstation import Workstation
 
 
@@ -88,7 +89,7 @@ class KioskSyncManager:
 
         return None
 
-    def get_workstation(self, workstation_id: str):
+    def get_workstation(self, workstation_id: str, current_tz:KioskTimeZoneInstance=None):
         """
         Instantiates and loads a workstation
         :return: The workstation instance or None
@@ -100,7 +101,7 @@ class KioskSyncManager:
                 if workstation_type:
                     # noinspection PyCallingNonCallable
                     workstation = workstation_type(w_id)
-                    if workstation.load_workstation():
+                    if workstation.load_workstation(current_tz=current_tz):
                         return workstation
 
         return None

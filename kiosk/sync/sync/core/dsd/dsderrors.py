@@ -41,5 +41,10 @@ class DSDSemanticError(Exception):
 class DSDJoinError(Exception):
     pass
 
+
 class DSDInstructionValueError(Exception):
+    pass
+
+
+class DSDStructuralIssue(Exception):
     pass

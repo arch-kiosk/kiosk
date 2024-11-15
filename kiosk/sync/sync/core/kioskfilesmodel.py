@@ -11,6 +11,8 @@ class KioskFilesModel(Table):
     _fields = [("uid", ",".join([Table.ATTRIBUTE_KEY, Table.ATTRIBUTE_DONT_UPDATE])),
                ("created", ",".join([Table.ATTRIBUTE_DONT_UPDATE])),
                ("modified", ),
+               ("modified_tz", ),
+               ("modified_ww", ),
                ("modified_by", ),
                ("description",),
                ("export_filename",),
@@ -27,6 +29,9 @@ class KioskFilesModel(Table):
         self.uid = ""
         self.created = None
         self.modified = None
+        # time zone relevance
+        self.modified_tz = None
+        self.modified_ww = None
         self.modified_by = ""
         self.description = ""
         self.export_filename = ""

@@ -189,11 +189,13 @@ class MCPQueue:
             key = self._get_gs_job_key()
             key_len = len(key)
             if suffix:
-                return [job_key[key_len:len(job_key)]
+                jobs = [job_key[key_len:len(job_key)]
                         for job_key in self.gs.get_keys(prefix=key)
                         if job_key.endswith("#" + suffix)]
             else:
-                return [job_key[key_len:len(job_key)] for job_key in self.gs.get_keys(prefix=key)]
+                jobs = [job_key[key_len:len(job_key)] for job_key in self.gs.get_keys(prefix=key)]
+
+            return jobs
         finally:
             if lock_queue and lock:
                 self.unlock(lock)

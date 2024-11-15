@@ -1,3 +1,4 @@
+# todo time zone simpliciation
 import psycopg2
 import pytest
 from migration.postgresmigrationfieldinstructions import *
@@ -21,6 +22,7 @@ class TestPostgresFieldMigrationInstructions(KioskPyTestHelper):
         assert MiPgDataType.execute_during_creation("", ["TEXT"]) == "TEXT"
         assert MiPgDataType.execute_during_creation("", ["INT"]) == "INTEGER"
         assert MiPgDataType.execute_during_creation("", ["DATETIME"]) == "TIMESTAMP"
+        assert MiPgDataType.execute_during_creation("", ["TIMESTAMPTZ"]) == "TIMESTAMP WITH TIME ZONE"
 
         with pytest.raises(DSDDataTypeError):
             assert MiPgDataType.execute_during_creation("", ["NOTKNOWN"]) == "NOTKNOWN"

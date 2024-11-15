@@ -7,6 +7,7 @@ config:
     - fts_contexts.yml
     - default_migration_scripts.yml
 
+
 migration_catalog:
   meta:
     flags: [system_table]
@@ -1997,13 +1998,6 @@ todos:
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
-
-replication:
-  structure:
-    1:
-      id: [datatype(VARCHAR), primary(), unique(), not_null()]
-      value: [datatype(VARCHAR)]
-      ts: [datatype(TIMESTAMP), default('now()')]
 
 constants:
   meta:

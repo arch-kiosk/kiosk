@@ -3,7 +3,7 @@ import logging
 import os
 
 import kiosklib
-import urapdatetimelib
+import kioskdatetimelib
 
 from flask_login import current_user
 
@@ -24,6 +24,7 @@ from core.kioskresult import KioskResult
 from filesequenceimport import FileSequenceImport
 from image_manipulation.imagemanipulationstrategyfactory import ImageManipulationStrategyFactory
 from kioskcleanup import KioskCleanup
+from kioskuser import KioskUser
 from mcpinterface.mcpjob import MCPJob
 from sync.core.fileimport import FileImport
 from sync.core.filerepository import FileRepository
@@ -145,7 +146,7 @@ def dialoglocalimport1():
     test_cfg = user_config.get_config("file_import")
     logging.debug(f"fileimportcontroller.dialoglocalimport1: user config: {test_cfg}")
 
-    file_import = FileImport(cfg, sync, user_config=user_config)
+    file_import = FileImport(cfg, sync, user_config=user_config, tz_index=current_user.get_active_tz_index())
     general_message = ""
 
     substitute_identifiers = False
@@ -167,6 +168,11 @@ def dialoglocalimport1():
         else:
             config = file_import.get_wtform_values()
             localimportform1 = LocalImportForm1(ImmutableMultiDict(config))
+            try:
+                localimportform1.user_time_zone_index.data = current_user.get_active_tz_index()
+            except BaseException as e:
+                logging.debug(f"fileimportcontroller.localimportform1 (GET) : {repr(e)}")
+
         try:
             if localimportform1.mif_local_path.data is None or localimportform1.mif_local_path.data.strip() == "":
                 localimportform1.mif_local_path.data = path_list[0]
@@ -182,6 +188,7 @@ def dialoglocalimport1():
         general_errors += ["There are no context filters installed. Please talk to your admin."]
 
     resp = make_response(render_template(r"fileimportdialoglocalimport1.html",
+                                         ajax_result=request.method == 'POST',
                                          localimportform1=localimportform1,
                                          general_errors=general_errors,
                                          path_list=path_list))
@@ -203,7 +210,7 @@ def dialoglocalimport2():
     user_config = UserConfig(kioskglobals.general_store, current_user.user_id, cfg.get_project_id())
     test_cfg = user_config.get_config("file_import")
     logging.debug(f"fileimportcontroller.dialoglocalimport2: user config: {test_cfg}")
-    file_import = FileImport(cfg, sync, user_config=user_config)
+    file_import = FileImport(cfg, sync, user_config=user_config, tz_index=current_user.get_active_tz_index())
 
     sorted_names = file_import.sort_import_filters()
     context_filters = [file_import.get_file_import_filter(x) for x in sorted_names]
@@ -252,7 +259,7 @@ def dialoglocalimport3():
 
 
 #  **************************************************************
-#  ****    import-dialog local import page 2: Filters and options
+#  ****    import-dialog local import running
 #  *****************************************************************/
 @full_login_required
 @fileimport.route('/localimport', methods=['POST'])
@@ -317,12 +324,23 @@ def localimport():
         test_cfg = user_config.get_config("file_import")
         logging.debug(f"fileimportcontroller.localimport: user config: {test_cfg}")
         kioskglobals.general_store.delete_key("STOPTHREAD")
-        file_import = FileImport(cfg, sync, user_config=user_config)
+
+        if "dialoglocalimport1" in session:
+            localimportform1 = LocalImportForm1(ImmutableMultiDict(session["dialoglocalimport1"]))
+            time_zone_index = localimportform1.user_time_zone_index.data
+
+        else:
+            return jsonify(result="An error occured. There is no access to the dialog's settings. "
+                                  "That should not have happened.")
+
+
+        file_import = FileImport(cfg, sync, user_config=user_config,
+                                 tz_index=time_zone_index if time_zone_index \
+                                                            else current_user.get_active_tz_index())
 
         sorted_names = file_import.sort_import_filters()
         context_filters = [file_import.get_file_import_filter(x) for x in sorted_names]
 
-        localimportform1 = LocalImportForm1(ImmutableMultiDict(session["dialoglocalimport1"]))
 
         for context_filter in context_filters:
             context_filter.init_form(ImmutableMultiDict(session["dialoglocalimport2"]))
@@ -409,7 +427,8 @@ def dialogupload1():
     user_config = UserConfig(kioskglobals.general_store, current_user.user_id, cfg.get_project_id())
     test_cfg = user_config.get_config("file_import")
     logging.debug(f"fileimportcontroller.dialogupload1: user config: {test_cfg}")
-    file_import = FileImport(cfg, sync, method="upload", user_config=user_config)
+    file_import = FileImport(cfg, sync, method="upload", user_config=user_config,
+                             tz_index=current_user.get_active_tz_index())
     sorted_names = file_import.sort_import_filters()
     context_filters = [file_import.get_file_import_filter(x) for x in sorted_names]
     general_message = ""
@@ -448,6 +467,10 @@ def dialogupload1():
                 context_filter.init_form({})
             config = file_import.get_wtform_values()
             uploadform1 = UploadForm1(ImmutableMultiDict(config))
+            try:
+                uploadform1.user_time_zone_index.data = current_user.get_active_tz_index()
+            except BaseException as e:
+                logging.debug(f"fileimportcontroller.dialogupload1 (GET) : {repr(e)}")
 
     if "dialogupload1" in session:
         if "tags" in session["dialogupload1"]:
@@ -463,6 +486,7 @@ def dialogupload1():
         general_errors += context_filter.get_form().get_general_form_errors()
 
     resp = make_response(render_template(r"fileimportdialogupload1.html",
+                                         ajax_result=request.method == 'POST',
                                          uploadform1=uploadform1,
                                          context_filters=context_filters,
                                          general_errors=general_errors,
@@ -489,7 +513,8 @@ def dialogupload2():
     max_file_uploads = kioskstdlib.try_get_dict_entry(cfg.file_import, "max_file_uploads", 5)
     sync = Synchronization()
     user_config = UserConfig(kioskglobals.general_store, current_user.user_id, cfg.get_project_id())
-    file_import = FileImport(cfg, sync, method="upload", user_config=user_config)
+    file_import = FileImport(cfg, sync, method="upload", user_config=user_config,
+                             tz_index=current_user.get_active_tz_index())
 
     uploadform2 = UploadForm2()
 
@@ -545,7 +570,7 @@ def uploadimage():
         file_utc_datetimes = {}
         for t in request.form:
             file_utc_datetimes[t] = datetime.datetime.fromisoformat(
-                urapdatetimelib.js_to_python_utc_datetime_str(request.form[t]))
+                kioskdatetimelib.js_to_python_utc_datetime_str(request.form[t]))
 
         if 'file' not in request.files:
             logging.error('repository_upload_image: No file part')
@@ -555,25 +580,29 @@ def uploadimage():
         if "modify data" not in authorized_to:
             raise Exception("You are not authorized to import files.")
 
+        if 'dialogupload1' in session:
+            upload_form1 = UploadForm1(ImmutableMultiDict(session["dialogupload1"]))
+            time_zone_index = upload_form1.user_time_zone_index.data
+        else:
+            raise Exception("Exception: Dialog data not complete. Please try again.")
+
         f = request.files['file']
         try:
             if f.filename:
                 filename = get_secure_filename(f.filename)
                 sync = Synchronization()
                 user_config = UserConfig(kioskglobals.general_store, current_user.user_id, cfg.get_project_id())
-                file_import = FileImport(cfg, sync, method="upload", user_config=user_config)
+                file_import = FileImport(cfg, sync, method="upload", user_config=user_config,
+                                         tz_index=time_zone_index if time_zone_index \
+                                             else current_user.get_active_tz_index())
+                file_import.form_to_config(upload_form1)
+                file_import.save_user_filter_configuration()
                 sorted_names = file_import.sort_import_filters()
                 context_filters = [file_import.get_file_import_filter(x) for x in sorted_names]
-                if 'dialogupload1' in session:
-                    for context_filter in context_filters:
-                        context_filter.init_form(ImmutableMultiDict(session["dialogupload1"]))
-                        context_filter.form_to_config()
+                for context_filter in context_filters:
+                    context_filter.init_form(ImmutableMultiDict(session["dialogupload1"]))
+                    context_filter.form_to_config()
 
-                    upload_form1 = UploadForm1(ImmutableMultiDict(session["dialogupload1"]))
-                    file_import.form_to_config(upload_form1)
-                    file_import.save_user_filter_configuration()
-                else:
-                    raise Exception("Exception: Dialog data not complete. Please try again.")
 
                 if upload_form1.substitute_identifiers.data and 'identifiersubstitutionform' in session:
                     if 'search_pattern' in session['identifiersubstitutionform'] and \
@@ -722,6 +751,11 @@ def dialogsequence1():
                                                                                   "", True)
             sequenceform1 = SequenceImportForm1(sort_options, image_manipulation_sets,
                                                 formdata=ImmutableMultiDict(config))
+            try:
+                sequenceform1.user_time_zone_index.data = current_user.get_active_tz_index()
+            except BaseException as e:
+                logging.debug(f"fileimportcontroller.localimportform1 (GET) : {repr(e)}")
+
         try:
             if sequenceform1.mif_local_path.data is None or sequenceform1.mif_local_path.data.strip() == "":
                 sequenceform1.mif_local_path.data = path_list[0]
@@ -734,6 +768,7 @@ def dialogsequence1():
         general_errors += ["There are no context filters installed. Please talk to your admin."]
 
     resp = make_response(render_template(r"fileimportdialogsequence1.html",
+                                         ajax_result=request.method == 'POST',
                                          sequenceimportform1=sequenceform1,
                                          general_errors=general_errors,
                                          path_list=path_list))
@@ -775,14 +810,22 @@ def run_sequence_import():
         test_cfg = user_config.get_config("file_import")
         logging.debug(f"fileimportcontroller.localimport: user config: {test_cfg}")
         kioskglobals.general_store.delete_key("STOPTHREAD")
+
+
         sort_options = [("FILE_CREATION_TIME", "file's creation time"),
                         ("FILE_NUM_PART", "numerical part of file name")]
 
         image_manipulation_sets = [(strategy["id"], strategy["name"]) for strategy in
                                    ImageManipulationStrategyFactory.get_image_manipulation_set_descriptors()]
-        sequenceimportform1 = SequenceImportForm1(sort_options, image_manipulation_sets,
-                                                  formdata=ImmutableMultiDict(session["dialogsequence1"]))
-        file_import = FileSequenceImport(cfg, sync, user_config=user_config)
+        if "dialogsequence1" in session:
+            sequenceimportform1 = SequenceImportForm1(sort_options, image_manipulation_sets,
+                                                      formdata=ImmutableMultiDict(session["dialogsequence1"]))
+            time_zone_index = sequenceimportform1.user_time_zone_index.data
+
+        else:
+            return jsonify(result="An error occured. There is no access to the dialog's settings. "
+                                  "That should not have happened.")
+        file_import = FileSequenceImport(cfg, sync, user_config=user_config, tz_index=time_zone_index)
         file_import.form_to_config(sequenceimportform1)
 
         errors = []
@@ -790,7 +833,7 @@ def run_sequence_import():
         job = MCPJob(kioskglobals.general_store)
         job.set_worker("plugins.fileimportplugin.workers.filesequenceimportworker", "FileSequenceImportWorker")
         job.job_data = file_import.get_wtform_values()
-        job.user_data = {"uuid": current_user.get_id()}
+        job.user_data = current_user.to_dict()
         job.queue()
         job_uid = job.job_id
         json_message = "ok"

@@ -40,6 +40,9 @@ class FileSequenceImportWorker:
             user_uuid = self.job.user_data["uuid"]
             logging.info(f"WorkstationManagerWorker.get_kiosk_user: loading user {user_uuid}")
             user = KioskUser(user_uuid, check_token=False)
+            user.init_from_dict(self.job.user_data)
+            logging.info(f"WorkstationManagerWorker.get_kiosk_user: user settings are "
+                         f"{pprint.pformat(self.job.user_data)}")
             return user
         except BaseException as e:
             logging.error(f"WorkstationManagerWorker.get_kiosk_user: {repr(e)}")
@@ -84,13 +87,16 @@ class FileSequenceImportWorker:
                                                        sync.type_repository,
                                                        sync)
 
-            file_import = FileSequenceImport(self.cfg, sync)
+            kiosk_user = self.get_kiosk_user()
+            file_import = FileSequenceImport(self.cfg, sync, tz_index=kiosk_user.get_active_tz_index())
             logging.info(pprint.pformat(self.job.job_data))
             file_import.set_from_dict(self.job.job_data)
-            kiosk_user = self.get_kiosk_user()
+            # if not file_import.time_zone_index:
+            #     file_import.time_zone_index = kiosk_user.get_active_tz_index()
             logging.debug(f"filesequenceimportworker: User is {kiosk_user.repl_user_id}")
             file_import.modified_by = kiosk_user.repl_user_id
             logging.debug(f"filesequenceimportworker: {file_import.get_wtform_values()}")
+            logging.debug(f"filesequenceimportworker: using time zone {file_import.tz_index}")
             file_import.file_repository = file_repos
             file_import.callback_progress = report_progress
             ic = MemoryIdentifierCache(dsd)

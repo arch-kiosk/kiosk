@@ -9,6 +9,7 @@ from flask import Blueprint, redirect, render_template, url_for, request, sessio
 from flask_allows import requires
 from flask_login import current_user
 
+import kioskdatetimelib
 import kioskglobals
 import kioskstdlib
 from authorization import ENTER_ADMINISTRATION_PRIVILEGE, MANAGE_SERVER_PRIVILEGE, \
@@ -206,7 +207,7 @@ def filemanager_download(topic: str, file: str):
                                        download_name=file,
                                        as_attachment=True,
                                        etag=str(datetime.datetime.now().timestamp())))
-        resp.headers['Last-Modified'] = str(datetime.datetime.now().timestamp())
+        resp.headers['Last-Modified'] = str(kioskdatetimelib.get_utc_now().timestamp())
         resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, ' \
                                         'pre-check=0, max-age=0'
         resp.headers['Pragma'] = 'no-cache'

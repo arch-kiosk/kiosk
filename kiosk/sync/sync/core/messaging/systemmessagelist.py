@@ -6,7 +6,6 @@ import threading
 
 import nanoid
 
-import urapdatetimelib
 from generalstore.generalstore import GeneralStore
 from generalstore.generalstorekeys import messaging_change_mark
 from .systemmessage import SystemMessage
@@ -258,10 +257,14 @@ class SystemMessageList(object):
         :raises: KeyError if the uid is unknown
                  ErrorSystemMessageDeleted if the message is deleted
         """
-        msg = self._list[uid]
-        if msg.deleted and not include_deleted:
-            raise ErrorSystemMessageDeleted(f"Message {msg.uid} was deleted.")
-        return msg
+        try:
+            msg = self._list[uid]
+            if msg.deleted and not include_deleted:
+                raise ErrorSystemMessageDeleted(f"Message {msg.uid} was deleted.")
+            return msg
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}._get_message: {repr(e)}")
+            raise e
 
     def get_messages(self, up_to_severity=MSG_SEVERITY_INFO, filter_func: callable = None) -> SystemMessages:
         """
@@ -343,7 +346,8 @@ class SystemMessageList(object):
                 if deletion_status == 0:  # message does not exist in store
                     replace_it = True
                 else:
-                    if msg.modified > store_modified:  # message in local list is newer, so replace it
+                    # todo time zone simplified: Why is this not using utc?
+                    if msg.get_modified() > store_modified:  # message in local list is newer, so replace it
                         replace_it = True
                 if replace_it:
                     store.set_message(msg)
@@ -361,7 +365,8 @@ class SystemMessageList(object):
                 list_msg = None
 
             if list_msg:
-                if msg.modified > list_msg.modified:
+                # todo time zone simplified: Why is this not using utc?
+                if msg.get_modified() > list_msg.get_modified():
                     if msg.deleted:
                         self._list.pop(msg.uid)
                         # logging.debug(f"{self.__class__.__name__}.sync: msg {msg.uid} deleted due to store.")
@@ -543,7 +548,7 @@ class SystemMessages:
 
 
 # -------------------------------------------------------------
-# a little heper function to init the system message list
+# a little helper function to init the system message list
 # -------------------------------------------------------------
 def init_system_message_list(gs, cfg, sync_immediately=True) -> SystemMessageList:
     """
@@ -553,10 +558,10 @@ def init_system_message_list(gs, cfg, sync_immediately=True) -> SystemMessageLis
     :param sync_immediately:
     :return: SystemMessageList
     """
+    import os
     try:
         from messaging.systemmessagestore import SystemMessageStore
         from messaging.systemmessagestorepostgres import SystemMessageStorePostgres
-        import os
 
         if not cfg:
             logging.debug(f"PID({os.getpid()}).store_system_message_list: no config.")

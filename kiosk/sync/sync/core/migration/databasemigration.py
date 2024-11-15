@@ -62,23 +62,35 @@ class DatabaseMigration:
 
         currently supports only {NOW}
 
+        warnings codes
+        --------------
+        currently only "NOW" if the {NOW} variable was used
+
         :param line: The line
         :param prefix: if the variable results in a table, a prefix might be needed
         :param namespace: if the variable results in a table, a namespace might be needed
-        :return: the new line
+        :return: a tuple consisting of the new line and a list with warning codes if any
+
         """
         match_iter = self.regex_variable_pattern.finditer(line)
         substitution = {}
+        discouraged_warning = False
+        warnings = []
+        now = self._adapter_get_now_str()  # this makes sure that all {NOW} variables in a single SQL have the same value
         for match in match_iter:
             match_str = match.group(0)
             variable = match.group(1)
             if variable == 'NOW':
-                substitution[match_str] = self._adapter_get_now_str()
-
+                # time zone relevance
+                substitution[match_str] = now
+                discouraged_warning = True
         new_line = line
+
+        if discouraged_warning:
+            warnings.append("NOW")
         for subst in substitution.keys():
             new_line = new_line.replace(subst, substitution[subst])
-        return new_line
+        return new_line, warnings
 
     def schematize_curly_tables(self, line: str, prefix="", namespace=""):
         """
@@ -167,7 +179,7 @@ class DatabaseMigration:
         if dsd_table in self.dsd.list_tables(include_system_tables=True):
             if version == 0:
                 version = self.dsd.get_current_version(dsd_table)
-            if version in self.dsd.list_versions(dsd_table):
+            if version in self.dsd.list_table_versions(dsd_table):
                 if self._adapter_create_table(dsd_table=dsd_table, db_table=db_table,
                                               version=version, namespace=namespace, sync_tools=sync_tools,
                                               temporary=temporary):
@@ -493,6 +505,10 @@ class DatabaseMigration:
                     version = 1
                 rc = self.create_table(dsd_table=dsd_table, version=version,
                                        db_table=prefixed_db_table, namespace=namespace)
+                if not rc:
+                    raise Exception(f"DatabaseMigration.migrate_table: "
+                                    f"create table reported an error. Table is \"{prefixed_db_table}\", "
+                                    f"version is {version}.")
                 return tuple((version, most_recent_version))
 
         # check if there is anything to do at all

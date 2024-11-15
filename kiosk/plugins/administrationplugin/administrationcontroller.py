@@ -18,6 +18,7 @@ from flask_login import current_user
 from werkzeug.exceptions import HTTPException
 
 import core.kioskuser
+import kioskdatetimelib
 import kioskglobals
 import kiosklib
 import kiosksqlalchemy
@@ -50,6 +51,7 @@ from pluggableflaskapp import current_app
 from sqlalchemy_models.adminmodel import KioskUser
 
 from synchronization import Synchronization
+from tz.kiosktimezones import KioskTimeZones
 from .forms.backupform import BackupForm
 from .forms.housekeepingform import HousekeepingForm
 from .forms.restoreform import RestoreForm
@@ -172,7 +174,7 @@ def restart():
 #
 #     try:
 #         kiosklib.run_quality_control()
-#         # integrity_check = UrapDatabaseIntegrity(conf)
+#         # integrity_check = KioskDatabaseIntegrity(conf)
 #         # integrity_check.update_default_fields()
 #         result = "ok"
 #     except Exception as e:
@@ -289,6 +291,8 @@ def administration_show():
             redis_version = ""
             logging.error(f"administrationcontroller.administration_show : {repr(e)}")
 
+        gs_id = kioskstdlib.try_get_dict_entry(conf.config,"gs_id","",True)
+
         authorized_to = get_local_authorization_strings(LOCAL_ADMINISTRATION_PRIVILEGES)
         if kioskglobals.get_development_option("suppress_system_messages").lower() == 'true':
             messages = []
@@ -313,7 +317,8 @@ def administration_show():
                                mcp_alive=mcp_alive,
                                redis_version=redis_version,
                                is_local_server=local_server,
-                               file_cache_refresh_running=file_cache_refresh_running)
+                               file_cache_refresh_running=file_cache_refresh_running,
+                               gs_id=gs_id)
     except BaseException as e:
         logging.error(f"administrationcontroller.administration_show : {repr(e)}")
         abort(500, repr(e))
@@ -1026,7 +1031,7 @@ def log_action(action, log_id):
                                        mimetype='text/plain',
                                        download_name=kioskstdlib.get_filename(files[0]),
                                        as_attachment=True, max_age=0,
-                                       etag=str(datetime.datetime.now().timestamp())))
+                                       etag=str(kioskdatetimelib.get_utc_now(no_tz_info=True).timestamp())))
         return resp
     else:
         logging.info(f"administration_controller.log_action/download: attempt to fetch unknown log-file {log_id}")
@@ -1244,8 +1249,6 @@ def trigger_patch():
         abort(HTTPStatus.INTERNAL_SERVER_ERROR)
 
 
-
-
 #  **************************************************************
 #  ****    /administration/after_synchronization route
 #  *****************************************************************/
@@ -1362,6 +1365,32 @@ def reload_all_kiosk_queries():
     except Exception as e:
         logging.error(f"reload_all_kiosk_queries: Exception when handling "
                       f"administration/reload_all_kiosk_queries : {repr(e)}")
+        result["result"] = "Exception thrown. Please consult the logs."
+
+    return jsonify(**result)
+
+
+#  **************************************************************
+#  ****    /administration/import_kiosk_tz route
+#  *****************************************************************/
+@administration.route('/import_kiosk_tz', methods=['POST'])
+@full_login_required
+@requires(IsAuthorized(ENTER_ADMINISTRATION_PRIVILEGE))
+# @nocache
+def import_kiosk_tz():
+    result = {}
+    logging.info("\nadministrationcontroller.import_kiosk_tz triggered")
+
+    try:
+        tz_dir = os.path.join(kioskglobals.get_config().base_path, "tools", "tz")
+        kiosk_tz = KioskTimeZones()
+        c_time_zones = kiosk_tz.update_local_kiosk_time_zones(os.path.join(tz_dir, "kiosk_tz.json"))
+
+        result["result"] = "ok"
+        result["message"] = f"{c_time_zones} Time Zones have been successfully imported."
+    except Exception as e:
+        logging.error(f"import_kiosk_tz: Exception when importing "
+                      f"time zones : {repr(e)}")
         result["result"] = "Exception thrown. Please consult the logs."
 
     return jsonify(**result)

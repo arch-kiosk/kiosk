@@ -331,6 +331,34 @@ function init_bt_reload_kiosk_queries() {
     });
 }
 
+function init_bt_import_kiosk_tz() {
+    let bt = $("#bt-import-kiosk-tz");
+    bt.prop("disabled", false);
+    bt.on("click", (e) => {
+        kioskSendAjaxCommand("POST", $(bt),
+            "/administration/import_kiosk_tz",
+            {},
+            (json) => {
+                if (json && json.result) {
+                    kioskSuccessToast(json.message, {
+                        timeout: 0,
+                    });
+                } else {
+                    kioskErrorToast(json.result);
+                }
+            },
+            (err_code, json) => {
+                if (json && json.result) {
+                    kioskErrorToast(json.result);
+                } else {
+                    kioskErrorToast(`An Error occurred in when calling init_bt_import_kiosk_tz: ${err_code}`);
+                }
+            });
+    });
+
+}
+
+
 function initAdministration() {
     initCollapsibles();
 
@@ -357,6 +385,7 @@ function initAdministration() {
     init_bt_events();
     init_bt_refresh_file_cache();
     init_bt_reload_kiosk_queries();
+    init_bt_import_kiosk_tz();
     // kioskGetAjaxElement();
 
 }

@@ -1,3 +1,4 @@
+# time zone relevant
 import datetime
 import logging
 import flake8
@@ -13,6 +14,7 @@ from flask_login import current_user
 from werkzeug.exceptions import HTTPException
 from werkzeug.utils import secure_filename
 
+import kioskdatetimelib
 import kioskglobals
 import kioskstdlib
 from authorization import full_login_required, IsAuthorized, INSTALL_PLUGIN
@@ -164,7 +166,7 @@ def create_filemaker_workstation(form: KioskFileMakerWorkstationForm, general_er
             job.job_data = {"workstation_id": kioskstdlib.delete_any_of(workstation_id, " *%\"'"),
                             "description": form.description.data,
                             "recording_group": form.recording_group.data,
-                            "gmt_time_zone": form.gmt_time_zone.data,
+                            "user_time_zone_index": form.user_time_zone_index.data,
                             "grant_access_to": form.grant_access_to.data,
                             "options": form.options.data
                             }
@@ -228,7 +230,7 @@ def mcp_workstation_action(worker_module, worker_class, ws_id, privilege="",
         job.job_data = {"workstation_id": ws_id}
         if additional_job_data:
             job.job_data = job.job_data | additional_job_data
-        job.user_data = {"uuid": current_user.get_id()}
+        job.user_data = current_user.to_dict()
         job.meta_data = [*meta_data, JOB_META_TAG_WORKSTATION]
         job.queue()
         if job.job_id:
@@ -489,15 +491,15 @@ def ws_download(ws_id, cmd):
                                                as_attachment=True,
                                                last_modified=0,
                                                max_age=0,
-                                               etag=str(datetime.datetime.now().timestamp())))
+                                               etag=str(kioskdatetimelib.get_utc_now(no_tz_info=True).timestamp())))
 
                 resp = send_file(fm_filename,
                                  mimetype='application/octet-stream',
                                  download_name=dest_filename,
                                  as_attachment=True,
-                                 last_modified=datetime.datetime.now().timestamp(),
+                                 last_modified=kioskdatetimelib.get_utc_now(no_tz_info=True).timestamp(),
                                  max_age=0,
-                                 etag=str(datetime.datetime.now().timestamp()))
+                                 etag=str(kioskdatetimelib.get_utc_now(no_tz_info=True).timestamp()))
 
                 # resp.headers['Last-Modified'] = str(datetime.datetime.now().timestamp())
                 # resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, ' \
@@ -897,7 +899,7 @@ def kfw_edit(ws_id):
             if not general_errors:
                 sync_ws.description = kfw_form.description.data
                 sync_ws.recording_group = kfw_form.recording_group.data
-                sync_ws.gmt_time_zone = kfw_form.gmt_time_zone.data
+                sync_ws.set_user_time_zone_index(kfw_form.user_time_zone_index.data)
                 sync_ws.grant_access_to = kfw_form.grant_access_to.data
                 sync_ws.options = kfw_form.options.data
                 if sync_ws.save():
@@ -909,7 +911,7 @@ def kfw_edit(ws_id):
             kfw_form.recording_group.data = sync_ws.recording_group
             kfw_form.workstation_id.data = sync_ws.get_id()
             kfw_form.description.data = sync_ws.description
-            kfw_form.gmt_time_zone.data = sync_ws.gmt_time_zone
+            kfw_form.user_time_zone_index.data = sync_ws.user_time_zone_index
             kfw_form.grant_access_to.data = sync_ws.grant_access_to
             kfw_form.options.data = sync_ws.options
 

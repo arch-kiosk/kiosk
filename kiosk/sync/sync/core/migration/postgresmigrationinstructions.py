@@ -1,6 +1,8 @@
+# todo time zone simpliciation (done)
 from migration import postgresdbmigration
 from migration.migrationinstruction import MigrationInstruction
 from migration.tablemigration import _TableMigration
+from dsd.dsderrors import *
 
 
 class AddMigrationInstruction(MigrationInstruction):
@@ -25,6 +27,10 @@ class AddMigrationInstruction(MigrationInstruction):
 
         sql += f"ADD COLUMN {migration.sql_safe_ident(field_name)} "
         sql += " ".join(field_attributes)
+
+        if field_attributes[0] == "TIMESTAMP WITH TIME ZONE":
+            sql += f",ADD COLUMN {migration.sql_safe_ident(field_name + '_tz')} INTEGER DEFAULT NULL"
+            sql += f",ADD COLUMN {migration.sql_safe_ident(field_name + '_ww')} TIMESTAMP DEFAULT NULL"
 
         return [sql]
 
@@ -152,7 +158,21 @@ class DropMigrationInstruction(MigrationInstruction):
         sql = f"ALTER TABLE {table_name} "
         field_name = parameters[0]
 
+        try:
+            old_field_instructions = table_migration.migration.dsd.get_field_instructions(
+                table=table_migration.dsd_table,
+                fieldname=field_name,
+                version=table_migration.from_version)
+        except KeyError:
+            raise DSDInstructionValueError(
+                f"Cannot drop field {field_name} from version {table_migration.from_version}.")
+
         sql += f"DROP COLUMN {migration.sql_safe_ident(field_name)}"
+        if table_migration.migration.dsd.translate_datatype(
+                old_field_instructions["datatype"][0]).lower() == "timestamp" and \
+                "replfield_modified" in old_field_instructions:
+                sql += f",DROP COLUMN {migration.sql_safe_ident(field_name + '_tz')}"
+                sql += f",DROP COLUMN {migration.sql_safe_ident(field_name + '_ww')}"
 
         return [sql]
 
@@ -175,32 +195,24 @@ class RenameMigrationInstruction(MigrationInstruction):
 
         sql += f"RENAME COLUMN {migration.sql_safe_ident(old_field_name)} TO {migration.sql_safe_ident(new_field_name)}"
 
+        try:
+            old_field_instructions = table_migration.migration.dsd.get_field_instructions(
+                table=table_migration.dsd_table,
+                fieldname=old_field_name,
+                version=table_migration.from_version)
+        except KeyError:
+            raise DSDInstructionValueError(f"Cannot rename field {old_field_name} from version "
+                                           f"{table_migration.from_version}. There is no such field!")
+
+        if table_migration.migration.dsd.translate_datatype(
+                old_field_instructions["datatype"][0]).lower() == "timestamp" and \
+                "replfield_modified" in old_field_instructions:
+            sql += (f",RENAME COLUMN {migration.sql_safe_ident(old_field_name + '_tz')} "
+                    f"TO {migration.sql_safe_ident(new_field_name + '_tz')}")
+            sql += (f",RENAME COLUMN {migration.sql_safe_ident(old_field_name + '_ww')} "
+                    f"TO {migration.sql_safe_ident(new_field_name + '_ww')}")
+
         return [sql]
-
-
-# class DropTableMigrationInstruction(MigrationInstruction):
-#     @classmethod
-#     def register(cls, registry: {}):
-#         registry["drop"] = cls
-#
-#     @classmethod
-#     def create_sql_instructions(cls, table_migration: _TableMigration, parameters: []):
-#         # table_migration: postgrestablemigration._PostgresTableMigration
-#         migration: postgresdbmigration.PostgresDbMigration = table_migration.migration
-#         if parameters[0] == "*":
-#             table_name = migration.sql_safe_namespaced_table(namespace=table_migration.namespace,
-#                                                              db_table=table_migration.db_table)
-#             sql = f"DROP TABLE {table_name}"
-#             return [sql]
-#
-#         table_name = migration.sql_safe_namespaced_table(namespace=table_migration.namespace,
-#                                                          db_table=table_migration.db_table)
-#         sql = f"ALTER TABLE {table_name} "
-#         field_name = parameters[0]
-#
-#         sql += f"DROP COLUMN {migration.sql_safe_ident(field_name)}"
-#
-#         return [sql]
 
 
 class RenameTableMigrationInstruction(MigrationInstruction):

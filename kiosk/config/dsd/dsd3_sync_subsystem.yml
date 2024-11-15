@@ -1,17 +1,41 @@
 config:
   format_version: 3
 
+replication:
+  structure:
+    2:
+      id: [datatype(VARCHAR), primary(), unique(), not_null()]
+      value: [datatype(VARCHAR)]
+      ts: [datatype(TIMESTAMPTZ), default('now()')]
+    1:
+      id: [datatype(VARCHAR), primary(), unique(), not_null()]
+      value: [datatype(VARCHAR)]
+      ts: [datatype(TIMESTAMP), default('now()')]
+  migration:
+    2:
+      upgrade:
+        - alter("ts")
+
 repl_deleted_uids:
   meta:
     flags: [ no_file_export ]
   structure:
+    2:
+      uid: [datatype(UUID), primary(), unique(), default('gen_random_uuid()')]
+      deleted_uid: [datatype(UUID), not_null()]
+      table: [datatype(VARCHAR)]
+      repl_workstation_id: [datatype(VARCHAR)]
+      modified: [datatype(TIMESTAMPTZ)]
     1:
       uid: [datatype(UUID), primary(), unique(), default('gen_random_uuid()')]
       deleted_uid: [datatype(UUID), not_null()]
       table: [datatype(VARCHAR)]
       repl_workstation_id: [datatype(VARCHAR)]
       modified: [datatype(TIMESTAMP)]
-
+  migration:
+    2:
+      upgrade:
+        - alter("modified")
 repl_image_resolution:
   structure:
     3: dropped
@@ -60,6 +84,43 @@ repl_file_picking_rules:
 
 repl_workstation:
   structure:
+    8:
+      id: ["datatype(VARCHAR, 20)", primary()]
+      workstation_type: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      state: [datatype(SMALLINT), default(0), not_null()]
+      uid: [datatype(UUID), default('gen_random_uuid()'), not_null()]
+      fork_time: [datatype(TIMESTAMPTZ)]
+      fork_sync_time: [datatype(TIMESTAMPTZ)]
+      dsd_version: [datatype(VARCHAR)]
+      recording_group: [datatype(VARCHAR)]
+      user_time_zone_index: [datatype(INTEGER)]
+      grant_access_to: [datatype(VARCHAR), default("'*'")]
+    7:
+      id: ["datatype(VARCHAR, 20)", primary()]
+      workstation_type: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      state: [datatype(SMALLINT), default(0), not_null()]
+      uid: [datatype(UUID), default('gen_random_uuid()'), not_null()]
+      fork_time: [datatype(TIMESTAMP)]
+      fork_sync_time: [datatype(TIMESTAMP)]
+      dsd_version: [datatype(VARCHAR)]
+      recording_group: [datatype(VARCHAR)]
+      user_time_zone_index: [datatype(INTEGER)]
+      grant_access_to: [datatype(VARCHAR), default("'*'")]
+    6:
+      id: ["datatype(VARCHAR, 20)", primary()]
+      workstation_type: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      state: [datatype(SMALLINT), default(0), not_null()]
+      uid: [datatype(UUID), default('gen_random_uuid()'), not_null()]
+      fork_time: [datatype(TIMESTAMP)]
+      fork_sync_time: [datatype(TIMESTAMP)]
+      dsd_version: [datatype(VARCHAR)]
+      recording_group: [datatype(VARCHAR)]
+      user_time_zone_index: [datatype(INTEGER)]
+      recording_time_zone_index: [datatype(INTEGER)]
+      grant_access_to: [datatype(VARCHAR), default("'*'")]
     5:
       id: ["datatype(VARCHAR, 20)", primary()]
       workstation_type: [datatype(VARCHAR)]
@@ -112,6 +173,18 @@ repl_workstation:
       dsd_version: [datatype(VARCHAR)]
       file_handling: [datatype(VARCHAR)]
   migration:
+    8:
+      upgrade:
+        - alter("fork_time")
+        - alter("fork_sync_time")
+    7:
+      upgrade:
+        - drop("recording_time_zone_index")
+    6:
+      upgrade:
+        - add("recording_time_zone_index")
+        - add("user_time_zone_index")
+        - drop("gmt_time_zone")
     5:
       upgrade:
         - add("grant_access_to")

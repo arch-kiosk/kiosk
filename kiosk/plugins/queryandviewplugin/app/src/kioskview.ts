@@ -7,12 +7,14 @@ import { customElement, state } from "lit/decorators.js";
 import { KioskAppComponent } from "../kioskapplib/kioskappcomponent";
 import { css, html, nothing, TemplateResult, unsafeCSS } from "lit";
 import {constantsContext} from "./constantscontext";
+import {timeZoneInfoContext} from "./timezoneinfocontext";
 import {consume} from "@lit/context";
 
 import { ApiKioskViewListLayout, ApiResultKioskView, Constant } from "./lib/apitypes";
 import { property } from "lit/decorators.js";
 import {
     UISchema,
+    ApiTimeZoneInfo,
     UIComponent,
 // @ts-ignore
 } from "ui-component"
@@ -28,6 +30,7 @@ import { KioskViewGroupPart } from "./lib/kioskviewgrouppart";
 // import { SymbolicDataReferenceInterpreter } from "../kioskapplib/symbolicdatareferenceinterpreter";
 // import { Template } from "ejs";
 import { ImageDescriptionAccessor } from "./lib/imagedescriptionsaccessor";
+import { KioskTimeZones, TimeZone } from "../../../../../../../kiosktsapplib";
 
 // @ts-ignore
 const DEVELOPMENT = (import.meta as any).env.VITE_MODE === 'DEVELOPMENT'
@@ -69,6 +72,10 @@ export class KioskView  extends KioskAppComponent {
     @consume({context: constantsContext})
     @state()
     private constants?: Constant[]
+
+    @consume({context: timeZoneInfoContext})
+    @state()
+    private timeZoneInfo?: KioskTimeZones
 
     private dataContext: DataContext = new DataContext()
 
@@ -217,17 +224,49 @@ export class KioskView  extends KioskAppComponent {
         try {
             viewDocument.dataContext = this.dataContext
             viewDocument.load(data.document)
-            this.viewDocument = viewDocument
             // this.requestUpdate()
         } catch (e) {
             this.localError = `loadViewDocument: the server responded with an invalid document: ${e}`
         }
-        this.assignConstants()
-        this.assignBasicDataContext()
-        this.assignLore()
-        this.assignFileDescriptions()
+        this.preprocessAsyncData(viewDocument).then(() => {
+            this.viewDocument = viewDocument
+
+            console.log("assigning constants")
+            this.assignConstants()
+            this.assignBasicDataContext()
+            this.assignLore()
+            this.assignFileDescriptions()
+        })
     }
 
+    private async addTimeZonesFromTable(viewDocument: KioskViewDocument, table: string, tzFieldNames: Array<string>) {
+        if (Object(viewDocument.getData()).hasOwnProperty(table)) {
+            const data = viewDocument.getData()[table]
+            const colNames = data[0]
+            const timeZoneFieldIndexes = tzFieldNames.map(fieldName => colNames.findIndex(x => x === fieldName))
+            if (timeZoneFieldIndexes.length > 1) {
+                for (let n=1; n<data.length; n++) {
+                    for (let idx of timeZoneFieldIndexes) {
+                        await this.timeZoneInfo.cacheLocally(data[n][idx])
+                    }
+                }
+            }
+        }
+    }
+
+    private async preprocessTimeZones(viewDocument: KioskViewDocument) {
+        for (const t of viewDocument.dsd.list_tables()) {
+            const tzFields = viewDocument.dsd.get_fields_with_datatype(t, "tz")
+            if (tzFields.length > 0) {
+                await this.addTimeZonesFromTable(viewDocument,t, tzFields)
+            }
+        }
+        console.log("preprocessTimeZones", this.timeZoneInfo.getLocalCache())
+    }
+
+    private async preprocessAsyncData(viewDocument: KioskViewDocument) {
+        await this.preprocessTimeZones(viewDocument)
+    }
 
     private assignConstants() {
         if (this.constants) {
@@ -247,7 +286,8 @@ export class KioskView  extends KioskAppComponent {
                     {
                         fields: this.viewDocument.getData()[table][0],
                         record: this.viewDocument.getData()[table][1]
-                    })
+                    },
+                    this.viewDocument.types[table])
                 this.dataContext.registerAccessor(recordAccessor)
             }
         }
@@ -273,7 +313,8 @@ export class KioskView  extends KioskAppComponent {
             {
                 fields: data[0],
                 record: data[1]
-            })
+            },
+            this.viewDocument.types[this.viewDetails.tableName])
         this.dataContext.registerAccessor(recordAccessor)
     }
 
@@ -421,6 +462,19 @@ export class KioskView  extends KioskAppComponent {
                             ui.dataProvider = (exp: string, id: string) => {
                                 return part.resolveDataRequest(exp, id)
                             }
+
+                            ui.timeZoneInfoProvider = (tzIndex: number|undefined): ApiTimeZoneInfo => {
+                                if (this.timeZoneInfo) {
+                                    let rc = this.timeZoneInfo.getTimeZoneInfoFromLocalCache(tzIndex)
+                                    console.log(`access to time zone ${tzIndex}: ${rc}`)
+                                    return rc
+                                }
+                                else {
+                                    console.error("access to TimeZoneInfo but time zones was not ready")
+                                }
+
+                            }
+
                             ui.moveToNextRow = (lastUID: string) => part.moveToNextRow(lastUID)
                             ui.setSortOrder = (sortOrder: string[]) => {
                                 console.log("settings sort order to ", sortOrder)

@@ -1,3 +1,4 @@
+# todo time zone simpliciation
 import datetime
 import logging
 
@@ -132,22 +133,27 @@ class RecordingWorkstation(Dock):
 
     def get_fork_time(self):
         """
-            todo: document
-            todo: redesign
-            todo: refactor
+            returns the fork time without milliseconds or time zone
+
+            Note: Although the fork time is coming back without a time zone, expect it to be in
+            the time zone that was set for the user (the dock's user time zone) on export.
+
+            :returns a datetime without microseconds and time zone or None
         """
         fork_time = self._get_workstation_attribute_from_db("fork_time")
-        if fork_time:
-            fork_time = fork_time.replace(microsecond=0)
-        return fork_time
+        return fork_time.replace(microsecond=0, tzinfo=None) if fork_time else fork_time
 
     def get_fork_sync_time(self):
         """
-            todo: document
-            todo: redesign
-            todo: refactor
+            return the utc fork sync time for the workstation
+
+            Note: Although the fork sync time is coming back without a time zone, expect it to be in
+            the time zone that was set for the user (the dock's user time zone) on export.
+
+            :returns a datetime without microseconds and time zone or None
         """
-        return self._get_workstation_attribute_from_db("fork_sync_time")
+        ts: datetime.datetime = self._get_workstation_attribute_from_db("fork_sync_time")
+        return ts.replace(microsecond=0, tzinfo=None) if ts else ts
 
     def get_recording_group(self):
         """
@@ -165,7 +171,7 @@ class RecordingWorkstation(Dock):
 
         """
         if not get_file_handling_set(recording_group):
-            logging.error(f"{self.__class__.__name__}._update: Cannot update RecordingWorkstation "
+            logging.error(f"{self.__class__.__name__}.set_recording_group: Cannot update RecordingWorkstation "
                           f"because there is no file handling set defined"
                           f" for recording group {self.recording_group}")
             return False
@@ -204,15 +210,27 @@ class RecordingWorkstation(Dock):
 
         """
         try:
-            # we have a truncate here. That can cause a blocking database!
-            # can I work with a timeout here and in case of failure use delete *?
+            # todo: we have a truncate here. That can cause a blocking database!
+            #  can I work with a timeout here and in case of failure use delete *?
             cur.execute(f'TRUNCATE TABLE {dst_table}')
             sql_insert = f'INSERT INTO {dst_table} ('
             sql_select = 'SELECT '
             comma = ""
+            replfield_modified = dsd.get_modified_field(src_table)
             for f in dsd.list_fields(src_table):
+                data_type = dsd.get_field_datatype(src_table, f)
+                # because FileMaker can't deal with microseconds, we have to cut off the microseconds
+                #   for the replfield_modified when branching off the shadow table.
+                #   Otherwise comparing what comes back from FileMaker with what was originally in the shadow table
+                #   would falsely lead to a discrepancy.
+                #   the same goes for other timestamptz fields, except there it isn't as consequential.
+
+                if f == replfield_modified or data_type == "timestamptz":
+                    sql_select = sql_select + comma + f"date_trunc('second',{KioskSQLDb.sql_safe_ident(f)})"
+                else:
+                    sql_select = sql_select + comma + '"' + f + '"'
+
                 sql_insert = sql_insert + comma + '"' + f + '"'
-                sql_select = sql_select + comma + '"' + f + '"'
                 comma = ", "
             sql_insert = sql_insert + ') '
             sql_select = sql_select + ' FROM "' + src_table + '"'
@@ -343,7 +361,7 @@ class RecordingWorkstation(Dock):
     def fork(self):
         """forks the data in the master database and all the files needed by a workstation
         by creating a copy of it in
-        the shadow tables of the given workstation. Afterwards the workstation will
+        the shadow tables of the given workstation. Afterward the workstation will
         turn to state "READY_FOR_EXPORT" \n
 
         :return: True or False, commits the data or makes a rollback
@@ -432,7 +450,7 @@ class RecordingWorkstation(Dock):
                 # fork_sync_time = KioskSQLDb.get_field_value("replication", "id", "sync_time", "value")
                 cur.execute(f'update ' + f'"repl_workstation" set "fork_time" = %s, "fork_sync_time" = %s '
                                          f'where "id" = %s',
-                            [datetime.datetime.now(), fork_sync_time, self._id])
+                            [kioskstdlib.get_utc_now(no_tz_info=True, no_ms=True), fork_sync_time, self._id])
                 KioskSQLDb.commit()
                 cur.close()
                 return True

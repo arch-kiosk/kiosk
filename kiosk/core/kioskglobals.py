@@ -16,7 +16,7 @@ from kioskjwt import KioskJWT
 from flask_httpauth import HTTPTokenAuth
 from uic.uictree import UICTree
 from uic.uicstream import UICStream, UICKioskFile
-
+from tz.kiosktimezones import KioskTimeZones
 import datetime
 import kioskversion
 import threading
@@ -44,6 +44,7 @@ url_for_publisher = UrlForPublisher()
 script_manager = ScriptManager()
 login_manager = LoginManager()
 type_repository = TypeRepository()
+kiosk_time_zones = KioskTimeZones(cache_time_zones=True)
 csrf = None
 api = None
 

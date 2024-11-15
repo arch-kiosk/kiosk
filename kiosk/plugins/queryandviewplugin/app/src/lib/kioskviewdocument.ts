@@ -14,6 +14,7 @@ import { DataSetDefinition } from "../../kioskapplib/datasetdefinition";
 
 export class KioskViewDocument {
     private _data: apittypes.ApiKioskViewDocument;
+    private _types: {[key: string]: Array<string>}
     private _compilation: apittypes.ApiKioskViewCompilation;
     private readonly MAX_VERSION = 1;
     private _dataContext : DataContext = undefined
@@ -25,6 +26,10 @@ export class KioskViewDocument {
 
     get name() {
         return this._compilation.name;
+    }
+
+    get types() {
+        return this._types
     }
 
     get recordType() {
@@ -95,6 +100,19 @@ export class KioskViewDocument {
         this._dsd = new DataSetDefinition()
         this._dsd.loadFromDict(this._data["kioskview.dsd"])
         this._compilation = this._data.compilation
+        this._build_types()
+    }
+
+    _build_types() {
+        this._types = {}
+        let data = this._data["kioskview.data"]
+        let tables = Object.keys(data)
+        for (let table of tables) {
+            if (data[table].length > 0) {
+                let fields = data[table][0]
+                this._types[table] = fields.map(f => this._dsd.get_field_data_type(table, f))
+            }
+        }
     }
 
     _assert_data() {
@@ -112,7 +130,7 @@ export class KioskViewDocument {
     getParts(groupId: string) {
         if (!this._data.compilation.groups.hasOwnProperty(groupId)) throw `KioskViewDocument.getParts: Group ${groupId} unknown.`
         const groupParts = Object.keys(this._compilation.groups[groupId].parts).map(
-            partId => new KioskViewGroupPart(this._data, groupId, partId, this._dataContext))
+            partId => new KioskViewGroupPart(this._data, groupId, partId, this._types, this._dataContext))
         groupParts.sort(
             (a, b) =>
                 a.position < b.position ? -1 : (a.position > b.position ? 1 : 0))

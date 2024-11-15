@@ -4,6 +4,7 @@ import os
 import sys
 from importlib import import_module, invalidate_caches
 
+import kioskstdlib
 from kiosklogger import KioskLogger
 from mcpinterface.mcpconstants import MCPJobStatus
 
@@ -196,7 +197,13 @@ def import_and_start_worker(cfg, class_name, gs, job, module_name):
 def load_general_store(cfg):
     from sync_plugins.redisgeneralstore.redisgeneralstore import RedisGeneralStore
 
-    return RedisGeneralStore(cfg)
+    gs_id = ""
+    try:
+        gs_id = cfg.config["gs_id"]
+    except:
+        pass
+
+    return RedisGeneralStore(cfg, gs_id=gs_id)
 
 
 def init_system_message_list(gs, cfg):

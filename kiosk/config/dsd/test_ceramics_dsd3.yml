@@ -13,59 +13,59 @@ config:
         scope:
           su_ceramics:
             pottery_images: {}
-su_ceramics:
-  structure:
-    1:
-      id: [datatype(NUMBER),local_id("arch_context")]
-      object: [datatype(VARCHAR)]
-      func_cat: [datatype(VARCHAR)]
-      func_sub_cat: [datatype(VARCHAR)]
-      form_and_comparisons: [datatype(VARCHAR)]
-      measurements: [datatype(VARCHAR)]
-      drawn: [datatype(VARCHAR)]
-      photographed: [datatype(VARCHAR)]
-      coarseness: [datatype(VARCHAR)]
-      fabric: [datatype(VARCHAR)]
-      manufacture: [datatype(VARCHAR)]
-      finish_and_decoration: [datatype(VARCHAR)]
-      other_observations: [datatype(VARCHAR)]
-      chronology: [datatype(VARCHAR)]
-      cm_uid: [datatype(UUID), join("collected_material")]
-      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
-      arch_context: [datatype(VARCHAR), identifier()]
-      uid: [datatype(UUID), replfield_uuid()]
-      created: [datatype(TIMESTAMP), replfield_created()]
-      modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
-
-su_ceramics_preprocessing_entry:
-  structure:
-    2:
-      cm_uid: [datatype(UUID), join("collected_material")]
-      category_1: [datatype(VARCHAR)]
-      category_2: [datatype(VARCHAR)]
-      count: [datatype(NUMBER),default(0)]
-      weight: [datatype(NUMBER),default(0)]
-      uid: [datatype(UUID), replfield_uuid()]
-      created: [datatype(TIMESTAMP), replfield_created()]
-      modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
-    1:
-      cm_uid: [datatype(UUID), join("collected_material")]
-      category_1: [datatype(VARCHAR)]
-      category_2: [datatype(VARCHAR)]
-      count: [datatype(NUMBER)]
-      weight: [datatype(NUMBER)]
-      uid: [datatype(UUID), replfield_uuid()]
-      created: [datatype(TIMESTAMP), replfield_created()]
-      modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
-  migration:
-    2:
-      upgrade:
-        - alter("count")
-        - alter("weight")
-
+#su_ceramics:
+#  structure:
+#    1:
+#      id: [datatype(NUMBER),local_id("arch_context")]
+#      object: [datatype(VARCHAR)]
+#      func_cat: [datatype(VARCHAR)]
+#      func_sub_cat: [datatype(VARCHAR)]
+#      form_and_comparisons: [datatype(VARCHAR)]
+#      measurements: [datatype(VARCHAR)]
+#      drawn: [datatype(VARCHAR)]
+#      photographed: [datatype(VARCHAR)]
+#      coarseness: [datatype(VARCHAR)]
+#      fabric: [datatype(VARCHAR)]
+#      manufacture: [datatype(VARCHAR)]
+#      finish_and_decoration: [datatype(VARCHAR)]
+#      other_observations: [datatype(VARCHAR)]
+#      chronology: [datatype(VARCHAR)]
+#      cm_uid: [datatype(UUID), join("collected_material")]
+#      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+#      arch_context: [datatype(VARCHAR), identifier()]
+#      uid: [datatype(UUID), replfield_uuid()]
+#      created: [datatype(TIMESTAMP), replfield_created()]
+#      modified: [datatype(TIMESTAMP), replfield_modified()]
+#      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+#
+#su_ceramics_preprocessing_entry:
+#  structure:
+#    2:
+#      cm_uid: [datatype(UUID), join("collected_material")]
+#      category_1: [datatype(VARCHAR)]
+#      category_2: [datatype(VARCHAR)]
+#      count: [datatype(NUMBER),default(0)]
+#      weight: [datatype(NUMBER),default(0)]
+#      uid: [datatype(UUID), replfield_uuid()]
+#      created: [datatype(TIMESTAMP), replfield_created()]
+#      modified: [datatype(TIMESTAMP), replfield_modified()]
+#      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+#    1:
+#      cm_uid: [datatype(UUID), join("collected_material")]
+#      category_1: [datatype(VARCHAR)]
+#      category_2: [datatype(VARCHAR)]
+#      count: [datatype(NUMBER)]
+#      weight: [datatype(NUMBER)]
+#      uid: [datatype(UUID), replfield_uuid()]
+#      created: [datatype(TIMESTAMP), replfield_created()]
+#      modified: [datatype(TIMESTAMP), replfield_modified()]
+#      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+#  migration:
+#    2:
+#      upgrade:
+#        - alter("count")
+#        - alter("weight")
+#
 
 pottery_images:
   structure:

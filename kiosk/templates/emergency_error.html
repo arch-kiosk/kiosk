@@ -78,9 +78,9 @@
       <h1>Sorry, but Kiosk is unwell.</h1>
       <p style="font-weight: bold">You can try <a href="/logout">a fresh login by clicking here.</a></p>
       {%  endif %}
-      <h2>reason:</h2>
+      <h2 style="margin-top: 1em">The reason for the error state is:</h2>
       <div class="emergency-system-message"><p>{{ reason }}</p></div>
-      <h2>messages:</h2>
+      <h2>current system messages:</h2>
       {% if not system_messages %}
         <div>The system had nothing to say</div>
       {% endif  %}

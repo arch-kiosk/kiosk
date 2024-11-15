@@ -109,13 +109,15 @@ class MCPTerminalView(MCPView):
         with self.term.location(y=0):
             if self.in_debug_mode:
                 print(self.term.black + self.term.on_color_rgb(*self.bg_red) +
-                      self.term.ljust(f"Kiosk Master Control Program {MCP_VERSION}",
+                      self.term.ljust(f"Kiosk Master Control Program {MCP_VERSION}"
+                                      f"{' with id: ' + gs.gs_id if gs.gs_id else ''}",
                                       width=self.term.width - pulse_width))
                 print(self.term.on_color_rgb(*self.bg_red) +
                       self.term.ljust(f"using {config_file} and in debug mode", width=self.term.width - pulse_width))
             else:
                 print(self.term.black + self.term.on_color_rgb(*self.bg_green) +
-                      self.term.ljust(f"Kiosk Master Control Program {MCP_VERSION}",
+                      self.term.ljust(f"Kiosk Master Control Program {MCP_VERSION}"
+                                      f"{' with id: ' + gs.gs_id if gs.gs_id else ''}",
                                       width=self.term.width - pulse_width))
                 print(self.term.on_color_rgb(*self.bg_grey) +
                       self.term.ljust(f"using {config_file}", width=self.term.width - pulse_width))
@@ -349,7 +351,7 @@ def create_new_file_log(root_path, cfg, logger: logging.Logger):
 
     if log_path:
         close_all_file_loggers(logger)
-        log_file = os.path.join(log_path, "MCPCORE_#a_#d#m#y-#H#M.log")
+        log_file = os.path.join(log_path, f"MCPCORE_{gs.gs_id}_#a_#d#m#y-#H#M.log")
         log_pattern = log_file.replace("#", "%")
 
         # todo: This is such a hack. But it makes sure, that two processes do not produce two different logs if
@@ -398,26 +400,41 @@ if __name__ == '__main__':
         raise Exception(f"Could not load Kiosk configuration from '{config_file}'")
     print(f" ** MCP running within {sync_config.base_path} using {config_file} ** ")
 
+    development_system = False
+    try:
+        development_system = kioskstdlib.to_bool(sync_config["development"]["development_system"])
+    except BaseException:
+        pass
+
+    if development_system:
+        print(f" ** MCP running on development system: Safety checks disabled ** ")
+
     in_debug_mode = False
-    if len(sys.argv) > 2:
-        param = sys.argv[2]
-        if param == "--debug":
-            in_debug_mode = True
-        else:
-            raise Exception(f"Unknown parameter '{sys.argv[2]}'")
+    gs_id = ""
+    for c, param in enumerate(sys.argv):
+        # param = sys.argv[2]
+        if c > 1:
+            if param == "--debug":
+                in_debug_mode = True
+            elif param.startswith("--gs_id="):
+                gs_id = param.rsplit("=")[1]
+            else:
+                raise Exception(f"Unknown parameter '{param}'")
 
     logger = init_logging(sync_config)
 
-    create_new_file_log(root_path, sync_config, logger)
-    logging.info(f" ** MCP {MCP_VERSION} running within {sync_config.base_path} using {config_file} ** ")
-
-    gs = RedisGeneralStore(sync_config)
+    gs = RedisGeneralStore(sync_config, gs_id=gs_id)
     if not gs.is_running():
         print(f"MCP Terminal, main: Redis not running. Aborting.")
         logging.error(f"ERROR in MCP Terminal, main: Redis not running. Aborting.")
         exit(-1)
 
-    if MCPQueue(gs).is_mcp_alive():
+    create_new_file_log(root_path, sync_config, logger)
+    logging.info(f" ** MCP {MCP_VERSION} running within {sync_config.base_path} using {config_file} ** ")
+    if gs_id:
+        logging.info(f" ** MCP running as {gs_id} **")
+
+    if MCPQueue(gs).is_mcp_alive() and not (development_system and in_debug_mode):
         print(f"MCP Terminal, main: There is another system. Aborting. (Please wait 10 seconds and try again)")
         logging.error(f"ERROR in MCP Terminal, main: Attempt to start MCP twice.")
         exit(0)

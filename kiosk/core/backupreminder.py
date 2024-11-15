@@ -6,7 +6,7 @@ from typing import Union
 import kioskglobals
 import kiosklib
 import kioskstdlib
-import urapdatetimelib
+import kioskdatetimelib
 from messaging.systemmessagecatalog import SYS_MSG_ID_BACKUP_REMINDER
 
 

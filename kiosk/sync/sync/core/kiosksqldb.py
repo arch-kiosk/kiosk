@@ -1,4 +1,5 @@
 from typing import Union
+import os
 
 import nanoid
 import psycopg2
@@ -37,6 +38,7 @@ class KioskSQLDb(SqlSafeIdentMixin):
     @classmethod
     def _get_psycopg_dsn(cls):
         if not cls._dsn:
+            os.environ["PGTZ"] = "UTC"
             cfg = SyncConfig.get_config()
             db_name = cfg.database_name
             usr = cfg.database_usr_name
@@ -739,6 +741,7 @@ class KioskSQLDb(SqlSafeIdentMixin):
     @classmethod
     def get_records(cls, sql, params=[], max_records=0, add_column_row=False, raise_exception=False):
         result = []
+        cur = None
         try:
             cur = cls.get_dict_cursor()
             if cur:
@@ -754,7 +757,7 @@ class KioskSQLDb(SqlSafeIdentMixin):
                     r = cur.fetchone()
 
         except Exception as e:
-            logging.error(f"Exception in get_records, sql= {cur.query}: {repr(e)}")
+            logging.error(f"Exception in get_records, sql= {cur.query if cur else ''}: {repr(e)}")
             KioskSQLDb.rollback()
             if raise_exception:
                 try:
@@ -900,7 +903,10 @@ class KioskSQLDb(SqlSafeIdentMixin):
             fail_on_key_not_found: if True, the function fails if an update statement affects 0 rows. \n
             commit: if set to True, manipulations will be persisted. \n
 
-             """
+            NOTE: This is deprecated.
+            """
+        logging.error(f"{cls.__name__}.update_table_data: call to deprecated function")
+        raise Exception(f"{cls.__name__}.update_table_data: call to deprecated function")
         overall_row_count = 0
         if filename:
             try:
@@ -965,7 +971,12 @@ class KioskSQLDb(SqlSafeIdentMixin):
 
     @classmethod
     def update_by_uuid(cls, table, uuid, data={}, user="sys", set_repl_data=True, auto_commit=True):
-        """ updates a row in a table according to the given uid """
+        """ updates a row in a table according to the given uid
+
+            deprecated.
+        """
+        logging.error(f"{cls.__name__}.update_by_uuid: call to deprecated function")
+        raise Exception(f"{cls.__name__}.update_by_uuid: call to deprecated function")
         params = []
         if not data or not table:
             return None, "KioskSQLDb.update_by_uuid: No data or no table provided", ""
@@ -1113,3 +1124,12 @@ class KioskSQLDb(SqlSafeIdentMixin):
             psycopg2.sql.SQL("CREATE SCHEMA IF NOT EXISTS {0}").format(psycopg2.sql.Identifier(namespace)))
         if commit:
             cls.commit()
+
+    @classmethod
+    def get_default_time_zone(cls):
+        """
+        returns the default time zone setting of the current session (or PostgreSQL in general) as uppercase.
+        :return: uppercase default time zone
+        """
+        r = cls.get_records("show time zone")[0]
+        return r[0].upper()

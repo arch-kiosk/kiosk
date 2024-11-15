@@ -1,3 +1,4 @@
+# todo time zone simpliciation (done)
 import logging
 import sys
 import os
@@ -87,7 +88,7 @@ class PostgresDbMigration(DatabaseMigration):
         cur = self._get_dict_cursor()
         try:
             cur.execute(sql, params)
-            print(cur.query)
+            # print(cur.query)
             rc = cur.rowcount
         except BaseException as e:
             logging.error(f"PostgresMigration.execute_sql: Exception {repr(e)}, query:{cur.query}")
@@ -226,6 +227,18 @@ class PostgresDbMigration(DatabaseMigration):
 
         if sync_tools:
             fields["repl_workstation_id"] = {"datatype": ["VARCHAR"], "not_null": []}
+
+        # add tz fields
+        tz_fields = []
+        for field_name, field_params in fields.items():
+            if ("datatype" in field_params.keys() and
+                self.dsd.translate_datatype(field_params["datatype"][0]) == "timestamp" and
+                    "replfield_modified" in field_params.keys()):
+                tz_fields.append(field_name)
+
+        for f in tz_fields:
+            fields[f + "_tz"] = {"datatype": ["TZ"], "default": ["NULL"]}
+            fields[f + "_ww"] = {"datatype": ["timestamp"], "default": ["NULL"]}
 
         primary_key_field = ""
         for field_name in fields.keys():
@@ -440,6 +453,7 @@ class PostgresDbMigration(DatabaseMigration):
 
         return result
 
+    # todo time zone simplified: What to do here?
     @staticmethod
     def _adapter_get_now_str():
         return f"'{datetime.datetime.now().isoformat()}'"
@@ -472,12 +486,22 @@ class PostgresDbMigration(DatabaseMigration):
             sql_script: str = ""
             for _ in range(0, len(lines)):
                 line = lines[_]
-                line = self.substitute_variables(line)
+                line, warnings = self.substitute_variables(line)
+                if warnings and "NOW" in warnings:
+                    logging.warning(f"{self.__class__.__name__}._adapter_get_sql_lines: "
+                                  f"using the {'NOW'} variable is discouraged for migration scripts "
+                                  f"because of potential time zone issues. sql_instruction: {sql_instruction}")
+
                 sql_script = "\n".join([sql_script, self.schematize_curly_tables(line=line,
                                                                                  prefix=prefix,
                                                                                  namespace=namespace)])
         else:
-            lines = self.substitute_variables(sql_instruction)
+            lines, warnings = self.substitute_variables(sql_instruction)
+            if warnings and "NOW" in warnings:
+                logging.warning(f"{self.__class__.__name__}._adapter_get_sql_lines: "
+                                f"using the {'NOW'} variable is discouraged for migration scripts "
+                                f"because of potential time zone issues. sql_instruction: {sql_instruction}")
+
             sql_script = self.schematize_curly_tables(lines, prefix=prefix, namespace=namespace)
 
         return sql_script
@@ -532,7 +556,7 @@ class PostgresDbMigration(DatabaseMigration):
         except BaseException as e:
             result = False
             # self._rollback_savepoint(cur, "set_migration_flag")
-            print(repr(e))
+            # print(repr(e))
             logging.error(f"{self.__class__.__name__}.set_migration_flag: {repr(e)}")
         finally:
             cur.close()

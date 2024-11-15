@@ -17,6 +17,7 @@ class KioskUser(db.Model):
     repl_user_id = db.Column(db.String())
     groups = db.Column(db.String())
     must_change_pwd = db.Column(db.Boolean())
+    force_tz_index = db.Column(db.Integer())
 
 
 class KioskPrivilege(db.Model):
@@ -93,24 +94,26 @@ class KioskFileManagerDirectories(db.Model):
     server_restart = db.Column(db.Boolean())
 
 
-class KioskFileMakerRecordingConstants(db.Model):
-    __tablename__ = "constants"
+# class KioskFileMakerRecordingConstants(db.Model):
+#     __tablename__ = "constants"
+#
+#     db: SQLAlchemy
+#
+#     uid = db.Column(UUID(as_uuid=True), primary_key=True,
+#                     unique=True, nullable=False, server_default="gen_random_uuid()")
+#     id = db.Column(db.String(), unique=True, nullable=False)
+#     category = db.Column(db.String(), nullable=False)
+#     value = db.Column(db.String(), nullable=True)
+#     value_ts = db.Column(db.DateTime(), nullable=True)
+#     field_type = db.Column(db.String(), nullable=True)
+#     sync = db.Column(db.Numeric(), nullable=True)
+#     modified_by = db.Column(db.String(), nullable=False)
+#     modified = db.Column(DateTime, nullable=True, onupdate="now()", server_default=func.now())
+#     modified_tz = db.Column(DateTime, nullable=True, onupdate="now()", server_default=func.now())
+#     created = db.Column(db.DateTime(), nullable=True, server_default=func.now())
 
-    db: SQLAlchemy
 
-    uid = db.Column(UUID(as_uuid=True), primary_key=True,
-                    unique=True, nullable=False, server_default="gen_random_uuid()")
-    id = db.Column(db.String(), unique=True, nullable=False)
-    category = db.Column(db.String(), nullable=False)
-    value = db.Column(db.String(), nullable=True)
-    value_ts = db.Column(db.DateTime(), nullable=True)
-    field_type = db.Column(db.String(), nullable=True)
-    sync = db.Column(db.Numeric(), nullable=True)
-    modified_by = db.Column(db.String(), nullable=False)
-    modified = db.Column(DateTime, nullable=True, onupdate="now()", server_default=func.now())
-    created = db.Column(db.DateTime(), nullable=True, server_default=func.now())
-
-
+# KioskQueries are only there so that queries can be deleted.
 class KioskQueries(db.Model):
     __tablename__="kiosk_queries"
     uid = db.Column(UUID(as_uuid=True), primary_key=True,

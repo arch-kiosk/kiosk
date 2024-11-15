@@ -5,7 +5,7 @@ import pytest
 import datetime
 
 import kioskstdlib
-import urapdatetimelib
+import kioskdatetimelib
 from dsd.dsd3singleton import Dsd3Singleton
 from reportingdock import ReportingDock
 from reportingdock.reportinglib import ReportingException

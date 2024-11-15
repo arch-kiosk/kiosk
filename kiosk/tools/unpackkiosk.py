@@ -6,6 +6,8 @@ import subprocess
 
 from os import path
 
+from win32trace import flush
+
 from kioskrequirements import KioskRequirements
 
 params = {"-fr": "fr", "--unpack_file_repository": "fr",
@@ -39,6 +41,7 @@ params = {"-fr": "fr", "--unpack_file_repository": "fr",
           "--patch": "patch",
           "--no_housekeeping": "nh",
           "-nh": "nh",
+          "--no_timezones": "ntz",
           "--guided": "guided",
           "--test_drive": "test_drive",
           "-rm": "rm",
@@ -50,6 +53,7 @@ params = {"-fr": "fr", "--unpack_file_repository": "fr",
           "--clear_file_cache": "clear_file_cache",
           "--project_id": "project_id",
           "--skip_installation": "skip_installation",
+          "--renew_workstations": "renew",
           }
 
 
@@ -95,18 +99,21 @@ def usage():
                                   use =force to actually invalidate the file cache entries and remove the files  
         -na/--no_admin: run unpackkiosk without admin privileges.
         -nr/ --no_redis: Don't check and use redis.
+        -no_timezones: Don't update the time zone catalog.
         -sp/ --sudo_password=password: Needed to write the redis call into start.ps1. Necessary only for a new install and
                                        if redis is being used at all (--no_redis is not set)
         -rm: restart machine at the end of unpackkiosk - if it was successful.
         --exclude_mcp: Does not unpack the MCPCore in order not to crash into a running MCP
         --update_custom_modules: explicitly update custom modules if -c is not set
         --skip_installation: Skips updating files and stuff and only does the aftermath
+        --renew_workstations: renews all workstations that are in a state < in_the_field
         --patch: a short cut for patching core code files only. Does not temper with configuration, python or the db.
                 Just unpacks the core code files. Implies -c, -o, --no_custom_directories, --no_config, 
                 --no_redis, --no_migration, --no_thumbnails    
     """)
     sys.exit(0)
 
+current_kiosk_version = ""
 
 def interpret_param(known_param, param):
     new_option = params[known_param]
@@ -291,24 +298,30 @@ def check_redis():
 
 def transform_file_repository(cfg_file):
     from transformfilerepository import TransformFileRepository
-    print("Transforming the file repository if necessary: ", end="", flush=True)
-    transform = TransformFileRepository(cfg_file)
-    transform.console = True
-    if not transform.transform():
-        logging.error("Transform file repository failed miserably!")
-    if transform.get_errors() > 0:
-        logging.warning(f"Transform file repository reported trouble with {transform.get_errors()} files.")
+    if kioskstdlib.cmp_semantic_version(current_kiosk_version, "1.5") == -1:
+        print("Transforming the file repository if necessary: ", end="", flush=True)
+        transform = TransformFileRepository(cfg_file)
+        transform.console = True
+        if not transform.transform():
+            logging.error("Transform file repository failed miserably!")
+        if transform.get_errors() > 0:
+            logging.warning(f"Transform file repository reported trouble with {transform.get_errors()} files.")
+    else:
+        logging.info(f"Transform file repository skipped because we're updating a Kiosk versions > 1.5.")
 
 
 def transform_file_cache(cfg_file):
     from transformfilecache import TransformFileCache
-    print("Transforming file cache directories if necessary: ", end="", flush=True)
-    transform = TransformFileCache(cfg_file)
-    transform.console = True
-    if not transform.transform():
-        logging.error("Transform file cache failed miserably!")
-    if transform.get_errors() > 0:
-        logging.warning(f"Transform file cache reported trouble with {transform.get_errors()} files.")
+    if kioskstdlib.cmp_semantic_version(current_kiosk_version, "1.5") == -1:
+        print("Transforming file cache directories if necessary: ", end="", flush=True)
+        transform = TransformFileCache(cfg_file)
+        transform.console = True
+        if not transform.transform():
+            logging.error("Transform file cache failed miserably!")
+        if transform.get_errors() > 0:
+            logging.warning(f"Transform file cache reported trouble with {transform.get_errors()} files.")
+    else:
+        logging.info(f"Transform file cache skipped because we're updating a Kiosk versions > 1.5.")
 
 
 def clear_file_cache(cfg_file, force=False):
@@ -392,16 +405,33 @@ def refresh_full_text_index(cfg_file: str):
         from dsd.dsd3 import DataSetDefinition
         from dsd.dsd3singleton import Dsd3Singleton
 
+        print("refreshing full text index...", flush=True, end="")
         cfg = SyncConfig.get_config({'config_file': cfg_file})
         dsd = Dsd3Singleton.get_dsd3()
         assert dsd.append_file(cfg.dsdfile)
         fts = FTS(dsd, cfg)
         fts.rebuild_fts(console_output=True)
+        print("okay", flush=True, end="\n")
 
     except BaseException as e:
+        print("failed", flush=True, end="\n")
         logging.error(f"refresh_full_text_index: Exception in refresh_full_text_index: {repr(e)}. "
                       f"Continuing, though ...")
 
+
+def check_database_integrity(cfg_file: str):
+    try:
+        from sync_config import SyncConfig
+        from tools.KioskDatabaseIntegrity import KioskDatabaseIntegrity
+        print("checking database integrity...", flush=True, end="")
+        cfg = SyncConfig.get_config({'config_file': cfg_file})
+        dbint = KioskDatabaseIntegrity(cfg)
+        dbint.ensure_database_integrity()
+        print("okay", flush=True, end="\n")
+
+    except BaseException as e:
+        print("failed", flush=True, end="\n")
+        logging.error(f"Error when checking database integrity: {repr(e)}. Continuing, though ...")
 
 def delete_old_directories():
     dirs = [os.path.join(kiosk_dir, "sync", "sync", "sync_plugin", "fileimporturaphook")]
@@ -413,6 +443,74 @@ def delete_old_directories():
         except BaseException as e:
             pass
 
+
+def renew_workstations(cfg_file: str):
+    """
+    renews all FileMakerRecordingWorkstation docks.
+
+    :param cfg_file:
+    :return: number of successfully renewed docks. -1 in case of a general error.
+    """
+    try:
+        from sync_config import SyncConfig
+        from dsd.dsd3 import DataSetDefinition
+        from dsd.dsd3singleton import Dsd3Singleton
+        from synchronization import Synchronization
+        from sync_plugins.filemakerrecording.filemakerworkstation import FileMakerWorkstation
+
+        print("renewing FileMaker recording docks:", flush=True, end="\n")
+        c = 0
+        cfg = SyncConfig.get_config({'config_file': cfg_file})
+        dsd = Dsd3Singleton.get_dsd3()
+        sync = Synchronization()
+        sync.type_repository.register_type("Workstation", "FileMakerWorkstation", FileMakerWorkstation)
+        docks = sync.list_workstations()
+        for dock in docks:
+            if isinstance(dock, FileMakerWorkstation):
+                dock:FileMakerWorkstation
+                try:
+                    state = dock.get_code_from_state(dock.get_state())
+                    if state < dock.get_code_from_state(dock.IN_THE_FIELD):
+                        print(f"Renewing {dock.get_id()} (state {dock.get_state()})...", flush=True, end="")
+                        if dock.renew():
+                            print("okay", flush=True, end="\n")
+                            c += 1
+                        else:
+                            raise Exception("renewal failed. Have a look at the log.")
+                    else:
+                        print(f"Renewing {dock.get_id()}... skipped because dock is in state {dock.get_state()}",
+                              flush=True, end="\n")
+
+                except BaseException as e:
+                    logging.error(f"unpackkiosk.renew_workstation: {repr(e)}")
+                    print(f"failed ({repr(e)})", flush=True, end="\n")
+                    return -1
+        print("renewing FileMaker recording docks finished", flush=True, end="\n")
+        return c
+
+    except BaseException as e:
+        logging.error(f"unpackkiosk.renew_workstation: {repr(e)}")
+        print("failed", flush=True, end="\n")
+
+def get_current_kiosk_version(kiosk_dir):
+    if kioskstdlib.file_exists(os.path.join(kiosk_dir, "kiosk.version")):
+        try:
+            return kioskstdlib.get_kiosk_version_from_file(os.path.join(kiosk_dir, "kiosk.version"))
+        except BaseException as e:
+            logging.error(f"get_current_kiosk_version: {repr(e)}")
+
+    # Must be pre kiosk.version. Let's read it from the kioskversion.py
+    import importlib.util
+    import sys
+    filepath = os.path.join(kiosk_dir, "core", "kioskversion.py")
+    if not kioskstdlib.file_exists(filepath):
+        logging.error(f"unpackkiosk.get_current_kiosk_version: No file {filepath}")
+        return "0"
+    spec = importlib.util.spec_from_file_location("updatever", filepath)
+    updatever = importlib.util.module_from_spec(spec)
+    sys.modules["updatever"] = updatever
+    spec.loader.exec_module(updatever)
+    return updatever.kiosk_version
 
 if __name__ == '__main__':
     options = {}
@@ -450,25 +548,9 @@ if __name__ == '__main__':
         else:
             print(f"parameter \"{param}\" unknown.")
             usage()
-    if "test_drive" in options:
-        logging.info("test_drive parameter recognized. unpackkiosk will stop here. Options were:")
-        logging.info(",".join([f"{k}={v}" for k, v in options.items()]))
-        logging.info(f"kiosk-dir: {kiosk_dir}")
-        logging.info(f"source-dir: {src_dir}")
-        # print("test_drive parameter recognized. unpackkiosk will stop here. Options were:")
-        # print(",".join([f"{k}={v}" for k,v in options.items()]))
-        # print(f"kiosk-dir: {kiosk_dir}")
-        # print(f"source-dir: {src_dir}")
-        sys.exit(0)
 
-    # removed: if "c" in options or
     if "p" in options:
         pip_basics()
-
-    # changed: if "c" in options:
-    # if "p" in options:
-    #     now done with the requirements.kiosk.txt file itself.
-    #     install_libraries(src_dir)
 
     if "p" in options:
         pip_install_requirements(src_dir)
@@ -497,6 +579,14 @@ if __name__ == '__main__':
                 logging.error(f"ERROR: REDIS is not installed or at least not running ...")
                 sys.exit(0)
 
+
+    if "test_drive" in options and "o" not in options:
+        logging.info("test_drive parameter for a new installation recognized. unpackkiosk will stop here. Options were:")
+        logging.info(",".join([f"{k}={v}" for k, v in options.items()]))
+        logging.info(f"kiosk-dir: {kiosk_dir}")
+        logging.info(f"source-dir: {src_dir}")
+        sys.exit(0)
+
     from kioskrestore import KioskRestore
 
     KioskRestore.in_console = True
@@ -511,6 +601,35 @@ if __name__ == '__main__':
             if not path.isfile(cfg_file):
                 logging.error(f"Configuration file {cfg_file} does not seem to exist.")
                 usage()
+            current_version = get_current_kiosk_version(kiosk_dir)
+            if not current_version:
+                logging.error("Error: Cannot read the version of the existing Kiosk")
+                sys.exit(0)
+            if current_version == "0":
+                logging.error("Error: The Kiosk you try to update is so old that it does not even have a "
+                              "kioskversion.py let alone the newer kiosk.version. "
+                              "Please make sure you really want to update this Kiosk "
+                              "(and then create a kiosk.version manually).")
+                sys.exit(0)
+            try:
+                _current_kiosk_version = kioskstdlib.get_kiosk_semantic_version(current_version)
+                if _current_kiosk_version == ("",""):
+                    raise "Cannot parse version"
+                if _current_kiosk_version[0] != "1":
+                    raise "Cannot update anything but generation 1"
+                current_kiosk_version = _current_kiosk_version[1]
+            except BaseException as e:
+                logging.error(f"Error: The Kiosk you try to update has an illegal version \"{current_version}\" ")
+                sys.exit(0)
+
+            print(f"updating an existing Kiosk version \"{current_version}\"", end="\n")
+
+            if "test_drive" in options:
+                logging.info("test_drive parameter for an update recognized. unpackkiosk will stop here. Options were:")
+                logging.info(",".join([f"{k}={v}" for k, v in options.items()]))
+                logging.info(f"kiosk-dir: {kiosk_dir}")
+                logging.info(f"source-dir: {src_dir}")
+                sys.exit(0)
 
             if "skip_installation" not in options:
                 if "noc" not in options:
@@ -590,16 +709,32 @@ if __name__ == '__main__':
     if this_is_an_update and "nomg" not in options:
         try:
             if not KioskRestore.migrate_database(cfg_file):
-                print(f"ERROR: migrate_database returned False. Database was not properly migrated: STOPPING.")
+                print(f"ERROR: migrate_database returned False. Database was not properly migrated: "
+                      f"STOPPING UNPACKKIOSK PREMATURELY.")
                 sys.exit(0)
             else:
                 print("Database Migration successful")
+                if "ntz" not in options:
+                    try:
+                        from tz.kiosktimezones import KioskTimeZones
+                        tz_dir = os.path.join(kiosk_dir, "tools", "tz")
+                        kiosk_tz = KioskTimeZones()
+                        kiosk_tz.update_local_kiosk_time_zones(os.path.join(tz_dir, "kiosk_tz.json"))
+                        print("Updated local Kiosk time zones")
+                    except BaseException as e:
+                        print(f"ERROR when updating time zones: {repr(e)}. This is not critical. "
+                              f"But you will have to update the time zone catalog manually")
+                else:
+                    print("Skipped updating the time zone catalog")
+
         except BaseException as e:
             print(f"ERROR: migrate_database threw Exception {repr(e)}: STOPPING.")
             sys.exit(0)
     else:
         if not this_is_an_update:
             print("Migration skipped because this is a new installation that might need configuration first.")
+            print("NOTE that after Kiosk has been through the first migration "
+                  "you need to update the time zone catalog manually.")
 
     if this_is_an_update:
         try:
@@ -620,17 +755,22 @@ if __name__ == '__main__':
         else:
             print("Skipped creation of thumbnails")
 
-    if this_is_an_update and "nh" not in options:
-        try:
-            housekeeping(cfg_file)
-        except BaseException as e:
-            print(f"Exception when starting housekeeping: {repr(e)}")
-            print(sys.path)
+        if "renew" in options:
+            renew_workstations(cfg_file)
+
+        if "nh" not in options:
+            try:
+                housekeeping(cfg_file)
+            except BaseException as e:
+                print(f"Exception when starting housekeeping: {repr(e)}")
+                print(sys.path)
 
     install_default_queries(cfg_file)
 
     if this_is_an_update:
+        check_database_integrity(cfg_file)
         refresh_full_text_index(cfg_file)
+
 
     logging.info("unpackkiosk is done.")
     if "rm" in options:
@@ -640,3 +780,9 @@ if __name__ == '__main__':
         except BaseException as e:
             logging.error(f"unpackkiosk: {repr(e)}")
             options.pop("rm")
+
+
+
+
+
+

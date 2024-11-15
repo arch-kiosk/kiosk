@@ -4,7 +4,10 @@ from kiosksqldb import KioskSQLDb
 from core.kioskcontrollerplugin import get_plugin_for_controller
 
 
+
 class ModelBugsAndFeatures:
+    # deprecated: We give up on the internal bugs and features system
+
     _views = ["Only open cases sorted by where and priority",
               "all cases sorted by where",
               "newest open cases on top"

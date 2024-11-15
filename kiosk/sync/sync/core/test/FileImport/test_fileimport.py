@@ -9,6 +9,7 @@ import pytest
 from win32api import SetFileAttributes, GetFileAttributes
 
 import filecontextutils
+import kioskstdlib
 import sync_plugins.fileimportstandardfilters.fileimportstandardfilters as stdfilters
 import synchronization
 from fileimport import FileImport
@@ -19,6 +20,7 @@ from kioskcontextualfile import KioskContextualFile
 from sync_config import SyncConfig
 from sync_plugins.redisgeneralstore.redisgeneralstore import RedisGeneralStore
 from test.testhelpers import KioskPyTestHelper
+from test.mock_timezoneinfo import mock_kiosk_time_zones
 from userconfig import UserConfig
 
 import zoneinfo
@@ -301,8 +303,9 @@ class TestFileImport(KioskPyTestHelper):
         # these files do not exist, but that does not matter for FileImportStandardFolderFilter
         std_file_filter.set_filter_configuration_values({"get_date_from_file": True,
                                                          "get_identifier_from_filename": False})
-        std_file_filter.set_path_and_filename(os.path.join(test_path, "test_files", "test_files",
-                                                           "EC-002 b in desparate need of optimization.jpg"))
+        f = os.path.join(test_path, "test_files", "test_files", "EC-002 b in desparate need of optimization.jpg")
+        kioskstdlib.set_file_date_and_time(f, datetime.datetime(2022, 9, 14))
+        std_file_filter.set_path_and_filename(f)
 
         rc = std_file_filter.get_file_information({})
         assert std_file_filter.is_active()
@@ -401,19 +404,20 @@ class TestFileImport(KioskPyTestHelper):
         file_import.modified_by = "lkh"
 
         # Folder and File contexts match, File is a collected material
-
-        assert file_import._import_single_file_to_repository(
-            os.path.join(test_path, "test_files", "build_context", "EC", "2018", "EC-001", "EC-001-1.jpg"))
+        import_file = os.path.join(test_path, "test_files", "build_context", "EC", "2018", "EC-001", "EC-001-1.jpg")
+        ts_import_file = kioskstdlib.get_earliest_date_from_file(import_file).replace(microsecond=0)
+        assert file_import._import_single_file_to_repository(import_file)
 
         test_values = {
+            'accept_duplicates': False,
             "path_and_filename": os.path.join(test_path, "test_files", "build_context", "EC", "2018", "EC-001",
                                               "EC-001-1.jpg"),
             "description": "",
             "identifier": "EC-001-1",
             "modified_by": "lkh",
-            "ts_file": datetime.datetime(2019, 7, 4, 14, 39, 2,
-                                         tzinfo=zoneinfo.ZoneInfo("US/Eastern")).astimezone().replace(tzinfo=None),
-            "tags": []
+            "ts_file": ts_import_file,
+            "tags": [],
+            'tz_index': None
         }
         mock_add_file_to_repository.assert_called_once_with(**test_values)
 
@@ -434,9 +438,11 @@ class TestFileImport(KioskPyTestHelper):
         assert file_import.execute(identifier_evaluator=lambda x: x not in ["file_one", "test", "GG-001-2"])
 
         test_basis = {
+            "accept_duplicates": True,
             "description": "",
             "modified_by": "sys",
-            "tags": ["-"]
+            "tags": ["-"],
+            'tz_index': None
         }
 
         test_values = [
@@ -444,36 +450,41 @@ class TestFileImport(KioskPyTestHelper):
                 "path_and_filename": os.path.join(test_path, "test_files", "build_context", "EC", "2018", "EB-002",
                                                   "EC-001-1.jpg"),
                 "identifier": "EC-001-1",
-                "ts_file": datetime.datetime(2019, 7, 4, 14, 39, 2,
-                                             tzinfo=zoneinfo.ZoneInfo("US/Eastern")).astimezone().replace(tzinfo=None)
+                "ts_file": kioskstdlib.get_earliest_date_from_file(
+                    os.path.join(test_path, "test_files", "build_context", "EC", "2018", "EB-002",
+                                 "EC-001-1.jpg")).replace(microsecond=0)
             },
             {
                 "path_and_filename": os.path.join(test_path, "test_files", "build_context", "EC", "2018", "EB-002",
                                                   "file_one.jpg"),
                 "identifier": "EB-002",
-                "ts_file": datetime.datetime(2019, 7, 4, 14, 39, 2,
-                                             tzinfo=zoneinfo.ZoneInfo("US/Eastern")).astimezone().replace(tzinfo=None)
+                "ts_file": kioskstdlib.get_earliest_date_from_file(
+                    os.path.join(test_path, "test_files", "build_context", "EC", "2018", "EB-002",
+                                                  "file_one.jpg")).replace(microsecond=0)
             },
             {
                 "path_and_filename": os.path.join(test_path, "test_files", "build_context", "EC", "2018", "EC-001",
                                                   "EC-001-1.jpg"),
                 "identifier": "EC-001-1",
-                "ts_file": datetime.datetime(2019, 7, 4, 14, 39, 2,
-                                             tzinfo=zoneinfo.ZoneInfo("US/Eastern")).astimezone().replace(tzinfo=None)
+                "ts_file": kioskstdlib.get_earliest_date_from_file(
+                    os.path.join(test_path, "test_files", "build_context", "EC", "2018", "EC-001",
+                                                  "EC-001-1.jpg")).replace(microsecond=0)
             },
             {
                 "path_and_filename": os.path.join(test_path, "test_files", "build_context", "EC", "2018", "EC-001",
                                                   "GG-001-2.jpg"),
                 "identifier": "EC-001",
-                "ts_file": datetime.datetime(2019, 7, 4, 14, 39, 2,
-                                             tzinfo=zoneinfo.ZoneInfo("US/Eastern")).astimezone().replace(tzinfo=None)
+                "ts_file": kioskstdlib.get_earliest_date_from_file(
+                    os.path.join(test_path, "test_files", "build_context", "EC", "2018", "EC-001",
+                                                  "GG-001-2.jpg")).replace(microsecond=0)
             },
             {
                 "path_and_filename": os.path.join(test_path, "test_files", "build_context", "EC", "2018", "EC-001",
                                                   "test.jpg"),
                 "identifier": "EC-001",
-                "ts_file": datetime.datetime(2019, 7, 4, 14, 39, 2,
-                                             tzinfo=zoneinfo.ZoneInfo("US/Eastern")).astimezone().replace(tzinfo=None)
+                "ts_file": kioskstdlib.get_earliest_date_from_file(
+                    os.path.join(test_path, "test_files", "build_context", "EC", "2018", "EC-001",
+                                                  "test.jpg")).replace(microsecond=0)
             }
         ]
         call_list = []
@@ -486,7 +497,7 @@ class TestFileImport(KioskPyTestHelper):
     @mock.patch.object(FileRepository, "add_contextual_file")
     def test_import_multiple_files_to_repository_contextual_file(self, mock_add_contextual_file, std_configure_filters,
                                                                  urapdb,
-                                                                 monkeypatch):
+                                                                 monkeypatch, mock_kiosk_time_zones):
         def mock__fetch_contexts(sql_instruction, prefix="", namespace=""):
             print("mock__fetch_contexts")
             return []
@@ -496,6 +507,7 @@ class TestFileImport(KioskPyTestHelper):
         mock_add_contextual_file.return_value = True
 
         file_import = std_configure_filters
+        file_import.tz_index = 96554373
 
         # Folder and File contexts match, File is a collected material
 
@@ -563,4 +575,3 @@ class TestFileImport(KioskPyTestHelper):
 
         assert file_import._import_single_file_to_repository(
             os.path.join(test_path, "test_files", "hidden_files", "_0G9A2462.JPG"))
-

@@ -13,15 +13,6 @@ export default defineConfig(({ command, mode }) => {
                 },
 
             }),
-            // copy({
-            //   targets: [ { src: '../../kioskfilemakerworkstationplugin/static/kioskfilemakerworkstation.css',
-            //     dest:'./kioskfilemakerworkstation/static'
-            //   }, {
-            //     src: '../../kioskfilemakerworkstationplugin/static/scripts',
-            //     dest:'./kioskfilemakerworkstation/static'
-            //   }],
-            //   hook: 'buildStart'
-            // }),
         ],
         esbuild:
             command == "build"
@@ -34,6 +25,9 @@ export default defineConfig(({ command, mode }) => {
             // commonjsOptions: {
             //   dynamicRequireTargets: "node_modules/"
             // },
+            watch: {
+                exclude: ['node_modules/**', "/__uno.css"]
+            },
             outDir: "../static/app",
             lib: {
                 entry: "src/app.ts",

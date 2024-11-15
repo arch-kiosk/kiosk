@@ -37,7 +37,7 @@ body
 .kiosk-modal-dialog
   background-color: $color-background
   font-family: $standard-text
-  font-size: 18px
+  font-size: $font-size-standard
   position: relative
   margin-left: auto
   margin-right: auto
@@ -155,12 +155,12 @@ body
   padding: 4px
   border: none
   //If you change this you need to change the kiosk-combobox-container button as well:
-  margin-bottom: 5px
-  margin-top: 2px
-  width: 100%
-  &:focus
-    margin-bottom: 3px
-    border-bottom: 2px solid rgba(0, 0, 0, 1)
+  //margin-bottom: 5px
+  //margin-top: 2px
+  //width: 100%
+  //&:focus
+  //  margin-bottom: 3px
+  //  border-bottom: 2px solid rgba(0, 0, 0, 1)
 
 .kiosk-dialog-disabled-textfield
   height: 2rem
@@ -295,8 +295,8 @@ body
   padding-left: 2px
   padding-right: 2px
 
-.kiosk-error-border
-  border: 2px dashed $reddish
+input:not([type="radio"], [type="checkbox"]).kiosk-error-border, select.kiosk-error-border
+    border: 2px dashed $reddish
 
 .kiosk-success-line,
 .kiosk-success-div
@@ -332,3 +332,41 @@ body
     flex-basis: auto
     //this is tied to the kiosk-dialog-selectfield:
     margin-bottom: 3px
+
+vaadin-combo-box-overlay
+  z-index: 9000
+
+//vaadin-combo-box
+//  margin-left: calc(-1 * (0.375em + var(--lumo-border-radius-m) / 4 - 1px))
+//  margin-right: calc(-1 * (0.375em + var(--lumo-border-radius-m) / 4 - 1px))
+//  padding-top: 0px
+//vaadin-combo-box > input
+//  --_lumo-text-field-overflow-mask-image: white
+//  --lumo-text-field-size: 22px
+//  background-color: white
+//  max-height: 30px
+//vaadin-combo-box > input:disabled
+//  background-color: $col-bg-1-lighter
+//  --lumo-disabled-text-color: $col-primary-bg-1
+//
+//
+//vaadin-combo-box
+//  font-family: $standard-text
+//  font-size: $font-size-standard
+//  color: $col-primary-bg-1
+//  //margin-top: .5em
+//  background-color: $col-bg-2
+//  width: 100%
+//  //margin-left: .5em
+//  //margin-right: .5em
+//  //margin-bottom: 0em
+//  padding: 0px
+//
+//  input:disabled, textarea:disabled
+//    background-color: $col-bg-1-lighter
+//    color: $col-primary-bg-1
+//    -webkit-text-fill-color: currentcolor
+//    opacity: 1
+//
+//vaadin-combo-box::part(input-field)
+//  padding: 0px

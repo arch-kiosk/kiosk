@@ -1,6 +1,8 @@
+# todo time zone simpliciation (done)
 from dsd.dsd3 import DataSetDefinition
 from dsd.dsdview import DSDView
 from migration.databasemigration import DatabaseMigration
+from migration.tzmigration import TZMigration
 from sync_config import SyncConfig
 import logging
 
@@ -27,7 +29,6 @@ class Migration:
         if not self._self_check:
             self.self_check()
         self._db_adapter.delete_namespace(prefix, namespace)
-
 
     def migrate_dataset(self, prefix="", namespace=""):
         """
@@ -94,8 +95,10 @@ class Migration:
                 self._self_check = True
             else:
                 raise Exception(f"table structure version of either {self._db_adapter.migration_catalog_name}"
-                                f"ir {self._db_adapter.migration_flags_name} is 0")
-
+                                f"or {self._db_adapter.migration_flags_name} is 0")
+            tz_migration = TZMigration(self._dsd)
+            if not tz_migration.run():
+                raise Exception(f"Migration.self_check ran into trouble with pre-migration (tz_migration) and failed.")
         except BaseException as e:
             raise Exception(f"{self.__class__.__name__}.migrate_datatable: "
                             f"An error occurred during self check: {repr(e)}")
@@ -304,7 +307,8 @@ class Migration:
         try:
             sql_lines = self._db_adapter.get_sql_lines(self._dsd.dsd_root_path, sql_instruction,
                                                        prefix=prefix, namespace=namespace)
-            self._db_adapter.execute_sql(sql_lines)
+            rc = self._db_adapter.execute_sql(sql_lines)
+            logging.debug(f"{self.__class__.__name__}._run_cross_table_migration: {rc} rows affected")
             return True
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}._run_cross_table_migration: {repr(e)}")

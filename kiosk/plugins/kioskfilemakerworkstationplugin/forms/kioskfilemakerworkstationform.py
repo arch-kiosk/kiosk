@@ -2,17 +2,19 @@ from flask_wtf import FlaskForm
 
 from wtforms.fields import HiddenField
 from wtforms.validators import DataRequired, Length, ValidationError
+
+import kioskglobals
 from core.kioskwtforms import KioskLabeledBooleanField, KioskStringField, \
-    KioskLabeledStringField, KioskGeneralFormErrors, KioskLabeledSelectField
-from urapdatetimelib import local_time_offset_str
+    KioskLabeledStringField, KioskGeneralFormErrors, KioskLabeledSelectField, KioskTimeZoneSelectorField
+from kioskdatetimelib import local_time_offset_str
 
 
 class KioskFileMakerWorkstationForm(FlaskForm, KioskGeneralFormErrors):
     page_initialized = HiddenField()
     workstation_id = KioskLabeledStringField(label="unique workstation id",
                                              validators=[Length(min=3, max=20, message="Please enter a workstation id "
-                                                                               "with at least 3 and not more "
-                                                                               "than 20 characters"),
+                                                                                       "with at least 3 and not more "
+                                                                                       "than 20 characters"),
                                                          DataRequired(
                                                              "A workstation id is really required")],
 
@@ -30,7 +32,7 @@ class KioskFileMakerWorkstationForm(FlaskForm, KioskGeneralFormErrors):
                                                       "A recording group is mandatory")]
                                               )
     grant_access_to = KioskLabeledStringField(label="grant access to")
-    gmt_time_zone = KioskLabeledStringField(label="time zone")
+    user_time_zone_index = KioskTimeZoneSelectorField(label="dock's time zone")
 
     options = KioskLabeledStringField(label="workstation options")
 
@@ -39,10 +41,9 @@ class KioskFileMakerWorkstationForm(FlaskForm, KioskGeneralFormErrors):
         if mode == "edit":
             self.workstation_id.render_kw = {'disabled': ''}
 
-    def validate_gmt_time_zone(self, field):
+    def validate_user_time_zone_index(self, field):
         if field.data:
-            try:
-                offset = local_time_offset_str(field.data)
-            except:
-                raise ValidationError(f"That is not a valid time zone. "
-                                      f"You want something like GMT+1 or UTC-2 if at all. ")
+            if not kioskglobals.kiosk_time_zones.get_time_zone_info(int(field.data)):
+                raise ValidationError(f"The users's time zone is not a valid time zone. "
+                                      f"Please select something valid from the list.")
+

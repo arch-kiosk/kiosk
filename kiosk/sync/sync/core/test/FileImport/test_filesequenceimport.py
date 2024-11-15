@@ -19,6 +19,7 @@ from kioskcontextualfile import KioskContextualFile
 from sync_config import SyncConfig
 from sync_plugins.redisgeneralstore.redisgeneralstore import RedisGeneralStore
 from test.testhelpers import KioskPyTestHelper
+from test.mock_timezoneinfo import mock_kiosk_time_zones
 from userconfig import UserConfig
 
 import zoneinfo
@@ -124,7 +125,7 @@ class TestFileSequenceImport(KioskPyTestHelper):
         content = [os.path.join(p, x) for x in os.listdir(p)]
 
         file_import_setup.sort_sequence_by = "FILE_CREATION_TIME"
-        dt_base = datetime.datetime.now() - datetime.timedelta(365)
+        dt_base = datetime.datetime.now().replace(year=2010)
         for file in ['buptap-aad-008.jpg',
                      'buptap-aad-008-optimized.jpg',
                      'DSC_0802.NEF',
@@ -177,7 +178,7 @@ class TestFileSequenceImport(KioskPyTestHelper):
 
     @mock.patch.object(FileRepository, "add_contextual_file")
     def test_import_sequence_to_repository(self, mock_add_contextual_file, file_import_setup,
-                                           monkeypatch):
+                                           monkeypatch, mock_kiosk_time_zones):
         def mock__fetch_contexts(sql_instruction, prefix="", namespace=""):
             print("mock__fetch_contexts")
             return []
@@ -193,9 +194,19 @@ class TestFileSequenceImport(KioskPyTestHelper):
         assert file_filter.get_filter_configuration()["get_date"]
         assert file_filter.is_active()
 
-        file_import.pathname = os.path.join(test_path, "test_files", "sequence_files")
+        files = ["v3_qr_code.jpg", "this should be impoted.jpg", "v3_qr_code - end.jpg", "Context NA Single Shot.jpg"]
+
+        dt_base = datetime.datetime.now().replace(year=2010)
+        p = os.path.join(test_path, "test_files", "sequence_files")
+        for file in files:
+            path_and_filename = os.path.join(p, file)
+            dt_base += datetime.timedelta(days=1)
+            kioskstdlib.set_file_date_and_time(path_and_filename, dt_base)
+
+        file_import.pathname = p
 
         file_import.recursive = False
+        file_import.tz_index = 96554373
         file_import._config["file_extensions"] = ["jpg"]
         file_import.tags = ["-"]
         file_import.set_from_dict({
@@ -207,7 +218,8 @@ class TestFileSequenceImport(KioskPyTestHelper):
         assert mock_add_contextual_file.call_count == 1
 
     @mock.patch.object(FileImport, "_add_file_to_repository")
-    def test_import_multiple_files_to_repository(self, mock_add_file_to_repository, file_import_setup):
+    def test_import_multiple_files_to_repository(self, mock_add_file_to_repository, file_import_setup,
+                                                 mock_kiosk_time_zones):
         mock_add_file_to_repository.return_value = True
 
         file_import = file_import_setup
@@ -220,6 +232,7 @@ class TestFileSequenceImport(KioskPyTestHelper):
         file_import.pathname = os.path.join(test_path, "test_files", "sequence_files_2")
 
         file_import.recursive = True
+        file_import.tz_index = 96554373
         file_import._config["file_extensions"] = ["jpg"]
         file_import.tags = ["-"]
         file_import.set_from_dict({
@@ -233,7 +246,8 @@ class TestFileSequenceImport(KioskPyTestHelper):
             "description": "",
             "modified_by": "sys",
             "tags": ["-"],
-            "accept_duplicates": True
+            "accept_duplicates": True,
+            'tz_index': 96554373
         }
 
         test_values = [

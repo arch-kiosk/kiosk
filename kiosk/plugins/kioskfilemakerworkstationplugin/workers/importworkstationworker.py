@@ -1,6 +1,7 @@
 import logging
 import pprint
 
+import kioskglobals
 from kioskresult import KioskResult
 from kioskuser import KioskUser
 from mcpinterface.mcpjob import MCPJobStatus
@@ -44,10 +45,11 @@ class ImportWorkstationWorker(WorkstationManagerWorker):
                 logging.debug("Import Worker starts")
                 self.init_dsd()
                 sync = Synchronization()
-                ws = KioskFileMakerWorkstation(ws_id, sync=sync)
-                ws.load_workstation()
-                name = ws.description
+                # ws = KioskFileMakerWorkstation(ws_id, sync=sync)
+                # ws.load_workstation()
                 self.report_progress({"progress": 0, "message": "Import from FileMaker..."})
+                ws = self.init_dock(ws_id, sync, kioskglobals.kiosk_time_zones)
+                name = ws.description
                 if ws:
                     ws.sync_ws.fix_import_errors = fix
                     rc = ws.sync_ws.transition("IMPORT_FROM_FILEMAKER", param_callback_progress=self.report_progress)

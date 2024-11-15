@@ -28,30 +28,32 @@
     "test": "vitest",
     "build": "tsc && vite build --emptyOutDir"
   },
-  "dependencies": {
-    "@lit/context": "^1.1.0",
-    "@shoelace-style/shoelace": "^2.15.0",
-    "@vaadin/grid": "^24.5.0",
+    "dependencies": {
+    "@lit/context": "^1.1.2",
+    "@shoelace-style/shoelace": "^2.17.1",
     "@toast-ui/chart": "^4.6.1",
-    "@vaadin/select": "^24.5.0",
+    "@vaadin/grid": "^24.4.9",
+    "@vaadin/select": "^24.4.9",
     "install": "^0.13.0",
     "lit": "^3.2.1",
-    "nanoid": "^4.0.1",
-    "npm": "^10.5.2",
-    "ui-component": "C:\\notebook_source\\kiosk\\lab\\uiwebcomponent\\npm\\uicomponent-0.6.3.tgz",
+    "nanoid": "^5.0.7",
+    "npm": "^10.9.0",
+    "ui-component": "file:../../../../../../lab/uiwebcomponent/npm/uicomponent-0.6.3.tgz",
+    "kiosktsapplib": "file:../../../../../../kiosktsapplib",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/ejs": "^3.1.5",
-    "@types/html-minifier-terser": "^7.0.0",
-    "@types/luxon": "^3.3.3",
-    "prettier": "^2.8.4",
+    "@types/html-minifier-terser": "^7.0.2",
+    "@types/luxon": "^3.4.2",
+    "prettier": "^3.3.3",
     "rollup-plugin-copy": "^3.5.0",
     "sass": "^1.58.0",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.4.3",
-    "vite": "^5.2.7",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.8",
     "vite-plugin-html": "^3.2.2",
-    "vitest": "^1.4.0"
+    "vite-plugin-dts": "^4.2.3",
+    "vitest": "^2.1.3"
   }
 }

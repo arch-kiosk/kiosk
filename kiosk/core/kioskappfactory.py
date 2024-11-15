@@ -30,7 +30,7 @@ from messaging.systemmessagecatalog import SYS_MSG_ID_STORE_NOT_READY, MSG_SEVER
     SYS_MSG_ID_CHECKUP_EXCEPTION, SYS_MSG_ID_ADMIN_CREATED, SYS_MSG_ID_ADMIN_GROUP_CREATED, \
     SYS_MSG_ID_MIGRATION_FAILED, SYS_MSG_ID_REBUILD_FIC_FAILED, SYS_MSG_ID_TEMP_DIR_MISSING, \
     SYS_MSG_ID_DEVELOPMENT_ENVIRONMENT_ACTIVE, SYS_MSG_ID_MCP_NOT_UP, SYS_MSG_ID_DEVELOPMENT_GENERATE_SYSTEM_MESSAGE, \
-    SYS_MSG_ID_PATCH_SUCCESSFUL, SYS_MSG_ID_PATCH_FAILED
+    SYS_MSG_ID_PATCH_SUCCESSFUL, SYS_MSG_ID_PATCH_FAILED, SYS_MSG_ID_GS_WITH_ID
 from messaging.systemmessagelist import SystemMessageList
 from messaging.systemmessagestore import SystemMessageStore
 from messaging.systemmessagestorepostgres import SystemMessageStorePostgres
@@ -190,6 +190,9 @@ class KioskAppFactory(AppFactory):
         # Load all the plugins:
         plugin_manager = cls.load_plugins()
 
+        if hasattr(kioskglobals.general_store, "gs_id") and kioskglobals.general_store.gs_id:
+            print(f"! NOTE: General Store is using an id: {kioskglobals.general_store.gs_id}")
+
         cls.check_for_failed_patch()
 
         # todo: Every plugin that has something to contribute to the dsd, has to do it now:
@@ -222,6 +225,12 @@ class KioskAppFactory(AppFactory):
         assert os.path.isdir(root_path)
 
         plugin_manager = cls._before_app_creation(config_file=config_file, root_path=root_path)
+        tz = KioskSQLDb.get_default_time_zone()
+        if tz != "UTC":
+            raise Exception(f"The default time zone setting for PostgreSQL is currently {tz}. "
+                            f"It must be UTC to run Kiosk. "
+                            "Please make sure that either the environment variable 'PGTZ' is set to 'UTC' or "
+                            "that PostgreSQL is configured to use UTC as the default time zone.")
         #
         # Create the actual app object
         #
@@ -375,12 +384,25 @@ class KioskAppFactory(AppFactory):
     def _check_startup(cls):
         result = True
 
+        result = result & cls._check_gs_id()
         result = result & cls._check_mcp()
         result = result & cls._check_temp_dir()
         result = result & cls._check_file_upload_dir()
         result = result % cls._check_development_options()
 
         return result
+
+    @classmethod
+    def _check_gs_id(cls):
+        if hasattr(kioskglobals.general_store, "gs_id") and kioskglobals.general_store.gs_id:
+            dispatch_system_message("General Store is Using an ID",
+                                    SYS_MSG_ID_GS_WITH_ID,
+                                    body=f"This Kiosk is using a General Store with an ID "
+                                         f"({kioskglobals.general_store.gs_id}), presumably to engage "
+                                         f"a separate Master Control Program for testing purposes."
+                                         f"This is just a reminder of that fact!",
+                                    sender=f"{cls.__name__}._check_startup")
+        return True
 
     @classmethod
     def _check_mcp(cls):
@@ -725,13 +747,14 @@ class KioskAppFactory(AppFactory):
         try:
             general_store_plugin = cfg.config["general_store_plugin"]
             general_store_class_name = cfg.config["general_store_class"]
+            general_store_id = kioskstdlib.try_get_dict_entry(cfg.config, "gs_id", "", True)
             if plugin_manager.load_plugins(cfg.sync_plugin_directory, [general_store_plugin]):
                 plugin = plugin_manager.get_plugin_by_name(general_store_plugin)
                 plugin.register_type(kioskglobals.type_repository)
                 GeneralStoreClass = kioskglobals.type_repository.get_type(TYPE_GENERALSTORE, general_store_class_name)
                 if GeneralStoreClass:
                     try:
-                        kioskglobals.general_store = GeneralStoreClass(cfg)
+                        kioskglobals.general_store = GeneralStoreClass(cfg, gs_id=general_store_id)
                         return kioskglobals.general_store.is_running()
                     except BaseException as e:
                         logging.error(f"{cls.__name__}.load_general_store: "

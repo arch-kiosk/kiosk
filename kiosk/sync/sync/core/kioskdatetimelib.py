@@ -1,7 +1,10 @@
 import datetime
+import math
 import time
 import logging
 import re
+import zoneinfo
+
 from typing import Union
 
 import kioskstdlib
@@ -208,12 +211,39 @@ def local_time_offset(t=None):
         return int(-time.timezone / 60 / 60)
 
 
+def get_time_zone_offset(dt: datetime, iana_name: str = "") -> (int, int):
+    """
+    returns the time zone offset as a tuple in terms of hh and mm
+    :param dt: a datetime (if there is a iana_name and it has a tzinfo, the tzinfo will be discarded)
+    :param iana_name: the iana name of the time zone to which the dt belongs
+    :return: a tuple of hour and minutes
+    """
+    if iana_name:
+        dt = dt.replace(tzinfo=zoneinfo.ZoneInfo(iana_name))
+    return (math.trunc(dt.utcoffset() / datetime.timedelta(hours=1)),
+            math.trunc(dt.utcoffset() / datetime.timedelta(minutes=1) % 60))
+
+def get_time_zone_offset_str(dt: datetime, iana_name: str = "") -> str:
+    """
+    returns the time zone offset as a string of format [-]00:00:00
+
+    :param dt: a datetime (if there is a iana_name and it has a tzinfo, the tzinfo will be discarded)
+    :param iana_name: the iana name of the time zone to which the dt belongs
+    :return: str
+    """
+    tz_offset = get_time_zone_offset(dt, iana_name)
+    return "{:s}{:02d}:{:02d}:00".format(("-" if tz_offset[0] < 0 else ""), abs(tz_offset[0]), tz_offset[1])
+
+
 def local_time_offset_str(gmt_time_zone: str = "") -> str:
     """
+    ! deprecated !
+
     :param gmt_time_zone: a string consisting of hour and minute like "12" or "12:00" or "-12:00".
                           "GMT+12:00" is also accepted, as is "UTC+12:00"
     :returns: str of the format {-}00:00:00
     """
+    logging.warning(f"kioskdatetimelib.local_time_offset_str: call to this function is deprecated.")
     mm = 0
     if gmt_time_zone:
         try:
@@ -242,7 +272,7 @@ def local_time_offset_str(gmt_time_zone: str = "") -> str:
 
 def extend_local_timezone(dt: datetime.datetime):
     """
-    adds the local timezone to a datetime if it has not timezone information.
+    adds the local timezone to a datetime if it has no timezone information.
 
     :param dt:
     :return: the datetime with either its original timezone or the added local timezone
@@ -309,3 +339,104 @@ def js_to_python_utc_datetime_str(utc_datetime_str):
         return str(utc_datetime_str).replace('Z', '+00:00')
     else:
         return utc_datetime_str
+
+
+def utc_ts_to_timezone_ts(utc_datetime: Union[datetime.datetime, str], time_zone: str, replace_ms=False) -> datetime.datetime:
+    """
+    converts a utc timestamp to the local time of the time zone and drops the time zone information
+    :param utc_datetime: either a datetime object or a string in iso8601 format.
+                         No matter if this value has a time zone info itself or not, "utc" will be assigned.
+    :param time_zone: a IANA time zone string
+    :param replace_ms: set to true if you want to drop microseconds
+    :returns: a datetime with local time of the time zone and the time zone information dropped.
+    """
+    if not time_zone or not utc_datetime:
+        raise ValueError("empty parameter in utc_ts_to_timezone_ts")
+
+    if isinstance(utc_datetime, str):
+        dt = kioskstdlib.str_to_iso8601(utc_datetime)
+    else:
+        if isinstance(utc_datetime, datetime.datetime):
+            dt = utc_datetime
+        else:
+            raise ValueError("parameter utc_datetime is not string nor datetime in utc_ts_to_timezone_ts")
+
+    dt = dt.replace(tzinfo=datetime.timezone.utc)
+
+    tz = zoneinfo.ZoneInfo(time_zone)
+    if not tz:
+        raise ValueError(f"{time_zone} is not a valid IANA time zone in utc_ts_to_timezone_ts")
+
+    dt_tz = dt.astimezone(tz)
+
+    if replace_ms:
+        return dt_tz.replace(tzinfo=None, microsecond=0)
+    else:
+        return dt_tz.replace(tzinfo=None)
+
+
+def get_utc_now(no_tz_info=False, no_ms=False) -> datetime.datetime:
+    """
+    returns the current date and time in the UTC time zone
+    :param no_tz_info: cuts off the time zone info from the datetime
+    :param no_ms: removes microseconds
+    :return: a datetime
+    """
+    ts = datetime.datetime.now(datetime.timezone.utc)
+    if no_tz_info:
+        ts = ts.replace(tzinfo=None)
+    if no_ms:
+        ts = ts.replace(microsecond=0)
+    return ts
+
+def get_utc_now_as_str():
+    """
+    returns the current utc date and time as a string like "10 April 2020 10:22:12"
+    :return: str
+    """
+    return get_utc_now(no_tz_info=True, no_ms=True).strftime("%d %b %Y %H:%M:%S")
+
+
+def time_zone_ts_to_utc(utc_datetime: Union[datetime.datetime, str], time_zone: str) -> datetime.datetime:
+    """
+    converts a timestamp of a certain time zone to the utc time zone and drops the time zone information
+    :param utc_datetime: either a datetime object or a string in iso8601 format.
+                         No matter if this value has a time zone info itself or not, the "time_zone" parameter
+                         will determine the source time zone
+    :param time_zone: a IANA time zone string
+    :returns: a datetime with local time of the time zone and the time zone information dropped.
+    """
+    if not time_zone or not utc_datetime:
+        raise ValueError("empty parameter in utc_ts_to_time_zone_ts")
+
+    if isinstance(utc_datetime, str):
+        dt = kioskstdlib.str_to_iso8601(utc_datetime)
+    else:
+        if isinstance(utc_datetime, datetime.datetime):
+            dt = utc_datetime
+        else:
+            raise ValueError("parameter utc_datetime is not string nor datetime")
+
+    tz = zoneinfo.ZoneInfo(time_zone)
+    if not tz:
+        raise ValueError(f"{time_zone} is not a valid IANA time zone ")
+
+    dt = dt.replace(tzinfo=tz)
+
+    dt_tz = dt.astimezone(datetime.timezone.utc)
+
+    return dt_tz.replace(tzinfo=None)
+
+
+def datetime_tz_to_sql_tztimestamp(dt: datetime.datetime, tz_iana_name: str):
+    """
+    removes the tz_info trom the datetime and returns a sql datetime that has the actual iana time included.
+    So 01.08.2024 08:00:00+02:00 leads to '01.08.2024 08:00:00 Europe/Berlin'.
+    This is not doing any time conversion on the basis of the time zone. It is merely formatting a date for sql so
+    that it can be inserted into something like 'insert into tmp1 values(%s::timestamptz)'
+
+    :param dt: datetime
+    :param tz_iana_name: the iana name of the time zone
+    :return: str
+    """
+    return f"{dt.replace(tzinfo=None).isoformat()} {tz_iana_name}"

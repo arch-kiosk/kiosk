@@ -3,6 +3,16 @@ config:
 
 kiosk_file_cache:
   structure:
+    2:
+      uid: [datatype(UUID), uuid_key())]
+      uid_file: [datatype(UUID), not_null()]
+      representation_type: [datatype(VARCHAR)]
+      invalid: [datatype(BOOL), not_null(), default(true)]
+      renew: [datatype(BOOL), not_null(), default(false)]
+      created: [datatype(TIMESTAMP), not_null(), default("now()")]
+      modified: [datatype(TIMESTAMP), not_null(), default("now()")]
+      image_attributes: [datatype(JSON)]
+      path_and_filename: [datatype(VARCHAR)]
     1:
       uid: [datatype(UUID), uuid_key())]
       uid_file: [datatype(UUID), not_null()]
@@ -12,6 +22,10 @@ kiosk_file_cache:
       modified: [datatype(TIMESTAMP), not_null(), default("now()")]
       image_attributes: [datatype(JSON)]
       path_and_filename: [datatype(VARCHAR)]
+  migration:
+    2:
+      upgrade:
+      - add("renew")
 
 kiosk_privilege:
   structure:

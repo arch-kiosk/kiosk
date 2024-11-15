@@ -1,5 +1,5 @@
 {% from 'dialogmacros.html' import kiosk_error_div, kiosk_error_span, kiosk_general_form_errors %}
-<div id="local-import-form-1-div">
+<div id="local-import-form-1-div" class="hide-before-init">
     {{ kiosk_general_form_errors(general_errors) }}
 <form id="local-import-form-1">
         {{ localimportform1.csrf_token }}
@@ -34,6 +34,13 @@
                 {{ kiosk_error_div(localimportform1.tags, class="col-12" ) }}
             </div>
             <div class="col-12">
+                {{ localimportform1.user_time_zone_index(class="kiosk-dialog-textfield",
+                      labelclass="kiosk-dialog-label",
+                      errclass="kiosk-error-border",
+                      placeholder="leave empty or select a time zone",
+                      includedeprecated="True") }}
+            </div>
+            <div class="col-12">
                 <div class="grid-2">
                     {% for checkbox in ["recursive", "add_needs_context", "substitute_identifiers"] %}
                         <div class="col">
@@ -45,84 +52,136 @@
                     {% endfor %}
                 </div>
             </div>
-
         </div>
     </form>
+
+    {% if not ajax_result %}
+        {% include "_kioskmodaldialog_api_connector_include.html" %}
+    {% endif %}
+
     <script>
 
-      //Initialization code
+    {% if not ajax_result %}
+        document.querySelector(".dialog-modal-buttons").style.visibility = "hidden"
+        document.querySelector(".hide-before-init").style.visibility = "hidden"
+    {% else %}
+        ensureLibrariesAndinitPage()
+    {% endif %}
 
-      kioskShowFooter(true);
-      kioskActivateButton($("#bt-next"), localImportNextPage);
-      kioskActivateButton($("#bt-back"), null);
-      kioskActivateButton($("#bt-ok"), null);
-      kioskActivateButton($("#bt-close"), null);
-      kioskActivateButton($("#bt-cancel"), () => {
+    function popupApiConnected(api) {
+        for (const cb of document.querySelectorAll("kiosk-tz-combo-box")) {
+            cb.apiContext = api
+        }
+        ensureLibrariesAndinitPage();
+    }
+
+    function popupApiFailed() {
         $.magnificPopup.close();
-      });
+        kioskErrorToast("Sorry, it was not possible to connect to Kiosk's Api. " +
+            "That's why this feature can't run. You can try again, but most likely " +
+            "you'll have to report this as a bug ");
+    }
 
-      initCollapsibles();
-      initLocalDialog();
 
-      //methods
+    function ensureLibrariesAndinitPage() {
+      if (typeof Awesomplete == 'undefined') {
+        setTimeout(ensureLibrariesAndinitPage, 500);
+      } else {
+        initPage();
+      }
+    }
+      //Initialization code
+    function initPage() {
 
-      function initLocalDialog() {
-        let input = document.getElementById("mif-local-path");
-        let awesomplete_local_path = new Awesomplete(input, {list: "mif-volumes", minChars: 0,
-          filter: ()=>true});
-        $('#mif-local-path').focus(function () {
-          // var awesomplete_local_path = Awesomplete.$('mif-local-path');
-          awesomplete_local_path.minChars = 0;
-          awesomplete_local_path.evaluate();
-          awesomplete_local_path.open();
+        document.querySelector(".dialog-modal-buttons").style.visibility = "visible"
+        document.querySelector(".hide-before-init").style.visibility = "visible"
+
+        kioskShowFooter(true);
+        kioskActivateButton($("#bt-next"), localImportNextPage);
+        kioskActivateButton($("#bt-back"), null);
+        kioskActivateButton($("#bt-ok"), null);
+        kioskActivateButton($("#bt-close"), null);
+        kioskActivateButton($("#bt-cancel"), () => {
+            $.magnificPopup.close();
         });
-        if (!modalDialogInitialized($("form").first())) {
-          $('#mif-local-path').focus();
+
+        initCollapsibles();
+        initLocalDialog();
+
         }
-      }
+        //methods
 
-      function localImportNextPage() {
-        kioskSendAjaxForm($("#bt-next").first(),
-          $("#local-import-form-1-div"),
-          "fileimport/dialoglocalimport1",
-          onLocalImportFormEvaluated, onLocalImportFormFailure)
-      }
-
-      function onLocalImportFormFailure(xhr, status, errorThrown, state_data) {
-        kioskErrorToast(`<div>Sorry, There was an error: ${ errorThrown } </div>`,
-          {
-            onClosing: () => {
-              $.magnificPopup.close();
-            }
-          });
-        return
-      }
-
-      function onLocalImportFormEvaluated(jq_form, state_data) {
-        if (!kioskElementHasErrors($("#local-import-form-1-div"))) {
-            let substitute_identifiers = getCookie("substitute_identifiers") === "True"
-            if (substitute_identifiers) {
-              gotoPage = "fileimport/identifiersubstitution";
-            } else {
-              gotoPage = "fileimport/dialoglocalimport2";
-            }
-          kioskGetAjaxElement($("#pagecontrol"),
-            gotoPage,
-            $("#bt-next"),
-            null,
-            (response, status, xhr) => {
-              if (status == "error") {
-                kioskErrorToast("<div>Error loading page magnificent_widget/local_import_2: " + response + "</div>",
-                  {
-                    onClosing: () => {
-                      $.magnificPopup.close();
-                    }
-                  });
-              }
+        function initLocalDialog() {
+            let input = document.getElementById("mif-local-path");
+            let awesomplete_local_path = new Awesomplete(input, {
+                list: "mif-volumes", minChars: 0,
+                filter: () => true
             });
+            $('#mif-local-path').focus(function() {
+                // var awesomplete_local_path = Awesomplete.$('mif-local-path');
+                awesomplete_local_path.minChars = 0;
+                awesomplete_local_path.evaluate();
+                awesomplete_local_path.open();
+            });
+            if (!modalDialogInitialized($("form").first())) {
+                $('#mif-local-path').focus();
+            }
         }
-      }
 
+        function localImportNextPage() {
+            function addHiddenInput(elementId, fieldName, value) {
+                const v = document.getElementById(elementId).value
+                if (v && v !== "") {
+                    const hidden = document.createElement("input")
+                    hidden.setAttribute("name", fieldName)
+                    hidden.setAttribute("value", v)
+                    hidden.setAttribute("type", "hidden")
+                    form.appendChild(hidden)
+                }
+            }
+
+            const form = document.getElementById("local-import-form-1")
+            addHiddenInput("user-time-zone-index", "user_time_zone_index");
+            kioskSendAjaxForm($("#bt-next").first(),
+                $("#local-import-form-1-div"),
+                "fileimport/dialoglocalimport1",
+                onLocalImportFormEvaluated, onLocalImportFormFailure)
+        }
+
+        function onLocalImportFormFailure(xhr, status, errorThrown, state_data) {
+            kioskErrorToast(`<div>Sorry, There was an error: ${errorThrown} </div>`,
+                {
+                    onClosing: () => {
+                        $.magnificPopup.close();
+                    }
+                });
+            return
+        }
+
+        function onLocalImportFormEvaluated(jq_form, state_data) {
+            if (!kioskElementHasErrors($("#local-import-form-1-div"))) {
+                let substitute_identifiers = getCookie("substitute_identifiers") === "True"
+                if (substitute_identifiers) {
+                    gotoPage = "fileimport/identifiersubstitution";
+                } else {
+                    gotoPage = "fileimport/dialoglocalimport2";
+                }
+                kioskGetAjaxElement($("#pagecontrol"),
+                    gotoPage,
+                    $("#bt-next"),
+                    null,
+                    (response, status, xhr) => {
+                        if (status == "error") {
+                            kioskErrorToast("<div>Error loading page magnificent_widget/local_import_2: " + response + "</div>",
+                                {
+                                    onClosing: () => {
+                                        $.magnificPopup.close();
+                                    }
+                                });
+                        }
+                    });
+            }
+        }
       //# sourceURL=fileimportdialoglocalimport1.js
     </script>
 </div>

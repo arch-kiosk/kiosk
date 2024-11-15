@@ -1,0 +1,29 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+variables:
+  identifier: ["dsd('unit', 'arch_context')"]
+queries:
+  'dayplans':
+    name: '#:Time Zone Test: Dayplans of a #(/$/glossary/unit:2)'
+    description: '#:Lists all the dayplans of a #(/$/glossary/unit:2) with all modified fields'
+    type: 'SQL'
+    output_type: 'list'
+    query: "
+      select dayplan.image_description, dayplan.modified, dayplan.modified_tz, tz.tz_long, dayplan.modified_ww
+       from {{unit}} unit
+         inner join {{dayplan}} dayplan on unit.uid = dayplan.uid_unit
+         left outer join {{kiosk_time_zones}} tz on dayplan.modified_tz = tz.id
+      where unit.arch_context = {{#identifier}}
+      order by dayplan.modified desc"
+    column_information:
+      id: ["DSD('unit','arch_context')"]
+      description: ["DSD('dayplan','image_description')"]
+      modified: [datatype(TIMESTAMPTZ)]
+      modified_tz: [datatype(TIMESTAMP)]
+      tz_long: [datatype(varchar)]
+      modified_ww: [datatype(TIMESTAMP)]
+
+
+

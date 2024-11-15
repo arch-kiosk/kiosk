@@ -172,7 +172,7 @@ class KioskPyTestHelper:
         assert dsd.append_file(cfg.dsdfile)
         return dsd
 
-    def get_urapdb(self, cfg, migration=True):
+    def get_urapdb(self, cfg, migration=True, migration_catalog_name=None):
         if cfg.database_name != "urap_test":
             raise Exception(f"attempt to use database {cfg.database_name} in test. Stopped.")
 
@@ -185,7 +185,11 @@ class KioskPyTestHelper:
             assert KioskSQLDb.drop_database()
             KioskSQLDb.close_connection()
             assert KioskSQLDb.create_database()
-            migration = Migration(dsd, PostgresDbMigration(dsd, KioskSQLDb.get_con()))
+            if migration_catalog_name:
+                migration = Migration(dsd, PostgresDbMigration(dsd, KioskSQLDb.get_con(),
+                                                               migration_catalog_name=migration_catalog_name))
+            else:
+                migration = Migration(dsd, PostgresDbMigration(dsd, KioskSQLDb.get_con()))
             migration.self_check()
             assert migration.migrate_dataset()
             KioskSQLDb.commit()
