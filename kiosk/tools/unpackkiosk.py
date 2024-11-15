@@ -466,24 +466,25 @@ def renew_workstations(cfg_file: str):
         sync.type_repository.register_type("Workstation", "FileMakerWorkstation", FileMakerWorkstation)
         docks = sync.list_workstations()
         for dock in docks:
-            dock:FileMakerWorkstation
-            try:
-                state = dock.get_code_from_state(dock.get_state())
-                if state < dock.get_code_from_state(dock.IN_THE_FIELD):
-                    print(f"Renewing {dock.get_id()} (state {dock.get_state()})...", flush=True, end="")
-                    if dock.renew():
-                        print("okay", flush=True, end="\n")
-                        c += 1
+            if isinstance(dock, FileMakerWorkstation):
+                dock:FileMakerWorkstation
+                try:
+                    state = dock.get_code_from_state(dock.get_state())
+                    if state < dock.get_code_from_state(dock.IN_THE_FIELD):
+                        print(f"Renewing {dock.get_id()} (state {dock.get_state()})...", flush=True, end="")
+                        if dock.renew():
+                            print("okay", flush=True, end="\n")
+                            c += 1
+                        else:
+                            raise Exception("renewal failed. Have a look at the log.")
                     else:
-                        raise Exception("renewal failed. Have a look at the log.")
-                else:
-                    print(f"Renewing {dock.get_id()}... skipped because dock is in state {dock.get_state()}",
-                          flush=True, end="\n")
+                        print(f"Renewing {dock.get_id()}... skipped because dock is in state {dock.get_state()}",
+                              flush=True, end="\n")
 
-            except BaseException as e:
-                logging.error(f"unpackkiosk.renew_workstation: {repr(e)}")
-                print(f"failed ({repr(e)})", flush=True, end="\n")
-                return -1
+                except BaseException as e:
+                    logging.error(f"unpackkiosk.renew_workstation: {repr(e)}")
+                    print(f"failed ({repr(e)})", flush=True, end="\n")
+                    return -1
         print("renewing FileMaker recording docks finished", flush=True, end="\n")
         return c
 
