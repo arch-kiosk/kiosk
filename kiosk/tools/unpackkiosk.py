@@ -6,6 +6,8 @@ import subprocess
 
 from os import path
 
+from win32trace import flush
+
 from kioskrequirements import KioskRequirements
 
 params = {"-fr": "fr", "--unpack_file_repository": "fr",
@@ -51,6 +53,7 @@ params = {"-fr": "fr", "--unpack_file_repository": "fr",
           "--clear_file_cache": "clear_file_cache",
           "--project_id": "project_id",
           "--skip_installation": "skip_installation",
+          "--renew_workstations": "renew",
           }
 
 
@@ -103,6 +106,7 @@ def usage():
         --exclude_mcp: Does not unpack the MCPCore in order not to crash into a running MCP
         --update_custom_modules: explicitly update custom modules if -c is not set
         --skip_installation: Skips updating files and stuff and only does the aftermath
+        --renew_workstations: renews all workstations that are in a state < in_the_field
         --patch: a short cut for patching core code files only. Does not temper with configuration, python or the db.
                 Just unpacks the core code files. Implies -c, -o, --no_custom_directories, --no_config, 
                 --no_redis, --no_migration, --no_thumbnails    
@@ -433,6 +437,53 @@ def delete_old_directories():
             pass
 
 
+def renew_workstations(cfg_file: str):
+    """
+    renews all FileMakerRecordingWorkstation docks.
+
+    :param cfg_file:
+    :return: number of successfully renewed docks. -1 in case of a general error.
+    """
+    try:
+        from sync_config import SyncConfig
+        from dsd.dsd3 import DataSetDefinition
+        from dsd.dsd3singleton import Dsd3Singleton
+        from synchronization import Synchronization
+        from sync_plugins.filemakerrecording.filemakerworkstation import FileMakerWorkstation
+
+        print("renewing FileMaker recording docks:", flush=True, end="\n")
+        c = 0
+        cfg = SyncConfig.get_config({'config_file': cfg_file})
+        dsd = Dsd3Singleton.get_dsd3()
+        sync = Synchronization()
+        sync.type_repository.register_type("Workstation", "FileMakerWorkstation", FileMakerWorkstation)
+        docks = sync.list_workstations()
+        for dock in docks:
+            dock:FileMakerWorkstation
+            try:
+                state = dock.get_code_from_state(dock.get_state())
+                if state < dock.get_code_from_state(dock.IN_THE_FIELD):
+                    print(f"Renewing {dock.get_id()} (state {dock.get_state()})...", flush=True, end="")
+                    if dock.renew():
+                        print("okay", flush=True, end="\n")
+                        c += 1
+                    else:
+                        raise Exception("renewal failed. Have a look at the log.")
+                else:
+                    print(f"Renewing {dock.get_id()}... skipped because dock is in state {dock.get_state()}",
+                          flush=True, end="\n")
+
+            except BaseException as e:
+                logging.error(f"unpackkiosk.renew_workstation: {repr(e)}")
+                print(f"failed ({repr(e)})", flush=True, end="\n")
+                return -1
+        print("renewing FileMaker recording docks finished", flush=True, end="\n")
+        return c
+
+    except BaseException as e:
+        logging.error(f"unpackkiosk.renew_workstation: {repr(e)}")
+        print("failed", flush=True, end="\n")
+
 if __name__ == '__main__':
     options = {}
     logging.basicConfig(level=logging.INFO)
@@ -655,12 +706,15 @@ if __name__ == '__main__':
         else:
             print("Skipped creation of thumbnails")
 
-    if this_is_an_update and "nh" not in options:
-        try:
-            housekeeping(cfg_file)
-        except BaseException as e:
-            print(f"Exception when starting housekeeping: {repr(e)}")
-            print(sys.path)
+        if "renew" in options:
+            renew_workstations(cfg_file)
+
+        if "nh" not in options:
+            try:
+                housekeeping(cfg_file)
+            except BaseException as e:
+                print(f"Exception when starting housekeeping: {repr(e)}")
+                print(sys.path)
 
     install_default_queries(cfg_file)
 
@@ -677,3 +731,9 @@ if __name__ == '__main__':
         except BaseException as e:
             logging.error(f"unpackkiosk: {repr(e)}")
             options.pop("rm")
+
+
+
+
+
+

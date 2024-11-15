@@ -88,7 +88,7 @@ class PostgresDbMigration(DatabaseMigration):
         cur = self._get_dict_cursor()
         try:
             cur.execute(sql, params)
-            print(cur.query)
+            # print(cur.query)
             rc = cur.rowcount
         except BaseException as e:
             logging.error(f"PostgresMigration.execute_sql: Exception {repr(e)}, query:{cur.query}")
@@ -556,7 +556,7 @@ class PostgresDbMigration(DatabaseMigration):
         except BaseException as e:
             result = False
             # self._rollback_savepoint(cur, "set_migration_flag")
-            print(repr(e))
+            # print(repr(e))
             logging.error(f"{self.__class__.__name__}.set_migration_flag: {repr(e)}")
         finally:
             cur.close()
