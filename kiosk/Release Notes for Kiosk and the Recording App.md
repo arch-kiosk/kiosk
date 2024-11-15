@@ -148,7 +148,19 @@ The highlights of this year's summer release:
 
 🍸 And there is so much more: About 200 little and not so little improvements and bug fixes throughout the system.
 
-Happy field seasons for all of you who go out this summer!
+### ⌚  Release Notes for Kiosk FileMaker Recording 16.5.4 (November 2024) ⌚
+
+✏️ As always: The release notes are best viewed on GitHub https://github.com/arch-kiosk/arch-kiosk-office/issues/1434
+This release is mainly necessary for the new Kiosk version with time zone support. 
+While that is mostly undr the hood, there are a few improvements that might interest you: 
+
+- ⌚ manage todos with the recording app (#2414)
+- ⌚ create new context while recording stratigraphy (#2908)
+- ⌚ move collected material to a different locus (#2976)
+- ⌚ improved context selector in context relations (#2961)
+- ⌚ ready for Kiosk versions with time zone support (while staying compatible with earlier Kiosk versions, too)
+- 
+- 🐞a handful of misc bugfixes
 
  
 
