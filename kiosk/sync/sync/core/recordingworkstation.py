@@ -607,7 +607,7 @@ class RecordingWorkstation(Dock):
             ok = False
         return ok
 
-    def _fork_get_file_picking(self, file_repos, fid: FileIdentifierCache, master_dsd) -> KioskFilePicking:
+    def _fork_get_file_picking(self, file_repos:FileRepository, fid: FileIdentifierCache, master_dsd) -> KioskFilePicking:
         """
         Initializes the file picking for fork and returns it.
         :param file_repos: a file repository instance

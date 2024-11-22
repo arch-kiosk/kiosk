@@ -1,6 +1,10 @@
 import logging
 from pprint import pprint
-from typing import List, Callable
+from typing import List, Callable, Optional
+
+import kioskdatetimelib
+import datetime
+from kioskglobals import kiosk_time_zones
 from .kioskfilepickingrules import FilePickingRuleError, KioskFilePickingRule, KioskFilePickingRules
 import kioskstdlib
 from kiosksqldb import KioskSQLDb
@@ -36,7 +40,7 @@ class KioskFilePicking:
         self._rules_processed = False
         self._on_translate_record_type_alias: Callable[[str], str] = None
         self._on_get_files_with_tags: Callable[[List[str], str], List[str]] = None
-        self._on_get_files_by_date: Callable[[str, List[str]], List[str]] = None
+        self._on_get_files_by_date: Callable[[str, List[datetime], str], List[str]] = None
 
     @property
     def on_get_files_with_tags(self) -> Callable:
@@ -63,7 +67,7 @@ class KioskFilePicking:
         return self._on_get_files_by_date
 
     @on_get_files_by_date.setter
-    def on_get_files_by_date(self, value: Callable[[str, List[str]], List[str]]):
+    def on_get_files_by_date(self, value: Callable[[str, List[datetime.datetime], Optional[str]], List[str]]):
         """
         sets the callback function that returns a list of files that result from a date comparison
 
@@ -71,6 +75,7 @@ class KioskFilePicking:
                         The signature of the callback is (operator: str, values: [datetime.datetime]) -> List[str] with
                         operator: one of the operators the FileRepository.get_files_by_date method accepts
                         values: a list of datetime.datetime values depending on the operator
+                        date_field: what date field to use (if not set, "file_datetime" will be used)
                         The return value is a list of files represented by their UID.
         """
         self._on_get_files_by_date = value
@@ -102,6 +107,8 @@ class KioskFilePicking:
                 self._rule_tag(r)
             elif rt == "date":
                 self._rule_date(r)
+            elif rt == "days_old":
+                self._rule_days_old(r)
 
         self._rules_processed = True
 
@@ -171,7 +178,7 @@ class KioskFilePicking:
         operator = rule.operator.lower()
         values = []
         if not rule.value:
-            raise FilePickingRuleError(f"rule_type TAG has no value in rule {rule.readable_id}.")
+            raise FilePickingRuleError(f"rule_type DATE has no value in rule {rule.readable_id}.")
 
         if operator in ["within", "not within", "!within"]:
             operator = "within" if operator == "within" else "!within"
@@ -200,6 +207,36 @@ class KioskFilePicking:
         files = list(set(self._on_get_files_by_date(operator, values)))
         self._set_rule(files, rule)
 
+    def _rule_days_old(self, rule: KioskFilePickingRule):
+
+        if not self._on_get_files_by_date:
+            raise FilePickingRuleError("No handler for the rule DATE set. Assign something to on_get_files_by_date")
+
+        operator = rule.operator.lower()
+        values = []
+        if not rule.value:
+            raise FilePickingRuleError(f"rule_type DAYS_OLD has no value in rule {rule.readable_id}.")
+
+        if not str.isnumeric(rule.value):
+            raise FilePickingRuleError(f"rule {rule.readable_id} of type "
+                                       f"DAYS_OLD has a value {rule.value} that is not an integer.")
+
+        date = kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True)
+        date = date - datetime.timedelta(days=int(rule.value))
+        if  operator in ["<"]:
+            operator = ">"
+            values = [date]
+        elif operator in [">"]:
+            operator = "<"
+            values = [date]
+        else:
+            raise FilePickingRuleError(f"rule_type DAYS_OLD has wrong operator {rule.operator} "
+                                       f"in rule {rule.readable_id}. Only < and > are allowed.")
+
+        files = list(set(self._on_get_files_by_date(operator, values, "modified")))
+        logging.info(f"{self.__class__.__name__}._rule_days_old: {len(files)} "
+                      f"files targeted by rule {rule.readable_id}")
+        self._set_rule(files, rule)
 
     def _rule_exclusively_in_context(self, rule: KioskFilePickingRule):
         try:

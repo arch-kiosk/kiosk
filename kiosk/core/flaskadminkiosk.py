@@ -142,12 +142,12 @@ class FilePickingModelView(KioskModelView):
             'label': 'Rule Type',
             'validators': [InputRequired()],
             'description': 'What type of rule do you want to use?',
-            'choices': ["ALL", "CONTEXTUALS", "CONTEXT", "RECORD_TYPE", "TAG", "DATE", "FILE_EXTENSION"]
+            'choices': ["ALL", "CONTEXTUALS", "CONTEXT", "RECORD_TYPE", "TAG", "DATE", "DAYS_OLD", "FILE_EXTENSION"]
         },
         'operator': {
             'label': 'Operator',
             'description': 'Not all rules support the same operators. Consult the docs.',
-            'choices': ["", "=", "IN", "!IN", "HAS", "!HAS", "XIN", "WITHIN", "!WITHIN", "BEFORE", "AFTER"]
+            'choices': ["", "=", "<", ">", "IN", "!IN", "HAS", "!HAS", "XIN", "WITHIN", "!WITHIN", "BEFORE", "AFTER"]
         },
         'value': {
             'label': 'Comparandum',
