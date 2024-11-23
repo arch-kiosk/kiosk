@@ -6,6 +6,9 @@ reporting
 /.*cache*
 *.dmp
 *.out
+**/*.*prof
+**/*.pstat
+**/*.stat
 /temp/
 *.css.map
 *.pstat
