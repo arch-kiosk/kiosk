@@ -42,7 +42,7 @@ class SqlSource:
         return self._name
 
     def get_type_info(self) -> ContextTypeInfo:
-        return copy.deepcopy(self._type_info)
+        return copy.copy(self._type_info)
 
     def get_source_selects(self) -> [str]:
         """

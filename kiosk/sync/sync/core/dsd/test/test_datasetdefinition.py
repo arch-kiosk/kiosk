@@ -163,7 +163,7 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert dsd.append_file(dsd3_dropped_table_file)
 
         fields = dsd.list_fields("test")
-        assert len(fields) == 10
+        assert len(fields) == 9
         assert "description" in fields
 
         fields = dsd.list_fields("test", 2)
@@ -243,7 +243,11 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert dsd.append_file(dsd3_dropped_table_file)
 
         fields = dsd.get_fields_with_instructions("test")
-        assert len(fields) == 10
+        assert len(fields) == 9
+
+        # now from the cache
+        fields = dsd.get_fields_with_instructions("test")
+        assert len(fields) == 9
 
         field = fields["description"]
         assert len(field) == 1
@@ -891,13 +895,12 @@ class TestDataSetDefinition(KioskPyTestHelper):
                 "structure": {
                     1: {
                         "feld1": ["datatype(VARCHAR)"],
-                        "feld2": ["datatype(TIMESTAMP)"],
+                        "feld2": ["datatype(timestamp)", "replfield_modified()"],
                     }
                 }
             }
-        }) == {"table1": {1: {
-            "feld2_tz": ["datatype(TZ)"]
-        }}}
+        }) == {'table1': {1: {'feld2_tz': ['datatype(TZ)', 'modified_tz()'],
+                'feld2_ww': ['datatype(TIMESTAMP)', 'modified_ww()']}}}
 
 
     def test_omit_fields_by_datatype(self, dsd_images_and_units):

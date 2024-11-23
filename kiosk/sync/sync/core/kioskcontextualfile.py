@@ -624,7 +624,7 @@ class KioskContextualFile(KioskLogicalFile):
                           f"error in FileIdentifierCache.get_contexts_for_file: {repr(e)}")
             raise e
 
-    def push_contexts(self, commit_on_change=False):
+    def push_contexts(self, commit_on_change=False, idc: MemoryIdentifierCache=None):
         """
         pushes the change in contexts to the database.
         :param commit_on_change: if set the method issues commits and rollbacks

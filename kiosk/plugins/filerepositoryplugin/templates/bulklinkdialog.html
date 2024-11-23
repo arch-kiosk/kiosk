@@ -1,0 +1,71 @@
+{% extends "basicmodaldialog.html" %}
+{% block dialog_css %}
+  <link rel=stylesheet href="/filerepository/static/bulk-link-dialog.css" type="text/css">
+{% endblock %}
+{% block kiosk_modal_dialog_id %}id="fr-bulk-link-dialog"{% endblock %}
+{% block kiosk_modal_dialog_classes %}kiosk-modal-dialog-fullscreen{% endblock %}
+{% block kiosk_modal_dialog_name %}link files to contexts{% endblock %}
+{% block kiosk_modal_dialog_image %}
+  <i class="fas fa-tags header-icon"></i>
+{% endblock %}{% block kiosk_modal_dialog_content %}
+  <div id="blink-dialog" class="pagecontrol-content grid-12 kiosk-modal-dialog-griddy">
+    <kiosk-context-selector id="select-link-context"></kiosk-context-selector>
+  </div>
+{% endblock %}
+{% block kiosk_modal_dialog_after %}
+
+  {% include "_kioskmodaldialog_api_connector_include.html" %}
+
+  <script>
+
+    function popupApiConnected(api) {
+        let cb = document.getElementById("select-link-context")
+        cb.apiContext = api
+        cb.addEventListener("closeSelection", linkContextCloseSelection)
+        ensureLibrariesAndinitPage();
+    }
+
+    function popupApiFailed() {
+        $.magnificPopup.close();
+        kioskErrorToast("Sorry, it was not possible to connect to Kiosk's Api. " +
+            "That's why this feature can't run. You can try again, but most likely " +
+            "you'll have to report this as a bug ");
+    }
+
+
+    function ensureLibrariesAndinitPage() {
+      if (typeof Awesomplete == 'undefined') {
+        setTimeout(ensureLibrariesAndinitPage, 500);
+      } else {
+        initPage();
+      }
+    }
+
+    function linkContextCloseSelection() {
+        alert("closed")
+    }
+
+    function initPage() {
+        let cb = document.getElementById("select-link-context")
+        try {
+            cb.openDialog.bind(cb)()
+
+        } catch {
+        }
+
+        kioskShowFooter(true);
+        kioskActivateButton($("#bt-next"), null);
+        kioskActivateButton($("#bt-back"), null);
+        //kioskActivateButton($("#bt-ok"), null);
+        //kioskDisableButton($("#bt-ok"), true);
+        kioskActivateButton($("#bt-close"), null);
+        kioskActivateButton($("#bt-delete"), null);
+
+        kioskActivateButton($("#bt-cancel"), () => {
+            $.magnificPopup.close();
+        });
+        kioskActivateButton($("#bt-ok"), startBulkLinking);
+        initBulkLinkingSelections()
+    }
+  </script>
+{% endblock %}

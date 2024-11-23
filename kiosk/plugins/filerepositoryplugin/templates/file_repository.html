@@ -111,6 +111,7 @@
           </div>
         </form>
       {% endif %}
+        <kiosk-context-selector style="position:fixed" id="select-link-context"></kiosk-context-selector>
       </div>
   </div>
   <div class="fr-page-list">
@@ -145,10 +146,29 @@
   <div id='scroll-to-top'>
   </div>
   {#<script src="{{ url_for('static', filename='scripts/controllers/filerepository.js') }}"></script>#}
-  <script src="{{ url_for('static', filename='scripts/thirdparty/blazy.min.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='scripts/thirdparty/blazy.min.js') }}"></script>
+
+    {% include "_kioskmodaldialog_api_connector_include.html" %}
+
   <script>
 
-    ensureLibrariesAndinitFileRepository();
+    function popupApiConnected(api) {
+        let cb = document.getElementById("select-link-context")
+        cb.apiContext = api
+        {#cb.addEventListener("closeSelection", linkContextCloseSelection)#}
+        ensureLibrariesAndinitFileRepository();
+    }
+
+    function popupApiFailed() {
+        $.magnificPopup.close();
+        kioskErrorToast("Sorry, it was not possible to connect to Kiosk's Api. " +
+            "That's why this feature can't run. You can try again, but most likely " +
+            "you'll have to report this as a bug ");
+    }
+
+
+
 
     function ensureLibrariesAndinitFileRepository() {
       if (typeof Awesomplete == 'undefined') {

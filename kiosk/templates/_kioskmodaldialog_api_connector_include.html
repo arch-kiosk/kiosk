@@ -30,11 +30,6 @@
             typeof $.magnificPopup != 'undefined' &&
             typeof getKioskApiContext != 'undefined' &&
             customElements.get("kiosk-tz-combo-box")) {
-            {#console.log("initializing app html ...")#}
-            {#document.querySelector("#content-wrapper").insertAdjacentHTML("afterbegin",#}
-            {#    '<div id="kiosk-dynamic-app-container">' +#}
-            {#    '   <kiosk-tz-combo-box id="popup-tz-combo-box"></kiosk-tz-combo-box>' +#}
-            {#    '</div>');#}
             console.log("trying to get Api Context...")
             getKioskApiContext().then((api) => {
                 console.log("got Api Context!")

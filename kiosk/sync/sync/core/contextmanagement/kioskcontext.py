@@ -515,7 +515,8 @@ class KioskContext:
         self._additional_fields = self._rectify_additional_fields(additional_fields)
         self._output_format = output_format
         sql_selects = self._get_selects(identifier, field_or_instruction)
-        return sql_source_class(selects=sql_selects, type_info=copy.deepcopy(self._type_info), name=self.name)
+        type_info = copy.copy(self._type_info) # Checked it, copy is enough here. This is a dict with tuple values.
+        return sql_source_class(selects=sql_selects, type_info=type_info, name=self.name)
 
     def select_all(self, field_or_instruction: str, field_from_record_type: str = "",
                    sql_source_class: SqlSource.__class__ = SqlSourceInMemory,

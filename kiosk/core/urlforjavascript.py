@@ -23,7 +23,7 @@ class UrlForPublisher:
                 url : str = self.routes[r]
                 if url == "":
                     if r.endswith(".static"):
-                        logging.debug(f"trying {r}")
+                        # logging.debug(f"trying {r}")
                         url = url_for(r, filename='.')
                         url = url[:-2]
                     else:

@@ -1,6 +1,11 @@
 import datetime
+import io
 import json
 import os
+import pstats
+
+import yappi
+
 import kioskdatetimelib
 import time
 from pprint import pprint
@@ -20,11 +25,14 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField
 
 from contextmanagement.memoryidentifiercache import MemoryIdentifierCache
+from dsd.dsd3singleton import Dsd3Singleton
+from fileidentifiercache import FileIdentifierCache
 from kioskcontextualfile import KioskContextualFile
 from kioskrepresentationtype import KioskRepresentationType, KioskRepresentations
 from kioskresult import KioskResult
 from kiosksqldb import KioskSQLDb
 from kioskuser import KioskUser
+from pluggableflaskapp import PluggableFlaskApp
 from plugins.filerepositoryplugin.forms.editform import ModalFileEditForm
 from core.kioskwtforms import KioskStringField, KioskLabeledBooleanField
 from core.kiosklib import nocache
@@ -787,6 +795,172 @@ def repository_bulk_tag_execute():
 
     return result.jsonify()
 
+
+# @filerepository.route('/bulklink', methods=['POST'])
+# @full_login_required
+# def repository_bulk_link_files():
+#     """
+#     asks for a dialog to tag a list of files
+#
+#     :return:
+#     """
+#
+#     print("\n*************** Request to link files  in bulk *************************++")
+#     if hasattr(request, 'json') and request.json and 'files' in request.json:
+#         files = request.json["files"]
+#     else:
+#         files = []
+#
+#     print(f"\n*************** {len(files)} about to be linked with the bulk link dialog *************************++")
+#     logging.info(f"filerepositorycontroller.repository_bulk_link_files: request to link {len(files)} files.")
+#
+#     authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
+#     if "modify data" not in authorized_to:
+#         logging.warning(f"Unauthorized attempt to link files by user {current_user.user_id}")
+#         return jsonify(result="you do not have the privilege to modify any data.")
+#
+#     false_tags = []
+#     true_tags = []
+#     undefined_tags = []
+#
+#     # noinspection PyTypeChecker
+#     file_repos = FileRepository(kioskglobals.cfg,
+#                                 event_manager=None,
+#                                 type_repository=kioskglobals.type_repository,
+#                                 plugin_loader=current_app
+#                                 )
+#
+#     m_file_repository = ModelFileRepository(kioskglobals.cfg, _plugin_name_)
+#
+#     return render_template('bulklinkdialog.html', file_repository=m_file_repository)
+
+@filerepository.route('/bulklink/execute', methods=['POST'])
+@full_login_required
+def repository_bulk_link_execute():
+    """
+    adds links between archaeological identifiers and selected images
+
+    :return:
+    """
+
+    result = KioskResult()
+    result.set_data('updated', [])
+    try:
+        if hasattr(request, 'json') and request.json and 'files' in request.json:
+            files = request.json["files"]
+        else:
+            files = []
+
+        identifier = ""
+        if hasattr(request, 'json') and request.json and 'context_info' in request.json:
+            context_info = request.json["context_info"]
+            identifier = context_info["identifier"]
+        else:
+            context_info = {}
+
+        authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
+        if "modify data" not in authorized_to:
+            logging.warning(f"Unauthorized attempt to modify data by user {current_user.user_id}")
+            return jsonify(result="you do not have the privilege to modify data.")
+
+        if not context_info or not identifier:
+            return jsonify(result="Wrong arguments")
+
+
+        print(f"\n*************** Request to link {len(files)} files to identifier {context_info['identifier']} ****************++")
+
+        logging.info(
+            f"filerepositorycontroller.repository_bulk_link_execute: {len(files)} about to be "
+            f"linked to {context_info['identifier']}.")
+
+
+        file_repos = FileRepository(kioskglobals.cfg,
+                                    event_manager=None,
+                                    type_repository=kioskglobals.type_repository,
+                                    plugin_loader=current_app
+                                    )
+
+        dsd = Dsd3Singleton.get_dsd3()
+        idc = MemoryIdentifierCache(dsd)
+
+        if not idc.has_identifier(identifier):
+            raise Exception(f"The identifier '{identifier}' is unknown")
+
+        record_types = [x[0] for x in idc.get_recording_contexts(identifier)]
+
+        # remove all identifiers that do not have a default file location.
+        default_location = None
+        for rt in list(record_types):
+            default_location = dsd.get_default_file_location_for(rt)
+            if default_location:
+                break
+
+        if not default_location:
+            raise Exception(f"Files cannot be linked automatically to identifier '{identifier}'. "
+                            f"Kiosk would ont know where to put them (missing default record type for "
+                            f"{context_info['record_type']}).")
+        else:
+            default_location = default_location[0]
+        try:
+
+            c_added = 0
+            c_error = 0
+            updated = {}
+            for file_uid in files:
+                f = file_repos.get_contextual_file(file_uid)
+                contexts = f.contexts.get_contexts()
+                if (identifier, default_location) not in contexts:
+                    try:
+                        f.contexts.add_context(identifier, context_info["record_type"])
+                        f.push_contexts(commit_on_change=False, idc=idc)
+                        updated[file_uid] = ", ".join([x[0] for x in f.contexts.get_contexts()])
+                        logging.debug(f"filerepositorycontroller._repository_bulk_link_execute: "
+                                          f"Linked file {file_uid} "
+                                          f"to context {identifier}")
+                        c_added += 1
+                    except BaseException as e:
+                        c_error += 1
+                        if c_error < 10:
+                            logging.error(f"filerepositorycontroller._repository_bulk_link_execute: "
+                                          f"Error linking file {file_uid} "
+                                          f"to context {identifier}{repr(e)}")
+
+            result.set_data('updated', updated)
+            if c_added > 0:
+                KioskSQLDb.commit()
+                result.success = True
+                if c_error > 0:
+                    result.message = (f"Only {c_added} files could be linked to identifier "
+                                      f"{identifier}. \n"
+                                      f"{c_error} files could not be linked because of errors. "
+                                      f"Please look at the logs for details or ask your admin.")
+                else:
+                    result.message = (f"{c_added} files got successfully linked "
+                                      f"to identifier {identifier}.")
+            else:
+                if c_error > 0:
+                    result.success = False
+                    result.message = (f"No file could be linked to identifier {identifier} "
+                                      f"because errors occurred with all of them. Please look at the logs "
+                                      f"for details or ask your admin.")
+                else:
+                    result.success = False
+                    result.message = (f"No file could be linked to identifier {identifier} "
+                                      f"presumably because they were all already linked to that identifier. ")
+
+        except BaseException as e:
+            logging.error(
+                f"filerepositorycontroller.repository_bulk_link_execute: Exception when linking files: {repr(e)}")
+            result.message = f"Exception when linking files: {repr(e)}"
+            try:
+                KioskSQLDb.rollback()
+            except:
+                pass
+    except BaseException as e:
+        logging.error(f"filerepositorycontroller.repository_bulk_link_execute: Error in preparation: {repr(e)}")
+        result.message = f"Exception when preparing bulk operation: {repr(e)}."
+
+    return result.jsonify()
 
 @filerepository.route('/replace/<string:uuid>', methods=['POST'])
 @full_login_required

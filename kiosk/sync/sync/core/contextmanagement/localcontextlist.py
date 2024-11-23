@@ -1,3 +1,5 @@
+import cProfile
+
 from fileidentifiercache import FileIdentifierCache
 
 

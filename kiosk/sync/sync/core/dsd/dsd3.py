@@ -115,6 +115,7 @@ class DataSetDefinition:
         self.dsd_root_path = ""
         self.format = self.CURRENT_DSD_FORMAT_VERSION
         self._glossary = None
+        self._cache = {}
 
     @classmethod
     def translate_datatype(cls, data_type):
@@ -613,6 +614,25 @@ class DataSetDefinition:
         instructions = self._dsd_data.get([table, KEY_TABLE_STRUCTURE, version, fieldname])
         return copy(instructions)
 
+    def _get_field_instructions_from_cache(self, table, fieldname):
+        try:
+            t = self._cache[table]
+            f = t[fieldname]
+            return f
+        except:
+            pass
+        return None
+
+    def _set_field_instructions_in_cache(self, table, fieldname, instructions):
+        try:
+            self._cache[table][fieldname] = instructions
+        except:
+            try:
+                self._cache[table] = {}
+                self._cache[table][fieldname] = instructions
+            except:
+                pass
+
     def get_field_instructions(self, table, fieldname, version=0, patterns: List[str] = None) -> dict:
         """ returns a dictionary with all the instructions and their parameters for a field
         :param table: the table
@@ -625,6 +645,11 @@ class DataSetDefinition:
         :todo this won't work if a field can have the same instruction twice! Not a use case so far...
         :todo test
         """
+        if version == 0 and not patterns:
+            ins = self._get_field_instructions_from_cache(table, fieldname)
+            if ins:
+                return ins
+
         result = {}
         parser = SimpleFunctionParser()
         version = version if version else self.get_current_version(table)
@@ -639,6 +664,8 @@ class DataSetDefinition:
                 else:
                     raise DSDInstructionSyntaxError(instruction)
 
+        if version == 0 and not patterns:
+            self._set_field_instructions_in_cache(table, fieldname, result)
         return result
 
     def get_fields_with_instructions(self, table, required_instructions: [] = None, version=0) -> dict:
@@ -818,8 +845,8 @@ class DataSetDefinition:
 
            DEPRECATED!"""
 
-        logging.info("DataSetDefinition.list_fields_with_additional_type: Deprecated, "
-                     "please use list_fields_with_instructions instead.")
+        # logging.info("DataSetDefinition.list_fields_with_additional_type: Deprecated, "
+        #              "please use list_fields_with_instructions instead.")
 
         if self.is_table_dropped(table_name=table, version=version):
             raise DSDTableDropped(f"{table}, version {version} dropped.")
@@ -929,8 +956,8 @@ class DataSetDefinition:
 
             DEPRECATED!"""
 
-        logging.info("DataSetDefinition.get_attribute_reference: Deprecated, "
-                     "please use get_field_instructions instead.")
+        # logging.info("DataSetDefinition.get_attribute_reference: Deprecated, "
+        #              "please use get_field_instructions instead.")
 
         if self.is_table_dropped(table_name=table, version=version):
             raise DSDTableDropped(f"{table}, version {version} dropped.")

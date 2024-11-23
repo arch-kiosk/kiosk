@@ -64,15 +64,14 @@ function setFileRepositoryEventHandlers() {
 
   $("#filter-reset").on("click", () => {
     resetFileReposFilters(true);
-
   })
 
-  $("#fr-bt-toggle").on("click", toggleFileMarkers);
-  $("#fr-bt-clear-markers").on("click", clearAllFileMarkers);
-  $("#fr-bt-set-markers").on("click", setAllFileMarkers);
-  $("#fr-bt-bulk-delete").on("click", askBulkDelete);
-  $("#fr-bt-bulk-tag").on("click", askBulkTag);
-  $("#fr-bt-bulk-attach").on("click", askBulkAttach);
+  document.querySelector("#fr-bt-toggle").addEventListener("click", toggleFileMarkers);
+  document.querySelector("#fr-bt-clear-markers").addEventListener("click", clearAllFileMarkers);
+  document.querySelector("#fr-bt-set-markers").addEventListener("click", setAllFileMarkers);
+  document.querySelector("#fr-bt-bulk-delete").addEventListener("click", askBulkDelete);
+  document.querySelector("#fr-bt-bulk-tag").addEventListener("click", askBulkTag);
+  document.querySelector("#fr-bt-bulk-attach").addEventListener("click", askBulkAttach);
 
   $(function () {
     $("#scroll-to-top").on("click",
@@ -335,6 +334,7 @@ function showFileChecked(element) {
 function refreshMarkers() {
   $("#fr-image-list-wrapper").children().each((index, element) => {
     let clicker = $(element).find(".fr-identifier-and-check").first()
+    clicker.off("click")
     clicker.on("click", identifierClicked.bind(element));
     showFileChecked(element)
   })
@@ -430,18 +430,19 @@ function askBulkDelete(e) {
   }
 }
 
-function askBulkAttach() {
-  kioskErrorToast("This operation is not implemented yet.")
-}
 
-
-function askBulkTag() {
-  let c = countFileMarkers()
+function checkMarkers() {
+let c = countFileMarkers()
   if (c === 0) {
     kioskSuccessToast("Please mark the files you want to tag by clicking on the " +
       "star next to a file's context identifiers.")
-    return;
+    return false
   }
+  return true
+
+}
+function askBulkTag() {
+  if (!checkMarkers()) return
 
   let files = getMarkedFiles();
   $.magnificPopup.open({
@@ -469,6 +470,37 @@ function askBulkTag() {
       }
     }
   });
+}
+
+function askBulkAttach() {
+  if (!checkMarkers()) return
+  let cFiles = countFileMarkers()
+  if (cFiles > 10) {
+    kioskErrorToast(`Sorry, but in this version of Kiosk you can only link maximal 10 images at a time. 
+      Please unmark a few (currently you have marked ${cFiles}).`)
+    return
+  }
+
+
+  try {
+  let cb = document.getElementById("select-link-context")
+  cb.addEventListener("closeSelection", closeBulkAttach)
+  cb.openDialog()
+  } catch(e) {
+    kioskErrorToast(`The link feature could not be started ${e}`)
+  }
+}
+
+function closeBulkAttach(evt) {
+  let selectedContext = evt.detail
+  // selectedContext.field,selectedContext.identifier, selectedContext.record_type
+  console.log(selectedContext)
+  let files = getMarkedFiles()
+  kioskYesNoToast(`Are you sure you want to link the ` +
+      `marked ${files.length} files with ${selectedContext.identifier}(${selectedContext['record_type']})? <br>
+      Please double check because you won't be able to undo this easily.`, ()=>{
+    _executeBulkLink(files, selectedContext)
+  })
 }
 
 
@@ -515,6 +547,54 @@ function _bulkDelete() {
       },
       onError: (errStr, status, xhr, stateData) => {
         changeToolButtonState('fr-bt-bulk-delete', 1);
+        kioskErrorToast(errStr);
+        fetchImageCount();
+      }
+    })
+}
+
+function _executeBulkLink(files, selectedContext) {
+  changeToolButtonState('fr-bt-bulk-attach', 2);
+  kioskAjax("/filerepository/bulklink/execute", JSON.stringify({"files": files, "context_info": selectedContext}),
+      'POST',
+    {
+      beforeSend: function (xhr, settings) {
+        csrf_token = $("#csrf_token").attr("value");
+        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+          xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        }
+      },
+      dataType: "json",
+      contentType: "application/json",
+      onSuccess: (data, textStatus, jqXHR) => {
+        console.log("data", data)
+        changeToolButtonState('fr-bt-bulk-attach', 1);
+        fetchImageCount();
+        if (!data.success) {
+          kioskErrorToast(data.message);
+        } else {
+          let cModified = Object.keys(data.data.updated).length
+          if (data.message && data.message !== '') {
+            kioskSuccessToast(`${data.message}`);
+          } else {
+            kioskSuccessToast(`${cModified} files have been successfully linked to ` +
+                `${selectedContext['identifier']}.`);
+          }
+          if (cModified > 0) {
+            for (let uid of Object.keys(data.data.updated)) {
+              updateFileRepositoryImage(uid)
+            }
+          }
+
+          // for (let i = 0; i < data.linked_files.length; i++) {
+          //   let el = $("#" + data.linked_files[i]);
+          //   sessionStorage.removeItem("filemarked_" + data.deleted_files[i])
+          //   if (el) el.remove();
+          // }
+        }
+      },
+      onError: (errStr, status, xhr, stateData) => {
+        changeToolButtonState('fr-bt-bulk-attach', 1);
         kioskErrorToast(errStr);
         fetchImageCount();
       }
