@@ -1,53 +1,34 @@
-import datetime
-import io
-import json
+import logging
 import os
-import pstats
-
-import yappi
-
-import kioskdatetimelib
-import time
 from pprint import pprint
 
-import kiosklib
-import synchronization
-
+from flask import make_response, Blueprint, abort, request, render_template, jsonify, \
+    send_from_directory, current_app, session, send_file, redirect, url_for
+from flask_login import current_user
+from flask_wtf import FlaskForm
 from werkzeug.datastructures import MultiDict
 from werkzeug.utils import secure_filename
-
-from flask import make_response, Blueprint, abort, request, render_template, jsonify, \
-    send_from_directory, current_app, session, send_file, redirect, url_for, Response
-
-from flask_login import current_user
-from authorization import full_login_required, get_local_authorization_strings, MODIFY_DATA, DOWNLOAD_FILE
-from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField
 
+import kioskdatetimelib
+import kioskglobals
+import kiosklib
+import kioskstdlib
+import synchronization
+from authorization import full_login_required, get_local_authorization_strings, MODIFY_DATA, DOWNLOAD_FILE
 from contextmanagement.memoryidentifiercache import MemoryIdentifierCache
+from core.kioskcontrollerplugin import get_plugin_for_controller
+from core.kioskwtforms import KioskStringField, KioskLabeledBooleanField
 from dsd.dsd3singleton import Dsd3Singleton
-from fileidentifiercache import FileIdentifierCache
+from kioskconfig import KioskConfig
 from kioskcontextualfile import KioskContextualFile
 from kioskrepresentationtype import KioskRepresentationType, KioskRepresentations
 from kioskresult import KioskResult
 from kiosksqldb import KioskSQLDb
-from kioskuser import KioskUser
-from pluggableflaskapp import PluggableFlaskApp
-from plugins.filerepositoryplugin.forms.editform import ModalFileEditForm
-from core.kioskwtforms import KioskStringField, KioskLabeledBooleanField
-from core.kiosklib import nocache
-
-import kioskstdlib
-
-import kioskglobals
-import logging
-
-from sync.core.filerepository import FileRepository
-
 from plugins.filerepositoryplugin.ModelFileRepository import ModelFileRepository, FileRepositoryFile
 from plugins.filerepositoryplugin.filerepositorylib import get_std_file_images
-from core.kioskcontrollerplugin import get_plugin_for_controller, KioskControllerPlugin
-from kioskconfig import KioskConfig
+from plugins.filerepositoryplugin.forms.editform import ModalFileEditForm
+from sync.core.filerepository import FileRepository
 
 _plugin_name_ = "filerepositoryplugin"
 _controller_name_ = "filerepository"
