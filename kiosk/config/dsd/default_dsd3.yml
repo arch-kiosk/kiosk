@@ -2065,3 +2065,53 @@ constants:
     2:
       upgrade:
         - alter("modified_by")
+
+archival_entity:
+  structure:
+    1:
+      identifier: [datatype(VARCHAR), not_null(), unique()]
+      alternative_id: [datatype(VARCHAR)]
+      local_id: [datatype(NUMBER), local_id("identifier")]
+      domain: [datatype(VARCHAR), id_domain("identifier")]
+      description: [datatype(VARCHAR)]
+      type: [datatype(VARCHAR)]
+      location: [datatype(VARCHAR)]
+      condition: [datatype(VARCHAR)]
+      date_from: [datatype(DATE)]
+      date_to: [datatype(DATE)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+
+archival_entity_activity:
+  structure:
+    1:
+      description: [datatype(VARCHAR)]
+      ts: [datatype(timestamp)]
+      uid_archival_entity: [datatype(UUID)]
+      actor: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+
+archival_entity_file:
+  structure:
+    1:
+      uid_archival_entity: [datatype(UUID)]
+      uid_file: [datatype(UUID),uid_file(), file_location_for("archival_entity")]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+
+archival_entity_units:
+  structure:
+    1:
+      uid_archival_entity: [datatype(UUID)]
+      uid_unit: [datatype(UUID)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]

@@ -56,7 +56,7 @@ config:
   filemaker_export_dir: '%sync%\filemaker\to_work_station'
   filemaker_import_dir: '%sync%\filemaker\from_work_station'
   filemaker_encoding: "UTF-8"
-  expected_filemaker_template_version: '16'
+  expected_filemaker_template_version: '17'
   file_handling_definition: '%base_path%\config\file_handling.yml'
   default_resolution: "low"
   default_recording_group: "default"
