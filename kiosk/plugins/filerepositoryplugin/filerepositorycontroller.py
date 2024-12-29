@@ -103,6 +103,7 @@ def fetch_repository_file(file_uuid, resolution):
     #     logging.error("32ef2cf5-6b77-483c-b85c-f88c3de0ef6b suppressed")
     #     abort(404)
     try:
+        print(f"trying to fetch {file_uuid}")
         if not kioskstdlib.check_uuid(file_uuid, accept_filemaker_too=True):
             abort(400)
 
