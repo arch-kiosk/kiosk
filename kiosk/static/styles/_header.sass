@@ -97,8 +97,8 @@
 
 #logo
   float: left
-  background: white
-  //height: 125px
+  background-color: var(--col-bg-1)
+  height: 100%
   border-right: 10px solid white
   overflow: hidden
   @media #{$screen-max-700}
@@ -108,16 +108,17 @@
 
   #img
     background: $header-logo-img no-repeat
-    background-size: cover
+    background-size: contain
     background-position: center
     width: $header-logo-width
     height: $header-logo-height
+    margin: 1.2vw
     @media #{$screen-max-800}
-      max-width: 135px
-      max-height: 90px
+      max-width: 120px
+      max-height: 80px
     @media #{$screen-phone-portrait}
-      max-width: 90px
-      max-height: 65px
+      max-width: 76px
+      max-height: 55px
 
 #maintitlegroup
   margin-top: 5px

@@ -4,6 +4,7 @@ import_configurations:
   - kiosk_secure.yml
 
 config:
+  project_id: 'anc'
   autoload_plugins_buap:
     - 'buap_ancdb_bridge'
 
@@ -35,10 +36,10 @@ glossary:
 kiosk:
   global_constants:
     project_logo_bottom: ' '
-    project_logo_main: 'Investigaciones BioArqueologicas en la Selva Alta'
+    project_logo_main: 'Abydos North Cemetery'
     project_logo_top: ''
-    project_name: 'Investigaciones BioArqueologicas en la Selva Alta'
-    project_short: USTP
+    project_name: 'Abydos North Cemetery'
+    project_short: ANC
 
   administrationplugin:
     fake_transfer: True
