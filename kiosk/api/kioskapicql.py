@@ -1,10 +1,5 @@
-import logging
 import datetime
-
-from dsd.dsd3singleton import Dsd3Singleton
-from qualitycontrol.qualitycontrol import QualityControl
-from synchronization import Synchronization
-from kiosksqldb import KioskSQLDb
+import logging
 from pprint import pprint
 
 from flask import request
@@ -13,13 +8,14 @@ from marshmallow import Schema, fields, validate
 
 import kioskglobals
 import kioskstdlib
-
 from contextmanagement.contextquery import ContextQuery
 from contextmanagement.contextquerybakery import ContextQueryBakery
 from contextmanagement.kioskcontext import KioskContext
 from contextmanagement.sqlsourceinmemory import SqlSourceInMemory
 from dsd.dsderrors import DSDError
 from kioskglobals import get_config, httpauth
+from kiosksqldb import KioskSQLDb
+from qualitycontrol.qualitycontrol import QualityControl
 
 
 class ApiCQLQueryGetParameter(Schema):
@@ -278,13 +274,14 @@ class ApiCQLQuery(Resource):
                 logging.error(f"{self.__class__.__name__}.POST: Exception when closing query: {repr(e)}")
             return api_return
         except BaseException as e:
+            outer_exception = repr(e)
             try:
                 logging.error(f"{self.__class__.__name__}.post: {repr(e)}")
                 KioskSQLDb.rollback()
             except BaseException as e:
                 pass
             try:
-                result = {'result_msg': repr(e),
+                result = {'result_msg': outer_exception,
                           'record_count': 0,
                           'page': 0,
                           'records': [],
