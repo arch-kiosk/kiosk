@@ -78,7 +78,7 @@ class UnitInfoWidget extends KioskAppComponent {
 
         this.fetching = true
         const sql = `
-            primary_identifier, identifier, id_site, id_excavator, purpose, created, modified_by, modified_date, type, method 
+            primary_identifier, identifier, id_site, id_excavator, purpose, created, unit_creation_date, modified_by, modified_date, type, method 
             from {base} where ${this.get_conditions(this.selected_context)}  
         `
         const cql = {
@@ -119,6 +119,10 @@ class UnitInfoWidget extends KioskAppComponent {
                         },
                         "purpose": {
                             "field_or_instruction": "purpose",
+                            "default": "null",
+                        },
+                        "unit_creation_date": {
+                            "field_or_instruction": "unit_creation_date",
                             "default": "null",
                         },
                         "id_site": {
@@ -191,6 +195,9 @@ class UnitInfoWidget extends KioskAppComponent {
             unit.identifier = r.primary_identifier
             if (r.modified > unit.modified)
                 unit.modified = r.modified
+            if (r.unit_creation_date) {
+                unit.unit_creation = fromSqlDate(r.unit_creation_date).toLocaleDateString()
+            }
 
             // if (r.modified_by) locus.modified_by = r.modified_by ? r.modified_by : "?"
             if (r.type) unit.type = r.type
@@ -200,7 +207,6 @@ class UnitInfoWidget extends KioskAppComponent {
             if (r.purpose) unit.purpose = r.purpose
 
             if (r.created) {
-                unit.unit_creation = fromSqlDate(r.created).toLocaleDateString()
                 unit.created = fromSqlDate(r.created).getTime()
             }
         })

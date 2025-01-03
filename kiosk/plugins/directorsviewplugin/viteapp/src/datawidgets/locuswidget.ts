@@ -95,11 +95,11 @@ class LocusWidget extends KioskAppComponent {
         this.fetching = true
         const us_date = getSqlDate(this.selected_date)
         const sql = `
-            primary_identifier, identifier, nointerpretation, nodescription, created, modified_by, modified_date, 
-            record_type, type, primary_identifier_uuid qc_data_context, count(data_uuid) c 
+            primary_identifier, identifier, nointerpretation, nodescription, created, modified_by, modified_date,
+            date_defined, record_type, type, primary_identifier_uuid qc_data_context, count(data_uuid) c 
             from {base} where ${this.get_conditions(us_date, this.selected_context, this.selected_member)}  
             group by primary_identifier, identifier, nointerpretation, nodescription, created, modified_by, 
-            modified_date, record_type, type, primary_identifier_uuid         
+            modified_date, date_defined, record_type, type, primary_identifier_uuid         
         `
         const cql = {
             "cql": {
@@ -133,6 +133,11 @@ class LocusWidget extends KioskAppComponent {
                         },
                         "created": {
                             "field_or_instruction": "locus.replfield_created()",
+                            "default": "null",
+                            "format": "datetime(date)"
+                        },
+                        "date_defined": {
+                            "field_or_instruction": "locus.date_defined",
                             "default": "null",
                             "format": "datetime(date)"
                         },
@@ -254,8 +259,10 @@ class LocusWidget extends KioskAppComponent {
 
                 // if (r.modified_by) locus.modified_by = r.modified_by ? r.modified_by : "?"
                 if (r.type) locus.type = r.type
+                if (r.date_defined) {
+                    locus.locus_creation = fromSqlDate(r.date_defined).toLocaleDateString()
+                }
                 if (r.created) {
-                    locus.locus_creation = fromSqlDate(r.created).toLocaleDateString()
                     locus.created = fromSqlDate(r.created).getTime()
                 }
 

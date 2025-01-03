@@ -15901,7 +15901,7 @@ var pg = Qn((jg, go) => {
     fetch_data() {
       this.fetching = !0;
       const r = `
-            primary_identifier, identifier, id_site, id_excavator, purpose, created, modified_by, modified_date, type, method 
+            primary_identifier, identifier, id_site, id_excavator, purpose, created, unit_creation_date, modified_by, modified_date, type, method 
             from {base} where ${this.get_conditions(this.selected_context)}  
         `, e = {
         cql: {
@@ -15943,6 +15943,10 @@ var pg = Qn((jg, go) => {
                 field_or_instruction: "purpose",
                 default: "null"
               },
+              unit_creation_date: {
+                field_or_instruction: "unit_creation_date",
+                default: "null"
+              },
               id_site: {
                 field_or_instruction: "id_site",
                 default: "null"
@@ -15982,7 +15986,7 @@ var pg = Qn((jg, go) => {
       r.forEach((t) => {
         const o = t.primary_identifier;
         let i;
-        o in e ? i = e[o] : (i = new sh(), e[o] = i, this.units.push(i), i.id_excavator = "", i.purpose = "", i.id_site = "?", i.method = "?", i.type = "?", i.modified = 0, i.created = 0, i.unit_creation = "?"), i.identifier = t.primary_identifier, t.modified > i.modified && (i.modified = t.modified), t.type && (i.type = t.type), t.method && (i.method = t.method), t.id_site && (i.id_site = t.id_site), t.id_excavator && (i.id_excavator = t.id_excavator), t.purpose && (i.purpose = t.purpose), t.created && (i.unit_creation = ae(t.created).toLocaleDateString(), i.created = ae(t.created).getTime());
+        o in e ? i = e[o] : (i = new sh(), e[o] = i, this.units.push(i), i.id_excavator = "", i.purpose = "", i.id_site = "?", i.method = "?", i.type = "?", i.modified = 0, i.created = 0, i.unit_creation = "?"), i.identifier = t.primary_identifier, t.modified > i.modified && (i.modified = t.modified), t.unit_creation_date && (i.unit_creation = ae(t.unit_creation_date).toLocaleDateString()), t.type && (i.type = t.type), t.method && (i.method = t.method), t.id_site && (i.id_site = t.id_site), t.id_excavator && (i.id_excavator = t.id_excavator), t.purpose && (i.purpose = t.purpose), t.created && (i.created = ae(t.created).getTime());
       }), this.unitCount = Object.keys(this.units).length;
     }
     // sort_records(sort_by: Array<string>) {
@@ -17244,11 +17248,11 @@ var pg = Qn((jg, go) => {
     fetch_data() {
       this.fetching = !0;
       const r = ot(this.selected_date), e = `
-            primary_identifier, identifier, nointerpretation, nodescription, created, modified_by, modified_date, 
-            record_type, type, primary_identifier_uuid qc_data_context, count(data_uuid) c 
+            primary_identifier, identifier, nointerpretation, nodescription, created, modified_by, modified_date,
+            date_defined, record_type, type, primary_identifier_uuid qc_data_context, count(data_uuid) c 
             from {base} where ${this.get_conditions(r, this.selected_context, this.selected_member)}  
             group by primary_identifier, identifier, nointerpretation, nodescription, created, modified_by, 
-            modified_date, record_type, type, primary_identifier_uuid         
+            modified_date, date_defined, record_type, type, primary_identifier_uuid         
         `, t = {
         cql: {
           base: {
@@ -17281,6 +17285,11 @@ var pg = Qn((jg, go) => {
               },
               created: {
                 field_or_instruction: "locus.replfield_created()",
+                default: "null",
+                format: "datetime(date)"
+              },
+              date_defined: {
+                field_or_instruction: "locus.date_defined",
                 default: "null",
                 format: "datetime(date)"
               },
@@ -17349,7 +17358,7 @@ var pg = Qn((jg, go) => {
       this.loci = {}, this.lociList = [], r.forEach((t) => {
         const o = t.primary_identifier;
         let i;
-        t.record_type != "unit" && (o in this.loci ? i = this.loci[o] : (i = new Tp(), this.loci[o] = i, this.lociList.push(i), i.photoCount = 0, i.lotCount = 0, i.type = "?", i.hasDescription = !1, i.hasInterpretation = !1, i.relationsCount = 0, i.record_type = "", i.modified = 0, i.locus_creation = "?", i.max_severity = "", i.qc_messages = []), i.identifier = t.primary_identifier, i.unitId = t.identifier, i.record_type = t.record_type, t.modified > i.modified && (i.modified = t.modified), i.modified_by = t.modified_by, t.type && (i.type = t.type), t.created && (i.locus_creation = ae(t.created).toLocaleDateString(), i.created = ae(t.created).getTime()), t.nodescription || (i.hasDescription = !0), t.nointerpretation || (i.hasInterpretation = !0), e.length > 0 && i.qc_messages.length == 0 && (i.qc_messages = this.get_locus_qc_messages(e, t.qc_data_context), i.max_severity = "", i.qc_messages.length > 0 && (i.max_severity = this.get_max_qc_severity(i.qc_messages))), t.record_type == "locus_photo" && (i.photoCount = t.c), t.record_type == "locus_relations" && (i.relationsCount = t.c), t.record_type == "lot" && (i.lotCount = t.c));
+        t.record_type != "unit" && (o in this.loci ? i = this.loci[o] : (i = new Tp(), this.loci[o] = i, this.lociList.push(i), i.photoCount = 0, i.lotCount = 0, i.type = "?", i.hasDescription = !1, i.hasInterpretation = !1, i.relationsCount = 0, i.record_type = "", i.modified = 0, i.locus_creation = "?", i.max_severity = "", i.qc_messages = []), i.identifier = t.primary_identifier, i.unitId = t.identifier, i.record_type = t.record_type, t.modified > i.modified && (i.modified = t.modified), i.modified_by = t.modified_by, t.type && (i.type = t.type), t.date_defined && (i.locus_creation = ae(t.date_defined).toLocaleDateString()), t.created && (i.created = ae(t.created).getTime()), t.nodescription || (i.hasDescription = !0), t.nointerpretation || (i.hasInterpretation = !0), e.length > 0 && i.qc_messages.length == 0 && (i.qc_messages = this.get_locus_qc_messages(e, t.qc_data_context), i.max_severity = "", i.qc_messages.length > 0 && (i.max_severity = this.get_max_qc_severity(i.qc_messages))), t.record_type == "locus_photo" && (i.photoCount = t.c), t.record_type == "locus_relations" && (i.relationsCount = t.c), t.record_type == "lot" && (i.lotCount = t.c));
       }), this.locusCount = Object.keys(this.loci).length, this.sort_records(this.sort_by[this.selected_sort]);
     }
     sort_records(r) {
@@ -17551,11 +17560,11 @@ var pg = Qn((jg, go) => {
     fetch_data() {
       this.fetching = !0;
       const r = ot(this.selected_date), e = `
-            primary_identifier, identifier, cm_type, nolot, nodescription, created, modified_by, modified_date, 
+            primary_identifier, identifier, cm_type, nolot, nodescription, date, created, modified_by, modified_date, 
             record_type, type, count(data_uuid) c 
             from {base} 
             where ${this.get_conditions(r, this.selected_context, this.selected_member)}
-            group by primary_identifier, identifier, cm_type, nolot, nodescription, created, modified_by, modified_date, 
+            group by primary_identifier, identifier, cm_type, nolot, nodescription, date, created, modified_by, modified_date, 
             record_type, type         
         `, t = {
         cql: {
@@ -17588,6 +17597,11 @@ var pg = Qn((jg, go) => {
               },
               created: {
                 field_or_instruction: "collected_material.replfield_created()",
+                default: "null",
+                format: "datetime(date)"
+              },
+              date: {
+                field_or_instruction: "collected_material.date",
                 default: "null",
                 format: "datetime(date)"
               },
@@ -17648,7 +17662,7 @@ var pg = Qn((jg, go) => {
       r.forEach((t) => {
         const o = t.primary_identifier;
         let i;
-        o in e ? i = e[o] : (i = new Lp(), e[o] = i, this.cm.push(i), i.photoCount = 0, i.lot = !1, i.type = "?", i.hasDescription = !1, i.cm_type = "bulk", i.record_type = "", i.modified = 0, i.cm_creation = "?"), i.identifier = t.primary_identifier, i.unitId = t.identifier, i.record_type = t.record_type, t.modified > i.modified && (i.modified = t.modified), i.modified_by = t.modified_by, t.type && (i.type = t.type), t.cm_type && (i.cm_type = this.cm_types[t.cm_type]), t.created && (i.cm_creation = ae(t.created).toLocaleDateString(), i.created = ae(t.created).getTime()), t.nodescription || (i.hasDescription = !0), t.nolot || (i.lot = !0), t.record_type == "collected_material_photo" && (i.photoCount = t.c);
+        o in e ? i = e[o] : (i = new Lp(), e[o] = i, this.cm.push(i), i.photoCount = 0, i.lot = !1, i.type = "?", i.hasDescription = !1, i.cm_type = "bulk", i.record_type = "", i.modified = 0, i.cm_creation = "?"), i.identifier = t.primary_identifier, i.unitId = t.identifier, i.record_type = t.record_type, t.modified > i.modified && (i.modified = t.modified), i.modified_by = t.modified_by, t.type && (i.type = t.type), t.cm_type && (i.cm_type = this.cm_types[t.cm_type]), t.date && (i.cm_creation = ae(t.date).toLocaleDateString()), t.created && (i.created = ae(t.created).getTime()), t.nodescription || (i.hasDescription = !0), t.nolot || (i.lot = !0), t.record_type == "collected_material_photo" && (i.photoCount = t.c);
       }), this.cmCount = Object.keys(this.cm).length, this.sort_records(this.sort_by[this.selected_sort]);
     }
     sort_records(r) {

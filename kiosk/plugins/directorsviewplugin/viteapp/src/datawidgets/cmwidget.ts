@@ -89,11 +89,11 @@ class CMWidget extends KioskAppComponent {
         this.fetching = true
         const us_date = getSqlDate(this.selected_date)
         const sql = `
-            primary_identifier, identifier, cm_type, nolot, nodescription, created, modified_by, modified_date, 
+            primary_identifier, identifier, cm_type, nolot, nodescription, date, created, modified_by, modified_date, 
             record_type, type, count(data_uuid) c 
             from {base} 
             where ${this.get_conditions(us_date, this.selected_context, this.selected_member)}
-            group by primary_identifier, identifier, cm_type, nolot, nodescription, created, modified_by, modified_date, 
+            group by primary_identifier, identifier, cm_type, nolot, nodescription, date, created, modified_by, modified_date, 
             record_type, type         
         `
         // console.log(sql)
@@ -128,6 +128,11 @@ class CMWidget extends KioskAppComponent {
                         },
                         "created": {
                             "field_or_instruction": "collected_material.replfield_created()",
+                            "default": "null",
+                            "format": "datetime(date)"
+                        },
+                        "date": {
+                            "field_or_instruction": "collected_material.date",
                             "default": "null",
                             "format": "datetime(date)"
                         },
@@ -222,8 +227,10 @@ class CMWidget extends KioskAppComponent {
 
             if (r.type) cm.type = r.type
             if (r.cm_type) cm.cm_type = this.cm_types[r.cm_type]
+            if (r.date) {
+                cm.cm_creation = fromSqlDate(r.date).toLocaleDateString()
+            }
             if (r.created) {
-                cm.cm_creation = fromSqlDate(r.created).toLocaleDateString()
                 cm.created = fromSqlDate(r.created).getTime()
             }
 
