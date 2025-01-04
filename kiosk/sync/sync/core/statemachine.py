@@ -1,3 +1,6 @@
+from typing import Callable
+
+
 class StateMachineException(Exception):
     pass
 
@@ -118,7 +121,7 @@ class StateMachine:
         except KeyError as e:
             raise StateMachineException("Call to StateMachine.can_transition with unknown transition.")
 
-    def execute_transition(self, transition_name: str):
+    def execute_transition(self, transition_name: str, before_transition: Callable=None):
         if not self.state:
             raise StateMachineException(
                 "Call to StateMachine.execute_transition for state machine with uninitialized state")
@@ -128,6 +131,8 @@ class StateMachine:
             try:
                 # if there is no transition method, that's fine. The transition can just be executed
                 if transition.transition_method:
+                    if before_transition:
+                        before_transition()
                     if not transition.transition_method():
                         raise StateMachineException(
                             "execute_transition of transition {} failed.".format(transition_name))

@@ -82,8 +82,9 @@ class ForkNExportWorkstationWorker(WorkstationManagerWorker):
                     # except BaseException as e:
                     #     raise Exception(f" When initializing user {repr(e)}")
 
-                    ws.reset_download_upload_status()
-                    rc = ws.sync_ws.transition("FORK", param_callback_progress=self.report_fork_progress)
+
+                    rc = ws.sync_ws.transition("FORK", param_callback_progress=self.report_fork_progress,
+                                               before_transition=ws.reset_download_upload_status)
 
                     status = self.job.fetch_status()
                     if status == MCPJobStatus.JOB_STATUS_CANCELLING:

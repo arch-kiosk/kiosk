@@ -208,12 +208,12 @@ class FileMakerWorkstation(RecordingWorkstation):
 
         self.state_machine.add_transition(self.READY_FOR_EXPORT,
                                           StateTransition("EXPORT_TO_FILEMAKER", self.IN_THE_FIELD, None, self.export))
-        self.state_machine.add_transition(self.IN_THE_FIELD,
-                                          StateTransition("FORK", self.READY_FOR_EXPORT, None, self.fork,
-                                                          failed_state=self.IDLE))
-        self.state_machine.add_transition(self.IN_THE_FIELD,
-                                          StateTransition("EXPORT_TO_FILEMAKER", self.IN_THE_FIELD, None, self.export,
-                                                          failed_state=self.READY_FOR_EXPORT))
+        # self.state_machine.add_transition(self.IN_THE_FIELD,
+        #                                   StateTransition("FORK", self.READY_FOR_EXPORT, None, self.fork,
+        #                                                   failed_state=self.IDLE))
+        # self.state_machine.add_transition(self.IN_THE_FIELD,
+        #                                   StateTransition("EXPORT_TO_FILEMAKER", self.IN_THE_FIELD, None, self.export,
+        #                                                   failed_state=self.READY_FOR_EXPORT))
         self.state_machine.add_transition(self.IN_THE_FIELD,
                                           StateTransition("IMPORT_FROM_FILEMAKER", self.BACK_FROM_FIELD, None,
                                                           self.import_workstation))

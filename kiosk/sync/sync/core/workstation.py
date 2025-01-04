@@ -1,6 +1,6 @@
 # todo time zone simpliciation (done)
 import logging
-from typing import Union
+from typing import Union, Callable
 
 import kioskrepllib
 import kioskstdlib
@@ -528,14 +528,15 @@ class Dock:
         """
         return self.state_machine.available_transitions()
 
-    def transition(self, transition_name: str, param_callback_progress=None, commit=True):
+    def transition(self, transition_name: str, param_callback_progress=None, commit=True,
+                   before_transition:Callable=None):
         """ executes a transition which will or should lead to a state change """
         begin_state = self.state_machine.get_state()
         result = False
         try:
             if param_callback_progress:
                 self.callback_progress = param_callback_progress
-            self.state_machine.execute_transition(transition_name)
+            self.state_machine.execute_transition(transition_name, before_transition=before_transition)
             result = True
         except Exception as e:
             logging.error(f"Exception in workstation.transition: {repr(e)}")

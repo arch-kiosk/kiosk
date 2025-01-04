@@ -53,9 +53,8 @@ class ExportWorkstationWorker(WorkstationManagerWorker):
                 sync = Synchronization()
                 ws = self.init_dock(ws_id, sync, kioskglobals.kiosk_time_zones)
                 if ws:
-                    ws.reset_download_upload_status()
-
-                    rc = ws.sync_ws.transition("EXPORT_TO_FILEMAKER", param_callback_progress=self.report_progress)
+                    rc = ws.sync_ws.transition("EXPORT_TO_FILEMAKER", param_callback_progress=self.report_progress,
+                    before_transition=ws.reset_download_upload_status)
                     status = self.job.fetch_status()
                     if status == MCPJobStatus.JOB_STATUS_CANCELLING:
                         result = KioskResult(False, "Exporting to FM has been cancelled by a user.")
