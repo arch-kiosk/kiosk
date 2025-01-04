@@ -476,14 +476,14 @@ class ModelFileRepository:
         return sql, params
 
     def _get_order(self):
-        if self.sorting_option == "context":
+        if self.sorting_option == self.SORTING_OPTIONS[0]:
             return "order by identifiers, \"file_datetime\""
-        elif self.sorting_option == "oldest first":
+        elif self.sorting_option == self.SORTING_OPTIONS[1]:
             return "order by \"file_datetime\", \"identifiers\""
         elif self.sorting_option == self.SORTING_OPTIONS[2]:
             return "order by \"sort_fd\" desc, \"identifiers\""
         elif self.sorting_option == self.SORTING_OPTIONS[3]:
-            return "order by \"file_datetime\" desc, \"identifiers\""
+            return "order by \"file_datetime\" desc, \"created\" desc, \"identifiers\""
         else:
             logging.error(f"{self.__class__.__name__}._get_order: unknown sorting order "
                           f"'{self.sorting_option}' selected.")
