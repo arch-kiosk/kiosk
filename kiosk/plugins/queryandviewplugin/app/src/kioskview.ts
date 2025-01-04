@@ -2,7 +2,7 @@
 import local_css from './styles/component-kioskview.sass?inline'
 // @ts-ignore
 import 'ui-component'
-import { KioskViewDetails, VIEW_UI_SCENARIO } from "./apptypes";
+import { KioskViewDetails } from "./apptypes";
 import { customElement, state } from "lit/decorators.js";
 import { KioskAppComponent } from "../kioskapplib/kioskappcomponent";
 import { css, html, nothing, TemplateResult, unsafeCSS } from "lit";
@@ -30,10 +30,10 @@ import { KioskViewGroupPart } from "./lib/kioskviewgrouppart";
 // import { SymbolicDataReferenceInterpreter } from "../kioskapplib/symbolicdatareferenceinterpreter";
 // import { Template } from "ejs";
 import { ImageDescriptionAccessor } from "./lib/imagedescriptionsaccessor";
-import { KioskTimeZones, TimeZone } from "../../../../../../../kiosktsapplib";
+import { KioskTimeZones } from "../../../../../../../kiosktsapplib";
 
 // @ts-ignore
-const DEVELOPMENT = (import.meta as any).env.VITE_MODE === 'DEVELOPMENT'
+const DEVELOPMENT = (import.meta as unknown).env.VITE_MODE === 'DEVELOPMENT'
 
 @customElement('kiosk-view')
 export class KioskView  extends KioskAppComponent {
@@ -101,6 +101,21 @@ export class KioskView  extends KioskAppComponent {
         //     //builds the UI Schema
         //     this.loadUI()
         // }
+    }
+
+    public bookmarkTop(topOffset: number = 0) {
+        const bookmark = this.renderRoot.querySelector(".view-bookmark") as HTMLDivElement
+        console.log("getBoundingClientRect", this.getBoundingClientRect())
+        bookmark.style.top = `${this.getBoundingClientRect().top * -1 + topOffset}px`
+    }
+
+    public restoreBookmark() {
+        const bookmark = this.renderRoot.querySelector(".view-bookmark") as HTMLDivElement
+        if (parseInt(bookmark.style.top) != 0) {
+            setTimeout(() => {
+                bookmark.scrollIntoView()
+                },0)
+        }
     }
 
     updated(_changedProperties: any) {
@@ -212,9 +227,9 @@ export class KioskView  extends KioskAppComponent {
             });
 
     }
-
+    
     loadViewDocument(data: ApiResultKioskView) {
-        if (!data.hasOwnProperty("document")) {
+        if (!Object.prototype.hasOwnProperty.call(data, "document")) {
             this.localError = "loadViewDocument: the server responded with an empty or invalid response."
         }
         if (DEVELOPMENT) {
@@ -628,6 +643,7 @@ export class KioskView  extends KioskAppComponent {
         const groups = this.viewDocument.getGroups()
         if (this.dataContext && this.dataContext.ids.find(x => x === this.viewDetails.tableName)) {
             return html`
+                <div class="view-bookmark"></div>
                 <div class="kiosk-view">
                     ${groups.map(group => html`
                         ${group[1] === "stacked"

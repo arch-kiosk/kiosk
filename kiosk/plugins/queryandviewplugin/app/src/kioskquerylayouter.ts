@@ -10,6 +10,7 @@ import '@shoelace-style/shoelace/dist/components/tab/tab.js';
 import '@shoelace-style/shoelace/dist/components/tab-group/tab-group.js';
 import { ApiResultKioskQueryDescription } from "./lib/apitypes";
 import { SlTabGroup } from "@shoelace-style/shoelace";
+import { KioskView } from "./kioskview";
 
 export type QueryTuple = [id: string, name: string]
 
@@ -25,6 +26,9 @@ export class KioskQueryLayouter extends KioskAppComponent {
 
     @property()
     public assignedPages: QueryTuple[] = []
+
+    @property({noAccessor: true})
+    public topOffset: number = 0
 
     firstUpdated(_changedProperties: any) {
         super.firstUpdated(_changedProperties);
@@ -53,10 +57,23 @@ export class KioskQueryLayouter extends KioskAppComponent {
         } else {console.error('KioskQueryLayouter.tryClose: target has not panel attribute')}
     }
 
+    tabShow(e: CustomEvent) {
+        const slotId = e.detail.name
+        const view = this.querySelector(`kiosk-view[slot="${slotId}"]`) as KioskView
+        view.restoreBookmark()
+    }
+
+    tabHide(e: CustomEvent) {
+        const slotId = e.detail.name
+        const view = this.querySelector(`kiosk-view[slot="${slotId}"]`) as KioskView
+        console.log("view-id" , view.id)
+        view.bookmarkTop(this.topOffset)
+    }
+
     apiRender(): TemplateResult {
         return (this.assignedPages.length==0)?html``:html`
             <div class="kiosk-query-layouter">
-                <sl-tab-group @sl-close="${this.tryClose}">
+                <sl-tab-group @sl-close="${this.tryClose}" @sl-tab-show="${this.tabShow}" @sl-tab-hide="${this.tabHide}">
                     ${this.assignedPages.map(q => html`
                         <sl-tab slot="nav" panel="${q[0]}" closable>${q[1]}</sl-tab>
                     `)}

@@ -28,32 +28,36 @@
     "test": "vitest",
     "build": "tsc && vite build --emptyOutDir"
   },
-    "dependencies": {
+  "dependencies": {
     "@lit/context": "^1.1.2",
-    "@shoelace-style/shoelace": "^2.17.1",
+    "@shoelace-style/shoelace": "^2.19.1",
     "@toast-ui/chart": "^4.6.1",
     "@vaadin/grid": "^24.4.9",
     "@vaadin/select": "^24.4.9",
     "install": "^0.13.0",
+    "kiosktsapplib": "file:../../../../../../kiosktsapplib",
     "lit": "^3.2.1",
     "nanoid": "^5.0.7",
     "npm": "^10.9.0",
     "ui-component": "file:../../../../../../lab/uiwebcomponent/npm/uicomponent-0.6.3.tgz",
-    "kiosktsapplib": "file:../../../../../../kiosktsapplib",
-    "xlsx": "^0.18.5"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
+    "@eslint/js": "^9.17.0",
     "@types/ejs": "^3.1.5",
     "@types/html-minifier-terser": "^7.0.2",
     "@types/luxon": "^3.4.2",
+    "eslint": "^9.17.0",
+    "globals": "^15.14.0",
     "prettier": "^3.3.3",
     "rollup-plugin-copy": "^3.5.0",
     "sass": "^1.58.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3",
+    "typescript-eslint": "^8.19.0",
     "vite": "^5.4.8",
-    "vite-plugin-html": "^3.2.2",
     "vite-plugin-dts": "^4.2.3",
+    "vite-plugin-html": "^3.2.2",
     "vitest": "^2.1.3"
   }
 }

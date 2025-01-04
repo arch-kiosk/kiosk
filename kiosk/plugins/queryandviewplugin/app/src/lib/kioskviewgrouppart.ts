@@ -232,7 +232,7 @@ export class KioskViewGroupPart {
         let recordAccessor: DSDRecordAccessor
         let record: Array<any>
 
-        if (this.layout.record_type === "locus_photo") debugger;
+        // if (this.layout.record_type === "locus_photo") debugger;
         this._partData = viewDocument.getData()[this.layout.record_type]
         if (!this._partData || this._partData.length < 2) {
             if (!this.layout.hasOwnProperty("on_record_missing") || this.layout.on_record_missing === "hide") {

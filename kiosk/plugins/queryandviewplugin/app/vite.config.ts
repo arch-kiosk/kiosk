@@ -39,6 +39,7 @@ export default defineConfig(({ command, mode }) => {
             // },
         },
         server: {
+            hmr: false,
             fs: {
                 strict: true,
                 host: true,

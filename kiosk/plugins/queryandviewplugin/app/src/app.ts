@@ -264,8 +264,15 @@ export class QueryAndViewApp extends KioskApp {
         return tableName + String(fowlerNollVo1aHashModern(viewId))
     }
 
+    private setViewLayouterTopOffset() {
+        const toolbar = this.renderRoot.querySelector(".toolbar") as HTMLDivElement
+        const viewLayout = this.renderRoot.querySelector("#view-layout") as KioskQueryLayouter
+        viewLayout.topOffset = toolbar.getBoundingClientRect().top
+    }
+
     private async loadNewView(viewId: string, viewDetails: KioskViewDetails) {
-        let view: KioskViewInstance = {
+        this.setViewLayouterTopOffset()
+        const view: KioskViewInstance = {
             viewId: viewId,
             elementId: this.getViewElementId(viewDetails.tableName, viewId),
             details: { ...viewDetails }
@@ -397,6 +404,7 @@ export class QueryAndViewApp extends KioskApp {
     }
 
     renderLayout() {
+        const VITE_MODE = (import.meta as any).env.VITE_MODE
         return html`
             <kiosk-query-layouter id="query-layout"
                                   .apiContext="${this.apiContext}"
@@ -412,7 +420,7 @@ export class QueryAndViewApp extends KioskApp {
                                   .apiContext="${this.apiContext}"
                                   .assignedPages="${[...this.views.values()].map((view) => [
                                       view.viewId,
-                                      (import.meta as any).env.VITE_MODE === 'DEVELOPMENT' ? view.viewId : view.details.identifier])}"
+                                      (VITE_MODE === 'DEVELOPMENT') ? view.viewId : view.details.identifier])}"
                                   @close="${this.onCloseView}"
                                   @identifierClicked="${this.onGotoIdentifier}"
                                   style="display:${this.inSelectQueryMode ||this.inGotoIdentifierMode ? "none" : "block"}"
