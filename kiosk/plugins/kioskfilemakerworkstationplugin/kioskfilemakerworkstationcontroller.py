@@ -223,7 +223,12 @@ def mcp_workstation_action(worker_module, worker_class, ws_id, privilege="",
             abort(HTTPStatus.UNAUTHORIZED)
 
     print(f" \n***** {job_type_name} workstation {ws_id} *****")
+
     try:
+        sync_manager = KioskSyncManager(kioskglobals.type_repository, Synchronization())
+        active_jobs = sync_manager.get_active_workstation_jobs(ws_id)
+        if active_jobs:
+            raise Exception(f"Dock {ws_id} has already a running job. Let's finish that first.")
         job = MCPJob(kioskglobals.general_store, job_type_suffix=MCP_SUFFIX_WORKSTATION)
         job.set_worker(worker_module, worker_class)
         job.system_lock = system_lock

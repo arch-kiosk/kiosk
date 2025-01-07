@@ -84,6 +84,7 @@ class DataSetDefinition:
         "INT": "INT",
         "INTEGER": "INT",
         "SMALLINT": "SMALLINT",
+        "BIGINT": "BIGINT",
         "NUMBER": "INT",
         "DECIMAL": "FLOAT",
         "FLOAT": "FLOAT",

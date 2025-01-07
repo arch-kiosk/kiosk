@@ -2005,6 +2005,20 @@ constants:
     import_filter:
       fm12: "\"category\" <> 'system' and (\"sync\" is null or \"sync\"=1)"
   structure:
+    5:
+      id: [datatype(VARCHAR)]
+      value: [datatype(VARCHAR)]
+      value_ts: [datatype(TIMESTAMP)]
+      category: [datatype(VARCHAR)]
+      comment: [datatype(VARCHAR)]
+      field_type: [datatype(VARCHAR)]
+      patch_index: [datatype(BIGINT)]
+      show_in_reduced_config: [datatype(VARCHAR)]
+      sync: [datatype(NUMBER), default(1)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created(), default('now()')]
+      modified: [datatype(TIMESTAMP), replfield_modified(), default('now()')]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('null')]
     4:
       id: [datatype(VARCHAR)]
       value: [datatype(VARCHAR)]
@@ -2055,6 +2069,9 @@ constants:
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
   migration:
+    5:
+      upgrade:
+        - add("patch_index")
     4:
       upgrade:
         - add("show_in_reduced_config")

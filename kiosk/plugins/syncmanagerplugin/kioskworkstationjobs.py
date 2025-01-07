@@ -1,5 +1,5 @@
 import logging
-from typing import Union
+from typing import Union, List
 
 from mcpinterface.mcpconstants import MCPJobStatus
 from mcpinterface.mcpqueue import MCPQueue
@@ -49,7 +49,7 @@ class KioskWorkstationJobs:
         """
         return self.queue.list_jobs(suffix=MCP_SUFFIX_WORKSTATION)
 
-    def fetch_workstation_jobs(self) -> [KioskWorkstationJob]:
+    def fetch_workstation_jobs(self) -> List[KioskWorkstationJob]:
         """
         fetches a list of KioskWorkstationJob instances with the job information of all
         jobs related to a workstation of the current project.

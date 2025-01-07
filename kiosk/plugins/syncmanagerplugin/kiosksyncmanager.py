@@ -3,6 +3,7 @@ import datetime
 import typing
 
 import kioskstdlib
+from mcpinterface.mcpconstants import MCPJobStatus
 from typerepository import TypeRepository
 from typing import Dict, List, Optional
 
@@ -164,7 +165,7 @@ class KioskSyncManager:
         :return: a KioskWorkstationJob instance or None
         """
         jobs = self.workstation_jobs.fetch_workstation_jobs()
-        result: KioskWorkstationJob or None = None
+        result: typing.Union[KioskWorkstationJob, None] = None
         for job in jobs:
             if job.workstation_id == workstation_id:
                 if result:
@@ -172,6 +173,19 @@ class KioskSyncManager:
                         continue
                 result = job
 
+        return result
+
+    def get_active_workstation_jobs(self, workstation_id: str) -> List[KioskWorkstationJob]:
+        """
+        returns the all KioskWorkstationJob jobs that are still active for a workstation
+        :return: a possibly empty array of KioskWorkstationJob instances
+        """
+        jobs = self.workstation_jobs.fetch_workstation_jobs()
+        result: List[KioskWorkstationJob] = []
+        for job in jobs:
+            if job.workstation_id == workstation_id and \
+                job.mcp_job.status < MCPJobStatus.JOB_STATUS_CANCELLING:
+                    result.append(job)
         return result
 
     @classmethod
