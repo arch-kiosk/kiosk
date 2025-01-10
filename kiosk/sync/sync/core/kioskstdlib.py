@@ -439,6 +439,20 @@ def get_filename_without_extension(filename):
 
 
 def file_exists(filepath):
+    """
+    Check if the given file path corresponds to an existing file.
+
+    This function validates if the given `filepath` points to an actual file
+    in the filesystem. If any exception occurs,
+    it gracefully handles it by returning `False` without raising the exception.
+
+    This does not work for directories!
+
+    :param filepath: The path to the file to check.
+    :type filepath: Any
+    :return: True if the file exists, False otherwise.
+    :rtype: bool
+    """
     try:
         if os.path.isfile(str(filepath)):
             return True
