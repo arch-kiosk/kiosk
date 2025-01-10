@@ -1,8 +1,10 @@
 import datetime
+import time
 import importlib
 import os
 import stat
 import threading
+import re
 
 import math
 import zipfile
@@ -17,6 +19,7 @@ import sys
 import string
 import random
 import platform
+import logging
 
 import ctypes
 
@@ -26,12 +29,13 @@ from glob import iglob
 from ntpath import basename
 from PIL import Image
 
-from kioskdatetimelib import *
+from kioskdatetimelib import utc_datetime_since_epoch, local_datetime_to_utc
 from semantic_version import Version
 
 if os.name == 'nt':
-    import win32api
+    import win32file
     import win32con
+    from pywintypes import Time
 
 raw_file_extensions = ["nef"]
 format_translations = {"jpg": ("JPEG", "jpg"),
@@ -40,7 +44,6 @@ format_translations = {"jpg": ("JPEG", "jpg"),
                        "tif": ("tiff", "tif"),
                        "raw": ("tiff", "tif"),
                        }
-
 
 def get_first_matching_file(filespath, identifier, prefix="", postfix="", wildcard="*"):
     """
@@ -84,7 +87,7 @@ def find_files(filepath, file_pattern, exclude_file="", include_path=True, order
         if order_by_time:
             file_ages = {}
             for f in files:
-                file_ages[f] = kioskstdlib.get_file_date_since_epoch(f if include_path else os.path.join(filepath, f),
+                file_ages[f] = get_file_date_since_epoch(f if include_path else os.path.join(filepath, f),
                                                                      use_most_recent_date=False)
 
             files.sort(key=lambda x: file_ages[x], reverse=order_desc)
@@ -1248,13 +1251,98 @@ def get_latest_date_from_file(filename):
 
 def set_file_date_and_time(path_and_filename: str, dt: datetime.datetime):
     """
-    sets the time of a file to the given timestamp
-    :param path_and_filename: the file
-    :param dt: the timestamp
-    """
-    dt_epoch = dt.timestamp()
-    os.utime(path_and_filename, (dt_epoch, dt_epoch))
+    Set the creation, modification, and access times for a file to the specified
+    date and time.
 
+    This function updates the file timestamps (creation, modification, and access)
+    based on the operating system. On Windows, it makes use of a specific
+    function to adjust all three file timestamps. On non-Windows platforms, it
+    updates the modification and access times using `os.utime`.
+
+    :param path_and_filename: Absolute or relative path to the file whose
+        timestamps are to be updated.
+    :type path_and_filename: str
+    :param dt: The date and time to set for the file timestamps. This datetime
+        value is applied as the new timestamp.
+    :type dt: datetime.datetime
+    :return: None
+    """
+    if os.name == 'nt':
+        set_file_datetimes_win(path_and_filename, [dt,dt,dt])
+    else:
+        dt_epoch = dt.timestamp()
+        os.utime(path_and_filename, (dt_epoch, dt_epoch))
+
+def is_windows() -> bool:
+    """
+    Determine if the code is running on a Windows operating system.
+
+    This function checks the operating system of the machine where it is
+    executed. It evaluates whether the operating system is of the type
+    "Windows" by using the platform module instead of the Python's os module.
+
+    :return: True if the operating system is Windows, otherwise False
+    :rtype: bool
+    """
+    import platform
+    return platform.system() == 'Windows'
+
+def get_file_datetimes( filePath ):
+    return ( os.path.getctime( filePath ),
+         os.path.getmtime( filePath ),
+         os.path.getatime( filePath ) )
+
+def set_file_datetimes_win(path_and_filename: str, datetimes: List[datetime.datetime])->bool:
+    """
+    Sets the creation, modification, and access times for a given file on Windows
+    systems. This function accepts datetime objects and converts them to the
+    appropriate time format required for file attribute updates. The function
+    will only execute successfully on Windows platforms.
+
+    mostly copied from https://stackoverflow.com/a/43047398/11150752
+
+    :param path_and_filename: The file path and name of the target file whose
+        timestamps are to be modified.
+    :type path_and_filename: str
+    :param datetimes: A list containing three datetime objects in the
+        following order: creation time, modification time, and access time.
+        Each datetime object will be converted to the required file-time format.
+    :type datetimes: List[datetime.datetime]
+    :return: boolean
+    """
+
+    try :
+        if os.name == 'nt':
+            ctime = datetimes[0]
+            mtime = datetimes[1]
+            atime = datetimes[2]
+            # handle datetime.datetime parameters
+            if isinstance( ctime, datetime.datetime ) :
+                ctime = time.mktime( ctime.timetuple() )
+            if isinstance( mtime, datetime.datetime ) :
+                mtime = time.mktime( mtime.timetuple() )
+            if isinstance( atime, datetime.datetime ) :
+                atime = time.mktime( atime.timetuple() )
+            # # adjust for day light savings
+            # now = time.localtime()
+            # ctime += 3600 * (now.tm_isdst - time.localtime(ctime).tm_isdst)
+            # mtime += 3600 * (now.tm_isdst - time.localtime(mtime).tm_isdst)
+            # atime += 3600 * (now.tm_isdst - time.localtime(atime).tm_isdst)
+            # change time stamps
+            winfile = win32file.CreateFile(
+                path_and_filename, win32con.GENERIC_WRITE,
+                win32con.FILE_SHARE_READ | win32con.FILE_SHARE_WRITE | win32con.FILE_SHARE_DELETE,
+                None, win32con.OPEN_EXISTING,
+                win32con.FILE_ATTRIBUTE_NORMAL, None)
+            win32file.SetFileTime( winfile, Time(ctime), Time(atime), Time(mtime) )
+            winfile.close()
+            return True
+        else:
+            raise Exception("call to set_file_datetime_win on a non-windows system.")
+
+    except BaseException as e:
+        logging.error(f"kioskstdlib.set_file_datetimes_win: {repr(e)}")
+    return False
 
 def remove_kiosk_subtree(dir_to_remove: str, base_path: str = "", delay=0) -> None:
     """
