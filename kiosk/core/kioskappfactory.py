@@ -775,9 +775,13 @@ class KioskAppFactory(AppFactory):
         auto_starts = kioskglobals.type_repository.list_types(TYPE_AUTOSTART_THREAD)
 
         if not auto_starts:
-            logging.info(f"{cls.__name__}._load_background_threads: "
-                         "No autostart classes registered: No background threads to start.")
             return
+        else:
+            if not is_local_server(cls.cfg):
+                logging.info(f"auto_start modules not supported on online servers. "
+                             f"But apparently there are some plugins that have registered autostart threads. "
+                             f"({auto_starts}) skipped.")
+                return
 
         for class_name in auto_starts:
             AutoStartClass = "undefined"
