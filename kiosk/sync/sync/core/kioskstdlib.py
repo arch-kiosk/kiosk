@@ -29,7 +29,19 @@ from glob import iglob
 from ntpath import basename
 from PIL import Image
 
-from kioskdatetimelib import utc_datetime_since_epoch, local_datetime_to_utc
+# todo: This is bad. Modules should use kioskdatetimelib directly. But it is hard to find them all, so I stick with it
+#  right now. Changing this has caused issues.
+
+from kioskdatetimelib import *
+
+# from kioskdatetimelib import utc_datetime_since_epoch, local_datetime_to_utc
+# # for compatibility reasons the next lines are necessary: Some modules still import latin_date from kioskstdlib
+# from kioskdatetimelib import latin_date, guess_latin_date, guess_datetime, check_urap_date_time
+# latin_date = latin_date
+# guess_latin_date = guess_latin_date
+# guess_datetime=guess_datetime
+# check_urap_date_time=check_urap_date_time
+
 from semantic_version import Version
 
 if os.name == 'nt':
