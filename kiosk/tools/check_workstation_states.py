@@ -83,7 +83,8 @@ if __name__ == '__main__':
             "dbname=" + db_name + " user=" + usr + " password=" + pwd + f" port={cfg.database_port}" + timeout)
 
         cur = con.cursor()
-        cur.execute(f"select count(*) from repl_workstation where state <> 0")
+        cur.execute(f"select count(*) from repl_workstation "
+                    f"where workstation_type = 'filemakerworkstation' and state <> 0")
         r = cur.fetchone()
         if r[0] == 0:
             print(f"Fine, all workstations are idle for project {project_id}")
