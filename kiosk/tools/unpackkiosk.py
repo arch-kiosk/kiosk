@@ -1,12 +1,9 @@
-import sys
-import os
-
 import logging
+import os
 import subprocess
-
+import sys
 from os import path
-
-from win32trace import flush
+from typing import List
 
 from kioskrequirements import KioskRequirements
 
@@ -54,6 +51,8 @@ params = {"-fr": "fr", "--unpack_file_repository": "fr",
           "--project_id": "project_id",
           "--skip_installation": "skip_installation",
           "--renew_workstations": "renew",
+          "--dont_check_workstations": "dcw",
+          "-dcw": "dcw"
           }
 
 
@@ -107,9 +106,10 @@ def usage():
         --update_custom_modules: explicitly update custom modules if -c is not set
         --skip_installation: Skips updating files and stuff and only does the aftermath
         --renew_workstations: renews all workstations that are in a state < in_the_field
+        -dcw / --dont_check_workstations: Skips the check if workstations are in the field. 
         --patch: a short cut for patching core code files only. Does not temper with configuration, python or the db.
                 Just unpacks the core code files. Implies -c, -o, --no_custom_directories, --no_config, 
-                --no_redis, --no_migration, --no_thumbnails    
+                --no_redis, --no_migration, --no_thumbnails, --dont_check_workstations
     """)
     sys.exit(0)
 
@@ -155,7 +155,8 @@ def interpret_param(known_param, param):
               "noc": None,
               "no_redis": None,
               "nh": None,
-              "nt": None}
+              "nt": None,
+              "dcw": None}
     else:
         rc = {new_option: None}
 
@@ -210,43 +211,6 @@ def pip_install_requirements(src_dir):
         sys.exit(-1)
 
 
-# def get_libraries(src_dir):
-#     libraries = []
-#     lib_path = os.path.join(src_dir, "libraries")
-#
-#     if path.isdir(lib_path):
-#         files = []
-#         new_libs = None
-#         for (dirpath, dirnames, filenames) in os.walk(lib_path):
-#             files = filenames
-#             break
-#
-#         if len(files) > 0:
-#             libraries.extend([path.join(lib_path, f) for f in files])
-#         else:
-#             logging.warning(f"get_libraries: {lib_path} does not contain any libraries! Unpackkiosk proceeds...")
-#     else:
-#         logging.error(f"get_libraries: Library path {lib_path} does not exist or isn't a path.")
-#         sys.exit(-1)
-#
-#     return libraries
-#
-#
-# def install_libraries(src_dir):
-#     libraries = get_libraries(src_dir)
-#     if libraries:
-#         for lib in libraries:
-#             print(f"installing {lib} with pip ... ", end="", flush=True)
-#
-#             rc = subprocess.run(f"pip install \"{lib}\"", stdout=subprocess.PIPE)
-#
-#             if rc.returncode != 0:
-#                 print("failed")
-#                 raise BaseException(f"pip install failed: {str(rc)}")
-#             else:
-#                 print("ok", flush=True)
-
-
 def check_db_name(cfg_file, options):
     if "dbname" in options:
         from kioskconfig import KioskConfig
@@ -298,6 +262,60 @@ def check_redis():
     return False
 
 
+# noinspection DuplicatedCode
+def start_python_subprocess(python_script, parameters, working_directory=None):
+    """
+    Executes a Python script as a subprocess. This function runs a specified Python
+    script with given parameters in a subprocess. If no working directory is
+    specifically provided, the current working directory of the process will be
+    used instead. It captures the script's return code and returns it. In case of
+    any error during the execution, it raises an exception.
+
+    !This is an exact copy of the same function in kioskstdlib!
+
+    :param python_script: The path to the Python script to be executed.
+    :param parameters: A list of parameters to pass to the Python script.
+    :param working_directory: Directory to set as the working directory for the
+                              subprocess. If not specified, defaults to the
+                              current working directory.
+    :return: The return code of the executed Python script.
+    :rtype: int
+    :raises Exception: If there is an error during the script execution, an
+                       exception is raised with a corresponding error message.
+    """
+    cmdline = []
+    try:
+
+        if not os.path.isfile(python_script):
+            if not os.path.isfile(os.path.join(working_directory, python_script)):
+                raise ValueError(f"Script {python_script} does not exist.")
+
+        if not working_directory:
+            working_directory = os.getcwd()
+
+        cmdline = [sys.executable, python_script]
+        cmdline.extend(parameters)
+        result = subprocess.run(cmdline, cwd=working_directory, env=os.environ.copy())
+        rc = result.returncode
+        return rc
+
+    except BaseException as e:
+        cmdline_str = " ".join(cmdline)
+        err_msg = f"unpackkiosk.start_python_subprocess: " \
+                  f"Error running {cmdline_str}: {repr(e)}."
+        raise Exception(err_msg)
+
+
+def workstations_in_the_field(kiosk_dir: str) -> bool:
+    script = "check_workstation_states.py"  # this returns 1 if all workstations are in state IDLE
+    try:
+        rc = start_python_subprocess(script, [kiosk_dir])
+        return rc != 1
+    except BaseException as e:
+        logging.error(f"unpackkiosk.workstations_in_the_field: {repr(e)}")
+        return True
+
+
 def transform_file_repository(cfg_file):
     from transformfilerepository import TransformFileRepository
     if kioskstdlib.cmp_semantic_version(current_kiosk_version, "1.5") == -1:
@@ -329,8 +347,6 @@ def transform_file_cache(cfg_file):
 def clear_file_cache(cfg_file, force=False):
     from sync_config import SyncConfig
     from kiosksqldb import KioskSQLDb
-    from dsd.dsd3 import DataSetDefinition
-    from dsd.dsdyamlloader import DSDYamlLoader
     from kioskfilecache import KioskFileCache
     config = SyncConfig.get_config({"config_file": cfg_file})
 
@@ -636,6 +652,17 @@ if __name__ == '__main__':
                 sys.exit(0)
 
             print(f"updating an existing Kiosk version \"{current_version}\"", end="\n")
+
+            if workstations_in_the_field(kiosk_dir):
+                if "dcw" in options:
+                    logging.warning(f"Error: The Kiosk you are trying to update has workstations in the field or "
+                                    f"the check failed for some reason. However, "
+                                    f"'--dont_check_workstations' is set, so I continue.")
+                else:
+                    logging.error(f"Error: The Kiosk you are trying to update has workstations in the field or "
+                                  f"the check failed for some reason. However, "
+                                  f"use '--dont_check_workstations' to update anyhow.")
+                    sys.exit(0)
 
             if "test_drive" in options:
                 logging.info("test_drive parameter for an update recognized. unpackkiosk will stop here. Options were:")

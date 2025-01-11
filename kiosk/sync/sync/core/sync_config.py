@@ -3,7 +3,7 @@ import sys
 import os
 import logging
 
-import kioskstdlib
+import kioskstdlibbasics as kioskstdlib
 from config import Config
 from yamlconfigreader import YAMLConfigReader
 
