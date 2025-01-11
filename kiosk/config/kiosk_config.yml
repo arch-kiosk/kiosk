@@ -8,6 +8,10 @@ config:
   autoload_plugins_buap:
     - 'buap_ancdb_bridge'
 
+housekeeping:
+  clear_log:
+    max_days: 1
+
 buap_ancdb_bridge:
   active: true
 

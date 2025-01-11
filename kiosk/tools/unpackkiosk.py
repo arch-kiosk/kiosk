@@ -113,7 +113,9 @@ def usage():
     """)
     sys.exit(0)
 
+
 current_kiosk_version = ""
+
 
 def interpret_param(known_param, param):
     new_option = params[known_param]
@@ -380,7 +382,15 @@ def housekeeping(cfg_file: str):
                                     type_repository=sync.type_repository,
                                     plugin_loader=sync)
         hk = Housekeeping(file_repos, True)
-        hk.do_housekeeping(file_tasks_only=True)
+        housekeeping_tasks_to_run = [
+            "housekeeping_check_broken_files",
+            "housekeeping_check_file_meta_data",
+            "housekeeping_check_cache_files",
+            "housekeeping_rewrite_image_record",
+            "housekeeping_lowercase_filenames",
+            "housekeeping_clear_log"
+        ]
+        hk.do_housekeeping(housekeeping_tasks=housekeeping_tasks_to_run)
     except BaseException as e:
         logging.error(f"housekeeping: Exception in housekeeping: {repr(e)}")
 
@@ -433,6 +443,7 @@ def check_database_integrity(cfg_file: str):
         print("failed", flush=True, end="\n")
         logging.error(f"Error when checking database integrity: {repr(e)}. Continuing, though ...")
 
+
 def delete_old_directories():
     dirs = [os.path.join(kiosk_dir, "sync", "sync", "sync_plugin", "fileimporturaphook")]
     for dir in dirs:
@@ -467,7 +478,7 @@ def renew_workstations(cfg_file: str):
         docks = sync.list_workstations()
         for dock in docks:
             if isinstance(dock, FileMakerWorkstation):
-                dock:FileMakerWorkstation
+                dock: FileMakerWorkstation
                 try:
                     state = dock.get_code_from_state(dock.get_state())
                     if state < dock.get_code_from_state(dock.IN_THE_FIELD):
@@ -492,6 +503,7 @@ def renew_workstations(cfg_file: str):
         logging.error(f"unpackkiosk.renew_workstation: {repr(e)}")
         print("failed", flush=True, end="\n")
 
+
 def get_current_kiosk_version(kiosk_dir):
     if kioskstdlib.file_exists(os.path.join(kiosk_dir, "kiosk.version")):
         try:
@@ -511,6 +523,7 @@ def get_current_kiosk_version(kiosk_dir):
     sys.modules["updatever"] = updatever
     spec.loader.exec_module(updatever)
     return updatever.kiosk_version
+
 
 if __name__ == '__main__':
     options = {}
@@ -579,9 +592,9 @@ if __name__ == '__main__':
                 logging.error(f"ERROR: REDIS is not installed or at least not running ...")
                 sys.exit(0)
 
-
     if "test_drive" in options and "o" not in options:
-        logging.info("test_drive parameter for a new installation recognized. unpackkiosk will stop here. Options were:")
+        logging.info(
+            "test_drive parameter for a new installation recognized. unpackkiosk will stop here. Options were:")
         logging.info(",".join([f"{k}={v}" for k, v in options.items()]))
         logging.info(f"kiosk-dir: {kiosk_dir}")
         logging.info(f"source-dir: {src_dir}")
@@ -613,7 +626,7 @@ if __name__ == '__main__':
                 sys.exit(0)
             try:
                 _current_kiosk_version = kioskstdlib.get_kiosk_semantic_version(current_version)
-                if _current_kiosk_version == ("",""):
+                if _current_kiosk_version == ("", ""):
                     raise "Cannot parse version"
                 if _current_kiosk_version[0] != "1":
                     raise "Cannot update anything but generation 1"
@@ -717,6 +730,7 @@ if __name__ == '__main__':
                 if "ntz" not in options:
                     try:
                         from tz.kiosktimezones import KioskTimeZones
+
                         tz_dir = os.path.join(kiosk_dir, "tools", "tz")
                         kiosk_tz = KioskTimeZones()
                         kiosk_tz.update_local_kiosk_time_zones(os.path.join(tz_dir, "kiosk_tz.json"))
@@ -771,7 +785,6 @@ if __name__ == '__main__':
         check_database_integrity(cfg_file)
         refresh_full_text_index(cfg_file)
 
-
     logging.info("unpackkiosk is done.")
     if "rm" in options:
         try:
@@ -780,9 +793,3 @@ if __name__ == '__main__':
         except BaseException as e:
             logging.error(f"unpackkiosk: {repr(e)}")
             options.pop("rm")
-
-
-
-
-
-

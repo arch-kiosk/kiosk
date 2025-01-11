@@ -461,7 +461,7 @@ class SyncConfig(Config):
         :return: the temporary directory or a blank string if an error occurred.
         """
         self.temp_dir = temp_dir
-        self._config['temp_dir'] = temp_dir
+        self.config['temp_dir'] = temp_dir
 
     def get_temp_dir(self, create_if_non_existent=True):
         """
@@ -581,3 +581,12 @@ class SyncConfig(Config):
             logging.info(f"{self.__class__.__name__}.get_fts_config: "
                          f"full text search not configured in queryandviewplugin.")
             return {}
+
+    def get_section(self, section, default=None):
+        if default is None:
+            default = {}
+        if section in self._config:
+            return self._config[section]
+        else:
+            return default
+

@@ -299,7 +299,7 @@ def administration_show():
         else:
             messages = kioskglobals.system_messages.get_messages(-10).all_messages()
 
-        local_server = is_local_server(conf)
+        local_server = kiosklib.is_local_server(conf)
 
         file_cache_refresh_running = is_file_cache_refresh_running()
 
@@ -513,7 +513,7 @@ def upload_catalog():
 
         try:
             cfg = kioskglobals.get_config()
-            if not is_local_server(cfg):
+            if not kiosklib.is_local_server(cfg):
                 raise HTTPException('This feature is only available on local servers.')
 
             temp_dir = cfg.get_temp_dir()
@@ -723,13 +723,6 @@ def start_mcp_restore(backup_file: str, restore_file_repos: bool, restore_users:
     return errors, job
 
 
-def is_local_server(cfg):
-    try:
-        if cfg.config["server_type"] == 'local':
-            return True
-    except:
-        pass
-    return False
 
 
 def shutdown_local_server():
@@ -748,7 +741,7 @@ def shutdown_local_server():
 # @nocache
 def shutdown():
     cfg = kioskglobals.get_config()
-    if is_local_server(cfg):
+    if kiosklib.is_local_server(cfg):
         logging.info(f"administrationcontroller.shutdown: Attempt to shutdown the local server")
         job = shutdown_mcp()
         if not job:
@@ -812,6 +805,7 @@ def housekeeping():
         housekeeping_form.hk_lowercase_filenames.data = False
         housekeeping_form.hk_quality_check.data = False
         housekeeping_form.hk_fts.data = False
+        housekeeping_form.clear_logs.data = True
 
     return render_template('housekeepingdialog.html',
                            config=kioskglobals.cfg, housekeeping_form=housekeeping_form,
@@ -840,6 +834,8 @@ def start_mcp_housekeeping(params):
             job_data["tasks"].append("housekeeping_quality_check")
         if params.hk_fts.data:
             job_data["tasks"].append("housekeeping_fts")
+        if params.clear_logs.data:
+            job_data["tasks"].append("housekeeping_clear_log")
 
         job = MCPJob(kioskglobals.general_store)
         job.set_worker("plugins.administrationplugin.housekeepingworker", "HouseKeepingWorker")
@@ -1108,7 +1104,7 @@ def patch():
         sync = Synchronization()
         error_msg = ""
         cfg = kioskglobals.get_config()
-        if is_local_server(cfg):
+        if kiosklib.is_local_server(cfg):
             transfer_dir = cfg.get_create_transfer_dir()
             if not transfer_dir:
                 error_msg = 'Cannot find, access or create the local transfer directory.'
@@ -1154,7 +1150,7 @@ def trigger_patch():
 
         try:
             cfg = kioskglobals.get_config()
-            if not is_local_server(cfg):
+            if not kiosklib.is_local_server(cfg):
                 raise HTTPException('This feature is only available on local servers.')
 
             transfer_dir = cfg.get_create_transfer_dir()

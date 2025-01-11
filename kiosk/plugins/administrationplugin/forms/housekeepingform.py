@@ -16,5 +16,6 @@ class HousekeepingForm(FlaskForm, KioskGeneralFormErrors):
     hk_lowercase_filenames = KioskLabeledPrettyCheckboxField(label="set filerepository file names to lowercase")
     hk_quality_check = KioskLabeledPrettyCheckboxField(label="run quality control")
     hk_fts = KioskLabeledPrettyCheckboxField(label="re-create full text search index")
+    clear_logs = KioskLabeledPrettyCheckboxField(label="Tidy up log files")
 
 

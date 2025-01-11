@@ -4,6 +4,7 @@ import kioskdatetimelib
 import kioskstdlib
 from dsd.dsd3singleton import Dsd3Singleton
 from fts.kioskfulltextsearch import FTS
+from housekeepingtools import housekeepingclearlog
 from kioskcontextualfile import KioskContextualFile
 from qualitycontrol.qualitycontrol import QualityControl
 from kiosksqldb import KioskSQLDb
@@ -25,7 +26,7 @@ class Housekeeping:
         """
         self.console = console
         self.parameters: dict = {}
-        self._cancelled : bool = False
+        self._cancelled: bool = False
         self.progress_handler = None
         self.file_repos = file_repos
         self.counters = {}
@@ -35,9 +36,11 @@ class Housekeeping:
                                           "housekeeping_rewrite_image_record": self.housekeeping_rewrite_image_record,
                                           "housekeeping_lowercase_filenames": self.housekeeping_lowercase_filenames,
                                           }
-        self.housekeeping_standalone_methods = {"housekeeping_quality_check": self.housekeeping_quality_check,
-                                                "housekeeping_fts": self.housekeeping_fts
-                                                }
+        self.housekeeping_standalone_methods = {
+            "housekeeping_quality_check": self.housekeeping_quality_check,
+            "housekeeping_clear_log": self.housekeeping_clear_log,
+            "housekeeping_fts": self.housekeeping_fts
+        }
 
     def _report_progress(self, progress_prc: int = 0, msg=""):
         if self.progress_handler:
@@ -63,7 +66,8 @@ class Housekeeping:
             :param parameters: a dict with parameters, interpreted by the several housekeeping methods
             :param progress_handler: a progress handler of the type report_progress(prg) with prg
                     being a dictionary: {"topic": percentage, "extended_progress": status message}
-            :param housekeeping_tasks: List with the names of the tasks that housekeeping should do
+            :param housekeeping_tasks: List with the names of the tasks that housekeeping should do.
+                                        If empty all housekeeping tasks will run.
             :param file_tasks_only: if set only the file-related tasks will be executed.
             :return: number of files that have been checked
         """
@@ -344,3 +348,17 @@ class Housekeeping:
         logging.info(f"{self.__class__.__name__}.housekeeping_fts done")
         if console:
             print(f"{self.__class__.__name__}.housekeeping_fts done")
+
+    def housekeeping_clear_log(self, console, parameters: dict):
+        logging.info(f"{self.__class__.__name__}.housekeeping_clear_log starts")
+        if console:
+            print(f"{self.__class__.__name__}.housekeeping_clear_log starts")
+
+        cfg = SyncConfig.get_config()
+        try:
+            housekeepingclearlog.clear_log(cfg)
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.housekeeping_clear_log: {repr(e)}")
+        logging.info(f"{self.__class__.__name__}.housekeeping_clear_log done")
+        if console:
+            print(f"{self.__class__.__name__}.housekeeping_clear_log done")
