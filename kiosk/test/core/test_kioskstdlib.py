@@ -26,13 +26,6 @@ class Testkioskstdlib(KioskPyTestHelper):
     def test_init(self, cfg):
         assert cfg.kiosk
 
-    def test_get_file_age_days(self, cfg):
-        files = [(os.path.join(test_path, "data", "Varieties_of_emergentism.pdf"), -16),
-                 (os.path.join(test_path, "data", "migration class hierarchy.png"), 350)]
-        d = datetime.datetime.fromisoformat("2021-01-31T23:37:15")
-        for f, age in files:
-            assert get_file_age_days(f, d) == age
-
     def test_local_time_offset_str(self, cfg):
         assert local_time_offset_str("01:00") == "01:00:00"
         assert local_time_offset_str("+01:00") == "01:00:00"

@@ -9,12 +9,13 @@ import datetime
 import kioskstdlib
 from collections import namedtuple
 
+from kioskstdlib import start_python_subprocess
 from test.testhelpers import KioskPyTestHelper
 
 test_path = os.path.dirname(os.path.abspath(__file__))
 config_file = os.path.join(test_path, r"config", "kiosk_config.yml")
 log_file = os.path.join(test_path, r"log", "test_log.log")
-data_dir = os.path.join(test_path, "data")
+find_data_dir = os.path.join(test_path, "find_data")
 
 
 # @pytest.mark.skip
@@ -166,30 +167,57 @@ class TestStandardLibrary(KioskPyTestHelper):
         os.rmdir(test_dir)
 
     def test_get_file_age_since_epoch(self):
-        image_a = os.path.join(data_dir, "imageA.png")
-        image_b = os.path.join(data_dir, "imageB.png")
-        assert kioskstdlib.get_file_date_since_epoch(image_a) == 1643342654692.58
-        assert kioskstdlib.get_file_date_since_epoch(image_b) == 1643342624091.7612
+        image_a = os.path.join(find_data_dir, "imageA.png")
+        image_b = os.path.join(find_data_dir, "imageB.png")
+        kioskstdlib.set_file_date_and_time(image_a, datetime.datetime.fromisoformat("2022-08-01T12:00:00"))
+        kioskstdlib.set_file_date_and_time(image_b, datetime.datetime.fromisoformat("2021-08-01T12:25:58"))
+        assert kioskstdlib.get_file_date_since_epoch(image_a) == 1659369600000.0
+        assert kioskstdlib.get_file_date_since_epoch(image_b) == 1627835158000.0
 
-        assert kioskstdlib.get_file_date_since_epoch(image_a, use_most_recent_date=False) == 1589680600013.0
-        assert kioskstdlib.get_file_date_since_epoch(image_b, use_most_recent_date=False) == 1595530937379.0
+        assert kioskstdlib.get_file_date_since_epoch(image_a, use_most_recent_date=False) == 1659369600000.0
+        assert kioskstdlib.get_file_date_since_epoch(image_b, use_most_recent_date=False) == 1627835158000.0
 
     def test_find_files(self):
 
-        files = kioskstdlib.find_files(data_dir, file_pattern="*.txt", include_path=False)
+        files = kioskstdlib.find_files(find_data_dir, file_pattern="*.txt", include_path=False)
         assert files == []
 
-        files = kioskstdlib.find_files(data_dir, file_pattern="*.*", include_path=False)
+        files = kioskstdlib.find_files(find_data_dir, file_pattern="*.*", include_path=False)
+        files.sort()
         assert files == ['imageA.png', 'imageB.png', 'imageC.png', 'imageD.png']
 
-        files = kioskstdlib.find_files(data_dir, file_pattern="*.*", include_path=False, order_by_time=True)
+        image_b = os.path.join(find_data_dir, "imageB.png")
+        kioskstdlib.set_file_date_and_time(image_b, datetime.datetime.fromisoformat("2021-08-01T12:25:58"))
+        image_a = os.path.join(find_data_dir, "imageA.png")
+        kioskstdlib.set_file_date_and_time(image_a, datetime.datetime.fromisoformat("2020-08-01T12:00:00"))
+        image_d = os.path.join(find_data_dir, "imageD.png")
+        kioskstdlib.set_file_date_and_time(image_d, datetime.datetime.fromisoformat("2019-08-01T12:25:58"))
+        image_c = os.path.join(find_data_dir, "imageC.png")
+        kioskstdlib.set_file_date_and_time(image_c, datetime.datetime.fromisoformat("2018-08-01T12:25:58"))
+
+        files = kioskstdlib.find_files(find_data_dir, file_pattern="*.*", include_path=False, order_by_time=True)
         assert files == ['imageB.png', 'imageA.png', 'imageD.png', 'imageC.png']
 
-        files = kioskstdlib.find_files(data_dir, file_pattern="*.*", include_path=True, order_by_time=True)
-        assert files == [os.path.join(data_dir, f) for f in ['imageB.png', 'imageA.png', 'imageD.png', 'imageC.png']]
+        files = kioskstdlib.find_files(find_data_dir, file_pattern="*.*", include_path=True, order_by_time=True)
+        assert files == [os.path.join(find_data_dir, f) for f in ['imageB.png', 'imageA.png', 'imageD.png', 'imageC.png']]
 
     def test_force_positive_int_from_string(self):
         assert kioskstdlib.force_positive_int_from_string("") == -1
         assert kioskstdlib.force_positive_int_from_string("123") == 123
         assert kioskstdlib.force_positive_int_from_string("123 123") == 123123
         assert kioskstdlib.force_positive_int_from_string("000 001") == 1
+
+    def test_start_python_subprocess(self, shared_datadir):
+        script = os.path.join(shared_datadir, "start_python_subprocess", "unknown_script.py")
+        with pytest.raises(Exception):
+            start_python_subprocess(script, "1")
+
+        script = os.path.join(shared_datadir, "start_python_subprocess", "test_script.py")
+        rc = start_python_subprocess(script, "1")
+        assert rc == 1
+        rc = start_python_subprocess(script, "2")
+        assert rc == 2
+        rc = start_python_subprocess("./test_script.py", "2",str(os.path.join(shared_datadir, "start_python_subprocess")))
+        assert rc == 2
+        with pytest.raises(Exception):
+            rc = start_python_subprocess("./test_script.py", "2",str(os.path.join(shared_datadir)))

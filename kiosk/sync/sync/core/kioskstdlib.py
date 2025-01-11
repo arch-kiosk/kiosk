@@ -1763,9 +1763,9 @@ def start_python_subprocess(python_script, parameters, working_directory=None):
         if not working_directory:
             working_directory = os.getcwd()
 
-        cmdline = ["python", python_script]
+        cmdline = [sys.executable, python_script]
         cmdline.extend(parameters)
-        result = subprocess.run(cmdline, cwd=working_directory)
+        result = subprocess.run(cmdline, cwd=working_directory, env=os.environ.copy())
         rc = result.returncode
         return rc
 
