@@ -28,10 +28,12 @@ from glob import iglob
 from ntpath import basename
 from PIL import Image
 
+# This is in order to have the most basic parts of kioskstdlib available to very lightweight scripts that
+# cannot deal with external dependencies. Usually these procedures would be part of kioskstdlib. Hence the import *
+from kioskstdlibbasics import *
+
 # todo: This is bad. Modules should use kioskdatetimelib directly. But it is hard to find them all, so I stick with it
 #  right now. Changing this has caused issues.
-
-from kioskstdlibbasics import *
 from kioskdatetimelib import *
 
 # from kioskdatetimelib import utc_datetime_since_epoch, local_datetime_to_utc
