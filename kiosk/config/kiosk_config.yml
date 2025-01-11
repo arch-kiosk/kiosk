@@ -4,7 +4,7 @@ import_configurations:
   - kiosk_secure.yml
 
 config:
-  project_id: 'anc'
+  project_id: 'mkap'
   autoload_plugins_buap:
     - 'buap_ancdb_bridge'
 
