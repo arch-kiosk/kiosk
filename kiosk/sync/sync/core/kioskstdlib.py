@@ -1,7 +1,7 @@
 import datetime
+import subprocess
 import time
 import importlib
-import os
 import stat
 import threading
 import re
@@ -19,7 +19,6 @@ import sys
 import string
 import random
 import platform
-import logging
 
 import ctypes
 
@@ -32,6 +31,7 @@ from PIL import Image
 # todo: This is bad. Modules should use kioskdatetimelib directly. But it is hard to find them all, so I stick with it
 #  right now. Changing this has caused issues.
 
+from kioskstdlibbasics import *
 from kioskdatetimelib import *
 
 # from kioskdatetimelib import utc_datetime_since_epoch, local_datetime_to_utc
@@ -580,29 +580,6 @@ def check_uuid(uuid_to_test, version=4, accept_filemaker_too=False):
         return False
 
 
-def try_get_dict_entry(d, key, default, null_defaults=False):
-    """
-    returns a dictionary value if it exists. If it does not exist, the default value is returned.
-    if null_defaults is set, the default value is also returned if the key exists but its value is None.
-
-    :param d:  the dictionary
-    :param key:  the key
-    :param default: default value
-    :param null_defaults: IF true, the default value is also returned if the the value is None
-    :return: returns the value or if the value does not exist or an error occurs the default
-    """
-    try:
-        if key in d:
-            v = d[key]
-            if null_defaults and v is None:
-                return default
-            else:
-                return v
-        else:
-            return default
-    except BaseException as e:
-        logging.error(f"kioskstdlib.try_get_dict_entry: {repr(e)}")
-        return default
 
 
 def get_regex_group_or_default(rgx, grp_name, default):
@@ -851,13 +828,6 @@ def load_custom_module(config, module_name, subsystem="SYNC", method="PREFIX", f
     return None
 
 
-def get_parent_dir(kiosk_dir):
-    """
-    returns the full parent directory of directory
-    :param kiosk_dir: the directory whose parent is needed
-    :return: complete parent directory
-    """
-    return os.path.abspath(os.path.join(kiosk_dir, os.pardir))
 
 
 def get_relative_path(filemaker_path, p):
@@ -1000,15 +970,6 @@ def lowercase_elements(lst: []) -> []:
     :return: list with those strings turned to lowercase
     """
     return [x.lower() for x in lst]
-
-
-def get_file_path(filename):
-    """
-    returns the path of a string containing path and filename
-    :param filename: something like "c:\asdfasdfa\asdfsdf\asdfsfd.bmp"
-    :return: just the path without a trailing backslash or other path separator.
-    """
-    return os.path.dirname(filename)
 
 
 def is_platform_admin():
@@ -1738,7 +1699,10 @@ def get_printable_chars(s: Union[str, bytes]) -> str:
     """
     if not isinstance(s, str) and not isinstance(s, bytes):
         raise TypeError("Input must be a string")
-    return "".join([chr(c) for c in s if chr(c).isprintable()])
+    if isinstance(s, bytes):
+        return "".join([chr(c) for c in s if chr(c).isprintable()])
+    else:
+        return "".join([c for c in s if c.isprintable()])
 
 
 def load_python_module(source, module_name):
@@ -1770,3 +1734,43 @@ def get_kiosk_version_from_file(kiosk_version_file_path):
         todo: Not implemented, yet.
     """
     raise NotImplementedError
+
+def start_python_subprocess(python_script, parameters, working_directory=None):
+    """
+    Executes a Python script as a subprocess. This function runs a specified Python
+    script with given parameters in a subprocess. If no working directory is
+    specifically provided, the current working directory of the process will be
+    used instead. It captures the script's return code and returns it. In case of
+    any error during the execution, it raises an exception.
+
+    :param python_script: The path to the Python script to be executed.
+    :param parameters: A list of parameters to pass to the Python script.
+    :param working_directory: Directory to set as the working directory for the
+                              subprocess. If not specified, defaults to the
+                              current working directory.
+    :return: The return code of the executed Python script.
+    :rtype: int
+    :raises Exception: If there is an error during the script execution, an
+                       exception is raised with a corresponding error message.
+    """
+    cmdline = []
+    try:
+
+        if not os.path.isfile(python_script):
+            if not os.path.isfile(os.path.join(working_directory, python_script)):
+                raise ValueError(f"Script {python_script} does not exist.")
+
+        if not working_directory:
+            working_directory = os.getcwd()
+
+        cmdline = ["python", python_script]
+        cmdline.extend(parameters)
+        result = subprocess.run(cmdline, cwd=working_directory)
+        rc = result.returncode
+        return rc
+
+    except BaseException as e:
+        cmdline_str = " ".join(cmdline)
+        err_msg = f"kioskstdlib.start_python_subprocess: " \
+                  f"Error running {cmdline_str}: {repr(e)}."
+        raise Exception(err_msg)
