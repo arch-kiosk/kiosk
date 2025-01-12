@@ -148,20 +148,39 @@ The highlights of this year's summer release:
 
 🍸 And there is so much more: About 200 little and not so little improvements and bug fixes throughout the system.
 
-### ⌚  Release Notes for Kiosk FileMaker Recording 16.5.4 (November 2024) ⌚
+### ⌚🕰️⏰ Release Notes for Kiosk 1.6.16 and the Recording App 16.8 ⏰🕰️⌚
 
 ✏️ As always: The release notes are best viewed on GitHub https://github.com/arch-kiosk/arch-kiosk-office/issues/1434
-This release is mainly necessary for the new Kiosk version with time zone support. 
-While that is mostly undr the hood, there are a few improvements that might interest you: 
 
+The big improvement this Kiosk version brings doesn't really look like much, 
+but it is actually a big deal, and it was quite hard to get it right: 
+
+📣 Kiosk is now time zone safe. 📣
+
+Now you can have your team members spread across the globe, each of them working 
+in different time zones, and you don't need to worry about synchronization.   
+
+And there is a bit more in this release:
+
+- ⌚ mark images in the file repository and assign them to an archaeological context all at once
+- ⌚ query and view (especially the View part) got a few usability improvements
+- ⌚ there's a query that shows the todo points for your project
 - ⌚ manage todos with the recording app (#2414)
+- ⌚ completely new "archive & storage" layout in the recording app lets you manage your archive.
+- ⌚ new user interface to manage team members (#2920)
 - ⌚ create new context while recording stratigraphy (#2908)
 - ⌚ move collected material to a different locus (#2976)
 - ⌚ improved context selector in context relations (#2961)
-- ⌚ ready for Kiosk versions with time zone support (while staying compatible with earlier Kiosk versions, too)
-- 
+- 🕊️ unlock your recording app to gain full control over it in FileMaker. (#3003)
+- 🛠️ many improvements under the hood that simplify future maintenance (e.g. #2966) 
+- 🛠️ many improvements under the hood that secure Kiosk operations (e.g. #2846, #3024) 
 - 🐞a handful of misc bugfixes
 
- 
+🎥 We have already published a video tutorial that describes many of the new features from 2024:
+
+https://sites.brown.edu/kiosk/videos/
+
+But since this release here introduces even newer features, more tutorials are about to come. Promised. 
+
 
 
