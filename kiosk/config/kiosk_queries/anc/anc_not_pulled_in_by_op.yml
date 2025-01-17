@@ -1,0 +1,29 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+variables:
+  unit_id: ["dsd('unit', 'arch_context')"]
+queries:
+  'anc_not_imported':
+    name: '#: What materials have not been imported from the anc database?'
+    description: '#: Lists the materials from the original anc database that cannot be found as collected materials.'
+    type: 'SQL'
+    output_type: 'list'
+    query: "
+      select site, op, locus, lot, \"ANC#\" anc_nr, material_1, anc.description 
+      from {{anc_db_import}} anc 
+      left outer join {{collected_material}} cm on anc.arch_context = cm.arch_context
+         where anc.op = {{#unit_id}} and cm.uid is null
+         order by site, op, locus, \"ANC#\"    
+    "
+    column_information:
+      unit_id: DSD('unit','arch_context')
+      op: DSD('unit','arch_context')
+      locus: DSD('locus','arch_context')
+      lot: [datatype(varchar), label('lot')]
+      anc_nr: [datatype(varchar), label('anc#')]
+      material_1: DSD('collected_material', 'type')
+      description: DSD('collected_material', 'description')
+
+
