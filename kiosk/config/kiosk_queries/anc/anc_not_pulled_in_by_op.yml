@@ -11,7 +11,7 @@ queries:
     type: 'SQL'
     output_type: 'list'
     query: "
-      select site, op, locus, lot, \"ANC#\" anc_nr, material_1, anc.description 
+      select site, op, locus, lot, \"ANC#\" anc_nr, anc.\"date\" objdate, material_1, anc.description 
       from {{anc_db_import}} anc 
       left outer join {{collected_material}} cm on anc.arch_context = cm.arch_context
          where anc.op = {{#unit_id}} and cm.uid is null
@@ -22,6 +22,7 @@ queries:
       op: DSD('unit','arch_context')
       locus: DSD('locus','arch_context')
       lot: [datatype(varchar), label('lot')]
+      objdate: [datatype(date), label('date')]
       anc_nr: [datatype(varchar), label('anc#')]
       material_1: DSD('collected_material', 'type')
       description: DSD('collected_material', 'description')
