@@ -106,6 +106,47 @@ export class KioskApi {
         }
     }
 
+/**
+     * returns the fetch address and the fetch parameters to be used with fetch.
+     * the result is an object consisting of an attribute url - the address - and init - the
+     * init parameter for fetch. init["headers"] has the headers for the fetch.
+     * @param apiRoot
+     * @param apiMethod
+     * @param fetchParams
+     * @param apiVersion
+     * @param urlSearchParams
+     * @param mimetype
+     */
+    getFetchURL(
+        apiRoot,
+        apiMethod,
+        fetchParams,
+        apiVersion = "v1",
+        urlSearchParams = null,
+        mimetype = "application/json",
+    ) {
+        if (!this.token) {
+            throw new KioskApiError("No api-token when calling getFetchURL ");
+        }
+        let headers = this.getHeaders(mimetype);
+        let apiURL = this.getApiUrl();
+
+        if (!apiURL.endsWith("/")) {
+            apiURL += "/";
+        }
+        let address = `${apiURL}${apiRoot ? apiRoot + "/" : ""}${apiVersion}/${apiMethod}`;
+
+        if (urlSearchParams) {
+            address += "?" + new URLSearchParams(urlSearchParams);
+        }
+        let init = { ...fetchParams };
+        init["headers"] = headers;
+        return {
+            url: address,
+            init: init
+        }
+    }
+
     /**
      * fetches a Blob from the API
      * @param apiRoot

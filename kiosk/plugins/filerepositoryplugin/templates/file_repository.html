@@ -1,216 +1,230 @@
 {% extends "kioskbasic.html" %}
 {% block links %}
-  <link rel=stylesheet type=text/css href="{{ url_for('filerepository.static', filename='filerepository.css') }}?v=1"/>
+    <link rel=stylesheet type=text/css
+          href="{{ url_for('filerepository.static', filename='filerepository.css') }}?v=1" />
 {% endblock %}
 {% block title %}
-  <div id="subtitle-shadow">Kiosk</div>
-  <div id="subtitle">File Repository</div>
+    <div id="subtitle-shadow">Kiosk</div>
+    <div id="subtitle">File Repository</div>
 {% endblock %}
 {% block menu %}
-  <a href="#" onclick="menuClick('workstation_list')">workstations</a>
-  <a href="#" onclick="menuClick('import photos')">Import files</a>
+    <a href="#" onclick="menuClick('workstation_list')">workstations</a>
+    <a href="#" onclick="menuClick('import photos')">Import files</a>
 {% endblock %}
 {% block body %}
-  <div class='thetop'></div>
-  <div id="fr-sidebar">
-    <div id="fr-filter" max-images-per-page="{{ max_images_per_page }}">
+    <kiosk-lightbox>
+      <div id="filerepository-data-container" class="filerepository-data-container">
+          <div id="fr-data-partial">loading data ...</div>
+      </div>
+    </kiosk-lightbox>
+    <div class='thetop'></div>
+    <div id="fr-sidebar">
+        <div id="fr-filter" max-images-per-page="{{ max_images_per_page }}">
 
-      {% if image_list %}
-        <div id="fr-image-count" image-count="{{ image_list|length }}"></div>
-      {% else %}
-        <div id="fr-image-count" image-count="-1"></div>
-      {% endif %}
+            {% if image_list %}
+                <div id="fr-image-count" image-count="{{ image_list|length }}"></div>
+            {% else %}
+                <div id="fr-image-count" image-count="-1"></div>
+            {% endif %}
 
-      <form id="frf" method="post">
-        {{ filter_form.csrf_token }}
-        <i class="reset-button icon mdi mdi-delete mdi-24px" id="filter-reset"></i>
-        <div class="filter-element">
-          {{ filter_form.context.label }}
-          <div class="fr-horizontal-checkbox-container">
-            <div>
-              <div class="pretty p-icon">
-                <input type="checkbox" id="frf-no-context"
-                       name="no_context"
-                    {% if filter_form.no_context.data %}
-                       checked
-                    {% endif %}/>
-                <div class="state">
-                  <i class="icon mdi mdi-minus-box mdi-24px"></i>
-                  <label> </label>
+            <form id="frf" method="post">
+                {{ filter_form.csrf_token }}
+                <i class="reset-button icon mdi mdi-delete mdi-24px" id="filter-reset"></i>
+                <div class="filter-element">
+                    {{ filter_form.context.label }}
+                    <div class="fr-horizontal-checkbox-container">
+                        <div>
+                            <div class="pretty p-icon">
+                                <input type="checkbox" id="frf-no-context"
+                                       name="no_context"
+                                    {% if filter_form.no_context.data %}
+                                       checked
+                                    {% endif %}/>
+                                <div class="state">
+                                    <i class="icon mdi mdi-minus-box mdi-24px"></i>
+                                    <label> </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="context-identifier-filter" class="identifier">{{ filter_form.context }}</div>
+                    </div>
                 </div>
-              </div>
-            </div>
-            <div id="context-identifier-filter" class="identifier">{{ filter_form.context }}</div>
-          </div>
+                <div class="filter-element">{{ filter_form.description.label }}{{ filter_form.description }}</div>
+                <div class="filter-elements-connected">
+                    <div class="filter-element date-filter-element">
+                        {{ filter_form.from_date.label }}{{ filter_form.from_date }}</div>
+                    <div class="filter-element date-filter-element">
+                        {{ filter_form.to_date.label }}{{ filter_form.to_date }}</div>
+                </div>
+                <div class="filter-element">
+                    {{ filter_form.tags.label }}{{ filter_form.tags(data_list="#fr-tags") }}</div>
+                <datalist id="fr-tags">
+                    {% for tag in tag_list %}
+                        <option value="{{ tag }}" />
+                    {% endfor %}
+                </datalist>
+                <div class="filter-element">
+                    {{ filter_form.recording_context.label }}{{ filter_form.recording_context }}</div>
+                {#      <button type="submit" id="frf-submit" name="frf-submit">fetch 'em</button>#}
+                <div class="flex-line-break"></div>
+            </form>
         </div>
-        <div class="filter-element">{{ filter_form.description.label }}{{ filter_form.description }}</div>
-        <div class="filter-elements-connected">
-            <div class="filter-element date-filter-element">{{ filter_form.from_date.label }}{{ filter_form.from_date }}</div>
-            <div class="filter-element date-filter-element">{{ filter_form.to_date.label }}{{ filter_form.to_date }}</div>
+        <div id="file-count-div" class="file-count-div">
+            <i class="fas fa-angle-double-down fr-fetch-icon"></i>
+            <div id="file-count"></div>
+            <i class="fas fa-angle-double-down fr-fetch-icon"></i>
         </div>
-        <div class="filter-element">{{ filter_form.tags.label }}{{ filter_form.tags(data_list="#fr-tags") }}</div>
-        <datalist id="fr-tags">
-          {% for tag in tag_list %}
-            <option value="{{ tag }}"/>
-          {% endfor %}
-        </datalist>
-        <div class="filter-element">{{ filter_form.recording_context.label }}{{ filter_form.recording_context }}</div>
-        {#      <button type="submit" id="frf-submit" name="frf-submit">fetch 'em</button>#}
-        <div class="flex-line-break"></div>
-      </form>
-    </div>
-    <div id="file-count-div" class="file-count-div">
-      <i class="fas fa-angle-double-down fr-fetch-icon"></i>
-      <div id="file-count"></div>
-      <i class="fas fa-angle-double-down fr-fetch-icon"></i>
-    </div>
-    <div id="fr-image-list-tools">
-      <form id="frf-tools">
-        <div class="filter-element" id="fr-resolution-div">
-          <label for="fr-resolution-select">thumbnail size</label>
-          <select id="fr-resolution-select" name="fr-resolution-select">
-            {% if image_resolutions %}
-              {% for opt in image_resolutions %}
-                <option value="{{ opt }}"
-                        {% if image_resolutions[opt]==session['kiosk_fr_resolution'] %}selected{% endif %}>{{ opt }}</option>
-              {% endfor %}
+        <div id="fr-image-list-tools">
+            <form id="frf-tools">
+                <div class="filter-element" id="fr-resolution-div">
+                    <label for="fr-resolution-select">thumbnail size</label>
+                    <select id="fr-resolution-select" name="fr-resolution-select">
+                        {% if image_resolutions %}
+                            {% for opt in image_resolutions %}
+                                <option value="{{ opt }}"
+                                        {% if image_resolutions[opt]==session['kiosk_fr_resolution'] %}selected{% endif %}>{{ opt }}</option>
+                            {% endfor %}
+                        {% endif %}
+                    </select>
+                </div>
+                <div class="filter-element" id="fr-sorting-div">
+                    <label for="fr-sorting">sort by</label>
+                    <select id="fr-sorting" name="fr-sorting">
+                        {% if sorting_options %}
+                            {% for opt in sorting_options %}
+                                <option value="{{ opt }}"
+                                        {% if opt==session['kiosk_fr_sorting'] %}selected{% endif %}>{{ opt }}</option>
+                            {% endfor %}
+                        {% endif %}
+                    </select>
+                </div>
+            </form>
+            {% if "modify data" in authorized_to %}
+                <form id="frf-operations">
+                    <div id="fr-bt-set-markers" class="operations-element">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div id="fr-bt-clear-markers" class="operations-element">
+                        <i class="far fa-star"></i>
+                    </div>
+                    <div id="fr-bt-toggle" class="operations-element">
+                        <i class="fas fa-star-half-alt"></i>
+                    </div>
+                    <div id="fr-bt-bulk-delete" class="operations-element">
+                        <i class="fas fa-trash"></i>
+                    </div>
+                    <div id="fr-bt-bulk-tag" class="operations-element">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <div id="fr-bt-bulk-attach" class="operations-element">
+                        <i class="fas fa-link"></i>
+                    </div>
+                </form>
             {% endif %}
-          </select>
+            <kiosk-context-selector style="position:fixed" id="select-link-context"></kiosk-context-selector>
         </div>
-        <div class="filter-element" id="fr-sorting-div">
-          <label for="fr-sorting">sort by</label>
-          <select id="fr-sorting" name="fr-sorting">
-            {% if sorting_options %}
-              {% for opt in sorting_options %}
-                <option value="{{ opt }}"
-                        {% if opt==session['kiosk_fr_sorting'] %}selected{% endif %}>{{ opt }}</option>
-              {% endfor %}
-            {% endif %}
-          </select>
-        </div>
-      </form>
-      {% if "modify data" in authorized_to %}
-       <form id="frf-operations">
-          <div id="fr-bt-set-markers" class="operations-element">
-            <i class="fas fa-star"></i>
-          </div>
-          <div id="fr-bt-clear-markers" class="operations-element">
-            <i class="far fa-star"></i>
-          </div>
-          <div id="fr-bt-toggle" class="operations-element">
-            <i class="fas fa-star-half-alt"></i>
-          </div>
-          <div id="fr-bt-bulk-delete" class="operations-element">
-            <i class="fas fa-trash"></i>
-          </div>
-          <div id="fr-bt-bulk-tag" class="operations-element">
-            <i class="fas fa-tags"></i>
-          </div>
-          <div id="fr-bt-bulk-attach" class="operations-element">
-            <i class="fas fa-link"></i>
-          </div>
-        </form>
-      {% endif %}
-        <kiosk-context-selector style="position:fixed" id="select-link-context"></kiosk-context-selector>
-      </div>
-  </div>
-  <div class="fr-page-list">
-  {% if pages > 1 %}
-    {% for page in range(1, pages + 1) %}
-      <div class="fr-page-list-page{% if page == current_page %} fr-page-list-current-page{% endif %}">
-        {{ page }}
-      </div>
-    {% endfor %}
-  {% endif %}
-  </div>
-  <div id="fr-wrapper">
-    <div id="imagelist-outer-wrapper" class="imagelist-background">
-      {% if image_list %}
-        <div id="fr-image-list-wrapper">
-          {% for img in image_list %}
-            {% include "file_repository_image.html" %}
-          {% endfor %}
-        </div>
-      {% endif %}
     </div>
-  </div>
-  <div class="fr-page-list">
-  {% if pages > 1 %}
-    {% for page in range(1, pages + 1) %}
-      <div class="fr-page-list-page{% if page == current_page %} fr-page-list-current-page{% endif %}">
-        {{ page }}
-      </div>
-    {% endfor %}
-  {% endif %}
-  </div>
-  <div id='scroll-to-top'>
-  </div>
-  {#<script src="{{ url_for('static', filename='scripts/controllers/filerepository.js') }}"></script>#}
-
+    <div class="fr-page-list">
+        {% if pages > 1 %}
+            {% for page in range(1, pages + 1) %}
+                <div class="fr-page-list-page{% if page == current_page %} fr-page-list-current-page{% endif %}">
+                    {{ page }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div id="fr-wrapper">
+        <div id="imagelist-outer-wrapper" class="imagelist-background">
+            {% if image_list %}
+                <div id="fr-image-list-wrapper">
+                    {% for img in image_list %}
+                        {% include "_file_repository_image.html" %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="fr-page-list">
+        {% if pages > 1 %}
+            {% for page in range(1, pages + 1) %}
+                <div class="fr-page-list-page{% if page == current_page %} fr-page-list-current-page{% endif %}">
+                    {{ page }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+    <div id='scroll-to-top'>
+    </div>
+    <script src="{{ url_for('filerepository.static', filename='scripts/fileviewercontroller.js') }}"></script>
     <script src="{{ url_for('static', filename='scripts/thirdparty/blazy.min.js') }}"></script>
 
     {% include "_kioskmodaldialog_api_connector_include.html" %}
 
-  <script>
+    <script>
 
-    function popupApiConnected(api) {
-        let cb = document.getElementById("select-link-context")
-        cb.apiContext = api
-        {#cb.addEventListener("closeSelection", linkContextCloseSelection)#}
-        ensureLibrariesAndinitFileRepository();
-    }
-
-    function popupApiFailed() {
-        $.magnificPopup.close();
-        kioskErrorToast("Sorry, it was not possible to connect to Kiosk's Api. " +
-            "That's why this feature can't run. You can try again, but most likely " +
-            "you'll have to report this as a bug ");
-    }
-
-
-
-
-    function ensureLibrariesAndinitFileRepository() {
-      if (typeof Awesomplete == 'undefined') {
-        setTimeout(ensureLibrariesAndinitFileRepository, 500);
-      } else {
-        initFileRepository();
-      }
-    }
-
-    function initFileRepository() {
-      setFileRepositoryEventHandlers();
-      refreshBLazy();
-      fetchIdentifiers();
-      refreshContext();
-      initPageList();
-      fetchImageCount();
-    }
-
-    function onEditImage(evt) {
-      let img = $(evt.currentTarget);
-      let uuid = img.attr("uid");
-      {#$(".fr-image-clicked").removeClass("fr-image-clicked");#}
-      {#img.parents(".fr-image-wrapper").addClass("fr-image-clicked");#}
-      activateImage(uuid);
-      kioskOpenModalDialog("/filerepository/editdialog/" + uuid, {});
-      /*
-            $.magnificPopup.open({
-            type: 'ajax',
-            items: {
-            src: "/filerepository/editdialog/"+uuid
-            },
-          //  focus: "create-workstation-id",
-          removalDelay: 200,
-          mainClass: "mfp-with-anim",
-          callbacks: {
-              ajaxContentAdded: ()=>{
-                //frInitEditImageDialog();
-              }
+        function popupApiConnected(api) {
+            try {
+                window.apiContext = api
+                let cb = document.getElementById("select-link-context");
+                cb.apiContext = api;
+            } catch (e) {
+                console.error(e);
             }
-          });*/
-    }
+            ensureLibrariesAndinitFileRepository(api);
+        }
 
-    //# sourceURL=file_repository.html.js
-  </script>
+        function popupApiFailed() {
+            $.magnificPopup.close();
+            kioskErrorToast("Sorry, it was not possible to connect to Kiosk's Api. " +
+                "That's why this feature can't run. You can try again, but most likely " +
+                "you'll have to report this as a bug ");
+        }
+
+
+        function ensureLibrariesAndinitFileRepository(api) {
+            if (typeof Awesomplete == "undefined" || typeof FileViewerController == "undefined") {
+                setTimeout(ensureLibrariesAndinitFileRepository, 500);
+            } else {
+                initFileRepository(api);
+            }
+        }
+
+        function initFileRepository(api) {
+            console.log("initFileRepository running")
+            document.uuids = []
+            setFileRepositoryEventHandlers();
+            initFileViewer(api)
+            refreshBLazy();
+            fetchIdentifiers();
+            refreshContext();
+            initPageList();
+            fetchImageCount();
+        }
+
+        function onEditImageOld(evt) {
+            let img = $(evt.currentTarget);
+            let uuid = img.attr("uid");
+            {#$(".fr-image-clicked").removeClass("fr-image-clicked");#}
+            {#img.parents(".fr-image-wrapper").addClass("fr-image-clicked");#}
+            activateImage(uuid);
+            kioskOpenModalDialog("/filerepository/editdialog/" + uuid, {});
+            /*
+                  $.magnificPopup.open({
+                  type: 'ajax',
+                  items: {
+                  src: "/filerepository/editdialog/"+uuid
+                  },
+                //  focus: "create-workstation-id",
+                removalDelay: 200,
+                mainClass: "mfp-with-anim",
+                callbacks: {
+                    ajaxContentAdded: ()=>{
+                      //frInitEditImageDialog();
+                    }
+                  }
+                });*/
+        }
+
+        //# sourceURL=file_repository.html.js
+    </script>
 {% endblock %}

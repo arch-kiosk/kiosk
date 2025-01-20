@@ -1,0 +1,21 @@
+<div id="{{ img.get_value("uid") }}"
+     class="fr-image-wrapper fr-image-wrapper-{{ img.get_image_class_postfix(session['kiosk_fr_resolution']) }}">
+  <div class="fr-img-wrapper-{{ img.get_image_class_postfix(session['kiosk_fr_resolution']) }}">
+    <img class="b-lazy fr-thumbnail" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+         uid="{{ img.get_value("uid") }}"
+         data-src="{{ img.get_image_file_ref(session['kiosk_fr_resolution'], force_reload=force_reload) }}"
+         alt="{{ img.get_value('description') }}"/>
+  </div>
+  <div class="fr-image-descriptor">
+    <p class="fr-identifier-and-check">
+      <span class="fr-arch-identifier"> {{ img.get_arch_identifier(True)|safe }}</span>
+      <span class="fr-file-check"> <i class="fas fa-star"></i></span>
+    </p>
+    {% if "oldest" in session['kiosk_fr_sorting'] or "latest" in session['kiosk_fr_sorting'] %}
+      <p class="fr-file-datetime">{{ img.get_file_datetime() }}</p>
+    {% endif %}
+    <p>
+      {{ img.get_description_summary(crlf="<br>")|safe|truncate(90) }}</p>
+    <p class="fr-uuid">{{ img.get_value("uid") }}</p>
+  </div>
+</div>

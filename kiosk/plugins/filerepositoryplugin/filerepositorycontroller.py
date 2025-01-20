@@ -85,7 +85,7 @@ def repository_fetch_image(uuid, force_reload):
     cfg = kioskglobals.cfg
     m_file_repos = ModelFileRepository(cfg, _plugin_name_)
     img = m_file_repos.get_image(uuid)
-    return (render_template('file_repository_image.html',
+    return (render_template('_file_repository_image.html',
                             img=img, force_reload=bool(force_reload)))
 
 
@@ -468,6 +468,159 @@ def filerepository_editdialog(uid):
             return jsonify(result="ok")
 
 
+#  **************************************************************
+#  ****    edit image dialog
+#  *****************************************************************/
+
+@filerepository.route('/editpartial/<uuid>', methods=['GET', 'POST'])
+@full_login_required
+def filerepository_editpartial(uuid):
+    print(f"***** editpartial/{uuid}")
+    cfg = kioskglobals.cfg
+    m_file_repos = ModelFileRepository(cfg, _plugin_name_)
+    file_repos = FileRepository(kioskglobals.cfg,
+                                event_manager=None,
+                                type_repository=kioskglobals.type_repository,
+                                plugin_loader=current_app
+                                )
+
+    img = m_file_repos.get_image(uuid)
+
+    recorded_description = img.get_description_summary(include_image_description=False)
+
+    file_extension = "?"
+    file_size = "?"
+    try:
+        ctx_file = file_repos.get_contextual_file(uuid)
+        if ctx_file:
+            file_name = ctx_file.get()
+            file_extension = kioskstdlib.get_file_extension(file_name)
+            byte_size = kioskstdlib.get_file_size(file_name)
+            file_size = kioskstdlib.byte_size_to_string(byte_size) if byte_size > 0 else "?"
+    except BaseException as e:
+        logging.error(f"filerepositorycontroller.filerepository_editdialog: "
+                      f"Error when accessing file size of {file_name}: {repr(e)}. Byte_size is {byte_size}.")
+
+    if request.method == "POST":
+        return _filerepository_edit_partial_post(file_repos, img)
+
+    if request.method == "GET":
+        print("\n*************** Edit file dialog for image {} requested".format(uuid))
+        ef_form = ModalFileEditForm(file_repos)
+        # ef_form.ef_recording_context.choices = [("", "")]
+        # ef_form.ef_recording_context.choices.extend([(t, t) for t in image_field_tables])
+
+        ef_form.ef_description.data = img.get_value("description")
+        ef_form.ef_file_datetime.data = kioskstdlib.latin_date(img.get_value("file_datetime"))
+        ef_form.ef_tags.data = img.get_value("tags")
+        ef_form.ef_export_filename.data = img.get_value("export_filename")
+
+        modified_utc = kioskstdlib.latin_date(img.get_value("modified"))
+        modified_tz = kioskglobals.kiosk_time_zones.get_long_time_zone(img.get_value("modified_tz"))
+        modified_ww = img.get_value("modified_ww")
+        modified_ww = kioskstdlib.latin_date(modified_ww) if modified_ww else modified_utc
+        created_latin = kioskstdlib.latin_date(img.get_value("created"))
+
+        authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
+        read_only = request.args.get('read_only')
+        if read_only:
+            try:
+                authorized_to.remove("modify data")
+            except BaseException as e:
+                pass
+
+        representations = KioskRepresentations.get_representation_labels_and_ids(cfg)
+        fullscreen_representation_id = cfg.file_repository["fullscreen_representation"]
+        print("\n*************** now rendering".format(uuid))
+        print(f"[{img.get_indirect_contexts()}]")
+        return render_template('editpartial.html',
+                               title="edit file" if "modify data" in authorized_to else "view file",
+                               img=img, ef_form=ef_form,
+                               authorized_to=authorized_to,
+                               contexts=img.get_arch_identifier(),
+                               fullscreen_representation_id=fullscreen_representation_id,
+                               recorded_description=recorded_description,
+                               file_extension=file_extension,
+                               file_size=file_size,
+                               representations=representations,
+                               created_latin=created_latin,
+                               modified_tz=modified_tz,
+                               modified_utc=modified_utc if \
+                                   kioskglobals.get_development_option("test_time_zone_support") else None,
+                               modified_ww=modified_ww,
+                               )
+
+
+def _filerepository_edit_partial_post(file_repos: FileRepository, img: FileRepositoryFile):
+    try:
+        uid = img.uid
+        print("\n*************** _filerepository_edit_partial_post for image {} sent".format(uid))
+        # if the image record is connected to recording data not all form fields are present
+        # so they need to be initialized with the current data before saving the image again.
+        authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
+        if "modify data" not in authorized_to:
+            return jsonify(result="exception",
+                           msg="you do not have the necessary privileges to modify images and their data.")
+
+        form_data = MultiDict(request.form)
+        if "ef_file_datetime" not in form_data.keys():
+            form_data["ef_file_datetime"] = kioskstdlib.latin_date(img.get_value("file_datetime"))
+
+        ef_form = ModalFileEditForm(file_repos, formdata=form_data)
+
+        if not ef_form.validate():
+            return jsonify(result=ef_form.errors)
+        else:
+            errors = validate_identifiers(img, form_data)
+            if form_data["ef_export_filename"]:
+                uid_file = file_repos.export_filename_exists(form_data["ef_export_filename"])
+                if uid_file and uid != uid_file:
+                    errors["ef_export_filename"] = ["This filename is already in use by another file."]
+            if errors:
+                return jsonify(result=errors)
+
+            rc = False
+            try:
+                recording_user = current_user.repl_user_id if current_user.repl_user_id else current_user.user_id
+                file_datetime, msg = kioskstdlib.check_urap_date_time(ef_form.ef_file_datetime.data, True)
+
+                do_update = -1
+                if img.get_value("description") != ef_form.ef_description.data:
+                    do_update = int(img.set_value("description", ef_form.ef_description.data))
+                img_file_datetime = img.get_value("file_datetime")
+                if do_update != 0 and img_file_datetime != file_datetime:
+                    if img_file_datetime or file_datetime:  # they can have different kinds false values
+                        do_update = int(img.set_value("file_datetime", file_datetime))
+                if do_update != 0:
+                    if img.get_value("tags") != ef_form.ef_tags.data:
+                        do_update = int(img.set_value("tags", ef_form.ef_tags.data))
+                    if img.get_value("export_filename") != ef_form.ef_export_filename.data:
+                        do_update = int(img.set_value("export_filename", ef_form.ef_export_filename.data))
+
+                if do_update == 1:
+                    logging.info(f"User {current_user.repl_user_id} modified image record {img.r['uid']}")
+                    rc = img.update(recording_user, current_user.get_active_tz_index())
+                elif do_update == -1:
+                    rc = True
+                else:
+                    rc = False
+
+                if rc:
+                    err_str = update_contexts(img, file_repos, form_data)
+                    if err_str:
+                        return jsonify(result={"ef-context-list": [err_str]})
+                else:
+                    raise Exception("file data or context changes could not be saved.")
+            except Exception as e:
+                logging.error("Exception in _filerepository_edit_partial_post: " + repr(e))
+                return jsonify(result="exception", msg=repr(e))
+
+            return jsonify(result="ok")
+    except BaseException as e:
+        logging.error("Outer Exception in _filerepository_edit_partial_post: " + repr(e))
+        return jsonify(result="exception", msg=repr(e))
+
+
 def validate_identifiers(img: FileRepositoryFile, form_data: dict) -> dict:
     x: str
     try:
@@ -848,13 +1001,12 @@ def repository_bulk_link_execute():
         if not context_info or not identifier:
             return jsonify(result="Wrong arguments")
 
-
-        print(f"\n*************** Request to link {len(files)} files to identifier {context_info['identifier']} ****************++")
+        print(
+            f"\n*************** Request to link {len(files)} files to identifier {context_info['identifier']} ****************++")
 
         logging.info(
             f"filerepositorycontroller.repository_bulk_link_execute: {len(files)} about to be "
             f"linked to {context_info['identifier']}.")
-
 
         file_repos = FileRepository(kioskglobals.cfg,
                                     event_manager=None,
@@ -897,8 +1049,8 @@ def repository_bulk_link_execute():
                         f.push_contexts(commit_on_change=False, idc=idc)
                         updated[file_uid] = ", ".join([x[0] for x in f.contexts.get_contexts()])
                         logging.debug(f"filerepositorycontroller._repository_bulk_link_execute: "
-                                          f"Linked file {file_uid} "
-                                          f"to context {identifier}")
+                                      f"Linked file {file_uid} "
+                                      f"to context {identifier}")
                         c_added += 1
                     except BaseException as e:
                         c_error += 1
@@ -943,6 +1095,7 @@ def repository_bulk_link_execute():
         result.message = f"Exception when preparing bulk operation: {repr(e)}."
 
     return result.jsonify()
+
 
 @filerepository.route('/replace/<string:uuid>', methods=['POST'])
 @full_login_required

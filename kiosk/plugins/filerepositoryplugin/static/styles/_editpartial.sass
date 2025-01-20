@@ -1,0 +1,292 @@
+@import "../../../../static/styles/_constants"
+
+//body
+//  position: fixed
+
+.kiosk-error
+  background-color: red
+  border: 2px solid red
+
+.filerepository-data-container
+  background-color: var(--col-bg-1)
+
+//#ef-dialog
+//  [class~="grid"], [class*="grid-"], [class*="grid_"]
+//    margin: 0 -1rem
+
+
+#ef-file-info
+  display: flex
+  flex-flow: column
+  max-height: 5em
+  position: relative
+  font-family: var(--standard-text-font), serif
+  font-size: 12px
+  line-height: 1.2
+  background-color: var(--col-bg-1-lighter)
+  border-top: 1px solid white
+  padding-top: 1em
+  margin-top: 1em
+  flex-wrap: wrap
+  padding: .5rem
+  @media #{$screen-max-700}
+    display: none
+  span
+    user-select: text
+
+
+#ef-image
+  margin-left: 1rem
+  display: flex
+  justify-content: center
+  align-items: center
+
+#img-data-container
+  display: flex
+  flex-direction: row
+  justify-content: center
+  flex-wrap: wrap
+  //margin-left: -1rem
+
+#image-container
+  max-width: 100%
+  //min-width: 30vw
+  max-height: 65vh
+  min-width: 256px
+  min-height: 256px
+  background-color: white
+  display: none
+  padding: 5px
+  margin-bottom: 1em
+
+  @media #{$screen-phone}
+    width: 100vw
+    max-height: 100%
+#ef-upload-area
+  position: relative
+
+
+#download-menu, #upload-area
+  //position: relative
+  //max-height: 120px
+  //height: 100%
+  //position: absolute
+  //width: 60px
+  //height: 60px
+  top: -33px
+  left: -25px
+  z-index: 101
+  //padding-right: 20px
+  @media #{$screen-phone-portrait}
+    font-size: $font-small
+
+  #download-menu-image, #ef-upload
+    background-position: center
+    background-repeat: no-repeat
+    background-size: 50%
+    background-color: rgba(0,0,0,0.2)
+    border-color: rgba(0,0,0,0)
+    //border-color: rgba(0,0,0,2)
+    //border-radius: 35px
+    //border-style: solid
+    //border-width: 2px
+    background-image: url("/static/assets/images/download.svg")
+    box-shadow: none
+    display: block
+    &:hover, &:active
+      background-color: $col-bg-btn-darker
+      border-color: white
+    &:hover
+      cursor: context-menu
+    &:active
+      cursor: context-menu
+
+#download-menu.is-open
+  p
+    background-color: $col-bg-att
+    color: $col-primary-bg-att
+
+  #download-menu-image
+    background-image: url("/static/assets/images/close.svg")
+
+#upload-area.is-closed
+  #ef-upload
+    background-image: url("/static/assets/images/upload.svg")
+
+#upload-area.is-open
+  p
+    background-color: $col-bg-att
+    color: $col-primary-bg-att
+
+  #ef-upload
+    background-image: url("/static/assets/images/close.svg")
+
+.ef-menu-content
+  padding: .5em
+  margin-left: 0
+  bottom: 0
+  left: 64px
+  border-radius: 5px
+  @media #{$screen-phone-portrait}
+    bottom: 64px
+    left: 0
+
+  div
+    color: $col-primary-bg-1
+    padding: 12px 16px
+    display: block
+    font-size: 1.2em
+    &:hover
+      background-color: $col-bg-1-lighter
+
+#download-menu-contents.dropdown-content
+  @extend .ef-menu-content
+
+#ef-image-information
+  margin-bottom: .5em
+
+#upload-area-contents
+  @extend .ef-menu-content
+  width: 200px
+  min-width: unset
+  text-align: center
+  text-wrap: balance
+  @media #{$screen-max-500}
+    font-size: $font-small
+  label
+    display: block
+    padding: 10px
+    border-radius: 10px
+    color: var(--col-accent-bg-1)
+    border: 2px black dashed
+  &:hover, &:active
+    label
+      background-color: var(--col-bg-1-darker)
+
+#ef-upload-input
+  position: absolute
+  opacity: 0
+  height: 100%
+  max-width: 100%
+  //position: absolute
+  top: 0px
+  left: 0px
+  margin: 0px
+  margin: 0px
+  border: solid transparent
+  //width: 100%
+  cursor: pointer
+
+#ef-image-data
+  //margin-left: 1rem
+  margin-top: 1rem
+  flex-basis: 30%
+  flex-grow: 1
+
+
+#ef-button-bar
+  width: 100%
+  display: flex
+  flex-direction: row
+  justify-content: space-between
+  .dropdown
+    background-color: transparent
+    left: 1em
+    width: auto
+    height: unset
+    padding-top: 0px
+
+#ef-record-buttons
+  width: 150px
+  display: flex
+  visibility: hidden
+  button
+    width: 64px
+    height: 64px
+    &:first-child
+      margin-left: 0px
+
+#ef-record-buttons.ef-record-dirty
+    visibility: visible
+
+.fr-description-summary
+  background-color: $color-background-transparent
+  margin-bottom: .5em
+  line-height: 2em
+  padding-left: 5px
+
+.ef-context-list
+  display: flex
+  flex-direction: row
+  flex-wrap: wrap
+  align-items: center
+  box-sizing: border-box
+  border-radius: 0px
+  font-family: $standard-text
+  font-size: 1em
+  padding: 4px
+  border: none
+  margin-bottom: 5px
+  margin-top: 2px
+  width: 100%
+  //height: 2rem
+  background: $color-background-light
+  &:focus
+    margin-bottom: 3px
+    border-bottom: 2px solid rgba(0, 0, 0, 1)
+
+  .ef-context
+    border-right: $color-background solid 2px
+    padding-right: .5em
+    margin-right: .5em
+    min-height: 24px
+    //margin-bottom: .5em
+
+.ef-dialog-identifier
+  font-weight: bold
+
+#image-spinner
+  width: 50px
+  height: 50px
+  margin-left: auto
+  margin-right: auto
+
+#img-load-err
+  background-color: $color-light-grey
+  max-width: 100%
+  max-height: 65vh
+  min-width: 256px
+  min-height: 256px
+  padding: 5px
+  span
+    display: block
+    margin-top: 50%
+    transform: translateY(-50%)
+    text-align: center
+
+.ef-new-context-controls
+  background: white
+  display: flex
+  flex-direction: row
+  align-items: center
+  margin: 1px 0 1px 0
+  padding-left: .25em
+  div
+    max-height: 45px
+  .dialog-error
+    margin: 0 0 0 0
+    font-size: 12px
+    line-height: 12px
+.ef-cancel-new-context, .ef-cancel-context
+  margin-left: .5em
+  margin-right: .2em
+  color: $color-error-bg
+.ef-undo-drop-context
+  display: none
+  border-radius: 5px
+  margin-left: .5em
+  margin-right: .2em
+.drop-context-marker
+  span
+    text-decoration: line-through
+    color: $color-error-bg
