@@ -86,7 +86,8 @@ def repository_fetch_image(uuid, force_reload):
     m_file_repos = ModelFileRepository(cfg, _plugin_name_)
     img = m_file_repos.get_image(uuid)
     return (render_template('_file_repository_image.html',
-                            img=img, force_reload=bool(force_reload)))
+                            img=img,
+                            force_reload=bool(force_reload)))
 
 
 @filerepository.route('/fetch/<path:file_uuid>/<string:resolution>')
@@ -1153,7 +1154,9 @@ def repository_replace_file(uuid):
             if rc:
                 logging.debug(f"filerepository.repository_replace_file: Received file {sec_filename} "
                               f"replaced old one as {rc} in the file repository")
-                return jsonify(result="ok")
+                f = file_repos.get_contextual_file(uuid)
+                dim = f.get_dimensions()
+                return jsonify(result="ok", width=dim[0], height=dim[1])
             else:
                 if msg == "Duplicate":
                     return jsonify(result=f"file could not be replaced because the file to replace it with is already "

@@ -4,7 +4,7 @@ import pprint
 import time
 from collections import deque
 from functools import reduce
-from typing import List, Dict
+from typing import List, Dict, Any
 
 from flask import url_for
 
@@ -79,6 +79,22 @@ class FileRepositoryFile:
     def tags(self) -> List[str]:
         return self.r["tags"].upper().split(",")
 
+    def get_dimensions(self):
+        rc = [0,0]
+        try:
+            attr = self.get_value("image_attributes")
+            if isinstance(attr, dict):
+                if "width" in attr:
+                    rc[0] = int(attr["width"])
+                    rc[0] = 0 if rc[0] == -1 else rc[0]
+
+                if "height" in attr:
+                    rc[1] = int(attr["height"])
+                    rc[1] = 0 if rc[1] == -1 else rc[1]
+        except BaseException as e:
+            logging.debug(f"{self.__class__.__name__}.get_dimensions: Image {self.uid} caused Exception {repr(e)}")
+        return rc
+
     def get_image_file_ref(self, representation_id, force_reload=False):
         """
         returns the url that fetches a representation of this image
@@ -98,7 +114,7 @@ class FileRepositoryFile:
         else:
             return url_for('static', filename='assets/images/no_file.svg')
 
-    def get_value(self, key, default=""):
+    def get_value(self, key, default="") -> Any:
         if key == "tags":
             return self.get_tags_without_parantheses()
         if key in self.r:

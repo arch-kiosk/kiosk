@@ -472,6 +472,37 @@ button:disabled, .fetch-files:disabled {
   margin-right: 0.5em;
 }
 
+.rainbow-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 5px;
+  width: 100%;
+  background-color: black;
+}
+.rainbow-loading.to-top {
+  position: fixed;
+  top: 0;
+  z-index: 1000;
+}
+
+.rainbow-loading-progress {
+  height: 5px;
+  width: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, red 0%, yellow 15%, lime 30%, cyan 50%, blue 65%, magenta 80%, red 100%);
+  background-size: 200%;
+  animation: move-gradient 2s ease-in infinite;
+}
+
+@keyframes move-gradient {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: -200% 0%;
+  }
+}
 .pretty * {
   line-height: 1em;
 }
@@ -782,7 +813,7 @@ kiosk-tz-combo-box.kiosk-dialog-textfield {
 }
 
 .fr-image-clicked {
-  box-shadow: 0px 0px 10px var(--col-bg-1);
+  box-shadow: 0px 0px 5px 3px var(--col-accent-bg-body);
 }
 
 .fr-image-descriptor {
@@ -1196,6 +1227,10 @@ kiosk-tz-combo-box.kiosk-dialog-textfield {
 .kiosk-error {
   background-color: red;
   border: 2px solid red;
+}
+
+.rainbow-loading.to-top {
+  top: -1rem;
 }
 
 .filerepository-data-container {

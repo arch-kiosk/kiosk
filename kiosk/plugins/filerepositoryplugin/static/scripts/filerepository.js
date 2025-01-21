@@ -333,12 +333,23 @@ function showFileChecked(element) {
 }
 
 function refreshMarkers() {
-    document.uuids = []
+    const numOr0 = (v) => {
+        try {
+            return parseInt(v)
+        } catch{}
+        return 0
+    }
+
+    document.filesOnPage = []
     $("#fr-image-list-wrapper").children().each((index, element) => {
         let clicker = $(element).find(".fr-identifier-and-check").first();
         clicker.off("click");
         clicker.on("click", identifierClicked.bind(element));
-        document.uuids.push(element.id)
+        document.filesOnPage.push({
+            uuid: element.id,
+            width: numOr0(element.dataset.width),
+            height: numOr0(element.dataset.height)
+        })
         showFileChecked(element);
     });
 }
@@ -636,41 +647,63 @@ function efInitUploader() {
         },
         onNewFile: function(id, file) {
             // When a new file is added using the file selector or the DnD area
-            let img_src = $("#image-container").attr("src");
-            $("#image-container").attr("img_src", img_src);
-            let width = $("#image-container").width();
-            let height = $("#image-container").height();
-            $("#image-container").css({
-                "min-width": width,
-                "min-height": height,
-            });
-            $("#image-container").attr("src", null);
+            // let img_src = $("#image-container").attr("src");
+            // $("#image-container").attr("img_src", img_src);
+            // let width = $("#image-container").width();
+            // let height = $("#image-container").height();
+            // $("#image-container").css({
+            //     "min-width": width,
+            //     "min-height": height,
+            // });
+            // $("#image-container").attr("src", null);
         },
         onBeforeUpload: function(id) {
-            $("#image-container").hide();
-            $("#image-spinner").show();
-            // $("#image-container").fadeIn("fast");
-            $(".modal-download").hide();
-            $(".modal-upload").hide();
+            // $("#image-container").hide();
+            // $("#image-spinner").show();
+            // // $("#image-container").fadeIn("fast");
+            // $(".modal-upload").hide();
+            showhidemenu("#upload-area", "#upload-area-contents");
+            showHideLightbox(true)
+            showRainbowProgress(true)
             setEFUploadFileProgress(id, 0);
         },
-        onUploadProgress: function(id, percent) {
-            setEFUploadFileProgress(id, percent);
-        },
         onUploadSuccess: function(id, data) {
-            if (data.result == "ok") {
+            showHideLightbox(false)
+            showRainbowProgress(false)
+            if (data.result === "ok") {
+                document.fileViewerController.reloadFile({width: data.width, height: data.height})
+                let uuid = efGetCurrentImageUID()
+                updateFileRepositoryImage(uuid);
+                // installImageOnLoadHandler();
                 setEFUploadFileProgress(101, data.result);
             } else {
                 setEFUploadFileProgress(-1, data.result);
             }
         },
         onUploadError: function(id, xhr, status, errorThrown) {
+            showRainbowProgress(false)
+            showHideLightbox(false)
             onEFUploadError(errorThrown);
         },
         onFallbackMode: function(message) {
             kioskErrorToast("Browser not supported!: " + message);
         },
     }); //end $('#drop-area-div').dmUploader
+}
+
+function showRainbowProgress(show) {
+    const el = document.querySelector(".rainbow-loading")
+    el.style.display = show ? "unset" : "none"
+}
+
+function showHideLightbox(hide=null) {
+    const el = document.fileViewerController?.lightBoxElement
+    if (el) {
+        el.showHideUI(hide)
+    }
+    const elData = document.getElementById("ef-dialog")
+    hide = hide === null ? !(elData.style.visibility === "hidden") : hide
+    elData.style.visibility = hide ? "hidden" : "unset"
 }
 
 function efInitAddContext() {
@@ -690,7 +723,8 @@ function efInitDropContext() {
 function efInitFormFields() {
     const partial = document.getElementById("fr-data-partial")
     for (const e of partial.getElementsByTagName("input")) {
-        e.addEventListener("input", efMarkRecordDirty)
+        if (e.id !== "ef-upload-input")
+            e.addEventListener("input", efMarkRecordDirty)
     }
     for (const e of partial.getElementsByTagName("textarea")) {
         e.addEventListener("input", efMarkRecordDirty)
@@ -784,20 +818,17 @@ function installImageOnLoadHandler() {
 }
 
 function setEFUploadFileProgress(status, data) {
-    if (status == -1) {
-        kioskModalErrorToast(data);
+    if (status === -1) {
+        kioskErrorToast(data);
     }
-    // if (status == 101) {
-    let d = new Date();
-    let img_src = $("#image-container").attr("img_src");
-    $("#image-container").attr("src", img_src + "?" + d.getTime());
-    $("#image-container").css({
-        "min-width": "none",
-        "min-height": "none",
-    });
-    let uuid = $("#uid").text();
-    updateFileRepositoryImage(uuid);
-    installImageOnLoadHandler();
+    // if (status === 101) {
+    //     let d = new Date();
+    //     let img_src = $("#image-container").attr("img_src");
+    //     $("#image-container").attr("src", img_src + "?" + d.getTime());
+    //     $("#image-container").css({
+    //         "min-width": "none",
+    //         "min-height": "none",
+    //     });
     // }
 }
 
@@ -976,14 +1007,12 @@ function onEFDownloadImage(event) {
 
 function activateImage(uuid) {
     $(".fr-image-clicked").removeClass("fr-image-clicked");
-    let jqImage = $("#" + uuid);
-    if (jqImage) {
-        jqImage.addClass("fr-image-clicked");
-    } else
-        console.log(`activateImage: Image ${uuid} does not exist.`);
-
-    // jqImage.parents(".fr-image-wrapper").addClass("fr-image-clicked");
-
+    const img = document.getElementById(uuid)
+    if (img) {
+        img.scrollIntoView()
+        img.focus()
+        img.classList.add("fr-image-clicked")
+    }
 }
 
 /* **************************************************************************************
@@ -1097,7 +1126,7 @@ function onEditImage(evt) {
         const fwc = document.fileViewerController
         if (fwc) {
             fwc.clear()
-            document.uuids.forEach(uuid => fwc.addFile({ uuid: uuid }))
+            document.filesOnPage.forEach(f => fwc.addFile(f))
             // fwc.addFile({ uuid: clickedUuid })
             fwc.showFiles(clickedUuid)
             return

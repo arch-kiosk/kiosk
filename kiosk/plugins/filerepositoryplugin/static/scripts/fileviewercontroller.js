@@ -15,6 +15,14 @@ class FileViewerController {
         this.setLightBoxElement(lightBoxElement)
     }
 
+    get width() {
+        return this.files[this.currentIndex < 0?this.initialIndex:this.currentIndex].width
+    }
+
+    get height() {
+        return this.files[this.currentIndex < 0?this.initialIndex:this.currentIndex].height
+    }
+
     clear() {
         this.files = []
         this.initialIndex = 0
@@ -74,6 +82,16 @@ class FileViewerController {
         this._loadImage(this.currentIndex)
     }
 
+    reloadFile(newDimensions = null) {
+        if (this.currentIndex > -1) {
+            if (newDimensions) {
+                this.files[this.currentIndex].width = newDimensions.width
+                this.files[this.currentIndex].height = newDimensions.height
+            }
+            this.lightBoxElement.reloadFile()
+        }
+    }
+
     // urlProvider start
     prev() {
         return this._loadImage( this.currentIndex === -1 ? this.initialIndex : this.currentIndex - 1)
@@ -93,16 +111,18 @@ class FileViewerController {
     }
 
     invalidateCurrent() {
+        let rc = false
         if (this.currentIndex > -1) {
             try {
                 this.files.splice(this.currentIndex, 1)
             } catch(e) {
                 console.log("invalidateCurrent threw Error: ", e);
             }
-            if (this.currentIndex < this.files.length) return this._loadImage(this.currentIndex)
-            if (this.currentIndex !== 0) return this._loadImage(this.currentIndex -1)
+            if (this.currentIndex < this.files.length) rc = this._loadImage(this.currentIndex)
+            if (this.currentIndex !== 0) rc = this._loadImage(this.currentIndex -1)
+            this.reloadFile()
         }
-        return false
+        return rc
     }
 
     setLightBoxElement(lightBoxElement) {
@@ -111,7 +131,10 @@ class FileViewerController {
         }
         this.lightBoxElement = lightBoxElement
         this.lightBoxElement.hasData = this.hasData
-        this.lightBoxElement.addEventListener("beforeClose", this.onBeforeClose)
+        this.lightBoxElement.addEventListener("beforeClose", (e) => this.onBeforeClose(e))
+        this.lightBoxElement.addEventListener("closed", (e) => this.onClosed(e))
+        this.lightBoxElement.addEventListener("beforeNext", this.onBeforeNav)
+        this.lightBoxElement.addEventListener("beforePrev", this.onBeforeNav)
         this.lightBoxElement.apiContext = this.apiContext
         this.lightBoxElement.setURLProvider(this);
     }
@@ -122,7 +145,24 @@ class FileViewerController {
         if (recordButtons?.classList.contains("ef-record-dirty")) {
             const defObject = e.detail.defer(e)
             kioskYesNoToast("You seem to have changed data. Do you really want to close the lightbox without saving your changes?",
-                () => defObject.finish(), () => {defObject.cancel()})
+                () => defObject.finish(), () => defObject.cancel())
+        }
+    }
+
+    onClosed(e) {
+        const uuid = this.files[this.currentIndex]?.uuid
+        activateImage(uuid)
+        console.log(`lightbox closed, moving to ${uid}`);
+    }
+
+    onBeforeNav(e) {
+        const partial = document.getElementById("fr-data-partial")
+        const recordButtons = partial?.querySelector("#ef-record-buttons")
+        if (recordButtons?.classList.contains("ef-record-dirty")) {
+            const defObject = e.detail.defer(e)
+            kioskYesNoToast("You seem to have changed data. <br/>" +
+                            "Do you really want to move to a different file before you have saved your changes?",
+                () => defObject.finish(), () => defObject.cancel())
         }
     }
 
