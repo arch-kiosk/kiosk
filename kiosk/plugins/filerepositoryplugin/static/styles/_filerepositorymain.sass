@@ -34,8 +34,10 @@
     flex-grow: 1
     @media #{$screen-phone-portrait}
       min-width: 100%
+
     select, input
       height: 2.5em
+
   .date-filter-element
     min-width: 8em
     width: 8em
@@ -52,37 +54,42 @@
     margin-bottom: 10px
 
   .fr-input-with-checkbox
-    //align-self: flex-end
-    //width: 15vw
-    //min-width: 20em
-    //@media #{$screen-max-900}
-    //  min-width: 16vw
-    //.filter-element
-    //  margin-right: 0px
-    //  flex-grow: 0
+  //align-self: flex-end
+  //width: 15vw
+  //min-width: 20em
+  //@media #{$screen-max-900}
+  //  min-width: 16vw
+  //.filter-element
+  //  margin-right: 0px
+  //  flex-grow: 0
   .fr-horizontal-checkbox-container
     display: flex
     flex-flow: row
+
     input
       width: auto
+
     div:last-child
       width: 100%
+
       input
         width: 100%
 
-  //button
-  //  width: 8rem
-  //  height: 50px
-  //  font-size: $font-size-h4
-  //  justify-self: center
+//button
+//  width: 8rem
+//  height: 50px
+//  font-size: $font-size-h4
+//  justify-self: center
 
 #fr-filter
   background-color: $col-bg-2
   padding: 0.5em 0.5em 0em 0.5em
   //width: 100%
   flex-grow: 1
+
   label
     color: $col-primary-bg-2
+
 #frf
   display: flex
   flex-direction: row
@@ -116,7 +123,7 @@
   border-radius: 0px
   width: 100%
   box-sizing: border-box
-  //min-height: 2em
+//min-height: 2em
 
 #file-count
   text-align: center
@@ -129,7 +136,7 @@
 
 #imagelist-outer-wrapper
 
-  color: rgb(150,150,150)
+  color: rgb(150, 150, 150)
 
 
 #fr-image-list-tools
@@ -143,6 +150,7 @@
   margin-top: 5px
   margin-bottom: 5px
   flex-grow: 1
+
   form
     background-color: $col-bg-3
     display: flex
@@ -155,6 +163,7 @@
 #fr-resolution-div
   flex-grow: 1
   margin-right: 1em
+
 #fr-sorting-div
   flex-grow: 2
 
@@ -180,10 +189,12 @@
   flex-direction: column
   box-sizing: content-box
   margin-right: 12px
-  box-shadow: 3px 3px 6px rgb(200,200,200)
+  box-shadow: 3px 3px 6px rgb(200, 200, 200)
+
   &:hover
     border-color: $col-bg-1
     box-shadow: 0px 0px 10px $col-bg-att
+
   img
     width: auto
     height: auto
@@ -191,8 +202,8 @@
     margin: auto
 
 .fr-image-clicked
-    //border-color: $reddish
-    box-shadow: 0px 0px 5px 3px var(--col-accent-bg-body)
+  //border-color: $reddish
+  box-shadow: 0px 0px 5px 3px var(--col-accent-bg-body)
 
 .fr-image-descriptor
   //background-color: $sand
@@ -200,6 +211,7 @@
   text-align: left
   //margin-top: .5em
   background-color: $col-bg-body
+
   p
     margin-top: 1em
     user-select: text
@@ -213,6 +225,7 @@
 
   .fr-file-datetime
     background-color: $col-bg-2
+
   .fr-arch-identifier
     font-weight: bold
 
@@ -221,6 +234,7 @@
     flex-direction: row
     flex-wrap: nowrap
     justify-content: space-between
+
     i
       visibility: hidden
       font-size: 16px
@@ -228,23 +242,27 @@
       color: $col-bg-body
       //opacity: .5
       text-shadow: 0px 0px 2px $col-bg-btn
+
     .fa-star.check
       //opacity: 1
       color: $col-bg-ack
-      //text-shadow: none
+//text-shadow: none
 
 .fr-image-wrapper-small
   width: 128px
+
   img
     max-width: 128px
 
 .fr-image-wrapper-medium
   width: 256px
+
   img
     max-width: 256px
 
 .fr-image-wrapper-default
   width: 128px
+
   img
     max-width: 128px
 
@@ -287,9 +305,11 @@
   cursor: pointer
   background: url("/static/assets/images/back-to-top.svg") no-repeat
   transition: 0.2s
+
   &:hover
     width: 60px
     height: 60px
+
   &:active
     transition: 0.1s
     width: 50px
@@ -300,7 +320,7 @@
   flex-flow: row
   flex-wrap: wrap
   width: 100%
-  //justify-content: space-between
+//justify-content: space-between
 
 .fr-page-list-page
   background-color: $col-bg-3
@@ -311,10 +331,13 @@
   min-width: 2em
   max-width: fit-content
   border-bottom: 4px solid $col-bg-body
+
   &:hover
     background-color: $col-bg-3-lighter
+
   &:active
     background-color: $col-bg-3-darker
+
   &:last-child
     border-right: none
 
@@ -330,6 +353,7 @@
 
   &:hover
     color: $col-error-bg-2
+
   &:active
     color: $col-success-bg-2
 
@@ -346,10 +370,24 @@
     font-size: 28px
     margin-right: .5em
     margin-left: .5em
+
   &:hover
     color: $col-bg-btn-lighter
+
   &:active
     color: $col-bg-ack
+
   &.disabled
     opacity: 0.3
 
+#broken-image
+  place-items: center
+  z-index: 1000
+  position: fixed
+  top: calc(50% - 100px)
+  left: calc(50% - 100px)
+  //color: var(--col-primary-bg-alert)
+  //background: var(--col-bg-alert)
+  width: 100px
+  height: 100px
+  display: none

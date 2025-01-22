@@ -693,7 +693,7 @@ function efInitUploader() {
 
 function showRainbowProgress(show) {
     const el = document.querySelector(".rainbow-loading")
-    el.style.display = show ? "unset" : "none"
+    if (el) el.style.display = show ? "unset" : "none"
 }
 
 function showHideLightbox(hide=null) {
@@ -1124,6 +1124,17 @@ function onEditImage(evt) {
         let img = $(evt.currentTarget);
         let clickedUuid = img.attr("uid");
         const fwc = document.fileViewerController
+        fwc.opened = (e) => {
+            showRainbowProgress(false)
+            if (e?.result) {
+                document.getElementById("broken-image").style.display = "none"
+            } else {
+                document.getElementById("broken-image").style.display = "grid"
+            }
+        }
+        fwc.beforeOpen = () => {
+            showRainbowProgress(true)
+        }
         if (fwc) {
             fwc.clear()
             document.filesOnPage.forEach(f => fwc.addFile(f))

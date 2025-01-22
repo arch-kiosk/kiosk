@@ -7,6 +7,8 @@ class FileViewerController {
     lightBoxElement = null
     url=  ""
     hasData = false
+    opened = () => {}
+    beforeOpen = () => {}
 
     constructor(apiContext, lightBoxElement, hasData=false) {
         this.apiContext = apiContext
@@ -131,12 +133,22 @@ class FileViewerController {
         }
         this.lightBoxElement = lightBoxElement
         this.lightBoxElement.hasData = this.hasData
+        this.lightBoxElement.addEventListener("beforeOpen", (e) => this.onBeforeOpen(e))
+        this.lightBoxElement.addEventListener("opened", (e) => this.onOpened(e))
         this.lightBoxElement.addEventListener("beforeClose", (e) => this.onBeforeClose(e))
         this.lightBoxElement.addEventListener("closed", (e) => this.onClosed(e))
         this.lightBoxElement.addEventListener("beforeNext", this.onBeforeNav)
         this.lightBoxElement.addEventListener("beforePrev", this.onBeforeNav)
         this.lightBoxElement.apiContext = this.apiContext
         this.lightBoxElement.setURLProvider(this);
+    }
+
+    onBeforeOpen(e) {
+        this.beforeOpen(e.detail)
+    }
+
+    onOpened(e) {
+        this.opened(e.detail)
     }
 
     onBeforeClose(e) {
@@ -152,6 +164,7 @@ class FileViewerController {
     onClosed(e) {
         const uuid = this.files[this.currentIndex]?.uuid
         activateImage(uuid)
+        document.getElementById("broken-image").style.display = "none"
         console.log(`lightbox closed, moving to ${uid}`);
     }
 
@@ -161,7 +174,7 @@ class FileViewerController {
         if (recordButtons?.classList.contains("ef-record-dirty")) {
             const defObject = e.detail.defer(e)
             kioskYesNoToast("You seem to have changed data. <br/>" +
-                            "Do you really want to move to a different file before you have saved your changes?",
+                "Do you really want to move to a different file before you have saved your changes?",
                 () => defObject.finish(), () => defObject.cancel())
         }
     }
@@ -175,7 +188,7 @@ class FileViewerController {
     getFile(uuid) {
         const idx = this.getFileIndex(uuid)
         if (idx > -1) {
-            return(this.files[idx])
+            return (this.files[idx])
         }
         return null
     }
@@ -183,7 +196,7 @@ class FileViewerController {
     removeFile(uuid) {
         const idx = this.getFileIndex(uuid)
         if (idx > -1) {
-            return this.files.splice(idx,1)
+            return this.files.splice(idx, 1)
         }
         return null
     }
@@ -199,7 +212,7 @@ class FileViewerController {
      * shows the files in the file viewer.
      * @param uuid if set this is the first file the file viewer will show.
      */
-    showFiles(uuid=null) {
+    showFiles(uuid = null) {
         this.initialIndex = uuid ? this.getFileIndex(uuid) : 0
         this.currentIndex = -1
         if (this.initialIndex > -1) {
