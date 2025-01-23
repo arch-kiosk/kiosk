@@ -316,7 +316,7 @@ Li.elementStyles = [], Li.shadowRootOptions = { mode: "open" }, Li[Tr("elementPr
  */
 const Er = globalThis, Mn = Er.trustedTypes, Wa = Mn ? Mn.createPolicy("lit-html", { createHTML: (s) => s }) : void 0, Jl = "$lit$", jt = `lit$${Math.random().toFixed(9).slice(2)}$`, Ql = "?" + jt, od = `<${Ql}>`, wi = document, Rr = () => wi.createComment(""), Ir = (s) => s === null || typeof s != "object" && typeof s != "function", Ds = Array.isArray, sd = (s) => Ds(s) || typeof (s == null ? void 0 : s[Symbol.iterator]) == "function", Lo = `[ 	
 \f\r]`, gr = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, ja = /-->/g, Ga = />/g, hi = RegExp(`>|${Lo}(?:([^\\s"'>=/]+)(${Lo}*=${Lo}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), qa = /'/g, Ka = /"/g, $l = /^(?:script|style|textarea|title)$/i, ad = (s) => (r, ...e) => ({ _$litType$: s, strings: r, values: e }), mt = ad(1), xi = Symbol.for("lit-noChange"), ze = Symbol.for("lit-nothing"), Za = /* @__PURE__ */ new WeakMap(), pi = wi.createTreeWalker(wi, 129);
+\f\r"'\`<>=]|("|')|))|$)`, "g"), qa = /'/g, Ka = /"/g, $l = /^(?:script|style|textarea|title)$/i, ad = (s) => (r, ...e) => ({ _$litType$: s, strings: r, values: e }), _t = ad(1), xi = Symbol.for("lit-noChange"), Me = Symbol.for("lit-nothing"), Za = /* @__PURE__ */ new WeakMap(), pi = wi.createTreeWalker(wi, 129);
 function ec(s, r) {
   if (!Ds(s) || !s.hasOwnProperty("raw")) throw Error("invalid template strings array");
   return Wa !== void 0 ? Wa.createHTML(r) : r;
@@ -410,7 +410,7 @@ let cd = class {
     return ((r = this._$AM) == null ? void 0 : r._$AU) ?? this._$Cv;
   }
   constructor(r, e, t, i) {
-    this.type = 2, this._$AH = ze, this._$AN = void 0, this._$AA = r, this._$AB = e, this._$AM = t, this.options = i, this._$Cv = (i == null ? void 0 : i.isConnected) ?? !0;
+    this.type = 2, this._$AH = Me, this._$AN = void 0, this._$AA = r, this._$AB = e, this._$AM = t, this.options = i, this._$Cv = (i == null ? void 0 : i.isConnected) ?? !0;
   }
   get parentNode() {
     let r = this._$AA.parentNode;
@@ -424,7 +424,7 @@ let cd = class {
     return this._$AB;
   }
   _$AI(r, e = this) {
-    r = qi(this, r, e), Ir(r) ? r === ze || r == null || r === "" ? (this._$AH !== ze && this._$AR(), this._$AH = ze) : r !== this._$AH && r !== xi && this._(r) : r._$litType$ !== void 0 ? this.$(r) : r.nodeType !== void 0 ? this.T(r) : sd(r) ? this.k(r) : this._(r);
+    r = qi(this, r, e), Ir(r) ? r === Me || r == null || r === "" ? (this._$AH !== Me && this._$AR(), this._$AH = Me) : r !== this._$AH && r !== xi && this._(r) : r._$litType$ !== void 0 ? this.$(r) : r.nodeType !== void 0 ? this.T(r) : sd(r) ? this.k(r) : this._(r);
   }
   O(r) {
     return this._$AA.parentNode.insertBefore(r, this._$AB);
@@ -433,7 +433,7 @@ let cd = class {
     this._$AH !== r && (this._$AR(), this._$AH = this.O(r));
   }
   _(r) {
-    this._$AH !== ze && Ir(this._$AH) ? this._$AA.nextSibling.data = r : this.T(wi.createTextNode(r)), this._$AH = r;
+    this._$AH !== Me && Ir(this._$AH) ? this._$AA.nextSibling.data = r : this.T(wi.createTextNode(r)), this._$AH = r;
   }
   $(r) {
     var n;
@@ -474,7 +474,7 @@ let cd = class {
     return this._$AM._$AU;
   }
   constructor(r, e, t, i, n) {
-    this.type = 1, this._$AH = ze, this._$AN = void 0, this.element = r, this.name = e, this._$AM = i, this.options = n, t.length > 2 || t[0] !== "" || t[1] !== "" ? (this._$AH = Array(t.length - 1).fill(new String()), this.strings = t) : this._$AH = ze;
+    this.type = 1, this._$AH = Me, this._$AN = void 0, this.element = r, this.name = e, this._$AM = i, this.options = n, t.length > 2 || t[0] !== "" || t[1] !== "" ? (this._$AH = Array(t.length - 1).fill(new String()), this.strings = t) : this._$AH = Me;
   }
   _$AI(r, e = this, t, i) {
     const n = this.strings;
@@ -483,34 +483,34 @@ let cd = class {
     else {
       const a = r;
       let l, h;
-      for (r = n[0], l = 0; l < n.length - 1; l++) h = qi(this, a[t + l], e, l), h === xi && (h = this._$AH[l]), o || (o = !Ir(h) || h !== this._$AH[l]), h === ze ? r = ze : r !== ze && (r += (h ?? "") + n[l + 1]), this._$AH[l] = h;
+      for (r = n[0], l = 0; l < n.length - 1; l++) h = qi(this, a[t + l], e, l), h === xi && (h = this._$AH[l]), o || (o = !Ir(h) || h !== this._$AH[l]), h === Me ? r = Me : r !== Me && (r += (h ?? "") + n[l + 1]), this._$AH[l] = h;
     }
     o && !i && this.j(r);
   }
   j(r) {
-    r === ze ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, r ?? "");
+    r === Me ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, r ?? "");
   }
 }, hd = class extends Yn {
   constructor() {
     super(...arguments), this.type = 3;
   }
   j(r) {
-    this.element[this.name] = r === ze ? void 0 : r;
+    this.element[this.name] = r === Me ? void 0 : r;
   }
 }, dd = class extends Yn {
   constructor() {
     super(...arguments), this.type = 4;
   }
   j(r) {
-    this.element.toggleAttribute(this.name, !!r && r !== ze);
+    this.element.toggleAttribute(this.name, !!r && r !== Me);
   }
 }, ud = class extends Yn {
   constructor(r, e, t, i, n) {
     super(r, e, t, i, n), this.type = 5;
   }
   _$AI(r, e = this) {
-    if ((r = qi(this, r, e, 0) ?? ze) === xi) return;
-    const t = this._$AH, i = r === ze && t !== ze || r.capture !== t.capture || r.once !== t.once || r.passive !== t.passive, n = r !== ze && (t === ze || i);
+    if ((r = qi(this, r, e, 0) ?? Me) === xi) return;
+    const t = this._$AH, i = r === Me && t !== Me || r.capture !== t.capture || r.once !== t.once || r.passive !== t.passive, n = r !== Me && (t === Me || i);
     i && this.element.removeEventListener(this.name, this, t), n && this.element.addEventListener(this.name, this, r), this._$AH = r;
   }
   handleEvent(r) {
@@ -20059,7 +20059,7 @@ function pm() {
         });
       }))).filter(function(c) {
         return n[c];
-      }), Fe = new Set(It.map(function(c) {
+      }), ze = new Set(It.map(function(c) {
         return n[c];
       })), ve = null;
       function Re(c) {
@@ -20070,7 +20070,7 @@ function pm() {
           if (a(p)) {
             v = [], ve.set(p, v);
             for (var y = 0, x = p.length; y < x; ++y) v.push(u(p[y]));
-          } else if (Fe.has(p.constructor)) v = p;
+          } else if (ze.has(p.constructor)) v = p;
           else {
             var k, R = h(p);
             for (k in v = R === Object.prototype ? {} : Object.create(R), ve.set(p, v), p) f(p, k) && (v[k] = u(p[k]));
@@ -20113,7 +20113,7 @@ function pm() {
         return c[Symbol.toStringTag] === "AsyncFunction";
       } : function() {
         return !1;
-      }, Ce = ["Unknown", "Constraint", "Data", "TransactionInactive", "ReadOnly", "Version", "NotFound", "InvalidState", "InvalidAccess", "Abort", "Timeout", "QuotaExceeded", "Syntax", "DataClone"], vt = ["Modify", "Bulk", "OpenFailed", "VersionChange", "Schema", "Upgrade", "InvalidTable", "MissingAPI", "NoSuchDatabase", "InvalidArgument", "SubTransaction", "Unsupported", "Internal", "DatabaseClosed", "PrematureCommit", "ForeignAwait"].concat(Ce), ir = { VersionChanged: "Database version changed by other database connection", DatabaseClosed: "Database has been closed", Abort: "Transaction aborted", TransactionInactive: "Transaction has already completed or failed", MissingAPI: "IndexedDB API missing. Please visit https://tinyurl.com/y2uuvskb" };
+      }, Ce = ["Unknown", "Constraint", "Data", "TransactionInactive", "ReadOnly", "Version", "NotFound", "InvalidState", "InvalidAccess", "Abort", "Timeout", "QuotaExceeded", "Syntax", "DataClone"], mt = ["Modify", "Bulk", "OpenFailed", "VersionChange", "Schema", "Upgrade", "InvalidTable", "MissingAPI", "NoSuchDatabase", "InvalidArgument", "SubTransaction", "Unsupported", "Internal", "DatabaseClosed", "PrematureCommit", "ForeignAwait"].concat(Ce), ir = { VersionChanged: "Database version changed by other database connection", DatabaseClosed: "Database has been closed", Abort: "Transaction aborted", TransactionInactive: "Transaction has already completed or failed", MissingAPI: "IndexedDB API missing. Please visit https://tinyurl.com/y2uuvskb" };
       function _e(c, u) {
         this.name = c, this.message = u;
       }
@@ -20128,17 +20128,17 @@ function pm() {
       function kt(c, u, p, v) {
         this.failures = u, this.failedKeys = v, this.successCount = p, this.message = ii(c, u);
       }
-      function _t(c, u) {
+      function vt(c, u) {
         this.name = "BulkError", this.failures = Object.keys(u).map(function(p) {
           return u[p];
         }), this.failuresByPos = u, this.message = ii(c, this.failures);
       }
       E(_e).from(Error).extend({ toString: function() {
         return this.name + ": " + this.message;
-      } }), E(kt).from(_e), E(_t).from(_e);
-      var xt = vt.reduce(function(c, u) {
+      } }), E(kt).from(_e), E(vt).from(_e);
+      var xt = mt.reduce(function(c, u) {
         return c[u] = u + "Error", c;
-      }, {}), Si = _e, fe = vt.reduce(function(c, u) {
+      }, {}), Si = _e, fe = mt.reduce(function(c, u) {
         var p = u + "Error";
         function v(y, x) {
           this.name = p, y ? typeof y == "string" ? (this.message = "".concat(y).concat(x ? `
@@ -20149,7 +20149,7 @@ function pm() {
       fe.Syntax = SyntaxError, fe.Type = TypeError, fe.Range = RangeError;
       var ri = Ce.reduce(function(c, u) {
         return c[u + "Error"] = fe[u], c;
-      }, {}), At = vt.reduce(function(c, u) {
+      }, {}), At = mt.reduce(function(c, u) {
         return ["Syntax", "Type", "Range"].indexOf(u) === -1 && (c[u + "Error"] = fe[u]), c;
       }, {});
       function Ie() {
@@ -20209,7 +20209,7 @@ function pm() {
           return u.apply(this, arguments);
         };
       }
-      At.ModifyError = kt, At.DexieError = _e, At.BulkError = _t;
+      At.ModifyError = kt, At.DexieError = _e, At.BulkError = vt;
       var ie = typeof location < "u" && /^(http|https):\/\/(localhost|127\.0\.0\.1)/.test(location.href);
       function de(c) {
         ie = c;
@@ -20219,7 +20219,7 @@ function pm() {
         if (typeof crypto > "u" || !crypto.subtle) return [c, h(c), c];
         var u = crypto.subtle.digest("SHA-512", new Uint8Array([0]));
         return [u, h(u), c];
-      }(), Ce = It[0], vt = It[1], It = It[2], vt = vt && vt.then, Se = Ce && Ce.constructor, ge = !!It, Me = function(c, u) {
+      }(), Ce = It[0], mt = It[1], It = It[2], mt = mt && mt.then, Se = Ce && Ce.constructor, ge = !!It, Fe = function(c, u) {
         Ee.push([c, u]), _ && (queueMicrotask(Eh), _ = !1);
       }, b = !0, _ = !0, T = [], S = [], q = Ct, Q = { id: "global", global: !0, ref: 0, unhandleds: [], onunhandled: Ie, pgp: !1, env: {}, finalize: Ie }, Y = Q, Ee = [], ue = 0, Xe = [];
       function $(c) {
@@ -20274,7 +20274,7 @@ function pm() {
         c._listeners = [];
         for (var p = 0, v = u.length; p < v; ++p) oo(c, u[p]);
         var y = c._PSD;
-        --y.ref || y.finalize(), ue === 0 && (++ue, Me(function() {
+        --y.ref || y.finalize(), ue === 0 && (++ue, Fe(function() {
           --ue == 0 && so();
         }, []));
       }
@@ -20282,7 +20282,7 @@ function pm() {
         if (c._state !== null) {
           var p = c._state ? u.onFulfilled : u.onRejected;
           if (p === null) return (c._state ? u.resolve : u.reject)(c._value);
-          ++u.psd.ref, ++ue, Me(Th, [p, c, u]);
+          ++u.psd.ref, ++ue, Fe(Th, [p, c, u]);
         } else c._listeners.push(u);
       }
       function Th(c, u, p) {
@@ -20398,9 +20398,9 @@ function pm() {
       } }, totalEchoes: { get: function() {
         return Zr;
       } }, newPSD: Lt, usePSD: ni, scheduler: { get: function() {
-        return Me;
+        return Fe;
       }, set: function(c) {
-        Me = c;
+        Fe = c;
       } }, rejectionMapper: { get: function() {
         return q;
       }, set: function(c) {
@@ -20415,7 +20415,7 @@ function pm() {
                 O.unhandleds.length === 0 ? y() : x(O.unhandleds[0]);
               }, Xe.push(function F() {
                 R(), Xe.splice(Xe.indexOf(F), 1);
-              }), ++ue, Me(function() {
+              }), ++ue, Fe(function() {
                 --ue == 0 && so();
               }, []);
             }, k.finalize), c();
@@ -20506,7 +20506,7 @@ function pm() {
       function ao(c) {
         Promise === Se && Je.echoes === 0 ? Kr === 0 ? c() : enqueueNativeMicroTask(c) : setTimeout(c, 0);
       }
-      ("" + vt).indexOf("[native code]") === -1 && (Ii = Bt = Ie);
+      ("" + mt).indexOf("[native code]") === -1 && (Ii = Bt = Ie);
       var je = $.reject, oi = "￿", Rt = "Invalid key provided. Keys must be of type string, number, Date or Array<string | number | Date>.", ua = "String expected.", Di = [], Xr = "__dbnames", lo = "readonly", co = "readwrite";
       function si(c, u) {
         return c ? u ? function() {
@@ -20764,7 +20764,7 @@ function pm() {
           return v.core.mutate({ trans: k, type: "add", keys: y, values: F, wantResults: x }).then(function(L) {
             var D = L.numFailures, H = L.results, z = L.lastResult, L = L.failures;
             if (D === 0) return x ? H : z;
-            throw new _t("".concat(v.name, ".bulkAdd(): ").concat(D, " of ").concat(O, " operations failed"), L);
+            throw new vt("".concat(v.name, ".bulkAdd(): ").concat(D, " of ").concat(O, " operations failed"), L);
           });
         });
       }, Be.prototype.bulkPut = function(c, u, p) {
@@ -20777,7 +20777,7 @@ function pm() {
           return v.core.mutate({ trans: k, type: "put", keys: y, values: F, wantResults: x }).then(function(L) {
             var D = L.numFailures, H = L.results, z = L.lastResult, L = L.failures;
             if (D === 0) return x ? H : z;
-            throw new _t("".concat(v.name, ".bulkPut(): ").concat(D, " of ").concat(O, " operations failed"), L);
+            throw new vt("".concat(v.name, ".bulkPut(): ").concat(D, " of ").concat(O, " operations failed"), L);
           });
         });
       }, Be.prototype.bulkUpdate = function(c) {
@@ -20809,7 +20809,7 @@ function pm() {
                 var M, W = N[L], j = x[Number(W)];
                 j != null && (M = z[W], delete z[W], z[j] = M);
               }
-              throw new _t("".concat(u.name, ".bulkUpdate(): ").concat(H, " of ").concat(B, " operations failed"), z);
+              throw new vt("".concat(u.name, ".bulkUpdate(): ").concat(H, " of ").concat(B, " operations failed"), z);
             });
           });
         });
@@ -20820,7 +20820,7 @@ function pm() {
         }).then(function(k) {
           var y = k.numFailures, x = k.lastResult, k = k.failures;
           if (y === 0) return x;
-          throw new _t("".concat(u.name, ".bulkDelete(): ").concat(y, " of ").concat(p, " operations failed"), k);
+          throw new vt("".concat(u.name, ".bulkDelete(): ").concat(y, " of ").concat(p, " operations failed"), k);
         });
       }, Be);
       function Be() {
@@ -21973,7 +21973,7 @@ function pm() {
         return o(u).forEach(function(p) {
           c[p] ? pr(c[p], u[p]) : c[p] = function v(y) {
             var x, k, R = {};
-            for (x in y) f(y, x) && (k = y[x], R[x] = !k || typeof k != "object" || Fe.has(k.constructor) ? k : v(k));
+            for (x in y) f(y, x) && (k = y[x], R[x] = !k || typeof k != "object" || ze.has(k.constructor) ? k : v(k));
             return R;
           }(u[p]);
         }), c;
@@ -21983,7 +21983,7 @@ function pm() {
           return u[p] && Sa(u[p], c[p]);
         });
       }
-      g(nt.prototype, ((vt = { add: function(c) {
+      g(nt.prototype, ((mt = { add: function(c) {
         return pr(this, c), this;
       }, addKey: function(c) {
         return fr(this, c, c), this;
@@ -21997,7 +21997,7 @@ function pm() {
         return u && Pe(u.from, c) <= 0 && 0 <= Pe(u.to, c);
       } })[We] = function() {
         return ln(this);
-      }, vt));
+      }, mt));
       var ai = {}, Po = {}, So = !1;
       function hn(c) {
         cn(Po, c), So || (So = !0, setTimeout(function() {
@@ -22810,9 +22810,9 @@ function pm() {
           return D(p);
         });
       }
-      var fn, vt = typeof Symbol < "u" && "observable" in Symbol ? Symbol.observable : "@@observable", Zh = (Oo.prototype.subscribe = function(c, u, p) {
+      var fn, mt = typeof Symbol < "u" && "observable" in Symbol ? Symbol.observable : "@@observable", Zh = (Oo.prototype.subscribe = function(c, u, p) {
         return this._subscribe(c && typeof c != "function" ? c : { next: c, error: u, complete: p });
-      }, Oo.prototype[vt] = function() {
+      }, Oo.prototype[mt] = function() {
         return this;
       }, Oo);
       function Oo(c) {
@@ -23145,7 +23145,7 @@ let yi = class extends vi {
     this.dispatchEvent(r);
   }
   render() {
-    return mt`
+    return _t`
             <dialog id="my-dialog" @close="${this._onCloseDialog}">
                 <div class="dialog-outer-zone" @click="${this._overlayClicked}">
                     <div class="dialog-frame">
@@ -23280,11 +23280,11 @@ class km extends Sm {
   }
   /** @override */
   render(r, e) {
-    return ze;
+    return Me;
   }
   /** @override */
   update(r, [e, t]) {
-    return this.hasChanged(t) && (this.host = r.options && r.options.host, this.element = r.element, this.renderer = e, this.previousValue === Gl ? this.addRenderer() : this.runRenderer(), this.previousValue = Array.isArray(t) ? [...t] : t), ze;
+    return this.hasChanged(t) && (this.host = r.options && r.options.host, this.element = r.element, this.renderer = e, this.previousValue === Gl ? this.addRenderer() : this.runRenderer(), this.previousValue = Array.isArray(t) ? [...t] : t), Me;
   }
   /** @override */
   reconnected() {
@@ -23382,7 +23382,7 @@ let at = class extends Qi {
   constructor() {
     super(), this.constants = {}, Cn(this, Rn, []), Cn(this, In, []), this.searchIdentifier = "", this.heading = "select archaeological entity", this.identifierColumnTitle = "entity", this.initialRecordType = "unit", Cn(this, Dn, []), Cn(this, On, {}), this.recordTypeFilter = [], this.cellRenderer = (s) => {
       const r = hm(this.recordTypeAliases, s.record_type);
-      return mt`
+      return _t`
             <div>
                 ${r}
             </div>`;
@@ -23467,7 +23467,7 @@ let at = class extends Qi {
     r && (this.selectedItems = [r]);
   }
   renderGrid() {
-    return mt`
+    return _t`
             <vaadin-grid id="grid" class="selection-grid"
                          .items=${this.filterIdentifiers()}
                          .selectedItems="${this.selectedItems}"
@@ -23478,7 +23478,7 @@ let at = class extends Qi {
         `;
   }
   apiRender() {
-    return mt`
+    return _t`
             <kiosk-dialog api heading="${this.heading}">
                 <!--svg slot="dialog-image" xmlns="http://www.w3.org/2000/svg" width="auto" height="auto" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;"><path d="M11 19.91 10 22h4l-1-2.09c4-.65 7-5.28 7-9.91a8 8 0 0 0-16 0c0 4.63 3.08 9.26 7 9.91zm1-15.66v1.5A4.26 4.26 0 0 0 7.75 10h-1.5A5.76 5.76 0 0 1 12 4.25z"></path></svg-->
                 <div slot="dialog-image">
@@ -23588,7 +23588,7 @@ let bt = class extends Qi {
     (s.key === "Escape" || s.key === "Enter") && s.stopPropagation();
   }
   apiRender() {
-    return mt`
+    return _t`
             <vaadin-combo-box id="kiosk-tz-combo-box" ?disabled="${this.disabled || this.timeZones.length == 0}" .value=${this.value && this.value > -1 ? this.value : ""} @change=${this.timeZoneChanged} .items="${this.timeZones}" @keyup="${this.onKeyUp}"></vaadin-combo-box>
         `;
   }
@@ -23615,7 +23615,7 @@ tr([
 bt = tr([
   ro("kiosk-tz-combo-box")
 ], bt);
-const Wm = '*{padding:0;margin:0;border:0px;-webkit-user-select:none;user-select:none}p,div{-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}label{font-family:var(--monospace-font);font-size:.9em}input,select{-webkit-user-select:text;-moz-user-select:text;-ms-user-select:text;box-sizing:border-box;border-radius:0;user-select:text;font-family:var(--standard-text-font);background-color:var(--col-bg-1-input);border:none;color:var(--col-primary-bg-1);padding:2px;margin-bottom:2px;outline:none}textarea{outline:none}input:not([type=radio],[type=checkbox]),select,textarea{width:100%}input:not([type=radio],[type=checkbox]):focus,select:focus,textarea:focus{margin-bottom:0;border-bottom:2px solid rgb(0,0,0)}h1{font-size:var(--font-size-h1)}h2{font-size:var(--font-size-h2)}h3{font-size:var(--font-size-h3)}h4{font-size:var(--font-size-h4)}small,.font-small{font-size:var(--font-size-small)}button{width:60px;height:60px;border-radius:35px;border-style:solid;border-width:2px;background-color:var(--col-bg-btn);color:var(--col-primary-bg-btn);border-color:var(--col-bg-btn-darker);font-family:var(--headline-text-font);font-size:var(--font-size-h4);font-weight:700}button:hover,button:focus{outline:none;background-color:var(--col-bg-btn-lighter)}button:active{padding-top:3px;color:var(--col-primary-bg-btn);background-color:var(--col-bg-btn-darker);border-color:var(--col-bg-btn-darker)}.kiosk-btn-128{width:128px;height:128px}.kiosk-btn-32{width:32px;height:32px}.kiosk-dropdown-btn{box-sizing:content-box;border-radius:0;background-color:var(--col-bg-btn);border-color:var(--col-bg-btn-darker);color:var(--col-primary-bg-btn);height:30px;width:30px}.kiosk-dropdown-btn .drop-down-btn{float:left}.kiosk-dropdown-btn .caret{color:var(--col-primary-bg-btn);display:inline-block;width:0;height:0;margin-left:2px;vertical-align:middle;border-color:var(--col-primary-bg-btn);border-top:4px solid;border-right:4px solid transparent;border-left:4px solid transparent}button:disabled{opacity:.3}.modal-round-button,.modal-delete,.modal-close,.modal-cancel,.modal-back,.modal-next,.modal-ok,.modal-button{box-sizing:border-box;margin-left:25px;background-image:none;display:inline-block;font-style:normal;font-variant:normal;text-rendering:auto;-webkit-font-smoothing:antialiased;font-family:"Font Awesome 6 Free";font-weight:900;font-size:24px;line-height:24px;vertical-align:center;text-align:center}.modal-ok:after{content:var(--icon-bt-ok)}.modal-next:after{padding-left:2px;content:var(--icon-bt-next)}.modal-back:after{padding-right:2px;content:var(--icon-bt-back)}.modal-cancel:after{content:var(--icon-bt-cancel)}.modal-close:before{content:var(--icon-bt-close)}.modal-delete{background-color:var(--col-bg-alert);color:var(--col-primary-bg-alert)}.modal-delete:before{content:var(--icon-bt-trash)}.modal-delete:hover,.modal-delete:focus{border-color:var(--col-bg-alert);background-color:var(--col-bg-alert-lighter);background-size:75%}.modal-delete:active{border-color:var(--col-bg-alert);background-color:var(--col-bg-alert-darker);color:var(--col-primary-bg-alert)}.kiosk-rounded{border-radius:15px}.kiosk-shaded{box-shadow:2px 2px 10px #2e380394}.kiosk-margin-bottom{margin-bottom:1em}.flex-line-break{width:100%;height:0px}.kiosk-align-flex-end{align-items:flex-end}.kiosk-align-flex-start{align-items:flex-start}.full-background-bg-1{background:linear-gradient(to right bottom,var(--col-bg-1-darker),var(--col-bg-1-lighter));height:100%;width:100%}.small-list-button i{border-radius:25px;box-shadow:2px 2px 5px #2e380394}.small-list-button:hover{color:var(--col-bg-att)}.small-list-button:hover i{box-shadow:2px 2px 5px #2e380394}.small-list-button:active,.small-list-button:focus{color:var(--col-bg-ack);transform:translateY(5px)}.small-list-button:active i,.small-list-button:focus i{box-shadow:none}.dialog-radio-div{display:flex;flex-direction:row}.dialog-radio-div input[type=radio]{margin-right:.5em}.rainbow-loading{display:flex;justify-content:center;align-items:center;height:5px;width:100%;background-color:#000}.rainbow-loading.to-top{position:fixed;top:0;z-index:1000}.rainbow-loading-progress{height:5px;width:100%;border-radius:3px;background:linear-gradient(90deg,red,#ff0,#0f0 30%,#0ff 50%,#00f,#f0f 80%,red);background-size:200%;animation:move-gradient 2s ease-in infinite}@keyframes move-gradient{0%{background-position:0% 0%}to{background-position:-200% 0%}}.fa,.fas{font-family:"Font Awesome 6 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-reload:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-bug:before{content:""}.fa-lightbulb:before{content:""}.fa-query:before{content:""}.fa-footsteps{transform:rotate(270deg)}.fa-footsteps:before{content:""}.fa-next:before{content:""}.fa-prev:before{content:""}.fa-hide:before{content:""}.fa-circle-half-stroke:before{content:""}i{font-family:"Font Awesome 6 Free";font-style:normal;font-variant:normal;text-rendering:auto;-webkit-font-smoothing:antialiased;font-weight:900;font-size:.9em}:host{position:fixed;top:0;left:0;height:100dvh;max-width:100dvw;z-index:100;overflow-y:auto;overflow-x:hidden;background-color:var(--col-bg-body-dm)}.kiosk-lightbox-error{position:absolute;font-size:var(--font-size-standard);font-family:var(--standard-text) sans-serif;font-weight:700;color:var(--col-primary-bg-alert);display:grid;place-items:center;z-index:100;background:var(--col-bg-alert);top:50%;margin-left:50vw;width:400px;height:10em;transform:translate(-50%) translateY(-50%)}.kiosk-lightbox-outer{top:0;left:0}.kiosk-lightbox-outer.background-dark{background:var(--col-bg-body-dm)}.kiosk-lightbox-outer.background-light{background:var(--col-bg-body)}.kiosk-lightbox-inner{display:block;right:0;left:auto;width:calc(100dvw - 2rem)}.hide-ui{visibility:hidden}.kiosk-lightbox-viewer{width:100cqw}.kiosk-lightbox-viewer.expanded{height:75dvh}.kiosk-lightbox-viewer.collapsed{height:calc(100dvh - 1rem)}.kiosk-lightbox-viewer.collapsed.nodata{height:calc(100dvh - 2rem)}.kiosk-lightbox-data{position:relative;z-index:10;transform:translateY(-25px);background-color:#fff;width:100%;min-height:calc(25dvh - 2rem)}.kiosk-lightbox-splitter{display:flex;place-content:center;width:100%;background-color:var(--col-bg-body-dm);color:var(--col-primary-bg-body-dm)}.kiosk-lightbox-splitter i{font-size:25px}.kiosk-lightbox-buttons{display:flex;position:fixed;right:3rem;left:auto;top:1em;z-index:2}.kiosk-lightbox-button{border-radius:24px;height:2rem;width:2rem;background-color:var(--col-bg-btn);box-shadow:0 0 5px 2px var(--col-bg-att-lighter);color:var(--col-primary-bg-btn);text-align:center}.kiosk-lightbox-button i{line-height:2rem}.kiosk-lightbox-button:hover{background-color:var(--col-bg-att);box-shadow:0 0 5px 2px var(--col-bg-att-darker);color:var(--col-primary-bg-att)}.kiosk-lightbox-button:active{background-color:var(--col-bg-ack);box-shadow:0 0 5px 2px var(--col-bg-ack-darker);color:var(--col-primary-bg-ack)}.kiosk-lightbox-button+.kiosk-lightbox-button{margin-left:1rem}.kiosk-lightbox-button:last-child{margin-left:2rem}.kiosk-lightbox-button:first-child{margin-right:1rem}';
+const Wm = '*{padding:0;margin:0;border:0px;-webkit-user-select:none;user-select:none}p,div{-webkit-user-select:text;user-select:text}select{-webkit-user-select:none;user-select:none}.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}label{font-family:var(--monospace-font);font-size:.9em}input,select{-webkit-user-select:text;-moz-user-select:text;-ms-user-select:text;box-sizing:border-box;border-radius:0;user-select:text;font-family:var(--standard-text-font);background-color:var(--col-bg-1-input);border:none;color:var(--col-primary-bg-1);padding:2px;margin-bottom:2px;outline:none}textarea{outline:none}input:not([type=radio],[type=checkbox]),select,textarea{width:100%}input:not([type=radio],[type=checkbox]):focus,select:focus,textarea:focus{margin-bottom:0;border-bottom:2px solid rgb(0,0,0)}h1{font-size:var(--font-size-h1)}h2{font-size:var(--font-size-h2)}h3{font-size:var(--font-size-h3)}h4{font-size:var(--font-size-h4)}small,.font-small{font-size:var(--font-size-small)}button{width:60px;height:60px;border-radius:35px;border-style:solid;border-width:2px;background-color:var(--col-bg-btn);color:var(--col-primary-bg-btn);border-color:var(--col-bg-btn-darker);font-family:var(--headline-text-font);font-size:var(--font-size-h4);font-weight:700}button:hover,button:focus{outline:none;background-color:var(--col-bg-btn-lighter)}button:active{padding-top:3px;color:var(--col-primary-bg-btn);background-color:var(--col-bg-btn-darker);border-color:var(--col-bg-btn-darker)}.kiosk-btn-128{width:128px;height:128px}.kiosk-btn-32{width:32px;height:32px}.kiosk-dropdown-btn{box-sizing:content-box;border-radius:0;background-color:var(--col-bg-btn);border-color:var(--col-bg-btn-darker);color:var(--col-primary-bg-btn);height:30px;width:30px}.kiosk-dropdown-btn .drop-down-btn{float:left}.kiosk-dropdown-btn .caret{color:var(--col-primary-bg-btn);display:inline-block;width:0;height:0;margin-left:2px;vertical-align:middle;border-color:var(--col-primary-bg-btn);border-top:4px solid;border-right:4px solid transparent;border-left:4px solid transparent}button:disabled{opacity:.3}.modal-round-button,.modal-delete,.modal-close,.modal-cancel,.modal-back,.modal-next,.modal-ok,.modal-button{box-sizing:border-box;margin-left:25px;background-image:none;display:inline-block;font-style:normal;font-variant:normal;text-rendering:auto;-webkit-font-smoothing:antialiased;font-family:"Font Awesome 6 Free";font-weight:900;font-size:24px;line-height:24px;vertical-align:center;text-align:center}.modal-ok:after{content:var(--icon-bt-ok)}.modal-next:after{padding-left:2px;content:var(--icon-bt-next)}.modal-back:after{padding-right:2px;content:var(--icon-bt-back)}.modal-cancel:after{content:var(--icon-bt-cancel)}.modal-close:before{content:var(--icon-bt-close)}.modal-delete{background-color:var(--col-bg-alert);color:var(--col-primary-bg-alert)}.modal-delete:before{content:var(--icon-bt-trash)}.modal-delete:hover,.modal-delete:focus{border-color:var(--col-bg-alert);background-color:var(--col-bg-alert-lighter);background-size:75%}.modal-delete:active{border-color:var(--col-bg-alert);background-color:var(--col-bg-alert-darker);color:var(--col-primary-bg-alert)}.kiosk-rounded{border-radius:15px}.kiosk-shaded{box-shadow:2px 2px 10px #2e380394}.kiosk-margin-bottom{margin-bottom:1em}.flex-line-break{width:100%;height:0px}.kiosk-align-flex-end{align-items:flex-end}.kiosk-align-flex-start{align-items:flex-start}.full-background-bg-1{background:linear-gradient(to right bottom,var(--col-bg-1-darker),var(--col-bg-1-lighter));height:100%;width:100%}.small-list-button i{border-radius:25px;box-shadow:2px 2px 5px #2e380394}.small-list-button:hover{color:var(--col-bg-att)}.small-list-button:hover i{box-shadow:2px 2px 5px #2e380394}.small-list-button:active,.small-list-button:focus{color:var(--col-bg-ack);transform:translateY(5px)}.small-list-button:active i,.small-list-button:focus i{box-shadow:none}.dialog-radio-div{display:flex;flex-direction:row}.dialog-radio-div input[type=radio]{margin-right:.5em}.rainbow-loading{display:flex;justify-content:center;align-items:center;height:5px;width:100%;background-color:#000}.rainbow-loading.to-top{position:fixed;top:0;z-index:1000}.rainbow-loading-progress{height:5px;width:100%;border-radius:3px;background:linear-gradient(90deg,red,#ff0,#0f0 30%,#0ff 50%,#00f,#f0f 80%,red);background-size:200%;animation:move-gradient 2s ease-in infinite}@keyframes move-gradient{0%{background-position:0% 0%}to{background-position:-200% 0%}}.fa,.fas{font-family:"Font Awesome 6 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-reload:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-bug:before{content:""}.fa-lightbulb:before{content:""}.fa-query:before{content:""}.fa-footsteps{transform:rotate(270deg)}.fa-footsteps:before{content:""}.fa-next:before{content:""}.fa-prev:before{content:""}.fa-hide:before{content:""}.fa-circle-half-stroke:before{content:""}i{font-family:"Font Awesome 6 Free";font-style:normal;font-variant:normal;text-rendering:auto;-webkit-font-smoothing:antialiased;font-weight:900;font-size:.9em}:host{position:fixed;top:0;left:0;height:100dvh;max-width:100dvw;z-index:100;overflow-y:auto;overflow-x:hidden;background-color:var(--col-bg-body-dm)}.kiosk-lightbox-error{position:absolute;font-size:var(--font-size-standard);font-family:var(--standard-text) sans-serif;font-weight:700;color:var(--col-primary-bg-alert);display:grid;place-items:center;z-index:100;background:var(--col-bg-alert);top:50%;margin-left:50vw;width:400px;height:10em;transform:translate(-50%) translateY(-50%)}.kiosk-lightbox-outer{top:0;left:0}.kiosk-lightbox-outer.background-dark{background:var(--col-bg-body-dm)}.kiosk-lightbox-outer.background-light{background:var(--col-bg-body)}.kiosk-lightbox-inner{display:block;right:0;left:auto;width:calc(100dvw - 2rem)}.hide-ui{visibility:hidden}.kiosk-lightbox-viewer{width:100cqw}.kiosk-lightbox-viewer.expanded{height:75dvh}.kiosk-lightbox-viewer.collapsed{height:calc(100dvh - 1rem)}.kiosk-lightbox-viewer.collapsed.nodata{height:calc(100dvh - 2rem)}.kiosk-lightbox-data{position:relative;z-index:10;transform:translateY(-25px);background-color:#fff;width:100%;min-height:calc(25dvh - 2rem)}.kiosk-lightbox-splitter{display:flex;place-content:center;width:100%;background-color:var(--col-bg-body-dm);color:var(--col-primary-bg-body-dm)}.kiosk-lightbox-splitter i{font-size:25px}.kiosk-lightbox-buttons{display:flex;position:fixed;right:3rem;left:auto;top:1em;z-index:2}.kiosk-lightbox-button{border-radius:24px;height:2rem;width:2rem;background-color:var(--col-bg-btn);box-shadow:0 0 5px 2px var(--col-bg-att-lighter);color:var(--col-primary-bg-btn);text-align:center}.kiosk-lightbox-button i{line-height:2rem}.kiosk-lightbox-button:hover{background-color:var(--col-bg-att);box-shadow:0 0 5px 2px var(--col-bg-att-darker);color:var(--col-primary-bg-att)}.kiosk-lightbox-button:active{background-color:var(--col-bg-ack);box-shadow:0 0 5px 2px var(--col-bg-ack-darker);color:var(--col-primary-bg-ack)}.kiosk-lightbox-button+.kiosk-lightbox-button{margin-left:1rem}.kiosk-lightbox-button:last-child{margin-left:2rem}.kiosk-lightbox-button:first-child{margin-right:1rem}.nav-button-deactivated{opacity:25%;box-shadow:none}.nav-button-deactivated:hover,.nav-button-deactivated:active{background-color:var(--col-bg-btn);box-shadow:none;color:var(--col-primary-bg-btn)}';
 /**
  * @license
  * Copyright 2018 Google LLC
@@ -25209,7 +25209,7 @@ function qm() {
             He(T, S);
           },
           wheel: function(S) {
-            Fe(T, S);
+            ze(T, S);
           },
           mousewheel: function(S) {
             ve(T, S);
@@ -25233,7 +25233,7 @@ function qm() {
             kt(T, S);
           },
           mouseout: function(S) {
-            _t(T, S);
+            vt(T, S);
           },
           mousedown: function(S) {
             xt(T, S);
@@ -25280,7 +25280,7 @@ function qm() {
             kt(T, S);
           },
           pointerout: function(S) {
-            _t(T, S);
+            vt(T, S);
           },
           pointerdown: function(S) {
             xt(T, S);
@@ -26373,7 +26373,7 @@ function qm() {
           userData: b.userData
         }, b.contextMenuHandler(T)), (T && T.preventDefault || S.preventDefault && !S.defaultPrevented) && e.cancelEvent(_), S.stopPropagation && e.stopEvent(_);
       }
-      function Fe(b, _) {
+      function ze(b, _) {
         Re(b, _, _);
       }
       function ve(b, _) {
@@ -26568,7 +26568,7 @@ function qm() {
         };
         P(b, S), de(b, S, T), S.preventDefault && !S.defaultPrevented && e.cancelEvent(_), S.stopPropagation && e.stopEvent(_);
       }
-      function _t(b, _) {
+      function vt(b, _) {
         var T = {
           id: g(_),
           type: w(_),
@@ -26892,7 +26892,7 @@ function qm() {
         else
           return;
         _.shouldCapture = !1, _.shouldReleaseCapture = !1, b.stopHandler && T.type === "mouse" && (clearTimeout(b.stopTimeOut), b.stopTimeOut = setTimeout(function() {
-          Me(b, _.originalEvent, T.type);
+          Fe(b, _.originalEvent, T.type);
         }, b.stopDelay)), q.contacts === 0 ? b.moveHandler && b.moveHandler(
           {
             eventSource: b,
@@ -26956,7 +26956,7 @@ function qm() {
         var S = b.getActivePointersListByType(T.type), q;
         q = S.getById(T.id), q && Mt(b, S, q);
       }
-      function Me(b, _, T) {
+      function Fe(b, _, T) {
         b.stopHandler && b.stopHandler({
           eventSource: b,
           pointerType: T,
@@ -27343,7 +27343,7 @@ function qm() {
           leaveHandler: e.delegate(this, Te),
           pressHandler: e.delegate(this, Ae),
           releaseHandler: e.delegate(this, He),
-          nonPrimaryPressHandler: e.delegate(this, Fe),
+          nonPrimaryPressHandler: e.delegate(this, ze),
           nonPrimaryReleaseHandler: e.delegate(this, ve),
           scrollHandler: e.delegate(this, We),
           pinchHandler: e.delegate(this, Re),
@@ -27497,8 +27497,8 @@ function qm() {
                   (U._firstOpen || !U.preserveViewport) && (U.viewport.goHome(!0), U.viewport.update()), U._firstOpen = !1;
                   var ge = m[0];
                   if (ge.tileSource && (ge = ge.tileSource), U.overlays && !U.preserveOverlays)
-                    for (var Me = 0; Me < U.overlays.length; Me++)
-                      U.currentOverlays[Me] = a(U, U.overlays[Me]);
+                    for (var Fe = 0; Fe < U.overlays.length; Fe++)
+                      U.currentOverlays[Fe] = a(U, U.overlays[Fe]);
                   U._drawOverlays(), U._opening = !1, U.raiseEvent("open", { source: ge });
                 } else
                   U._opening = !1, U.raiseEvent("open-failed", X);
@@ -27506,12 +27506,12 @@ function qm() {
               (!e.isPlainObject(ge) || !ge.tileSource) && (ge = {
                 tileSource: ge
               }), ge.index !== void 0 && (e.console.error("[Viewer.open] setting indexes here is not supported; use addTiledImage instead"), delete ge.index), ge.collectionImmediately === void 0 && (ge.collectionImmediately = !0);
-              var Me = ge.success;
+              var Fe = ge.success;
               ge.success = function(_) {
                 if (ie++, ge.tileSource.overlays)
                   for (var T = 0; T < ge.tileSource.overlays.length; T++)
                     U.addOverlay(ge.tileSource.overlays[T]);
-                Me && Me(_), me();
+                Fe && Fe(_), me();
               };
               var b = ge.error;
               ge.error = function(_) {
@@ -28071,7 +28071,7 @@ function qm() {
            * @returns {OpenSeadragon.Viewer} Chainable.
            */
           bindStandardControls: function() {
-            var m = e.delegate(this, ii), P = e.delegate(this, _t), U = e.delegate(this, fe), J = e.delegate(this, kt), ie = e.delegate(this, ri), de = e.delegate(this, Ie), X = e.delegate(this, Ct), me = e.delegate(this, rr), Ce = e.delegate(this, ut), Se = e.delegate(this, Mt), ge = e.delegate(this, C), Me = e.delegate(this, E), b = this.navImages, _ = [], T = !0;
+            var m = e.delegate(this, ii), P = e.delegate(this, vt), U = e.delegate(this, fe), J = e.delegate(this, kt), ie = e.delegate(this, ri), de = e.delegate(this, Ie), X = e.delegate(this, Ct), me = e.delegate(this, rr), Ce = e.delegate(this, ut), Se = e.delegate(this, Mt), ge = e.delegate(this, C), Fe = e.delegate(this, E), b = this.navImages, _ = [], T = !0;
             return this.showNavigationControl && ((this.zoomInButton || this.zoomOutButton || this.homeButton || this.fullPageButton || this.rotateLeftButton || this.rotateRightButton || this.flipButton) && (T = !1), this.showZoomControl && (_.push(this.zoomInButton = new e.Button({
               element: this.zoomInButton ? e.getElement(this.zoomInButton) : null,
               clickTimeThreshold: this.clickTimeThreshold,
@@ -28087,7 +28087,7 @@ function qm() {
               onEnter: m,
               onExit: P,
               onFocus: ge,
-              onBlur: Me
+              onBlur: Fe
             })), _.push(this.zoomOutButton = new e.Button({
               element: this.zoomOutButton ? e.getElement(this.zoomOutButton) : null,
               clickTimeThreshold: this.clickTimeThreshold,
@@ -28103,7 +28103,7 @@ function qm() {
               onEnter: J,
               onExit: P,
               onFocus: ge,
-              onBlur: Me
+              onBlur: Fe
             }))), this.showHomeControl && _.push(this.homeButton = new e.Button({
               element: this.homeButton ? e.getElement(this.homeButton) : null,
               clickTimeThreshold: this.clickTimeThreshold,
@@ -28115,7 +28115,7 @@ function qm() {
               srcDown: _e(this.prefixUrl, b.home.DOWN),
               onRelease: de,
               onFocus: ge,
-              onBlur: Me
+              onBlur: Fe
             })), this.showFullPageControl && _.push(this.fullPageButton = new e.Button({
               element: this.fullPageButton ? e.getElement(this.fullPageButton) : null,
               clickTimeThreshold: this.clickTimeThreshold,
@@ -28127,7 +28127,7 @@ function qm() {
               srcDown: _e(this.prefixUrl, b.fullpage.DOWN),
               onRelease: X,
               onFocus: ge,
-              onBlur: Me
+              onBlur: Fe
             })), this.showRotationControl && (_.push(this.rotateLeftButton = new e.Button({
               element: this.rotateLeftButton ? e.getElement(this.rotateLeftButton) : null,
               clickTimeThreshold: this.clickTimeThreshold,
@@ -28139,7 +28139,7 @@ function qm() {
               srcDown: _e(this.prefixUrl, b.rotateleft.DOWN),
               onRelease: me,
               onFocus: ge,
-              onBlur: Me
+              onBlur: Fe
             })), _.push(this.rotateRightButton = new e.Button({
               element: this.rotateRightButton ? e.getElement(this.rotateRightButton) : null,
               clickTimeThreshold: this.clickTimeThreshold,
@@ -28151,7 +28151,7 @@ function qm() {
               srcDown: _e(this.prefixUrl, b.rotateright.DOWN),
               onRelease: Ce,
               onFocus: ge,
-              onBlur: Me
+              onBlur: Fe
             }))), this.showFlipControl && _.push(this.flipButton = new e.Button({
               element: this.flipButton ? e.getElement(this.flipButton) : null,
               clickTimeThreshold: this.clickTimeThreshold,
@@ -28163,7 +28163,7 @@ function qm() {
               srcDown: _e(this.prefixUrl, b.flip.DOWN),
               onRelease: Se,
               onFocus: ge,
-              onBlur: Me
+              onBlur: Fe
             })), T ? (this.buttonGroup = new e.ButtonGroup({
               buttons: _,
               clickTimeThreshold: this.clickTimeThreshold,
@@ -28466,11 +28466,11 @@ function qm() {
               ajaxWithCredentials: m.ajaxWithCredentials,
               ajaxHeaders: U.ajaxHeaders ? U.ajaxHeaders : m.ajaxHeaders,
               splitHashDataForPost: m.splitHashDataForPost,
-              success: function(Me) {
-                J(Me.tileSource);
+              success: function(Fe) {
+                J(Fe.tileSource);
               }
-            }), P.addHandler("open-failed", function(Me) {
-              ie(Me);
+            }), P.addHandler("open-failed", function(Fe) {
+              ie(Fe);
             });
           else if (e.isPlainObject(P) || P.nodeType)
             if (P.crossOriginPolicy === void 0 && (U.crossOriginPolicy !== void 0 || m.crossOriginPolicy !== void 0) && (P.crossOriginPolicy = U.crossOriginPolicy !== void 0 ? U.crossOriginPolicy : m.crossOriginPolicy), P.ajaxWithCredentials === void 0 && (P.ajaxWithCredentials = m.ajaxWithCredentials), e.isFunction(P.getTileUrl)) {
@@ -28783,7 +28783,7 @@ function qm() {
           originalEvent: m.originalEvent
         });
       }
-      function Fe(m) {
+      function ze(m) {
         this.raiseEvent("canvas-nonprimary-press", {
           tracker: m.eventSource,
           position: m.position,
@@ -28926,7 +28926,7 @@ function qm() {
       function kt() {
         t[this.hash].lastZoomTime = e.now(), t[this.hash].zoomFactor = 1 / this.zoomPerSecond, t[this.hash].zooming = !0, xt(this);
       }
-      function _t() {
+      function vt() {
         t[this.hash].zooming = !1;
       }
       function xt(m) {
@@ -30276,8 +30276,8 @@ function qm() {
               var d = null;
               return this.levels.length > 0 && a >= this.minLevel && a <= this.maxLevel && (d = this.levels[a].url), d;
             }
-            var f = "0", g = Math.pow(0.5, this.maxLevel - a), w, C, E, A, I, V, K, ce, re, he, pe, Te, Ae, He, Fe, ve;
-            return this.levelSizes ? (w = this.levelSizes[a].width, C = this.levelSizes[a].height) : (w = Math.ceil(this.width * g), C = Math.ceil(this.height * g)), E = this.getTileWidth(a), A = this.getTileHeight(a), I = Math.round(E / g), V = Math.round(A / g), this.version === 1 ? Fe = "native." + this.tileFormat : Fe = "default." + this.tileFormat, w < E && C < A ? (this.version === 2 && w === this.width ? Te = "full" : this.version === 3 && w === this.width && C === this.height ? Te = "max" : this.version === 3 ? Te = w + "," + C : Te = w + ",", K = "full") : (ce = l * I, re = h * V, he = Math.min(I, this.width - ce), pe = Math.min(V, this.height - re), l === 0 && h === 0 && he === this.width && pe === this.height ? K = "full" : K = [ce, re, he, pe].join(","), Ae = Math.min(E, w - l * E), He = Math.min(A, C - h * A), this.version === 2 && Ae === this.width ? Te = "full" : this.version === 3 && Ae === this.width && He === this.height ? Te = "max" : this.version === 3 ? Te = Ae + "," + He : Te = Ae + ","), ve = [this._id, K, Te, f, Fe].join("/"), ve;
+            var f = "0", g = Math.pow(0.5, this.maxLevel - a), w, C, E, A, I, V, K, ce, re, he, pe, Te, Ae, He, ze, ve;
+            return this.levelSizes ? (w = this.levelSizes[a].width, C = this.levelSizes[a].height) : (w = Math.ceil(this.width * g), C = Math.ceil(this.height * g)), E = this.getTileWidth(a), A = this.getTileHeight(a), I = Math.round(E / g), V = Math.round(A / g), this.version === 1 ? ze = "native." + this.tileFormat : ze = "default." + this.tileFormat, w < E && C < A ? (this.version === 2 && w === this.width ? Te = "full" : this.version === 3 && w === this.width && C === this.height ? Te = "max" : this.version === 3 ? Te = w + "," + C : Te = w + ",", K = "full") : (ce = l * I, re = h * V, he = Math.min(I, this.width - ce), pe = Math.min(V, this.height - re), l === 0 && h === 0 && he === this.width && pe === this.height ? K = "full" : K = [ce, re, he, pe].join(","), Ae = Math.min(E, w - l * E), He = Math.min(A, C - h * A), this.version === 2 && Ae === this.width ? Te = "full" : this.version === 3 && Ae === this.width && He === this.height ? Te = "max" : this.version === 3 ? Te = Ae + "," + He : Te = Ae + ","), ve = [this._id, K, Te, f, ze].join("/"), ve;
           },
           __testonly__: {
             canBeTiled: t,
@@ -31156,8 +31156,8 @@ function qm() {
           if (n.length === 0)
             return null;
           for (var he = n[0].x, pe = n[0].x, Te = n[0].y, Ae = n[0].y, He = 1; He < n.length; He++) {
-            var Fe = n[He];
-            Fe.x < he && (he = Fe.x), Fe.x > pe && (pe = Fe.x), Fe.y < Te && (Te = Fe.y), Fe.y > Ae && (Ae = Fe.y);
+            var ze = n[He];
+            ze.x < he && (he = ze.x), ze.x > pe && (pe = ze.x), ze.y < Te && (Te = ze.y), ze.y > Ae && (Ae = ze.y);
           }
           return new e.Rect(he, Te, pe - he, Ae - Te);
         },
@@ -32378,8 +32378,8 @@ function qm() {
               var He = this.viewer && this.viewer.isAnimating();
               Ae = !He;
             }
-            for (var Fe = 0; Fe < f.length; Fe++)
-              g = f[Fe], this._drawTile(
+            for (var ze = 0; ze < f.length; ze++)
+              g = f[ze], this._drawTile(
                 g,
                 d,
                 w,
@@ -32864,15 +32864,15 @@ function qm() {
               if (pe <= 0)
                 throw new Error(`WegGL error: bad value for gl parameter MAX_TEXTURE_IMAGE_UNITS (${pe}). This could happen
                         if too many contexts have been created and not released, or there is another problem with the graphics card.`);
-              let Te = new Float32Array(pe * 12), Ae = new Array(pe), He = new Array(pe), Fe = new Array(pe);
+              let Te = new Float32Array(pe * 12), Ae = new Array(pe), He = new Array(pe), ze = new Array(pe);
               for (let ve = 0; ve < I.length; ve++) {
                 let Re = I[ve].tile, Ze = ve % pe, Ue = Ze + 1, We = Re.getCanvasContext(), it = We ? this._TextureMap.get(We.canvas) : null;
-                if (it || (this._tileReadyHandler({ tile: Re, tiledImage: E }), it = We ? this._TextureMap.get(We.canvas) : null), it && this._getTileData(Re, E, it, re, Ze, Te, Ae, He, Fe), Ue === pe || ve === I.length - 1) {
+                if (it || (this._tileReadyHandler({ tile: Re, tiledImage: E }), it = We ? this._TextureMap.get(We.canvas) : null), it && this._getTileData(Re, E, it, re, Ze, Te, Ae, He, ze), Ue === pe || ve === I.length - 1) {
                   for (let Ve = 0; Ve <= Ue; Ve++)
                     o.activeTexture(o.TEXTURE0 + Ve), o.bindTexture(o.TEXTURE_2D, Ae[Ve]);
                   o.bindBuffer(o.ARRAY_BUFFER, this._firstPass.bufferTexturePosition), o.bufferData(o.ARRAY_BUFFER, Te, o.DYNAMIC_DRAW), He.forEach((Ve, rt) => {
                     o.uniformMatrix3fv(this._firstPass.uTransformMatrices[rt], !1, Ve);
-                  }), o.uniform1fv(this._firstPass.uOpacities, new Float32Array(Fe)), o.bindBuffer(o.ARRAY_BUFFER, this._firstPass.bufferOutputPosition), o.vertexAttribPointer(this._firstPass.aOutputPosition, 2, o.FLOAT, !1, 0, 0), o.bindBuffer(o.ARRAY_BUFFER, this._firstPass.bufferTexturePosition), o.vertexAttribPointer(this._firstPass.aTexturePosition, 2, o.FLOAT, !1, 0, 0), o.bindBuffer(o.ARRAY_BUFFER, this._firstPass.bufferIndex), o.vertexAttribPointer(this._firstPass.aIndex, 1, o.FLOAT, !1, 0, 0), o.drawArrays(o.TRIANGLES, 0, 6 * Ue);
+                  }), o.uniform1fv(this._firstPass.uOpacities, new Float32Array(ze)), o.bindBuffer(o.ARRAY_BUFFER, this._firstPass.bufferOutputPosition), o.vertexAttribPointer(this._firstPass.aOutputPosition, 2, o.FLOAT, !1, 0, 0), o.bindBuffer(o.ARRAY_BUFFER, this._firstPass.bufferTexturePosition), o.vertexAttribPointer(this._firstPass.aTexturePosition, 2, o.FLOAT, !1, 0, 0), o.bindBuffer(o.ARRAY_BUFFER, this._firstPass.bufferIndex), o.vertexAttribPointer(this._firstPass.aIndex, 1, o.FLOAT, !1, 0, 0), o.drawArrays(o.TRIANGLES, 0, 6 * Ue);
                 }
               }
               ce && (o.useProgram(this._secondPass.shaderProgram), o.bindFramebuffer(o.FRAMEBUFFER, null), o.activeTexture(o.TEXTURE0), o.bindTexture(o.TEXTURE_2D, this._renderToTexture), this._gl.uniform1f(this._secondPass.uOpacityMultiplier, E.opacity), o.bindBuffer(o.ARRAY_BUFFER, this._secondPass.bufferTexturePosition), o.vertexAttribPointer(this._secondPass.aTexturePosition, 2, o.FLOAT, !1, 0, 0), o.bindBuffer(o.ARRAY_BUFFER, this._secondPass.bufferOutputPosition), o.vertexAttribPointer(this._secondPass.aOutputPosition, 2, o.FLOAT, !1, 0, 0), o.drawArrays(o.TRIANGLES, 0, 6)), C = !0, K && (this._applyContext2dPipeline(E, I, A), C = !1, o.bindFramebuffer(o.FRAMEBUFFER, null), o.clear(o.COLOR_BUFFER_BIT)), A === 0 && this._raiseTiledImageDrawnEvent(E, I.map((ve) => ve.tile));
@@ -32933,7 +32933,7 @@ function qm() {
             1
           ]);
           if (n.flipped) {
-            let Fe = e.Mat3.makeTranslation(0.5, 0), ve = e.Mat3.makeTranslation(-0.5, 0), Re = Fe.multiply(e.Mat3.makeScaling(-1, 1)).multiply(ve);
+            let ze = e.Mat3.makeTranslation(0.5, 0), ve = e.Mat3.makeTranslation(-0.5, 0), Re = ze.multiply(e.Mat3.makeScaling(-1, 1)).multiply(ve);
             Ae = Ae.multiply(Re);
           }
           let He = l.multiply(Ae);
@@ -36056,8 +36056,9 @@ var Ym = Object.defineProperty, Xm = Object.getOwnPropertyDescriptor, Jm = Objec
 }, $m = (s, r, e) => Qm(Jm(s), e, r);
 let ct = class extends Qi {
   constructor() {
-    super(...arguments), this.firstTile = !1, this.viewer = void 0, this.openseadragonImagePath = "/static/assets/images/lightbox/", this.eof = !1, this.bof = !1, this.hideUI = !1, this.navDeferred = !1, this.darkMode = !0, this.open = !1, this.dataVisible = !1, this.hasData = !1;
+    super(...arguments), this.rotationValues = /* @__PURE__ */ new Map(), this.firstTile = !1, this.viewer = void 0, this.openseadragonImagePath = "/static/assets/images/lightbox/", this.eof = !1, this.bof = !1, this.hideUI = !1, this.navDeferred = !1, this.darkMode = !0, this.open = !1, this.dataVisible = !1, this.hasData = !1;
   }
+  // private disableRotationCacheOnce = false
   setURLProvider(s) {
     this.urlProvider = s;
   }
@@ -36085,6 +36086,9 @@ let ct = class extends Qi {
       console.log("tile load failure"), this.firstTile && this.opened(!1, i.message), this.firstTile = !1;
     }), this.viewer.addHandler("tile-loaded", () => {
       console.log("tile loaded successfully"), this.firstTile && this.opened(!0, ""), this.firstTile = !1;
+    }), this.viewer.addHandler("rotate", (i) => {
+      var n;
+      (n = this.urlProvider) != null && n.url && (i.degrees % 360 === 0 ? this.rotationValues.delete(this.urlProvider.url) : this.rotationValues.set(this.urlProvider.url, i.degrees % 360));
     }));
   }
   nextFile(s) {
@@ -36116,23 +36120,29 @@ let ct = class extends Qi {
       var s;
       if ((s = this.urlProvider) != null && s.url && this.viewer) {
         this.eof = this.urlProvider.eof(), this.bof = this.urlProvider.bof();
-        let r, e;
+        let r = 0, e = 0;
         try {
           r = this.urlProvider.height, e = this.urlProvider.width;
         } catch {
-          r = 5e3, e = 5e3;
         }
+        (r === 0 || e === 0) && (r = 5e3, e = 5e3);
         try {
-          this.firstTile = !0, this.viewer.open(
+          console.log(this.rotationValues);
+          const t = this.rotationValues.get(this.urlProvider.url) ?? 0;
+          console.log(`will set to ${t} degrees`), this.viewer.viewport.getRotation() != t && this.viewer.viewport.setRotation(t), this.firstTile = !0, this.viewer.open(
             {
-              type: "legacy-image-pyramid",
-              levels: [
-                {
-                  url: this.urlProvider.url,
-                  height: r,
-                  width: e
-                }
-              ]
+              tileSource: {
+                type: "legacy-image-pyramid",
+                levels: [
+                  {
+                    url: this.urlProvider.url,
+                    height: r,
+                    width: e
+                  }
+                ]
+              },
+              // degrees: degrees, //this could be used to set the EXIF degrees!
+              collectionImmediately: !0
             }
           );
         } catch (t) {
@@ -36192,10 +36202,10 @@ let ct = class extends Qi {
     this.dataVisible = !this.dataVisible;
   }
   renderError() {
-    return this.viewerError ? mt`
+    return this.viewerError ? _t`
             <div class="kiosk-lightbox-error">
                 <p>${this.viewerError}</p>
-            </div>` : ze;
+            </div>` : Me;
   }
   doClose() {
     this.open = !1, this.navDeferred = !1;
@@ -36229,7 +36239,8 @@ let ct = class extends Qi {
     ) || (this.navDeferred = !0);
   }
   tryNext() {
-    this.emitBeforeEvent(
+    var s;
+    (s = this.urlProvider) != null && s.eof() || this.emitBeforeEvent(
       "beforeNext",
       {},
       () => {
@@ -36241,7 +36252,8 @@ let ct = class extends Qi {
     ) || (this.navDeferred = !0);
   }
   tryPrev() {
-    this.emitBeforeEvent(
+    var s;
+    (s = this.urlProvider) != null && s.bof() || this.emitBeforeEvent(
       "beforePrev",
       {},
       () => {
@@ -36259,37 +36271,37 @@ let ct = class extends Qi {
     this.darkMode = !this.darkMode;
   }
   renderNavButtons() {
-    return mt`<div class="kiosk-lightbox-buttons ${this.hideUI ? "hide-ui" : ""}">
+    return _t`<div class="kiosk-lightbox-buttons ${this.hideUI ? "hide-ui" : ""}">
                         <div class="kiosk-lightbox-button" @click="${this.toggleBackground}"><i class="fa-circle-half-stroke"></i></div>
-                        ${this.bof ? ze : mt`<div class = "kiosk-lightbox-button" @click="${this.tryPrev}"><i class="fa-prev"></i> </div>`}
-                        ${this.eof ? ze : mt`<div class = "kiosk-lightbox-button" @click="${this.tryNext}"> <i class="fa-next"></i></div>`}
+                        <div class = "kiosk-lightbox-button ${this.bof ? "nav-button-deactivated" : ""}" @click="${this.tryPrev}"><i class="fa-prev"></i> </div>
+                        <div class = "kiosk-lightbox-button ${this.eof ? "nav-button-deactivated" : ""}" @click="${this.tryNext}"> <i class="fa-next"></i></div>
                         <div class="kiosk-lightbox-button" @click="${this.tryClose}"><i class="fa-close"></i></div>
                     </div>
                 `;
   }
   renderOpenSeaDragon() {
     const s = { expanded: this.dataVisible, collapsed: !this.dataVisible, nodata: !this.hasData };
-    return mt`
+    return _t`
             <div class="kiosk-lightbox-outer ${this.darkMode ? "background-dark" : "background-light"}">
-                ${this.navDeferred ? ze : this.renderNavButtons()}
+                ${this.navDeferred ? Me : this.renderNavButtons()}
                 ${this.renderError()}
-                <div class="kiosk-lightbox-inner ${this.hideUI ? "hide-ui" : ze}" 
-                     style="${this.viewerError ? "visibility: hidden" : ze}">
+                <div class="kiosk-lightbox-inner ${this.hideUI ? "hide-ui" : Me}" 
+                     style="${this.viewerError ? "visibility: hidden" : Me}">
                     <div id="open-sea-dragon"
                          class="kiosk-lightbox-viewer ${jm(s)}">
                     </div>
                 </div>
-                ${this.hasData ? mt`
-                    <div class="kiosk-lightbox-data" style="${this.viewerError ? "visibility: hidden" : ze}">
+                ${this.hasData ? _t`
+                    <div class="kiosk-lightbox-data" style="${this.viewerError ? "visibility: hidden" : Me}">
                         <div class="kiosk-lightbox-splitter" @click="${this.splitterClicked}">
                             <i class="fa-view-list"></i>
                         </div>
                         <slot></slot>
-                    </div>` : ze}
+                    </div>` : Me}
             </div>`;
   }
   apiRender() {
-    return this.open ? mt`${this.renderOpenSeaDragon()}` : mt``;
+    return this.open ? _t`${this.renderOpenSeaDragon()}` : _t``;
   }
 };
 ct.styles = Hr(Wm);
