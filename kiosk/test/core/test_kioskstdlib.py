@@ -226,3 +226,21 @@ class Testkioskstdlib(KioskPyTestHelper):
 
         # Assert
         assert result == expected_output
+
+    @pytest.mark.parametrize(
+        "main_list, filter_list, expected",
+        [
+            ([1, 2, 3, 4, 5, 6], [1, 2], [3, 4, 5, 6]),  # Basic match
+            ([1, 2, 3, 4, 5, 6], [1, 3], [2, 3, 4, 5, 6]),  # Partial match
+            ([1, 2, 3], [1, 2, 3], []),  # Exact match
+            ([1, 2, 3], [1, 2, 3, 4, 5], []),  # Filter longer than main
+            ([1, 2, 3, 4], [5, 6], [1, 2, 3, 4]),  # No match
+            ([1, 2, 3, 4], [], [1, 2, 3, 4]),  # Empty filter
+            ([], [1, 2, 3], []),  # Empty main
+            ([], [], []),  # Both empty
+            ([1, 2, 3, 4], [0, 1], [1, 2, 3, 4]),  # No initial match
+            ([2, 1, 3, 4], [1, 2], [2, 1, 3, 4]),  # different order
+        ]
+    )
+    def test_substract_leading_list(self, main_list, filter_list, expected):
+        assert substract_leading_list(main_list, filter_list) == expected

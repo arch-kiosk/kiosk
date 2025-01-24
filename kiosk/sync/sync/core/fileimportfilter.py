@@ -23,6 +23,7 @@ class FileImportFilter:
         self._plugin_loader = None
         self._type_repository = None
         self.needs_type_repository = False
+        self._base_path = ""
 
     @property
     def has_identifier_evaluator(self) -> bool:
@@ -167,3 +168,13 @@ class FileImportFilter:
         """
         self._type_repository = type_repository
         self._plugin_loader = plugin_loader
+
+    def set_base_path(self, pathname):
+        """
+        This sets the root path of a file import.
+        E.g. if a recursive file import starts in c:\import, that's what would be set here.
+        Needed so that filters that are concerned with the path can ignore that part.
+        :param pathname: the file import's root path
+        """
+        self._base_path = pathname
+        logging.debug(f"{self.__class__.__name__}.set_base_path: {pathname}")

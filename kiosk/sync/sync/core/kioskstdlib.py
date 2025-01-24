@@ -1776,3 +1776,12 @@ def start_python_subprocess(python_script, parameters, working_directory=None):
         err_msg = f"kioskstdlib.start_python_subprocess: " \
                   f"Error running {cmdline_str}: {repr(e)}."
         raise Exception(err_msg)
+
+def substract_leading_list(main_list, filter_list):
+    start_element = 0
+    for index, el in enumerate(filter_list):
+        # Stop if index exceeds the length of main_list
+        if index >= len(main_list) or main_list[index] != el:
+            break
+        start_element = index + 1  # Update to exclude the matched element
+    return main_list[start_element:]

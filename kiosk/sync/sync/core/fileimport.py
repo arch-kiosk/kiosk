@@ -3,7 +3,7 @@ import datetime
 import logging
 import os
 import shutil
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 import dicttools
 from config import Config
@@ -205,7 +205,7 @@ class FileImport:
         """
         return [x for x in self._import_filters]
 
-    def get_file_import_filter(self, import_filter_class_name: str) -> FileImportFilter:
+    def get_file_import_filter(self, import_filter_class_name: str) -> Union[FileImportFilter|None]:
         """
         get a file import filter from the file import (for instance to apply configuration
         values to it)
@@ -338,6 +338,7 @@ class FileImport:
             context_filter: FileImportFilter = self._import_filters[context_filter_name]
             if context_filter.is_active():
                 logging.info(f"using filter {context_filter.get_display_name()}")
+                context_filter.set_base_path(self.pathname)
                 if identifier_evaluator:
                     context_filter.register_identifier_evaluator(identifier_evaluator)
 
@@ -441,7 +442,7 @@ class FileImport:
         return self._check_identifier(subst_identifier)
 
     def build_context(self, f):
-        context = {"import": True}
+        context:dict = {"import": True}
         for import_filter_name in self._import_filters_sorted:
             try:
                 import_filter: FileImportFilter = self._import_filters[import_filter_name]
@@ -514,19 +515,30 @@ class FileImport:
 
             file_description = kioskstdlib.try_get_dict_entry(context, "description", "")
 
+            tags = list(self.tags)
+            if not tags:
+                tags = []
+
+            if "categories" in context:
+                cat: list = context["categories"]
+                tags.extend(cat)
+
+            # for testing purposes
+            tags.sort()
+
             if identifier or (not self.add_needs_context):
                 if file_ts:
                     s = f"""pathandfilename={f}, description={file_description}, 
                      identifier={identifier},
                      modified_by={self.modified_by}, create_uuid=True,
                      ts_file: d.m.y={file_ts.day}.{file_ts.month}.{file_ts.year},
-                     tags={self.tags}
+                     tags={tags}
                      """
                 else:
                     s = f"""pathandfilename={f}, description={file_description}, 
                      identifier={identifier},
                      modified_by={self.modified_by}, create_uuid=True,
-                     tags={self.tags}
+                     tags={tags}
                      """
 
                 logging.info("Adding file to repository: %s" % s)
@@ -537,7 +549,7 @@ class FileImport:
                                                     modified_by=self.modified_by,
                                                     identifier=identifier,
                                                     ts_file=file_ts,
-                                                    tags=self.tags,
+                                                    tags=tags,
                                                     accept_duplicates=accept_duplicates,
                                                     tz_index=self.tz_index)
             else:
@@ -564,6 +576,12 @@ class FileImport:
             logging.info("FileImport.import_single_file_to_repository: File will be tagged as " + self.tags[0])
 
         self._import_filters_sorted = self.sort_import_filters()
+        base_path = kioskstdlib.get_file_path(args[0])
+        for context_filter_name in self._import_filters_sorted:
+            context_filter: FileImportFilter = self._import_filters[context_filter_name]
+            if context_filter.is_active():
+                context_filter.set_base_path(base_path)
+
         return self._import_single_file_to_repository(*args, **kwargs)
 
     def _move_finished_file(self, path_and_filename: str) -> bool:

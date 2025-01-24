@@ -252,23 +252,37 @@ class FileImportStandardFolderFilter(FileImportFilter):
 
     def get_file_information(self, context) -> dict:
         if not (self.get_filter_configuration_value("get_date_from_folder") or
-                self.get_filter_configuration_value("get_identifier_from_folder")):
-            logging.debug("FileImportStandardFolderFilter: deactivated due to missing configuration values")
+                self.get_filter_configuration_value("get_identifier_from_folder") or
+                self.get_filter_configuration_value("get_categories_from_folder_description")):
+            logging.debug("FileImportStandardFolderFilter: deactivated because non of the services are requested.")
             self.deactivate()
             return context
 
         path = os.path.normpath(self.path_and_filename).lstrip(os.sep)
         paths = path.split(os.sep)
+        base_paths = os.path.normpath(self._base_path).lstrip(os.sep).split(os.sep)
+        paths = kioskstdlib.substract_leading_list(paths, base_paths)
+        categories = set()
         for current_dir in paths[:-1]:
+            this_identifier = ""
             if self.get_filter_configuration_value("get_identifier_from_folder"):
                 fmt = self.get_filter_configuration_value("folder_encodings")
                 context_info = self.context_utils.get_identifier_from_string(current_dir, fmt)
                 if context_info:
                     if self.evaluate_identifier(context_info):
                         context["identifier"] = context_info
+                        this_identifier = context_info
+
+            if self.get_filter_configuration_value("get_categories_from_folder_description"):
+                if this_identifier:
+                    description = self.context_utils.get_description_from_string(current_dir)
+                else:
+                    description = current_dir
+                if description:
+                    categories.add(description)
 
             if self.get_filter_configuration_value("get_date_from_folder"):
-                fmt = self.get_filter_configuration_value("folder-encodings")
+                fmt = self.get_filter_configuration_value("folder_encodings")
                 d, m, y = self.context_utils.get_date_from_string(current_dir, fmt)
                 if d:
                     context["day"] = d
@@ -286,7 +300,8 @@ class FileImportStandardFolderFilter(FileImportFilter):
                         context.pop("day")
                         context.pop("month")
                         context.pop("year")
-
+        if categories:
+            context["categories"] = list(categories)
         print(f"FileImportStandardFolderFilter: File {self.path_and_filename} processed.")
         return context
 

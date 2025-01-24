@@ -1,10 +1,11 @@
 file_import:
   recursive: True
   add_needs_context: False
-#  file_extensions: "jpg,nef"
+  file_extensions: "jpg,nef,png"
 #  tags: "import_091256"
 file_import_filters:
-  fileimportqrcodefilter:
-    get_identifier: True
-    get_date: True
-    recognition_strategy: "qr_code_peru"
+  fileimportstandardfolderfilter:
+      get_identifier_from_folder: False
+      get_date_from_folder: False
+      get_categories_from_folder_description: True
+      

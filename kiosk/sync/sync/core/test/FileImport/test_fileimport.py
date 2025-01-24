@@ -273,6 +273,41 @@ class TestFileImport(KioskPyTestHelper):
         assert "day" in rc and "month" in rc and "year" in rc
         assert rc["day"] == 5 and rc["month"] == 12 and rc["year"] == 2015
 
+    def test_std_folder_filter_categories_context(self):
+        """
+              get_date_from_folder: False,
+              get_identifier_from_folder: True,
+              get_categories_from_folder_description: True,
+        """
+        std_folder_filter = stdfilters.FileImportStandardFolderFilter(SyncConfig.get_config())
+        std_folder_filter.activate()
+
+        # these files do not exist, but that does not matter for FileImportStandardFolderFilter
+        std_folder_filter.set_filter_configuration_values({"get_date_from_folder": False,
+                                                           "get_identifier_from_folder": False,
+                                                           "get_categories_from_folder_description": True,
+                                                           })
+
+        std_folder_filter.set_path_and_filename(os.path.join("/", "import", "that was on 01.10.2018", "testfile.jpg"))
+        rc = std_folder_filter.get_file_information({})
+        assert std_folder_filter.is_active()
+
+        rc["categories"].sort()
+        expected = ["import", "that was on 01.10.2018"]
+        expected.sort()
+        assert rc["categories"] == expected
+
+        std_folder_filter.set_base_path(os.path.join("/", "import"))
+        rc = std_folder_filter.get_file_information({})
+        rc["categories"].sort()
+        expected = ["that was on 01.10.2018"]
+        expected.sort()
+        assert rc["categories"] == expected
+
+        std_folder_filter.set_base_path(os.path.join("/", "import", "that was on 01.10.2018"))
+        rc = std_folder_filter.get_file_information({})
+        assert "categories" not in rc
+
     def test_std_file_filter_identifier(self):
         """
               get_date_from_folder: False,
@@ -417,6 +452,40 @@ class TestFileImport(KioskPyTestHelper):
             "modified_by": "lkh",
             "ts_file": ts_import_file,
             "tags": [],
+            'tz_index': None
+        }
+        mock_add_file_to_repository.assert_called_once_with(**test_values)
+
+    @mock.patch.object(FileImport, "_add_file_to_repository")
+    def test_import_single_file_to_repository_with_categories(self, mock_add_file_to_repository, std_configure_filters):
+        mock_add_file_to_repository.return_value = True
+
+        file_import = std_configure_filters
+        file_import.modified_by = "lkh"
+
+        std_filter = file_import.get_file_import_filter("FileImportStandardFolderFilter")
+        std_filter.activate()
+        std_filter.set_filter_configuration_values({"get_date_from_folder": False})
+        std_filter.set_filter_configuration_values({"get_identifier_from_folder": False})
+        std_filter.set_filter_configuration_values({"get_categories_from_folder_description": True})
+        std_filter.set_base_path(os.path.join(test_path, "test_files", "build_context",
+                                                                        "EC"))
+        assert std_filter
+
+        # Folder and File contexts match, File is a collected material
+        import_file = os.path.join(test_path, "test_files", "build_context", "EC", "2018", "EC-001", "EC-001-1.jpg")
+        ts_import_file = kioskstdlib.get_earliest_date_from_file(import_file).replace(microsecond=0)
+        assert file_import._import_single_file_to_repository(import_file)
+
+        test_values = {
+            'accept_duplicates': False,
+            "path_and_filename": os.path.join(test_path, "test_files", "build_context", "EC", "2018", "EC-001",
+                                              "EC-001-1.jpg"),
+            "description": "",
+            "identifier": "EC-001-1",
+            "modified_by": "lkh",
+            "ts_file": ts_import_file,
+            "tags": ["2018", "EC-001"],
             'tz_index': None
         }
         mock_add_file_to_repository.assert_called_once_with(**test_values)
