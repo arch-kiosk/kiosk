@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg viewBox="0 0 1028 1095" width="100%" height="100%" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink"
+     xmlns="http://www.w3.org/2000/svg">
+    <defs/>
+    <rect x="0" y="0" width="1028" height="1095" fill="#FFFFFF" fill-opacity="1"/>
+    <rect x="90" y="80" width="1020" height="1060" fill="#FFFFFF" fill-opacity="1"
+          transform="matrix(1 0 0 1 -86 -77.91516)"/>
+    <rect x="90" y="80" width="1020" height="1060" fill="none" stroke="#000000" stroke-width="8" stroke-linecap="butt"
+          stroke-linejoin="miter" stroke-dasharray="none" transform="matrix(1 0 0 1 -86 -77.91516)"/>
+    <path d="M1110 80 L850 80 L850 860 L1110 920 Z " fill="#7E2598" fill-opacity="1" opacity="0.29"
+          transform="matrix(1 0 0 1 -86 -77.91516)"/>
+    <path d="M1110 80 L850 80 L850 860 L1110 920 Z " fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt"
+          stroke-linejoin="miter" stroke-dasharray="none" opacity="0.29" transform="matrix(1 0 0 1 -86 -77.91516)"/>
+    <rect x="90" y="80" width="760" height="350" fill="#005ACE" fill-opacity="1" opacity="0.25"
+          transform="matrix(1 0 0 1 -86 -77.91516)"/>
+    <rect x="90" y="80" width="760" height="350" fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt"
+          stroke-linejoin="miter" stroke-dasharray="none" opacity="0.25" transform="matrix(1 0 0 1 -86 -77.91516)"/>
+    <path d="M90 1140 L90 890 L380 970 L310 1140 Z " fill="#7C4914" fill-opacity="1" opacity="0.5"
+          transform="matrix(1 0 0 1 -86 -77.91516)"/>
+    <path d="M90 1140 L90 890 L380 970 L310 1140 Z " fill="none" stroke="#000000" stroke-width="1" stroke-linecap="butt"
+          stroke-linejoin="miter" stroke-dasharray="none" opacity="0.5" transform="matrix(1 0 0 1 -86 -77.91516)"/>
+    <path d="M420 1140 L470 970 L720 970 L670 1140 Z " fill="#7C4914" fill-opacity="1" opacity="0.5"
+          transform="matrix(1 0 0 1 -86 -77.91516)"/>
+    <path d="M420 1140 L470 970 L720 970 L670 1140 Z " fill="none" stroke="#000000" stroke-width="1"
+          stroke-linecap="butt" stroke-linejoin="miter" stroke-dasharray="none" opacity="0.5"
+          transform="matrix(1 0 0 1 -86 -77.91516)"/>
+    <path d="M850 860 L1110 920 L1110 1140 L850 1140 Z " fill="#6039E2" fill-opacity="1" opacity="0.8"
+          transform="matrix(1 0 0 1 -86 -77.91516)"/>
+    <path d="M850 860 L1110 920 L1110 1140 L850 1140 Z " fill="none" stroke="#000000" stroke-width="1"
+          stroke-linecap="butt" stroke-linejoin="miter" stroke-dasharray="none" opacity="0.8"
+          transform="matrix(1 0 0 1 -86 -77.91516)"/>
+    <rect x="90" y="430" width="760" height="540" fill="none" stroke="#000000" stroke-width="5" stroke-linecap="butt"
+          stroke-linejoin="miter" stroke-dasharray="40,20" transform="matrix(1 0 0 1 -86 -77.91516)"/>
+    <path d="M720 970 L760 830 L850 860" fill="none" stroke="#000000" stroke-width="3" stroke-linecap="butt"
+          stroke-linejoin="miter" stroke-dasharray="12,12" transform="matrix(1 0 0 1 -86 -77.91516)"/>
+    <path d="M310 1140 L380 970 L470 970 L420 1140 Z " fill="#F6EA4E" fill-opacity="1" opacity="0.42"
+          transform="matrix(1 0 0 1 -86 -77.91516)"/>
+    <text x="350.6389" y="1049.484" font-size="31" fill="#000000" fill-opacity="1" font-family="Arial"
+          font-weight="normal" font-style="normal"
+          transform="matrix(0.3255682 -0.9455186 0.9455186 0.3255682 -825.2213 1005.735)">A-040
+    </text>
+    <text x="330.8401" y="1085.484" font-size="31" fill="#000000" fill-opacity="1" font-family="Arial"
+          font-weight="normal" font-style="normal"
+          transform="matrix(0.3255682 -0.9455186 0.9455186 0.3255682 -825.2213 1005.735)">Doorway
+    </text>
+    <text x="161.9731" y="1040.242" font-size="30" fill="#000000" fill-opacity="1" font-family="Arial"
+          font-weight="normal" font-style="normal" transform="matrix(1 0 0 1 -86 -77.91516)">A-025
+    </text>
+    <text x="173.3916" y="1074.242" font-size="30" fill="#000000" fill-opacity="1" font-family="Arial"
+          font-weight="normal" font-style="normal" transform="matrix(1 0 0 1 -86 -77.91516)">Wall
+    </text>
+    <text x="511.9731" y="1040.242" font-size="30" fill="#000000" fill-opacity="1" font-family="Arial"
+          font-weight="normal" font-style="normal" transform="matrix(1 0 0 1 -86 -77.91516)">A-026
+    </text>
+    <text x="523.3916" y="1074.242" font-size="30" fill="#000000" fill-opacity="1" font-family="Arial"
+          font-weight="normal" font-style="normal" transform="matrix(1 0 0 1 -86 -77.91516)">Wall
+    </text>
+    <text x="461.9731" y="307.2422" font-size="30" fill="#000000" fill-opacity="1" font-family="Arial"
+          font-weight="normal" font-style="normal" transform="matrix(1 0 0 1 -86 -77.91516)">A-037
+    </text>
+    <text x="911.9731" y="457.2422" font-size="30" fill="#000000" fill-opacity="1" font-family="Arial"
+          font-weight="normal" font-style="normal" transform="matrix(1 0 0 1 -86 -77.91516)">A-038
+    </text>
+    <text x="911.9731" y="1007.242" font-size="30" fill="#000000" fill-opacity="1" font-family="Arial"
+          font-weight="normal" font-style="normal" transform="matrix(1 0 0 1 -86 -77.91516)">A-041
+    </text>
+    <text x="230.2666" y="690.2422" font-size="30" fill="#000000" fill-opacity="1" font-family="Arial"
+          font-weight="normal" font-style="normal" transform="matrix(1 0 0 1 -86 -77.91516)">2022-2023 
+    </text>
+    <text x="255.8721" y="724.2422" font-size="30" fill="#000000" fill-opacity="1" font-family="Arial"
+          font-weight="normal" font-style="normal" transform="matrix(1 0 0 1 -86 -77.91516)">Trench
+    </text>
+</svg>

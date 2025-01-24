@@ -83,7 +83,7 @@ class KioskSVG:
 
     def save(self, path_and_filename: str):
         if self.src_svg:
-            with open(path_and_filename, "w") as dst_file:
+            with open(path_and_filename, "w", encoding='utf8') as dst_file:
                 self.src_svg.writexml(dst_file)
             return True
         return False

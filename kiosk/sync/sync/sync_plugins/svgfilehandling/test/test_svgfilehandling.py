@@ -239,3 +239,27 @@ class TestSvgFileHandling(KioskPyTestHelper):
         assert svg.width == "64px"
         assert svg.height == "64px"
         svg.close()
+
+    def test_convert_to_troublesome_svg(self, sync: Synchronization, shared_datadir):
+
+        cfg = SyncConfig.get_config()
+
+        f_class = sync.type_repository.get_type(TYPE_PHYSICALFILEHANDLER, "KioskPhysicalSvgFile")
+        assert f_class
+
+        src_file = os.path.join(shared_datadir, "406521555-cc860253-169d-4e7a-93a0-c8b7c83288ba.svg")
+        dst_file = os.path.join(shared_datadir, "406521555-cc860253-169d-4e7a-93a0-c8b7c83288ba_scaled.svg")
+        representation = KioskRepresentationType("scaledsvg")
+        representation.format_request = {"SVG": "SVG"}
+        representation.dimensions = KioskRepresentationTypeDimensions(64, 64)
+
+        file: KioskPhysicalImageFile = f_class(src_file)
+        assert not os.path.exists(dst_file)
+        assert file.convert_to(representation, "406521555-cc860253-169d-4e7a-93a0-c8b7c83288ba_scaled", shared_datadir)
+        assert os.path.exists(dst_file)
+
+        svg = KioskSVG()
+        svg.open(dst_file)
+        assert svg.width == "64px"
+        assert svg.height == "64px"
+        svg.close()
