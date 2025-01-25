@@ -91,8 +91,13 @@ export interface ApiKioskViewData {
     [key: string]: ApiKioskViewTable
 }
 
+export interface ApiKioskViewImageRecord {
+    description: string
+    attributes: AnyDict
+}
+
 export interface ApiKioskViewImages {
-    [key: string]: string
+    [key: string]: ApiKioskViewImageRecord
 }
 
 export interface ApiKioskViewDSD {

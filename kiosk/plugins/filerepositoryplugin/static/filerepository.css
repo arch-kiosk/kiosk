@@ -625,6 +625,17 @@ kiosk-tz-combo-box.kiosk-dialog-textfield {
   padding-left: 0;
 }
 
+.broken-image {
+  place-items: center;
+  z-index: 1000;
+  position: fixed;
+  top: calc(50% - 100px);
+  left: calc(50% - 100px);
+  width: 100px;
+  height: 100px;
+  display: none;
+}
+
 #fr-wrapper {
   width: 100%;
   background-color: var(--col-bg-body);
@@ -978,17 +989,6 @@ kiosk-tz-combo-box.kiosk-dialog-textfield {
 }
 .operations-element.disabled {
   opacity: 0.3;
-}
-
-#broken-image {
-  place-items: center;
-  z-index: 1000;
-  position: fixed;
-  top: calc(50% - 100px);
-  left: calc(50% - 100px);
-  width: 100px;
-  height: 100px;
-  display: none;
 }
 
 .col-bg-body-lighter {

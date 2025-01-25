@@ -64,9 +64,23 @@ export class VariableParser {
 
     substitute(keep_undefined_variables = false) {
         let result = this._text
+        // This does not feel right. Normally result is a string. But not anymore. It can be an object now.
         this._variables.forEach((variable, key) => {
-            if (variable.value || !keep_undefined_variables) {
-                result = result.replaceAll(`#(${key})`, variable.value || "")
+            if (typeof result === "object")
+                return;
+
+            if (typeof variable.value === "object") {
+                if (result.indexOf(`#(${key})`) > -1) {
+                    result = variable.value;
+                }
+            } else {
+                if (variable.value || !keep_undefined_variables) {
+                    try {
+                        result = result.replaceAll(`#(${key})`, variable.value || "");
+                    } catch(e) {
+                        console.error(e)
+                    }
+                }
             }
         })
         return result

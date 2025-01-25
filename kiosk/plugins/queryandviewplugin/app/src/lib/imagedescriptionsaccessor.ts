@@ -1,12 +1,12 @@
 import { DataContextAccessor } from "./datacontextaccessor";
-import { Constant } from "./apitypes";
+import { ApiKioskViewImageRecord } from "./apitypes";
 import { DataContext } from "./datacontext";
 
 export class ImageDescriptionAccessor extends DataContextAccessor {
-    private descriptions: {[key: string]: string}
+    private descriptions: {[key: string]: ApiKioskViewImageRecord}
 
 
-    public constructor(id: string, dataContext: DataContext, descriptions: {[key: string]: string}=undefined) {
+    public constructor(id: string, dataContext: DataContext, descriptions: {[key: string]: ApiKioskViewImageRecord}=undefined) {
         super(id, dataContext);
         this.rootKey = '/$/images/descriptions'
         this.assignEntries(descriptions)
@@ -19,16 +19,16 @@ export class ImageDescriptionAccessor extends DataContextAccessor {
      * would be accessible as "/$/images/descriptions/uuid"
      * @param descriptions an array of Constant instances.
      */
-    public assignEntries(descriptions: {[key: string]: string}) {
+    public assignEntries(descriptions: {[key: string]: ApiKioskViewImageRecord}) {
         this.descriptions = descriptions
     }
 
-    get(path: string, key: string, getMode: number = 0): any {
+    get(_path: string, key: string, _getMode: number = 0): any {
         // debugger;
         // path = path.substring(this.rootKey.length)
         // let entry = undefined
 
-        let entry = this.descriptions[key]
+        const entry = this.descriptions[key]
 
         if (entry) {
             return entry

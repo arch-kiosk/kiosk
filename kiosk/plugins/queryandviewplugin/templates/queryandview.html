@@ -1,5 +1,23 @@
 {% extends "kioskdynamicapploader.html" %}
+
+{% block links %}
+    {{ super() }}
+    <link rel=stylesheet type=text/css
+          href="{{ url_for('queryandview.static', filename='queryandview.css') }}?v=1" />
+{% endblock %}
+
 {% block title %}
     <div id="subtitle-shadow">Kiosk</div>
     <div id="subtitle">Query & View</div>
+{% endblock %}
+
+{% block body %}
+    <script src="{{ url_for('filerepository.static', filename='scripts/fileviewercontroller.js') }}"></script>
+    {{ super() }}
+{% endblock %}
+
+{% block TEST_REQUIREMENTS %}
+    function checkRequirements() {
+        return _defaultRequirements() && typeof FileViewerController !== 'undefined'
+    }
 {% endblock %}

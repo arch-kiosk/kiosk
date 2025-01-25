@@ -173,10 +173,16 @@ class KioskViewDocument:
             logging.error(f"{self.__class__.__name__}._get_dsd_definitions: {repr(e)}")
             raise e
 
-    def _get_image_description(self, uid):
-        return self._file_description.get_description_summary(uid)
+    def _get_image_attributes(self, uid):
+        image_attributes = KioskSQLDb.get_field_value("images","uid",uid,"image_attributes")
+        return image_attributes
 
-    def _get_image_descriptions(self, data: dict[str, list[list[any]]]) -> dict:
+    def _get_file_info(self, uid):
+        file_info = {"description": self._file_description.get_description_summary(uid),
+                     "attributes": self._get_image_attributes(uid)}
+        return file_info
+
+    def _get_file_infos(self, data: dict[str, list[list[any]]]) -> dict:
         c_error = 0
         try:
             result = {}
@@ -190,7 +196,7 @@ class KioskViewDocument:
                         for r in records[1:]:
                             uid_file = r[file_field_idx]
                             if uid_file:
-                                result[uid_file] = self._get_image_description(uid_file)
+                                result[uid_file] = self._get_file_info(uid_file)
                     except BaseException as e:
                         c_error += 1
                         if c_error > 10:
@@ -216,7 +222,7 @@ class KioskViewDocument:
             self._doc["kioskview.data"] = self._get_data(target_record_types)
             self._doc["kioskview.lookup_data"] = self._get_lookup_data(target_record_types)
             self._doc["kioskview.dsd"] = self._get_dsd_definitions(self._doc["kioskview.data"].keys())
-            self._doc["kioskview.images"] = self._get_image_descriptions(self._doc["kioskview.data"])
+            self._doc["kioskview.images"] = self._get_file_infos(self._doc["kioskview.data"])
             return self._doc
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.compile: {repr(e)}")

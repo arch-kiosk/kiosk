@@ -101,7 +101,8 @@ export class KioskQuerySelector extends KioskAppComponent {
         }
         this.kioskQueries.sort(function (a: ApiResultKioskQueryDescription, b: ApiResultKioskQueryDescription) {
             let rc = 0
-            rc = (a.hasOwnProperty("category") && b.hasOwnProperty("category")) ? (a.category??"").localeCompare(b.category??"") : 0;
+            rc = (Object.prototype.hasOwnProperty.call(a, "category") &&
+                Object.prototype.hasOwnProperty.call(b, "category")) ? (a.category??"").localeCompare(b.category??"") : 0;
             if (!rc) {
                 rc = (a.order_priority??"").localeCompare(b.order_priority??"");
                 if (!rc) {

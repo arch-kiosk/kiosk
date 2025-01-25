@@ -1113,7 +1113,7 @@ function fetchIdentifiers() {
         });
 }
 
-function initFileViewer(apiContext) {
+function frInitFileViewer(apiContext) {
     let lb = document.getElementsByTagName("kiosk-lightbox")[0];
     document.fileViewerController = new FileViewerController(apiContext, lb, true)
     console.log("FileViewerController initialized")

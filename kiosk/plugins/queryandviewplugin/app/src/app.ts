@@ -8,7 +8,6 @@ import "./kioskqueryselector";
 import "./selectidentifierpopup.ts";
 import { setBasePath } from "@shoelace-style/shoelace/dist/utilities/base-path.js";
 
-
 setBasePath("/sl_assets");
 
 // import local_css from "/src/static/logviewerapp.sass?inline";

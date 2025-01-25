@@ -36,6 +36,7 @@
                     100% {
                         background-position: -200% 0%;
                     }
+                }
 
     </style>
 {% endblock %}
@@ -75,8 +76,18 @@
             )
         }
 
+
         function tryInsertScript() {
-            if (window.jQuery && typeof $.magnificPopup != 'undefined' && typeof kioskAjaxGetPartial != 'undefined') {
+            function _defaultRequirements() {
+                return window.jQuery && typeof $.magnificPopup != 'undefined' && typeof kioskAjaxGetPartial != 'undefined'
+            }
+
+            {% block TEST_REQUIREMENTS %}
+                function checkRequirements() {
+                    return _defaultRequirements()
+                }
+            {% endblock %}
+            if (checkRequirements()) {
                 console.log("initializing app html ...")
                 document.querySelector("#content-wrapper").insertAdjacentHTML("afterbegin", '<div id="kiosk-dynamic-app-container"></div>');
                 loadAppHtml()

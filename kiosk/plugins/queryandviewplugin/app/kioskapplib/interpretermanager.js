@@ -57,11 +57,13 @@ export class InterpreterManager {
                     expr = this.interpreters.get(symbol).interpret(toInterpret, quantifier)
                 }
         }
-        if (substCRLF !== "\r") {
-            expr = expr.replaceAll("\n", "").replace("\r", substCRLF)
-        }
-        if (substUnderscore !== "") {
-            expr = expr.replaceAll("_", substUnderscore)
+        if (typeof expr === "string") {
+            if (substCRLF !== "\r") {
+                expr = expr.replaceAll("\n", "").replace("\r", substCRLF);
+            }
+            if (substUnderscore !== "") {
+                expr = expr.replaceAll("_", substUnderscore);
+            }
         }
         return expr
     }
