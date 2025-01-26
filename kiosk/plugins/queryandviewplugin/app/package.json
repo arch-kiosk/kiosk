@@ -39,7 +39,7 @@
     "nanoid": "^5.0.7",
     "npm": "^10.9.0",
     "kiosktsapplib": "file:../../../../../../kiosktsapplib",
-    "ui-component": "file:../../../../../../lab/uiwebcomponent/npm/uicomponent-0.6.5.tgz",
+    "ui-component": "file:../../../../../../lab/uiwebcomponent/npm/uicomponent-0.6.6.tgz",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
