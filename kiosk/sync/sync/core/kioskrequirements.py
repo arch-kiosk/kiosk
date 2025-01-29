@@ -78,6 +78,7 @@ class KioskRequirements:
 
     @classmethod
     def pip_freeze(self, requirements_txt_tmp: str):
+        # cmd = f"pip list --format=\"freeze\""
         cmd = f"pip freeze"
 
         if os.path.isfile(requirements_txt_tmp):
@@ -127,6 +128,7 @@ class KioskRequirements:
                     parts = line.split("@")
                     parts[0] = parts[0].strip()
                     parts[1] = parts[1].strip()
+                    parts[1] = parts[1].split("#")[0] # eliminates the hash if there is one
                 else:
                     sep = ""
                     for _ in ["==", ">=", "<="]:
