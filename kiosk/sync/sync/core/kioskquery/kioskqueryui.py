@@ -5,12 +5,45 @@ from kioskquery.kioskquerylib import KioskQueryException
 from kioskquery.kioskqueryvariables import KioskQueryVariables
 from uic.uicfinder import UICFinder
 from uic.uictree import UICTree
+from simplefunctionparser import SimpleFunctionParser
+from kioskglossary import KioskGlossary
+from sync_config import SyncConfig
+from dsd.dsd3singleton import Dsd3Singleton
 
 
 class KioskQueryUI:
     def __init__(self, variables: KioskQueryVariables, uic_tree: UICTree):
         self._uic_tree = uic_tree
         self._variables = variables
+        self._glossary = KioskGlossary(SyncConfig.get_config())
+
+    @staticmethod
+    def get_record_type_from_dsd(dsd_instruction: str):
+        parser = SimpleFunctionParser()
+        parser.parse(dsd_instruction)
+        # noinspection PyBroadException
+        try:
+            return parser.parameters[0]
+        except BaseException:
+            return ""
+
+    def get_label_from_instruction(self, label_instruction):
+        parser = SimpleFunctionParser()
+        parser.parse(label_instruction)
+        try:
+            return self._glossary.get_term(parser.parameters[0], 1, auto_plural=False)
+        except:
+            return None
+
+    def get_label_from_dsd(self, dsd_instruction: str):
+        parser = SimpleFunctionParser()
+        parser.parse(dsd_instruction)
+        # noinspection PyBroadException
+        try:
+            return Dsd3Singleton.get_dsd3().get_field_label(parser.parameters[0], parser.parameters[1],
+                                                            glossary=self._glossary)
+        except BaseException:
+            return ""
 
     def _render_input_request(self, uic_literals: list[str]):
         """
@@ -60,3 +93,4 @@ class KioskQueryUI:
 
     def process_input(self, input_data):
         raise NotImplementedError
+
