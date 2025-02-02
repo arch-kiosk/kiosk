@@ -175,19 +175,38 @@ class KioskLogicalFile:
             if commit:
                 KioskSQLDb.commit()
 
+    def get_file_attributes_from_physical_file(self) -> dict:
+        """
+        fetches the meta information always from the source file and updates the file record with it.
+        (it does not commit those changes!)
+
+        :return: the file attributes (a dict) or an empty dict if they could not be created.
+        """
+        file_record: KioskFilesModel = self._record_exists()
+        if file_record:
+            if self._force_get_file_attributes():
+                logging.debug(f"{self.__class__.__name__}.get_file_attributes: "
+                              f"created file attributes for {self._uid}")
+
+            if file_record.image_attributes:
+                return file_record.image_attributes
+        return {}
+
     def get_file_attributes(self, force_it=False) -> dict:
         """
             returns the meta information known about the source file. If no meta information is
             available in the database force_it would try to acquire it from the physical file itself.
 
-        :param force_it: optional, default False. If set meta information is retrieved
-                        from the physical file.
+        :param force_it: optional, default False. If there are no file attributes and this is set meta information is retrieved
+                        from the physical file. Otherwise, this would return an empty dict.
+                        If there are file attributes to begin with force_it is not fetching them anyways.
+                        Use get_file_attributes_from_physical_file for that.
         :return: dict.
         """
 
         file_record: KioskFilesModel = self._record_exists()
         if file_record:
-            if not file_record.image_attributes or force_it:
+            if not file_record.image_attributes and force_it:
                 if self._force_get_file_attributes():
                     logging.debug(f"{self.__class__.__name__}.get_file_attributes: "
                                   f"created file attributes for {self._uid}")
