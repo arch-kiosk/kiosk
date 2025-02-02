@@ -112,7 +112,7 @@ if "mcpcore.mcpworker" not in sys.modules:
                               endpoint="kioskfilepickingrules.index_view",
                               menu_cfg=plugin.get_menu_config(),
                               is_active=lambda:
-                                  current_user.fulfills_requirement(ENTER_ADMINISTRATION_PRIVILEGE)
+                                  current_user.fulfills_requirement(MANAGE_SERVER_PRIVILEGE)
                                       if hasattr(current_user, "fulfills_requirement") else False,
                               parent_menu='administration'
                               ),
@@ -121,7 +121,7 @@ if "mcpcore.mcpworker" not in sys.modules:
                               endpoint="kioskqcrules.index_view",
                               menu_cfg=plugin.get_menu_config(),
                               is_active=lambda:
-                                  current_user.fulfills_requirement(ENTER_ADMINISTRATION_PRIVILEGE)
+                                  current_user.fulfills_requirement(MANAGE_SERVER_PRIVILEGE)
                                       if hasattr(current_user, "fulfills_requirement") else False,
                               parent_menu='administration'
                               ),
@@ -130,7 +130,7 @@ if "mcpcore.mcpworker" not in sys.modules:
                               endpoint="kioskqueries.index_view",
                               menu_cfg=plugin.get_menu_config(),
                               is_active=lambda:
-                                  current_user.fulfills_requirement(ENTER_ADMINISTRATION_PRIVILEGE)
+                                  current_user.fulfills_requirement(MANAGE_SERVER_PRIVILEGE)
                                       if hasattr(current_user, "fulfills_requirement") else False,
                               parent_menu='administration'
                               ),

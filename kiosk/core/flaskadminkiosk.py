@@ -52,13 +52,16 @@ class KioskModelView(ModelView):
     edit_template = "admin/edit.html"
 
     def is_accessible(self):
-        return current_user.is_authenticated and current_user.fulfills_requirement(MANAGE_USERS)
+        return current_user.is_authenticated and current_user.fulfills_requirement(MANAGE_SERVER_PRIVILEGE)
 
     def inaccessible_callback(self, name, **kwargs):
         return redirect(url_for('login_controller.login', next=request.url))
 
 
 class UserModelView(KioskModelView):
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.fulfills_requirement(MANAGE_USERS)
+
     form_overrides = {
         'pwd_hash': EmptyStringField,
         'repl_user_id': UpperCaseField
@@ -97,6 +100,9 @@ class UserModelView(KioskModelView):
 
 
 class PrivilegeModelView(KioskModelView):
+    def is_accessible(self):
+        return current_user.is_authenticated and current_user.fulfills_requirement(MANAGE_USERS)
+
     form_overrides = {
         'privilege': SelectField
     }

@@ -180,6 +180,9 @@ class KioskLogicalFile:
         fetches the meta information always from the source file and updates the file record with it.
         (it does not commit those changes!)
 
+        This will be slow, so use get_file_attributes whenever you can rely on previously ascertained information.
+
+
         :return: the file attributes (a dict) or an empty dict if they could not be created.
         """
         file_record: KioskFilesModel = self._record_exists()
