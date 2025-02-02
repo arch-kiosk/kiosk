@@ -1,0 +1,42 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+variables:
+  to_date: [datatype(date), label("before")]
+  from_date: [datatype(date), label("after")]
+queries:
+  'unit_changed_in_timespan':
+    name: '#:list all #(/$/glossary/unit:2) dug within a time span'
+    description: '#:Lists all #(/$/glossary/unit:2) that had anything archaeological happening within a time span '
+    type: 'SQL'
+    output_type: 'list'
+    query: "
+      select distinct unit_id
+      from (select distinct unit.arch_context       unit_id,
+                            unit.unit_creation_date ts
+            from {{unit}} unit
+            union
+            select unit.arch_context unit_id,
+                   l.date_defined    ts
+            from {{unit}} unit
+                     inner join {{locus}} l on unit.uid = l.uid_unit
+            union
+            select unit.arch_context unit_id,
+                   l.date_closed     ts
+            from {{unit}} unit
+                     inner join {{locus}} l on unit.uid = l.uid_unit
+            union
+            select unit.arch_context unit_id,
+                   cm.date           ts
+            from {{unit}} unit
+                     inner join {{locus}} l on unit.uid = l.uid_unit
+                     inner join {{collected_material}} cm on l.uid = cm.uid_locus) unit_dates
+      where unit_dates.ts is not null
+        and unit_dates.ts::date > {{#from_date}}::date
+        and unit_dates.ts::date < {{#to_date}}::date
+      group by unit_id
+      order by unit_id
+      "
+    column_information:
+      unit_id: DSD('unit','arch_context')

@@ -352,6 +352,7 @@ export class StructuredKioskQuery extends KioskAppComponent {
                         "name": "layout",
                         "layout_settings": {
                             "orchestration_strategy": "stack",
+                            "order": ["...", "line", "buttons"]
                         },
                         "ui_elements": {
                             "line": {
