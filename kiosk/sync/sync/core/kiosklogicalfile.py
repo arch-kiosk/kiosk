@@ -187,7 +187,7 @@ class KioskLogicalFile:
 
         file_record: KioskFilesModel = self._record_exists()
         if file_record:
-            if not file_record.image_attributes and force_it:
+            if not file_record.image_attributes or force_it:
                 if self._force_get_file_attributes():
                     logging.debug(f"{self.__class__.__name__}.get_file_attributes: "
                                   f"created file attributes for {self._uid}")
