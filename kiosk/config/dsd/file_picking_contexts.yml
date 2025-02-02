@@ -1,0 +1,66 @@
+config:
+  format_version: 3
+  contexts:
+    site_images:
+      type: file_picking
+      scope:
+        site: browse()
+    unit_images:
+      type: file_picking
+      scope:
+        unit:
+          locus:
+            locus_photo: {}
+            collected_material:
+              collected_material_photo: {}
+            locus_relations: {}
+          dayplan: {}
+    locus_images:
+      type: file_picking
+      scope:
+        locus:
+          locus_photo: {}
+          collected_material:
+            collected_material_photo: {}
+          locus_relations: {}
+    locus_relations_reverse:
+      type: file_picking
+      scope:
+        locus:
+          locus_relations:
+            join: inner("uid", "uid_locus_2_related")
+
+    locus_tags_images:
+      type: file_picking
+      scope:
+        tags:
+          tagging:
+            join: inner("tag", "tag")
+            relates_to:
+              locus:
+                join: inner("source_uid", "uid")
+                relates_to:
+                  locus_photo: {}
+                  collected_material:
+                    collected_material_photo: {}
+                  locus_relations: {}
+
+    locus_tags_relations_reverse:
+      type: file_picking
+      scope:
+        tags:
+          tagging:
+            join: inner("tag", "tag")
+            relates_to:
+              locus:
+                join: inner("source_uid", "uid")
+                relates_to:
+                  locus_relations:
+                    join: inner("uid", "uid_locus_2_related")
+    coordinate_images:
+      type: file_picking
+      scope:
+        coordinates:
+          coordinate_photo: {}
+          coordinate_categories:
+            join: inner("category", "category")

@@ -1,0 +1,7 @@
+config:
+  format_version: 3
+  contexts:
+    all_images:
+      type: site_identifier
+      scope:
+        site: browse()

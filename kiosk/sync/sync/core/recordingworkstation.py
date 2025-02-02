@@ -571,8 +571,7 @@ class RecordingWorkstation(Dock):
                     KioskSQLDb.get_field_value_from_sql("c", f"select count(*) c from {ws_files_table}"), 0)
 
             master_dsd = Dsd3Singleton.get_dsd3()
-            fid = FileIdentifierCache(master_dsd)
-            file_picking_rules = self._fork_get_file_picking(file_repos, fid, master_dsd)
+            file_picking_rules = self._fork_get_file_picking(file_repos, master_dsd)
             #  We want to prepare only those files that are referenced by a record that has been
             #  actually exported to the device. files_table is querying the workstation-specific files table
             #  and not the master database's.
@@ -607,12 +606,22 @@ class RecordingWorkstation(Dock):
             ok = False
         return ok
 
-    def _fork_get_file_picking(self, file_repos:FileRepository, fid: FileIdentifierCache, master_dsd) -> KioskFilePicking:
+    def _fork_get_file_picking(self, file_repos: FileRepository, master_dsd) -> KioskFilePicking:
         """
         Initializes the file picking for fork and returns it.
         :param file_repos: a file repository instance
+        :param master_dsd: the dsd to use
         :return: a KioskFilePicking instance
         """
+        if master_dsd.get_context_names("file_picking"):
+            logging.debug(f"{self.__class__.__name__}._fork_get_file_picking: "
+                          f"Using new file_picking file identifier cache")
+            fid = FileIdentifierCache(master_dsd, context_type="file_picking")
+        else:
+            fid = FileIdentifierCache(master_dsd)
+        if not fid.build_file_identifier_cache_from_contexts():
+            raise Exception(f"{self.__class__.__name__}._fork_get_file_picking: Rebuilding the"
+                            f" file identifier cache failed. File picking can't run.")
         file_picking_rules = KioskFilePicking(self.get_workstation_type(), fid, master_dsd, self.recording_group)
         file_picking_rules.on_get_files_with_tags = file_repos.get_files_with_tags
         file_picking_rules.on_get_files_by_date = file_repos.get_files_by_date

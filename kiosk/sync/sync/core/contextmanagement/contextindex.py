@@ -1,3 +1,5 @@
+import logging
+
 from .kioskcontext import KioskContext, KioskContextError
 from dsd.dsd3 import DataSetDefinition
 from .contextquery import ContextQuery
@@ -69,14 +71,19 @@ class ContextIndex:
         context.read_from_dsd()
         self._contexts.append(context)
 
-    def add_context_type(self, context_type: str):
+    def add_context_type(self, context_type: str) -> bool:
         """
         adds all context definitions of the given type to the index.
         :param context_type: a valid context type id.
         """
         contexts = self._dsd.get_context_names(context_type=context_type)
+        if not contexts:
+            logging.error(f"{self.__class__.__name__}.add_context_type: context type {context_type} "
+                          f"does not yield any context definitions.")
+            return False
         for context_id in contexts:
             self.add_dsd_context_definition(context_id)
+        return True
 
     def select_all(self, field_or_instruction: str, field_from_record_type: str = "",
                    sql_source_class: SqlSource.__class__ = SqlSourceInMemory,

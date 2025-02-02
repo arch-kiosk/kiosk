@@ -1,9 +1,10 @@
 config:
   format_version: 3
-#  contexts: external("test_contexts.yml")
+
   imports:
     - test_contexts.yml
     - test_contexts_2.yml
+    - test_contexts_site.yml
 
 migration_catalog:
   meta:

@@ -1,4 +1,5 @@
 import logging
+from typing import Union
 
 import yaml
 
@@ -14,40 +15,37 @@ from databasedrivers import DatabaseDriver
 
 class FileIdentifierCache:
 
-    def __init__(self, dsd):
+    def __init__(self, dsd, context_type="file_search", cache_name=""):
+        self.context_type = context_type
+        if cache_name:
+            self.cache_name = cache_name
+        else:
+            self.cache_name = "file_identifier_cache" if context_type == "file_search" else context_type + "_cache"
         self.dsd = dsd
 
-    def build_file_identifier_cache_from_contexts(self, commit=False):
+    def build_file_identifier_cache_from_contexts(self, commit=False) -> bool:
         sql_source = self._get_sql_source()
-        sql_source.build_cache(commit=commit)
-        # if commit:
-        #     KioskSQLDb.commit()
-        logging.debug(f"{self.__class__.__name__}.migrate: file-identifier-cache successfully rebuilt. ")
+        if sql_source:
+            sql_source.build_cache(commit=commit)
+            # if commit:
+            #     KioskSQLDb.commit()
+            logging.debug(f"{self.__class__.__name__}.migrate: cache {self.cache_name} successfully rebuilt. ")
+            return True
+        return False
 
-    def _get_sql_source(self) -> SqlSourceCached:
+    def _get_sql_source(self) -> Union[SqlSourceCached, None]:
         """
         :return: SqlSourceCached
         """
-        fid = ContextIndex(self.dsd, name="file_identifier_cache")
-        fid.add_context_type("file_search")
-        register_formatters(dsd=self.dsd, context=fid)
-        # noinspection PyTypeChecker
-        return fid.select_all(field_or_instruction="uid_file()",
-                              sql_source_class=SqlSourceCached,
-                              additional_fields=[("describes_file()", "description", "", "dsd_type(varchar)")])
-
-        # try:
-        #     contexts = [KioskContext(cname, self.dsd) for cname in
-        #                 self.dsd.get_context_names(context_type="file_search")]
-        # except BaseException as e:
-        #     logging.error(
-        #         f"{self.__class__.__name__}._get_sql_source: error creating 'file_search' contexts: {repr(e)}")
-        #     raise e
-        # sql_source = SqlSourceCached(name="file_identifier_cache")
-        # for context in contexts:
-        #     context.read_from_dsd()
-        #     sql_source.add_source(context.select_all())
-        # return sql_source
+        fid = ContextIndex(self.dsd, name=self.cache_name)
+        if fid.add_context_type(self.context_type):
+            register_formatters(dsd=self.dsd, context=fid)
+            # noinspection PyTypeChecker
+            return fid.select_all(field_or_instruction="uid_file()",
+                                  sql_source_class=SqlSourceCached,
+                                  additional_fields=[("describes_file()", "description", "", "dsd_type(varchar)")])
+        else:
+            return None
 
     def get_contexts_for_file(self, file_uuid: str, primary_only=True):
         """
@@ -139,26 +137,27 @@ class FileIdentifierCache:
 
         return list(files)
 
-    @staticmethod
-    def get_cache_sql(fields=None, primary=False):
-        """
-        returns an sql statement that queries all uids and identifiers from the cache.
-        This is used to form a join between a cache and another table.
-        This does not make sure that the cache actually exists and is up to date.
-
-        :param fields: the fields to include.
-                        default is: "data": file's uid,
-                                    "identifier": the associated context identifier.
-        :param primary: if set only primary identifiers are queried
-        :return: str: an sql statement with the fields given.
-        """
-        if fields is None:
-            fields = ["data", "identifier"]
-        sql = "select distinct "
-        sql += ",".join([KioskSQLDb.sql_safe_ident(field) for field in fields])
-        sql += f" from {KioskSQLDb.sql_safe_namespaced_table(CONTEXT_CACHE_NAMESPACE, 'file_identifier_cache')}"
-        sql += f" where {KioskSQLDb.sql_safe_ident('identifier')} is not null"
-        if primary:
-            sql += f" and {KioskSQLDb.sql_safe_ident('primary')}"
-
-        return sql
+    # seems not in use anymore?
+    # @staticmethod
+    # def get_cache_sql(fields=None, primary=False):
+    #     """
+    #     returns an sql statement that queries all uids and identifiers from the cache.
+    #     This is used to form a join between a cache and another table.
+    #     This does not make sure that the cache actually exists and is up to date.
+    #
+    #     :param fields: the fields to include.
+    #                     default is: "data": file's uid,
+    #                                 "identifier": the associated context identifier.
+    #     :param primary: if set only primary identifiers are queried
+    #     :return: str: an sql statement with the fields given.
+    #     """
+    #     if fields is None:
+    #         fields = ["data", "identifier"]
+    #     sql = "select distinct "
+    #     sql += ",".join([KioskSQLDb.sql_safe_ident(field) for field in fields])
+    #     sql += f" from {KioskSQLDb.sql_safe_namespaced_table(CONTEXT_CACHE_NAMESPACE, self.cache_name)}"
+    #     sql += f" where {KioskSQLDb.sql_safe_ident('identifier')} is not null"
+    #     if primary:
+    #         sql += f" and {KioskSQLDb.sql_safe_ident('primary')}"
+    #
+    #     return sql

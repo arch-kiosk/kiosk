@@ -274,3 +274,36 @@ class TestFileIdentifierCache(KioskPyTestHelper):
         expected.sort()
         assert files == expected
 
+    def test_extra_context_get_files(self, cfg, dsd, urapdb_with_some_more_records):
+        fic = FileIdentifierCache(dsd, context_type="site_identifier")
+        assert fic.build_file_identifier_cache_from_contexts()
+        KioskSQLDb.commit()
+        assert KioskSQLDb.get_record_count("site_identifier_cache", "identifier",
+                                           namespace=CONTEXT_CACHE_NAMESPACE) == 13
+        files = fic.get_files_with_context()
+        files.sort()
+        expected = ['dd26f0ec-bc94-554f-93df-2a3fe91dbc38',
+                    '27002a9f-b2df-46fc-9150-56397ebc8870',
+                    '14ca0f7b-6f65-8f48-b2c3-d64a4b2f9700',
+                    '71b1f2b3-0e93-bf4d-b9a8-989700159beb',
+                    '0f44aa68-64a8-4312-a46a-99f87ec4ac21',
+                    'ca77c27f-bbca-434e-ba20-4f289a562173',
+                    '2e4ff3be-86c2-704c-8dec-8695a571ac59',
+                    '54a88243-ee06-46f3-90a1-8b7a648f99b8'
+                    ]
+        expected.sort()
+        assert files == expected
+
+        files = fic.get_files_with_context(context="FRT")
+        files.sort()
+        expected = ['dd26f0ec-bc94-554f-93df-2a3fe91dbc38',
+                    '27002a9f-b2df-46fc-9150-56397ebc8870',
+                    '14ca0f7b-6f65-8f48-b2c3-d64a4b2f9700',
+                    '71b1f2b3-0e93-bf4d-b9a8-989700159beb',
+                    '0f44aa68-64a8-4312-a46a-99f87ec4ac21',
+                    'ca77c27f-bbca-434e-ba20-4f289a562173',
+                    '2e4ff3be-86c2-704c-8dec-8695a571ac59',
+                    '54a88243-ee06-46f3-90a1-8b7a648f99b8'
+                    ]
+        expected.sort()
+        assert files == expected
