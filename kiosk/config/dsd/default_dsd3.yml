@@ -4,9 +4,9 @@ config:
     - dsd3_sync_subsystem.yml
     - dsd3_kiosk_tables.yml
     - contexts.yml
+    - file_picking_contexts.yml
     - fts_contexts.yml
     - default_migration_scripts.yml
-
 
 migration_catalog:
   meta:
