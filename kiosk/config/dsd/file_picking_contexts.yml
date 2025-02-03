@@ -1,11 +1,11 @@
 config:
   format_version: 3
   contexts:
-    site_images:
+    fp_site_images:
       type: file_picking
       scope:
         site: browse()
-    unit_images:
+    fp_unit_images:
       type: file_picking
       scope:
         unit:
@@ -15,7 +15,7 @@ config:
               collected_material_photo: {}
             locus_relations: {}
           dayplan: {}
-    locus_images:
+    fp_locus_images:
       type: file_picking
       scope:
         locus:
@@ -23,14 +23,14 @@ config:
           collected_material:
             collected_material_photo: {}
           locus_relations: {}
-    locus_relations_reverse:
+    fp_locus_relations_reverse:
       type: file_picking
       scope:
         locus:
           locus_relations:
             join: inner("uid", "uid_locus_2_related")
 
-    locus_tags_images:
+    fp_locus_tags_images:
       type: file_picking
       scope:
         tags:
@@ -45,7 +45,7 @@ config:
                     collected_material_photo: {}
                   locus_relations: {}
 
-    locus_tags_relations_reverse:
+    fp_locus_tags_relations_reverse:
       type: file_picking
       scope:
         tags:
@@ -57,7 +57,7 @@ config:
                 relates_to:
                   locus_relations:
                     join: inner("uid", "uid_locus_2_related")
-    coordinate_images:
+    fp_coordinate_images:
       type: file_picking
       scope:
         coordinates:
