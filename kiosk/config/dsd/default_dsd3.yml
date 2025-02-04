@@ -6,6 +6,7 @@ config:
     - contexts.yml
     - file_picking_contexts.yml
     - fts_contexts.yml
+    - site_index_context.yml
     - default_migration_scripts.yml
 
 migration_catalog:
