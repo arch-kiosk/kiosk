@@ -10,6 +10,7 @@ import kioskrepllib
 from eventmanager import EventManager
 from fts.ftsview import FTSView
 from fts.kioskfulltextsearch import FTS
+from syncbasictypesetup import register_basic_types
 from typerepository import TypeRepository
 
 import filerepository
@@ -58,6 +59,7 @@ class Synchronization(PluginLoader):
         self._rewired_files = 0
         self._table_rewire_files = ""
         self._ignored_files = 0  # this is just for testing purposes.
+        register_basic_types(self.type_repository)
         if self.autoload_plugins is not None:
             self.load_plugins(self.autoload_plugins)
         if options:
@@ -426,9 +428,10 @@ class Synchronization(PluginLoader):
                                                 "", commit=True)
 
             try:
-                fic = FileIdentifierCache(dsd_workstation_view.dsd)
-                fic.build_file_identifier_cache_from_contexts()
-                logging.info("rebuilding file-identifier-cache ok.")
+                # fic = FileIdentifierCache(dsd_workstation_view.dsd)
+                # fic.build_file_identifier_cache_from_contexts()
+                FileIdentifierCache.build_fic_indexes(self.type_repository, dsd_workstation_view.dsd)
+                logging.info("rebuilding file-identifier-caches ok.")
             except BaseException as e:
                 logging.error(
                     f"{self.__class__.__name__}.synchronization: "

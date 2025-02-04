@@ -9,19 +9,40 @@ from contextmanagement.contextquery import ContextQuery
 from contextmanagement.sqlsourcecached import SqlSourceCached, CONTEXT_CACHE_NAMESPACE
 from contextmanagement.sqlfieldformatters import register_formatters
 from contextmanagement.sqlsourceinmemory import SqlSourceInMemory
+from dsd.dsd3 import DataSetDefinition
 from kiosksqldb import KioskSQLDb
 from databasedrivers import DatabaseDriver
-
+from syncrepositorytypes import TYPE_FILE_IDENTIFIER_CACHE
+from typerepository import TypeRepository
 
 class FileIdentifierCache:
 
+    @classmethod
+    def register_fic_type(cls, type_repository: TypeRepository, context_type: str):
+        type_repository.register_type(TYPE_FILE_IDENTIFIER_CACHE, context_type, context_type)
+
+    @classmethod
+    def build_fic_indexes(cls, sync_type_repository: TypeRepository, dsd: DataSetDefinition) -> bool:
+        rc = True
+        fic_indexes = sync_type_repository.list_types(TYPE_FILE_IDENTIFIER_CACHE)
+        for fic_index in fic_indexes:
+            context_type = sync_type_repository.get_type(TYPE_FILE_IDENTIFIER_CACHE, fic_index)
+            logging.debug(f"{cls.__class__.__name__}.build_fic_type_indexes: building {context_type}")
+            fic = FileIdentifierCache(dsd, context_type=context_type)
+            if fic.build_file_identifier_cache_from_contexts():
+                logging.info(f"{cls.__class__.__name__}.build_fic_type_indexes: building {context_type} done")
+            else:
+                logging.info(f"{cls.__class__.__name__}.build_fic_type_indexes: building {context_type} failed.")
+                rc = False
+        return rc
+
     def __init__(self, dsd, context_type="file_search", cache_name=""):
-        self.context_type = context_type
-        if cache_name:
-            self.cache_name = cache_name
-        else:
-            self.cache_name = "file_identifier_cache" if context_type == "file_search" else context_type + "_cache"
-        self.dsd = dsd
+            self.context_type = context_type
+            if cache_name:
+                self.cache_name = cache_name
+            else:
+                self.cache_name = "file_identifier_cache" if context_type == "file_search" else context_type + "_cache"
+            self.dsd = dsd
 
     def build_file_identifier_cache_from_contexts(self, commit=False) -> bool:
         sql_source = self._get_sql_source()

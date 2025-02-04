@@ -195,15 +195,17 @@ def administration_index():
     return redirect(url_for("administration.administration_show"))
 
 
-#  **************************************************************
-#  ****    /file-repository index / form request
-#  *****************************************************************/
-
 @administration.route('', methods=['GET'])
 @full_login_required
 @requires(IsAuthorized(ENTER_ADMINISTRATION_PRIVILEGE))
 # @nocache
 def administration_show():
+    def class_or_str(v):
+        if isinstance(v, type):
+            return v.__name__
+        else:
+            return v
+
     try:
         conf = kioskglobals.cfg
         print("\n*************** administration/ ")
@@ -234,8 +236,8 @@ def administration_show():
                 type_repository_types.extend([{"subsystem": "kiosk",
                                                "interface_type": interface_type,
                                                "type": t,
-                                               "class": kioskglobals.type_repository.get_type(
-                                                   interface_type, t).__name__ if kioskglobals.type_repository.get_type(
+                                               "class": repr(kioskglobals.type_repository.get_type(
+                                                   interface_type, t)) if kioskglobals.type_repository.get_type(
                                                    interface_type, t) else "ERROR!"
                                                }
                                               for t in kioskglobals.type_repository.list_types(interface_type)])
@@ -248,7 +250,7 @@ def administration_show():
                 type_repository_types.extend([{"subsystem": "synchronization",
                                                "interface_type": interface_type,
                                                "type": t,
-                                               "class": sync.type_repository.get_type(interface_type, t).__name__}
+                                               "class": repr(sync.type_repository.get_type(interface_type, t))}
                                               for t in sync.type_repository.list_types(interface_type)])
             except BaseException as e:
                 logging.error(

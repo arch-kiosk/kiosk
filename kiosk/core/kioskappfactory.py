@@ -34,6 +34,7 @@ from messaging.systemmessagecatalog import SYS_MSG_ID_STORE_NOT_READY, MSG_SEVER
 from messaging.systemmessagelist import SystemMessageList
 from messaging.systemmessagestore import SystemMessageStore
 from messaging.systemmessagestorepostgres import SystemMessageStorePostgres
+from synchronization import Synchronization
 
 werkzeug.cached_property = werkzeug.utils.cached_property
 # ##########
@@ -832,6 +833,11 @@ class KioskAppFactory(AppFactory):
     def migrate(cls):
         from generalstore.generalstore import GeneralStore
         general_store: GeneralStore = kioskglobals.general_store
+
+        # todo refactor: This is really not that great. First: I don't know what timeout=1 actually does,
+        # then, do all processes wait until they get the lock and then they all migrate and - worse - they all refresh
+        # the fid caches and check on the admin user? Looks like it, doesn't it?
+
         lock = general_store.acquire_process_lock("kiosk_migration", expire_seconds=120, timeout=1)
         if lock:
             logging.info(f"kioskappfactory.migrate: _lock acquired for thread {current_thread().ident}")
@@ -843,18 +849,9 @@ class KioskAppFactory(AppFactory):
                 if migration.migrate_dataset():
                     KioskSQLDb.commit()
                     logging.info("Migration complete, database committed.")
-                    try:
-                        # The file - identifier cache can be build after migration
-                        fic = FileIdentifierCache(kioskglobals.master_view.dsd)
-                        fic.build_file_identifier_cache_from_contexts(commit=True)
-                    except BaseException as e:
-                        logging.error(f"{cls.__name__}.migrate: Error when rebuilding file-identifier-cache: "
-                                      f"{repr(e)}")
-                        dispatch_system_message(headline="Rebuilding the file identifier cache went wrong.",
-                                                message_id=SYS_MSG_ID_REBUILD_FIC_FAILED,
-                                                body="""Kiosk might fail applying the right files to a context. This 
-                                                needs the attention of an administrator. """,
-                                                sender=f"{cls.__name__}.migrate")
+
+                    # the following things are in here so that they are protected by the same process lock.
+                    cls.init_fid_caches()
 
                     try:
                         cls.init_users_and_privileges()
@@ -889,6 +886,25 @@ class KioskAppFactory(AppFactory):
             logging.error(f"kioskappfactory.migrate: _lock NOT acquired for thread {current_thread().ident}")
 
         return False
+
+    @classmethod
+    def init_fid_caches(cls):
+        try:
+            # The file - identifier cache can be built after migration
+            sync=Synchronization()
+            if not FileIdentifierCache.build_fic_indexes(sync.type_repository, kioskglobals.master_view.dsd):
+                raise Exception("Some file identifier cache in build_fic_indexes failed.")
+            # fic = FileIdentifierCache(kioskglobals.master_view.dsd)
+            # fic.build_file_identifier_cache_from_contexts(commit=True)
+        except BaseException as e:
+            logging.error(f"{cls.__name__}.migrate: Error when rebuilding file-identifier-cache: "
+                          f"{repr(e)}")
+            dispatch_system_message(headline="Rebuilding of at least one file identifier cache went wrong.",
+                                    message_id=SYS_MSG_ID_REBUILD_FIC_FAILED,
+                                    body="""Kiosk might fail applying the right files to a context. This 
+                                    needs the attention of an administrator. """,
+                                    sender=f"{cls.__name__}.migrate")
+
 
     @classmethod
     def init_users_and_privileges(cls):
