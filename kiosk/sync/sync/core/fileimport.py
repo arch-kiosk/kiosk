@@ -475,6 +475,8 @@ class FileImport:
             except BaseException as e:
                 logging.error(f"{self.__class__.__name__}.build_context: Exception "
                               f"with filter {import_filter_name}: {repr(e)}")
+                raise Exception(f"build_context for file {f} stopped due "
+                                f"to an exception in filter {import_filter_name}")
         return context
 
     def _import_single_file_to_repository(self, f, accept_duplicates=False):
