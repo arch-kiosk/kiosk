@@ -65,8 +65,14 @@ class ApiContexts(Resource):
         fid = FileIdentifierCache(Dsd3Singleton.get_dsd3(), "site_index")
         query = fid.get_records_with_context(id_uuid=site_uuid)
         identifiers=set()
+        site_id = ""
         for r in query.records(new_page_size=-1):
             if r["primary_identifier"]:
                 identifiers.add(r["primary_identifier"])
+                if not site_id:
+                    site_id = identifiers.add(r["identifier"])
+        if site_id:
+            identifiers.add(site_id)
+
         return identifiers
 

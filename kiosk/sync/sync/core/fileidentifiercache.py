@@ -165,8 +165,7 @@ class FileIdentifierCache:
 
     def get_distinct_contexts(self):
         query = ContextDirectSqlQuery(self._get_sql_source())
-        params = {"sql": "distinct identifier, id_uuid from {base}"
-                         f" where {KioskSQLDb.sql_safe_ident('primary')}=true"}
+        params = {"sql": "distinct identifier, id_uuid from {base}"}
 
         query.define_from_dict(params)
 
