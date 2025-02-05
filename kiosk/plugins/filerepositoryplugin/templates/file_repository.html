@@ -19,7 +19,7 @@
     </div>
     <kiosk-lightbox>
       <div id="filerepository-data-container" class="filerepository-data-container">
-          <div id="fr-data-partial">loading data ...</div>
+          <div id="fr-data-partial"></div>
       </div>
     </kiosk-lightbox>
     <div class='thetop'></div>
@@ -76,7 +76,7 @@
         </div>
         <div id="file-count-div" class="file-count-div">
             <i class="fas fa-angle-double-down fr-fetch-icon"></i>
-            <div id="file-count"></div>
+            <div id="file-count"{{ ' data-filtered-site='+filtered_site if filtered_site else '' }}></div>
             <i class="fas fa-angle-double-down fr-fetch-icon"></i>
         </div>
         <div id="fr-image-list-tools">

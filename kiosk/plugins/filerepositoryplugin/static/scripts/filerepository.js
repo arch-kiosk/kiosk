@@ -108,6 +108,8 @@ function resetFileReposFilters(fetch = false) {
     $("#frf-description").val("");
     $("#frf-tags").val("");
     $("#frf-recording-context").val("");
+    $("#frf-from-date").val("");
+    $("#frf-to-date").val("");
     if (fetch) fetchImageCount();
 }
 
@@ -159,15 +161,12 @@ function frfEnableSubmitMode(enable) {
 }
 
 function fetchImageCount() {
-    console.log(fetchImageCount.caller);
     try {
-        $("#file-count").text("calculating...");
-        frfEnableSubmitMode(false);
-        if (fr_timeout != null) clearTimeout(fr_timeout);
+        if (fetchImageCount.fr_timeout != null) clearTimeout(fetchImageCount.fr_timeout);
     } finally {
-        fr_timeout = null;
+        fetchImageCount.fr_timeout = null;
     }
-    fr_timeout = setTimeout(getFileCount, 500);
+    fetchImageCount.fr_timeout = setTimeout(getFileCount, 500);
 }
 
 function getMaxImagesPerPage() {
@@ -177,6 +176,9 @@ function getMaxImagesPerPage() {
 
 
 function getFileCount() {
+    console.log("getFileCount entered")
+    frfEnableSubmitMode(false);
+    $("#file-count").text("calculating...");
     if (!lockFileCount) {
         lockFileCount = true;
         try {
@@ -197,17 +199,19 @@ function getFileCount() {
                     $("#frf-from-date").removeClass("input-error");
                     $("#frf-to-date").removeClass("input-error");
                     $("#context-identifier-filter").removeClass("input-error");
+                    const elFileCount = $("#file-count")
+                    const filteredSiteId = elFileCount[0].dataset?.filteredSite??""
                     if (isNaN(json.result)) {
                         if (json.result.startsWith("The identifier")) {
                             $("#context-identifier-filter").addClass("input-error");
-                            $("#file-count").text(json.result);
+                            $("#file-count").text((filteredSiteId?`Site ${filteredSiteId}: `:"") + json.result);
                         } else if (json.result.indexOf("valid date or year") > -1) {
                             if (json.result.indexOf("'from'") > -1) {
                                 $("#frf-from-date").addClass("input-error");
                             } else {
                                 $("#frf-to-date").addClass("input-error");
                             }
-                            $("#file-count").text(json.result);
+                            elFileCount.text((filteredSiteId?`Site ${filteredSiteId}: `:"") + json.result);
                         } else {
                             kioskErrorToast(json.result);
                         }
@@ -219,15 +223,15 @@ function getFileCount() {
                             if (json.result) {
                                 frfEnableSubmitMode(true);
                                 if (json.result > 1)
-                                    $("#file-count").text(json.result.toString() + " files found. Click to fetch 'em.");
+                                    elFileCount.text(json.result.toString() + ` files found${filteredSiteId?" in site " + filteredSiteId:""}. Click to fetch 'em.`);
                                 else
-                                    $("#file-count").text("One file found. Click to fetch it.");
+                                    elFileCount.text(`One file found${filteredSiteId?" in site " + filteredSiteId:""}. Click to fetch it.`);
                             } else {
-                                $("#file-count").text(json.result.toString() + " files found. Please be more specific.");
+                                elFileCount.text(json.result.toString() + ` files found${filteredSiteId?" in site " + filteredSiteId:""}. Please be more specific.`);
                                 frfEnableSubmitMode(false);
                             }
                         } else {
-                            $("#file-count").text("No files match your criteria.");
+                            elFileCount.text(`No files match your criteria${filteredSiteId?" in site " + filteredSiteId:""}.`);
                         }
                     }
                 });
@@ -242,23 +246,6 @@ function file_repos_load_by_tag(tag) {
     resetFileReposFilters();
     $("#frf-tags").val(tag);
     $("#frf").submit();
-}
-
-function onFRImageClick(uuid) {
-    $.magnificPopup.open({
-        type: "ajax",
-        items: {
-            src: "/filerepository/edit/" + uuid,
-        },
-        //  focus: "create-workstation-id",
-        removalDelay: 200,
-        mainClass: "mfp-with-anim",
-        // callbacks: {
-        //     ajaxContentAdded: ()=>{
-        //       frInitEditImageDialog();
-        //     }
-        //   }
-    });
 }
 
 function updateFileRepositoryImage(uuid) {
@@ -1103,14 +1090,43 @@ function startBulkTagging() {
 }
 
 function fetchIdentifiers() {
+    let site_filter = getCookie("site_filter")
+    let urlSearchParams = undefined
+    if (site_filter && site_filter !== "-") {
+        urlSearchParams = new URLSearchParams();
+        urlSearchParams.append("site_filter", site_filter);
+    }
     globalGetKioskToken()
         .then((token) => {
-            return globalFetchFromApi(globalGetApiUrl(""), token, "contexts", {});
+            return globalFetchFromApi(globalGetApiUrl(""),
+                token,
+                "contexts",
+                {  },
+                undefined,
+                urlSearchParams,
+                "");
         })
         .then((result) => {
+            if (!fetchIdentifiers.awesomeplete) {
             let element = document.getElementById("frf-context");
-            new Awesomplete(element, { list: result.identifiers });
+                fetchIdentifiers.awesomeplete = new Awesomplete(element, { list: result.identifiers });
+            } else {
+                fetchIdentifiers.awesomeplete.list = result.identifiers
+            }
         });
+}
+
+function fr_limitToSite() {
+    $.magnificPopup.open({
+        type: "ajax",
+        items: {
+            src: "/filerepository/sitefilterdialog",
+        },
+        //  focus: "create-workstation-id",
+        removalDelay: 200,
+        mainClass: "mfp-with-anim"
+    });
+
 }
 
 function frInitFileViewer(apiContext) {

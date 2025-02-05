@@ -356,7 +356,7 @@ class ModelFileRepository:
 
     MAX_RECORDS_PER_CHUNK = 20
     ACCEPTED_FILTER_FIELDS = ["context", "recording_context", "tags", "description", "no_context",
-                              "from_date", "to_date"]
+                              "from_date", "to_date", "site"]
     SORTING_OPTIONS = ["context", "oldest first", "latest first", "undated, then latest first"]
 
     def __init__(self, conf, plugin_name):
@@ -469,6 +469,9 @@ class ModelFileRepository:
             elif o == "to_date" and self.filter_options["filter_values"][o]:
                 where_part = f"date(file_datetime) <= %s"
                 param = kioskstdlib.guess_datetime(self.filter_options["filter_values"][o])
+            elif o == "site":
+                # That's being handled outside of where
+                pass
             else:
                 if o != "no_context" and self.filter_options["filter_values"][o]:
                     raise Exception(f"what is {o}?")
@@ -505,6 +508,21 @@ class ModelFileRepository:
                           f"'{self.sorting_option}' selected.")
             return "order by identifiers, \"file_datetime\""
 
+    def _get_site_sql(self):
+        if ("site" in self.filter_options["filter_values"] and
+                self.filter_options["filter_values"]["site"] and
+                self.filter_options["filter_values"]["site"] != "-"):
+            site_index_cache_name = KioskSQLDb.sql_safe_namespaced_table(CONTEXT_CACHE_NAMESPACE,
+                                                                         'site_index_cache')
+            sql_site = (f" inner join "
+                        f"  (select sidx.\"data\" "
+                        f"      from {site_index_cache_name} sidx "
+                        f"      where sidx.\"id_uuid\" = '{self.filter_options['filter_values']['site']}'"
+                        f"  ) site_images on images.uid=site_images.data ")
+        else:
+            sql_site = ""
+        return sql_site
+
     def query_image_count(self):
         cur = KioskSQLDb.get_dict_cursor()
         file_identifier_cache_table_name = KioskSQLDb.sql_safe_namespaced_table(CONTEXT_CACHE_NAMESPACE,
@@ -512,7 +530,10 @@ class ModelFileRepository:
         sql_where, params = self._get_where(file_identifier_cache_table_name)
         if sql_where:
             sql_where = " " + sql_where
-        sql = "select " + "  count(distinct images.uid) c from images " \
+
+        sql_site = self._get_site_sql()
+
+        sql = "select " + "  count(distinct images.uid) c from images " + sql_site + \
                           f"left outer join " \
                           f"{file_identifier_cache_table_name} " \
                           f"on images.uid={file_identifier_cache_table_name}.\"data\"::uuid {sql_where};"
@@ -545,8 +566,10 @@ class ModelFileRepository:
         if sql_order:
             sql_order = " " + sql_order
 
+        sql_site = self._get_site_sql()
+
         sql = "select " + f" distinct images.*, COALESCE(\"file_datetime\", '0001-01-01') sort_fd, " \
-                          "array_to_string(identifier_array, ', ') identifiers from \"images\" " \
+                          "array_to_string(identifier_array, ', ') identifiers from \"images\" " + sql_site + \
                           f"left outer join " \
                           f"{file_identifier_cache_table_name} " \
                           f"on images.uid={file_identifier_cache_table_name}.data::uuid " + \

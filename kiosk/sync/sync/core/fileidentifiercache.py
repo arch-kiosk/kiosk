@@ -1,5 +1,5 @@
 import logging
-from typing import Union
+from typing import Union, List
 
 import yaml
 
@@ -91,6 +91,34 @@ class FileIdentifierCache:
         sql_source = self._get_sql_source()
         sql_source.build_cache(commit=commit, condition_field="data", condition=f"='{file_uuid}'")
 
+    def get_records_with_context(self, context="", equals=True, compare_as_part=False, id_uuid="") -> ContextQuery:
+        if compare_as_part:
+            comparison = DatabaseDriver.case_insensitive_comparison(DatabaseDriver.wildcard(context))
+        else:
+            comparison = f"={DatabaseDriver.quote_value('VARCHAR', context)}"
+
+        if equals:
+            query = ContextQuery(self._get_sql_source())
+            if context:
+                query.qualify("identifier", comparison)
+            else:
+                if id_uuid:
+                    query.qualify("id_uuid", f"={DatabaseDriver.quote_value('VARCHAR', id_uuid)}")
+                else:
+                    query.qualify("identifier", f"is not null")
+
+        else:
+            if context:
+                query = ContextDirectSqlQuery(self._get_sql_source())
+                params = {"sql": "distinct data from {base} where data not in (select distinct data from {base} "
+                                 f"where identifier {comparison})"}
+
+                query.define_from_dict(params)
+            else:
+                # this makes no sense since the file identifier cache does not have records without an identifier
+                return None
+        return query
+
     def get_files_with_context(self, context="", equals=True, compare_as_part=False):
         """
         returns a list of files linked to the given context.
@@ -108,36 +136,13 @@ class FileIdentifierCache:
         :return:
         """
 
-        if compare_as_part:
-            comparison = DatabaseDriver.case_insensitive_comparison(DatabaseDriver.wildcard(context))
-        else:
-            comparison = f"={DatabaseDriver.quote_value('VARCHAR', context)}"
-
-        if equals:
-            query = ContextQuery(self._get_sql_source())
-            if context:
-                query.qualify("identifier", comparison)
-            else:
-                # this should never be the case, anyhow:
-                query.qualify("identifier", f"is not null")
-
-        else:
-            if context:
-                query = ContextDirectSqlQuery(self._get_sql_source())
-                params = {"sql": "distinct data from {base} where data not in (select distinct data from {base} "
-                                 f"where identifier {comparison})"}
-
-                query.define_from_dict(params)
-            else:
-                # this makes no sense since the file identifier cache does not have records without an identifier
-                return []
+        query = self.get_records_with_context(context, equals, compare_as_part)
+        if not query:
+            return []
 
         files = set()
         for r in query.records(new_page_size=-1):
             files.add(r["data"])
-
-        # for r in query.records(new_page_size=-1):
-        #     files.add(r["data"])
 
         return list(files)
 
@@ -157,6 +162,33 @@ class FileIdentifierCache:
             files.add(r["data"])
 
         return list(files)
+
+    def get_distinct_contexts(self):
+        query = ContextDirectSqlQuery(self._get_sql_source())
+        params = {"sql": "distinct identifier, id_uuid from {base}"
+                         f" where {KioskSQLDb.sql_safe_ident('primary')}=true"}
+
+        query.define_from_dict(params)
+
+        identifiers = list()
+        for r in query.records(new_page_size=-1):
+            identifiers.append((r["identifier"], r["id_uuid"]))
+
+        return identifiers
+
+    def get_primary_identifier(self, uuid_identifier: str)->List:
+        query = ContextDirectSqlQuery(self._get_sql_source())
+        params = {"sql": "* from {base}"
+                         f" where {KioskSQLDb.sql_safe_ident('primary')}=true and "
+                         f" {KioskSQLDb.sql_safe_ident('id_uuid')} ="
+                         f" {DatabaseDriver.quote_value('UUID', uuid_identifier)} limit 1"}
+        query.define_from_dict(params)
+        r=[]
+        for r in query.records(new_page_size=-1):
+            break
+
+        return r
+
 
     # seems not in use anymore?
     # @staticmethod

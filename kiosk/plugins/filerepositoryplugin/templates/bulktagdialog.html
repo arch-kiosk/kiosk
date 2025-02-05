@@ -1,13 +1,14 @@
 {% extends "basicmodaldialog.html" %}
 {% block dialog_css %}
-  <link rel=stylesheet href="/filerepository/static/bulk-tag-dialog.css" type="text/css">
+  <link rel=stylesheet href="/filerepository/static/bulktagdialog.css" type="text/css">
 {% endblock %}
 {% block kiosk_modal_dialog_id %}id="fr-bulk-tag-dialog"{% endblock %}
 {% block kiosk_modal_dialog_classes %}kiosk-modal-dialog-fullscreen{% endblock %}
 {% block kiosk_modal_dialog_name %}tag files{% endblock %}
 {% block kiosk_modal_dialog_image %}
   <i class="fas fa-tags header-icon"></i>
-{% endblock %}{% block kiosk_modal_dialog_content %}
+{% endblock %}
+{% block kiosk_modal_dialog_content %}
   <div id="btag-dialog" class="pagecontrol-content grid-12 kiosk-modal-dialog-griddy">
     {%  if true_tags %}
       <div class="col-12 kiosk-collapsible-v2 collapsible-options">

@@ -1,8 +1,11 @@
 from flask_restful import Resource
+from flask import request
 from marshmallow import Schema, fields
 
 import kioskglobals
 from contextmanagement.memoryidentifiercache import MemoryIdentifierCache
+from dsd.dsd3singleton import Dsd3Singleton
+from fileidentifiercache import FileIdentifierCache
 from kioskglobals import httpauth
 
 
@@ -26,6 +29,12 @@ class ApiContexts(Resource):
             summary: retrieves a list of context identifiers
             security:
                 - jwt: []
+            parameters:
+                - in: query
+                  name: site_filter
+                  required: false
+                  schema:
+                    type: string
             responses:
                 '200':
                     description: returns a list of valid context identifiers
@@ -43,7 +52,21 @@ class ApiContexts(Resource):
         # get main
         # ******************************************
         # cfg = get_config()
-        cache: MemoryIdentifierCache = kioskglobals.identifier_cache
-        return ApiResultContexts().dump({"identifiers": cache.get_identifiers()}), 200
+        site_filter = ""
+        if "site_filter" in request.args:
+            site_filter = request.args.get("site_filter")
+            identifiers = self.get_site_identifiers(site_filter)
+        else:
+            cache: MemoryIdentifierCache = kioskglobals.identifier_cache
+            identifiers = cache.get_identifiers()
+        return ApiResultContexts().dump({"identifiers": identifiers}), 200
 
+    def get_site_identifiers(self, site_uuid: str):
+        fid = FileIdentifierCache(Dsd3Singleton.get_dsd3(), "site_index")
+        query = fid.get_records_with_context(id_uuid=site_uuid)
+        identifiers=set()
+        for r in query.records(new_page_size=-1):
+            if r["primary_identifier"]:
+                identifiers.add(r["primary_identifier"])
+        return identifiers
 

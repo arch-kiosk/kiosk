@@ -47,7 +47,13 @@ def register_menus():
     return [KioskMenuItem(name="file repository",
                           onclick="triggerFileRepository('filerepository.file_repository_show')",
                           endpoint="filerepository.file_repository_show",
-                          menu_cfg=plugin.get_menu_config())]
+                          menu_cfg=plugin.get_menu_config()),
+            KioskMenuItem(name="limit to site",
+                          onclick="fr_limitToSite()",
+                          endpoint="filerepository.site_filter_dialog",
+                          menu_cfg=plugin.get_menu_config(),
+                          parent_menu="file repository")
+            ]
 
 
 def register_global_scripts():
