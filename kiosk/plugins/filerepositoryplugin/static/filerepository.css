@@ -835,12 +835,14 @@ kiosk-tz-combo-box.kiosk-dialog-textfield {
 .fr-image-descriptor p {
   margin-top: 1em;
   user-select: text;
+  -webkit-user-select: text;
 }
 .fr-image-descriptor .fr-uuid {
   font-size: 8px;
   line-height: 1em;
   word-wrap: break-word;
   user-select: text;
+  -webkit-user-select: text;
   display: none;
 }
 .fr-image-descriptor .fr-file-datetime {
@@ -1270,6 +1272,7 @@ kiosk-tz-combo-box.kiosk-dialog-textfield {
 }
 #ef-file-info span {
   user-select: text;
+  -webkit-user-select: text;
 }
 
 #ef-image {

@@ -278,6 +278,7 @@
   font-family: var(--monospace-font);
   font-weight: bold;
   user-select: text;
+  -webkit-user-select: text;
 }
 
 .admin-gridded-info {
@@ -432,7 +433,7 @@
   background-color: var(--color-sand-light);
   padding: 10px 5px 10px 5px;
   user-select: text;
-  -moz-user-select: text;
+  -webkit-user-select: text;
 }
 
 #backup-clipboard, #file-repos-clipboard {
@@ -566,7 +567,7 @@
   background-color: var(--color-sand-light);
   padding: 10px 5px 10px 5px;
   user-select: text;
-  -moz-user-select: text;
+  -webkit-user-select: text;
 }
 
 #backup-clipboard {

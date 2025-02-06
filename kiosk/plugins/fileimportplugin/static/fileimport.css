@@ -730,6 +730,7 @@ kiosk-tz-combo-box.kiosk-dialog-textfield {
   border-style: solid;
   border-color: var(--col-bg-2-lighter);
   user-select: text;
+  -webkit-user-select: text;
 }
 
 .log-error {
@@ -794,6 +795,7 @@ kiosk-tz-combo-box.kiosk-dialog-textfield {
   white-space: nowrap;
   vertical-align: middle;
   user-select: none;
+  -webkit-user-select: none;
   padding-top: 1em;
 }
 
@@ -860,7 +862,7 @@ kiosk-tz-combo-box.kiosk-dialog-textfield {
 }
 .mif-upload-error .mif-upload-progress {
   user-select: text;
-  -moz-user-select: text;
+  -webkit-user-select: text;
 }
 
 @keyframes pulse {

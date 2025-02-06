@@ -12,6 +12,7 @@
   --lumo-size-m: $font-size-standard
   *
     user-select: none
+    -webkit-user-select: none
 .kiosk-query-ui
   background-color: $col-bg-2
   --ui-col-bg-1: $col-bg-2
@@ -69,11 +70,13 @@
   overflow-y: auto
 .fts-excerpt
   user-select: text
+  -webkit-user-select: text
   span
     font-weight: bold
     font-family: $monospace
     letter-spacing: 1px
     user-select: text
+    -webkit-user-select: text
 span.fts-excerpt-field
   display: inline-block
   font-weight: normal
