@@ -1,0 +1,19 @@
+# header
+version: 1
+
+
+# dsd('archival_entity','description') && view-ui && view_type:sheet
+layout:
+  min_width: max
+element_type:
+  multiline: true
+
+# dsd('archival_entity_units','uid_unit')
+element_type:
+  visible: True
+  is_identifier: true
+  links_to: unit
+  lookup:
+    lookup_type: "record"
+    record_type: "unit"
+    display_value: "arch_context"

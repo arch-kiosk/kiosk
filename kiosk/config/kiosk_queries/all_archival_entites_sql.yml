@@ -1,0 +1,25 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+#variables:
+#  site_id: ["dsd('site', 'arch_context')"]
+queries:
+  'archival entities':
+    name: '#:What #(/$/glossary/archival_entity:2) exist?'
+    description: '#:Lists all the #(/$/glossary/archival_entity:2) of the whole project'
+    type: 'SQL'
+    output_type: 'list'
+    query: "
+      select archival_entity.identifier id, archival_entity.description description, archival_entity.{{type}}, 
+      archival_entity.location location
+       from {{archival_entity}} archival_entity
+      order by archival_entity.identifier"
+    column_information:
+      id: DSD('archival_entity','identifier')
+      type: DSD('archival_entity','type')
+      description: DSD('archival_entity','description')
+      location: DSD('archival_entity','location')
+
+
+

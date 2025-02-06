@@ -9,5 +9,6 @@ imports:
   - ui/_locus.queryui.uic
   - ui/_cm.uic
   - ui/_tags.uic
+  - ui/_archival_entity.uic
 
 

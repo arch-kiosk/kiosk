@@ -1,0 +1,117 @@
+config:
+  format_version: 1
+compilations:
+  ae_compilation:
+    name: archival entity view
+    record_type: archival_entity
+    groups:
+      group_1:
+        type: "stacked"
+        parts:
+          ae.sheet:
+            text: 'archival entity'
+            position: 1
+      group_2:
+        type: "accordion"
+        parts:
+          ae_activities.list:
+            text: 'activities'
+            position: 1
+          ae_units.list:
+            text: '#($/constants/labels/label_for_unit_on_start_page)'
+            position: 2
+          ae_files.list:
+            text: 'photos and files'
+            position: 3
+
+ae.sheet:
+  record_type: archival_entity
+  view_type: sheet
+  fields_selection: dsd
+  layout_settings:
+    orchestration_strategy: columns
+    default_element_visibility: "."
+    order:
+      - identifier
+      - alternative_id
+      - type
+      - date_from
+      - date_to
+      - condition
+      - location
+      - line_1
+      - description
+      - line_2
+      - modified_by
+      - modified
+      - created
+  ui_elements:
+    identifier:
+      element_type:
+        is_identifier: false
+    line_1:
+      element_type:
+        visible: True
+        name: "line"
+        transparent: true
+      layout:
+        min_width: "max"
+    line_2:
+      element_type:
+        visible: True
+        name: "line"
+        transparent: true
+      layout:
+        min_width: "max"
+ae_activities.list:
+  record_type: archival_entity_activity
+  view_type: list
+  max_height: auto
+  fields_selection: dsd
+  layout_settings:
+    type: list
+    orchestration_strategy: table
+    order_records_by: [">ts"]
+    allow_ordering_by: ["ts", "actor", "description"]
+    order: [ts, actor, description]
+  ui_elements:
+#    ts:
+#      layout:
+#        min_width: 15%
+#    actor:
+#      layout:
+#        min_width: 15%
+    description:
+      layout:
+        min_width: 70%
+
+ae_units.list:
+  record_type: archival_entity_units
+  view_type: list
+  max_height: auto
+  fields_selection: dsd
+  layout_settings:
+    type: list
+    orchestration_strategy: table
+    order_records_by: [">ts"]
+    allow_ordering_by: ["uid_unit"]
+    order: [uid_unit]
+#  ui_elements:
+#    uid_unit:
+#      element_type:
+#        visible: True
+#        lookup:
+#          lookup_type: "record"
+#          record_type: "unit"
+#          display_value: "arch_context"
+ae_files.list:
+  record_type: archival_entity_file
+  view_type: list
+  max_height: auto
+  fields_selection: dsd
+  layout_settings:
+    type: list
+    orchestration_strategy: gallery
+    order_records_by: [">modified"]
+    allow_ordering_by: ["modified", "modified_by"]
+    order: [uid_file, modified, modified_by]

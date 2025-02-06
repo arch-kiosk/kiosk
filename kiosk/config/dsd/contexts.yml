@@ -80,3 +80,7 @@ config:
                 join: inner("source_uid", "uid")
                 relates_to:
                   collected_material: {}
+    fs_archival_entity:
+      type: file_search
+      scope:
+        archival_entity: browse()

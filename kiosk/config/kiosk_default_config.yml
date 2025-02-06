@@ -17,6 +17,7 @@ glossary:
   "small_find": ["small find", "small finds"]
   "pottery": ["pottery", "pottery"]
   "fragment": ["fragment", "fragments"]
+  "archival_entity": ["archival entity", "archival entities"]
 
 preferred_time_zones:
   - "US\\/Eastern"
@@ -86,6 +87,7 @@ file_repository:
     pottery_images: "pottery"
     coordinate_photo: "coordinate"
     coordinate_categories: "coordinate category"
+    archival_entity_file: "archival entity"
 
   representations:
     small:
