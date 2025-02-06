@@ -332,17 +332,21 @@ export class KioskViewGroupPart {
         let recordType = linksTo || this.recordType
 
         if (linksTo && linksTo !== this.recordType && linksTo !== this._document.compilation.record_type) {
-            const idFields = dsd.get_fields_with_instruction(linksTo,"identifier")
-            if (idFields.length > 0) {
-                identifier = ""
+            try {
+                const idFields = dsd.get_fields_with_instruction(linksTo, "identifier");
+                if (idFields.length > 0) {
+                    identifier = "";
 
-                for (const idField of idFields) {
-                    let instruction = dsd.get_field_instruction(linksTo, idField,"identifier")
-                    if (instruction.parameters.length == 0 || instruction.parameters[0] == "primary") {
-                        identifier = this.dataContext.get(`/${linksTo}/${idField}`)
-                        break;
+                    for (const idField of idFields) {
+                        const instruction = dsd.get_field_instruction(linksTo, idField, "identifier");
+                        if (instruction.parameters.length == 0 || instruction.parameters[0] == "primary") {
+                            identifier = this.dataContext.get(`/${linksTo}/${idField}`);
+                            break;
+                        }
                     }
                 }
+            } catch (e){
+                console.log(e)
             }
         }
 
@@ -357,6 +361,8 @@ export class KioskViewGroupPart {
                     bubbles: true,
                     composed: true
                 })
+        } else {
+            console.error(`Can't go to Identifier/RecordType ${identifier}/${recordType} `)
         }
     }
 

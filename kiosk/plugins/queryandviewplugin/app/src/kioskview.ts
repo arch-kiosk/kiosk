@@ -111,7 +111,8 @@ export class KioskView  extends KioskAppComponent {
 
     public restoreBookmark() {
         const bookmark = this.renderRoot.querySelector(".view-bookmark") as HTMLDivElement
-        if (parseInt(bookmark.style.top) != 0) {
+
+        if (bookmark && parseInt(bookmark.style.top) != 0) {
             setTimeout(() => {
                 bookmark.scrollIntoView()
                 },0)
