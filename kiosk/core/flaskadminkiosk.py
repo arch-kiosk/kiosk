@@ -11,6 +11,7 @@ from authorization import MANAGE_USERS, MANAGE_SERVER_PRIVILEGE, selection_of_pr
 import wtforms.fields
 import kiosksqlalchemy
 from sqlalchemy_models.adminmodel import KioskFilePickingRules
+from sqlalchemy_models.adminmodel import KioskPorts
 from sqlalchemy_models.adminmodel import KioskQCRules, KioskQCFlags
 from sqlalchemy_models.adminmodel import KioskQCRules, KioskFileManagerDirectories
 # from sqlalchemy_models.adminmodel import KioskFileMakerRecordingConstants
@@ -169,6 +170,28 @@ class FilePickingModelView(KioskModelView):
 
     }
 
+class KioskPortsModelView(KioskModelView):
+
+    def __init__(self, model, *args, **kwargs):
+        self.column_list = [c.key for c in model.__table__.columns]
+        self.form_columns = self.column_list
+        super().__init__(model, *args, **kwargs)
+
+
+    column_list = ["port_name", "users"]
+    column_display_pk = True
+    form_args = {
+        'port_name': {
+            'label': 'port name',
+            'validators': [InputRequired()],
+            'description': 'The name of the port (workstation)'
+        },
+        'users': {
+            'label': 'users',
+            'validators': [InputRequired()],
+            'description': 'list all user ids that shall have access to the port separated by comma'
+        },
+    }
 
 class QCRulesModelView(KioskModelView):
     pass
@@ -241,6 +264,8 @@ def init_flask_admin(cfg, app):
     kioskglobals.flask_admin.add_view(PrivilegeModelView(KioskPrivilege, kiosksqlalchemy.sqlalchemy_db.session))
     kioskglobals.flask_admin.add_view(
         FilePickingModelView(KioskFilePickingRules, kiosksqlalchemy.sqlalchemy_db.session))
+    kioskglobals.flask_admin.add_view(
+        KioskPortsModelView(KioskPorts, kiosksqlalchemy.sqlalchemy_db.session))
     kioskglobals.flask_admin.add_view(
         QCRulesModelView(KioskQCRules, kiosksqlalchemy.sqlalchemy_db.session))
     kioskglobals.flask_admin.add_view(

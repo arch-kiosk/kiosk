@@ -2,7 +2,12 @@ import logging
 import datetime
 import typing
 
+from flask_login import current_user
+
 import kioskstdlib
+from authorization import MANAGE_PORTS
+from kiosksqldb import KioskSQLDb
+from kioskuser import KioskUser
 from mcpinterface.mcpconstants import MCPJobStatus
 from typerepository import TypeRepository
 from typing import Dict, List, Optional
@@ -26,6 +31,12 @@ class KioskSyncManager:
             self.sync = sync
         else:
             self.sync = Synchronization()
+
+        cfg = kioskglobals.get_config()
+        self.default_port_visibility = kioskstdlib.to_bool(
+            kioskstdlib.try_get_dict_entry(cfg.kiosk["syncmanagerplugin"],"default_port_visibility", True))
+        self.grant_by_wildcard = kioskstdlib.to_bool(
+            kioskstdlib.try_get_dict_entry(cfg.kiosk["syncmanagerplugin"], "grant_by_wildcard", "True", True))
         self.workstation_types = {}
         self._workstation_jobs = None
 
@@ -114,9 +125,9 @@ class KioskSyncManager:
         :return: a dictionary with the workstation-id as key and the KioskWorkstation instances as values
         """
         workstations = {}
-        cfg = kioskglobals.get_config()
-        grant_by_wildcard = kioskstdlib.to_bool(
-            kioskstdlib.try_get_dict_entry(cfg.kiosk["syncmanagerplugin"], "grant_by_wildcard", "True", True))
+        user_ports = self.get_user_ports(current_user.user_id)
+        can_manage_ports = (hasattr(current_user, "fulfills_requirement") and
+                            current_user.fulfills_requirement(MANAGE_PORTS))
         for w_id, sync_ws_type in self.sync.list_workstation_ids_and_types():
             try:
                 if sync_ws_type:
@@ -127,8 +138,16 @@ class KioskSyncManager:
                             # noinspection PyCallingNonCallable
                             workstation = kiosk_ws_type(w_id)
                             if workstation.load_workstation():
-                                if workstation.access_granted(grant_by_wildcard=grant_by_wildcard):
-                                    workstations[w_id] = workstation
+                                if workstation.access_granted(grant_by_wildcard=self.grant_by_wildcard):
+                                    port_granted = can_manage_ports
+                                    if not port_granted:
+                                        port = workstation.recording_group
+                                        if port in user_ports.keys():
+                                            port_granted = user_ports[port]
+                                        else:
+                                            port_granted = self.default_port_visibility
+                                    if port_granted:
+                                        workstations[w_id] = workstation
                             else:
                                 logging.error(
                                     f"{self.__class__.__name__}.list_workstations: Could not load/instantiate "
@@ -187,6 +206,26 @@ class KioskSyncManager:
                 job.mcp_job.status < MCPJobStatus.JOB_STATUS_CANCELLING:
                     result.append(job)
         return result
+
+    def get_user_ports(self, user_id:str ) -> Dict[str, bool]:
+        """
+        returns a dict with all ports that are bound to at least one user and sets the value to true if
+        the user_id is set on the port
+        :param user_id: the user id that's checked against the ports
+        return: a dictionary. It does not contain ports that are not bound to users at all!
+        """
+        port_records = KioskSQLDb.get_records("select * from kiosk_ports where coalesce(trim(users),'') != ''")
+        user_id = user_id.lower()
+        ports = {}
+        for r in port_records:
+            port_name = r["port_name"]
+            ports[port_name] = False
+            users = r["users"].split(",")
+            if user_id in kioskstdlib.lowercase_elements(users):
+                ports[port_name] = True
+
+        return ports
+
 
     @classmethod
     def get_current_synchronization_job(cls) -> MCPJob:

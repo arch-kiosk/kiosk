@@ -30,6 +30,7 @@ CREATE_WORKSTATION = "create workstation"
 FILE_EXPORT_PRIVILEGE = "file export"
 MANAGE_REPORTING = "manage reporting"
 OPERATE_REPORTING = "operate reporting"
+MANAGE_PORTS = "manage ports"
 
 # All privileges need to be added here so that they can be selected in the administration:
 selection_of_privileges = [
@@ -52,6 +53,7 @@ selection_of_privileges = [
     FILE_EXPORT_PRIVILEGE,
     MANAGE_REPORTING,
     OPERATE_REPORTING,
+    MANAGE_PORTS
 ]
 
 # standard user groups the system addresses explicitly

@@ -373,6 +373,7 @@ kiosk:
       "kiosk queries": [ "+administrationplugin" ]
       "logs": [ "+administrationplugin" ]
       "file picking rules": [ "+administrationplugin", "+syncmanagerplugin" ]
+      "ports": [ "+administrationplugin", "+syncmanagerplugin" ]
       "quality control rules": [ "+administrationplugin" ]
 
   playgroundplugin:

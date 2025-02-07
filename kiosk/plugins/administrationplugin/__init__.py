@@ -15,7 +15,8 @@ if "mcpcore.mcpworker" not in sys.modules:
     from .administrationcontroller import administration
     from .administrationcontroller import administration_index
     from .administrationcontroller import plugin_version
-    from authorization import ENTER_ADMINISTRATION_PRIVILEGE, BACKUP_PRIVILEGE, MANAGE_USERS, MANAGE_SERVER_PRIVILEGE
+    from authorization import ENTER_ADMINISTRATION_PRIVILEGE, BACKUP_PRIVILEGE, MANAGE_USERS, MANAGE_SERVER_PRIVILEGE, \
+    MANAGE_PORTS
     from kioskconfig import KioskConfig
 
     plugin: KioskControllerPlugin = None
@@ -113,6 +114,15 @@ if "mcpcore.mcpworker" not in sys.modules:
                               menu_cfg=plugin.get_menu_config(),
                               is_active=lambda:
                                   current_user.fulfills_requirement(MANAGE_SERVER_PRIVILEGE)
+                                      if hasattr(current_user, "fulfills_requirement") else False,
+                              parent_menu='administration'
+                              ),
+                KioskMenuItem(name="ports",
+                              onclick="triggerAdminInterface('kioskports.index_view')",
+                              endpoint="kioskports.index_view",
+                              menu_cfg=plugin.get_menu_config(),
+                              is_active=lambda:
+                                  current_user.fulfills_requirement(MANAGE_PORTS)
                                       if hasattr(current_user, "fulfills_requirement") else False,
                               parent_menu='administration'
                               ),

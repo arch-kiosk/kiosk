@@ -164,3 +164,4 @@ class TestKioskSyncManager(KioskPyTestHelper):
         assert job_ws_ids == ["test_ws", "test_ws-2"]
         for job in jobs:
             assert job.meta_data == ["WS"]
+

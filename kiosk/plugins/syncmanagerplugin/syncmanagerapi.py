@@ -5,6 +5,7 @@ import pprint
 import flask
 from flask import url_for, request
 from flask_allows import requires
+from flask_login import current_user
 from flask_restful import Resource, abort
 from marshmallow import Schema, fields
 
@@ -16,7 +17,9 @@ from api.kioskapi import PublicApiInfo
 from authorization import EDIT_WORKSTATION_PRIVILEGE, \
     IsAuthorized
 from core.kioskapi import KioskApi
+from kioskconfig import KioskConfig
 from kioskglobals import kiosk_version, kiosk_version_name, get_global_constants, get_config, httpauth
+from kioskuser import KioskUser
 from kioskworkstation import KioskWorkstation
 from makejsonresponse import make_json_response
 from mcpinterface.mcpconstants import *
@@ -174,8 +177,11 @@ class V1SyncManagerWorkstations(Resource):
                             schema: LoginError
         '''
         try:
-            cfg = get_config()
+            cfg = KioskConfig.get_config()
+
             sync_manager = KioskSyncManager(kioskglobals.type_repository)
+
+
             result = self.gather_workstation_information(sync_manager)
             try:
                 sync_job = sync_manager.get_current_synchronization_job()
@@ -206,12 +212,12 @@ class V1SyncManagerWorkstations(Resource):
                 'poll_delay': poll_delay,
                 'sync_status': sync_status,
                 'workstations': list(result.values()),
-                'last_sync_ts': kioskstdlib.iso8601_to_str(sync_manager.last_sync_ts) if sync_manager.last_sync_ts else ""
+                'last_sync_ts': kioskstdlib.iso8601_to_str(
+                    sync_manager.last_sync_ts) if sync_manager.last_sync_ts else ""
             })
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.get: {repr(e)}")
             flask.abort(500, description=repr(e))
-
 
     @classmethod
     def gather_workstation_information(cls, sync_manager: KioskSyncManager):
@@ -526,17 +532,16 @@ class V1SyncManagerEvents(Resource):
                                               days=params["days"],
                                               lines=params["lines"])
         for i, r in enumerate(events):
-            events[i] = { "uid": r[0],
-                          "ts": r[1],
-                          "event": r[2],
-                          "message": r[3],
-                          "dock": r[4],
-                          "level": r[5],
-                          "user": r[6]
-                          }
+            events[i] = {"uid": r[0],
+                         "ts": r[1],
+                         "event": r[2],
+                         "message": r[3],
+                         "dock": r[4],
+                         "level": r[5],
+                         "user": r[6]
+                         }
 
-
-        api_return= SyncManagerEventsV1().dump({
+        api_return = SyncManagerEventsV1().dump({
             'events': events,
             'last_sync_ts': '',
         })

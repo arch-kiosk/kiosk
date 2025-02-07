@@ -155,6 +155,7 @@ class RecordingWorkstation(Dock):
         ts: datetime.datetime = self._get_workstation_attribute_from_db("fork_sync_time")
         return ts.replace(microsecond=0, tzinfo=None) if ts else ts
 
+    # todo: isn't that superfluous? Class Dock does more or less the same!
     def get_recording_group(self):
         """
             returns the workstation's recording group as stored in the database

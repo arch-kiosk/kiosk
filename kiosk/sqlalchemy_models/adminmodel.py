@@ -46,6 +46,12 @@ class KioskFilePickingRules(db.Model):
     # disable_changes = db.Column(db.Boolean())
     modified_by = db.Column(db.String(), default="sys")
 
+class KioskPorts(db.Model):
+    __tablename__ = "kiosk_ports"
+
+    db: SQLAlchemy
+    port_name = db.Column(db.String(), primary_key=True, unique=True, nullable=False)
+    users = db.Column(db.String(), default="")
 
 class KioskQCRules(db.Model):
     __tablename__ = "qc_rules"

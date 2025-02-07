@@ -211,3 +211,9 @@ kiosk_time_zones:
       tz_IANA: [datatype(VARCHAR)]
       deprecated: [datatype(BOOLEAN)]
       version: [datatype(INT), not_null()]
+
+kiosk_ports:
+  structure:
+    1:
+      port_name: [datatype(VARCHAR), unique(), not_null()]
+      users: [datatype(VARCHAR)]
