@@ -56,6 +56,7 @@ def basic_initialization(config_file):
     print("\nURAP Kiosk Version " + str(kioskglobals.kiosk_version))
     print("from " + str(kioskglobals.kiosk_date))
     print("on database " + kioskglobals.cfg.config["database_name"])
+    print("running project " + kioskglobals.cfg.config["project_id"])
     try:
         if "TESTING" in kioskglobals.cfg["Flask"] and kioskglobals.cfg["Flask"]:
             print("Flask in mode TESTING \n")
@@ -77,6 +78,7 @@ def basic_initialization(config_file):
                 print("! Don't do that on a production server ! ")
             print("*****************************")
             print("\u001b[0m")
+            print("", flush=True)
     except KeyError as e:
         pass
 

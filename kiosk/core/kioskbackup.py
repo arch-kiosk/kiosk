@@ -27,6 +27,7 @@ class KioskBackup:
     KIOSK_FILES = [
         r"__init__.py",
         r"this_is_the_kiosk_root.md",
+        r"apply-kiosk-acl.ps1",
         r"sync\sync\console.py",
         r"sync\sync\custom\default_filecontexts.py",
         r"sync\sync\tools\UrapCreateDSDFromFM.py",
@@ -37,6 +38,7 @@ class KioskBackup:
         r"tools\kioskpatcher-cli.py",
         r"tools\import_files.py",
         r"tools\transfer_kiosk_cli.py",
+        r"tools\transferkioskconfigcli.py",
         r"tools\update_default_kiosk_queries.py",
         r"tools\refresh_full_text_search.py",
         r"tools\kiosktoolslib.py",

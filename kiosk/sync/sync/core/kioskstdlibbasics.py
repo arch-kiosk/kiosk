@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 
 """ kioskstdlib basics
     This part of kioskstdlib needs no external python packages installed.
@@ -47,3 +48,43 @@ def get_file_path(filename):
     :return: just the path without a trailing backslash or other path separator.
     """
     return os.path.dirname(filename)
+
+def resolve_symbols(term:str, symbol_dict: dict, error_unknown_symbol = False)->str:
+    """
+    resolves %% symbols in a string by replacing them with a value from the dict.
+    %% symbols that cannot be resolved are replaced with !symbol!.
+
+    This is not recursive and more or less an exact copy of config._resolve_symbols, which does not use this here
+    because config is not allowed to import any non-standard modules.
+
+    :param term: str
+    :param symbol_dict: dict
+    :param error_unknown_symbol: Set to True if this is supposed to throw an error if a symbol cannot be resolved. 
+    :return: str
+    """
+
+    c = 0
+    if term:
+        rx_symbol = re.compile(r"(%.*?%)", re.I)
+        next_symbol = rx_symbol.search(term)
+        while next_symbol:
+            c += 1
+            if c > 10:
+                logging.error("resolve_symbols_in_string exceed depth of 10")
+                return None
+
+            key = next_symbol.group(0)[1:-1]
+            if key in symbol_dict:
+                value = symbol_dict[key]
+            else:
+                if error_unknown_symbol:
+                    raise KeyError(f"Symbol {key} unknown in {term}")
+                value = "!" + next_symbol.group(0)[1:-1] + "!"
+
+            try:
+                term = term.replace(next_symbol.group(0), value)
+            except BaseException as e:
+                raise Exception(f"resolve_symbols: Exception {repr(e)} in {term}")
+            next_symbol = rx_symbol.search(term)
+    return term
+

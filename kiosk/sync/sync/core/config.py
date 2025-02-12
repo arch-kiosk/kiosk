@@ -131,6 +131,7 @@ class Config(logginglib.LoggingFeature):
         else:
             return value
 
+    #todo refactor: does not seem to be in use anymore
     @staticmethod
     def _resolve_symbols(config_str, current_config):
         c = 0
