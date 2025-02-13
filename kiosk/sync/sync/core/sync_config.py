@@ -166,7 +166,7 @@ class SyncConfig(Config):
             self.init_error = "Noexpected_filemaker_template_version configured. Replication cannot operate without."
 
         if "filemaker_db_filename" in self.config:
-            self.filemaker_db_filename = self.config["filemaker_db_filename"]
+            self.filemaker_db_filename = self.resolve_symbols(self.config["filemaker_db_filename"])
         else:
             if self._log_warnings:
                 logging.warning("filemaker_db_filename not configured.")
