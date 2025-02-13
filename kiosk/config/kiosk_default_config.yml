@@ -58,6 +58,9 @@ config:
   filemaker_import_dir: '%sync%\filemaker\from_work_station'
   filemaker_encoding: "UTF-8"
   expected_filemaker_template_version: '17'
+  filemaker_template: '%sync%\filemaker\%project_id%_recording_template.fmp12'
+  filemaker_db_filename: '%project_id%_recording.fmp12'
+
   file_handling_definition: '%base_path%\config\file_handling.yml'
   default_resolution: "low"
   default_recording_group: "default"
