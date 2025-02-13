@@ -18,6 +18,8 @@ class KioskConfigTransfer:
         ["kiosk_secure.yml", r"%base_path%\config", r"\kiosk\config", True],
         ["**", r"%base_path%\custom\%project_id%", r"\kiosk\custom\kiosk_custom\%project_id%", True],
         ["**", r"%base_path%\sync\sync\custom", r"\kiosk\custom\sync_custom\%project_id%", False],
+        ["*", r"%base_path%\reporting", r"\kiosk\reporting", False],
+        ["**", r"%base_path%\config\kiosk_queries", r"\kiosk\config\kiosk_queries", False],
         ["DSD", r"%base_path%\config\dsd", r"\kiosk\config\dsd", False],
     ]
 

@@ -3,6 +3,9 @@ import_configurations:
   - kiosk_local_config.yml
   - kiosk_secure.yml
 
+config:
+  # The project_id must be in the kiosk_config file! Some tools rely on that convention!
+  project_id: 'pvd'
 
 housekeeping:
   clear_log:
