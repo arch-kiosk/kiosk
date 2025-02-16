@@ -407,7 +407,7 @@ class KioskPatcher:
             cmdline.extend(unpackkiosk_parameters)
             result = subprocess.run(cmdline, cwd=unpackkiosk_dir)
             rc = result.returncode
-            logging.debug(f"{self.__class__.__name__}.start_shell_script: unpackkiosk sub process returned "
+            logging.info(f"{self.__class__.__name__}.start_shell_script: unpackkiosk sub process returned "
                           f"{rc}")
             return (True, "") if rc == 0 else (False, "unpackkiosk failed. Look at the unpackkiosk logs for details.")
 

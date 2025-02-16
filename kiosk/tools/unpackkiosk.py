@@ -111,7 +111,7 @@ def usage():
                 Just unpacks the core code files. Implies -c, -o, --no_custom_directories, --no_config, 
                 --no_redis, --no_migration, --no_thumbnails, --dont_check_workstations
     """)
-    sys.exit(0)
+    sys.exit(-1)
 
 
 current_kiosk_version = ""
@@ -592,21 +592,21 @@ if __name__ == '__main__':
         else:
             logging.error(
                 f"Unpackkiosk must run with admin privileges (unless started with -no_admin). Use run as ... ")
-            sys.exit(0)
+            sys.exit(-1)
 
     if "patch" not in options:
         if not check_imagemagick():
             logging.error("Error: Imagemagick is not installed! Please install Imagemagick first.")
-            sys.exit(0)
+            sys.exit(-1)
 
         if not check_ghostscript():
             logging.error("Error: Ghostscript is not installed! Please install Ghostscript first.")
-            sys.exit(0)
+            sys.exit(-1)
 
         if "no_redis" not in options:
             if not check_redis():
                 logging.error(f"ERROR: REDIS is not installed or at least not running ...")
-                sys.exit(0)
+                sys.exit(-1)
 
     if "test_drive" in options and "o" not in options:
         logging.info(
@@ -614,7 +614,7 @@ if __name__ == '__main__':
         logging.info(",".join([f"{k}={v}" for k, v in options.items()]))
         logging.info(f"kiosk-dir: {kiosk_dir}")
         logging.info(f"source-dir: {src_dir}")
-        sys.exit(0)
+        sys.exit(-1)
 
     from kioskrestore import KioskRestore
 
@@ -633,13 +633,13 @@ if __name__ == '__main__':
             current_version = get_current_kiosk_version(kiosk_dir)
             if not current_version:
                 logging.error("Error: Cannot read the version of the existing Kiosk")
-                sys.exit(0)
+                sys.exit(-1)
             if current_version == "0":
                 logging.error("Error: The Kiosk you try to update is so old that it does not even have a "
                               "kioskversion.py let alone the newer kiosk.version. "
                               "Please make sure you really want to update this Kiosk "
                               "(and then create a kiosk.version manually).")
-                sys.exit(0)
+                sys.exit(-1)
             try:
                 _current_kiosk_version = kioskstdlib.get_kiosk_semantic_version(current_version)
                 if _current_kiosk_version == ("", ""):
@@ -649,7 +649,7 @@ if __name__ == '__main__':
                 current_kiosk_version = _current_kiosk_version[1]
             except BaseException as e:
                 logging.error(f"Error: The Kiosk you try to update has an illegal version \"{current_version}\" ")
-                sys.exit(0)
+                sys.exit(-1)
 
             print(f"updating an existing Kiosk version \"{current_version}\"", end="\n")
 
@@ -662,14 +662,14 @@ if __name__ == '__main__':
                     logging.error(f"Error: The Kiosk you are trying to update has workstations in the field or "
                                   f"the check failed for some reason. However, "
                                   f"use '--dont_check_workstations' to update anyhow.")
-                    sys.exit(0)
+                    sys.exit(-1)
 
             if "test_drive" in options:
                 logging.info("test_drive parameter for an update recognized. unpackkiosk will stop here. Options were:")
                 logging.info(",".join([f"{k}={v}" for k, v in options.items()]))
                 logging.info(f"kiosk-dir: {kiosk_dir}")
                 logging.info(f"source-dir: {src_dir}")
-                sys.exit(0)
+                sys.exit(-1)
 
             if "skip_installation" not in options:
                 if "noc" not in options:
@@ -729,7 +729,7 @@ if __name__ == '__main__':
                 else:
                     if not KioskRestore.create_db_if_missing(cfg_file):
                         print(f"create_db_if_missing returned False. Database was not created.")
-                        sys.exit(0)
+                        sys.exit(-1)
                     else:
                         print(f"database ready.")
 
@@ -751,7 +751,7 @@ if __name__ == '__main__':
             if not KioskRestore.migrate_database(cfg_file):
                 print(f"ERROR: migrate_database returned False. Database was not properly migrated: "
                       f"STOPPING UNPACKKIOSK PREMATURELY.")
-                sys.exit(0)
+                sys.exit(-1)
             else:
                 print("Database Migration successful")
                 if "ntz" not in options:
@@ -770,7 +770,7 @@ if __name__ == '__main__':
 
         except BaseException as e:
             print(f"ERROR: migrate_database threw Exception {repr(e)}: STOPPING.")
-            sys.exit(0)
+            sys.exit(-1)
     else:
         if not this_is_an_update:
             print("Migration skipped because this is a new installation that might need configuration first.")
