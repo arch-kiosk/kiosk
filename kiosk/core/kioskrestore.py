@@ -123,10 +123,10 @@ class KioskRestore:
         try:
             rc = subprocess.run(cmdline, cwd=working_directory)  # stdout=subprocess.PIPE
         except OSError as e:
-            cls._abort_with_error(0, f"Exception in zip_add_files: {repr(e)}")
+            cls._abort_with_error(-1, f"Exception in zip_add_files: {repr(e)}")
 
         if not rc or rc.returncode != 0:
-            cls._abort_with_error(0, f"7zip returned an error: {rc.returncode}")
+            cls._abort_with_error(-1, f"7zip returned an error: {rc.returncode}")
 
         return True
 
@@ -153,14 +153,14 @@ class KioskRestore:
 
         except OSError as e:
             if fail_on_error:
-                cls._abort_with_error(0, f"Exception in zip_extract_files: {repr(e)}")
+                cls._abort_with_error(-1, f"Exception in zip_extract_files: {repr(e)}")
             else:
                 print(f"WARNING: Exception in zip_extract_files: {repr(e)}. Skipped because this is a patch.")
                 return True
 
         if not rc or rc.returncode != 0:
             if fail_on_error:
-                cls._abort_with_error(0, f"7zip returned an error: {rc.returncode}")
+                cls._abort_with_error(-1, f"7zip returned an error: {rc.returncode}")
             else:
                 print(f"WARNING: 7zip returned an error: {rc.returncode}. Skipped because this is a patch.")
 
@@ -282,16 +282,16 @@ class KioskRestore:
 
     @classmethod
     def _assert_paths(cls, config: KioskConfig):
-        kiosk_dir = config.resolve_symbols(config.kiosk["base_path"])
+        kiosk_dir = config.resolve_symbols(config.base_path)
         path_dict = {"kiosk": kiosk_dir,
                      "sync": config.resolve_symbols(config.config["sync"])}
 
         if not path.isdir(kiosk_dir):
-            cls._abort_with_error(0, f"Kiosk path cannot be resolved from Kiosk/base_path in {config.configfile}")
+            cls._abort_with_error(-1, f"Kiosk path cannot be resolved from Kiosk/base_path in {config.configfile}")
         print(f"Kiosk base path is {kiosk_dir}")
 
         if not path.isdir(path_dict["sync"]):
-            cls._abort_with_error(0, f"Sync path cannot be resolved from config/sync in {config.configfile}")
+            cls._abort_with_error(-1, f"Sync path cannot be resolved from config/sync in {config.configfile}")
         return path_dict
 
     @classmethod
@@ -1192,15 +1192,15 @@ class KioskRestore:
                     finally:
                         con.close()
 
-                cls._abort_with_error(0, f"Exception in restore_db: {repr(e)}")
+                cls._abort_with_error(-1, f"Exception in restore_db: {repr(e)}")
 
         except BaseException as e:
             print("KioskRestore.restore_db failed.")
-            cls._abort_with_error(0, f"Exception in restore_db: {repr(e)}")
+            cls._abort_with_error(-1, f"Exception in restore_db: {repr(e)}")
             rc = False
 
         if not rc:
-            cls._abort(0)
+            cls._abort(1)
 
     @classmethod
     def assert_postgres(cls):
@@ -1210,7 +1210,7 @@ class KioskRestore:
         except BaseException:
             pass
         if not rc:
-            cls._abort_with_error(0, "Postgres cannot be found. Please add it to the OS Path!")
+            cls._abort_with_error(-1, "Postgres cannot be found. Please add it to the OS Path!")
 
     @classmethod
     def pg_restore_database(cls, src_dir, dump_file, db_name, user_id, user_pwd, native_format=False):

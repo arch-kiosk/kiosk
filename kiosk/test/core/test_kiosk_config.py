@@ -45,7 +45,7 @@ class TestSyncConfig(KioskPyTestHelper):
         print("\n")
         print(kiosk_config.get_logfile())
         assert kiosk_config.kiosk
-        assert kiosk_config.kiosk["base_path"].lower() == os.path.join(
+        assert kiosk_config.base_path.lower() == os.path.join(
             self.get_kiosk_base_path_from_test_path(test_path)).lower()
         assert kiosk_config.get_project_id() == "test"
         assert kiosk_config.file_import

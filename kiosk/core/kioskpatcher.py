@@ -409,7 +409,8 @@ class KioskPatcher:
             rc = result.returncode
             logging.info(f"{self.__class__.__name__}.start_shell_script: unpackkiosk sub process returned "
                           f"{rc}")
-            return (True, "") if rc == 0 else (False, "unpackkiosk failed. Look at the unpackkiosk logs for details.")
+            return (True, "") if rc == 0 else (False, f"unpackkiosk failed with rc {rc}. "
+                                                      f"Look at the unpackkiosk logs for details.")
 
         except BaseException as e:
             cmdline_str = " ".join(cmdline)
