@@ -334,7 +334,7 @@ class KioskAppFactory(AppFactory):
                 subnet, kioskglobals.get_development_option("advanced_debug_log").lower() == "true")
             color = kioskstdlib.try_get_dict_entry(cfg.kiosk, "terminal_accent_color_ansi",
                                                    "[31;1m")
-            print(f"\n\u001b{color}")
+            print(f"\n\x1B[2J\x1B[H\u001b{color}")
             print("")
             if addresses:
                 print("------------------------------------------------")

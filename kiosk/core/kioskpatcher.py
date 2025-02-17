@@ -384,7 +384,7 @@ class KioskPatcher:
                             f"test drive with command line {cmdline_str} --test_drive")
 
         # return self.start_unpackkiosk_async(unpackkiosk_dir, unpackkiosk_file, unpackkiosk_parameters)
-        print ("\x1B[30;1;43m")  # Black on yellow, bold
+        print ("\x1B[2J\x1B[H\x1B[30;1;43m")  # Black on yellow, bold
         print ("*******************************************************")
         print ("**                Updating Kiosk                     **")
         print ("**      This proces can take quite a while,          **")
