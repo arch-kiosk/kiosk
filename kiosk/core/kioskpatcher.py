@@ -14,6 +14,11 @@ import subprocess
 
 CURRENT_PATCH_FILE_VERSION = 0.3
 
+ESC_RED = "\u001b[31m"
+ESC_GREEN = "\u001b[32;1m"
+ESC_YELLOW = "\u001b[33;1m"
+ESC_RESET = "\u001b[0m"
+
 
 # noinspection PyBroadException
 class KioskPatcher:
@@ -379,6 +384,16 @@ class KioskPatcher:
                             f"test drive with command line {cmdline_str} --test_drive")
 
         # return self.start_unpackkiosk_async(unpackkiosk_dir, unpackkiosk_file, unpackkiosk_parameters)
+        print ("\u001b[30;1m;43")
+        print ("*******************************************************")
+        print ("**                Updating Kiosk                     **")
+        print ("**      This proces can take quite a while,          **")
+        print ("**      even up to 30 minutes during which           **")
+        print ("**      you won't see a thing here. So please        **")
+        print ("**      have patience. Kiosk will start after        **")
+        print ("**            the update has finished                **")
+        print ("*******************************************************")
+        print (ESC_RESET, flush=True)
         return self.start_unpackkiosk_sync(unpackkiosk_dir, unpackkiosk_file, unpackkiosk_parameters)
 
     # noinspection PyPep8Naming
@@ -405,7 +420,7 @@ class KioskPatcher:
         try:
             cmdline = ["python", os.path.join(unpackkiosk_file), self.transfer_dir, self.cfg.base_path]
             cmdline.extend(unpackkiosk_parameters)
-            result = subprocess.run(cmdline, cwd=unpackkiosk_dir)
+            result = subprocess.run(cmdline, capture_output=True, cwd=unpackkiosk_dir)
             rc = result.returncode
             logging.info(f"{self.__class__.__name__}.start_shell_script: unpackkiosk sub process returned "
                           f"{rc}")
