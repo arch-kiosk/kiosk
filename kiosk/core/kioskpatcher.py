@@ -384,7 +384,7 @@ class KioskPatcher:
                             f"test drive with command line {cmdline_str} --test_drive")
 
         # return self.start_unpackkiosk_async(unpackkiosk_dir, unpackkiosk_file, unpackkiosk_parameters)
-        print ("\u001b[30;1m;43")
+        print ("\x1B[30;1;43m")  # Black on yellow, bold
         print ("*******************************************************")
         print ("**                Updating Kiosk                     **")
         print ("**      This proces can take quite a while,          **")
@@ -392,8 +392,7 @@ class KioskPatcher:
         print ("**      you won't see a thing here. So please        **")
         print ("**      have patience. Kiosk will start after        **")
         print ("**            the update has finished                **")
-        print ("*******************************************************")
-        print (ESC_RESET, flush=True)
+        print ("*******************************************************\x1B[0m", flush=True)
         return self.start_unpackkiosk_sync(unpackkiosk_dir, unpackkiosk_file, unpackkiosk_parameters)
 
     # noinspection PyPep8Naming
