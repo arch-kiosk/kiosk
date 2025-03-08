@@ -233,3 +233,29 @@ class GeneralStore:
         :returns: no returns, raises Exceptions in case of trouble
         """
         raise NotImplementedError
+
+    def is_cache_valid(self, key) -> bool:
+        """
+        returns True if a cache is valid (that is usually when the cache's counter is absent or 0)
+        :param key:
+        :return: bool
+        """
+        raise NotImplementedError
+
+    def validate_cache(self, key) -> None:
+        """
+        validates a cache. It usually reduces the key's int value by its initial number.
+        If no parallel process interferes during the operation that would be 0.
+        If this sets the cache key below zero, the key will be deleted.
+        :param key: the name of the key
+        :return: nothing
+        """
+        raise NotImplementedError
+
+    def invalidate_cache(self, key) -> None:
+        """
+        increments the cache value by 1
+        :param key: the name of the key
+        :return: nothing
+        """
+        raise NotImplementedError

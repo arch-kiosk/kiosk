@@ -441,3 +441,42 @@ class RedisGeneralStore(GeneralStore):
             self.red_lock_unlock(lock)
         except NotAcquired as e:
             pass
+
+    def is_cache_valid(self, key) -> bool:
+        """
+        returns True if a cache is valid
+        :param key:
+        :return: bool
+        """
+        try:
+            return self.get_int(key) < 1
+        except KeyError:
+            return True
+
+
+    def validate_cache(self, key) -> None:
+        """
+        validates a cache. It usually reduces the key's int value by its initial number.
+        If no parallel process interferes during the operation that would be 0.
+        If this sets the cache key below zero, the key will be deleted.
+        :param key: the name of the key
+        :return: nothing
+        """
+
+        # yup, the whole thing has a race condition. I accept it here.
+        # todo: refactor and solve the race condition
+        try:
+            current_value = self.get_int(key)
+        except KeyError:
+            current_value = 1
+
+        if self.dec_int(key, current_value) < 0:
+            self.delete_key(key)
+
+    def invalidate_cache(self, key) -> None:
+        """
+        increments the cache value by 1
+        :param key: the name of the key
+        :return: nothing
+        """
+        self.inc_int(key)

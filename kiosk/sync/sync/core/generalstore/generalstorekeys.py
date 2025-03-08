@@ -31,3 +31,10 @@ sync_core_threaded_job_manager_job = "_".join([sync_core_threaded_job_manager, "
 
 #messaging
 messaging_change_mark = "_".join([messaging, "init_counter"])
+
+#caches
+KIOSK_GENERAL_CACHE_REFRESH = "_".join([kiosk, "cache", "general"])
+JOB_SUFFIX_REFRESH_FID_CACHE = "RI"
+JOB_SUFFIX_REFRESH_CACHE_FILE = "RF"
+
+

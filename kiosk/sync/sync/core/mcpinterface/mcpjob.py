@@ -21,6 +21,18 @@ def is_mcp_job(job_uid):
     return len(job_uid) <= 21
 
 
+def find_running_job(general_store, job_suffix):
+    queue = MCPQueue(general_store)
+    jobs = queue.list_jobs(suffix=job_suffix)
+    if len(jobs) > 0:
+        for jobid in jobs:
+            job = MCPJob(general_store, jobid, lock_queue=False,
+                         job_type_suffix=job_suffix)
+            job.fetch_status()
+            if job.status < MCPJobStatus.JOB_STATUS_DONE:
+                return True
+    return False
+
 class Progress:
     def __init__(self, progress: dict):
         self._progress = copy.deepcopy(progress)

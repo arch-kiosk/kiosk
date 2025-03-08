@@ -268,6 +268,11 @@
   line-height: 1.2em;
 }
 
+#bt-clear {
+  background-color: var(--col-bg-alert);
+  color: var(--col-primary-bg-alert);
+}
+
 .admin-sysinfo-wrapper {
   display: flex;
   flex-flow: column;

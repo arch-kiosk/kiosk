@@ -28,7 +28,7 @@ from kioskrepresentationtype import KioskRepresentationType, KioskRepresentation
 from kioskresult import KioskResult
 from kiosksqldb import KioskSQLDb
 from plugins.filerepositoryplugin.ModelFileRepository import ModelFileRepository, FileRepositoryFile
-from plugins.filerepositoryplugin.filerepositorylib import get_std_file_images
+from plugins.filerepositoryplugin.filerepositorylib import get_std_file_images, trigger_fid_refresh_if_needed
 from plugins.filerepositoryplugin.forms.editform import ModalFileEditForm
 from sync.core.filerepository import FileRepository
 
@@ -250,8 +250,15 @@ def file_repository_show():
     else:
         filtered_site = ""
 
-
     if request.method == "POST":
+        try:
+            if "ajax" not in request.form and trigger_fid_refresh_if_needed(kioskglobals.general_store):
+                logging.debug(f"filerepositorycontroller.file_repository_show: triggered fid refresh")
+        except BaseException as e:
+            logging.error(f"filerepositorycontroller.file_repository_show: Uncritical error "
+                          f"in trigger_fid_refresh_if_needed: "
+                          f"{repr(e)}")
+
         options = {"context": str(filter_form.context.data).upper(),
                    "no_context": filter_form.no_context.data,
                    "recording_context": m_file_repository.get_recording_context_from_alias(

@@ -5,6 +5,7 @@ import kioskstdlib
 from dsd.dsd3singleton import Dsd3Singleton
 from dsd.dsdyamlloader import DSDYamlLoader
 from generalstore.generalstore import GeneralStore
+from generalstore.generalstorekeys import KIOSK_GENERAL_CACHE_REFRESH
 from mcpinterface.mcpjob import MCPJob, MCPJobStatus
 from sync_config import SyncConfig
 from kioskuser import KioskUser
@@ -106,8 +107,15 @@ class FileSequenceImportWorker:
             try:
                 kiosklib.run_quality_control()
             except BaseException as e:
-                logging.warning(f"filesequenceimportworker: Error running quality control: {repr(e)}. "
+                logging.warning(f"{self.__class__.__name__}.worker: Error running quality control: {repr(e)}. "
                                 f"Please use Housekeeping if you want to rerun quality control rules after the import.")
+            try:
+                self.gs.invalidate_cache(KIOSK_GENERAL_CACHE_REFRESH)
+            except BaseException as e:
+                logging.warning(f"{self.__class__.__name__}.worker: "
+                                f"Error invalidating file identifier caches: {repr(e)}. "
+                                f"Please use Administration if you want to "
+                                f"refresh the fid caches manually.")
 
             if self.job.fetch_status() == MCPJobStatus.JOB_STATUS_RUNNING:
                 self.job.set_status_to(MCPJobStatus.JOB_STATUS_DONE)

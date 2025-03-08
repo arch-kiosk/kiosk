@@ -5,7 +5,7 @@ import_configurations:
 
 config:
   # The project_id must be in the kiosk_config file! Some tools rely on that convention!
-  project_id: 'demo'
+  project_id: 'pvd'
 
 housekeeping:
   clear_log:
@@ -39,12 +39,10 @@ glossary:
 kiosk:
   global_constants:
     project_logo_bottom: ' '
-    project_logo_main: 'Rural Landscapes of Iron Age Imperial
-Mesopotamia'
+    project_logo_main: 'Monastic Archaeology Field School'
     project_logo_top: ''
-    project_name: 'Rural Landscapes of Iron Age Imperial
-Mesopotamia'
-    project_short: ANC
+    project_name: 'Monastic Archaeology Field School'
+    project_short: MAFS
 
   administrationplugin:
     fake_transfer: True

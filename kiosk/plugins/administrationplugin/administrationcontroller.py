@@ -1,4 +1,3 @@
-import datetime
 import logging
 import os
 import pprint
@@ -9,7 +8,6 @@ import zipfile
 from collections import namedtuple
 from http import HTTPStatus
 from os import path
-from typing import Tuple
 
 from flask import Blueprint, request, redirect, render_template, jsonify, \
     url_for, abort, make_response, send_file, __version__
@@ -24,7 +22,6 @@ import kiosklib
 import kiosksqlalchemy
 import kioskstdlib
 import mcpinterface.mcpqueue
-import yamlconfigreader
 from authorization import BACKUP_PRIVILEGE, RESTORE_PRIVILEGE, \
     ENTER_ADMINISTRATION_PRIVILEGE, MANAGE_SERVER_PRIVILEGE, \
     IsAuthorized, get_local_authorization_strings, is_explicitly_authorized
@@ -34,6 +31,7 @@ from core.kioskcontrollerplugin import get_plugin_for_controller
 # from sync.core.threadedjobmanagement.kioskthreadedjob import KioskThreadedJob
 # from kioskthread import KioskThread
 from dsd.dsd3singleton import Dsd3Singleton
+from generalstore.generalstorekeys import JOB_SUFFIX_REFRESH_FID_CACHE, JOB_SUFFIX_REFRESH_CACHE_FILE
 from kioskconfig import KioskConfig
 from kioskpatcher import KioskPatcher
 from kioskquery.kioskquerystore import install_default_kiosk_queries
@@ -43,13 +41,12 @@ from kiosksqldb import KioskSQLDb
 from kioskstdlib import id_generator
 from kioskwtforms import kiosk_validate
 from mcpinterface.mcpconstants import MCPJobStatus
-from mcpinterface.mcpjob import MCPJob
+from mcpinterface.mcpjob import MCPJob, find_running_job
 from mcpinterface.mcpqueue import MCPQueue, assert_mcp
 from messaging.systemmessagecatalog import SYS_MSG_ID_BEFORE_RESTORE_FAILED
 from pluggableflaskapp import current_app
-
+from plugins.filerepositoryplugin.filerepositorylib import trigger_fid_refresh_if_needed
 from sqlalchemy_models.adminmodel import KioskUser
-
 from synchronization import Synchronization
 from tz.kiosktimezones import KioskTimeZones
 from .forms.backupform import BackupForm
@@ -80,7 +77,7 @@ print(f"{_controller_name_} loaded")
 
 SysInfo = namedtuple('SysInfo', ['kiosk_ver', 'kiosk_date', 'kiosk_name', 'dsd_format', 'python_ver',
                                  'flask_ver', "postgresql_ver"])
-JOB_SUFFIX_REFRESH_CACHE_FILE = "RF"
+
 
 
 class UserError(Exception):
@@ -320,7 +317,10 @@ def administration_show():
                                redis_version=redis_version,
                                is_local_server=local_server,
                                file_cache_refresh_running=file_cache_refresh_running,
+                               fid_cache_refresh_running=find_running_job(kioskglobals.general_store,
+                                                                          JOB_SUFFIX_REFRESH_FID_CACHE),
                                gs_id=gs_id)
+
     except BaseException as e:
         logging.error(f"administrationcontroller.administration_show : {repr(e)}")
         abort(500, repr(e))
@@ -1308,7 +1308,6 @@ def refresh_file_cache():
 
     return jsonify(**result)
 
-
 def start_mcp_refresh_file_cache():
     #
     # main function
@@ -1331,19 +1330,59 @@ def start_mcp_refresh_file_cache():
 
     return errors, job_uid
 
-
 def is_file_cache_refresh_running():
-    queue = MCPQueue(kioskglobals.general_store)
-    jobs = queue.list_jobs(suffix=JOB_SUFFIX_REFRESH_CACHE_FILE)
-    if len(jobs) > 0:
-        for jobid in jobs:
-            job = MCPJob(kioskglobals.general_store, jobid, lock_queue=False,
-                         job_type_suffix=JOB_SUFFIX_REFRESH_CACHE_FILE)
-            job.fetch_status()
-            if job.status < MCPJobStatus.JOB_STATUS_DONE:
-                return True
-    return False
+    return find_running_job(kioskglobals.general_store, JOB_SUFFIX_REFRESH_CACHE_FILE)
 
+#  **************************************************************
+#  ****    /administration/refresh_file_identifier_cache route
+#  *****************************************************************/
+@administration.route('/refresh_file_identifier_cache', methods=['POST'])
+@full_login_required
+@requires(IsAuthorized(ENTER_ADMINISTRATION_PRIVILEGE))
+# @nocache
+def refresh_file_identifier_cache():
+    result = {}
+    print("\n*************** administration/refresh_file_identifier_cache")
+    print(f"\nGET: get_plugin_for_controller returns {get_plugin_for_controller(_plugin_name_)}")
+    print(f"\nGET: plugin.name returns {get_plugin_for_controller(_plugin_name_).name}")
+
+    try:
+        assert_mcp(kioskglobals.general_store)
+
+        errors, job = start_mcp_refresh_fid_cache()
+
+        if not errors:
+            if job:
+                result["result"] = "ok"
+                result["message"] = ("The process was successfully queued. It will run as soon as it is possible."
+                                     "You can monitor it in process management.")
+            else:
+                raise Exception("The job was not started correctly.")
+        else:
+            raise Exception(errors[0])
+
+    except Exception as e:
+        logging.error(f"refresh_file_cache: Exception when handling "
+                      f"administration/refresh_file_cache : {repr(e)}")
+        result["result"] = repr(e)
+
+    return jsonify(**result)
+
+
+def start_mcp_refresh_fid_cache():
+    #
+    # main function
+    #
+    errors = []
+    job_uid = ""
+    try:
+        job_uid = trigger_fid_refresh_if_needed(kioskglobals.general_store, force=True)
+    except Exception as e:
+        logging.error("Exception in administrationcontroller.start_mcp_refresh_fid_cache: " + repr(e))
+        errors.append("The server wouldn't start the process: " + repr(e))
+        job_uid = ""
+
+    return errors, job_uid
 
 #  **************************************************************
 #  ****    /administration/reload_all_kiosk_queries route

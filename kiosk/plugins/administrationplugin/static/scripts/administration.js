@@ -16,7 +16,7 @@ function triggerBackup() {
 }
 
 function triggerUploadPatch(endpoint) {
-    const route = getRoutefor(endpoint)
+    const route = getRoutefor(endpoint);
     kioskOpenModalDialog(route, {
         closeOnBgClick: false,
         showCloseBtn: true,
@@ -29,9 +29,9 @@ function triggerUploadPatch(endpoint) {
                 //@ts-ignore
                 $.magnificPopup.close();
                 kioskErrorToast("Sorry, it was not possible to start this feature.");
-            }
-        }
-    })
+            },
+        },
+    });
 }
 
 
@@ -45,17 +45,17 @@ function init_bt_backup() {
             showCloseBtn: false,
             callbacks: {
                 open: () => {
-                    $('#backup-form').bind('keypress', function (e) {
+                    $("#backup-form").bind("keypress", function(e) {
                         if (e.keyCode === 13) {
-                            $(this).find('input[type=submit]:first').click();
+                            $(this).find("input[type=submit]:first").click();
                         }
                     });
                 },
                 ajaxFailed: () => {
                     $.magnificPopup.close();
                     kioskErrorToast("Sorry, the backup dialog wouldn't start. Perhaps you need a fresh login.");
-                }
-            }
+                },
+            },
         });
     });
 }
@@ -70,9 +70,9 @@ function init_bt_transfer() {
             showCloseBtn: false,
             callbacks: {
                 open: () => {
-                    $('#transfer-form').bind('keypress', function (e) {
+                    $("#transfer-form").bind("keypress", function(e) {
                         if (e.keyCode === 13) {
-                            $(this).find('input[type=submit]:first').click();
+                            $(this).find("input[type=submit]:first").click();
                         }
                     });
                 },
@@ -83,12 +83,12 @@ function init_bt_transfer() {
                 close: () => {
                     if (startToServerTransfer.hasOwnProperty("transfer_job")) {
                         if (startToServerTransfer.transfer_job) {
-                            console.log("Job cancelled.")
+                            console.log("Job cancelled.");
                             startToServerTransfer.transfer_job.stopit = true;
                         }
                     }
-                }
-            }
+                },
+            },
         });
     });
 }
@@ -104,17 +104,17 @@ function init_bt_restore() {
             showCloseBtn: false,
             callbacks: {
                 open: () => {
-                    $('#restore-form').bind('keypress', function (e) {
+                    $("#restore-form").bind("keypress", function(e) {
                         if (e.keyCode === 13) {
-                            $(this).find('input[type=submit]:first').click();
+                            $(this).find("input[type=submit]:first").click();
                         }
                     });
                 },
                 ajaxFailed: () => {
                     $.magnificPopup.close();
                     kioskErrorToast("Sorry, the restore dialog wouldn't start.");
-                }
-            }
+                },
+            },
         });
     });
 }
@@ -129,9 +129,9 @@ function init_bt_housekeeping() {
             showCloseBtn: true,
             callbacks: {
                 open: () => {
-                    $('#housekeeping-form').bind('keypress', function (e) {
+                    $("#housekeeping-form").bind("keypress", function(e) {
                         if (e.keyCode === 13) {
-                            $(this).find('input[type=submit]:first').click();
+                            $(this).find("input[type=submit]:first").click();
                         }
                     });
                 },
@@ -145,8 +145,8 @@ function init_bt_housekeeping() {
                 ajaxFailed: () => {
                     $.magnificPopup.close();
                     kioskErrorToast("Sorry, the housekeeping dialog wouldn't start.");
-                }
-            }
+                },
+            },
         });
     });
 }
@@ -154,7 +154,7 @@ function init_bt_housekeeping() {
 function init_bt_restart_server() {
     let bt = $("#bt-restart");
     bt.prop("disabled", false);
-    bt.on("click", function () {
+    bt.on("click", function() {
         kioskYesNoToast("do you really want to restart the server? Note that it will take a few minutes " +
             "to reload. Afterwards perhaps another manual refresh of everybody's browser content might be needed.",
             () => {
@@ -163,25 +163,25 @@ function init_bt_restart_server() {
                     "/administration/restart",
                     {},
                     () => {
-                        console.log("restart successful.")
+                        console.log("restart successful.");
                         window.location.replace("/logout");
                     },
                     (err_code, json) => {
                         if ("result" in json) {
                             kioskErrorToast(json.result);
                         } else {
-                            kioskErrorToast(`An Error occurred when trying to restart the server: ${err_code}`)
+                            kioskErrorToast(`An Error occurred when trying to restart the server: ${err_code}`);
                         }
                     });
             });
-    })
+    });
 }
 
 function init_bt_clear() {
     let bt = $("#bt-clear");
     bt.prop("disabled", false);
 
-    bt.on("click", function () {
+    bt.on("click", function() {
 
         kioskYesNoToast("DANGER! Do you really intend to wipe all your data in the master database? Your data will be lost " +
             "unless you have a backup. Do this only if you really know what you are doing! This is not a standard operation.",
@@ -190,18 +190,18 @@ function init_bt_clear() {
                     "/administration/cleardb",
                     {},
                     () => {
-                        kioskSuccessToast(`Done!`)
+                        kioskSuccessToast(`Done!`);
                     },
                     (err_code, json) => {
                         if ("result" in json) {
                             kioskErrorToast(json.result);
                         } else {
-                            kioskErrorToast(`An Error occurred in when calling init_bt_clear: ${err_code}`)
+                            kioskErrorToast(`An Error occurred in when calling init_bt_clear: ${err_code}`);
                         }
 
                     });
             });
-    })
+    });
 }
 
 // function init_bt_dataintegrity() {
@@ -239,8 +239,8 @@ function init_bt_system_messages() {
             },
             onError: (html_error, msg, jqXHR) => {
                 kioskErrorToast(html_error);
-            }
-        })
+            },
+        });
     });
 }
 
@@ -274,7 +274,7 @@ function init_bt_events() {
 
 function init_bt_refresh_file_cache() {
     let bt = $("#bt-refresh-file-cache");
-    if (typeof bt.data('disable') == 'undefined') {
+    if (typeof bt.data("disable") == "undefined") {
         bt.prop("disabled", false);
         bt.on("click", (e) => {
             kioskSendAjaxCommand("POST", $(bt),
@@ -303,6 +303,37 @@ function init_bt_refresh_file_cache() {
         });
     }
 
+}
+
+function init_bt_trigger_fid_refresh() {
+    let bt = $("#bt-trigger-fid-refresh");
+    if (typeof bt.data("disable") == "undefined") {
+        bt.prop("disabled", false);
+        bt.on("click", (e) => {
+            kioskSendAjaxCommand("POST", $(bt),
+                "/administration/refresh_file_identifier_cache",
+                {},
+                (json) => {
+                    if (json && json.result && json.result === "ok") {
+                        bt.prop("disabled", true);
+                        if (json.message) {
+                            kioskSuccessToast(json.message, {
+                                timeout: 0,
+                            });
+                        }
+                    } else {
+                        kioskErrorToast(json.result);
+                    }
+                },
+                (err_code, json) => {
+                    if (json && json.result) {
+                        kioskErrorToast(json.result);
+                    } else {
+                        kioskErrorToast(`An Error occurred in when triggering a file identifier cache refresh: ${err_code}`);
+                    }
+                });
+        });
+    }
 }
 
 function init_bt_reload_kiosk_queries() {
@@ -363,6 +394,7 @@ function initAdministration() {
     initCollapsibles();
 
     kioskToggleCollapsible($("#admin-sysinfo-clicker"));
+    // kioskToggleCollapsible($("#admin-expert-tools-clicker"));
     kioskToggleCollapsible($("#admin-plugins-clicker"));
     kioskToggleCollapsible($("#admin-users-clicker"));
 
@@ -376,7 +408,7 @@ function initAdministration() {
     $(".btn-reset-password").on("click", resetPassword);
     init_bt_backup();
     init_bt_restore();
-    init_bt_transfer()
+    init_bt_transfer();
     init_bt_clear();
     init_bt_housekeeping();
     // init_bt_dataintegrity();
@@ -386,6 +418,7 @@ function initAdministration() {
     init_bt_refresh_file_cache();
     init_bt_reload_kiosk_queries();
     init_bt_import_kiosk_tz();
+    init_bt_trigger_fid_refresh();
     // kioskGetAjaxElement();
 
 }
@@ -396,7 +429,7 @@ function resetPassword() {
 
     kioskSendAjaxCommand("POST", $(this),
         "/administration/resetpassword",
-        {"uid": uid},
+        { "uid": uid },
         (json) => {
             kioskSuccessToast(json.message,
                 {
@@ -421,7 +454,7 @@ function startBackupOrRestore(event = null) {
     console.log(`startBackupOrRestore for ${isBackup ? "backup" : "restore"}`);
     startBackupOrRestore.job = null;
     if (isBackup)
-        setModalDialogTitle("Backup")
+        setModalDialogTitle("Backup");
     else
         setModalDialogTitle("Restore");
 
@@ -436,14 +469,14 @@ function startBackupOrRestore(event = null) {
                 let job_uid = getJobIDFromHtml();
                 if (job_uid) {
 
-                    let job = new KioskJob(isBackup ? $("#backup-form") : $("#restore-form"))
+                    let job = new KioskJob(isBackup ? $("#backup-form") : $("#restore-form"));
                     if (job) {
                         job.onSuccess = (result) => {
                             if (isRestore) {
                                 $.magnificPopup.close();
-                                let msg = "Restore successfully finished. "
+                                let msg = "Restore successfully finished. ";
                                 if ("restored_files" in result) {
-                                    msg += `${result["restored_files"]} files had to be restored to the file repository.`
+                                    msg += `${result["restored_files"]} files had to be restored to the file repository.`;
                                 }
 
                                 kioskSuccessToast(msg +
@@ -458,32 +491,32 @@ function startBackupOrRestore(event = null) {
                                     $.magnificPopup.close();
                                 });
                                 let result_html = `<div class="backup-result"><span class="backup-label">Backup saved successfully as </span>` +
-                                    `<span id="backup-file">${result['backup_file']}</span>` +
-                                    `<button id="backup-clipboard" class="kiosk-btn-32"><i class="mdi mdi-content-copy"></i></button></div>`
-                                if ('backup_file_repository_dir' in result) {
-                                    result_html += `<div class="backup-result"><span class="backup-label">${result['files_copied']} files copied to </span>` +
-                                        `<span id="file-repos-dir">${result['backup_file_repository_dir']}</span>` +
-                                        `<button id="file-repos-clipboard" class="kiosk-btn-32"><i class="mdi mdi-content-copy"></i></button></div>`
+                                    `<span id="backup-file">${result["backup_file"]}</span>` +
+                                    `<button id="backup-clipboard" class="kiosk-btn-32"><i class="mdi mdi-content-copy"></i></button></div>`;
+                                if ("backup_file_repository_dir" in result) {
+                                    result_html += `<div class="backup-result"><span class="backup-label">${result["files_copied"]} files copied to </span>` +
+                                        `<span id="file-repos-dir">${result["backup_file_repository_dir"]}</span>` +
+                                        `<button id="file-repos-clipboard" class="kiosk-btn-32"><i class="mdi mdi-content-copy"></i></button></div>`;
                                 }
                                 $("#dlg-spinner-wrapper").html(result_html);
                                 $("#backup-clipboard").click(() => {
                                     let backupFile = $("#backup-file").text();
-                                    navigator.clipboard.writeText(backupFile).then(function () {
+                                    navigator.clipboard.writeText(backupFile).then(function() {
                                         kioskSuccessToast("Filename is on the clipboard!");
                                         $.magnificPopup.close();
-                                    }, function () {
+                                    }, function() {
                                         kioskErrorToast("Copying to clipboard did not work. Please jot it down.");
                                     });
                                 });
                                 $("#file-repos-clipboard").click(() => {
                                     let fileRepos = $("#file-repos-dir").text();
-                                    navigator.clipboard.writeText(fileRepos).then(function () {
+                                    navigator.clipboard.writeText(fileRepos).then(function() {
                                         kioskSuccessToast("Path is on the clipboard!");
                                         $.magnificPopup.close();
-                                    }, function () {
+                                    }, function() {
                                         kioskErrorToast("Copying to clipboard did not work. Please jot it down.");
                                     });
-                                })
+                                });
                             }
                         };
                         job.onStopProgress = () => {
@@ -539,7 +572,7 @@ function startHousekeeping(event = null) {
                 let job_uid = getJobIDFromHtml();
                 if (job_uid) {
 
-                    let job = new KioskJob($("#housekeeping-form"))
+                    let job = new KioskJob($("#housekeeping-form"));
                     if (job) {
                         job.onSuccess = () => {
                             $.magnificPopup.close();
@@ -590,29 +623,29 @@ function startToServerTransfer(event = null) {
     if (event) {
         event.preventDefault();
     }
-    setModalDialogTitle("transfer in progress ...")
+    setModalDialogTitle("transfer in progress ...");
     kioskSendAjaxForm($("#bt-ok"),
         $("#dialog-ajax-part"),
         "/administration/transfer",
         (jq_form, state_data) => {
-            $("#drop-area-div").hide()
-            setModalDialogTitle("transfer")
+            $("#drop-area-div").hide();
+            setModalDialogTitle("transfer");
 
             if (!kioskElementHasErrors()) {
                 let job_uid = getJobIDFromHtml();
                 if (job_uid) {
 
-                    let job = new KioskJob($("#transfer-form"))
+                    let job = new KioskJob($("#transfer-form"));
                     if (job) {
                         job.onSuccess = (result) => {
-                            startToServerTransfer.transfer_job = null
-                            serverTransferFinished(result['transfer_dir'])
+                            startToServerTransfer.transfer_job = null;
+                            serverTransferFinished(result["transfer_dir"]);
                         };
                         job.onStopProgress = () => {
                             stop_spinner();
                         };
                         job.onError = (err_msg) => {
-                            startToServerTransfer.transfer_job = null
+                            startToServerTransfer.transfer_job = null;
                             $.magnificPopup.close();
                             kioskErrorToast("Task aborted due to an error: " + err_msg);
                         };
@@ -662,13 +695,13 @@ function serverTransferFinished(transfer_dir) {
         If you transfer to an online server copy everything to the shared folder on a Google Drive or 
         follow the instructions you got in case of a different file sharing service. </div>` +
         `<span id="transfer-result-dir">${transfer_dir}</span>` +
-        `<button id="backup-clipboard" class="kiosk-btn-32"><i class="mdi mdi-content-copy"></i></button></div>`
+        `<button id="backup-clipboard" class="kiosk-btn-32"><i class="mdi mdi-content-copy"></i></button></div>`;
     $("#dlg-spinner-wrapper").html(result_html);
     $("#backup-clipboard").click(() => {
-        navigator.clipboard.writeText(transfer_dir).then(function () {
+        navigator.clipboard.writeText(transfer_dir).then(function() {
             kioskSuccessToast("The path to the transfer directory is on the clipboard!");
             $.magnificPopup.close();
-        }, function () {
+        }, function() {
             kioskErrorToast("Copying to clipboard did not work. Please jot it down.");
         });
     });
@@ -690,8 +723,8 @@ function initProcesses(refresh_url, processes_url) {
             },
             (err_msg, textStatus, jqXHR, stateData) => {
                 kioskErrorToast("Status polling interrupted due to this error:<br>" + err_msg);
-            }
-        )
+            },
+        );
     }
 
     initCollapsibles();
@@ -751,14 +784,14 @@ function process_action(uid, action, onSuccess, onError) {
     kioskAjax(deleteProcess.processes_url,
         {
             "action": action,
-            "uid": uid
+            "uid": uid,
         }, "POST",
         {
             "onSuccess": (msg) => {
                 if (msg === "ok") onSuccess(); else onError(msg);
             },
-            "onError": onError
-        }
+            "onError": onError,
+        },
     );
 }
 
@@ -797,10 +830,10 @@ function initLogs(refresh_url) {
 }
 
 function initHovers() {
-    $(".log-item").hover(function () {
+    $(".log-item").hover(function() {
         $(this).siblings().css("background-color", "var(--color-sand)");
         $(this).css("background-color", "var(--color-sand)");
-    }, function () {
+    }, function() {
         $(this).siblings().css("background", "none");
         $(this).css("background", "none");
     });

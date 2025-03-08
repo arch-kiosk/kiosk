@@ -23,8 +23,8 @@ class RefreshFileCacheWorker:
         master_dsd.register_loader("yml", DSDYamlLoader)
         if not master_dsd.append_file(self.cfg.get_dsdfile()):
             logging.error(
-                f"HouseKeepingWorker: DSD {self.cfg.get_dsdfile()} could not be loaded by append_file.")
-            raise Exception(f"HouseKeepingWorker: DSD {self.cfg.get_dsdfile()} could not be loaded.")
+                f"RefreshFileCacheWorker: DSD {self.cfg.get_dsdfile()} could not be loaded by append_file.")
+            raise Exception(f"RefreshFileCacheWorker: DSD {self.cfg.get_dsdfile()} could not be loaded.")
         return master_dsd
 
     def start(self):

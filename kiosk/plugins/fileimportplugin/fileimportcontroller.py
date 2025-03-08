@@ -22,6 +22,7 @@ from core.kioskconfig import KioskConfig
 from core.kioskcontrollerplugin import get_plugin_for_controller
 from core.kioskresult import KioskResult
 from filesequenceimport import FileSequenceImport
+from generalstore.generalstorekeys import KIOSK_GENERAL_CACHE_REFRESH
 from image_manipulation.imagemanipulationstrategyfactory import ImageManipulationStrategyFactory
 from kioskcleanup import KioskCleanup
 from kioskuser import KioskUser
@@ -298,11 +299,20 @@ def localimport():
             file_import.identifier_evaluator = ic.has_identifier
             file_import.move_finished_files = True
             rc = file_import.execute()
+
+
             try:
                 kiosklib.run_quality_control()
             except BaseException as e:
                 logging.warning(f"fileimportcontroller.localimport.worker: Error running quality control: {repr(e)}. "
                                 f"Please use Housekeeping if you want to rerun quality control rules after the import.")
+
+            try:
+                kioskglobals.general_store.invalidate_cache(KIOSK_GENERAL_CACHE_REFRESH)
+            except BaseException as e:
+                logging.warning(f"fileimportcontroller.localimport.worker: "
+                                f"Error invalidating file identifier caches: {repr(e)}. "
+                                f"Please use Administration if you want to refresh the fid caches manually.")
 
             t.thread_progress = 100
             if rc:
@@ -641,8 +651,17 @@ def uploadimage():
                                 kiosklib.run_quality_control()
                             except BaseException as e:
                                 logging.warning(
-                                    f"fileimportcontroller.localimport.worker: Error running quality control: {repr(e)}. "
-                                    f"Please use Housekeeping if you want to rerun quality control rules after the import.")
+                                    f"fileimportcontroller.uploadimage: Error running quality control: {repr(e)}. "
+                                    f"Please use Housekeeping if you want to rerun quality "
+                                    f"control rules after the import.")
+                        try:
+                            kioskglobals.general_store.invalidate_cache(KIOSK_GENERAL_CACHE_REFRESH)
+                        except BaseException as e:
+                            logging.warning(f"fileimportcontroller.uploadimage: "
+                                            f"Error invalidating file identifier caches: {repr(e)}. "
+                                            f"Please use Administration if you want to "
+                                            f"refresh the fid caches manually.")
+
                     else:
                         if kiosk_logger.has_new_errors() or kiosk_logger.has_new_warnings():
                             log = kiosk_logger.get_log()
