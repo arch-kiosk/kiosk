@@ -2,6 +2,7 @@ import datetime
 import logging
 import os
 import shutil
+from typing import Callable
 
 import kioskstdlib
 from kioskstdlib import get_file_age_days
@@ -62,7 +63,7 @@ class KioskCleanup:
             logging.error(f"{self.__class__.__name__}._move_file: {repr(e)}")
             return False
 
-    def cleanup(self) -> bool:
+    def cleanup(self, on_check_file: Callable = None) -> bool:
         if self.move_to and not os.path.exists(self.move_to):
             raise Exception(f"{self.__class__.__name__}.cleanup: target directory does not exist: {self.move_to}")
         rc = True
@@ -74,9 +75,12 @@ class KioskCleanup:
             for f in files:
                 file_age = get_file_age_days(f, now=self.now, use_most_recent_date=True)
                 if file_age > self.max_age_days:
-                    logging.info(f"Cleaning up temporary file {f}.")
-                    if self.move_to:
-                        self._move_file(f)
+                    if not on_check_file or on_check_file(f):
+                        logging.info(f"Cleaning up temporary file {f}.")
+                        if self.move_to:
+                            self._move_file(f)
+                        else:
+                            rc = rc and self._delete_file(f)
                     else:
-                        rc = rc and self._delete_file(f)
+                        logging.debug(f"{self.__class__.__name__}.cleanup: File {f} skipped.")
         return rc

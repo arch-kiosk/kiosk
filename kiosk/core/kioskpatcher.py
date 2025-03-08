@@ -387,7 +387,7 @@ class KioskPatcher:
         print ("\x1B[2J\x1B[H\x1B[30;1;43m")  # Black on yellow, bold
         print ("*******************************************************")
         print ("**                Updating Kiosk                     **")
-        print ("**      This proces can take quite a while,          **")
+        print ("**      This process can take quite a while,         **")
         print ("**      even up to 30 minutes during which           **")
         print ("**      you won't see a thing here. So please        **")
         print ("**      have patience. Kiosk will start after        **")

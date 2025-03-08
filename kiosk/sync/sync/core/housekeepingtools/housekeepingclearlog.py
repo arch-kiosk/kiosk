@@ -17,6 +17,9 @@ def clear_log(cfg: SyncConfig, test_mode=False, override_logdir=""):
     :param override_logdir:
     :return: boolean
     """
+    def is_log_file(f):
+        return kioskstdlib.get_file_extension(f).lower() == "log"
+
     try:
         housekeeping_cfg = cfg.get_section("housekeeping")
         clear_log_cfg = kioskstdlib.try_get_dict_entry(housekeeping_cfg, "clear_log", {}, True)
@@ -60,7 +63,7 @@ def clear_log(cfg: SyncConfig, test_mode=False, override_logdir=""):
         cleaner = KioskCleanup(max_age_days=max_days, move_to=target_dir if mode == "move" else "")
         cleaner.add_dir(log_dir)
 
-        return cleaner.cleanup()
+        return cleaner.cleanup(on_check_file=is_log_file)
     except BaseException as e:
         logging.error(f"housekeepingclearlog.clear_log: An exception occurred: {repr(e)}")
         return False
