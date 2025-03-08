@@ -340,7 +340,8 @@ def file_repository_show():
                                current_page=current_page,
                                sorting_option=session["kiosk_fr_sorting"],
                                authorized_to=authorized_to,
-                               site_filter=filtered_site_uuid, filtered_site=filtered_site)
+                               site_filter=filtered_site_uuid,
+                               filtered_site=filtered_site)
 
 
 #  **************************************************************

@@ -177,10 +177,15 @@ class FileIdentifierCache:
 
     def get_primary_identifier(self, uuid_identifier: str)->List:
         query = ContextDirectSqlQuery(self._get_sql_source())
-        params = {"sql": "* from {base}"
-                         f" where {KioskSQLDb.sql_safe_ident('primary')}=true and "
+
+        # note: It really needs this order by down there! The primary identifiers first and only if there is no
+        # primary identifier a non-primary can be accepted. See bug in ticket #3072
+        params = {"sql": "* from {base} where "
+                         # f"{KioskSQLDb.sql_safe_ident('primary')}=true and"
                          f" {KioskSQLDb.sql_safe_ident('id_uuid')} ="
-                         f" {DatabaseDriver.quote_value('UUID', uuid_identifier)} limit 1"}
+                         f" {DatabaseDriver.quote_value('UUID', uuid_identifier)}"
+                         f" order by {KioskSQLDb.sql_safe_ident('primary')} desc limit 1"}
+
         query.define_from_dict(params)
         r=[]
         for r in query.records(new_page_size=-1):
