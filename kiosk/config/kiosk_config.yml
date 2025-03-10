@@ -50,7 +50,3 @@ kiosk:
   playgroundplugin:
     active: true
     is_main_index: false
-
-  pwastresstestplugin:
-    active: false
-

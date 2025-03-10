@@ -154,6 +154,8 @@ reportingdock:
   output_filename_zip: 'kiosk_report_#a_#d#m#y-#H#M.zip'
   compression_method: 'DEFLATED'
 
+
+
 file_handlers:
   plugins: [ "defaultfilehandling", "heicfilehandling", "pdffilehandling", "svgfilehandling",
              "webpfilehandling", "jp2filehandling" ]
@@ -422,3 +424,6 @@ kiosk:
     is_main_index: false
     menu:
       "stratigraphy studio": [ "-hmlabplugin" ]
+
+pluginpwastresstestdock:
+  active: false

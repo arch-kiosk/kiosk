@@ -25,7 +25,8 @@ piexif
 Pillow
 psycopg2
 pyodbc
-pypiwin32
+# pypiwin32
+pywin32
 pytest-regressions
 python-language-server
 pyzbar

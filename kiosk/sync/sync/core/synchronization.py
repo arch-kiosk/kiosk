@@ -42,6 +42,22 @@ sync_version = '0.9'
 
 
 class Synchronization(PluginLoader):
+    @classmethod
+    def _is_plugin_active(cls, plugin_name):
+        try:
+            cfg: SyncConfig = SyncConfig.get_config()
+
+            if cfg:
+                if cfg.has_key(plugin_name):
+                    if "active" in cfg[plugin_name]:
+                        return kioskstdlib.to_bool(cfg[plugin_name]["active"])
+                if plugin_name in cfg.autoload_plugins:
+                    return True
+        except Exception as e:
+            print(f"Kiosk Plugin {plugin_name} cannot be activated due to exception {repr(e)}")
+
+        return False
+
 
     def __init__(self, options=None):
         # Set this to False for debug purposes
@@ -52,6 +68,7 @@ class Synchronization(PluginLoader):
         self.plugin_dir = cfg.sync_plugin_directory
         self.autoload_plugins = cfg.autoload_plugins
         self.plugins = SynchronizationPluginManager()
+        self.plugins.is_plugin_active = self._is_plugin_active
         self.events = EventManager()
         self.debug_mode = ""
         self._files_to_synchronize = []
