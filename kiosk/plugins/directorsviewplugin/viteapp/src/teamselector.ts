@@ -61,7 +61,7 @@ class TeamSelector extends KioskAppComponent {
                                     "unit": "browse()"
                                 },
                                 "target": {
-                                    "field_or_instruction": "modified",
+                                    "field_or_instruction": "modified_ww()",
                                     "format": "datetime(date)"
                                 },
                                 "additional_fields": {

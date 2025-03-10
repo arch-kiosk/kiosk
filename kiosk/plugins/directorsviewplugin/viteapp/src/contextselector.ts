@@ -52,54 +52,55 @@ class ContextSelector extends KioskAppComponent {
         const day = this.selected_date.getDate().toString().padStart(2, "0")
         const year = this.selected_date.getFullYear()
         const us_date = `${year}-${month}-${day}`
-        this.apiContext.fetchFromApi("", "cql/query",
+        const body = JSON.stringify({
+                "cql": {
+                    "meta": {
+                        "version": 0.1
+                    },
+                    "base": {
+                        "scope": {
+                            "unit": "browse()"
+                        },
+                        "target": {
+                            "field_or_instruction": "modified_ww()",
+                            "format": "datetime(date)"
+                        },
+                        additional_fields: {
+                            "type": {
+                                "field_or_instruction": "unit.type",
+                                "default": "",
+                                "format": "dsd_type(varchar)"
+                            }
+                        }
+                    },
+                    "query": {
+                        "type": "Raw",
+                        "distinct": true,
+                        "columns": {
+                            "identifier": {
+                                "source_field": "identifier"
+                            },
+                            "uid": {
+                                "source_field": "id_uuid"
+                            },
+                            "type": {
+                                "source_field": "type"
+                            }
+
+
+                        },
+                        "conditions": {
+                            "?": `equals(data, \"${us_date}\")`
+                        }
+                    }
+                }
+            }
+        )
+            this.apiContext.fetchFromApi("", "cql/query",
             {
                 method: "POST",
                 caller: "contextselector.fetch_contexts",
-                body: JSON.stringify({
-                        "cql": {
-                            "meta": {
-                                "version": 0.1
-                            },
-                            "base": {
-                                "scope": {
-                                    "unit": "browse()"
-                                },
-                                "target": {
-                                    "field_or_instruction": "modified",
-                                    "format": "datetime(date)"
-                                },
-                                additional_fields: {
-                                    "type": {
-                                        "field_or_instruction": "unit.type",
-                                        "default": "",
-                                        "format": "dsd_type(varchar)"
-                                    }
-                                }
-                            },
-                            "query": {
-                                "type": "Raw",
-                                "distinct": true,
-                                "columns": {
-                                    "identifier": {
-                                        "source_field": "identifier"
-                                    },
-                                    "uid": {
-                                        "source_field": "id_uuid"
-                                    },
-                                    "type": {
-                                        "source_field": "type"
-                                    }
-
-
-                                },
-                                "conditions": {
-                                    "?": `equals(data, \"${us_date}\")`
-                                }
-                            }
-                        }
-                    }
-                ),
+                body: body,
 
             },
         )
