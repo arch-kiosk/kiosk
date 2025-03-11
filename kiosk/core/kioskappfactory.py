@@ -25,6 +25,7 @@ from flask_cors import CORS
 from werkzeug.exceptions import InternalServerError
 
 from eventmanager import EventManager
+from fts.kioskfulltextsearch import FTS
 from kioskuser import KioskUser
 from messaging.systemmessagecatalog import SYS_MSG_ID_STORE_NOT_READY, MSG_SEVERITY_INFO, \
     SYS_MSG_ID_CHECKUP_EXCEPTION, SYS_MSG_ID_ADMIN_CREATED, SYS_MSG_ID_ADMIN_GROUP_CREATED, \
@@ -852,6 +853,12 @@ class KioskAppFactory(AppFactory):
 
                     # the following things are in here so that they are protected by the same process lock.
                     cls.init_fid_caches()
+                    if migration.affected_tables() > 0:
+                        logging.info(f"kioskappfactory.migrate: {migration.affected_tables()} "
+                                     f"tables affected. refreshing full text search.")
+                        fts = FTS(kioskglobals.master_view.dsd, cls.cfg)
+                        if not fts.rebuild_fts():
+                            logging.error(f"kioskappfactory.migrate: refreshing full text search failed.")
 
                     try:
                         cls.init_users_and_privileges()

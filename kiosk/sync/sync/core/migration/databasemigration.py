@@ -20,6 +20,7 @@ class DatabaseMigration:
         self.regex_variable_pattern = re.compile(self.variable_pattern)
         self.table_pattern = r"\{\{(.+?)\}\}"
         self.regex_table_pattern = re.compile(self.table_pattern)
+        self.affected_tables = 0
 
     @classmethod
     def _adapter_get_table_migration_class(cls):
@@ -453,6 +454,8 @@ class DatabaseMigration:
             :returns: A tuple with the version successfully reached and the highest version in the dsd.
                       In case of errors exceptions will be thrown
 
+                      note that this increases the DatabaseMigration.affected_tables counter.
+
         """
 
         def _get_most_recent_former_table_version():
@@ -547,6 +550,9 @@ class DatabaseMigration:
             else:
                 rc = (to_version, most_recent_version)
 
+        if rc:
+            self.affected_tables += 1
+
         return rc
 
     def reverse_engineer_table(self, dsd, dsd_table: str, namespace="", prefix="", current_version_only=True) -> bool:
@@ -627,3 +633,9 @@ class DatabaseMigration:
         :return: True or False. Should not throw exceptions.
         """
         raise NotImplementedError
+
+    def reset_affected_tables(self):
+        """
+        resets the affected_tables counter that gets increased whenever a table got successfully migrated.
+        """
+        self.affected_tables = 0

@@ -1,4 +1,6 @@
 # todo time zone simpliciation (done)
+from typing import Tuple
+
 from dsd.dsd3 import DataSetDefinition
 from dsd.dsdview import DSDView
 from migration.databasemigration import DatabaseMigration
@@ -30,6 +32,12 @@ class Migration:
             self.self_check()
         self._db_adapter.delete_namespace(prefix, namespace)
 
+    def affected_tables(self):
+        """
+        reports how many tables have actually been migrated. This does not count tables that were already up to date!
+        """
+        return self._db_adapter.affected_tables
+
     def migrate_dataset(self, prefix="", namespace=""):
         """
         Migrates the current database to the recent structure defined by the dsd.
@@ -47,6 +55,7 @@ class Migration:
             logging.info(
                 f"{self.__class__.__name__}.migrate_datatable: Cross table migration has been prepared successfully")
 
+        self._db_adapter.reset_affected_tables()
         while True:
             continue_migration = False
             for table_name in self._dsd.list_tables(include_dropped_tables=True):
@@ -104,7 +113,7 @@ class Migration:
                             f"An error occurred during self check: {repr(e)}")
         return self._self_check
 
-    def migrate_datatable(self, dsd_table: str, version=0, prefix="", namespace="", one_step_only=False):
+    def migrate_datatable(self, dsd_table: str, version=0, prefix="", namespace="", one_step_only=False) -> Tuple:
         """
         Migrates a certain table in the current database to the newest (or given version) of the dsd.
         Does not check any table flags!
@@ -116,7 +125,7 @@ class Migration:
                               This is important so that tables of the same generation are lifted
                               synchronously.
         :param namespace: tables are kept in a certain namespace
-        :returns: True/False. Can throw all kinds of Exception in case of errors.
+        :returns: a truthy or falsy tuple. In terms of a truthy tuple it contains the return of migrate_table.
         """
         if not self._self_check:
             self.self_check()
