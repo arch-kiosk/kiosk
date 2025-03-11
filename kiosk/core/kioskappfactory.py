@@ -1126,7 +1126,7 @@ def fetch_mcp_job_progress(job_uid):
         attempts = 1
         last_exception = ""
         job = None
-
+        time.sleep(.5)
         # hacky, hacky
         while not job and attempts < 5:
             try:

@@ -192,6 +192,7 @@ class KioskJob {
   }
 
   _poll() {
+    let errCounter = 0
     if (this.stopit) {
       this._stopJob();
       return;
@@ -202,7 +203,20 @@ class KioskJob {
       "POST",
       {
         onSuccess: this._pollSuccess.bind(this),
-        onError: this._onError.bind(this)
+        onError: (err_msg) => {
+          if (!err_msg) {
+            errCounter++
+            if (errCounter < 4) {
+              console.log("Error while polling status in KioskJob._poll. Retrying");
+              setTimeout(this._poll.bind(this), 1000);
+              return
+            } else {
+              err_msg = "Repeated network transmission error."
+            }
+          }
+          console.log(`Error while polling status in KioskJob._poll: ${err_msg}`);
+          this._onError.call(this, [err_msg])
+        }
       }
     )
   } //function poll

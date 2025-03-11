@@ -461,6 +461,7 @@ function startBackupOrRestore(event = null) {
     if (event) {
         event.preventDefault();
     }
+    stopFetchingSystemMessages()
     kioskSendAjaxForm($("#bt-ok"),
         $("#dialog-ajax-part"),
         isBackup ? "/administration/backup" : "/administration/restore",

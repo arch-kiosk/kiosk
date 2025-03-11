@@ -209,117 +209,122 @@ def administration_show():
         print(f"\nGET: get_plugin_for_controller returns {get_plugin_for_controller(_plugin_name_)}")
         print(f"\nGET: plugin.name returns {get_plugin_for_controller(_plugin_name_).name}")
         print(request.accept_languages)
-        sysinfo = SysInfo(kiosk_ver=kioskglobals.kiosk_version,
-                          kiosk_name=kioskglobals.kiosk_version_name,
-                          kiosk_date=kioskglobals.kiosk_date.date(),
-                          dsd_format=Dsd3Singleton.get_dsd3().format,
-                          python_ver=sys.version.split(' ')[0],
-                          flask_ver=__version__,
-                          postgresql_ver=KioskSQLDb.get_postgres_version())
-        dsd = Dsd3Singleton.get_dsd3()
-        plugin_manager = current_app.plugin_manager
-        plugins = [{"subsystem": "kiosk", "name": p.name, "type": type(p).__name__,
-                    "plugin_version": p.get_plugin_version() if hasattr(p, "get_plugin_version") else "-"} for k, p in
-                   plugin_manager.plugins.items()]
-        sync = Synchronization()
-        sync.load_plugins([])
-        plugins.extend([{"subsystem": "synchronization", "name": p.name, "type": type(p).__name__,
-                         "plugin_version": p.get_plugin_version()} for k, p in
-                        sync.plugins.plugins.items()])
-
-        type_repository_types = []
-        for interface_type in kioskglobals.type_repository.repository:
-            try:
-                type_repository_types.extend([{"subsystem": "kiosk",
-                                               "interface_type": interface_type,
-                                               "type": t,
-                                               "class": repr(kioskglobals.type_repository.get_type(
-                                                   interface_type, t)) if kioskglobals.type_repository.get_type(
-                                                   interface_type, t) else "ERROR!"
-                                               }
-                                              for t in kioskglobals.type_repository.list_types(interface_type)])
-            except BaseException as e:
-                logging.error(
-                    f"administrationcontroller.administration_show: listing kiosk types {interface_type} {repr(e)}")
-
-        for interface_type in sync.type_repository.repository:
-            try:
-                type_repository_types.extend([{"subsystem": "synchronization",
-                                               "interface_type": interface_type,
-                                               "type": t,
-                                               "class": repr(sync.type_repository.get_type(interface_type, t))}
-                                              for t in sync.type_repository.list_types(interface_type)])
-            except BaseException as e:
-                logging.error(
-                    f"administrationcontroller.administration_show: listing sync types {interface_type} {repr(e)}")
-
-        events = []
-        for topic in sync.events._events:
-            events.extend([{"subsystem": "sync subsystem",
-                            "topic": topic,
-                            "event_id": e,
-                            "subscriber_count": len(sync.events.get_event_handler(topic, e)._observers)
-                            }
-                           for e in sync.events._events[topic]])
-        for topic in current_app.events._events:
-            events.extend([{"subsystem": "Kiosk",
-                            "topic": topic,
-                            "event_id": e,
-                            "subscriber_count": len(current_app.events.get_event_handler(topic, e)._observers)
-                            }
-                           for e in current_app.events._events[topic]])
-
-        users = KioskUser.query.all()
-
-        mcp_alive = "NOT running"
         try:
-            mcpinterface.mcpqueue.assert_mcp(kioskglobals.general_store)
-            mcp_alive = "running"
+            sysinfo = SysInfo(kiosk_ver=kioskglobals.kiosk_version,
+                              kiosk_name=kioskglobals.kiosk_version_name,
+                              kiosk_date=kioskglobals.kiosk_date.date(),
+                              dsd_format=Dsd3Singleton.get_dsd3().format,
+                              python_ver=sys.version.split(' ')[0],
+                              flask_ver=__version__,
+                              postgresql_ver=KioskSQLDb.get_postgres_version())
+            dsd = Dsd3Singleton.get_dsd3()
+            plugin_manager = current_app.plugin_manager
+            plugins = [{"subsystem": "kiosk", "name": p.name, "type": type(p).__name__,
+                        "plugin_version": p.get_plugin_version() if hasattr(p, "get_plugin_version") else "-"} for k, p in
+                       plugin_manager.plugins.items()]
+            sync = Synchronization()
+            sync.load_plugins([])
+            plugins.extend([{"subsystem": "synchronization", "name": p.name, "type": type(p).__name__,
+                             "plugin_version": p.get_plugin_version()} for k, p in
+                            sync.plugins.plugins.items()])
+
+            type_repository_types = []
+            for interface_type in kioskglobals.type_repository.repository:
+                try:
+                    type_repository_types.extend([{"subsystem": "kiosk",
+                                                   "interface_type": interface_type,
+                                                   "type": t,
+                                                   "class": repr(kioskglobals.type_repository.get_type(
+                                                       interface_type, t)) if kioskglobals.type_repository.get_type(
+                                                       interface_type, t) else "ERROR!"
+                                                   }
+                                                  for t in kioskglobals.type_repository.list_types(interface_type)])
+                except BaseException as e:
+                    logging.error(
+                        f"administrationcontroller.administration_show: listing kiosk types {interface_type} {repr(e)}")
+
+            for interface_type in sync.type_repository.repository:
+                try:
+                    type_repository_types.extend([{"subsystem": "synchronization",
+                                                   "interface_type": interface_type,
+                                                   "type": t,
+                                                   "class": repr(sync.type_repository.get_type(interface_type, t))}
+                                                  for t in sync.type_repository.list_types(interface_type)])
+                except BaseException as e:
+                    logging.error(
+                        f"administrationcontroller.administration_show: listing sync types {interface_type} {repr(e)}")
+
+            events = []
+            for topic in sync.events._events:
+                events.extend([{"subsystem": "sync subsystem",
+                                "topic": topic,
+                                "event_id": e,
+                                "subscriber_count": len(sync.events.get_event_handler(topic, e)._observers)
+                                }
+                               for e in sync.events._events[topic]])
+            for topic in current_app.events._events:
+                events.extend([{"subsystem": "Kiosk",
+                                "topic": topic,
+                                "event_id": e,
+                                "subscriber_count": len(current_app.events.get_event_handler(topic, e)._observers)
+                                }
+                               for e in current_app.events._events[topic]])
+
+            users = KioskUser.query.all()
+
+            mcp_alive = "NOT running"
+            try:
+                mcpinterface.mcpqueue.assert_mcp(kioskglobals.general_store)
+                mcp_alive = "running"
+            except BaseException as e:
+                pass
+
+            mcp_version = mcpinterface.mcpqueue.get_mcp_version(kioskglobals.general_store)
+            if not mcp_version:
+                mcp_version = "?"
+
+            try:
+                # this works only with redis
+                # noinspection PyUnresolvedReferences
+                redis_version = kioskglobals.general_store.get_redis_version()
+            except BaseException as e:
+                redis_version = ""
+                logging.error(f"administrationcontroller.administration_show : {repr(e)}")
+
+            gs_id = kioskstdlib.try_get_dict_entry(conf.config,"gs_id","",True)
+
+            authorized_to = get_local_authorization_strings(LOCAL_ADMINISTRATION_PRIVILEGES)
+            if kioskglobals.get_development_option("suppress_system_messages").lower() == 'true':
+                messages = []
+            else:
+                messages = kioskglobals.system_messages.get_messages(-10).all_messages()
+
+            local_server = kiosklib.is_local_server(conf)
+
+            file_cache_refresh_running = is_file_cache_refresh_running()
+            return render_template('administration.html',
+                                   authorized_to=authorized_to,
+                                   config=kioskglobals.cfg,
+                                   sysinfo=sysinfo,
+                                   dsd=dsd,
+                                   plugins=plugins,
+                                   types=type_repository_types,
+                                   events=events,
+                                   all_sys_messages=messages,
+                                   users=users,
+                                   mcp_version=mcp_version,
+                                   mcp_alive=mcp_alive,
+                                   redis_version=redis_version,
+                                   is_local_server=local_server,
+                                   file_cache_refresh_running=file_cache_refresh_running,
+                                   fid_cache_refresh_running=find_running_job(kioskglobals.general_store,
+                                                                              JOB_SUFFIX_REFRESH_FID_CACHE),
+                                   gs_id=gs_id)
         except BaseException as e:
-            pass
-
-        mcp_version = mcpinterface.mcpqueue.get_mcp_version(kioskglobals.general_store)
-        if not mcp_version:
-            mcp_version = "?"
-
-        try:
-            # this works only with redis
-            # noinspection PyUnresolvedReferences
-            redis_version = kioskglobals.general_store.get_redis_version()
-        except BaseException as e:
-            redis_version = ""
-            logging.error(f"administrationcontroller.administration_show : {repr(e)}")
-
-        gs_id = kioskstdlib.try_get_dict_entry(conf.config,"gs_id","",True)
-
-        authorized_to = get_local_authorization_strings(LOCAL_ADMINISTRATION_PRIVILEGES)
-        if kioskglobals.get_development_option("suppress_system_messages").lower() == 'true':
-            messages = []
-        else:
-            messages = kioskglobals.system_messages.get_messages(-10).all_messages()
-
-        local_server = kiosklib.is_local_server(conf)
-
-        file_cache_refresh_running = is_file_cache_refresh_running()
-
-        return render_template('administration.html',
-                               authorized_to=authorized_to,
-                               config=kioskglobals.cfg,
-                               sysinfo=sysinfo,
-                               dsd=dsd,
-                               plugins=plugins,
-                               types=type_repository_types,
-                               events=events,
-                               all_sys_messages=messages,
-                               users=users,
-                               mcp_version=mcp_version,
-                               mcp_alive=mcp_alive,
-                               redis_version=redis_version,
-                               is_local_server=local_server,
-                               file_cache_refresh_running=file_cache_refresh_running,
-                               fid_cache_refresh_running=find_running_job(kioskglobals.general_store,
-                                                                          JOB_SUFFIX_REFRESH_FID_CACHE),
-                               gs_id=gs_id)
+            emergency_administration = repr(e)
+            logging.error(f"administrationcontroller.administration_show : Administration "
+                          f"in emergency mode due to {repr(e)}")
+            return render_template('administration.html', emergency_administration=emergency_administration)
 
     except BaseException as e:
         logging.error(f"administrationcontroller.administration_show : {repr(e)}")

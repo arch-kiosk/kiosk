@@ -220,7 +220,6 @@ function getFileCount() {
                     } else {
                         if (json.result > 0) {
                             // if (json.result <= maxImages)  {
-                            debugger
                             if (json.result) {
                                 frfEnableSubmitMode(true);
                                 if (json.result > 1)

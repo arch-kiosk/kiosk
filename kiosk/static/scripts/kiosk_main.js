@@ -136,7 +136,12 @@ const MAX_MESSAGE_POLL_RETRIES = 10
     }
   }
 
-  setTimeout(_fetchSystemMessages, 1000 * seconds_till_fetch)
+  fetchSystemMessages.handler = setTimeout(_fetchSystemMessages, 1000 * seconds_till_fetch)
+}
+
+function stopFetchingSystemMessages() {
+  clearTimeout(fetchSystemMessages.handler)
+  fetchSystemMessages.handler = null
 }
 
 function triggerModule(endpoint = "") {

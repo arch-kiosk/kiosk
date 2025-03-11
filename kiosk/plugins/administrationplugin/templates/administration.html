@@ -1,314 +1,356 @@
 {% extends "kioskbasic.html" %}
 {% block links %}
-{#  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles/materialize/materialize.css') }}?v=1"/>#}
-  <link rel=stylesheet type=text/css href="{{ url_for('administration.static', filename='administration.css') }}?v=1"/>
+    {#  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles/materialize/materialize.css') }}?v=1"/>#}
+    <link rel=stylesheet type=text/css
+          href="{{ url_for('administration.static', filename='administration.css') }}?v=1" />
 {% endblock %}
 {% block title %}
-  <div id="subtitle-shadow">Kiosk</div>
-  <div id="subtitle">Administration</div>
+    <div id="subtitle-shadow">Kiosk</div>
+    <div id="subtitle">Administration</div>
 {% endblock %}
 {% block body %}
-  <div class="admin-wrapper">
-    <ul class="admin-actions">
-      <li>
-        {% if current_user.is_authenticated and "backup" in authorized_to %}
-        <button id="bt-backup"
-                class="admin-action kiosk-btn-128" disabled>
-          backup
-        </button>
-        {% endif %}
-      </li>
-      <li>
-        {% if current_user.is_authenticated and "restore" in authorized_to %}
-          <button id="bt-restore" class="admin-action kiosk-btn-128" disabled>
-            restore
-          </button>
-        {% endif %}
-      </li>
-      <li>
-        {% if current_user.is_authenticated and "backup" in authorized_to %}
-          <button id="bt-transfer" class="admin-action kiosk-btn-128" disabled>
-            transfer
-          </button>
-        {% endif %}
-      </li>
-      {% if current_user.is_authenticated and "delete workstation" in authorized_to %}
-        <li>
-          <button class="admin-action kiosk-btn-128" disabled>
-            reset workstations
-          </button>
-        </li>
-        <li>
-          <button class="admin-action kiosk-btn-128" disabled>
-            rebuild workstations
-          </button>
-        </li>
-        <li>
-          <button class="admin-action kiosk-btn-128" disabled>
-            delete all workstations
-          </button>
-        </li>
-      {% endif %}
-      <li>
-        <button id="bt-housekeeping"
-                class="admin-action kiosk-btn-128" disabled>
-          housekeeping
-        </button>
-      </li>
-    </ul>
-    <div class="admin-sysinfo-wrapper kiosk-collapsible">
-      <div class="kiosk-collapsible-header">
-        <h4>expert tools</h4>
-        <div id="admin-expert-tools-clicker" class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></div>
-      </div>
-      <div class="kiosk-collapsible-content">
-        <ul class="admin-actions">
-            {% if not is_local_server %}
-              <li>
-                <button id="bt-restart"
-                        class="admin-action kiosk-btn-128" disabled>
-                  restart server
-                </button>
-              </li>
-            {% endif %}
-          <li>
-            <button id="bt-clear"
-                    class="admin-action kiosk-btn-128" disabled>
-              clear database
-            </button>
-          </li>
-          <li>
-            <button id="bt-events"
-                    class="admin-action kiosk-btn-128" disabled>
-              trigger sync aftermath
-            </button>
-          </li>
-          <li>
-            <button id="bt-refresh-file-cache"
-                    class="admin-action kiosk-btn-128" disabled
-                    {% if file_cache_refresh_running %}data-disable="true"{% endif %}>
-              trigger file cache refresh
-            </button>
-          </li>
-          <li>
-            <button id="bt-reload-kiosk-queries"
-                    class="admin-action kiosk-btn-128" disabled>
-                reload all kiosk queries
-            </button>
-          </li>
-          <li>
-            <button id="bt-import-kiosk-tz"
-                    class="admin-action kiosk-btn-128" disabled>
-                re-import time zones
-            </button>
-          </li>
-          <li>
-            <button id="bt-trigger-fid-refresh"
-                    class="admin-action kiosk-btn-128" disabled
-                    {% if fid_cache_refresh_running %}data-disable="true"{% endif %}>
-                trigger fid-cache refresh
-            </button>
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    {# system info collapsible #}
-    <div class="admin-sysinfo-wrapper kiosk-collapsible">
-      <div class="kiosk-collapsible-header">
-        <h4>system information</h4>
-        <div id="admin-sysinfo-clicker" class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></div>
-      </div>
-      <div class="kiosk-collapsible-content">
-        <div class="admin-gridded-info">
-          <div class="admin-sysinfo-entry"><label>kiosk version:</label> {{ sysinfo.kiosk_ver }}</div>
-          <div class="admin-sysinfo-entry"><label>kiosk date:</label> {{ sysinfo.kiosk_date }}</div>
-          <div class="admin-sysinfo-entry"><label>kiosk version name:</label> {{ sysinfo.kiosk_name }}</div>
-          <div class="admin-sysinfo-entry"><label>python:</label> {{ sysinfo.python_ver }}</div>
-          <div class="admin-sysinfo-entry"><label>flask:</label> {{ sysinfo.flask_ver }}</div>
-          <div class="admin-sysinfo-entry"><label>PostgreSQL:</label> {{ sysinfo.postgresql_ver }}</div>
-          <div class="admin-sysinfo-entry"><label>MCP:</label>{{ mcp_version }} {{ mcp_alive }}</div>
-          <div class="admin-sysinfo-entry"><label>Redis:</label>{% if redis_version %}{{ redis_version }}
-                                                                {% else %}not present{% endif %}</div>
-          <div class="admin-sysinfo-entry"><label>gs id:</label>{% if gs_id %}{{ gs_id }}{% else %}-{% endif %}</div>
+    {% if emergency_administration %}
+        <div>The administration is in emergency mode. Only backup and restore are available.</div>
+        <div>The reason for this: {{ emergency_administration }}</div>
+        <div class="admin-wrapper">
+            <ul class="admin-actions">
+                <li>
+                    <button id="bt-backup"
+                            class="admin-action kiosk-btn-128" disabled>
+                        backup
+                    </button>
+                </li>
+                <li>
+                    <button id="bt-restore" class="admin-action kiosk-btn-128" disabled>
+                        restore
+                    </button>
+                </li>
+            </ul>
         </div>
-        <div class="admin-gridded-info">
-          <div class="admin-sysinfo-entry"><label>project-id:</label> {{ config.get_project_id() }}</div>
-          <div class="admin-sysinfo-entry"><label>PostgreSQL DB:</label> {{ config.database_name }}</div>
-          <div class="admin-sysinfo-entry"><label>dsd format:</label> {{ sysinfo.dsd_format }}</div>
-          <div class="admin-sysinfo-entry"><label>template
-            version:</label> {{ config.expected_filemaker_template_version }}</div>
-        </div>
-      </div>
-    </div>
-
-      {# users #}
-    <div class="admin-sysinfo-wrapper kiosk-collapsible">
-      <div class="kiosk-collapsible-header">
-        <h4>kiosk users</h4>
-        <div id="admin-users-clicker" class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></div>
-      </div>
-      <div class="kiosk-collapsible-content">
-        <div class="admin-grid5 admin-plugins">
-          <div class="admin-sysinfo-entry"><label>user uid</label></div>
-          <div class="admin-sysinfo-entry"><label>user-id</label></div>
-          <div class="admin-sysinfo-entry"><label>name</label></div>
-          <div class="admin-sysinfo-entry"><label>groups</label></div>
-          <div class="admin-sysinfo-entry"><label>reset<br>password</label></div>
-          {% for u in users %}
-            <div class="admin-sysinfo-entry">{{ u.uid}}</div>
-            <div class="admin-sysinfo-entry">{{ u.user_id }}</div>
-            <div class="admin-sysinfo-entry">{{ u.user_name }}</div>
-            <div class="admin-sysinfo-entry">{{ u.groups }}</div>
-            <div>
-              <button id="btn-reset-{{ u.uid }}" class="kiosk-btn-32 btn-reset-password" uid="{{ u.uid }}">
-                <i class="mdi mdi-account-convert"></i></button>
-              {% if u.must_change_pwd %}
-                <i class='mdi mdi-check'></i>
-              {% endif %}
+    {% else %}
+        <div class="admin-wrapper">
+            <ul class="admin-actions">
+                <li>
+                    {% if current_user.is_authenticated and "backup" in authorized_to %}
+                        <button id="bt-backup"
+                                class="admin-action kiosk-btn-128" disabled>
+                            backup
+                        </button>
+                    {% endif %}
+                </li>
+                <li>
+                    {% if current_user.is_authenticated and "restore" in authorized_to %}
+                        <button id="bt-restore" class="admin-action kiosk-btn-128" disabled>
+                            restore
+                        </button>
+                    {% endif %}
+                </li>
+                <li>
+                    {% if current_user.is_authenticated and "backup" in authorized_to %}
+                        <button id="bt-transfer" class="admin-action kiosk-btn-128" disabled>
+                            transfer
+                        </button>
+                    {% endif %}
+                </li>
+                {% if current_user.is_authenticated and "delete workstation" in authorized_to %}
+                    <li>
+                        <button class="admin-action kiosk-btn-128" disabled>
+                            reset workstations
+                        </button>
+                    </li>
+                    <li>
+                        <button class="admin-action kiosk-btn-128" disabled>
+                            rebuild workstations
+                        </button>
+                    </li>
+                    <li>
+                        <button class="admin-action kiosk-btn-128" disabled>
+                            delete all workstations
+                        </button>
+                    </li>
+                {% endif %}
+                <li>
+                    <button id="bt-housekeeping"
+                            class="admin-action kiosk-btn-128" disabled>
+                        housekeeping
+                    </button>
+                </li>
+            </ul>
+            <div class="admin-sysinfo-wrapper kiosk-collapsible">
+                <div class="kiosk-collapsible-header">
+                    <h4>expert tools</h4>
+                    <div id="admin-expert-tools-clicker"
+                         class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></div>
+                </div>
+                <div class="kiosk-collapsible-content">
+                    <ul class="admin-actions">
+                        {% if not is_local_server %}
+                            <li>
+                                <button id="bt-restart"
+                                        class="admin-action kiosk-btn-128" disabled>
+                                    restart server
+                                </button>
+                            </li>
+                        {% endif %}
+                        <li>
+                            <button id="bt-clear"
+                                    class="admin-action kiosk-btn-128" disabled>
+                                clear database
+                            </button>
+                        </li>
+                        <li>
+                            <button id="bt-events"
+                                    class="admin-action kiosk-btn-128" disabled>
+                                trigger sync aftermath
+                            </button>
+                        </li>
+                        <li>
+                            <button id="bt-refresh-file-cache"
+                                    class="admin-action kiosk-btn-128" disabled
+                                    {% if file_cache_refresh_running %}data-disable="true"{% endif %}>
+                                trigger file cache refresh
+                            </button>
+                        </li>
+                        <li>
+                            <button id="bt-reload-kiosk-queries"
+                                    class="admin-action kiosk-btn-128" disabled>
+                                reload all kiosk queries
+                            </button>
+                        </li>
+                        <li>
+                            <button id="bt-import-kiosk-tz"
+                                    class="admin-action kiosk-btn-128" disabled>
+                                re-import time zones
+                            </button>
+                        </li>
+                        <li>
+                            <button id="bt-trigger-fid-refresh"
+                                    class="admin-action kiosk-btn-128" disabled
+                                    {% if fid_cache_refresh_running %}data-disable="true"{% endif %}>
+                                trigger fid-cache refresh
+                            </button>
+                        </li>
+                    </ul>
+                </div>
             </div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
 
-    {# paths   #}
-    <div class="admin-sysinfo-wrapper kiosk-collapsible">
-      <div class="kiosk-collapsible-header">
-        <h4>system directories and files</h4>
-        <div id="admin-paths-clicker" class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></div>
-      </div>
-      <div class="kiosk-collapsible-content">
-        <div class="admin-gridded-info admin-one-column">
-          <div class="admin-sysinfo-entry"><label>base-path:</label> {{ config.base_path }}</div>
-          <div class="admin-sysinfo-entry"><label>file repository:</label> {{ config.get_file_repository() }}</div>
-          <div class="admin-sysinfo-entry"><label>console:</label> {{ config.resolve_symbols("%sync%") }}</div>
-          <div class="admin-sysinfo-entry"><label>filemaker template:</label> {{ config.filemaker_template }}</div>
-          <div class="admin-sysinfo-entry"><label>filemaker export:</label> {{ config.filemaker_export_dir }}</div>
-          <div class="admin-sysinfo-entry"><label>filemaker import:</label> {{ config.filemaker_import_dir }}</div>
-          <div class="admin-sysinfo-entry"><label>dataset definition:</label> {{ config.get_dsdfile() }}</div>
-          <div class="admin-sysinfo-entry"><label>dsd root path:</label> {{ dsd.dsd_root_path }}</div>
-          <div class="admin-sysinfo-entry"><label>master dsd view:</label> {{ config.get_master_view() }}</div>
-        </div>
-      </div>
-    </div>
-
-    {# system messages #}
-    <div class="admin-sysinfo-wrapper kiosk-collapsible">
-      <div class="kiosk-collapsible-header">
-        <h4>system messages</h4>
-        <div id="admin-plugins-clicker" class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></div>
-      </div>
-      <div class="kiosk-collapsible-content">
-      {% if all_sys_messages|length() > 0 %}
-        <div class="admin-grid5 admin-plugins">
-          <div class="admin-sysinfo-entry"><label>sender</label></div>
-          <div class="admin-sysinfo-entry"><label>timestamp</label></div>
-          <div class="admin-sysinfo-entry"><label>message-id</label></div>
-          <div class="admin-sysinfo-entry"><label>headline</label></div>
-          <div class="admin-sysinfo-entry"><label>confirm</label></div>
-          {% for msg in all_sys_messages %}
-            <div class="admin-sysinfo-entry">{{ msg.sender }}</div>
-            <div class="admin-sysinfo-entry">{{ msg.get_format_time(current_user.get_active_time_zone_name(iana=True)) }}</div>
-            <div class="admin-sysinfo-entry">{{ msg.message_id }}</div>
-            <div class="admin-sysinfo-entry">{{ msg.headline }}</div>
-            <div>
-              {% if not msg.deleted %}
-              <button id ="bt-check-{{ uid }}" class="kiosk-btn-32 btn-check-message" uid="{{ msg.uid }}">
-                <i class="mdi mdi-check-all"></i>
-              </button>
-              {% endif %}
+            {# system info collapsible #}
+            <div class="admin-sysinfo-wrapper kiosk-collapsible">
+                <div class="kiosk-collapsible-header">
+                    <h4>system information</h4>
+                    <div id="admin-sysinfo-clicker"
+                         class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></div>
+                </div>
+                <div class="kiosk-collapsible-content">
+                    <div class="admin-gridded-info">
+                        <div class="admin-sysinfo-entry"><label>kiosk version:</label> {{ sysinfo.kiosk_ver }}</div>
+                        <div class="admin-sysinfo-entry"><label>kiosk date:</label> {{ sysinfo.kiosk_date }}</div>
+                        <div class="admin-sysinfo-entry"><label>kiosk version name:</label> {{ sysinfo.kiosk_name }}
+                        </div>
+                        <div class="admin-sysinfo-entry"><label>python:</label> {{ sysinfo.python_ver }}</div>
+                        <div class="admin-sysinfo-entry"><label>flask:</label> {{ sysinfo.flask_ver }}</div>
+                        <div class="admin-sysinfo-entry"><label>PostgreSQL:</label> {{ sysinfo.postgresql_ver }}</div>
+                        <div class="admin-sysinfo-entry"><label>MCP:</label>{{ mcp_version }} {{ mcp_alive }}</div>
+                        <div class="admin-sysinfo-entry"><label>Redis:</label>{% if redis_version %}{{ redis_version }}
+                        {% else %}not present{% endif %}</div>
+                        <div class="admin-sysinfo-entry"><label>gs id:</label>{% if gs_id %}{{ gs_id }}{% else %}
+                            -{% endif %}</div>
+                    </div>
+                    <div class="admin-gridded-info">
+                        <div class="admin-sysinfo-entry"><label>project-id:</label> {{ config.get_project_id() }}</div>
+                        <div class="admin-sysinfo-entry"><label>PostgreSQL DB:</label> {{ config.database_name }}</div>
+                        <div class="admin-sysinfo-entry"><label>dsd format:</label> {{ sysinfo.dsd_format }}</div>
+                        <div class="admin-sysinfo-entry"><label>template
+                            version:</label> {{ config.expected_filemaker_template_version }}</div>
+                    </div>
+                </div>
             </div>
-          {% endfor %}
+
+            {# users #}
+            <div class="admin-sysinfo-wrapper kiosk-collapsible">
+                <div class="kiosk-collapsible-header">
+                    <h4>kiosk users</h4>
+                    <div id="admin-users-clicker"
+                         class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></div>
+                </div>
+                <div class="kiosk-collapsible-content">
+                    <div class="admin-grid5 admin-plugins">
+                        <div class="admin-sysinfo-entry"><label>user uid</label></div>
+                        <div class="admin-sysinfo-entry"><label>user-id</label></div>
+                        <div class="admin-sysinfo-entry"><label>name</label></div>
+                        <div class="admin-sysinfo-entry"><label>groups</label></div>
+                        <div class="admin-sysinfo-entry"><label>reset<br>password</label></div>
+                        {% for u in users %}
+                            <div class="admin-sysinfo-entry">{{ u.uid }}</div>
+                            <div class="admin-sysinfo-entry">{{ u.user_id }}</div>
+                            <div class="admin-sysinfo-entry">{{ u.user_name }}</div>
+                            <div class="admin-sysinfo-entry">{{ u.groups }}</div>
+                            <div>
+                                <button id="btn-reset-{{ u.uid }}" class="kiosk-btn-32 btn-reset-password"
+                                        uid="{{ u.uid }}">
+                                    <i class="mdi mdi-account-convert"></i></button>
+                                {% if u.must_change_pwd %}
+                                    <i class='mdi mdi-check'></i>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            {# paths   #}
+            <div class="admin-sysinfo-wrapper kiosk-collapsible">
+                <div class="kiosk-collapsible-header">
+                    <h4>system directories and files</h4>
+                    <div id="admin-paths-clicker"
+                         class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></div>
+                </div>
+                <div class="kiosk-collapsible-content">
+                    <div class="admin-gridded-info admin-one-column">
+                        <div class="admin-sysinfo-entry"><label>base-path:</label> {{ config.base_path }}</div>
+                        <div class="admin-sysinfo-entry"><label>file
+                            repository:</label> {{ config.get_file_repository() }}</div>
+                        <div class="admin-sysinfo-entry"><label>console:</label> {{ config.resolve_symbols("%sync%") }}
+                        </div>
+                        <div class="admin-sysinfo-entry"><label>filemaker
+                            template:</label> {{ config.filemaker_template }}</div>
+                        <div class="admin-sysinfo-entry"><label>filemaker
+                            export:</label> {{ config.filemaker_export_dir }}</div>
+                        <div class="admin-sysinfo-entry"><label>filemaker
+                            import:</label> {{ config.filemaker_import_dir }}</div>
+                        <div class="admin-sysinfo-entry"><label>dataset definition:</label> {{ config.get_dsdfile() }}
+                        </div>
+                        <div class="admin-sysinfo-entry"><label>dsd root path:</label> {{ dsd.dsd_root_path }}</div>
+                        <div class="admin-sysinfo-entry"><label>master dsd view:</label> {{ config.get_master_view() }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# system messages #}
+            <div class="admin-sysinfo-wrapper kiosk-collapsible">
+                <div class="kiosk-collapsible-header">
+                    <h4>system messages</h4>
+                    <div id="admin-plugins-clicker"
+                         class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></div>
+                </div>
+                <div class="kiosk-collapsible-content">
+                    {% if all_sys_messages|length() > 0 %}
+                        <div class="admin-grid5 admin-plugins">
+                            <div class="admin-sysinfo-entry"><label>sender</label></div>
+                            <div class="admin-sysinfo-entry"><label>timestamp</label></div>
+                            <div class="admin-sysinfo-entry"><label>message-id</label></div>
+                            <div class="admin-sysinfo-entry"><label>headline</label></div>
+                            <div class="admin-sysinfo-entry"><label>confirm</label></div>
+                            {% for msg in all_sys_messages %}
+                                <div class="admin-sysinfo-entry">{{ msg.sender }}</div>
+                                <div
+                                    class="admin-sysinfo-entry">{{ msg.get_format_time(current_user.get_active_time_zone_name(iana=True)) }}</div>
+                                <div class="admin-sysinfo-entry">{{ msg.message_id }}</div>
+                                <div class="admin-sysinfo-entry">{{ msg.headline }}</div>
+                                <div>
+                                    {% if not msg.deleted %}
+                                        <button id="bt-check-{{ uid }}" class="kiosk-btn-32 btn-check-message"
+                                                uid="{{ msg.uid }}">
+                                            <i class="mdi mdi-check-all"></i>
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="admin-sysinfo-entry"><label>no active system messages found.</label></div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {# plugins #}
+            <div class="admin-sysinfo-wrapper kiosk-collapsible">
+                <div class="kiosk-collapsible-header">
+                    <h4>active plugins</h4>
+                    <div id="admin-plugins-clicker"
+                         class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></div>
+                </div>
+                <div class="kiosk-collapsible-content">
+                    <div class="admin-grid4 admin-plugins">
+                        <div class="admin-sysinfo-entry"><label>subsystem</label></div>
+                        <div class="admin-sysinfo-entry"><label>plugin name</label></div>
+                        <div class="admin-sysinfo-entry"><label>plugin type</label></div>
+                        <div class="admin-sysinfo-entry"><label>plugin version</label></div>
+                        {% for p in plugins %}
+                            <div class="admin-sysinfo-entry">{{ p.subsystem }}</div>
+                            <div class="admin-sysinfo-entry">{{ p.name }}</div>
+                            <div class="admin-sysinfo-entry">{{ p.type }}</div>
+                            <div class="admin-sysinfo-entry-center">{{ p.plugin_version }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            {# typerepository #}
+            <div class="admin-sysinfo-wrapper kiosk-collapsible">
+                <div class="kiosk-collapsible-header">
+                    <h4>type repository</h4>
+                    <div id="admin-plugins-clicker"
+                         class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed">
+
+                    </div>
+                </div>
+                <div class="kiosk-collapsible-content">
+                    <div class="admin-grid4 admin-plugins">
+                        <div class="admin-sysinfo-entry"><label>subsystem</label></div>
+                        <div class="admin-sysinfo-entry"><label>interface type</label></div>
+                        <div class="admin-sysinfo-entry"><label>type</label></div>
+                        <div class="admin-sysinfo-entry"><label>class</label></div>
+                        {% for t in types %}
+                            <div class="admin-sysinfo-entry">{{ t.subsystem }}</div>
+                            <div class="admin-sysinfo-entry">{{ t.interface_type }}</div>
+                            <div class="admin-sysinfo-entry">{{ t.type }}</div>
+                            <div class="admin-sysinfo-entry">{{ t.class }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            {# hooks #}
+            <div class="admin-sysinfo-wrapper kiosk-collapsible">
+                <div class="kiosk-collapsible-header">
+                    <h4>hooks and events</h4>
+                    <div id="admin-plugins-clicker"
+                         class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></div>
+                </div>
+                <div class="kiosk-collapsible-content">
+                    <div class="admin-grid4 admin-plugins">
+                        <div class="admin-sysinfo-entry"><label>subsystem</label></div>
+                        <div class="admin-sysinfo-entry"><label>topic</label></div>
+                        <div class="admin-sysinfo-entry"><label>event id</label></div>
+                        <div class="admin-sysinfo-entry"><label>observer count</label></div>
+                        {% for e in events %}
+                            <div class="admin-sysinfo-entry">{{ e.subsystem }}</div>
+                            <div class="admin-sysinfo-entry">{{ e.topic }}</div>
+                            <div class="admin-sysinfo-entry">{{ e.event_id }}</div>
+                            <div class="admin-sysinfo-entry">{{ e.subscriber_count }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+
         </div>
-      {% else %}
-        <div class="admin-sysinfo-entry"><label>no active system messages found.</label></div>
-      {% endif %}
-      </div>
-    </div>
+        <script
+            src="{{ url_for('static', filename='scripts/thirdparty/materialize/bin/materialize.js') }}?v=1"></script>
+    {% endif %}
+    <script>
+        ensureLibrariesAndinitAdministration();
 
-    {# plugins #}
-    <div class="admin-sysinfo-wrapper kiosk-collapsible">
-      <div class="kiosk-collapsible-header">
-        <h4>active plugins</h4>
-        <div id="admin-plugins-clicker" class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></div>
-      </div>
-      <div class="kiosk-collapsible-content">
-        <div class="admin-grid4 admin-plugins">
-          <div class="admin-sysinfo-entry"><label>subsystem</label></div>
-          <div class="admin-sysinfo-entry"><label>plugin name</label></div>
-          <div class="admin-sysinfo-entry"><label>plugin type</label></div>
-          <div class="admin-sysinfo-entry"><label>plugin version</label></div>
-          {% for p in plugins %}
-            <div class="admin-sysinfo-entry">{{ p.subsystem }}</div>
-            <div class="admin-sysinfo-entry">{{ p.name }}</div>
-            <div class="admin-sysinfo-entry">{{ p.type }}</div>
-            <div class="admin-sysinfo-entry-center">{{ p.plugin_version }}</div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
+        function ensureLibrariesAndinitAdministration() {
+            if (typeof initCollapsibles == "undefined") {
+                setTimeout(ensureLibrariesAndinitAdministration, 100);
+            } else {
+                initAdministration();
+            }
+        }
 
-    {# typerepository #}
-    <div class="admin-sysinfo-wrapper kiosk-collapsible">
-      <div class="kiosk-collapsible-header">
-        <h4>type repository</h4>
-        <div id="admin-plugins-clicker" class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed">
-
-        </div>
-      </div>
-      <div class="kiosk-collapsible-content">
-        <div class="admin-grid4 admin-plugins">
-          <div class="admin-sysinfo-entry"><label>subsystem</label></div>
-          <div class="admin-sysinfo-entry"><label>interface type</label></div>
-          <div class="admin-sysinfo-entry"><label>type</label></div>
-          <div class="admin-sysinfo-entry"><label>class</label></div>
-          {% for t in types %}
-            <div class="admin-sysinfo-entry">{{ t.subsystem }}</div>
-            <div class="admin-sysinfo-entry">{{ t.interface_type }}</div>
-            <div class="admin-sysinfo-entry">{{ t.type }}</div>
-            <div class="admin-sysinfo-entry">{{ t.class }}</div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-
-    {# hooks #}
-    <div class="admin-sysinfo-wrapper kiosk-collapsible">
-      <div class="kiosk-collapsible-header">
-        <h4>hooks and events</h4>
-        <div id="admin-plugins-clicker" class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></div>
-      </div>
-      <div class="kiosk-collapsible-content">
-        <div class="admin-grid4 admin-plugins">
-          <div class="admin-sysinfo-entry"><label>subsystem</label></div>
-          <div class="admin-sysinfo-entry"><label>topic</label></div>
-          <div class="admin-sysinfo-entry"><label>event id</label></div>
-          <div class="admin-sysinfo-entry"><label>observer count</label></div>
-          {% for e in events %}
-            <div class="admin-sysinfo-entry">{{ e.subsystem }}</div>
-            <div class="admin-sysinfo-entry">{{ e.topic }}</div>
-            <div class="admin-sysinfo-entry">{{ e.event_id }}</div>
-            <div class="admin-sysinfo-entry">{{ e.subscriber_count }}</div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-
-
-  </div>
-  <script src="{{ url_for('static', filename='scripts/thirdparty/materialize/bin/materialize.js') }}?v=1"></script>
-  <script>
-    ensureLibrariesAndinitAdministration();
-
-    function ensureLibrariesAndinitAdministration() {
-      if (typeof initCollapsibles == 'undefined') {
-        setTimeout(ensureLibrariesAndinitAdministration, 100);
-      } else {
-        initAdministration();
-      }
-    }
-
-    //# sourceURL=administration.js
-  </script>
+        //# sourceURL=administration.js
+    </script>
 {% endblock %}
