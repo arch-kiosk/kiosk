@@ -440,26 +440,32 @@ class ModelFileRepository:
                 # todo: This is really horribly hardcoded and must go one day.
                 #  referring to tables with recording data by name is a no-go
                 #  deprecated: Throw this out once Q&V has a full text search.
-                where_part = f"""
-                    (({file_identifier_cache_table_name}.\"description\" ilike %s 
-                        or images.description ilike %s 
-                        or cast(images.uid as VARCHAR) = %s)
-                        or images.uid in 
-                        ( 
-                            select cm_photo.uid_photo from collected_material_photo cm_photo
-                            inner join collected_material cm on cm_photo.uid_cm = cm.uid
-                            left outer join small_find sf on cm_photo.uid_cm = sf.uid_cm
-                            where
-                            concat(cm.description, ' ', sf.material, ' ')
-                            ilike %s                
-                        )
-                        or images.export_filename ilike %s   
-                    ) """
-                param = kioskstdlib.escape_backslashs("%" + self.filter_options["filter_values"][o] + "%")
-                param2 = kioskstdlib.escape_backslashs("%" + self.filter_options["filter_values"][o] + "%")
-                param3 = self.filter_options["filter_values"][o]
-                param4 = param
-                param5 = param
+                description = self.filter_options["filter_values"][o]
+                if description.startswith("ext:."):
+                    where_part = f"""images.filename ilike %s"""
+                    ext = description[4:]
+                    param = kioskstdlib.escape_backslashs('%'+ext)
+                else:
+                    where_part = f"""
+                        (({file_identifier_cache_table_name}.\"description\" ilike %s 
+                            or images.description ilike %s 
+                            or cast(images.uid as VARCHAR) = %s)
+                            or images.uid in 
+                            ( 
+                                select cm_photo.uid_photo from collected_material_photo cm_photo
+                                inner join collected_material cm on cm_photo.uid_cm = cm.uid
+                                left outer join small_find sf on cm_photo.uid_cm = sf.uid_cm
+                                where
+                                concat(cm.description, ' ', sf.material, ' ')
+                                ilike %s                
+                            )
+                            or images.export_filename ilike %s   
+                        ) """
+                    param = kioskstdlib.escape_backslashs("%" + self.filter_options["filter_values"][o] + "%")
+                    param2 = kioskstdlib.escape_backslashs("%" + self.filter_options["filter_values"][o] + "%")
+                    param3 = self.filter_options["filter_values"][o]
+                    param4 = param
+                    param5 = param
             elif o == "recording_context" and self.filter_options["filter_values"][o]:
                 where_part = f"{file_identifier_cache_table_name}.record_type = %s"
                 param = self.filter_options["filter_values"][o]
