@@ -69,6 +69,7 @@ class FileViewerController {
             "fr-data-partial",
             (targetId, textStatus, jqXHR, stateData) => {
                 console.log("_loadData successful")
+                this._analyzeFileInfo()
             },
             (err_msg, textStatus, jqXHR, stateData) => {
                 kioskErrorToast("FileViewerController._loadData interrupted due to this error:<br>" + err_msg);
@@ -78,6 +79,24 @@ class FileViewerController {
             null,
             undefined,
             "GET")
+    }
+
+    _analyzeFileInfo() {
+        const elFileInfo = document.getElementById("ef-file-info")
+        const elBrokenImageText = document.getElementById("broken-image-text")
+        if (elFileInfo) {
+            const fileType = elFileInfo.dataset.fileType
+            if (fileType) {
+                if (fileType === "svg" || fileType === "pdf" || fileType === "mov") {
+                    // elBrokenImageText.style.display = "block"
+                    elBrokenImageText.innerText = `Sorry, this file type (${fileType.toUpperCase()}) is not supported by the current viewer. 
+Please use the download button and download the file into a new tab.`
+                } else {
+                    elBrokenImageText.innerText = `Sorry, the file is either broken or missing or the file type (${fileType.toUpperCase()}) has no visual representation.`
+                    // elBrokenImageText.style.display = "none"
+                }
+            }
+        }
     }
 
     reloadData() {

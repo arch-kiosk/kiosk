@@ -146,7 +146,7 @@
                         </form>
                     </div>
                 </div>
-                <div id="ef-file-info">
+                <div id="ef-file-info" data-file-type="{{ file_extension }}" data-file-size="{{ file_size }}">
                     <div>uuid: <span id="uid">{{ img.get_value('uid') }}</span></div>
 
                     {% if img.get_arch_identifier() %}

@@ -506,14 +506,16 @@ export class KioskView  extends KioskAppComponent {
                                         params.reportURL(URL.createObjectURL(blob))
                                     })
                                     .catch((e: FetchException) => {
-                                        if (e.response.status != 404) {
+                                        console.log(`no file for ${params.uuid}`)
+                                        params.reportURL(null)
+                                        if (e.response?.status != 404) {
                                             handleCommonFetchErrors(this, e, "fetchFileProvider", null)
                                         }
                                     })
-                                setTimeout(() => {
-                                    // params.reportURL("/block2.png")
-
-                                }, 2000)
+                                // setTimeout(() => {
+                                //     // params.reportURL("/block2.png")
+                                //
+                                // }, 2000)
                             }
                             ui.uiSchema = this.loadUI(part)
                             ui.showDevelopmentInfo = DEVELOPMENT

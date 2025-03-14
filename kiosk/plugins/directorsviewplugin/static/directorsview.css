@@ -625,15 +625,4 @@ kiosk-tz-combo-box.kiosk-dialog-textfield {
   padding-left: 0;
 }
 
-.broken-image {
-  place-items: center;
-  z-index: 1000;
-  position: fixed;
-  top: calc(50% - 100px);
-  left: calc(50% - 100px);
-  width: 100px;
-  height: 100px;
-  display: none;
-}
-
 /*# sourceMappingURL=directorsview.css.map */

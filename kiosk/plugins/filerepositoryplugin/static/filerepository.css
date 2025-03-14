@@ -625,17 +625,6 @@ kiosk-tz-combo-box.kiosk-dialog-textfield {
   padding-left: 0;
 }
 
-.broken-image {
-  place-items: center;
-  z-index: 1000;
-  position: fixed;
-  top: calc(50% - 100px);
-  left: calc(50% - 100px);
-  width: 100px;
-  height: 100px;
-  display: none;
-}
-
 #fr-wrapper {
   width: 100%;
   background-color: var(--col-bg-body);
@@ -1553,6 +1542,24 @@ kiosk-tz-combo-box.kiosk-dialog-textfield {
 .drop-context-marker span {
   text-decoration: line-through;
   color: var(--col-bg-alert);
+}
+
+#broken-image-text {
+  background-color: var(--col-bg-att);
+  color: var(--col-primary-bg-att);
+  padding: 0.5rem;
+  border-radius: 7px;
+}
+
+.broken-image {
+  position: absolute;
+  place-items: center;
+  top: -300px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  width: 80vw;
+  max-width: 800px;
 }
 
 /*# sourceMappingURL=filerepository.css.map */

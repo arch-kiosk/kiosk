@@ -2,7 +2,7 @@
   "name": "queryandviewapp",
   "description": "Kiosk Query and View App",
   "private": true,
-  "version": "0.7.1",
+  "version": "0.7.2",
   "type": "module",
   "main": "dist/queryandviewapp.es.js",
   "exports": {
@@ -37,12 +37,12 @@
     "install": "^0.13.0",
     "lit": "^3.2.1",
     "nanoid": "^5.0.7",
-    "npm": "^10.9.0",
+    "ui-component": "file:../../../../../../lab/uiwebcomponent/npm/uicomponent-0.6.10.tgz",
     "kiosktsapplib": "file:../../../../../../kiosktsapplib",
-    "ui-component": "file:../../../../../../lab/uiwebcomponent/npm/uicomponent-0.6.7.tgz",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
+    "npm": "^11.2.0",
     "@eslint/js": "^9.17.0",
     "@types/ejs": "^3.1.5",
     "@types/html-minifier-terser": "^7.0.2",
