@@ -32,7 +32,7 @@
     "@lit/context": "^1.1.2",
     "@shoelace-style/shoelace": "^2.19.1",
     "@toast-ui/chart": "^4.6.1",
-    "@vaadin/grid": "^24.6.2",
+    "@vaadin/grid": "^24.7.0",
     "@vaadin/select": "^24.6.2",
     "install": "^0.13.0",
     "lit": "^3.2.1",

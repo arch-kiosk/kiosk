@@ -1,0 +1,15 @@
+# header
+version: 1
+
+# dsd('excavator','id')
+element_type:
+  text: "team member"
+
+# dsd('excavator','id') && query-ui
+element_type:
+  name: "selection"
+  items:
+    lookup_type: "table"
+    topic: "excavator"
+    selection: ["id", "name"]
+    key: "id"

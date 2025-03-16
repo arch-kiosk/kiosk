@@ -1,0 +1,48 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+variables:
+  a_from_date: [datatype(date), label("after")]
+  b_to_date: [datatype(date), label("before")]
+  c_tm: ["dsd('excavator', 'id')"]
+queries:
+  'changed_by_x_in_timespan':
+    name: 'list all archaeological entities dug by a certain team member'
+    description: 'List all archaeological entites that were dug by a certain team member within a time span.'
+    type: 'CQL'
+    output_type: 'list'
+    query:
+      base:
+        scope:
+          unit: browse()
+        target:
+          field_or_instruction: replfield_modified_by()
+        additional_fields:
+          modified:
+            field_or_instruction: modified_ww()
+            format: datetime(date)
+            default: null
+      query:
+        type: raw
+        distinct: true
+        output_type: list
+        columns:
+          "unit":
+            source_field: identifier
+          "archaeological identifier":
+            source_field: primary_identifier
+          "record type":
+            source_field: record_type
+          "record_type":
+            source_field: record_type
+          "modified":
+            source_field: modified
+        conditions:
+          AND:
+            - "equals(data, {{#c_tm}})"
+            - "range(modified, {{#a_from_date}}, {{#b_to_date}})"
+        sort: ["unit", "modified"]
+    column_information:
+      "archaeological identifier": ["label('archaeological identifier')", "datatype('VARCHAR')", "identifier()"]
+    column_order: ["unit", "archaeological identifier", "record type", "modified"]

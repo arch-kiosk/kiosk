@@ -455,7 +455,8 @@ export class StructuredKioskQuery extends KioskAppComponent {
         const identifier = cell.getAttribute("data-identifier");
         const colName = cell.getAttribute("data-column");
         const colInfo = <AnyDict>this.data.document_information.columns[colName];
-        const tableName = colInfo["table"];
+        const tableName = colInfo["table"]?colInfo["table"]:cell.getAttribute("data-record-type")
+
         const fieldName = colInfo["field"];
         const identifierEvent = new CustomEvent("identifierClicked",
             {
@@ -467,6 +468,8 @@ export class StructuredKioskQuery extends KioskAppComponent {
                 bubbles: true,
             },
         );
+        debugger
+        console.log("dispatching identifier event")
         this.dispatchEvent(identifierEvent);
     }
 
@@ -519,8 +522,11 @@ export class StructuredKioskQuery extends KioskAppComponent {
         const cellValue = this.getFormattedCellValue(row[dsdName], colInfo);
         // const format = this
         if (this.isIdentifier(dsdName)) {
+            console.log("identifier row:", row)
             return html`
-                <div class="identifier" data-column="${dsdName}" data-identifier="${row[dsdName]}"
+                <div class="identifier" data-column="${dsdName}" 
+                     data-identifier="${row[dsdName]}"
+                     data-record-type="${Object.prototype.hasOwnProperty.call(row, "record_type")?row['record_type']:''}"
                      @click="${this.gotoIdentifier}">
                     ${cellValue}
                 </div>`;

@@ -11,6 +11,7 @@ class KioskQueryResult:
         self._supports_pagination: bool = False
         self._included_dsd_tables = set()
         self._page_size = DEFAULT_PAGE_SIZE
+        self.column_order = []
         # self._page_count = -1
         # self._overall_record_count = -1
 
@@ -43,6 +44,16 @@ class KioskQueryResult:
         if "dsd_includes" in kiosk_query_def:
             for table in kiosk_query_def["dsd_includes"]:
                 self._include_dsd_table(table)
+
+    def _get_valid_extra_column_information(self, kiosk_query_def: dict):
+        if "column_information" not in kiosk_query_def:
+            return
+
+        for field, value in kiosk_query_def["column_information"].items():
+            if type(value) is str:
+                value = [value]
+
+            yield field, value
 
     def _add_column_information_from_dsd(self, sql_field, dsd_table, dsd_field=""):
         """
@@ -104,7 +115,7 @@ class KioskQueryResult:
                                                    label: string},
                         "query" -> {"type": string}}
         """
-        result = {"columns": {}, "column_order": self.get_column_names(), "query": {}}
+        result = {"columns": {}, "column_order": self.get_ordered_column_names(), "query": {}}
         columns = result["columns"]
         parser = SimpleFunctionParser()
         for col, col_info in self._column_information.items():
@@ -140,8 +151,29 @@ class KioskQueryResult:
         """
         raise NotImplementedError
 
+    def _read_column_order(self, kiosk_query_def: dict):
+        """
+        Just reads the column order if any from the query definition.
+
+        :return: None
+        """
+        if "column_order" in kiosk_query_def:
+            self.column_order = kiosk_query_def["column_order"]
+
+    def get_ordered_column_names(self):
+        """
+        returns the column names that are visible in the order of their intended appearance.
+
+        :return:
+        """
+        column_names = self.get_column_names()
+        if self.column_order:
+            return [c for c in self.column_order if c in column_names]
+        else:
+            return column_names
+
     def get_column_names(self):
         """
-        returns the column names in the order of the intended appearance.
+        returns the column names
         """
         raise NotImplementedError

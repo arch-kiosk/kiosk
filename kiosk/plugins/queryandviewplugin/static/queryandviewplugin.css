@@ -382,4 +382,15 @@
   margin-right: 0.5em;
 }
 
+.broken-image {
+  position: absolute;
+  place-items: center;
+  top: -300px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  width: 80vw;
+  max-width: 800px;
+}
+
 /*# sourceMappingURL=queryandviewplugin.css.map */

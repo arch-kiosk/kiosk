@@ -49,30 +49,44 @@ class KioskQueryResultSQL(KioskQueryResult):
         return self._column_names
 
     def _process_column_information(self, kiosk_query_def: dict):
-        if "column_information" not in kiosk_query_def:
-            return
 
-        for field, value in kiosk_query_def["column_information"].items():
-            if type(value) is str:
-                value = [value]
+        # for field, value in kiosk_query_def["column_information"].items():
+        #     if type(value) is str:
+        #         value = [value]
+        #
+        #     instruction = value[0]
+        #     parser = SimpleFunctionParser()
+        #     parser.parse(instruction)
+        #     if parser.ok:
+        #         if parser.instruction.lower() == 'dsd':
+        #             if len(parser.parameters) in [1, 2]:
+        #                 self._add_column_information_from_dsd(field, *parser.parameters)
+        #                 value.pop(0)
+        #             else:
+        #                 raise KioskQueryException(f"{self.__class__.__name__}._process_column_information: "
+        #                                           f"Wrong number of parameters in column "
+        #                                           f"information for {field} : {value}")
+        #     else:
+        #         raise KioskQueryException(f"{self.__class__.__name__}._process_column_information: "
+        #                                   f"Syntax Error in column information for {field}: {value}")
 
-            instruction = value[0]
-            parser = SimpleFunctionParser()
-            parser.parse(instruction)
-            if parser.ok:
-                if parser.instruction.lower() == 'dsd':
-                    if len(parser.parameters) in [1, 2]:
-                        self._add_column_information_from_dsd(field, *parser.parameters)
-                        value.pop(0)
-                    else:
-                        raise KioskQueryException(f"{self.__class__.__name__}._process_column_information: "
-                                                  f"Wrong number of parameters in column "
-                                                  f"information for {field} : {value}")
-            else:
-                raise KioskQueryException(f"{self.__class__.__name__}._process_column_information: "
-                                          f"Syntax Error in column information for {field}: {value}")
-
+        for field, value in self._get_valid_extra_column_information(kiosk_query_def):
             try:
+                instruction = value[0]
+                parser = SimpleFunctionParser()
+                parser.parse(instruction)
+                if parser.ok:
+                    if parser.instruction.lower() == 'dsd':
+                        if len(parser.parameters) in [1, 2]:
+                            self._add_column_information_from_dsd(field, *parser.parameters)
+                            value.pop(0)
+                        else:
+                            raise KioskQueryException(f"{self.__class__.__name__}._get_valid_extra_column_information: "
+                                                      f"Wrong number of parameters in column "
+                                                      f"information for {field} : {value}")
+                else:
+                    raise KioskQueryException(f"{self.__class__.__name__}._get_valid_extra_column_information: "
+                                              f"Syntax Error in column information for {field}: {value}")
                 self._add_column_information_from_list(field, value)
             except BaseException as e:
                 logging.error(f"{self.__class__.__name__}._process_column_information: {repr(e)}")
