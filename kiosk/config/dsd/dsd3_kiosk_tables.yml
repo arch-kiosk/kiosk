@@ -2,6 +2,8 @@ config:
   format_version: 3
 
 kiosk_file_cache:
+  meta:
+    flags: [no_fts]
   structure:
     2:
       uid: [datatype(UUID), uuid_key())]
@@ -28,6 +30,8 @@ kiosk_file_cache:
       - add("renew")
 
 kiosk_privilege:
+  meta:
+    flags: [no_fts]
   structure:
     1:
       uid: [datatype(UUID), uuid_key()]
@@ -35,6 +39,8 @@ kiosk_privilege:
       privilege: [datatype(VARCHAR), not_null()]
 
 kiosk_user:
+  meta:
+    flags: [no_fts]
   structure:
     5:
       uid: [datatype(UUID), uuid_key())]
@@ -95,6 +101,8 @@ kiosk_user:
         - alter(user_id)
 
 kiosk_workstation:
+  meta:
+    flags: [no_fts]
   structure:
     3:
       id: [datatype(VARCHAR), not_null()]
@@ -120,6 +128,8 @@ kiosk_workstation:
       - add("disabled")
 
 file_identifier_cache:
+  meta:
+    flags: [no_fts]
   structure:
     2: dropped
     1:
@@ -135,6 +145,9 @@ file_identifier_cache:
       - drop(*)
 
 kiosk_system_message:
+  meta:
+    flags: [no_fts]
+
   structure:
     3:
       nid: [datatype(varchar), not_null(), primary(), unique()]
@@ -159,6 +172,8 @@ kiosk_system_message:
         - add(modified)
 
 kiosk_filemanager_directories:
+  meta:
+    flags: [no_fts]
   structure:
     1:
       alias: [datatype(varchar), not_null(), unique(), primary()]
@@ -170,6 +185,8 @@ kiosk_filemanager_directories:
       server_restart: [datatype(boolean), default(false)]
 
 kiosk_queries:
+  meta:
+    flags: [no_fts]
   structure:
     2:
       id: [datatype(VARCHAR), unique(), not_null()]
@@ -204,6 +221,8 @@ kiosk_queries:
         - add(order_priority)
 
 kiosk_time_zones:
+  meta:
+    flags: [no_fts]
   structure:
     1:
       id: [datatype(INT), unique(), not_null()]
@@ -213,6 +232,8 @@ kiosk_time_zones:
       version: [datatype(INT), not_null()]
 
 kiosk_ports:
+  meta:
+    flags: [no_fts]
   structure:
     1:
       port_name: [datatype(VARCHAR), unique(), not_null()]
