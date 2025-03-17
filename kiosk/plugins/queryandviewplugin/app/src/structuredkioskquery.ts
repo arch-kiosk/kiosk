@@ -31,10 +31,10 @@ import "@shoelace-style/shoelace/dist/components/dropdown/dropdown.js";
 import "@vaadin/select";
 
 // @ts-ignore
-import { ComboBoxDataProvider, ComboBoxDataProviderParams } from "@vaadin/combo-box";
+import { ComboBoxDataProviderParams } from "@vaadin/combo-box";
 // @ts-ignore
 import { ComboBoxDataProviderCallback } from "@vaadin/combo-box/src/vaadin-combo-box-data-provider-mixin";
-import { getLatinDate, handleCommonFetchErrors } from "./lib/applib";
+import { getLatinDate, handleCommonFetchErrors, handleErrorInApp } from "./lib/applib";
 import { Grid, GridDataProviderCallback, GridDataProviderParams, GridSorterDefinition } from "@vaadin/grid";
 
 import { columnBodyRenderer, columnHeaderRenderer, GridColumnBodyLitRenderer } from "@vaadin/grid/lit";
@@ -55,6 +55,7 @@ import {
     RESULT_VIEW_TYPE_BARCHART,
     RESULT_VIEW_TYPE_PIECHART,
 } from "./structuredkioskquerycharts";
+import { MSG_ERROR } from "./lib/appmessaging";
 
 const RESULT_VIEW_TYPE_DATA = 1;
 type ResultViewType = typeof RESULT_VIEW_TYPE_DATA | typeof RESULT_VIEW_TYPE_PIECHART | typeof RESULT_VIEW_TYPE_BARCHART
@@ -239,7 +240,7 @@ export class StructuredKioskQuery extends KioskAppComponent {
         if (_changedProperties.has("activeChart") || _changedProperties.has("activeView") || _changedProperties.has("isChartMaximized") || _changedProperties.has("data") && this.data) {
             if (this.data && this.activeView != RESULT_VIEW_TYPE_DATA) {
                 if (this.data.record_count < this.overall_record_count) {
-                    this.fetchAllData().then(data => {
+                    this.fetchAllData().then(() => {
                         this.refreshGraph(this.data);
                     });
                 } else {
@@ -264,9 +265,9 @@ export class StructuredKioskQuery extends KioskAppComponent {
         height = height > 10 ? height-50 : 400
         console.log("refreshing graph", graphDiv);
         if (this.activeView != RESULT_VIEW_TYPE_DATA) {
-            let chartType = chartType2String(this.activeView)
+            const chartType = chartType2String(this.activeView)
             // let chartDefinition = this.queryDefinition.charts[Object.keys(this.queryDefinition.charts)[0]]
-            let chartDefinition = this.queryDefinition.charts[this.activeChart[chartType]]
+            const chartDefinition = this.queryDefinition.charts[this.activeChart[chartType]]
             console.log("chartDefinition", chartDefinition)
             // chartDefinition.title=
             if (this.activeView === RESULT_VIEW_TYPE_PIECHART) {
@@ -309,8 +310,8 @@ export class StructuredKioskQuery extends KioskAppComponent {
             } else {
                 rc = await this.fetchAllData()
             }
-            let data, count;
-            [data, count] = rc?rc:[[],0];
+            // const data, count;
+            const [data, count] = rc?rc:[[],0];
             if (count > 0 || page == 0) {
                 this.overall_record_count = count;
                 this.requestUpdate();
@@ -405,6 +406,17 @@ export class StructuredKioskQuery extends KioskAppComponent {
 
     queryUIChanged(event: CustomEvent) {
         if (event.detail.srcElement === "start") {
+            try {
+                Object.entries(event.detail.newData).forEach(([_, v]) => {
+                    if (!v) {
+                        throw "Please fill out all the input fields."
+                    }
+                })
+            } catch(e) {
+                handleErrorInApp(this, MSG_ERROR,
+                    e, "structuredKioskQuery.queryUIChanged")
+                return
+            }
             this.overall_record_count = -1;
             this._inputData = event.detail.newData;
             this.assignInputs()
@@ -468,7 +480,6 @@ export class StructuredKioskQuery extends KioskAppComponent {
                 bubbles: true,
             },
         );
-        debugger
         console.log("dispatching identifier event")
         this.dispatchEvent(identifierEvent);
     }
@@ -492,8 +503,8 @@ export class StructuredKioskQuery extends KioskAppComponent {
         return rowElement;
     }
 
-    private alternateChartSize(e: Event) {
-        let overlay: HTMLElement = this.shadowRoot.querySelector(".chart-background")
+    private alternateChartSize() {
+        const overlay: HTMLElement = this.shadowRoot.querySelector(".chart-background")
         if (overlay) {
             if (this.isChartMaximized) {
                 this.isChartMaximized = false
@@ -504,8 +515,8 @@ export class StructuredKioskQuery extends KioskAppComponent {
             } else {
                 this.isChartMaximized = true
                 overlay.classList.add("chart-maximized")
-                let appElement = window.document.querySelector("#kiosk-app")
-                let rect = appElement.getBoundingClientRect()
+                const appElement = window.document.querySelector("#kiosk-app")
+                const rect = appElement.getBoundingClientRect()
                 const y = rect.top
                 const x = rect.left
                 overlay.style.top = `${y}px`
@@ -581,7 +592,7 @@ export class StructuredKioskQuery extends KioskAppComponent {
         // }
         if (this.activeView != RESULT_VIEW_TYPE_DATA) {
             const chartType = chartType2String(this.activeView)
-            let selectedChart = (<HTMLInputElement>e.target).value
+            const selectedChart = (<HTMLInputElement>e.target).value
             if (selectedChart) {
                 this.activeChart[chartType] = selectedChart
                 this.activeChart = { ...this.activeChart }
@@ -682,7 +693,8 @@ export class StructuredKioskQuery extends KioskAppComponent {
             for (const chartType of this.getChartTypes()) {
                 result.push(this.renderChartTypeButton(chartType))
             }
-        } catch {
+        } catch (e) {
+            console.log(e)
         }
         return result.length > 0?html`${result}`:html`
                 <div class="result-toolbar-button">
