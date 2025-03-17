@@ -32,10 +32,10 @@ queries:
             source_field: identifier
           "archaeological identifier":
             source_field: primary_identifier
-          "record type":
-            source_field: record_type
           "record_type":
             source_field: record_type
+          "primary_record_type":
+            source_field: primary_record_type
           "modified":
             source_field: modified
         conditions:
@@ -45,4 +45,5 @@ queries:
         sort: ["unit", "modified"]
     column_information:
       "archaeological identifier": ["label('archaeological identifier')", "datatype('VARCHAR')", "identifier()"]
-    column_order: ["unit", "archaeological identifier", "record type", "modified"]
+      "record_type": ["label('record type')", "datatype('VARCHAR')"]
+    column_order: ["unit", "archaeological identifier", "record_type", "modified"]

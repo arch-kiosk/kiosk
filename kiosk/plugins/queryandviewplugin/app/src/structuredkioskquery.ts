@@ -526,7 +526,7 @@ export class StructuredKioskQuery extends KioskAppComponent {
             return html`
                 <div class="identifier" data-column="${dsdName}" 
                      data-identifier="${row[dsdName]}"
-                     data-record-type="${Object.prototype.hasOwnProperty.call(row, "record_type")?row['record_type']:''}"
+                     data-record-type="${Object.prototype.hasOwnProperty.call(row, "primary_record_type")?row['primary_record_type']:''}"
                      @click="${this.gotoIdentifier}">
                     ${cellValue}
                 </div>`;

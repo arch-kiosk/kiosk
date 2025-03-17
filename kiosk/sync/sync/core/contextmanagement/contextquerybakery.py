@@ -162,6 +162,7 @@ class ContextQueryBakery:
         self._set_cql(cql)
         self._check_meta()
         self._prepare_base()
+        self._kiosk_context.include_primary_record_type = True
         query_class = self._prepare_query()
 
         try:
