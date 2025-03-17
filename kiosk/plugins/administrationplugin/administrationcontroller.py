@@ -223,7 +223,10 @@ def administration_show():
                         "plugin_version": p.get_plugin_version() if hasattr(p, "get_plugin_version") else "-"} for k, p in
                        plugin_manager.plugins.items()]
             sync = Synchronization()
-            sync.load_plugins([])
+            try:
+                sync.load_plugins([], is_plugin_active=lambda x: True)
+            except BaseException as e:
+                logging.error(f"administrationcontroller.administration_show: {repr(e)}")
             plugins.extend([{"subsystem": "synchronization", "name": p.name, "type": type(p).__name__,
                              "plugin_version": p.get_plugin_version()} for k, p in
                             sync.plugins.plugins.items()])

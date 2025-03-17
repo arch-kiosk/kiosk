@@ -92,11 +92,12 @@ class Synchronization(PluginLoader):
     def ignored_files(self):
         return self._ignored_files
 
-    def load_plugins(self, plugins_to_load: List[str]) -> bool:
+    def load_plugins(self, plugins_to_load: List[str], is_plugin_active: typing.Union[typing.Callable, None]=None) -> bool:
         """
         load all the plugins in the list.
         :param plugins_to_load: plugins_to_load
         :return: boolean
+        :param is_plugin_active:
         :except: can throw all kinds of exceptions
         """
         plugin_manager: SynchronizationPluginManager = self.plugins
@@ -108,9 +109,10 @@ class Synchronization(PluginLoader):
         sync_plugins_to_load = [plugin for plugin in plugins_to_load if plugin not in abs_plugins]
         if project_id:
             plugins_loaded = plugin_manager.load_plugins(plugin_dir, sync_plugins_to_load,
-                                                         init_plugin_configuration={"project_id": project_id})
+                                                         init_plugin_configuration={"project_id": project_id},
+                                                         is_plugin_active=is_plugin_active)
         else:
-            plugins_loaded = plugin_manager.load_plugins(plugin_dir, sync_plugins_to_load)
+            plugins_loaded = plugin_manager.load_plugins(plugin_dir, sync_plugins_to_load,is_plugin_active=is_plugin_active)
 
         if abs_plugins:
             for plugin in abs_plugins:

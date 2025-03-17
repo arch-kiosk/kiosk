@@ -3,6 +3,7 @@ import importlib
 import sys
 import logging
 import stat
+from typing import Union, Callable
 
 from plugin import Plugin
 
@@ -45,19 +46,23 @@ class PluginManager:
     # If it is empty, a l l found plugins will be loaded.
     # LK, 11/10/2018: Added the restriction to plugins and the return of the loaded plugins
     #                 Not any longer a private method, plugins cannot accidentally be loaded twice.
-    def load_plugins(self, plugin_dir, restrict_to_plugins=[], init_plugin_configuration={}):
+    def load_plugins(self, plugin_dir,
+                     restrict_to_plugins=[],
+                     init_plugin_configuration={},
+                     is_plugin_active: Union[Callable, None]=None):
         plugins_loaded = []
 
         if not os.path.isdir(plugin_dir):
             raise Exception("plugin_dir {} is not a directory".format(plugin_dir))
 
         register_core_paths([plugin_dir])
+        check_plugin_active = is_plugin_active if is_plugin_active else self.is_plugin_active
         plugin_candidates = [name
                              for name in self.get_available_plugins(plugin_dir) if
                              (
                                      ((not restrict_to_plugins) or (name in restrict_to_plugins))
                                      and
-                                     ((not self.is_plugin_active) or (self.is_plugin_active(name)))
+                                     ((not check_plugin_active) or check_plugin_active(name))
                              )
                              ]
 

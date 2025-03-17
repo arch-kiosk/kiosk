@@ -8,8 +8,8 @@ variables:
   c_tm: ["dsd('excavator', 'id')"]
 queries:
   'changed_by_x_in_timespan':
-    name: 'list all archaeological entities dug by a certain team member'
-    description: 'List all archaeological entites that were dug by a certain team member within a time span.'
+    name: 'list all archaeological entities recorded by a certain team member'
+    description: 'List all archaeological entities that were recorded by a certain team member within a time span. This is to see which user changed records in a recent time span.'
     type: 'CQL'
     output_type: 'list'
     query:

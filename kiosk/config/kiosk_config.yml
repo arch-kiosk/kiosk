@@ -35,6 +35,10 @@ file_repository:
 glossary:
   "locus": ["SU", "SUs"]
 #  "unit": ["trench", "trenches"]
+file_import:
+  file_import_filters:
+      FileImportQRCodeFilter:
+        active: False
 
 kiosk:
   global_constants:

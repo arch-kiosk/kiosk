@@ -9,6 +9,7 @@ import time
 from inspect import signature
 
 from pprint import pprint
+from typing import Callable, Union
 
 import yaml
 
@@ -610,7 +611,7 @@ class KioskAppFactory(AppFactory):
         app.add_url_rule('/get_system_messages', "get_system_messages", get_system_messages, methods=['POST'])
 
     @classmethod
-    def load_plugins(cls):
+    def load_plugins(cls, is_plugin_active: Union[Callable, None]=None):
         plugin_manager = FlaskAppPluginManager()
         plugin_manager.is_plugin_active = cls._is_plugin_active
         project_id = cls.cfg.get_project_id()
@@ -627,7 +628,8 @@ class KioskAppFactory(AppFactory):
         plugin_dir = cls.cfg.resolve_symbols(cls.cfg.kiosk["plugin_path"])
         if project_id:
             plugin_manager.load_plugins(plugin_dir=plugin_dir,
-                                        init_plugin_configuration={"project_id": project_id})
+                                        init_plugin_configuration={"project_id": project_id},
+                                        is_plugin_active=is_plugin_active)
         else:
             plugin_manager.load_plugins(plugin_dir=plugin_dir)
         if "mcpcore.mcpworker" in sys.modules:

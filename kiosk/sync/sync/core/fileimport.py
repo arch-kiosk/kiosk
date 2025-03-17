@@ -146,7 +146,7 @@ class FileImport:
         plugins_to_load = list(set(plugins_to_load))
 
         if plugins_to_load:
-            self._app.load_plugins(plugins_to_load)
+            self._app.load_plugins(plugins_to_load, is_plugin_active=lambda x: True)
         else:
             logging.error("FileImport._ensure_filter_plugins: No plugins configured to load "
                           "under file_import/load_plugins")
