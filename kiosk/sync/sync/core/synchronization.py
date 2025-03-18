@@ -51,8 +51,12 @@ class Synchronization(PluginLoader):
                 if cfg.has_key(plugin_name):
                     if "active" in cfg[plugin_name]:
                         return kioskstdlib.to_bool(cfg[plugin_name]["active"])
-                if plugin_name in cfg.autoload_plugins:
-                    return True
+                # lots of back and forth on this one: In the end it caused too much
+                # trouble to check against the autoload_plugins. So I rather default on true now.
+                # Kiosk 1.6.24.1
+                # if plugin_name in cfg.autoload_plugins:
+                #     return True
+                return True
         except Exception as e:
             print(f"Kiosk Plugin {plugin_name} cannot be activated due to exception {repr(e)}")
 
