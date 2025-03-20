@@ -58,8 +58,11 @@ class KioskPhysicalWebPFile(KioskPhysicalImageFile):
         :return:
         """
         exif = {}
-        exif.update((k[5:], v) for k, v in img.metadata.items()
-                    if k.startswith('exif:'))
+        try:
+            exif.update((k[5:], v) for k, v in img.metadata.items()
+                        if k.startswith('exif:'))
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.get_exif_data: {repr(e)}")
         return exif
 
     def _open_image(self, representation: KioskRepresentationType = None):
@@ -105,12 +108,12 @@ class KioskPhysicalWebPFile(KioskPhysicalImageFile):
         except Exception as e:
             if MANIPULATION_FIX_ROTATION in representation.required_manipulations:
                 logging.warning(
-                    f"{self.__class__}._convert_to: Orientation of {self.source_path_and_filename} "
+                    f"{self.__class__}._fix_rotation: Orientation of {self.source_path_and_filename} "
                     f"cannot be fixed: {repr(e)}")
                 return None
             else:
                 logging.debug(
-                    f"{self.__class__}._convert_to: Orientation of {self.source_path_and_filename} "
+                    f"{self.__class__}._fix_rotation: Orientation of {self.source_path_and_filename} "
                     f"cannot be fixed: {repr(e)}. Skipped since not required.")
 
         return img
@@ -126,7 +129,7 @@ class KioskPhysicalWebPFile(KioskPhysicalImageFile):
                 downscale_algo = "lanczos"
             else:
                 # that should not happen at all!
-                raise NotImplementedError(f"{self.__class__}._convert_to: "
+                raise NotImplementedError(f"{self.__class__}._downscale: "
                                           f"Method {representation.method} not supported.")
 
         if img.width > representation.dimensions.width or \
