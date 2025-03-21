@@ -945,25 +945,38 @@ function stop_download_spinner() {
 function onEFDownloadImage(event) {
     closeMenu("#download-menu-contents", $("#download-menu"));
     let uuid = $("#uid").text();
+    let openInTab = false
 
-    let target = event.target;
+    let target = event.currentTarget;
+    if (target.classList.contains("ef-tab-download")) {
+        target = target.previousElementSibling.previousElementSibling
+        openInTab = true
+    }
+    if (!target.dataset.hasOwnProperty("representationId") && target.id !== "download-raw") {
+        target = target.previousElementSibling
+    }
     if (target.id !== "download-raw") {
         let representationId = target.getAttribute("data-representation-id");
-        uuid = uuid + ":" + representationId;
+        uuid = openInTab?uuid + "/" + representationId:uuid + ":" + representationId
         console.log("downloading representation " + representationId);
     } else console.log("downloading raw file");
 
-    start_download_spinner();
-    $(".download-msg").remove();
-    $.fileDownload("/filerepository/download/" + uuid + "/start")
-        .done(function() {
-            console.log("file download success");
-            afterFileDownload();
-        })
-        .fail(function() {
-            console.log("file download failure");
-            afterFileDownload();
-        });
+    if (openInTab) {
+        window.open("/filerepository/fetch/" + uuid, "_blank");
+    } else {
+        start_download_spinner();
+        $(".download-msg").remove();
+        $.fileDownload("/filerepository/download/" + uuid + "/start")
+            .done(function() {
+                console.log("file download success");
+                afterFileDownload();
+            })
+            .fail(function() {
+                console.log("file download failure");
+                afterFileDownload();
+            });
+    }
+
 
     function afterFileDownload() {
         $.ajax({

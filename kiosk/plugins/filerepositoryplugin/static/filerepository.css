@@ -1369,8 +1369,22 @@ kiosk-tz-combo-box.kiosk-dialog-textfield {
   display: block;
   font-size: 1.2em;
 }
-.ef-menu-content div:hover, #upload-area-contents div:hover, #download-menu-contents.dropdown-content div:hover {
-  background-color: var(--col-bg-1-lighter);
+.ef-menu-content .download-grid, #upload-area-contents .download-grid, #download-menu-contents.dropdown-content .download-grid {
+  display: grid;
+  grid-template-columns: auto auto auto;
+}
+.ef-menu-content .ef-file-download:hover, #upload-area-contents .ef-file-download:hover, #download-menu-contents.dropdown-content .ef-file-download:hover {
+  color: var(--col-accent-bg-1);
+}
+.ef-menu-content .ef-file-download:hover + .ef-file-download, #upload-area-contents .ef-file-download:hover + .ef-file-download, #download-menu-contents.dropdown-content .ef-file-download:hover + .ef-file-download {
+  color: var(--col-accent-bg-1);
+}
+.ef-menu-content .ef-tab-download:hover, #upload-area-contents .ef-tab-download:hover, #download-menu-contents.dropdown-content .ef-tab-download:hover {
+  color: var(--col-warning-bg-1);
+}
+
+#download-menu-contents.dropdown-content {
+  min-width: 450px;
 }
 
 #ef-image-information {

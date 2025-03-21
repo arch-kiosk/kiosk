@@ -15,11 +15,18 @@
                             {% if "download file" in authorized_to %}
                                 <div class="dropdown">
                                     <div class="dropdown-content" id="download-menu-contents">
-                                        <div id="download-raw" class="ef-download">download original file</div>
-                                        {% for representation in representations %}
-                                            <div class="ef-download" data-representation-id="{{ representation[1] }}">
-                                                download {{ representation[0] }}</div>
-                                        {% endfor %}
+                                        <div class="download-grid">
+                                            <div id="download-raw" class="ef-download ef-file-download">download original file</div>
+                                            <div class="ef-file-download"><i class="fas fa-circle-down"></i></div>
+                                            <div><!--<i class="fas fa-frown"></i>--></div>
+                                            {% for representation in representations %}
+                                                <div class="ef-download ef-file-download" data-representation-id="{{ representation[1] }}">
+                                                    {{ representation[0] }}
+                                                </div>
+                                                <div class="ef-file-download"><i class="fas fa-circle-down"></i></div>
+                                                <div class="ef-tab-download"><i class="fas fa-square-up-right"></i></div>
+                                            {% endfor %}
+                                        </div>
                                     </div>
                                     <div id="download-menu" class="is-closed">
                                         <button id="download-menu-image"></button>
@@ -192,7 +199,8 @@
                 $("#ef-delete").on("click", onEFDialogDelete);
                 $("#ef-cancel").on("click", onEFDialogCancel);
                 $("#ef-ok").on("click", onEFDialogOk);
-                $(".ef-download").on("click", onEFDownloadImage);
+                $(".ef-file-download").on("click", onEFDownloadImage);
+                $(".ef-tab-download").on("click", onEFDownloadImage);
                 $("#download-menu").click(function() {
                     showhidemenu("#download-menu", "#download-menu-contents");
                 });
