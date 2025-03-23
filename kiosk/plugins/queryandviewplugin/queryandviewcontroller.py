@@ -247,9 +247,16 @@ def install_queries():
                     try:
                         if KioskQueryStore.add_or_update_from_file(query_file):
                             result.message += f"Query definition {file_name} successfully installed."
+                            project_specific = False
                             target_file = str(os.path.join(def_base_path, file_name))
-                            if not os.path.isfile(target_file):
-                                target_file = str(os.path.join(def_project_path, file_name))
+                            project_target_file = str(os.path.join(def_project_path, file_name))
+
+                            if os.path.isfile(project_target_file) or not os.path.isfile(target_file):
+                                project_specific = True
+
+                            kioskstdlib.delete_files([target_file, project_target_file], False)
+                            if project_specific:
+                                target_file = project_target_file
 
                             shutil.copy(query_file, target_file)
 
