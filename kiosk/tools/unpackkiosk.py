@@ -462,14 +462,28 @@ def check_database_integrity(cfg_file: str):
 
 def delete_old_directories():
     dirs = [os.path.join(kiosk_dir, "sync", "sync", "sync_plugin", "fileimporturaphook")]
-    for dir in dirs:
+    for d in dirs:
         try:
-            kioskstdlib.clear_dir(dir)
-            os.rmdir(dir)
-            print(f"Removed {dir}")
+            kioskstdlib.clear_dir(d)
+            os.rmdir(d)
+            print(f"Removed {d}")
         except BaseException as e:
             pass
 
+def create_default_directories():
+    dirs = [
+        os.path.join(kiosk_dir, "reporting"),
+        os.path.join(kiosk_dir, "custom"),
+        os.path.join(kiosk_dir, "temp"),
+        os.path.join(kiosk_dir, "sync", "sync", "custom"),
+            ]
+    for d in dirs:
+        try:
+            if not os.path.exists(d):
+                os.makedirs(d)
+            print(f"created {d}")
+        except BaseException as e:
+            pass
 
 def renew_workstations(cfg_file: str):
     """
@@ -808,6 +822,7 @@ if __name__ == '__main__':
                 print(sys.path)
 
     install_default_queries(cfg_file)
+    create_default_directories()
 
     if this_is_an_update:
         check_database_integrity(cfg_file)
