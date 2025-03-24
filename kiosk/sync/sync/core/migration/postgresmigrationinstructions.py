@@ -167,6 +167,9 @@ class DropMigrationInstruction(MigrationInstruction):
             raise DSDInstructionValueError(
                 f"Cannot drop field {field_name} from version {table_migration.from_version}.")
 
+        if table_migration.migration.dsd.translate_datatype(
+                old_field_instructions["datatype"][0]).lower() == "varchar":
+            sql += f"DROP COLUMN IF EXISTS fts, "
         sql += f"DROP COLUMN {migration.sql_safe_ident(field_name)}"
         if table_migration.migration.dsd.translate_datatype(
                 old_field_instructions["datatype"][0]).lower() == "timestamp" and \
