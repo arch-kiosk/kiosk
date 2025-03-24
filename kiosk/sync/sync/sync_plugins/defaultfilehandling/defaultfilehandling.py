@@ -229,8 +229,9 @@ class KioskPhysicalPillowNefFile(KioskPhysicalPillowFile):
         self._file_attributes = {}
         if img:
             try:
-                self._file_attributes[FILE_ATTR_WIDTH] = img.sizes.raw_width
-                self._file_attributes[FILE_ATTR_HEIGHT] = img.sizes.raw_height
+                flipped = img.sizes.flip in [5, 6]
+                self._file_attributes[FILE_ATTR_WIDTH] = img.sizes.raw_height if flipped else img.sizes.raw_width
+                self._file_attributes[FILE_ATTR_HEIGHT] = img.sizes.raw_width if flipped else img.sizes.raw_height
                 self._file_attributes[FILE_ATTR_FORMAT] = "NEF"
             except BaseException as e:
                 logging.warning(f"{self.__class__.__name__}._read_file_attributes:"
