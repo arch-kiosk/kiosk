@@ -25,9 +25,9 @@ params = {"-fr": "fr", "--unpack_file_repository": "fr",
           "-dbname": "dbname",
           "-dbport": "dbport",
           "-pgdb": "pgdb",
-          "-nt": "nt",
+          # "-nt": "nt",
           "-nomg": "nomg", "--no_migration": "nomg",
-          "-no_thumbnails": "nt",
+          # "-no_thumbnails": "nt",
           "-no_admin": "no_admin",
           "--no_admin": "no_admin",
           "-na": "no_admin",
@@ -93,7 +93,7 @@ def usage():
         -nomg/--no_migration: suppresses the database migration at the end of unpackkiosk 
         -ru/ --restore_users: restores users and privileges from the backup. Usually the users and privileges
                               are NOT restored. Only in connection with -db! 
-        -nt/ --no_thumbnails: No thumbnails will be created for new repository files at the end of the process!
+        -nt/ --no_thumbnails: obsolete. Use nh instead if you want to skip housekeeping (which includes refreshing thumbnails) 
         -cfc[=force]/ --clear_file_cache[=force]: sets all the file cache entries to "renew". The "refresh file cache" tool does the work.
                                   use =force to actually invalidate the file cache entries and remove the files  
         -na/--no_admin: run unpackkiosk without admin privileges.
@@ -397,7 +397,7 @@ def housekeeping(cfg_file: str):
                                     event_manager=sync.events,
                                     type_repository=sync.type_repository,
                                     plugin_loader=sync)
-        hk = Housekeeping(file_repos, True)
+        hk = Housekeeping(file_repos, console=True)
         housekeeping_tasks_to_run = [
             "housekeeping_check_broken_files",
             "housekeeping_check_file_meta_data",
@@ -791,15 +791,16 @@ if __name__ == '__main__':
             if clear_file_cache(cfg_file, force=True if options["clear_file_cache"] == "force" else False):
                 print("file cache successfully cleared", flush=True)
 
-        if ("fro" in options or "fr" in options) and "nt" not in options:
-            KioskRestore.refresh_thumbnails(cfg_file)
-        else:
-            print("Skipped creation of thumbnails")
+        # obsolete
+        # if ("fro" in options or "fr" in options) and "nt" not in options:
+        #     KioskRestore.refresh_thumbnails(cfg_file)
+        # else:
+        #     print("Skipped creation of thumbnails")
 
         if "renew" in options:
             renew_workstations(cfg_file)
 
-        if "nh" not in options:
+        if "nh" not in options and "nt" not in options:
             try:
                 housekeeping(cfg_file)
             except BaseException as e:
