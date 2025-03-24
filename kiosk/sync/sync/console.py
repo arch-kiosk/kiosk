@@ -174,7 +174,7 @@ if repl_test_mode:
 print("\nlog level is " + config.log_level)
 print("=" * 40)
 
-file_repos = FileRepository(config)
+file_repos = FileRepository(config, sync.events, sync.type_repository, sync)
 dsd = Dsd3Singleton.get_dsd3()
 dsd.append_file(config.get_dsdfile())
 lst = dsd.list_tables()
@@ -183,10 +183,21 @@ print("\nsync object instantiated and ready. config object and dsd object ready,
 print("\033[1muse urap_help() to get a command overview\n\033[0m")
 if __name__ == "__main__":
     print("\nRunning as main python script")
-    ws: FileMakerWorkstation = sync.get_workstation("FileMakerWorkstation", "x1lk")
-    assert ws.exists()
-    ws.callback_progress = lambda x: True
-    ws.export()
+    # ws: FileMakerWorkstation = sync.get_workstation("FileMakerWorkstation", "x1lk")
+    # assert ws.exists()
+    # ws.callback_progress = lambda x: True
+    # ws.export()
+    # KioskSQLDb.commit()
+    cf = file_repos.get_contextual_file("475a5d2d-f5b8-41d7-b634-be8811f118f1")
+    cf.invalidate_cache()
     KioskSQLDb.commit()
+
+    cf = file_repos.get_contextual_file("475a5d2d-f5b8-41d7-b634-be8811f118f1")
+    fr = cf._record_exists()
+    print(fr.image_attributes)
+    if not fr.image_attributes:
+        cf.get_file_attributes(force_it=True)
+    KioskSQLDb.commit()
+    print(fr.image_attributes)
     # pdb.set_trace()
     print("\ndone")

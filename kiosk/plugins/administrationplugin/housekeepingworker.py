@@ -33,7 +33,6 @@ class HouseKeepingWorker:
         self.worker()
 
     def worker(self):
-
         def report_progress(prg) -> bool:
             # #########
             # progress function

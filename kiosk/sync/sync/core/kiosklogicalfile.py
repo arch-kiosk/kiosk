@@ -156,6 +156,11 @@ class KioskLogicalFile:
 
         for handler in handlers:
             if self._get_physical_file_attributes(handler(self._get_path_and_filename())):
+                try:
+                    logging.debug(f"{self.__class__.__name__}._force_get_file_attributes: "
+                                  f"Got physical file attributes for {self._uid} from handler {handler.__name__}")
+                except BaseException as e:
+                    pass
                 return True
 
         return False
@@ -204,11 +209,21 @@ class KioskLogicalFile:
                         from the physical file. Otherwise, this would return an empty dict.
                         If there are file attributes to begin with force_it is not fetching them anyways.
                         Use get_file_attributes_from_physical_file for that.
-        :return: dict.
+        :return: a dictionary
         """
 
         file_record: KioskFilesModel = self._record_exists()
         if file_record:
+            # fixes an old error where NEFs were rotated and so width and height
+            # got confused. NEFs that don't have a "rotate" attribute need new attributes
+            if "format" in file_record.image_attributes and \
+                file_record.image_attributes["format"].upper() in ["NEF", "CR2"]:
+                if "rotate" not in file_record.image_attributes:
+                    file_record.image_attributes = {}
+                    logging.debug(f"{self.__class__.__name__}.get_file_attributes: "
+                                  f"NEF {self._uid} needs new attributes.")
+            # end of that fix
+
             if not file_record.image_attributes and force_it:
                 if self._force_get_file_attributes():
                     logging.debug(f"{self.__class__.__name__}.get_file_attributes: "

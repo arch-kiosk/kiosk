@@ -536,7 +536,8 @@ class KioskContextualFile(KioskLogicalFile):
             savepoint = "ensure_file_attributes"
             try:
                 KioskSQLDb.begin_savepoint(savepoint)
-                if self.get_file_attributes(force_it=True):
+                attr = self.get_file_attributes(force_it=True)
+                if attr:
                     KioskSQLDb.commit_savepoint(savepoint)
                     if commit:
                         KioskSQLDb.commit()

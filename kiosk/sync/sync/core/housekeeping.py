@@ -30,6 +30,7 @@ class Housekeeping:
         self.progress_handler = None
         self.file_repos = file_repos
         self.counters = {}
+        self.limit_to_files = []  # list of file uids. If not empty only these files will be processed
         self.housekeeping_file_methods = {"housekeeping_check_broken_files": self.housekeeping_check_broken_files,
                                           "housekeeping_check_file_meta_data": self.housekeeping_check_file_meta_data,
                                           "housekeeping_check_cache_files": self.housekeeping_check_cache_files,
@@ -71,7 +72,6 @@ class Housekeeping:
             :param file_tasks_only: if set only the file-related tasks will be executed.
             :return: number of files that have been checked
         """
-        # print(housekeeping_tasks)
         self._cancelled = False
         self.progress_handler = progress_handler
         c = 0
@@ -96,6 +96,7 @@ class Housekeeping:
 
         tasks_total = len(stdalone_tasks_todo) + len(file_tasks_todo)
 
+        logging.info("\nRunning per file: " + ",".join(ft.__name__ for ft in file_tasks_todo))
         c = self._do_file_tasks(file_tasks_todo, parameters, tasks_total)
 
         if not self._cancelled and len(stdalone_tasks_todo) > 0:
@@ -104,6 +105,7 @@ class Housekeeping:
                 logging.debug(f"{self.__class__.__name__}.do_housekeeping: User cancelled.")
                 self._cancelled = True
 
+            logging.info("\n\nRunning once: " + ",".join(ft.__name__ for ft in stdalone_tasks_todo))
             c2 = self._do_stdalone_tasks(stdalone_tasks_todo, parameters, len(file_tasks_todo), tasks_total)
         return c + c2
 
@@ -135,7 +137,7 @@ class Housekeeping:
             cur.execute(f"select " + f"count(uid) c from {FILES_TABLE_NAME};")
             r = cur.fetchone()
             c_files = int(r["c"])
-            print(f"c_files is {c_files}")
+            logging.info(f"c_files is {c_files}")
             cur.execute(f"select " + f"uid from {FILES_TABLE_NAME};")
             r = cur.fetchone()
             c_print = 0
@@ -143,20 +145,22 @@ class Housekeeping:
             try:
                 while r:
                     uid = r["uid"]
-                    logging.debug(f"{self.__class__.__name__}.do_housekeeping: checking file {uid}")
                     if not self._report_progress(int((c * 100 / c_files) * len(file_tasks_todo) / tasks_total),
                                                  f"checking file {c + 1} of {c_files} "):
                         logging.debug(f"{self.__class__.__name__}.do_housekeeping: User cancelled.")
                         self._cancelled = True
                         break
 
-                    for meth in file_tasks_todo:
-                        try:
-                            ctx_file = self.file_repos.get_contextual_file(uid)
-                            meth(ctx_file, self.console, parameters)
-                        except BaseException as e:
-                            logging.error(f"{self.__class__.__name__}.do_housekeeping: "
-                                          f"Exception when calling {meth} on {uid}: {repr(e)}")
+                    if not self.limit_to_files or uid in self.limit_to_files:
+                        logging.debug(f"{self.__class__.__name__}.do_housekeeping: checking file {uid}")
+                        for meth in file_tasks_todo:
+                            try:
+                                ctx_file = self.file_repos.get_contextual_file(uid)
+                                meth(ctx_file, self.console, parameters)
+                            except BaseException as e:
+                                logging.error(f"{self.__class__.__name__}.do_housekeeping: "
+                                              f"Exception when calling {meth} on {uid}: {repr(e)}")
+                        c = c + 1
                     if self.console:
                         if c_print < 40:
                             print(".", end="", flush=True)
@@ -164,7 +168,6 @@ class Housekeeping:
                         else:
                             print(".", flush=True)
                             c_print = 0
-                    c = c + 1
                     r = cur.fetchone()
             except BaseException as e:
                 logging.error(f"{self.__class__.__name__}.do_housekeeping: "

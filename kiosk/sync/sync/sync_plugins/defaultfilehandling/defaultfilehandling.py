@@ -6,6 +6,7 @@ import logging
 import rawpy
 import kioskpiexif
 import kioskstdlib
+from kioskphysicalfile import FILE_ATTR_ROTATE
 from kioskpiexif import TAGS, TYPES
 from PIL import Image, ImageColor
 
@@ -227,11 +228,13 @@ class KioskPhysicalPillowNefFile(KioskPhysicalPillowFile):
 
     def _read_file_attributes(self, img):
         self._file_attributes = {}
+        ROTATION = [0,0,0,180,0,-90,90]
         if img:
             try:
                 flipped = img.sizes.flip in [5, 6]
                 self._file_attributes[FILE_ATTR_WIDTH] = img.sizes.raw_height if flipped else img.sizes.raw_width
                 self._file_attributes[FILE_ATTR_HEIGHT] = img.sizes.raw_width if flipped else img.sizes.raw_height
+                self._file_attributes[FILE_ATTR_ROTATE] = ROTATION[img.sizes.flip] if 0 <= img.sizes.flip <= 6 else 0
                 self._file_attributes[FILE_ATTR_FORMAT] = "NEF"
             except BaseException as e:
                 logging.warning(f"{self.__class__.__name__}._read_file_attributes:"

@@ -1211,7 +1211,8 @@ def repository_replace_file(uuid):
                                     plugin_loader=sync
                                     )
         try:
-            rc, msg = file_repos.replace_file_in_repository(uuid, file_path_and_name=temp_file_path_and_name,
+            rc, msg = file_repos.replace_file_in_repository(uuid,
+                                                            file_path_and_name=temp_file_path_and_name,
                                                             recording_user=current_user.repl_user_id,
                                                             tz_index=current_user.get_active_tz_index())
             if rc:

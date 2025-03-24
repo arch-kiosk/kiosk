@@ -13,6 +13,7 @@ from kioskrepresentationtype import KioskRepresentationType
 
 FILE_ATTR_WIDTH = "width"
 FILE_ATTR_HEIGHT = "height"
+FILE_ATTR_ROTATE = "rotate"
 FILE_ATTR_FORMAT = "format"
 
 SupportedFileFormat = namedtuple('SupportedFileFormat',
