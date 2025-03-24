@@ -2126,6 +2126,13 @@ archival_entity_file:
 
 archival_entity_units:
   structure:
+    3:
+      uid_archival_entity: [datatype(UUID), join(archival_entity)]
+      uid_unit: [datatype(UUID), "lookup('unit', 'uid')", label("#($/constants/labels/label_for_unit_on_start_page)")]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
     2:
       uid_archival_entity: [datatype(UUID), join(archival_entity)]
       uid_unit: [datatype(UUID), "lookup('unit', 'uid')", label("#($/constants/labels/label_for_unit_on_start_page)")]
@@ -2143,6 +2150,9 @@ archival_entity_units:
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
 
   migration:
+    3:
+      upgrade:
+        - drop("some_description")
     2:
       upgrade:
         - add("some_description")
