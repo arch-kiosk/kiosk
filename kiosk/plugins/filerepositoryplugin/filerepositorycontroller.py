@@ -101,6 +101,7 @@ def fetch_repository_file(file_uuid, resolution):
     # print(f"************* fetching {file_uuid} in resolution {resolution}")
     filename = None
     ctx_file = None
+    search_params = request.args
     # just to test the error handling within javascript if an image cannot be loaded:
     # if str(file_uuid) == "9a2a7f7c-5b28-4424-9227-33c21dbb4b56":
     #     logging.error("32ef2cf5-6b77-483c-b85c-f88c3de0ef6b suppressed")
@@ -111,19 +112,30 @@ def fetch_repository_file(file_uuid, resolution):
             abort(400)
 
         if file_uuid:
-            file_repos = FileRepository(kioskglobals.cfg,
-                                        event_manager=None,
-                                        type_repository=kioskglobals.type_repository,
-                                        plugin_loader=current_app
-                                        )
+            sync = synchronization.Synchronization()
+            if search_params.get("ct"):
+                file_repos = FileRepository(kioskglobals.cfg,
+                                            event_manager=None,
+                                            type_repository=sync.type_repository,
+                                            plugin_loader=sync
+                                            )
+            else:
+                file_repos = FileRepository(kioskglobals.cfg)
+
             ctx_file = file_repos.get_contextual_file(file_uuid)
             if ctx_file:
                 filename = ctx_file.get()
 
         if filename and ctx_file.file_exists():
 
-            representation_type = KioskRepresentationType(resolution)
-            thumbnail_file = ctx_file.get(representation_type)
+            # representation_type = KioskRepresentationType(resolution)
+            representation_type = KioskRepresentations.instantiate_representation_from_config(resolution)
+            if search_params.get("ct"):
+                thumbnail_file = ctx_file.get(representation_type, create=True)
+                if not thumbnail_file:
+                    raise Exception(f"'Could not create representation '{representation_type}' for file '{file_uuid}'")
+            else:
+                thumbnail_file = ctx_file.get(representation_type)
 
             if thumbnail_file and kioskstdlib.get_file_size(thumbnail_file) > 0:
                 response = make_response(send_from_directory(kioskstdlib.get_file_path(thumbnail_file),

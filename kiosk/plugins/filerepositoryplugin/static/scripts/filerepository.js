@@ -955,14 +955,19 @@ function onEFDownloadImage(event) {
     if (!target.dataset.hasOwnProperty("representationId") && target.id !== "download-raw") {
         target = target.previousElementSibling
     }
-    if (target.id !== "download-raw") {
+    if (target.id === "download-raw") {
+        console.log("downloading raw file");
+    } else {
         let representationId = target.getAttribute("data-representation-id");
-        uuid = openInTab?uuid + "/" + representationId:uuid + ":" + representationId
+        uuid = openInTab ? uuid + "/" + representationId : uuid + ":" + representationId;
         console.log("downloading representation " + representationId);
-    } else console.log("downloading raw file");
+    }
 
     if (openInTab) {
-        window.open("/filerepository/fetch/" + uuid, "_blank");
+        let url = new URL("/filerepository/fetch/" + uuid, window.location.origin)
+        url.searchParams.append("ct", true)
+        console.log(`fetching ${url.toString()}`)
+        window.open(url.toString(), "_blank");
     } else {
         start_download_spinner();
         $(".download-msg").remove();
