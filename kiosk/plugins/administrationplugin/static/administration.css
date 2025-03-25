@@ -316,6 +316,16 @@
   grid-template-rows: 1.5em auto;
 }
 
+.admin-grid3 {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  justify-content: left;
+  grid-column-gap: 2em;
+}
+.admin-grid3 .admin-sysinfo-entry, .admin-grid3 .admin-sysinfo-entry-center {
+  font-family: var(--standard-text-font);
+}
+
 .admin-grid4, .admin-grid6, .admin-grid5 {
   display: grid;
   grid-template-columns: auto auto auto auto;

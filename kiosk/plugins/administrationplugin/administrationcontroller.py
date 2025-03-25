@@ -305,6 +305,15 @@ def administration_show():
             local_server = kiosklib.is_local_server(conf)
 
             file_cache_refresh_running = is_file_cache_refresh_running()
+
+            patch_list = {}
+            try:
+                p = KioskPatcher(kioskglobals.cfg, kioskglobals.cfg.get_transfer_dir()[1])
+                patch_list = p.list_logged_patches()
+            except BaseException as e:
+                logging.error(f"administrationcontroller.administration_show: "
+                              f"Error reading patch log:{repr(e)}")
+
             return render_template('administration.html',
                                    authorized_to=authorized_to,
                                    config=kioskglobals.cfg,
@@ -322,7 +331,8 @@ def administration_show():
                                    file_cache_refresh_running=file_cache_refresh_running,
                                    fid_cache_refresh_running=find_running_job(kioskglobals.general_store,
                                                                               JOB_SUFFIX_REFRESH_FID_CACHE),
-                                   gs_id=gs_id)
+                                   gs_id=gs_id,
+                                   patch_list=patch_list)
         except BaseException as e:
             emergency_administration = repr(e)
             logging.error(f"administrationcontroller.administration_show : Administration "

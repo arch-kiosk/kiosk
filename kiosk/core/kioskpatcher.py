@@ -3,7 +3,7 @@ import logging
 import os
 import sys
 from copy import copy
-from typing import Tuple
+from typing import Tuple, List
 
 import yaml
 
@@ -81,7 +81,7 @@ class KioskPatcher:
 
     def _assert_patch_file(self):
         if not self.id or not self.patch_file:
-            raise "No valid patch file was opened."
+            raise Exception("No valid patch file was opened.")
 
     def _check_max_version(self):
         try:
@@ -240,6 +240,17 @@ class KioskPatcher:
                           f"when deleting patch.yml: {repr(e)}")
         return rc, msg
 
+    def get_log_filename(self):
+        return os.path.join(kioskstdlib.get_file_path(self.cfg.logfile), "patches.yml")
+
+    def read_log_file(self):
+        log_file = self.get_log_filename()
+        log = {}
+        if os.path.exists(log_file):
+            with open(log_file, "r", encoding='utf8') as ymlfile:
+                log = yaml.load(ymlfile, Loader=yaml.FullLoader)
+        return log
+
     def log_patch_installation(self, success: bool, error_message: str, log_check_on_startup=None):
         try:
             if success:
@@ -247,13 +258,7 @@ class KioskPatcher:
             else:
                 logging.error(f"{self.__class__.__name__}.apply_patch for patch {self.id} failed: {error_message}")
 
-            log_file = os.path.join(kioskstdlib.get_file_path(self.cfg.logfile), "patches.yml")
-            if os.path.exists(log_file):
-                with open(log_file, "r", encoding='utf8') as ymlfile:
-                    log = yaml.load(ymlfile, Loader=yaml.FullLoader)
-            else:
-                log = {}
-
+            log = self.read_log_file()
             if self.id not in log:
                 log[self.id] = {"success": False,
                                 "log": []}
@@ -262,12 +267,34 @@ class KioskPatcher:
             log[self.id]["success"] = success
             log[self.id]["log"].append(f"{datetime.datetime.now()}: "
                                        f"{error_message if error_message else 'successful'}")
-            with open(log_file, "w") as ymlfile:
+            with open(self.get_log_filename(), "w") as ymlfile:
                 yaml.dump(log, ymlfile, default_flow_style=False)
 
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.log_patch_installation: Exception when "
                           f"logging {'successful' if success else 'failed'} patch installation {repr(e)}")
+
+    def list_logged_patches(self) -> List:
+        """
+        Lists all logged patches with their success status and last log entry.
+
+        :return: A list of dictionaries, each containing the patch id, success status, and last log entry.
+        """
+        result = []
+        log = self.read_log_file()
+        if log:
+            for key, patch in log.items():
+                if key != "check_on_startup":
+                    p = {"id": key, "success": "?", "last_log":"?"}
+                    if "success" in patch:
+                        p["success"] = patch["success"]
+                    if "log" in patch:
+                        patch_log = patch["log"]
+                        if patch_log and isinstance(patch_log, list):
+                            p["last_log"] = patch_log[len(patch_log)-1]
+                    result.append(p)
+        return result
+
 
     def start_script(self, script: str) -> Tuple[bool, str]:
         """
@@ -452,3 +479,4 @@ class KioskPatcher:
         :return:
         """
         return kioskstdlib.to_bool(self.get_development_option("development_system"))
+

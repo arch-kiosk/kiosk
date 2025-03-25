@@ -227,6 +227,31 @@
                 </div>
             </div>
 
+            {# patches #}
+            <div class="admin-sysinfo-wrapper kiosk-collapsible">
+                <div class="kiosk-collapsible-header">
+                    <h4>patches</h4>
+                    <div id="admin-patches-clicker"
+                         class="kiosk-collapsible-clicker kiosk-collapsible-clicker-collapsed"></div>
+                </div>
+                <div class="kiosk-collapsible-content">
+                    {% if patch_list|length() > 0 %}
+                        <div class="admin-grid3 admin-plugins">
+                            <div class="admin-sysinfo-entry"><label>patch</label></div>
+                            <div class="admin-sysinfo-entry"><label>success?</label></div>
+                            <div class="admin-sysinfo-entry"><label>last log</label></div>
+                            {% for patch in patch_list %}
+                                <div class="admin-sysinfo-entry">{{ patch.id }}</div>
+                                <div class="admin-sysinfo-entry">{{ patch.success }}</div>
+                                <div class="admin-sysinfo-entry">{{ patch.last_log }}</div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="admin-sysinfo-entry"><label>no patch installations found.</label></div>
+                    {% endif %}
+                </div>
+            </div>
+
             {# system messages #}
             <div class="admin-sysinfo-wrapper kiosk-collapsible">
                 <div class="kiosk-collapsible-header">

@@ -1,3 +1,4 @@
+import pprint
 import sys
 
 import kioskstdlib
@@ -188,16 +189,12 @@ if __name__ == "__main__":
     # ws.callback_progress = lambda x: True
     # ws.export()
     # KioskSQLDb.commit()
-    cf = file_repos.get_contextual_file("475a5d2d-f5b8-41d7-b634-be8811f118f1")
-    cf.invalidate_cache()
-    KioskSQLDb.commit()
-
-    cf = file_repos.get_contextual_file("475a5d2d-f5b8-41d7-b634-be8811f118f1")
-    fr = cf._record_exists()
-    print(fr.image_attributes)
-    if not fr.image_attributes:
-        cf.get_file_attributes(force_it=True)
-    KioskSQLDb.commit()
-    print(fr.image_attributes)
-    # pdb.set_trace()
+    from kioskpatcher import KioskPatcher
+    p = KioskPatcher(config,config.get_transfer_dir()[1])
+    p.id = "patch1"
+    p.log_patch_installation(False, "this did not work", log_check_on_startup=True)
+    p.log_patch_installation(False, "this still did not work", log_check_on_startup=True)
+    p.id = "patch2"
+    p.log_patch_installation(True, "this did work", log_check_on_startup=True)
+    pprint.pprint(p.list_logged_patches())
     print("\ndone")

@@ -526,6 +526,20 @@ class SyncConfig(Config):
         return self.get_log_level() == logging.DEBUG
 
     def get_transfer_dir(self, check_unpack_kiosk=True):
+        """
+        Returns the transfer directory path.
+
+        This method checks if the transfer directory exists and optionally verifies
+        the presence of the `unpackkiosk` directory and `unpackkiosk.py` file within it.
+
+        Args:
+            check_unpack_kiosk (bool): If True, checks for the presence of the `unpackkiosk` directory
+                                       and `unpackkiosk.py` file within the transfer directory.
+
+        Returns:
+            tuple: A tuple containing an error message (str) and the transfer directory path (str).
+                   If no error occurs, the error message will be an empty string.
+        """
         transfer_dir = kioskstdlib.try_get_dict_entry(self.config, "transfer_dir", "")
         if transfer_dir:
             if os.path.isdir(transfer_dir):
