@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Callable
 import os
 
 import nanoid
@@ -739,8 +739,12 @@ class KioskSQLDb(SqlSafeIdentMixin):
         return rc
 
     @classmethod
-    def get_records(cls, sql, params=[], max_records=0, add_column_row=False, raise_exception=False):
+    def get_records(cls, sql, params=None, max_records=0, add_column_row=False,
+                    raise_exception=False,
+                    post_filter: Callable = None):
         result = []
+        if params is None:
+            params = []
         cur = None
         try:
             cur = cls.get_dict_cursor()
@@ -753,7 +757,8 @@ class KioskSQLDb(SqlSafeIdentMixin):
 
                 r = cur.fetchone()
                 while r:
-                    result.append(r)
+                    if not post_filter or post_filter(r):
+                        result.append(r)
                     r = cur.fetchone()
 
         except Exception as e:
@@ -1133,3 +1138,7 @@ class KioskSQLDb(SqlSafeIdentMixin):
         """
         r = cls.get_records("show time zone")[0]
         return r[0].upper()
+
+    @classmethod
+    def apply_post_filter(cls, records, ):
+        pass

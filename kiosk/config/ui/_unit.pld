@@ -121,10 +121,12 @@ unit_files.list:
 
 unit_loci.list:
   record_type: locus
+  filter_records: "exclude('type', 'hidden')"
   view_type: list
   dsd_view: "locus.sheet.view.yml"
   max_height: 20em
   fields_selection: dsd
+
   layout_settings:
     type: list
     orchestration_strategy: table

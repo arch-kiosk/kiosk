@@ -95,50 +95,50 @@ class ViewPartSheet(ViewPart):
 
     # This can go. I just keep it for a bit to look at it should I run into odd behaviour. After Kiosk 1.6 this can
     # definitely be deleted.
-    def old_render(self):
-        table_def = self.dsd.get_table_definition(self.view_record_type)
-        if "ui_elements" in self.part_definition:
-            part_ui_elements = self.part_definition["ui_elements"]
-        else:
-            part_ui_elements = {}
-
-        part_ui_element_ids = list(part_ui_elements.keys())
-        if "fields_selection" in self.part_definition and self.part_definition["fields_selection"] == "dsd":
-            element_ids = [field_name for field_name in table_def.keys()]
-        else:
-            element_ids = [field_name for field_name in table_def.keys() if field_name in part_ui_element_ids]
-
-        result = copy.deepcopy(self.part_definition)
-        if "ui_elements" not in result:
-            result["ui_elements"] = {}
-
-        ui_elements = result["ui_elements"]
-
-        for element_id in element_ids:
-            try:
-                element_definition = UICFinder(self._uic_tree).get_ui_definition_from_selector(
-                    table_def[element_id] + [f"dsd('{self.view_record_type}','{element_id}')"] + self._uic_literals)
-                if element_id not in ui_elements:
-                    ui_elements[element_id] = element_definition
-                else:
-                    dicttools.dict_merge(element_definition, ui_elements[element_id])
-                    ui_elements[element_id] = element_definition
-
-                if "value" not in ui_elements[element_id]["element_type"]:
-                    ui_elements[element_id]["element_type"]["value"] = f"#({self.view_record_type}/{element_id})"
-
-                if "text" not in ui_elements[element_id]["element_type"]:
-                    text = self.dsd.get_field_label(self.view_record_type, element_id)
-                    if not text:
-                        text = element_id.replace("_", " ")
-
-                    ui_elements[element_id]["element_type"]["text"] = text
-                # else:
-                #     ui_elements[element_id]["element_type"]["text"] = self._glossary.get_term(
-                #         ui_elements[element_id]["element_type"]["text"], 1, auto_plural=False)
-
-            except BaseException as e:
-                raise Exception(f"{self.__class__.__name__}.render: Error rendering element '{element_id}' "
-                                f"for '{self.view_record_type}': {repr(e)}")
-
-        return result
+    # def old_render(self):
+    #     table_def = self.dsd.get_table_definition(self.view_record_type)
+    #     if "ui_elements" in self.part_definition:
+    #         part_ui_elements = self.part_definition["ui_elements"]
+    #     else:
+    #         part_ui_elements = {}
+    #
+    #     part_ui_element_ids = list(part_ui_elements.keys())
+    #     if "fields_selection" in self.part_definition and self.part_definition["fields_selection"] == "dsd":
+    #         element_ids = [field_name for field_name in table_def.keys()]
+    #     else:
+    #         element_ids = [field_name for field_name in table_def.keys() if field_name in part_ui_element_ids]
+    #
+    #     result = copy.deepcopy(self.part_definition)
+    #     if "ui_elements" not in result:
+    #         result["ui_elements"] = {}
+    #
+    #     ui_elements = result["ui_elements"]
+    #
+    #     for element_id in element_ids:
+    #         try:
+    #             element_definition = UICFinder(self._uic_tree).get_ui_definition_from_selector(
+    #                 table_def[element_id] + [f"dsd('{self.view_record_type}','{element_id}')"] + self._uic_literals)
+    #             if element_id not in ui_elements:
+    #                 ui_elements[element_id] = element_definition
+    #             else:
+    #                 dicttools.dict_merge(element_definition, ui_elements[element_id])
+    #                 ui_elements[element_id] = element_definition
+    #
+    #             if "value" not in ui_elements[element_id]["element_type"]:
+    #                 ui_elements[element_id]["element_type"]["value"] = f"#({self.view_record_type}/{element_id})"
+    #
+    #             if "text" not in ui_elements[element_id]["element_type"]:
+    #                 text = self.dsd.get_field_label(self.view_record_type, element_id)
+    #                 if not text:
+    #                     text = element_id.replace("_", " ")
+    #
+    #                 ui_elements[element_id]["element_type"]["text"] = text
+    #             # else:
+    #             #     ui_elements[element_id]["element_type"]["text"] = self._glossary.get_term(
+    #             #         ui_elements[element_id]["element_type"]["text"], 1, auto_plural=False)
+    #
+    #         except BaseException as e:
+    #             raise Exception(f"{self.__class__.__name__}.render: Error rendering element '{element_id}' "
+    #                             f"for '{self.view_record_type}': {repr(e)}")
+    #
+    #     return result

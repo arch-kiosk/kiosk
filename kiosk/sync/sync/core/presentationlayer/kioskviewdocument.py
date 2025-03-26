@@ -8,6 +8,7 @@ from dsd.dsd3singleton import Dsd3Singleton
 from filedescription import FileDescription
 from kiosksqldb import KioskSQLDb
 from presentationlayer.kioskview import KioskView
+from simplefunctionparser import SimpleFunctionParser
 from sync_config import SyncConfig
 from uic.uicstream import UICStream, UICKioskFile
 
@@ -48,14 +49,33 @@ class KioskViewDocument:
         view.identifier = identifier
         return view
 
-    def _get_data(self, target_record_types: list[str]) -> dict:
+    def _get_data(self, target_record_types: list[str], record_filter: dict) -> dict:
+        filter_field = None
+        filter_value = None
+
+        def _parse_filter(filter_expression):
+            parser=SimpleFunctionParser()
+            parser.parse(filter_expression)
+            if parser.ok and parser.instruction == "exclude":
+                return parser.parameters[0], parser.parameters[1]
+            else:
+                return None, None
+
+        def _filter_record(r):
+            return not filter_field or r[filter_field] != filter_value
+
         try:
             scope_select = KioskScopeSelect()
             scope_select.set_dsd(self._dsd)
             result = dict()
             selects = scope_select.get_selects(self._record_type, target_types=target_record_types, add_lore=True)
             for select in selects:
-                result[select[0]] = KioskSQLDb.get_records(select[1], {"identifier": self._identifier.upper()},
+                if select[0] in record_filter:
+                    filter_field, filter_value = _parse_filter(record_filter[select[0]])
+                    result[select[0]] = KioskSQLDb.get_records(select[1], {"identifier": self._identifier.upper()},
+                                                           add_column_row=True, post_filter=_filter_record)
+                else:
+                    result[select[0]] = KioskSQLDb.get_records(select[1], {"identifier": self._identifier.upper()},
                                                            add_column_row=True)
             return result
         except BaseException as e:
@@ -219,7 +239,12 @@ class KioskViewDocument:
             }
             parts = view.get_parts()
             target_record_types = [self._doc[part]["record_type"] for part in parts]
-            self._doc["kioskview.data"] = self._get_data(target_record_types)
+            record_filters = {}
+            for part in parts:
+                if "filter_records" in self._doc[part]:
+                    record_filters[self._doc[part]["record_type"]] = self._doc[part]["filter_records"]
+
+            self._doc["kioskview.data"] = self._get_data(target_record_types, record_filters)
             self._doc["kioskview.lookup_data"] = self._get_lookup_data(target_record_types)
             self._doc["kioskview.dsd"] = self._get_dsd_definitions(self._doc["kioskview.data"].keys())
             self._doc["kioskview.images"] = self._get_file_infos(self._doc["kioskview.data"])
