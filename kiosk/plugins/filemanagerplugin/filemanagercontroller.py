@@ -248,12 +248,13 @@ def filemanager_delete(topic: str, file: str):
     result = KioskResult(message="Unknown error on delete")
     if file_to_delete:
         if directory.backup_file(file_to_delete):
-            if directory.delete_file(file_to_delete):
+            rc, err_msg = directory.delete_file(file_to_delete, get_err_message=True)
+            if rc:
                 result.success = True
                 result.messages = ""
                 logging.info(f"filemanagercontroller.restore: file {topic}/{file} deleted.")
             else:
-                result.message = "File could not be deleted."
+                result.message = f"File could not be deleted because of: {err_msg}"
         else:
             result.message = "File could not be backed up"
         if not result.success:
@@ -292,12 +293,13 @@ def filemanager_restore(topic: str, file: str):
             file_to_restore = f
     result = KioskResult(message="Unknown error on restore")
     if file_to_restore:
-        if directory.restore_file(file_to_restore):
+        rc, err_msg = directory.restore_file(file_to_restore)
+        if rc:
             logging.info(f"filemanagercontroller.restore: file {topic}/{file} restored.")
             result.success = True
-            result.messages = ""
+            result.message = ""
         else:
-            result.messages = "Error restoring file. The file could not be restored."
+            result.message = f"Error restoring file: {err_msg}"
 
         if not result.success:
             logging.info(f"filemanagercontroller.restore: {result.message}")

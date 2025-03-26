@@ -3,7 +3,7 @@ from shutil import copyfile
 
 import logging
 import os.path
-from typing import List
+from typing import List, Union, Tuple
 
 from flask import url_for
 
@@ -204,35 +204,54 @@ class FileManagerDirectory(Table):
             logging.error(f"{self.__class__.__name__}.backup_file: {repr(e)}")
             return False
 
-    def delete_file(self, f: FileManagerFile) -> bool:
+    def delete_file(self, f: FileManagerFile, get_err_message=False) -> Union[bool|Tuple[bool, str]]:
         """
-        deletes a file in the directory
-        :param f: a FileManagerFile instance
+            Deletes a file in the directory.
+
+            :param f: A FileManagerFile instance representing the file to be deleted.
+            :param get_err_message: True to have a tuple with an additional error message returned
+            :return: True if the file was successfully deleted,
+                     False otherwise. If get_err_message is True, returns a tuple
+                     (bool, str) where the boolean indicates success and the string contains the error message.
         """
         try:
             src_file = os.path.join(self.physical_directory, f.filename)
             os.remove(src_file)
-            return True
+            if get_err_message:
+                return True,""
+            else:
+                return True
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.delete_file: {repr(e)}")
-            return False
+            if get_err_message:
+                return False, repr(e)
+            else:
+                return False
 
-    def restore_file(self, f) -> bool:
+    def restore_file(self, f) -> Tuple[bool, str]:
         """
         restores a file from the history directory back to the main directory
         :param f:
-        :return: true/false
+        :return: (true/false, error message)
         """
         try:
             history_dir = self.get_create_history_directory()
             src_file = os.path.join(history_dir, f.filename)
             dest_file = os.path.join(self.physical_directory, f.filename)
             copyfile(src_file, dest_file)
-            os.remove(src_file)
-            return True
+
+            try:
+                os.remove(src_file)
+            except BaseException as e:
+                logging.error(f"{self.__class__.__name__}.restore_file: File was restored "
+                              f"but the backup of the file could not be deleted because of {repr(e)}")
+                return False, (f"File was restored "
+                               f"but the backup of the file could not be deleted because of {repr(e)}")
+
+            return True, ""
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.restore_file: {repr(e)}")
-        return False
+            return False, repr(e)
 
     def upload_file(self, file, file_name) -> bool:
         """
