@@ -7,8 +7,8 @@ variables:
   b_to_date: [datatype(date), label("before")]
 queries:
   'changed_by_in_timespan':
-    name: 'list all archaeological entities dug (!) in certain time span'
-    description: 'List all archaeological entities that were excavated within a time span. This addresses the manually recorded timestamps in #(/$/glossary/unit:2), #(/$/glossary/locus:2) and #(/$/glossary/collected_material:2).'
+    name: 'list all archaeological entities dug in a time span'
+    description: '#:List all archaeological entities that were excavated within a time span. This addresses the manually recorded timestamps in #(/$/glossary/unit:2), #(/$/glossary/locus:2) and #(/$/glossary/collected_material:2).'
     type: 'CQL'
     output_type: 'list'
     query:
