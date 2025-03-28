@@ -85,8 +85,8 @@ def get_pagination(current_page_index, page_count, window_size=10, STEPS=10) -> 
     if start_window > 0:
         pages.append(1)
 
-    for n in range(1, int(start_window / STEPS)):
-        pages.append(n+1)
+    for n in range(0, int(start_window / STEPS)):
+        pages.append((n+1) * STEPS)
     for n in range(start_window, end_window):
         pages.append(n + 1)
 
@@ -94,8 +94,11 @@ def get_pagination(current_page_index, page_count, window_size=10, STEPS=10) -> 
     start_trail = min((int(end_window / STEPS) + 1) * STEPS, page_count)
     for n in range(0,trail_count):
         pages.append(start_trail + (n * STEPS))
-    if page_count > end_window:
+    if page_count > pages[-1]:
         pages.append(page_count)
+
+    # if page_count > start_trail + max(0,(trail_count-1) * STEPS):
+    #     pages.append(page_count)
     return pages
 
 
