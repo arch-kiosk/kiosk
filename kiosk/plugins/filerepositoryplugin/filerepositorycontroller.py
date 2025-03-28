@@ -28,7 +28,7 @@ from kioskrepresentationtype import KioskRepresentationType, KioskRepresentation
 from kioskresult import KioskResult
 from kiosksqldb import KioskSQLDb
 from plugins.filerepositoryplugin.ModelFileRepository import ModelFileRepository, FileRepositoryFile
-from plugins.filerepositoryplugin.filerepositorylib import get_std_file_images, trigger_fid_refresh_if_needed
+from plugins.filerepositoryplugin.filerepositorylib import get_std_file_images, trigger_fid_refresh_if_needed, get_pagination
 from plugins.filerepositoryplugin.forms.editform import ModalFileEditForm
 from sync.core.filerepository import FileRepository
 
@@ -237,7 +237,8 @@ def file_repository_index():
 # @nocache
 @full_login_required
 def file_repository_show():
-    pages = 1
+    page_count = 1
+    pages=[]
     current_page = 1
 
     filter_form = FilterForm()
@@ -327,15 +328,17 @@ def file_repository_show():
             img_list = m_file_repository.query_images()
             # if len(img_list) > MAX_IMAGES_PER_PAGE:
             #     img_list = None
-            pages, rest = divmod(len(img_list), MAX_IMAGES_PER_PAGE)
+            page_count, rest = divmod(len(img_list), MAX_IMAGES_PER_PAGE)
             logging.debug(f"filerepositorycontroller.file_repository_show: "
-                          f"divmod returned {pages},{rest}")
-            pages = pages + 1 if rest else pages
+                          f"divmod returned {page_count},{rest}")
+            page_count = page_count + 1 if rest else page_count
+
             current_page = int(session["kiosk_current_page"])
-            if current_page > pages:
+            if current_page > page_count:
                 current_page = 1
                 session["kiosk_current_page"] = 1
 
+            pages = get_pagination(current_page, page_count)
             img_list = img_list[((current_page - 1) * MAX_IMAGES_PER_PAGE):current_page * MAX_IMAGES_PER_PAGE]
             logging.debug(f"filerepositorycontroller.file_repository_show: "
                           f"showing images {(current_page - 1) * MAX_IMAGES_PER_PAGE}:{current_page * MAX_IMAGES_PER_PAGE}"
@@ -348,6 +351,7 @@ def file_repository_show():
                                sorting_options=sorting_options,
                                tag_list=tag_list,
                                max_images_per_page=MAX_IMAGES_PER_PAGE,
+                               page_count=page_count,
                                pages=pages,
                                current_page=current_page,
                                sorting_option=session["kiosk_fr_sorting"],

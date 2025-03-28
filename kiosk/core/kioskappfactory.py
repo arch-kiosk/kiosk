@@ -32,6 +32,45 @@ from messaging.systemmessagecatalog import SYS_MSG_ID_STORE_NOT_READY, MSG_SEVER
     SYS_MSG_ID_CHECKUP_EXCEPTION, SYS_MSG_ID_ADMIN_CREATED, SYS_MSG_ID_ADMIN_GROUP_CREATED, \
     SYS_MSG_ID_MIGRATION_FAILED, SYS_MSG_ID_REBUILD_FIC_FAILED, SYS_MSG_ID_TEMP_DIR_MISSING, \
     SYS_MSG_ID_DEVELOPMENT_ENVIRONMENT_ACTIVE, SYS_MSG_ID_MCP_NOT_UP, SYS_MSG_ID_DEVELOPMENT_GENERATE_SYSTEM_MESSAGE, \
+    SYS_MSG_ID_PATCH_SUCCESSFUL, SYS_MSG_ID_PATCH_FAILED, SYS_MSG_ID_GS_WITH_ID, SYS_MSG_ID_DEFAULT_PRIVILEGES
+from messaging.systemmessagelist import SystemMessageList
+from messaging.systemmessagestore import SystemMessageStore
+from messaging.systemmessagestorepostgres import SystemMessageStorePostgres
+from synchronization import Synchronization
+import datetime
+import datetime
+import json
+import logging
+import os
+import sys
+import threading
+import time
+from inspect import signature
+
+from pprint import pprint
+from typing import Callable, Union
+
+import yaml
+
+import kioskstdlib
+from concurrent.futures.thread import ThreadPoolExecutor
+from threading import current_thread
+from werkzeug.exceptions import HTTPException
+
+# ##########
+# necessary due to a werkzeug bug:
+# https://github.com/jarus/flask-testing/issues/143
+import werkzeug
+from flask_cors import CORS
+from werkzeug.exceptions import InternalServerError
+
+from eventmanager import EventManager
+from fts.kioskfulltextsearch import FTS
+from kioskuser import KioskUser
+from messaging.systemmessagecatalog import SYS_MSG_ID_STORE_NOT_READY, MSG_SEVERITY_INFO, \
+    SYS_MSG_ID_CHECKUP_EXCEPTION, SYS_MSG_ID_ADMIN_CREATED, SYS_MSG_ID_ADMIN_GROUP_CREATED, \
+    SYS_MSG_ID_MIGRATION_FAILED, SYS_MSG_ID_REBUILD_FIC_FAILED, SYS_MSG_ID_TEMP_DIR_MISSING, \
+    SYS_MSG_ID_DEVELOPMENT_ENVIRONMENT_ACTIVE, SYS_MSG_ID_MCP_NOT_UP, SYS_MSG_ID_DEVELOPMENT_GENERATE_SYSTEM_MESSAGE, \
     SYS_MSG_ID_PATCH_SUCCESSFUL, SYS_MSG_ID_PATCH_FAILED, SYS_MSG_ID_GS_WITH_ID
 from messaging.systemmessagelist import SystemMessageList
 from messaging.systemmessagestore import SystemMessageStore
@@ -50,7 +89,7 @@ from pluggableflaskapp import PluggableFlaskApp, current_app
 
 import kioskglobals
 import kiosksqlalchemy
-from authorization import full_login_required, USER_GROUP_ADMINS
+from authorization import full_login_required, USER_GROUP_ADMINS, DEFAULT_PRIVILEGES
 from contextmanagement.memoryidentifiercache import MemoryIdentifierCache
 from dsd.dsd3singleton import Dsd3Singleton
 from dsd.dsdview import DSDView
@@ -945,6 +984,30 @@ class KioskAppFactory(AppFactory):
                                         message_id=SYS_MSG_ID_ADMIN_GROUP_CREATED,
                                         body="This group is expected by the system but was missing.",
                                         sender="init_users_and_privileges")
+
+        if not KioskSQLDb.get_record_count("kiosk_privilege", "addressee", f"addressee <> '{USER_GROUP_ADMINS}'"):
+            logging.warning("beside the admin's there are no privileges in database. "
+                            "Creating default privileges and groups.")
+
+            try:
+                for addressee, privileges in DEFAULT_PRIVILEGES.items():
+                    for privilege in privileges:
+                        KioskSQLDb.execute(f"""
+                        INSERT INTO kiosk_privilege (addressee, privilege) 
+                        VALUES (%s,%s)""", parameters=[addressee, privilege])
+                KioskSQLDb.commit()
+            except BaseException as e:
+                KioskSQLDb.rollback()
+                logging.error(f"KioskAppFactory.init_users_and_privileges: "
+                              f"Error creatung default privileges: {repr(e)}")
+                dispatch_system_message(headline="Error creating default privileges",
+                                        message_id=SYS_MSG_ID_DEFAULT_PRIVILEGES,
+                                        body=f"It was not possible to create the default groups and "
+                                             f"privileges for this Kiosk ({repr(e)}). Please review the users and privileges "
+                                             f"in the administration module.",
+                                        sender="init_users_and_privileges")
+
+
 
     @classmethod
     def register_emergency_error_handlers(cls, app):

@@ -1,0 +1,43 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+variables:
+  a_from_date: [datatype(date), label("after")]
+  b_to_date: [datatype(date), label("before")]
+queries:
+  'changed_by_in_timespan':
+    name: 'list all archaeological entities dug (!) in certain time span'
+    description: 'List all archaeological entities that were excavated within a time span. This addresses the manually recorded timestamps in #(/$/glossary/unit:2), #(/$/glossary/locus:2) and #(/$/glossary/collected_material:2).'
+    type: 'CQL'
+    output_type: 'list'
+    query:
+      base:
+        scope:
+          unit: browse()
+        target:
+          field_or_instruction: excavation_date()
+          format: datetime(date)
+      query:
+        type: raw
+        distinct: true
+        output_type: list
+        columns:
+          "unit":
+            source_field: identifier
+          "archaeological identifier":
+            source_field: primary_identifier
+          "record_type":
+            source_field: record_type
+          "primary_record_type":
+            source_field: primary_record_type
+          "recording date":
+            source_field: data
+        conditions:
+          AND:
+            - "range(data, {{#a_from_date}}, {{#b_to_date}})"
+        sort: ["unit", "recording date"]
+    column_information:
+      "archaeological identifier": ["label('archaeological identifier')", "datatype('VARCHAR')", "identifier()"]
+      "record_type": ["label('record type')", "datatype('VARCHAR')"]
+    column_order: ["unit", "archaeological identifier", "record_type", "recording date"]

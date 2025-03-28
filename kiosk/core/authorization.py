@@ -60,6 +60,19 @@ selection_of_privileges = [
 USER_GROUP_ADMINS = "admins"
 USER_GROUP_DEVELOPERS = "developers"
 
+# default groups and privileges
+DEFAULT_PRIVILEGES = {
+    "field_worker": [DOWNLOAD_WORKSTATION, DOWNLOAD_FILE, UPLOAD_WORKSTATION, MODIFY_DATA],
+    "operator": [ENTER_ADMINISTRATION_PRIVILEGE,
+                 PREPARE_WORKSTATIONS,
+                 CREATE_WORKSTATION,
+                 BACKUP_PRIVILEGE,
+                 SYNCHRONIZE,
+                 EDIT_WORKSTATION_PRIVILEGE,
+                 OPERATE_REPORTING,
+                 MANAGE_REPORTING,
+                 FILE_EXPORT_PRIVILEGE]
+}
 
 def full_login_required(func):
     """
