@@ -62,7 +62,7 @@ class KioskPhysicalWebPFile(KioskPhysicalImageFile):
             exif.update((k[5:], v) for k, v in img.metadata.items()
                         if k.startswith('exif:'))
         except BaseException as e:
-            logging.error(f"{self.__class__.__name__}.get_exif_data: {repr(e)}")
+            logging.warning(f"{self.__class__.__name__}.get_exif_data: {repr(e)} - not critical.")
         return exif
 
     def _open_image(self, representation: KioskRepresentationType = None):
@@ -80,7 +80,7 @@ class KioskPhysicalWebPFile(KioskPhysicalImageFile):
         # Wait until we have a proper test image....
 
         try:
-            logging.debug(f"{self.__class__.__name__}._fix_rotation: No rotation fix for webps")
+            # logging.debug(f"{self.__class__.__name__}._fix_rotation: No rotation fix for webps")
             return img
 
             # # this does not make any sense:
