@@ -206,7 +206,7 @@ class KioskRepresentations:
         :return: list of tuples (label, id)
         """
         config = cls._get_file_repository_config(config)
-        ids = cls.get_representation_ids(cfg=config)
+        ids = cls.get_representation_ids(cfg_file_repos=config)
         result = []
         for r_id in ids:
             if "label" in config["representations"][r_id]:
@@ -255,11 +255,34 @@ class KioskRepresentations:
         return representation
 
     @classmethod
-    def get_representation_ids(cls, cfg=None) -> []:
-        if not cfg:
-            cfg = cls._get_file_repository_config()
+    def get_representation_ids(cls, cfg_file_repos=None, viewer_representations=False) -> []:
+        if not cfg_file_repos:
+            cfg_file_repos = cls._get_file_repository_config()
 
-        return [x for x in cfg["representations"]]
+        return [x for x in cfg_file_repos["representations"]
+                if not viewer_representations or "label" in cfg_file_repos["representations"][x] ]
+
+    @classmethod
+    def get_master_representation(cls, cfg_file_repos=None) -> str:
+        """
+        returns the fullscreen representation via direct call of get_fullscreen_representation
+        :param cfg_file_repos: optional file_repository config (SyncConfig["file_repository"])
+        :return: representation id
+        """
+        return cls.get_fullscreen_representation(cfg_file_repos)
+
+    @classmethod
+    def get_fullscreen_representation(cls, cfg_file_repos=None) -> str:
+        """
+        returns the fullscreen representation
+        :param cfg_file_repos: optional file_repository config (SyncConfig["file_repository"])
+        :return: representation id
+        """
+        if not cfg_file_repos:
+            cfg_file_repos = cls._get_file_repository_config()
+
+        repr_id = kioskstdlib.try_get_dict_entry(cfg_file_repos,"fullscreen_representation", "master", True)
+        return repr_id
 
     @classmethod
     def get_dimensions_from_representation_info(cls, representation_info):
@@ -279,6 +302,23 @@ class KioskRepresentations:
             return KioskRepresentationTypeDimensions(int(dimension_tuple[0]),
                                                      int(dimension_tuple[1]))
         return ()
+
+    @classmethod
+    def get_closest_dimension(cls, width, height, viewer_representations=True):
+        pixels = max(width,height)
+        representations = list(map(lambda repr_dim: (repr_dim[0], min(repr_dim[1].height, repr_dim[1].width)
+                                if repr_dim[1] else 0),
+                              [(repr_id, cls.get_dimensions_from_representation_info(
+                                                cls.get_representation_info_from_config(repr_id)))
+                                for repr_id in cls.get_representation_ids(viewer_representations=viewer_representations)]))
+        representations.sort(key=lambda r_dim: r_dim[1],reverse=True)
+        last_repr_dim = cls.get_fullscreen_representation()
+        for repr_dim in representations:
+            if repr_dim[1] < pixels:
+                break
+            else:
+                last_repr_dim = repr_dim[0]
+        return last_repr_dim
 
     @classmethod
     def _inherits(cls, cfg, _id):

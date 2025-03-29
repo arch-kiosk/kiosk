@@ -132,7 +132,7 @@ class TestRepresentationTypeModule(KioskPyTestHelper):
 
     def test_get_ordered_representation_ids_no_mock(self, cfg):
         assert KioskRepresentations.get_representation_ids() == ["small", "medium", "master", "fix_rotation",
-                                                                 "master_1", "master_2", "many_masters"]
+                                                                 "master_1", "master_2", "many_masters", 'RAW2400x2500']
         assert KioskRepresentations.get_ordered_representation_ids()[0] == "master"
         auto_representations = KioskRepresentations._get_auto_representations()
         assert set(auto_representations) == set(["medium", "small"])
@@ -141,3 +141,12 @@ class TestRepresentationTypeModule(KioskPyTestHelper):
         assert KioskRepresentations.get_ordered_representation_ids(auto_representations)[0] == "master"
         assert set(["master", "medium", "small"]) == set(KioskRepresentations.get_auto_representations())
         assert KioskRepresentations.get_auto_representations()[0] == "master"
+
+    def test_get_closest_dimension(self, cfg):
+        assert KioskRepresentations.get_representation_ids(cfg["file_repository"],
+                                                           viewer_representations=True) == ['small',
+                                                                                            'medium',
+                                                                                            'master']
+        assert KioskRepresentations.get_closest_dimension(100, 100) == "small"
+        assert KioskRepresentations.get_closest_dimension(254, 100) == "medium"
+        assert KioskRepresentations.get_closest_dimension(1000, 2000) == "master"

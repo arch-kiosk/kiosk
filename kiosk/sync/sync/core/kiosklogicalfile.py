@@ -15,7 +15,7 @@ from kioskfilesmodel import KioskFilesModel
 # import filerepository
 
 FILES_TABLE_NAME = "images"
-
+FILE_ATTRIBUTES_VERSION = 1
 
 class KioskLogicalFile:
     def __init__(self, uid, session_deprecated=None, cache_manager=None, file_repository=None,
@@ -129,6 +129,7 @@ class KioskLogicalFile:
             if attr:
                 self._file_record: KioskFilesModel
                 self._file_record.image_attributes = attr
+                self._file_record.image_attributes["version"] = FILE_ATTRIBUTES_VERSION
                 self._file_record.update()
                 return True
         except BaseException:
@@ -205,9 +206,10 @@ class KioskLogicalFile:
             returns the meta information known about the source file. If no meta information is
             available in the database force_it would try to acquire it from the physical file itself.
 
-        :param force_it: optional, default False. If there are no file attributes and this is set meta information is retrieved
-                        from the physical file. Otherwise, this would return an empty dict.
-                        If there are file attributes to begin with force_it is not fetching them anyways.
+        :param force_it: optional, default False. If there are no file attributes and this is set then
+                        meta information is retrieved from the physical file.
+                        Otherwise, this would return an empty dict.
+                        If there are file attributes to begin with even force_it is not fetching them again!.
                         Use get_file_attributes_from_physical_file for that.
         :return: a dictionary
         """
@@ -223,6 +225,14 @@ class KioskLogicalFile:
                     logging.debug(f"{self.__class__.__name__}.get_file_attributes: "
                                   f"NEF {self._uid} needs new attributes.")
             # end of that fix
+
+            # Fixes an old error where the file attributes are potentially not from the physical
+            # file but from a representation
+            if not "version" in file_record.image_attributes or \
+                file_record.image_attributes["version"] < FILE_ATTRIBUTES_VERSION:
+                logging.debug(f"{self.__class__.__name__}.get_file_attributes: "
+                              f"File {self._uid} needs new attributes.")
+                file_record.image_attributes = {}
 
             if not file_record.image_attributes and force_it:
                 if self._force_get_file_attributes():
@@ -283,6 +293,21 @@ class KioskLogicalFile:
 
         return self._get_path_and_filename()
 
+    def get_best_representation_type(self, viewer_representations=True) -> KioskRepresentationType:
+        """
+        gets the representation type that promises the best viewing results for the file's size and type
+        :return:
+        """
+        attr =  self.get_file_attributes()
+        if attr and "width" in attr and "height" in attr:
+            return KioskRepresentationType(
+                KioskRepresentations.get_closest_dimension(
+                    int(attr["width"]), int(attr["height"]), viewer_representations=viewer_representations))
+        else:
+            return KioskRepresentationType(
+                KioskRepresentations.get_fullscreen_representation())
+
+
     def get_representation(self, representation_type, create, create_to_file=None, renew=False):
         """
         Gets the filename and path of the file's required representation
@@ -295,6 +320,15 @@ class KioskLogicalFile:
         :return: path and filename of the representation or None if there is none
         """
         rc = None
+        if representation_type.unique_name == "best":
+            try:
+                representation_type = self.get_best_representation_type()
+                # print(f"best representation type for {self._uid}: {representation_type.unique_name} ")
+            except BaseException as e:
+                logging.error(f"{self.__class__.__name__}.get_representation : {repr(e)}")
+                representation_type.unique_name = "master"
+
+
         path_and_filename = self._get_representation_from_cache(representation_type, renew)
         if path_and_filename:
             return path_and_filename
@@ -303,6 +337,8 @@ class KioskLogicalFile:
             savepoint = "get_representation"
             KioskSQLDb.begin_savepoint(savepoint)
             try:
+                representation_type = KioskRepresentations.instantiate_representation_from_config(
+                    representation_type.unique_name)
                 rc = self._create_representation(representation_type, create_to_file=create_to_file, renew=renew)
                 KioskSQLDb.commit_savepoint(savepoint)
             except BaseException as e:
@@ -378,7 +414,13 @@ class KioskLogicalFile:
 
                 if rc:
                     path_and_filename = rc
-                    self._get_physical_file_attributes(pf)
+                    # this is actually where the physical file attributes are ascertained for the first time for a file
+                    # It needs a KioskPhysicalFile that opens the original file (and not e.g. the Master) to
+                    # get the dimensions and the type of the actual File. This here makes sure that no additional
+                    # call to get_file_attributes_from_physical_file is necessary. The price is that it
+                    # sits a bit oddly here, though.
+                    if not representation_type.inherits and not self._file_record.image_attributes:
+                        self._get_physical_file_attributes(pf)
                     break
 
             if path_and_filename:

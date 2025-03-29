@@ -36,6 +36,7 @@ class Housekeeping:
                                           "housekeeping_check_cache_files": self.housekeeping_check_cache_files,
                                           "housekeeping_rewrite_image_record": self.housekeeping_rewrite_image_record,
                                           "housekeeping_lowercase_filenames": self.housekeeping_lowercase_filenames,
+                                          "housekeeping_enforce_file_meta_data": self.housekeeping_enforce_file_meta_data,
                                           }
         self.housekeeping_standalone_methods = {
             "housekeeping_quality_check": self.housekeeping_quality_check,
@@ -188,7 +189,8 @@ class Housekeeping:
                     print(f"Housekeeping counted {v} files marked as {counter}")
         return c
 
-    def housekeeping_check_file_meta_data(self, ctx_file: KioskContextualFile, console, parameters: dict):
+    def housekeeping_check_file_meta_data(self, ctx_file: KioskContextualFile,
+                                          console, parameters: dict, enforce=False):
         if "BROKEN_FILE" not in ctx_file.get_tags():
             if ctx_file.file_exists():
                 if not ctx_file.ensure_md5_hash(commit=True):
@@ -196,12 +198,25 @@ class Housekeeping:
                                     f"failed to create the md5 hash for {ctx_file.uid}.")
 
                 if "NOT_AN_IMAGE" not in ctx_file.get_tags():
-                    if not ctx_file.ensure_file_attributes(commit=True):
-                        logging.warning(f"{self.__class__.__name__}.housekeeping_check_file_meta_data: "
-                                        f"failed to create the file attributes for {ctx_file.uid}.")
+                    if enforce:
+                        if not ctx_file.get_file_attributes_from_physical_file():
+                            logging.warning(f"{self.__class__.__name__}.housekeeping_check_file_meta_data: "
+                                            f"failed to create the file attributes for {ctx_file.uid}.")
+                        else:
+                            KioskSQLDb.commit()
+                    else:
+                        if not ctx_file.ensure_file_attributes(commit=True):
+                            logging.warning(f"{self.__class__.__name__}.housekeeping_check_file_meta_data: "
+                                            f"failed to create the file attributes for {ctx_file.uid}.")
             else:
                 logging.warning(f"{self.__class__.__name__}.housekeeping_check_file_meta_data: "
                                 f"file {ctx_file.uid} does not have a physical file")
+
+    def housekeeping_enforce_file_meta_data(self, ctx_file: KioskContextualFile, console, parameters: dict):
+        """
+        Makes sure that the file attributes are fetched freshly from the physical file
+        """
+        self.housekeeping_check_file_meta_data(ctx_file,console,parameters,enforce=True)
 
     def housekeeping_check_broken_files(self, ctx_file: KioskContextualFile, console, parameters: dict):
 

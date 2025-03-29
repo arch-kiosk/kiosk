@@ -2,6 +2,7 @@ possible tasks:
 # this is just the list of keys you can use under "tasks"
   - "housekeeping_check_broken_files"
   - "housekeeping_check_file_meta_data"
+  - "housekeeping_enforce_file_meta_data"
   - "housekeeping_check_cache_files"
   - "housekeeping_rewrite_image_record"
   - "housekeeping_lowercase_filenames"
@@ -9,9 +10,9 @@ possible tasks:
   - "housekeeping_clear_log"
   - "housekeeping_fts"
 tasks:
-  - "housekeeping_check_file_meta_data"
+  - "housekeeping_enforce_file_meta_data"
 #options:
 #  files:
-#    - 25848747-d248-4178-8e4d-715aca3debd7
+#    - 43b6121a-74d0-4e8d-820b-62ef51c07d4e
 #    - 9e2948fe-90dd-4e11-a4ee-ea5e4e5d68a3
 #    - cc244219-4643-4d25-863c-fe32b72157f2

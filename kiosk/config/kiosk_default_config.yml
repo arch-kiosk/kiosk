@@ -104,9 +104,14 @@ file_repository:
       dimensions: "256,256"
       format_request: "default"
     master:
-      label: "max 4000x2000 pixel"
+      label: "max 4K pixel"
       format_request: "default"
-      dimensions: "4000,2000"
+      dimensions: "4000,4000"
+      requested_manipulations: [ "FIX_ROTATION", "DROP_EXIF_DATA"]
+    8K:
+      label: "max 8K pixel"
+      format_request: "default"
+      dimensions: "8000,8000"
       requested_manipulations: [ "FIX_ROTATION", "DROP_EXIF_DATA"]
     1024x768:
       inherits: "master"

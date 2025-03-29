@@ -46,7 +46,7 @@ class FileViewerController {
                     "v1",
                     new URLSearchParams({
                         uuid: uuid,
-                        resolution: "master"
+                        resolution: "best"
                     })).url;
                 if (url) {
                     this._loadData(uuid)

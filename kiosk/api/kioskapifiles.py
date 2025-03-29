@@ -13,6 +13,7 @@ from core.kioskrepresentationtype import KioskRepresentationTypeDimensions, Kios
 
 import kioskglobals
 from kioskglobals import get_config, httpauth
+from synchronization import Synchronization
 
 
 class ThumbnailNotFoundError(Exception):
@@ -80,18 +81,20 @@ class ApiFile(Resource):
         params = ApiFileGetParameter().load(request.args)
         uuid = params["uuid"]
 
+        sync = Synchronization()
         file_repos = FileRepository(kioskglobals.cfg,
                                     event_manager=None,
-                                    type_repository=kioskglobals.type_repository,
-                                    plugin_loader=current_app
+                                    type_repository=sync.type_repository,
+                                    plugin_loader=sync
                                     )
 
         ctx_file = file_repos.get_contextual_file(uuid)
         if ctx_file:
             try:
-                if params["resolution"]:
+                resolution = params["resolution"]
+                if resolution:
                     representation_type = KioskRepresentationType(params["resolution"])
-                    fm_filename = ctx_file.get(representation_type)
+                    fm_filename = ctx_file.get(representation_type, create=True)
                     if not fm_filename:
                         raise ThumbnailNotFoundError()
                 else:

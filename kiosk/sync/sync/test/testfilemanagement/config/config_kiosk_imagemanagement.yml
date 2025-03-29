@@ -53,6 +53,7 @@ file_repository:
       format_request: default_png
       extension: jpg
     master:
+      label: 4000x2000 pixel
       format_request: default
       extension: jpg
       dimensions: 4000,2000
@@ -75,6 +76,10 @@ file_repository:
       format_request: default
       requested_manipulations: ["MYOWNMANIPULATION"]
       required_manipulations: ["MYOWNMANIPULATION2"]
+    RAW2400x2500:
+      requested_manipulations: [ "DROP_EXIF_DATA" ]
+      format_request: "NEFTIF"
+      dimensions: "2400,2500"
 
   auto_representations: ['medium', 'small']
   thumbnails: ['small', 'medium']
