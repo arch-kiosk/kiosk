@@ -4,6 +4,9 @@
     {{ super() }}
     <link rel=stylesheet type=text/css
           href="{{ url_for('queryandview.static', filename='queryandview.css') }}?v=1" />
+    <link rel=stylesheet type=text/css
+          href="{{ url_for('filerepository.static', filename='filerepository.css') }}?v=1" />
+
 {% endblock %}
 
 {% block title %}

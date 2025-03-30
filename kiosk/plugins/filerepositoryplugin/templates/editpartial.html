@@ -8,10 +8,12 @@
                 <div id="img-data-container">
                     <div id="ef-image-data">
                         <div id="ef-button-bar">
-                            <div id="ef-option-buttons">
-                                <button id="ef-delete" class="modal-delete"
-                                    {% if "modify data" not in authorized_to %} disabled {% endif %}></button>
-                            </div>
+                            {% if not read_only_mode %}
+                                <div id="ef-option-buttons">
+                                        <button id="ef-delete" class="modal-delete"
+                                            {% if "modify data" not in authorized_to %} disabled {% endif %}></button>
+                                </div>
+                            {% endif %}
                             {% if "download file" in authorized_to %}
                                 <div class="dropdown">
                                     <div class="dropdown-content" id="download-menu-contents">
@@ -34,7 +36,7 @@
                                     </div>
                                 </div>
                             {% endif %}
-                            {% if "modify data" in authorized_to %}
+                            {% if "modify data" in authorized_to and not read_only_mode %}
                                 <div id="ef-upload-area">
                                     <div class="dropdown">
                                         <div class="dropdown-content" id="upload-area-contents">
@@ -65,7 +67,7 @@
                                             <div class="ef-context">
                                                 <span class="ef-dialog-identifier">{{ i }}</span><span
                                                 class="ef-record-type">({{ v }})</span>
-                                                {% if "modify data" in authorized_to %}
+                                                {% if "modify data" in authorized_to and not read_only_mode %}
                                                     <i class="ef-cancel-context fa fa-times-circle"
                                                        aria-hidden="true"></i>
                                                     <i class="ef-undo-drop-context fa fa-step-backward"
@@ -74,7 +76,7 @@
                                             </div>
                                         {% endfor %}
                                     {% endif %}
-                                    {% if "modify data" in authorized_to %}
+                                    {% if "modify data" in authorized_to  and not read_only_mode %}
                                         <div id="ef-add-context-div" class="ef-context">
                                             <i id="ef-new-context" class="fa fa-plus-circle" aria-hidden="true"></i>
                                             <div id="ef-new-context-controls-template" style="display: none">
@@ -114,7 +116,7 @@
                             {% endif %}
                             <div class="col-12">
                                 {{ ef_form.ef_description.label(class="kiosk-dialog-label") }}
-                                {% if "modify data" not in authorized_to %}
+                                {% if "modify data" not in authorized_to or read_only_mode %}
                                     <div
                                         class="kiosk-dialog-disabled-textfield"> {{ ef_form.ef_description.data }} </div>
                                 {% else %}
@@ -124,7 +126,7 @@
 
                             <div class="col-12">
                                 {{ ef_form.ef_tags.label(class="kiosk-dialog-label") }}
-                                {% if "modify data" not in authorized_to %}
+                                {% if "modify data" not in authorized_to or read_only_mode %}
                                     <div class="kiosk-dialog-disabled-textfield"> {{ ef_form.ef_tags.data }} </div>
                                 {% else %}
                                     {{ ef_form.ef_tags(class="kiosk-dialog-textfield") }}
@@ -134,7 +136,7 @@
                             <div class="col">
                                 {{ ef_form.ef_file_datetime.label(class="kiosk-dialog-label") }}
                                 <!-- Next line had formerly: "(contexts and ef_form.ef_file_datetime.data) or" See #960  -->
-                                {% if ("modify data" not in authorized_to ) %}
+                                {% if ("modify data" not in authorized_to or read_only_mode ) %}
                                     <div
                                         class="kiosk-dialog-disabled-textfield"> {{ ef_form.ef_file_datetime.data }} </div>
                                 {% else %}
@@ -144,7 +146,7 @@
 
                             <div class="col">
                                 {{ ef_form.ef_export_filename.label(class="kiosk-dialog-label") }}
-                                {% if "modify data" not in authorized_to %}
+                                {% if "modify data" not in authorized_to or read_only_mode %}
                                     <div
                                         class="kiosk-dialog-disabled-textfield"> {{ ef_form.ef_export_filename.data }} </div>
                                 {% else %}

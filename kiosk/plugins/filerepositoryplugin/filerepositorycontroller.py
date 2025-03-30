@@ -515,6 +515,8 @@ def file_repository_show():
 @full_login_required
 def filerepository_editpartial(uuid):
     print(f"***** editpartial/{uuid}")
+    search_params = request.args
+
     cfg = kioskglobals.cfg
     m_file_repos = ModelFileRepository(cfg, _plugin_name_)
     file_repos = FileRepository(kioskglobals.cfg,
@@ -572,6 +574,8 @@ def filerepository_editpartial(uuid):
         fullscreen_representation_id = cfg.file_repository["fullscreen_representation"]
         print("\n*************** now rendering".format(uuid))
         print(f"[{img.get_indirect_contexts()}]")
+        read_only_mode = search_params.get("readonly")
+
         return render_template('editpartial.html',
                                title="edit file" if "modify data" in authorized_to else "view file",
                                img=img, ef_form=ef_form,
@@ -583,6 +587,7 @@ def filerepository_editpartial(uuid):
                                file_size=file_size,
                                representations=representations,
                                created_latin=created_latin,
+                               read_only_mode=read_only_mode,
                                modified_tz=modified_tz,
                                modified_utc=modified_utc if \
                                    kioskglobals.get_development_option("test_time_zone_support") else None,

@@ -7,12 +7,16 @@ class FileViewerController {
     lightBoxElement = null
     url=  ""
     hasData = false
+    readOnly = false
+    readOnly = false
+
     opened = () => {}
     beforeOpen = () => {}
 
-    constructor(apiContext, lightBoxElement, hasData=false) {
+    constructor(apiContext, lightBoxElement, hasData=false, readOnly=false) {
         this.apiContext = apiContext
         this.hasData = hasData
+        this.readOnly = readOnly
         this.clear()
         this.setLightBoxElement(lightBoxElement)
     }
@@ -61,10 +65,13 @@ class FileViewerController {
 
     _loadData(uuid) {
         let address = `/filerepository/editpartial/${uuid}`;
+        let url = new URL(address, window.location.origin)
+        if (this.readOnly) url.searchParams.append("readonly", true)
+        console.log(`fetching ${url.toString()}`)
 
         console.log(`FileViewerController loading from ${address}`)
         kioskAjaxGetPartial(
-            address,
+            url.toString(),
             {},
             "fr-data-partial",
             (targetId, textStatus, jqXHR, stateData) => {

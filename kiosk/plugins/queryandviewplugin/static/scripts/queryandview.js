@@ -17,6 +17,7 @@ function onViewImageClicked(evt) {
     if (document.hasOwnProperty("fileViewerController")) {
         const fwc = document.fileViewerController
         fwc.opened = (e) => {
+            console.log("fws.opened", e)
             showRainbowProgress(false)
             if (e?.result) {
                 document.getElementById("broken-image").style.display = "none"
@@ -70,7 +71,8 @@ function initFileViewer(app) {
             return false
         } else {
             let lb = document.getElementsByTagName("kiosk-lightbox")[0];
-            document.fileViewerController = new FileViewerController(document.apiContext, lb, false);
+            document.fileViewerController = new FileViewerController(document.apiContext, lb,
+                true, true);
             console.log("FileViewerController initialized");
         }
     }
