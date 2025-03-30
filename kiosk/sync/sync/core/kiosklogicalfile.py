@@ -15,7 +15,7 @@ from kioskfilesmodel import KioskFilesModel
 # import filerepository
 
 FILES_TABLE_NAME = "images"
-FILE_ATTRIBUTES_VERSION = 1
+FILE_ATTRIBUTES_VERSION = 2
 
 class KioskLogicalFile:
     def __init__(self, uid, session_deprecated=None, cache_manager=None, file_repository=None,

@@ -8,7 +8,7 @@ import kioskpiexif
 import kioskstdlib
 from kioskphysicalfile import FILE_ATTR_ROTATE
 from kioskpiexif import TAGS, TYPES
-from PIL import Image, ImageColor
+from PIL import Image, ImageColor, ImageOps
 
 from core.kioskphysicalfile import FILE_ATTR_HEIGHT, FILE_ATTR_WIDTH, FILE_ATTR_FORMAT
 from core.synchronization import Synchronization
@@ -40,13 +40,32 @@ class KioskPhysicalPillowFile(KioskPhysicalImageFile):
     def __init__(self, source_path_and_filename: str):
         super(KioskPhysicalPillowFile, self).__init__(source_path_and_filename)
         self._exif_data = None
+        self._is_rotated = False
+
+    def _rotated(self, image: Image) -> bool:
+        try:
+            exif = image.getexif()
+            orientation = exif.get(0x0112)
+            return orientation in [6,8]
+            # method = {
+            #     2: Image.Transpose.FLIP_LEFT_RIGHT,
+            #     3: Image.Transpose.ROTATE_180,
+            #     4: Image.Transpose.FLIP_TOP_BOTTOM,
+            #     5: Image.Transpose.TRANSPOSE,
+            #     6: Image.Transpose.ROTATE_270,
+            #     7: Image.Transpose.TRANSVERSE,
+            #     8: Image.Transpose.ROTATE_90,
+            # }.get(orientation)
+        except BaseException as e:
+            logging.debug(f"{self.__class__.__name__}._get_rotation: {repr(e)}")
+        return False
 
     def _read_file_attributes(self, img: Image):
         self._file_attributes = {}
         if img:
             try:
-                self._file_attributes[FILE_ATTR_WIDTH] = img.width
-                self._file_attributes[FILE_ATTR_HEIGHT] = img.height
+                self._file_attributes[FILE_ATTR_WIDTH] = img.height if self._is_rotated else img.width
+                self._file_attributes[FILE_ATTR_HEIGHT] = img.width if self._is_rotated else img.height
                 self._file_attributes[FILE_ATTR_FORMAT] = img.format
             except BaseException as e:
                 logging.warning(f"{self.__class__.__name__}._read_file_attributes:"
@@ -57,7 +76,14 @@ class KioskPhysicalPillowFile(KioskPhysicalImageFile):
 
         img = Image.open(self.source_path_and_filename)
         try:
+            self._is_rotated = self._rotated(img)
             exif_info = None
+            # todo: refactor
+            # I remember that dropping exif data was necessary at some point under certain
+            # circumstances. But  I am not sure if any of this is still necessary
+            # after all these years.
+            # And why not use Pillow's own exif handling? Like in self._rotated?
+
             if "exif" in img.info:
                 exif_info = kioskpiexif.load(img.info["exif"])
 

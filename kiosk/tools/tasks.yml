@@ -11,8 +11,8 @@ possible tasks:
   - "housekeeping_fts"
 tasks:
   - "housekeeping_enforce_file_meta_data"
-#options:
-#  files:
-#    - 43b6121a-74d0-4e8d-820b-62ef51c07d4e
+options:
+  files:
+    - 0cd94110-c056-4431-b848-de21a59af9b3
 #    - 9e2948fe-90dd-4e11-a4ee-ea5e4e5d68a3
 #    - cc244219-4643-4d25-863c-fe32b72157f2
