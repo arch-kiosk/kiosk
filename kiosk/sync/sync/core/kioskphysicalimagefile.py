@@ -109,15 +109,12 @@ class KioskPhysicalImageFile(KioskPhysicalFile):
                                   Optional, defaults to true.
 
         :return: the dict or explicitly None (don't test for an empty dict!)
+        :raises alll Exceptions are passed on
         """
         if self._file_attributes is None:
             if open_if_necessary:
-                try:
-                    with self._open_image() as img:
-                        pass
-                except BaseException as e:
-                    logging.error(f"{self.__class__.__name__}.get_file_attributes: cannot open file "
-                                  f"{self.source_path_and_filename}: {repr(e)}")
+                with self._open_image() as img:
+                    pass
 
         return self._file_attributes
 

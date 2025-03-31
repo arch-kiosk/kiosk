@@ -132,8 +132,10 @@ class KioskLogicalFile:
                 self._file_record.image_attributes["version"] = FILE_ATTRIBUTES_VERSION
                 self._file_record.update()
                 return True
-        except BaseException:
-            pass
+        except BaseException as e:
+            logging.debug(f"{self.__class__.__name__}._get_physical_file_attributes: "
+                          f"get_file_attributes failed with handler {physical_file.__class__.__name__}: "
+                          f"{repr(e)}")
 
         return False
 

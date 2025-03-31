@@ -31,13 +31,17 @@ class Housekeeping:
         self.file_repos = file_repos
         self.counters = {}
         self.limit_to_files = []  # list of file uids. If not empty only these files will be processed
-        self.housekeeping_file_methods = {"housekeeping_check_broken_files": self.housekeeping_check_broken_files,
-                                          "housekeeping_check_file_meta_data": self.housekeeping_check_file_meta_data,
-                                          "housekeeping_check_cache_files": self.housekeeping_check_cache_files,
-                                          "housekeeping_rewrite_image_record": self.housekeeping_rewrite_image_record,
-                                          "housekeeping_lowercase_filenames": self.housekeeping_lowercase_filenames,
-                                          "housekeeping_enforce_file_meta_data": self.housekeeping_enforce_file_meta_data,
-                                          }
+        self.housekeeping_file_methods = {
+            "housekeeping_check_broken_files": self.housekeeping_check_broken_files,
+            "housekeeping_check_file_meta_data": self.housekeeping_check_file_meta_data,
+            "housekeeping_check_cache_files": self.housekeeping_check_cache_files,
+            "housekeeping_rewrite_image_record": self.housekeeping_rewrite_image_record,
+            "housekeeping_lowercase_filenames": self.housekeeping_lowercase_filenames,
+        }
+        # these run only if explicitly requested
+        self.housekeeping_peculiar_file_methods = {
+            "housekeeping_enforce_file_meta_data": self.housekeeping_enforce_file_meta_data,
+        }
         self.housekeeping_standalone_methods = {
             "housekeeping_quality_check": self.housekeeping_quality_check,
             "housekeeping_clear_log": self.housekeeping_clear_log,
@@ -83,6 +87,7 @@ class Housekeeping:
         file_tasks_todo = []
         stdalone_tasks_todo = []
         if housekeeping_tasks:
+            self.housekeeping_file_methods.update(self.housekeeping_peculiar_file_methods)
             for task in housekeeping_tasks:
                 if task in self.housekeeping_file_methods.keys():
                     file_tasks_todo.append(self.housekeeping_file_methods[task])
@@ -216,7 +221,7 @@ class Housekeeping:
         """
         Makes sure that the file attributes are fetched freshly from the physical file
         """
-        self.housekeeping_check_file_meta_data(ctx_file,console,parameters,enforce=True)
+        self.housekeeping_check_file_meta_data(ctx_file, console, parameters, enforce=True)
 
     def housekeeping_check_broken_files(self, ctx_file: KioskContextualFile, console, parameters: dict):
 

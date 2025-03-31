@@ -776,8 +776,13 @@ class RecordingWorkstation(Dock):
         :param src_file:
         :return: KioskRepresentationDimensions
         """
-        dimensions = f.get_file_attributes(True)
-        if "width" in dimensions and "height" in dimensions:
+        try:
+            dimensions = f.get_file_attributes(True)
+        except BaseException as e:
+            logging.debug(f"{self.__class__.__name__}._get_file_dimensions: cannot open file "
+                          f"{self.source_path_and_filename}: {repr(e)}")
+
+        if dimensions and "width" in dimensions and "height" in dimensions:
             dimensions = KioskRepresentationTypeDimensions(dimensions["width"], dimensions["height"])
         else:
             dimensions = KioskRepresentationTypeDimensions(0, 0)
