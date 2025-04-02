@@ -22,7 +22,11 @@ class DSDTable(Table):
         else:
             select_fields = self._dsd.get_fields_with_instructions(self._table_name, ["primary", "uuid_key"])
             if select_fields:
-                key_field = select_fields.values()[0][0]
+                key_field = next(iter(select_fields.keys()))
+            else:
+                select_fields = self._dsd.get_fields_with_instructions(self._table_name, ["unique"])
+                if select_fields:
+                    key_field = next(iter(select_fields.keys()))
 
         for field_name in self._dsd.list_fields(self._table_name):
             orm_flags = []

@@ -187,6 +187,8 @@ class FileExport:
         try:
             dsdtable = DSDTable(self._dsd_view_dsd, table)
             driver.new_table(self._dsd_view_dsd, table)
+            if self._export_target.has_file(kioskstdlib.get_filename(driver.filename)):
+                print(f"file {driver.filename} already there")
             errors = 0
             for r in dsdtable.get_many():
                 try:
@@ -200,6 +202,7 @@ class FileExport:
 
             driver.close_table(success=True)
         except BaseException as e:
+
             driver.close_table(success=False)
             logging.error(
                 f"{self.__class__.__name__}._export_table: Export of table {table} failed due to exception {repr(e)}")

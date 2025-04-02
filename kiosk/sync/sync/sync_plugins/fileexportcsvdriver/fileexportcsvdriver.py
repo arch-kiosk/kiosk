@@ -15,7 +15,6 @@ class FileExportCSVDriver(FileExportDriver):
     def __init__(self, config):
         self._working_dir = os.path.join(config.get_temp_dir(), "fileexportcsvdriver")
         self._file = None
-        self._filename = ""
         self._csv_writer = None
         self._dsd = None
         self._columns = []
@@ -76,8 +75,17 @@ class FileExportCSVDriver(FileExportDriver):
         self._csv_writer.writerow(row)
 
     def close_table(self, success: bool):
-        self._close_file()
-        self._target.add_file(self._filename, kioskstdlib.get_filename(self._filename))
+        if self.is_open:
+            self._close_file()
+            try:
+                self._target.add_file(self._filename, kioskstdlib.get_filename(self._filename))
+            except BaseException as e:
+                logging.error(f"{self.__class__.__name__}.close_file: {repr(e)}")
+                raise e
+
+    @property
+    def is_open(self):
+        return bool(self._file)
 
     def _close_file(self):
         if self._file:

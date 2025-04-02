@@ -447,12 +447,13 @@ class DataSetDefinition:
          :param include_system_tables: includes tables that are flagged as system_table
          :param include_dropped_tables: set to True if dropped tables should be listed as well.
         """
+        dsd_keys = self._dsd_data.get_keys([])
         return list(filter(lambda x: (x != KEY_CONFIG) and
                                      (include_system_tables or
                                       not self.table_has_meta_flag(x, KEY_TABLE_FLAG_SYSTEM_TABLE)) and
                                      (include_dropped_tables or
                                       not self.is_table_dropped(x)),
-                           self._dsd_data.get_keys([])))
+                           dsd_keys))
 
     def list_tables_with_instructions(self, instructions: list, include_dropped_tables=False):
         """ returns a list of those tables in the DataSetDefinition that have at least one field with

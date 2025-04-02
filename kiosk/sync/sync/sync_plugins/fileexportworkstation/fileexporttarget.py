@@ -69,6 +69,9 @@ class FileExportTarget:
         self._callback_progress = callback_progress
 
 
+    def has_file(self, dest_filename: str):
+        return dest_filename in self._files.keys()
+
     def get_new_filename(self, dest_filename: str):
         """
         returns a filename based on the given dest_filename that is not yet in the file list.

@@ -96,7 +96,7 @@ class KioskExportWorkstation(KioskWorkstation):
                                               self._sync_ws.get_fork_time(),
                                               current_user.get_active_time_zone_name(iana=True)))
 
-    def load_workstation(self):
+    def load_workstation(self, current_tz = None):
         self._sync_ws = self.sync.get_workstation("FileExportWorkstation", self._id)
         self._calc_options()
         return self._sync_ws.exists()

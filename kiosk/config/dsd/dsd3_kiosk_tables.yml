@@ -222,7 +222,7 @@ kiosk_queries:
 
 kiosk_time_zones:
   meta:
-    flags: [no_fts]
+    flags: [no_fts, file_export]
   structure:
     1:
       id: [datatype(INT), unique(), not_null()]

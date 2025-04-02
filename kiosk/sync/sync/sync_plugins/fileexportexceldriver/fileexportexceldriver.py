@@ -15,7 +15,6 @@ class FileExportExcelDriver(FileExportDriver):
 
     def __init__(self, config):
         self._working_dir = os.path.join(config.get_temp_dir(), self.__class__.__name__.lower())
-        self._filename = ""
         self._workbook = None
         self._worksheet = None
         self._dsd = None
@@ -64,9 +63,18 @@ class FileExportExcelDriver(FileExportDriver):
         row.extend(extra_values)
         self._worksheet.append(row)
 
+    @property
+    def is_open(self):
+        return bool(self._workbook)
+
     def close_table(self, success: bool):
-        self._close_workbook()
-        self._target.add_file(self._filename, kioskstdlib.get_filename(self._filename))
+        if self.is_open:
+            self._close_workbook()
+            try:
+                self._target.add_file(self._filename, kioskstdlib.get_filename(self._filename))
+            except BaseException as e:
+                logging.error(f"{self.__class__.__name__}.close_file: {repr(e)}")
+                raise e
 
     def _close_workbook(self):
         if self._workbook:

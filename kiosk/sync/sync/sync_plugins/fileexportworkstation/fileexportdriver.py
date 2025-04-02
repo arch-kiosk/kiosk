@@ -10,9 +10,14 @@ class FileExportDriver:
         self._driver_id = self.__class__.__name__
         self._config: SyncConfig = config
         self._name = ""
+        self._filename = ""
         self._description = ""
         self._load_driver()
         self._target = None
+
+    @property
+    def filename(self):
+        return self._filename
 
     def _load_driver(self):
         raise NotImplementedError()
@@ -32,6 +37,10 @@ class FileExportDriver:
     @property
     def description(self):
         return self._description
+
+    @property
+    def is_open(self):
+        raise NotImplementedError
 
     def start_export(self, target: FileExportTarget):
         self._target = target

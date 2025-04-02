@@ -44,7 +44,7 @@ class KioskReportingDock(KioskDock):
     def recording_group(self) -> str:
         return "reporting"
 
-    def load_workstation(self) -> bool:
+    def load_workstation(self, current_tz = None) -> bool:
         self._reset_attributes()
 
         # noinspection PyTypeChecker
