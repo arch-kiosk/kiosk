@@ -47,7 +47,7 @@ class KioskPhysicalWebPFile(KioskPhysicalImageFile):
                 self._file_attributes[FILE_ATTR_HEIGHT] = img.height
                 self._file_attributes[FILE_ATTR_FORMAT] = img.format
             except BaseException as e:
-                logging.warning(f"{self.__class__.__name__}._read_file_attributes:"
+                logging.debug(f"{self.__class__.__name__}._read_file_attributes:"
                                 f" Non-fatal exception {repr(e)}")
         return self._file_attributes
 
@@ -62,7 +62,7 @@ class KioskPhysicalWebPFile(KioskPhysicalImageFile):
             exif.update((k[5:], v) for k, v in img.metadata.items()
                         if k.startswith('exif:'))
         except BaseException as e:
-            logging.warning(f"{self.__class__.__name__}.get_exif_data: {repr(e)} - not critical.")
+            logging.debug(f"{self.__class__.__name__}.get_exif_dict: {repr(e)} - not critical.")
         return exif
 
     def _open_image(self, representation: KioskRepresentationType = None):
