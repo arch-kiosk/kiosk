@@ -37,7 +37,7 @@
     "install": "^0.13.0",
     "lit": "^3.2.1",
     "nanoid": "^5.0.7",
-    "ui-component": "file:../../../../../../lab/uiwebcomponent/npm/uicomponent-0.6.10.tgz",
+    "ui-component": "file:../../../../../../lab/uiwebcomponent/npm/uicomponent-0.6.12.tgz",
     "kiosktsapplib": "file:../../../../../../kiosktsapplib",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
