@@ -1,9 +1,9 @@
 // @ts-ignore
 import local_css from "./styles/component-queryselector.sass?inline";
 import { html, nothing, TemplateResult, unsafeCSS } from "lit";
-import { customElement, state } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 import { handleCommonFetchErrors, handleErrorInApp } from "./lib/applib";
-import { Constant, ApiResultKioskQueryDescription, ApiResultKioskQuery } from "./lib/apitypes";
+import { Constant, ApiResultKioskQueryDescription } from "./lib/apitypes";
 import { FetchException } from "../kioskapplib/kioskapi";
 import { KioskAppComponent } from "../kioskapplib/kioskappcomponent";
 import { KioskQueryFactory } from "./kioskqueryfactory";
@@ -33,6 +33,9 @@ export class KioskQuerySelector extends KioskAppComponent {
 
     @state()
     protected kioskQueries: ApiResultKioskQueryDescription[] = [];
+
+    @property()
+    protected queryFilter: string = "";
 
     @consume({context: constantsContext})
     @state()
@@ -148,7 +151,7 @@ export class KioskQuerySelector extends KioskAppComponent {
             return;
         }
         const element = <HTMLDivElement>e.currentTarget;
-        let kioskQuery = this.kioskQueries.find((q) => q.id === element.id);
+        const kioskQuery = this.kioskQueries.find((q) => q.id === element.id);
         this.tryClose(kioskQuery);
     }
 
@@ -171,6 +174,10 @@ export class KioskQuerySelector extends KioskAppComponent {
         `;
     }
 
+    queryFilterChanged(e: Event) {
+        this.queryFilter = (e.currentTarget as HTMLInputElement).value
+    }
+
     apiRender(): TemplateResult {
         return html`
             <div class="query-selector-overlay" @click=${this.overlayClicked}></div>
@@ -186,13 +193,21 @@ export class KioskQuerySelector extends KioskAppComponent {
                               <h3>Choose your way to search and query</h3>
                           </div>
                       `}
-                <div id="kiosk-query-list">${this.kioskQueries.map((query, index) => this.renderQueryItem(query, index))}</div>
+                <div class="query-filter"><label for="query-filter">filter queries by</label><input id="query-filter" name="query-filter" 
+                                                 @input=${this.queryFilterChanged} type="text"></div>
+                <div id="kiosk-query-list">${this.kioskQueries
+                    .filter(query => this.queryFilter === "" ||
+                        query.type === "FullTextKioskQuery" ||
+                        (query.name + query.description).toLowerCase().includes(this.queryFilter.toLowerCase()),
+                    )
+                    .map((query, index) => this.renderQueryItem(query, index))}
+                </div>
             </div>
         `;
     }
 
     renderProgress(force: boolean = false): TemplateResult {
-        let htmlBar = super.renderProgress(force);
+        const htmlBar = super.renderProgress(force);
         return htmlBar
             ? html`${htmlBar}
                   <div class="loading-message">${this.loadingMessage}</div>`

@@ -17,6 +17,9 @@
     {% if "oldest" in session['kiosk_fr_sorting'] or "latest" in session['kiosk_fr_sorting'] %}
       <p class="fr-file-datetime">{{ img.get_file_datetime() }}</p>
     {% endif %}
+    {% if "modified" in session['kiosk_fr_sorting'] %}
+      <p class="fr-file-datetime">{{ img.get_file_modified() }}</p>
+    {% endif %}
     <p>
       {{ img.get_description_summary(crlf="<br>")|safe|truncate(90) }}</p>
     <p class="fr-uuid">{{ img.get_value("uid") }}</p>

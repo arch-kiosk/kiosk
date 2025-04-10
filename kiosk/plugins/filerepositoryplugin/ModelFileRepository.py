@@ -80,7 +80,7 @@ class FileRepositoryFile:
         return self.r["tags"].upper().split(",")
 
     def get_dimensions(self):
-        rc = [0,0]
+        rc = [0, 0]
         try:
             attr = self.get_value("image_attributes")
             if isinstance(attr, dict):
@@ -185,6 +185,9 @@ class FileRepositoryFile:
 
     def get_file_datetime(self):
         return kioskstdlib.latin_date(self.r["file_datetime"], no_time=True)
+
+    def get_file_modified(self):
+        return kioskstdlib.latin_date(self.r["modified"], no_time=True)
 
     def get_arch_identifier(self, include_indirect_identifiers=False):
         """
@@ -357,7 +360,11 @@ class ModelFileRepository:
     MAX_RECORDS_PER_CHUNK = 20
     ACCEPTED_FILTER_FIELDS = ["context", "recording_context", "tags", "description", "no_context",
                               "from_date", "to_date", "site"]
-    SORTING_OPTIONS = ["context", "oldest first", "latest first", "undated, then latest first"]
+    SORTING_OPTIONS = ["context",
+                       "oldest first",
+                       "latest first",
+                       "undated, then latest first",
+                       "recently modified first"]
 
     def __init__(self, conf, plugin_name):
         self.filter_options = {"records_per_chunk": self.MAX_RECORDS_PER_CHUNK}
@@ -444,7 +451,7 @@ class ModelFileRepository:
                 if description.startswith("ext:."):
                     where_part = f"""images.filename ilike %s"""
                     ext = description[4:]
-                    param = kioskstdlib.escape_backslashs('%'+ext)
+                    param = kioskstdlib.escape_backslashs('%' + ext)
                 else:
                     where_part = f"""
                         (({file_identifier_cache_table_name}.\"description\" ilike %s 
@@ -509,6 +516,8 @@ class ModelFileRepository:
             return "order by \"sort_fd\" desc, \"identifiers\""
         elif self.sorting_option == self.SORTING_OPTIONS[3]:
             return "order by \"file_datetime\" desc, \"created\" desc, \"identifiers\""
+        elif self.sorting_option == self.SORTING_OPTIONS[4]:
+            return "order by \"modified\" desc, \"created\" desc, \"identifiers\""
         else:
             logging.error(f"{self.__class__.__name__}._get_order: unknown sorting order "
                           f"'{self.sorting_option}' selected.")
@@ -540,9 +549,9 @@ class ModelFileRepository:
         sql_site = self._get_site_sql()
 
         sql = "select " + "  count(distinct images.uid) c from images " + sql_site + \
-                          f"left outer join " \
-                          f"{file_identifier_cache_table_name} " \
-                          f"on images.uid={file_identifier_cache_table_name}.\"data\"::uuid {sql_where};"
+              f"left outer join " \
+              f"{file_identifier_cache_table_name} " \
+              f"on images.uid={file_identifier_cache_table_name}.\"data\"::uuid {sql_where};"
         # pprint.pprint(sql)
         try:
             cur.execute(sql, params)
@@ -576,9 +585,9 @@ class ModelFileRepository:
 
         sql = "select " + f" distinct images.*, COALESCE(\"file_datetime\", '0001-01-01') sort_fd, " \
                           "array_to_string(identifier_array, ', ') identifiers from \"images\" " + sql_site + \
-                          f"left outer join " \
-                          f"{file_identifier_cache_table_name} " \
-                          f"on images.uid={file_identifier_cache_table_name}.data::uuid " + \
+              f"left outer join " \
+              f"{file_identifier_cache_table_name} " \
+              f"on images.uid={file_identifier_cache_table_name}.data::uuid " + \
               f"left outer join (select {file_identifier_cache_table_name}.\"data\", " \
               f"array_agg({file_identifier_cache_table_name}.\"identifier\") \"identifier_array\" " + \
               f"from {file_identifier_cache_table_name} " \
