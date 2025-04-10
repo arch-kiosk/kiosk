@@ -299,7 +299,9 @@ def file_repository_show():
     if "kiosk_fr_sorting" not in session:
         session["kiosk_fr_sorting"] = sorting_options[0]
 
-    image_resolutions = m_file_repository.get_thumbnail_types()
+    thumbnail_resolutions = m_file_repository.get_thumbnail_types()
+    fullscreen_representation_id = kioskglobals.cfg.file_repository["fullscreen_representation"]
+    representations = [f"{x[0]},{x[1]}" for x in KioskRepresentations.get_representation_labels_and_ids(kioskglobals.cfg)]
 
     if "ajax" in request.form:
         if not options["no_context"] and options["context"]:
@@ -343,12 +345,13 @@ def file_repository_show():
             logging.debug(f"filerepositorycontroller.file_repository_show: "
                           f"showing images {(current_page - 1) * MAX_IMAGES_PER_PAGE}:{current_page * MAX_IMAGES_PER_PAGE}"
                           f" = {len(img_list)}")
-
         return render_template('file_repository.html',
                                filter_form=filter_form,
                                image_list=img_list,
-                               image_resolutions=image_resolutions,
+                               image_resolutions=thumbnail_resolutions,
                                sorting_options=sorting_options,
+                               fullscreen_representation_id=fullscreen_representation_id,
+                               resolutions=",".join(representations),
                                tag_list=tag_list,
                                max_images_per_page=MAX_IMAGES_PER_PAGE,
                                page_count=page_count,

@@ -12,7 +12,7 @@
     <a href="#" onclick="menuClick('import photos')">Import files</a>
 {% endblock %}
 {% block body %}
-    <kiosk-lightbox>
+    <kiosk-lightbox data-fullscreen-res="{{ fullscreen_representation_id }}" data-resolutions="{{ resolutions }}">
       <div id="filerepository-data-container" class="filerepository-data-container">
         <div id="broken-image" class="broken-image">
             <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="203" height="203" viewBox="0 0 512 512">

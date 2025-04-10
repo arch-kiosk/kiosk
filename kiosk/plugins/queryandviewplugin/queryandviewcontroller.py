@@ -23,6 +23,7 @@ from core.kioskcontrollerplugin import get_plugin_for_controller
 from kioskconfig import KioskConfig
 from kiosklib import is_ajax_request, nocache, UserError
 from kioskquery.kioskquerystore import KioskQueryStore
+from kioskrepresentationtype import KioskRepresentations
 from kioskresult import KioskResult
 from kioskwtforms import kiosk_validate
 from mcpinterface.mcpconstants import MCPJobStatus
@@ -88,6 +89,10 @@ def query_and_view_show():
         pass
 
     conf = kioskglobals.get_config()
+
+    fullscreen_representation_id = conf.file_repository["fullscreen_representation"]
+    representations = [f"{x[0]},{x[1]}" for x in KioskRepresentations.get_representation_labels_and_ids(conf)]
+
     load_dynamic_app = {
         "controller_name": _controller_name_,
         "load_from_address": "query_and_view_show"
@@ -95,7 +100,10 @@ def query_and_view_show():
     if not main_module:
         return render_template('queryandview.html', load_dynamic_app=load_dynamic_app)
     else:
-        return render_template('queryandview_main.html', load_dynamic_app=load_dynamic_app)
+        return render_template('queryandview_main.html',
+                               fullscreen_representation_id=fullscreen_representation_id,
+                               resolutions=",".join(representations),
+                               load_dynamic_app=load_dynamic_app)
 
 
 #  **************************************************************

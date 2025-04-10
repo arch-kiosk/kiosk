@@ -8,7 +8,8 @@ class FileViewerController {
     url=  ""
     hasData = false
     readOnly = false
-    readOnly = false
+    defaultFullScreenRes = "master"
+    resolutions = {}  // object with label = key (yup!)
 
     opened = () => {}
     beforeOpen = () => {}
@@ -36,7 +37,21 @@ class FileViewerController {
         this.url = ""
     }
 
-    _loadImage(fileIndex) {
+    _loadImage(fileIndex, loadData=true) {
+        const resolutionLabel = this.lightBoxElement?.currentResolution??""
+        let resolutionId = "master"
+
+        try {
+            if (resolutionLabel !== "") {
+                let entry = Object.entries(this.resolutions).find((v) => v[0] === resolutionLabel)
+                resolutionId = entry ? entry[1] : "master"
+            }
+        }
+        catch (e) {
+            console.log("FileViewerController._loadImage: resolutionId not found: ", resolutionId)
+        }
+        console.log("_loadImage loads ", resolutionId, this.files[fileIndex]);
+
         if (this.apiContext && this.lightBoxElement) {
             if (fileIndex >= 0 && fileIndex < this.files.length) {
                 const uuid = this.files[fileIndex].uuid
@@ -50,10 +65,11 @@ class FileViewerController {
                     "v1",
                     new URLSearchParams({
                         uuid: uuid,
-                        resolution: "best"
+                        resolution: resolutionId
                     })).url;
                 if (url) {
-                    this._loadData(uuid)
+                    if (loadData)
+                        this._loadData(uuid)
                     this.url = url
                     this.currentIndex = fileIndex
                     return true
@@ -159,12 +175,35 @@ Please use the download button and download the file into a new tab.`
         }
         this.lightBoxElement = lightBoxElement
         this.lightBoxElement.hasData = this.hasData
+
+        try {
+            if (this.lightBoxElement.dataset.hasOwnProperty("resolutions")) {
+                let resolutions = this.lightBoxElement.dataset.resolutions.split(",")
+                for (let i = 0; i < resolutions.length; i += 2) {
+                    this.resolutions[resolutions[i]] = resolutions[i + 1]
+                }
+            } else {
+                this.resolutions = { "master": "master" }
+            }
+        } catch (e) {
+                this.resolutions = { "master": "master" }
+        }
+        this.resolutions["best"] = "best"
+        this.lightBoxElement.resolutions = Object.keys(this.resolutions)
+        this.defaultFullScreenRes = this.lightBoxElement.dataset.hasOwnProperty("fullscreenRes")?this.lightBoxElement.dataset.fullscreenRes:this.defaultFullScreenRes
+        let entry = Object.entries(this.resolutions).find((v) => v[1] === this.defaultFullScreenRes)
+        const defaultFullscreenResLabel = entry?entry[0]:"master"
+
         this.lightBoxElement.addEventListener("beforeOpen", (e) => this.onBeforeOpen(e))
         this.lightBoxElement.addEventListener("opened", (e) => this.onOpened(e))
         this.lightBoxElement.addEventListener("beforeClose", (e) => this.onBeforeClose(e))
         this.lightBoxElement.addEventListener("closed", (e) => this.onClosed(e))
         this.lightBoxElement.addEventListener("beforeNext", this.onBeforeNav)
         this.lightBoxElement.addEventListener("beforePrev", this.onBeforeNav)
+        this.lightBoxElement.addEventListener("ResolutionChanged", (e) => this.onResolutionChanged(e))
+        let userResolution = getCookie("kioskCurrentViewerResolution")
+        entry = Object.entries(this.resolutions).find((v) => v[0] === userResolution)
+        this.lightBoxElement.currentResolution = entry ? entry[0] : defaultFullscreenResLabel
         this.lightBoxElement.apiContext = this.apiContext
         this.lightBoxElement.setURLProvider(this);
     }
@@ -191,7 +230,7 @@ Please use the download button and download the file into a new tab.`
         const uuid = this.files[this.currentIndex]?.uuid
         activateImage(uuid)
         document.getElementById("broken-image").style.display = "none"
-        console.log(`lightbox closed, moving to ${uid}`);
+        console.log(`lightbox closed, moving to ${uuid}`);
     }
 
     onBeforeNav(e) {
@@ -202,6 +241,14 @@ Please use the download button and download the file into a new tab.`
             kioskYesNoToast("You seem to have changed data. <br/>" +
                 "Do you really want to move to a different file before you have saved your changes?",
                 () => defObject.finish(), () => defObject.cancel())
+        }
+    }
+
+    onResolutionChanged(e) {
+        console.log(this.lightBoxElement.currentResolution)
+        setCookie("kioskCurrentViewerResolution", this.lightBoxElement.currentResolution)
+        if (this._loadImage(this.currentIndex, false)) {
+            this.reloadFile()
         }
     }
 
