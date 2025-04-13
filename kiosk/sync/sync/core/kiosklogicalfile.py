@@ -244,7 +244,7 @@ class KioskLogicalFile:
             if file_record.image_attributes:
                 return file_record.image_attributes
             else:
-                logging.error(f"{self.__class__.__name__}.get_file_attributes: "
+                logging.debug(f"{self.__class__.__name__}.get_file_attributes: "
                               f"cannot acquire file attributes for {self._uid}")
         else:
             logging.error(f"{self.__class__.__name__}.get_file_attributes: "

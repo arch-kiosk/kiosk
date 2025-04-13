@@ -205,13 +205,13 @@ class Housekeeping:
                 if "NOT_AN_IMAGE" not in ctx_file.get_tags():
                     if enforce:
                         if not ctx_file.get_file_attributes_from_physical_file():
-                            logging.warning(f"{self.__class__.__name__}.housekeeping_check_file_meta_data: "
+                            logging.debug(f"{self.__class__.__name__}.housekeeping_check_file_meta_data: "
                                             f"failed to create the file attributes for {ctx_file.uid}.")
                         else:
                             KioskSQLDb.commit()
                     else:
                         if not ctx_file.ensure_file_attributes(commit=True):
-                            logging.warning(f"{self.__class__.__name__}.housekeeping_check_file_meta_data: "
+                            logging.debug(f"{self.__class__.__name__}.housekeeping_check_file_meta_data: "
                                             f"failed to create the file attributes for {ctx_file.uid}.")
             else:
                 logging.warning(f"{self.__class__.__name__}.housekeeping_check_file_meta_data: "

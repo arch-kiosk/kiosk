@@ -543,7 +543,7 @@ class KioskContextualFile(KioskLogicalFile):
                         KioskSQLDb.commit()
                     return True
                 else:
-                    logging.error(f"{self.__class__.__name__}.ensure_file_attributes: get_file_attributes failed.")
+                    logging.debug(f"{self.__class__.__name__}.ensure_file_attributes: get_file_attributes failed.")
             except BaseException as e:
                 logging.error(f"{self.__class__.__name__}.ensure_file_attributes: Exception {repr(e)}")
 
