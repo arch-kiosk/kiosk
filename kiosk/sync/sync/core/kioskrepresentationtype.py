@@ -1,4 +1,7 @@
 import logging
+from typing import Tuple
+from warnings import catch_warnings
+
 from parse import parse
 
 import kioskstdlib
@@ -213,6 +216,67 @@ class KioskRepresentations:
                 result.append((config["representations"][r_id]["label"], r_id))
         result.sort(key=lambda x: x[1])
         return result
+
+    @classmethod
+    def get_viewer_representations(cls, file_type: str, config: SyncConfig = None) -> list[Tuple[str, str, int]]:
+        """
+        returns a list of triplets (label, id, viewer_option) of representations ordered by label.
+        The first entry is always ("original file", "original", ...)
+        The viewer_option is a bit-combination
+        and defines where the representation can be offered for the particular file type:
+            Bit 1 - offer for download
+            Bit 2 - offer for opening in new window
+
+        Only representations with a label are returned
+
+        :param config: SyncConfig
+        :return: list of triplets
+        """
+        download_resolutions = []
+        open_resolutions = []
+        try:
+            accessible_files = config.file_repository["viewer_options"]["accessible_files"]
+            try:
+                download_resolutions = accessible_files["*"]["download_resolutions"]
+            except:
+                pass
+
+            try:
+                open_resolutions: list = accessible_files["*"]["open_resolutions"]
+                if "original" in open_resolutions:
+                    open_resolutions.remove("original")
+            except:
+                pass
+
+        except BaseException as e:
+            pass
+
+        try:
+            accessible_files = config.file_repository["viewer_options"]["accessible_files"]
+            try:
+                download_resolutions = accessible_files[file_type]["download_resolutions"]
+            except:
+                pass
+
+            try:
+                open_resolutions: list = accessible_files[file_type]["open_resolutions"]
+            except:
+                pass
+
+        except BaseException as e:
+            pass
+
+        if download_resolutions and "original" not in download_resolutions:
+            download_resolutions.append("original")
+
+        return [(x[0],
+                x[1], (not download_resolutions or x[1] in download_resolutions) | \
+                      ((not open_resolutions and x[1] != "original") or x[1] in open_resolutions) << 1
+                ) for x in [("original file","original"), *cls.get_representation_labels_and_ids(config)]]
+
+
+    # @classmethod
+    # def get_viewer_new_tab_res(cls, file_type: str, config: SyncConfig = None) -> list[Tuple[str, str, int]]:
 
     @classmethod
     def instantiate_representation_from_config(cls, representation_id) -> KioskRepresentationType:

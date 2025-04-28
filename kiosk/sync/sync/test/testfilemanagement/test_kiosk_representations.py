@@ -54,8 +54,88 @@ class TestKioskRepresentations(KioskPyTestHelper):
     def test_get_representation_labels_and_ids(self, config):
         labels_and_ids = KioskRepresentations.get_representation_labels_and_ids(config)
         assert labels_and_ids == [
+            ('4000x2000 pixel', 'master'),
             ('medium thumbnail', 'medium'),
             ('small thumbnail', 'small')
+        ]
+
+    def test_get_viewer_representations(self, config):
+
+        # check absolute default
+        config.file_repository["viewer_options"] = {}
+        labels_and_ids = KioskRepresentations.get_viewer_representations("pdf", config)
+        assert labels_and_ids == [
+            ('original file', 'original', 1),
+            ('4000x2000 pixel', 'master', 3),
+            ('medium thumbnail', 'medium', 3),
+            ('small thumbnail', 'small', 3)
+        ]
+
+        # check that it makes sure that "original" can always be downloaded.
+        config.file_repository["viewer_options"] = {
+            "accessible_files": {
+                "*": {
+                    "download_resolutions": ["master"]
+                }
+            }}
+        labels_and_ids = KioskRepresentations.get_viewer_representations("pdf", config)
+        assert labels_and_ids == [
+            ('original file', 'original', 1),
+            ('4000x2000 pixel', 'master', 3),
+            ('medium thumbnail', 'medium', 2),
+            ('small thumbnail', 'small', 2)
+        ]
+
+        # check that it makes sure that "original" can never be opened in a new window
+        config.file_repository["viewer_options"] = {
+            "accessible_files": {
+                "*": {
+                    "open_resolutions": ["original"]
+                }
+            }}
+        labels_and_ids = KioskRepresentations.get_viewer_representations("pdf", config)
+        assert labels_and_ids == [
+            ('original file', 'original', 1),
+            ('4000x2000 pixel', 'master', 3),
+            ('medium thumbnail', 'medium', 3),
+            ('small thumbnail', 'small', 3)
+        ]
+
+        # check that it makes sure that "original" can never be opened in a new window
+        config.file_repository["viewer_options"] = {
+            "accessible_files": {
+                "*": {
+                    "download_resolutions": ["original", "master"],
+                    "open_resolutions": ["master"]
+                }
+            }}
+        labels_and_ids = KioskRepresentations.get_viewer_representations("pdf", config)
+        assert labels_and_ids == [
+            ('original file', 'original', 1),
+            ('4000x2000 pixel', 'master', 3),
+            ('medium thumbnail', 'medium', 0),
+            ('small thumbnail', 'small', 0)
+        ]
+
+        # check that it makes sure that "original" can never be opened in a new window
+        config.file_repository["viewer_options"] = {
+            "accessible_files": {
+                "*": {
+                    "download_resolutions": ["original", "master"],
+                    "open_resolutions": ["master"]
+                },
+                "svg": {
+                    "download_resolutions": ["original"],
+                    "open_resolutions": ["original"]
+                },
+
+            }}
+        labels_and_ids = KioskRepresentations.get_viewer_representations("svg", config)
+        assert labels_and_ids == [
+            ('original file', 'original', 3),
+            ('4000x2000 pixel', 'master', 0),
+            ('medium thumbnail', 'medium', 0),
+            ('small thumbnail', 'small', 0)
         ]
 
     def test_representations(self, config):

@@ -92,6 +92,7 @@ def repository_fetch_image(uuid, force_reload):
                             force_reload=bool(force_reload)))
 
 
+@filerepository.route('/fetch/<path:file_uuid>', defaults={'resolution': ''})
 @filerepository.route('/fetch/<path:file_uuid>/<string:resolution>')
 @full_login_required
 def fetch_repository_file(file_uuid, resolution):
@@ -128,14 +129,17 @@ def fetch_repository_file(file_uuid, resolution):
 
         if filename and ctx_file.file_exists():
 
-            # representation_type = KioskRepresentationType(resolution)
-            representation_type = KioskRepresentations.instantiate_representation_from_config(resolution)
-            if search_params.get("ct"):
-                thumbnail_file = ctx_file.get(representation_type, create=True)
-                if not thumbnail_file:
-                    raise Exception(f"'Could not create representation '{representation_type}' for file '{file_uuid}'")
+            if resolution:
+                # representation_type = KioskRepresentationType(resolution)
+                representation_type = KioskRepresentations.instantiate_representation_from_config(resolution)
+                if search_params.get("ct"):
+                    thumbnail_file = ctx_file.get(representation_type, create=True)
+                    if not thumbnail_file:
+                        raise Exception(f"'Could not create representation '{representation_type}' for file '{file_uuid}'")
+                else:
+                    thumbnail_file = ctx_file.get(representation_type)
             else:
-                thumbnail_file = ctx_file.get(representation_type)
+                thumbnail_file = filename
 
             if thumbnail_file and kioskstdlib.get_file_size(thumbnail_file) > 0:
                 response = make_response(send_from_directory(kioskstdlib.get_file_path(thumbnail_file),
@@ -573,11 +577,17 @@ def filerepository_editpartial(uuid):
             except BaseException as e:
                 pass
 
-        representations = KioskRepresentations.get_representation_labels_and_ids(cfg)
+        representations = KioskRepresentations.get_viewer_representations(file_extension, cfg)
         fullscreen_representation_id = cfg.file_repository["fullscreen_representation"]
         print("\n*************** now rendering".format(uuid))
         print(f"[{img.get_indirect_contexts()}]")
         read_only_mode = search_params.get("readonly")
+        resolution_open_in_new_tab = ""
+        try:
+            resolution_open_in_new_tab = representations[0][1] if representations[0][2] > 1 else ""
+        except BaseException as e:
+            logging.error(f"filerepositorycontroller.filerepository_editdialog: Error determining "
+                          f"resolution_open_in_new_tab ({repr(e)})")
 
         return render_template('editpartial.html',
                                title="edit file" if "modify data" in authorized_to else "view file",
@@ -588,6 +598,7 @@ def filerepository_editpartial(uuid):
                                recorded_description=recorded_description,
                                file_extension=file_extension,
                                file_size=file_size,
+                               resolution_open_in_new_tab=resolution_open_in_new_tab,
                                representations=representations,
                                created_latin=created_latin,
                                read_only_mode=read_only_mode,

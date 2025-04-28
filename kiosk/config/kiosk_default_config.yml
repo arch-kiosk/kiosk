@@ -80,6 +80,10 @@ config:
 
 file_repository:
   cache: '%file_repository%\cache'
+  auto_representations: [ 'medium', 'small' ]
+  thumbnails: [ 'small', 'medium' ]
+  fullscreen_representation: 'master'
+
   recording_context_aliases:
     locus_photo: "context"
     dayplan: "trench/area"
@@ -128,9 +132,17 @@ file_repository:
       format_request: "default"
       dimensions: "1024,768"
 
-  auto_representations: [ 'medium', 'small' ]
-  thumbnails: [ 'small', 'medium' ]
-  fullscreen_representation: 'master'
+  viewer_options:
+    accessible_files:
+      "*":
+        download_resolutions: ["original", "master", "8K", "1024x768JPEG"]
+        open_resolutions:  ["master", "8K", "1024x768JPEG"]
+      "pdf":
+        download_resolutions: ["original", "master"]
+        open_resolutions:  ["original"]
+      "svg":
+        download_resolutions: ["original"]
+        open_resolutions:  ["original"]
 
   standard_format_requests:
     default:
@@ -408,6 +420,9 @@ kiosk:
     csv:
       columns: ["point_name", "latitude", "longitude", "elevation"]
       skip_lines: 1
+
+  kioskfacadeplugin:
+    active: false
 
   logviewerplugin:
     active: true

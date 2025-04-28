@@ -942,6 +942,14 @@ function stop_download_spinner() {
     $("#image-spinner").hide();
 }
 
+function openInNewTab(uuid, representationId="") {
+    if (representationId === "" || representationId === "original") representationId = "ct"
+    let url = new URL("/filerepository/fetch/" + uuid, window.location.origin)
+    url.searchParams.append(representationId, true)
+    console.log(`fetching ${url.toString()}`)
+    window.open(url.toString(), "_blank");
+}
+
 function onEFDownloadImage(event) {
     closeMenu("#download-menu-contents", $("#download-menu"));
     let uuid = $("#uid").text();
@@ -964,10 +972,7 @@ function onEFDownloadImage(event) {
     }
 
     if (openInTab) {
-        let url = new URL("/filerepository/fetch/" + uuid, window.location.origin)
-        url.searchParams.append("ct", true)
-        console.log(`fetching ${url.toString()}`)
-        window.open(url.toString(), "_blank");
+        this.openInNewTab(uuid, "original")
     } else {
         start_download_spinner();
         $(".download-msg").remove();
@@ -1153,18 +1158,31 @@ function frInitFileViewer(apiContext) {
     console.log("FileViewerController initialized")
 }
 
+function onOpenInNewTabClick(e) {
+    closeMenu("#download-menu-contents", $("#download-menu"));
+    let uuid = $("#uid").text();
+    openInNewTab(uuid)
+}
+
 function onEditImage(evt) {
     if (document.hasOwnProperty("fileViewerController")) {
         let img = $(evt.currentTarget);
         let clickedUuid = img.attr("uid");
         const fwc = document.fileViewerController
+        const elOpenInNewTab= document.getElementById("open-image-in-new-tab")
+        const elOpenInNewTabText= document.getElementById("open-in-new-tab-text")
+        elOpenInNewTab.style.display = 'none'
         fwc.opened = (e) => {
             showRainbowProgress(false)
             if (e?.result) {
                 document.getElementById("broken-image").style.display = "none"
+                elOpenInNewTab.style.display = elOpenInNewTabText.innerText === '' ? 'none' : 'block'
             } else {
                 document.getElementById("broken-image").style.display = "grid"
             }
+            document.querySelectorAll(".fr-click-to-open-tab").forEach(el => {
+                el.addEventListener("click", this.onOpenInNewTabClick.bind(this), {})
+            })
         }
         fwc.beforeOpen = () => {
             showRainbowProgress(true)

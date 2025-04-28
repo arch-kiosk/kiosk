@@ -18,16 +18,30 @@
                                 <div class="dropdown">
                                     <div class="dropdown-content" id="download-menu-contents">
                                         <div class="download-grid">
-                                            <div id="download-raw" class="ef-download ef-file-download">
-                                                download original file ({{ file_size }})</div>
-                                            <div class="ef-file-download"><i class="fas fa-circle-down"></i></div>
-                                            <div><!--<i class="fas fa-frown"></i>--></div>
+{#                                            <div class="ef-file-download"><i class="fas fa-circle-down"></i></div>#}
+{#                                            <div><!--<i class="fas fa-frown"></i>--></div>#}
                                             {% for representation in representations %}
-                                                <div class="ef-download ef-file-download" data-representation-id="{{ representation[1] }}">
-                                                    {{ representation[0] }}
-                                                </div>
-                                                <div class="ef-file-download"><i class="fas fa-circle-down"></i></div>
-                                                <div class="ef-tab-download"><i class="fas fa-square-up-right"></i></div>
+                                                {%  if representation[2] > 0 %}
+                                                    {%  if representation[1] == "original" %}
+                                                        <div id="download-raw" class="ef-download ef-file-download">
+                                                            download original file ({{ file_size }})
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="ef-download ef-file-download" data-representation-id="{{ representation[1] }}">
+                                                            {{ representation[0] }}
+                                                        </div>
+                                                    {% endif %}
+                                                    {%  if representation[2] == 1 or representation[2] == 3 %}
+                                                        <div class="ef-file-download"><i class="fas fa-circle-down"></i></div>
+                                                    {% else %}
+                                                        <div></div>
+                                                    {% endif %}
+                                                    {%  if representation[2] > 1 %}
+                                                        <div class="ef-tab-download"><i class="fas fa-square-up-right"></i></div>
+                                                    {% else %}
+                                                        <div></div>
+                                                    {% endif %}
+                                                {% endif %}
                                             {% endfor %}
                                         </div>
                                     </div>
@@ -156,7 +170,8 @@
                         </form>
                     </div>
                 </div>
-                <div id="ef-file-info" data-file-type="{{ file_extension }}" data-file-size="{{ file_size }}">
+                <div id="ef-file-info" data-file-type="{{ file_extension }}" data-file-size="{{ file_size }}"
+                    {% if resolution_open_in_new_tab %} data-open-in-new-tab="{{ resolution_open_in_new_tab }}"{% endif %}>
                     <div>uuid: <span id="uid">{{ img.get_value('uid') }}</span></div>
 
                     {% if img.get_arch_identifier() %}

@@ -107,16 +107,25 @@ class FileViewerController {
     _analyzeFileInfo() {
         const elFileInfo = document.getElementById("ef-file-info")
         const elBrokenImageText = document.getElementById("broken-image-text")
+        const elOpenInNewTabText= document.getElementById("open-in-new-tab-text")
+        elOpenInNewTabText.innerText = ""
+
         if (elFileInfo) {
             const fileType = elFileInfo.dataset.fileType
+            const newTabRes = elFileInfo.dataset.openInNewTab??""
             if (fileType) {
-                if (fileType === "svg" || fileType === "pdf" || fileType === "mov") {
+                if (fileType === "svg" || fileType === "pdf" || fileType === "mov" || fileType.startsWith("mp")) {
                     // elBrokenImageText.style.display = "block"
-                    elBrokenImageText.innerText = `Sorry, this file type (${fileType.toUpperCase()}) is not supported by the current viewer. 
-Please use the download button and download the file into a new tab.`
+                    elBrokenImageText.innerHTML = `Sorry, this file type (${fileType.toUpperCase()}) is not supported by the current viewer or it has no visual representation.` +
+                        (newTabRes ? "": "<br/>Please use the download button and download the file into a new browser tab.!")
+
                 } else {
                     elBrokenImageText.innerText = `Sorry, the file is either broken or missing or the file type (${fileType.toUpperCase()}) has no visual representation.`
                     // elBrokenImageText.style.display = "none"
+                }
+                if (newTabRes) {
+                    elBrokenImageText.innerHTML += '<br/><span class="fr-click-to-open-tab">Click here to download the original file into a new browser tab</span>'
+                    elOpenInNewTabText.innerHTML = '<span class="fr-click-to-open-tab">Click here to open the original file in a new browser tab.</span>'
                 }
             }
         }
