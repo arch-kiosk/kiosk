@@ -1,7 +1,9 @@
 <html>
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}?v=1"/>
+  <meta name="robots" content="noindex">
+
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}?v=1"/>
   {% if not is_emergency_state %}
     <link rel=stylesheet type=text/css href="{{ url_for('custom_file', filename="css/" + project_id + '.css') }}"/>
   {% endif %}
