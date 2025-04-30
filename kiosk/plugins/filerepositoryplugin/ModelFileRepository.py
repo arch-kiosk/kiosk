@@ -430,10 +430,24 @@ class ModelFileRepository:
             # print(o)
 
             if o == "tags" and self.filter_options["filter_values"][o]:
-                tags = reduce((lambda tags, tag: tags + "|" + tag.lower()),
-                              self.filter_options["filter_values"][o].split(","))
-                where_part = "substring(tags from %s) <> ''"
-                param = tags
+                search_words : list[str] = self.filter_options["filter_values"][o].lower().split(",")
+                negatives = [x[0:-1] for x in search_words if x.endswith("-")]
+                positives = [x[1:-1] if x.startswith("\"") and x.endswith("\"") else x for x in search_words if not x.endswith("-")]
+
+                pos_tags = reduce((lambda tags, tag: tags + "|" + tag.lower()),
+                              positives) if positives else ""
+                neg_tags = reduce((lambda tags, tag: tags + "|" + tag.lower()),
+                              negatives) if negatives else ""
+                where_part = ""
+                if pos_tags:
+                    where_part = "coalesce(substring(lower(tags) from %s),'') <> ''"
+                    param = pos_tags
+                if neg_tags:
+                    where_part = (f"{where_part} and " if where_part else "") + "coalesce(substring(lower(tags) from %s),'') = ''"
+                    if param:
+                        param2 = neg_tags
+                    else:
+                        param = neg_tags
             elif o in ["context"]:
                 if self.filter_options["filter_values"]["no_context"]:
                     where_part = f" {file_identifier_cache_table_name}.\"data\" is null "
