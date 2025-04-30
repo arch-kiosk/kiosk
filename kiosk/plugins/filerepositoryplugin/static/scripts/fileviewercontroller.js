@@ -1,4 +1,21 @@
 
+/*tools */
+function fvOpenInNewTab(uuid, representationId="") {
+    if (representationId === "" || representationId === "original") representationId = "ct"
+    let url = new URL("/filerepository/fetch/" + uuid, window.location.origin)
+    url.searchParams.append(representationId, true)
+    console.log(`fetching ${url.toString()}`)
+    window.open(url.toString(), "_blank");
+}
+
+function fvOnOpenInNewTabClick(e) {
+    closeMenu("#download-menu-contents", $("#download-menu"));
+    let uuid = $("#uid").text();
+    fvOpenInNewTab(uuid)
+}
+
+
+/* FileViewerController Class */
 class FileViewerController {
     files = []  //object with uuid, width, height
     initialIndex = 0
@@ -129,6 +146,9 @@ class FileViewerController {
                 }
             }
         }
+        document.querySelectorAll(".fr-click-to-open-tab").forEach(el => {
+            el.addEventListener("click", fvOnOpenInNewTabClick)
+        })
     }
 
     reloadData() {
