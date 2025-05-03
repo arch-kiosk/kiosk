@@ -2,6 +2,8 @@
 import logging
 from typing import Union, Callable
 
+import psycopg2
+
 import kioskrepllib
 import kioskstdlib
 from dsd.dsd3 import DataSetDefinition
@@ -224,6 +226,7 @@ class Dock:
             return False
 
         if not self._exists:
+            self.try_delete()
             rc = self._create()
             if rc:
                 kioskrepllib.log_repl_event("dock create", "CREATED", self._id, commit=True)
@@ -569,8 +572,8 @@ class Dock:
             Does not commit the database changes by default unless commit is set to True.
             Subclasses shoud not override this one but _on_delete_workstation instead.
 
-            :param commit: if set to True the changes will be committed automatically. That includes
-                           rolling back pending changes of the ongoing transaction!
+            :param commit: if set to True the changes will be committed automatically.
+                           !note!: That includes rolling back pending changes of the ongoing transaction!
 
             :returns true/false
 
@@ -580,60 +583,133 @@ class Dock:
         """
         if not self.exists():
             return True
-        rc = False
 
         try:
             if commit:
                 KioskSQLDb.rollback()
         finally:
             pass
+        return self._delete(commit)
 
+    def try_delete(self, commit=False):
+        """
+            Tries to delete potential fragments of a workstation.
+            Does not commit the database changes by default unless commit is set to True.
+            Subclasses should not override this one but _on_delete_workstation instead.
+
+            :param commit: if set to True the changes will be committed automatically.
+
+            :returns true/false
+
+
+        """
+        return self._delete(commit=commit, fail_on_exception=False)
+
+    def _delete(self, commit=False, fail_on_exception=True):
+        """
+            Deletes a workstation and all of its contents from the database.
+            Does not commit the database changes by default unless commit is set to True.
+            Subclasses should not override this one but _on_delete_workstation instead.
+
+            :param commit: if set to True the changes will be committed automatically in the end.
+            :param fail_on_exception: set this to False if you want this to keep going even if errors occur.
+            :returns true/false
+
+
+        """
         workstation_dsd = self._get_workstation_dsd()
 
         cur = None
+        rc = False
         try:
-            cur = KioskSQLDb.get_cursor()
             tables = self._get_tables_to_delete(workstation_dsd)
 
             migration = PostgresDbMigration(workstation_dsd, KioskSQLDb.get_con())
             for table in tables:
                 logging.debug("deleting %s" % (self._id + "_" + table))
-                migration.drop_table(self._id + "_" + table, namespace=self._db_namespace)
+                sp = KioskSQLDb.begin_savepoint()
+                try:
+                    migration.drop_table(self._id + "_" + table, namespace=self._db_namespace)
+                    KioskSQLDb.commit_savepoint(sp)
+                except BaseException as e:
+                    KioskSQLDb.rollback_savepoint(sp)
+                    logging.error(f"{self.__class__.__name__}._delete: Exception dropping table "
+                                  f"{self._id + '_' + table}: {repr(e)}")
+                    if fail_on_exception:
+                        raise e
 
             try:
-                cur.execute("delete from migration_catalog where namespace=%s", [self._id])
+                KioskSQLDb.execute_with_savepoint("delete from migration_catalog where namespace=%s", [self._id])
             except BaseException as e:
                 logging.error(f"{self.__class__.__name__}.delete: Error deleting {self._id} "
                               f"from migration catalog: {repr(e)}")
+                if fail_on_exception:
+                    raise e
 
-            logging.debug("removing record in repl_workstation for " + self._id)
-            cur.execute("delete from repl_workstation where id=%s", [self._id])
+            try:
+                logging.debug("removing record in repl_workstation for " + self._id)
+                KioskSQLDb.execute_with_savepoint("delete from repl_workstation where id=%s", [self._id])
+            except BaseException as e:
+                logging.error(f"{self.__class__.__name__}.delete: Error deleting {self._id} "
+                              f"from repl_workstation: {repr(e)}")
+                if fail_on_exception:
+                    raise e
 
-            logging.debug("removing record in kiosk_workstation for " + self._id)
-            cur.execute("delete from kiosk_workstation where id=%s", [self._id])
+            try:
+                logging.debug("removing record in kiosk_workstation for " + self._id)
+                KioskSQLDb.execute_with_savepoint("delete from kiosk_workstation where id=%s", [self._id])
+            except BaseException as e:
+                logging.error(f"{self.__class__.__name__}.delete: Error deleting {self._id} "
+                              f"from kiosk_workstation: {repr(e)}")
+                if fail_on_exception:
+                    raise e
 
-            self._on_delete_workstation(cur, migration)
+            cur = KioskSQLDb.get_cursor()
+
+            sp = KioskSQLDb.begin_savepoint()
+            try:
+                self._on_delete_workstation(cur, migration)
+                KioskSQLDb.commit_savepoint(sp)
+            except BaseException as e:
+                logging.error(f"{self.__class__.__name__}._delete: Error deleting {self._id} "
+                              f"from kiosk_workstation: {repr(e)}")
+                KioskSQLDb.rollback_savepoint(sp)
+                if fail_on_exception:
+                    raise e
+
             if self._db_namespace:
-                cur.execute(f"DROP SCHEMA IF EXISTS {KioskSQLDb.sql_safe_ident(self._db_namespace)} CASCADE;")
+                try:
+                    KioskSQLDb.execute_with_savepoint(f"DROP SCHEMA IF EXISTS"
+                                                      f" {KioskSQLDb.sql_safe_ident(self._db_namespace)} CASCADE;")
+                except BaseException as e:
+                    logging.error(f"{self.__class__.__name__}._delete: Error when dropping SCHEMA "
+                                  f"{KioskSQLDb.sql_safe_ident(self._db_namespace)}: {repr(e)}")
+                    if fail_on_exception:
+                        raise e
+
             if commit:
                 KioskSQLDb.commit()
                 logging.debug("deletion of " + self._id + " committed.")
-            kioskrepllib.log_repl_event("synchronization", "synchronization aftermath FAILED",
-                                        "", commit=commit)
+
             rc = True
         except Exception as e:
-            logging.error("Exception in RecordingWorkstation.delete: " + self._id + ": " + repr(e))
+            logging.error("Exception in Workstation.delete: " + self._id + ": " + repr(e))
             try:
-                KioskSQLDb.rollback()
-                logging.info("->Rolled back workstation " + self._id)
+                if commit:
+                    KioskSQLDb.rollback()
+                    logging.info(f"{self.__class__.__name__}._delete: "
+                                 f"Rolled back after failed deleting workstation " + self._id)
             except:
-                logging.error("Exception in RecordingWorkstation.delete during rollback: " + self._id)
+                logging.error(f"{self.__class__.__name__}._delete: "
+                              f"Exception in Workstation.delete during rollback: " + self._id)
         try:
-            cur.close()
+            if cur:
+                cur.close()
         except:
             pass
 
         return rc
+
 
     def partakes_in_synchronization(self):
         """

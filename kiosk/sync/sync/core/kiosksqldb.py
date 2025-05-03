@@ -384,6 +384,43 @@ class KioskSQLDb(SqlSafeIdentMixin):
             cur.close()
 
     @classmethod
+    def execute_with_savepoint(cls, sql, parameters=None):
+        """
+        executes an sql statement and returns the number of affected rows.
+        The execute sql is embedded in its own sub-transaction. It will commit that sub-transaction on success
+        or otherwise roll it back without touching the higher-level transaction.
+        Only commits the savepoint but not the higher-level transaction.
+
+        :param sql: the sql statement
+        :param parameters: list with parameters (matching the %s occurrences in the statement)
+        :return: number of affected rows
+        :exception: throws exceptions in case of an error
+        """
+        rc = None
+        sp = ""
+        cur = cls.get_cursor()
+        if not cur:
+            raise Exception("Cannot get a cursor. Database not properly initiated.")
+
+        try:
+            sp = cls.begin_savepoint()
+            cur.execute(sql, parameters)
+            rc = cur.rowcount
+            cls.commit_savepoint(sp)
+            return rc
+        except BaseException as e:
+            logging.debug(f"{cls.__name__}.execute_with_savepoint: sql failed: {repr(e)}. sql was {sql}.")
+            logging.debug(f"{cls.__name__}.execute_with_savepoint: query was: {cur.query}")
+            if sp:
+                try:
+                    cls.rollback_savepoint(sp)
+                except BaseException as e2:
+                    logging.debug(f"{cls.__name__}.execute_with_savepoint: can't roll back {sp}: {repr(e2)}")
+            raise e
+        finally:
+            cur.close()
+
+    @classmethod
     def extended_execute(cls, sql, parameters=None, auto_commit=True):
         """ returns the number of effected rows, an exception's message and the errorneous sql statement """
         rc = None
