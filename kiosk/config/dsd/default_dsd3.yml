@@ -2019,7 +2019,7 @@ constants:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created(), default('now()')]
       modified: [datatype(TIMESTAMP), replfield_modified(), default('now()')]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('null')]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
     4:
       id: [datatype(VARCHAR)]
       value: [datatype(VARCHAR)]
@@ -2100,7 +2100,7 @@ archival_entity:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+      modified_by: [datatype(VARCHAR), replfield_modified_by()]
 
 archival_entity_activity:
   structure:
@@ -2112,7 +2112,7 @@ archival_entity_activity:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+      modified_by: [datatype(VARCHAR), replfield_modified_by()]
 
 archival_entity_file:
   structure:
@@ -2122,7 +2122,7 @@ archival_entity_file:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+      modified_by: [datatype(VARCHAR), replfield_modified_by()]
 
 archival_entity_units:
   structure:
@@ -2132,7 +2132,7 @@ archival_entity_units:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+      modified_by: [datatype(VARCHAR), replfield_modified_by()]
     2:
       uid_archival_entity: [datatype(UUID), join(archival_entity)]
       uid_unit: [datatype(UUID), "lookup('unit', 'uid')", label("#($/constants/labels/label_for_unit_on_start_page)")]
@@ -2140,14 +2140,14 @@ archival_entity_units:
       some_description: [datatype(varchar)]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+      modified_by: [datatype(VARCHAR), replfield_modified_by()]
     1:
       uid_archival_entity: [datatype(UUID), join(archival_entity)]
       uid_unit: [datatype(UUID), "lookup('unit', 'uid')", label("#($/constants/labels/label_for_unit_on_start_page)")]
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+      modified_by: [datatype(VARCHAR), replfield_modified_by()]
 
   migration:
     3:

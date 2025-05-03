@@ -60,14 +60,27 @@ class KioskDatabaseIntegrity:
                                             sql += " where " + f"\"{f}\"" + " is null"
                                             cur.execute(sql)
                                         else:
-                                            sql += f"\"{f}\"" + "=%s"
-                                            values = [sql_value]
-                                            if modified_field and f == modified_field:
-                                                sql += f",\"{f}_ww\"" + f"={sql_value}"
-                                                sql += f",\"{f}_tz\"" + f"=0 "
-                                                values.append(sql_value)
-                                            sql += " where " + f"\"{f}\"" + " is null"
-                                            cur.execute(sql, values)
+                                            if sql_value.lower() == "null" and data_type=="varchar":
+                                                # this is correcting varchar fields that have the string "null"
+                                                sql += f"\"{f}\"" + "=null"
+                                                values = []
+                                                if modified_field and f == modified_field:
+                                                    sql += f",\"{f}_ww\"" + f"={sql_value}"
+                                                    sql += f",\"{f}_tz\"" + f"=0 "
+                                                    values.append(sql_value)
+                                                sql += " where " + f"\"{f}\"" + " ilike 'null'"
+                                                cur.execute(sql, values)
+                                            else:
+                                                sql += f"\"{f}\"" + "=%s"
+                                                if sql_value.lower() == "null":
+                                                    sql_value = None
+                                                values = [sql_value]
+                                                if modified_field and f == modified_field:
+                                                    sql += f",\"{f}_ww\"" + f"={sql_value}"
+                                                    sql += f",\"{f}_tz\"" + f"=0 "
+                                                    values.append(sql_value)
+                                                sql += " where " + f"\"{f}\"" + " is null"
+                                                cur.execute(sql, values)
                                         if cur.rowcount:
                                             log_lines+=1
                                             if log_lines == 50:

@@ -55,6 +55,7 @@ test_types:
       typ7: [identifier()]
       typ8: [identifier("additional")]
       typ9: [identifier("error")]
+      typ10: [nulltype(null)]
 
 
 migration_catalog:

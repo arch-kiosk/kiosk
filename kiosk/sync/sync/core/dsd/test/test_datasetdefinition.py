@@ -681,6 +681,10 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert v == "REPLFIELD_UUID"
         assert t == "other"
 
+        v, t = dsd.get_instruction_parameters_and_types("test_types", "typ10", "nulltype")[0]
+        assert v == "null"
+        assert t == "other"
+
     def test_get_import_filter(self, dsd_constants):
         dsd: DataSetDefinition = dsd_constants
         assert dsd.get_import_filter("constants", "fm12") == '("sync" is null) or ("sync"=1)'
