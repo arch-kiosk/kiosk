@@ -74,6 +74,7 @@ DEFAULT_PRIVILEGES = {
                  FILE_EXPORT_PRIVILEGE]
 }
 
+
 def full_login_required(func):
     """
     If you decorate a view with this, it will ensure that the current user is
@@ -164,9 +165,12 @@ def get_local_authorization_strings(local_privilege_dict: dict, param_user: Kios
         if hasattr(user, "fulfills_requirement"):  # repr(user).startswith("<kioskuser.KioskUser"):
             return [value for key, value in local_privilege_dict.items() if user.fulfills_requirement(key)]
         else:
-            logging.error(f"get_local_authorization_strings: current_user is not of type KioskUser but of "
-                          f"type {user.__class__}")
-            raise Exception(f"get_local_authorization_strings: user is not of type KioskUser: {user}")
+            if "AnonymousUserMixin" in user.__class__:
+                raise Exception(f"get_local_authorization_strings: user is not logged in.")
+            else:
+                logging.warning(f"get_local_authorization_strings: current_user is not of type KioskUser but of "
+                                f"type {user.__class__}")
+                raise Exception(f"get_local_authorization_strings: user is not of type KioskUser: {user}")
     else:
         logging.error(f"get_local_authorization_strings: no current_user. ")
         raise Exception(f"get_local_authorization_strings: no current_user. user is {user}")

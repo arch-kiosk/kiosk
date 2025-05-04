@@ -177,7 +177,7 @@ class KioskAppFactory(AppFactory):
             ch.setFormatter(formatter)
             logger.addHandler(ch)
 
-            logging.info("--------------- Starting new log %s ------------ \n" % log_file)
+            logging.debug("--------------- Starting new log %s ------------ \n" % log_file)
 
     @classmethod
     def close_all_file_loggers(cls, logger):
@@ -616,7 +616,7 @@ class KioskAppFactory(AppFactory):
                     gs_init_counter = 0
 
                 if gs_init_counter != kioskglobals.init_counter:
-                    logging.info(f"refreshing globals. gs_init_counter is {gs_init_counter}")
+                    logging.debug(f"refreshing globals. gs_init_counter is {gs_init_counter}")
                     cls.kiosk_refresh_globals()
                     kioskglobals.init_counter = gs_init_counter
         except BaseException as e:
@@ -931,7 +931,7 @@ class KioskAppFactory(AppFactory):
                     logging.error(f"kioskappfactory.migrate: _lock NOT released for thread {current_thread().ident}:"
                                   f"{repr(e)}")
         else:
-            logging.error(f"kioskappfactory.migrate: _lock NOT acquired for thread {current_thread().ident}")
+            logging.warning(f"kioskappfactory.migrate: _lock NOT acquired for thread {current_thread().ident}")
 
         return False
 

@@ -244,7 +244,7 @@ class RecordingWorkstation(Dock):
             sql_select += ';'
             try:
                 cur.execute(sql_insert + sql_select)
-                logging.info("\n " + str(cur.rowcount) + " lines copied from " + src_table + " to " + dst_table)
+                logging.info(str(cur.rowcount) + " lines copied from " + src_table + " to " + dst_table)
                 return True
             except Exception as e:
                 logging.error("Exception in _replace_table_data for table " + dst_table + " in sql-statement %s: %s" % (

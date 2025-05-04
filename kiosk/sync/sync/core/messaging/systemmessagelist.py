@@ -220,7 +220,7 @@ class SystemMessageList(object):
                 msg.delete(trigger_update=trigger_update)
                 self.trigger_change(lock=False)
             except BaseException as e:
-                logging.error(f"{self.__class__.__name__}.delete_message: {repr(e)}")
+                logging.debug(f"{self.__class__.__name__}.delete_message: {repr(e)}")
                 raise e
 
         # ****************************************************
@@ -263,7 +263,7 @@ class SystemMessageList(object):
                 raise ErrorSystemMessageDeleted(f"Message {msg.uid} was deleted.")
             return msg
         except BaseException as e:
-            logging.error(f"{self.__class__.__name__}._get_message: {repr(e)}")
+            logging.debug(f"{self.__class__.__name__}._get_message: {repr(e)}")
             raise e
 
     def get_messages(self, up_to_severity=MSG_SEVERITY_INFO, filter_func: callable = None) -> SystemMessages:

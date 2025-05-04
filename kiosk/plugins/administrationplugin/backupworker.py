@@ -97,13 +97,13 @@ class BackupJob:
                     try:
                         kioskglobals.system_messages.delete_message(SYS_MSG_ID_BACKUP_REMINDER)
                     except BaseException as e:
-                        logging.warning(f"{self.__class__.__name__}.worker (not critical): "
+                        logging.debug(f"{self.__class__.__name__}.worker (not critical): "
                                         f"When deleting the backup reminder message: "
                                         f"{repr(e)}")
                     try:
                         BackupReminder.set_backup_datetime(cfg)
                     except BaseException as e:
-                        logging.error(f"{self.__class__.__name__}.worker (not critical): "
+                        logging.debug(f"{self.__class__.__name__}.worker (not critical): "
                                       f"When setting the last backup time: "
                                       f"{repr(e)}")
                     logging.info(f"backup job {self.job.job_id}: Backup successfully finished.")

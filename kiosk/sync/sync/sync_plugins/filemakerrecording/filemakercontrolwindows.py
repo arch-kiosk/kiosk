@@ -656,7 +656,7 @@ class FileMakerControlWindows(FileMakerControl):
                 row = db_cur.fetchone()
 
 
-            logging.info(f"About to commit {str(r_count - 1)} lines in {dest_tablename}")
+            logging.debug(f"About to commit {str(r_count - 1)} lines in {dest_tablename}")
             self.cnxn.commit()
             logging.info(f"Copied {str(r_count - 1)} lines from {tablename} to filemaker: {dest_tablename}")
             logging.debug(f"sum_time is {sum_time}. max_time_elapsed is {max_time_elapsed}. "
@@ -664,7 +664,7 @@ class FileMakerControlWindows(FileMakerControl):
             logging.debug(f"{self.__class__.__name__}.transfer_table_data_to_filemaker: "
                          f"Converted {str(c_ts_to_u)} of {str(c_ts_values)} timestamps "
                          f"to user time zone {current_tz.user_tz_iana_name}")
-            logging.info(f"{self.__class__.__name__}.transfer_table_data_to_filemaker: "
+            logging.debug(f"{self.__class__.__name__}.transfer_table_data_to_filemaker: "
                          f"Converted {str(c_ts_to_tz)} of {str(c_ts_values)} timestamptz fields "
                          f"to the recorded time zone. Using timestamptz fields is rather experimental.")
 

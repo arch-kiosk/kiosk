@@ -619,8 +619,8 @@ def upload_file(ws_id):
 
                         filename = secure_filename(file.filename)
                         if filename.lower() != kioskglobals.cfg.filemaker_db_filename.lower():
-                            s = f"The file {filename} did not have the expected filename " \
-                                f"{kioskglobals.cfg.filemaker_db_filename}. The file " \
+                            s = f"The file \"{filename}\" did not have the expected filename " \
+                                f"\"{kioskglobals.cfg.filemaker_db_filename}\". The file " \
                                 f"has been uploaded but please make sure that it was the right one!"
                             result.add_log_line(s)
                             logging.warning(s)
