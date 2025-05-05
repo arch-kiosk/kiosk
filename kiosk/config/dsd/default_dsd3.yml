@@ -65,7 +65,7 @@ collected_material:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     7:
       uid_locus: [datatype(UUID), join("locus")]
       external_id: [datatype(VARCHAR), identifier("additional")]
@@ -98,7 +98,7 @@ collected_material:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     6:
       uid_locus: [datatype(UUID), join("locus")]
       external_id: [datatype(VARCHAR), identifier("additional")]
@@ -130,7 +130,7 @@ collected_material:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     5:
       uid_locus: [datatype(UUID), join("locus")]
       external_id: [datatype(VARCHAR), identifier("additional")]
@@ -158,7 +158,7 @@ collected_material:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     4:
       uid_locus: [datatype(UUID), join("locus")]
       external_id: [datatype(VARCHAR), identifier("additional")]
@@ -184,7 +184,7 @@ collected_material:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     3:
       uid_locus: [datatype(UUID), join("locus")]
       external_id: [datatype(VARCHAR), identifier("additional")]
@@ -209,7 +209,7 @@ collected_material:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     2:
       uid_locus: [datatype(UUID), join("locus")]
       external_id: [datatype(VARCHAR), identifier("additional")]
@@ -297,7 +297,7 @@ collected_material_photo:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     1:
       uid_cm: [datatype(UUID), join("collected_material")]
       uid_photo: [datatype(UUID), uid_file(), file_location_for("collected_material")]
@@ -325,7 +325,7 @@ collected_material_types:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
 
 dayplan:
   structure:
@@ -336,7 +336,7 @@ dayplan:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     3:
       uid_unit: [datatype(UUID), join("unit")]
       image_description: [datatype(VARCHAR), describes_file(uid_image)]
@@ -383,7 +383,7 @@ excavator:
       uid: [datatype(UUID), replfield_uuid(), default(gen_random_uuid())]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     2:
       id: [datatype(VARCHAR)]
       name: [datatype(VARCHAR)]
@@ -423,7 +423,7 @@ feature_unit:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     2:
       uid_unit: [datatype(UUID), join("unit")]
       feature_type: [datatype(VARCHAR)]
@@ -473,7 +473,7 @@ images:
       uid: [datatype(UUID), replfield_uuid(), file_for(img_proxy)]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     3:
       description: [datatype(VARCHAR), describes_file(uid)]
       img_proxy : [datatype(TIMESTAMP), proxy_for(uid)]
@@ -487,7 +487,7 @@ images:
       uid: [datatype(UUID), replfield_uuid(), file_for(img_proxy)]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     2:
       description: [datatype(VARCHAR), describes_file(uid)]
       img_proxy : [datatype(TIMESTAMP), proxy_for(uid)]
@@ -552,7 +552,7 @@ coordinates:
       uid: [datatype(UUID), replfield_uuid(), default(gen_random_uuid())]
       created: [datatype(TIMESTAMP), replfield_created(), default(now())]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
 
 coordinate_photo:
   structure:
@@ -563,7 +563,7 @@ coordinate_photo:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
 
 coordinate_categories:
   structure:
@@ -574,7 +574,7 @@ coordinate_categories:
       uid: [datatype(UUID), replfield_uuid(), default(gen_random_uuid())]
       created: [datatype(TIMESTAMP), replfield_created(), default(now())]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
 
 locus:
   structure:
@@ -612,7 +612,7 @@ locus:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
       recorded_by: [datatype(VARCHAR), default(null)]
 
     8:
@@ -648,8 +648,8 @@ locus:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
-      recorded_by: [datatype(VARCHAR), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
+      recorded_by: [datatype(VARCHAR), default("''")]
     7:
       uid_unit: [datatype(UUID), join("unit")]
       type: [datatype(VARCHAR), label('locus type')]
@@ -682,8 +682,8 @@ locus:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
-      recorded_by: [datatype(VARCHAR), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
+      recorded_by: [datatype(VARCHAR), default("''")]
     6:
       uid_unit: [datatype(UUID), join("unit")]
       type: [datatype(VARCHAR)]
@@ -715,8 +715,8 @@ locus:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
-      recorded_by: [datatype(VARCHAR), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
+      recorded_by: [datatype(VARCHAR), default("''")]
     5:
       uid_unit: [datatype(UUID), join("unit")]
       type: [datatype(VARCHAR)]
@@ -742,8 +742,8 @@ locus:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
-      recorded_by: [datatype(VARCHAR), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
+      recorded_by: [datatype(VARCHAR), default("''")]
     4:
       uid_unit: [datatype(UUID), join("unit")]
       type: [datatype(VARCHAR)]
@@ -761,8 +761,8 @@ locus:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
-      recorded_by: [datatype(VARCHAR), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
+      recorded_by: [datatype(VARCHAR), default("''")]
     3:
       uid_unit: [datatype(UUID), join("unit")]
       type: [datatype(VARCHAR)]
@@ -884,7 +884,7 @@ locus_architecture:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     1:
       uid_locus: [datatype(UUID), join("locus")]
       material: [datatype(VARCHAR)]
@@ -911,9 +911,9 @@ locus_burial:
       burial_type: [datatype(TEXT)]
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
-      created_by: [datatype(VARCHAR), replfield_created_by(), default(null)]
+      created_by: [datatype(VARCHAR), replfield_created_by(), default("''")]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     1:
       uid_locus: [datatype(UUID), join("locus")]
       min_number_individuals: [datatype(NUMBER)]
@@ -950,7 +950,7 @@ locus_deposit:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     3:
       uid_locus: [datatype(UUID), join("locus")]
       material: [datatype(VARCHAR)]
@@ -968,7 +968,7 @@ locus_deposit:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     2:
       uid_locus: [datatype(UUID), join("locus")]
       material: [datatype(VARCHAR)]
@@ -982,7 +982,7 @@ locus_deposit:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     1:
       uid_locus: [datatype(UUID), join("locus")]
       material: [datatype(VARCHAR)]
@@ -1023,7 +1023,7 @@ locus_othertype:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     1:
       uid_locus: [datatype(UUID), join("locus")]
       type: [datatype(VARCHAR)]
@@ -1046,7 +1046,7 @@ locus_photo:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     1:
       uid_locus: [datatype(UUID), join("locus")]
       description: [datatype(VARCHAR), describes_file(uid_image)]
@@ -1071,7 +1071,7 @@ locus_relations:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     2:
       uid_locus: [datatype(UUID), join("locus")]
       uid_locus_2_related: [datatype(UUID)]
@@ -1081,7 +1081,7 @@ locus_relations:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     1:
       uid_locus: [datatype(UUID), join("locus")]
       uid_locus_2_related: [datatype(UUID)]
@@ -1113,7 +1113,7 @@ locus_types:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     4:
       id: [datatype(VARCHAR)]
       type_name: [datatype(VARCHAR)]
@@ -1123,7 +1123,7 @@ locus_types:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     3:
       id: [datatype(VARCHAR)]
       type_name: [datatype(VARCHAR)]
@@ -1132,7 +1132,7 @@ locus_types:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     2:
       id: [datatype(VARCHAR)]
       type_name: [datatype(VARCHAR)]
@@ -1175,7 +1175,7 @@ lot:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     1:
       uid_locus: [datatype(UUID), join("locus")]
       id: [datatype(NUMBER)]
@@ -1210,7 +1210,7 @@ identification_methods:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     1:
       id: [datatype(VARCHAR)]
       display_name: [datatype(VARCHAR)]
@@ -1243,7 +1243,7 @@ identifier_lists:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     1:
       list_name: [datatype(VARCHAR)]
       partition_name: [datatype(VARCHAR)]
@@ -1270,7 +1270,7 @@ site:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     2:
       id: [datatype(VARCHAR)]
       purpose: [datatype(VARCHAR)]
@@ -1309,7 +1309,7 @@ site_notes:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     2:
       uid_site: [datatype(UUID), join("site")]
       date: [datatype(TIMESTAMP)]
@@ -1344,7 +1344,7 @@ site_note_photo:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     2:
       uid_site_note: [datatype(UUID), join("site_notes")]
       uid_image: [datatype(UUID), uid_file(), file_assigned_to("site")]
@@ -1391,7 +1391,7 @@ small_find:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     2:
       smallfindsnr: [datatype(NUMBER)]
       uid_cm: [datatype(UUID), join("collected_material")]
@@ -1413,7 +1413,7 @@ small_find:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     1:
       smallfindsnr: [datatype(NUMBER)]
       uid_cm: [datatype(UUID), join("collected_material")]
@@ -1466,7 +1466,7 @@ survey_unit:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     1:
       uid_unit: [datatype(UUID), join("unit")]
       start_datetime: [datatype(TIMESTAMP)]
@@ -1513,7 +1513,7 @@ survey_unit_data:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(Null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     1:
       uid_survey_unit: [datatype(UUID), join("survey_unit")]
       team_member_id: [datatype(VARCHAR)]
@@ -1545,7 +1545,7 @@ tags:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     2:
       tag: [datatype(VARCHAR), not_null(), identifier()]
       description: [datatype(VARCHAR)]
@@ -1583,7 +1583,7 @@ tagging:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     2:
       tag: [datatype(VARCHAR), not_null(), join("tags")]
       description: [datatype(VARCHAR)]
@@ -1626,7 +1626,7 @@ tickets:
       uid_image: [datatype(uuid), uid_file()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     1:
       account: [datatype(VARCHAR)]
       nr: [datatype(NUMBER)]
@@ -1671,7 +1671,7 @@ unit:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     5:
       id: [datatype(NUMBER), local_id("arch_context")]
       name: [datatype(VARCHAR)]
@@ -1695,7 +1695,7 @@ unit:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     4:
       id: [datatype(NUMBER), local_id("arch_context")]
       name: [datatype(VARCHAR)]
@@ -1821,7 +1821,7 @@ unit_narrative:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(TEXT), replfield_modified_by(), default(null)]
+      modified_by: [datatype(TEXT), replfield_modified_by(), default("''")]
     2:
       id_unit: [datatype(TEXT)]
       uid_unit: [datatype(UUID), join("unit")]
@@ -1858,7 +1858,7 @@ narrative_file_association:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(TEXT), replfield_modified_by(), default(null)]
+      modified_by: [datatype(TEXT), replfield_modified_by(), default("''")]
 
 unit_shop:
   meta:
@@ -1870,7 +1870,7 @@ unit_shop:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     1:
       team_member: [datatype(VARCHAR), not_null()]
       unit_id: [datatype(VARCHAR), not_null()]
@@ -1890,7 +1890,7 @@ unit_unit_relation:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(Null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     1:
       uid_src_unit: [datatype(UUID)]
       uid_dst_unit: [datatype(UUID)]
@@ -1919,7 +1919,7 @@ workflow_requests:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     1:
       locus_uid: [datatype(UUID)]
       unit_uid: [datatype(UUID)]
@@ -1952,7 +1952,7 @@ inventory:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     1:
       item_name: [datatype(VARCHAR)]
       count_available: [datatype(NUMBER)]
@@ -2019,7 +2019,7 @@ constants:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created(), default('now()')]
       modified: [datatype(TIMESTAMP), replfield_modified(), default('now()')]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     4:
       id: [datatype(VARCHAR)]
       value: [datatype(VARCHAR)]
@@ -2056,7 +2056,7 @@ constants:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     1:
       id: [datatype(VARCHAR)]
       value: [datatype(VARCHAR)]

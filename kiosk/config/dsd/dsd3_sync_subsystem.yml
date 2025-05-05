@@ -280,7 +280,7 @@ qc_rules:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created(),default("now()")]
       modified: [datatype(TIMESTAMP), replfield_modified(),default("now()")]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     1:
       id: [datatype(VARCHAR)]
       type: [datatype(VARCHAR)]
@@ -318,7 +318,7 @@ qc_flags:
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created(),default("now()")]
       modified: [datatype(TIMESTAMP), replfield_modified(),default("now()")]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     1:
       id: [datatype(VARCHAR)]
       severity: [datatype(VARCHAR)]

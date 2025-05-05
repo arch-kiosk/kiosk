@@ -200,7 +200,7 @@ kiosk_queries:
       query: [datatype(json)]
       created: [datatype(TIMESTAMP), not_null(), default("now()")]
       modified: [datatype(TIMESTAMP), not_null(), default("now()")]
-      modified_by: [ datatype(VARCHAR), default(Null) ]
+      modified_by: [ datatype(VARCHAR), default("''") ]
       uid: [datatype(UUID), uuid_key())]
     1:
       id: [datatype(VARCHAR), unique(), not_null()]
@@ -212,7 +212,7 @@ kiosk_queries:
       query: [datatype(json)]
       created: [datatype(TIMESTAMP), not_null(), default("now()")]
       modified: [datatype(TIMESTAMP), not_null(), default("now()")]
-      modified_by: [ datatype(VARCHAR), default(Null) ]
+      modified_by: [ datatype(VARCHAR), default("''") ]
       uid: [datatype(UUID), uuid_key())]
   migration:
     2:

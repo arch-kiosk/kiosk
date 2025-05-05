@@ -389,11 +389,12 @@ class KioskBackup:
 
             db_name = config.database_name
             try:
+                filename_template = config.resolve_symbols(filename_template)
                 filename_template = kioskstdlib.get_datetime_template_filename(filename_template, datetime.now())
-            except ValueError as e:
+            except BaseException as e:
                 logging.warning(f"kioskstdlib.backup_database: {filename_template} "
                                 f"is not a valid template name for the backup file. Using default template instead")
-                filename_template = kioskstdlib.get_datetime_template_filename("kiosk_#a_#d#m#y-#H#M.dmp",
+                filename_template = kioskstdlib.get_datetime_template_filename(f"{config.get_project_id()}_#a_#d#m#y-#H#M.dmp",
                                                                                datetime.now())
 
             logging.debug(f"kioskstdlib.backup_database: template is {filename_template}")

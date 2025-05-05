@@ -33,7 +33,7 @@ class KioskDatabaseIntegrity:
                     for f in flds:
                         sql = "update " + table + " SET "
                         err = False
-                        sql_value = ""
+                        sql_value = None
                         default_parameters = self.dsd.get_instruction_parameters_and_types(table, f, "default")
                         data_type = self.dsd.get_field_datatype(table, f)
                         if default_parameters:
@@ -49,7 +49,7 @@ class KioskDatabaseIntegrity:
                                             f"DEFAULT option {v} for " + table + "." + f + " is not supported. ")
                                         err = True
                                         continue
-                                if not err and sql_value:
+                                if not err and sql_value is not None:
                                     try:
                                         # time zone relevance
                                         if a_type == "function":
