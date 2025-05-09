@@ -872,6 +872,25 @@ locus:
         - add("arch_context")
 locus_architecture:
   structure:
+    3:
+      uid_locus: [datatype(UUID), join("locus")]
+      material: [datatype(VARCHAR)]
+      wall_thickness: [datatype(DECIMAL)]
+      preserved_height: [datatype(DECIMAL)]
+      features: [datatype(VARCHAR)]
+      brick_size: [datatype(VARCHAR)]
+      stone_size: [datatype(VARCHAR)]
+      mortar_desc: [datatype(VARCHAR)]
+      cat1_selection: [datatype(VARCHAR)]
+      cat1_description: [datatype(VARCHAR)]
+      cat1_mm: [datatype(VARCHAR)]
+      cat2_selection: [datatype(VARCHAR)]
+      cat2_description: [datatype(VARCHAR)]
+      cat2_mm: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     2:
       uid_locus: [datatype(UUID), join("locus")]
       material: [datatype(VARCHAR)]
@@ -899,6 +918,14 @@ locus_architecture:
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
   migration:
+    3:
+      upgrade:
+        - add("cat1_selection")
+        - add("cat1_description")
+        - add("cat1_mm")
+        - add("cat2_selection")
+        - add("cat2_description")
+        - add("cat2_mm")
     2:
       upgrade:
         - alter("modified_by")
@@ -1100,8 +1127,6 @@ locus_relations:
       upgrade:
         - alter("modified_by")
 locus_types:
-  meta:
-    flags: [export_dont_truncate]
   structure:
     5:
       id: [datatype(VARCHAR)]
