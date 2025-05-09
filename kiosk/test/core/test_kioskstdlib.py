@@ -49,6 +49,8 @@ class Testkioskstdlib(KioskPyTestHelper):
         dt = datetime.datetime(year=2022, month=3, day=15, hour=5, minute=4, second=3)
         assert get_datetime_template_filename("kiosk_#a_#d#m#y-#H#M.log", dt) == "kiosk_Tue_150322-0504.log"
         assert get_datetime_template_filename("urap_#a_#d#m#y-#H#M#S.dmp", dt) == "urap_Tue_150322-050403.dmp"
+        assert get_datetime_template_filename("rliim_#a_#d#m#y-#H#M#S.dmp", dt) == "rliim_Tue_150322-050403.dmp"
+
 
     def test_copy_tree_with_different_dates(self, cfg, shared_datadir):
         dest_sub_dir = os.path.join(shared_datadir, "sub")
