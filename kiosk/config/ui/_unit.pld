@@ -12,9 +12,12 @@ compilations:
           unit.sheet:
             text: '#(unit/term_for_unit) #(unit/arch_context)'
             position: 1
+#          involved_as.list:
+#            text: 'team members'
+#            position: 2
           unit_narrative.list:
             text: 'narratives'
-            position: 2
+            position: 3
       group_2:
         type: "accordion"
         parts:
@@ -83,6 +86,36 @@ unit.sheet:
       layout:
         min_width: max
 
+#involved_as.list:
+#  record_type: involved_as
+#  view_type: list  # (can be list, sheet or file_list or harris_matrix)
+#  max_height: 20em
+#  max_height_expandable: true
+#  fields_selection: dsd
+#  layout_settings:
+#    type: list
+#    orchestration_strategy: table  # (the default for the sheet scenario)
+#    order_records_by: [">date", "id_excavator"]
+#    allow_ordering_by: ["date", "id_excavator"]
+#    order: [date, id_excavator, narrative]
+#  ui_elements:
+#    user_id:
+#      layout:
+#        min_width: 15%
+#    role:
+#      layout:
+#        min_width: 15%
+#    involved_from:
+#      layout:
+#        min_width: 15%
+#    involved_to:
+#      layout:
+#        min_width: 15%
+#    notes:
+#      layout:
+#        min_width: 40%
+#        max_height: max
+#
 unit_narrative.list:
   record_type: unit_narrative
   view_type: list  # (can be list, sheet or file_list or harris_matrix)
