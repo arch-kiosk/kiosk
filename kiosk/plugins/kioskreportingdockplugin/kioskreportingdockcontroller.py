@@ -588,7 +588,7 @@ def view(dock_id: str):
         template_file = reporting_dock.sync_dock.get_report_file_for_view()
         if not template_file:
             abort(HTTPStatus.BAD_REQUEST, "Attempt to load a report that does not exist")
-        with open(template_file, 'r') as f:
+        with open(template_file, 'r', encoding="utf8") as f:
             template_str = f.read()
 
         return render_template_string(template_str)
