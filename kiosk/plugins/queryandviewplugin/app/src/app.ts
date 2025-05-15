@@ -206,7 +206,7 @@ export class QueryAndViewApp extends KioskApp {
         try {
             if (s) {
                 const kcp = JSON.parse(s)
-                // deleteCookie("kiosk_call_params")
+                deleteCookie("kiosk_call_params")
                 console.log('kiosk_call_params', kcp)
                 if (kcp.hasOwnProperty("identifier") && kcp.hasOwnProperty("tableName") && kcp.hasOwnProperty("dsdIdentifierFieldName")) {
                     this.gotoIdentifier(kcp as KioskViewDetails)
