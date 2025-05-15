@@ -125,7 +125,7 @@ class FileViewerController {
         const elFileInfo = document.getElementById("ef-file-info")
         const elBrokenImageText = document.getElementById("broken-image-text")
         const elOpenInNewTabText= document.getElementById("open-in-new-tab-text")
-        elOpenInNewTabText.innerText = ""
+        if (elOpenInNewTabText) elOpenInNewTabText.innerText = ""
 
         if (elFileInfo) {
             const fileType = elFileInfo.dataset.fileType

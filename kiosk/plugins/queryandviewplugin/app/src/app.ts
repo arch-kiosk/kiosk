@@ -21,11 +21,12 @@ import { nanoid } from "nanoid";
 import "./kioskquerylayouter.ts";
 import { KioskQueryLayouter } from "./kioskquerylayouter";
 import { KioskView } from "./kioskview";
-import { fowlerNollVo1aHashModern, handleCommonFetchErrors } from "./lib/applib";
+import { deleteCookie, fowlerNollVo1aHashModern, getCookie, handleCommonFetchErrors } from "./lib/applib";
 import { FetchException } from "../kioskapplib/kioskapi";
 import { identifierInfoContext } from "./identifierinfocontext";
 import { KioskTimeZones } from "../../../../../../../kiosktsapplib";
 import { timeZoneInfoContext } from "./timezoneinfocontext";
+import { KioskQuerySelector } from "./kioskqueryselector";
 
 export class QueryAndViewApp extends KioskApp {
     static styles = unsafeCSS(local_css);
@@ -66,6 +67,7 @@ export class QueryAndViewApp extends KioskApp {
 
     private recordTypeAliases: {[key: string]: string} = { }
     private _intersectionObserver: IntersectionObserver;
+    private autoSelectQuery: string = ""
 
     constructor() {
         super();
@@ -155,6 +157,7 @@ export class QueryAndViewApp extends KioskApp {
             .then((json: ApiResultContextsFull) => {
                 this.identifierInfo = json.identifiers
                 console.log("identifier information fetched", this.identifierInfo);
+                this.executeKioskCallParams()
             })
             .catch((e: FetchException) => {
                 this.showProgress = false
@@ -197,6 +200,28 @@ export class QueryAndViewApp extends KioskApp {
         }
         this.inSelectQueryMode = false;
 
+    }
+    protected executeKioskCallParams() {
+        const s = getCookie("kiosk_call_params")
+        try {
+            if (s) {
+                const kcp = JSON.parse(s)
+                // deleteCookie("kiosk_call_params")
+                console.log('kiosk_call_params', kcp)
+                if (kcp.hasOwnProperty("identifier") && kcp.hasOwnProperty("tableName") && kcp.hasOwnProperty("dsdIdentifierFieldName")) {
+                    this.gotoIdentifier(kcp as KioskViewDetails)
+
+                } else {
+                    if (kcp.hasOwnProperty("query")) {
+                        this.autoSelectQuery = kcp['query']
+                        this.inSelectQueryMode = true
+                    }
+                }
+            }
+
+        } catch(e) {
+            console.error(e)
+        }
     }
 
     protected identifierPopupClosed(e: CustomEvent) {
@@ -347,6 +372,7 @@ export class QueryAndViewApp extends KioskApp {
             <kiosk-query-selector
                 id="kiosk-query-selector"
                 .apiContext="${this.apiContext}"
+                .autoSelect="${this.autoSelectQuery}"
                 @closeSelection="${this.queryModeClosed}"
                 style="display:${this.inSelectQueryMode ? "block" : "none"}"
             >

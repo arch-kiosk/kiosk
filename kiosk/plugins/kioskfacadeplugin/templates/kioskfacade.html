@@ -1,0 +1,31 @@
+{% if full_screen %}
+    {% extends "kioskdynamicfullscreenapploader.html" %}
+{% else %}
+    {% extends "kioskdynamicapploader.html" %}
+{% endif %}
+
+{% block links %}
+    {{ super() }}
+    <link rel=stylesheet type=text/css
+          href="{{ url_for('filerepository.static', filename='filerepository.css') }}?v=1" />
+    <link rel=stylesheet type=text/css
+          href="{{ url_for('kioskfacade.static', filename='kioskfacade.css') }}?v=1" />
+
+{% endblock %}
+
+{% block title %}
+    <div id="subtitle-shadow">Kiosk</div>
+    <div id="subtitle">Facade</div>
+{% endblock %}
+
+{% block body %}
+    <script src="{{ url_for('filerepository.static', filename='scripts/fileviewercontroller.js') }}"></script>
+    <script src="{{ url_for('kioskfacade.static', filename='scripts/kioskfacade.js') }}"></script>
+    {{ super() }}
+{% endblock %}
+
+{% block TEST_REQUIREMENTS %}
+    function checkRequirements() {
+        return _defaultRequirements() && typeof FileViewerController !== 'undefined' && typeof onFacadeImageClicked !== 'undefined';
+    }
+{% endblock %}

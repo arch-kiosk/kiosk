@@ -423,6 +423,8 @@ kiosk:
 
   kioskfacadeplugin:
     active: false
+    is_main_index: false
+    hero_representation: 1024x768JPEG
 
   logviewerplugin:
     active: true

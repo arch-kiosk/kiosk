@@ -188,3 +188,22 @@ export function deleteHtmlAndSpecialCharacters(text: string|null) {
     if (!text) return ""
     return text.replace(/<[^>]*>?/gm, '').replace(/[^a-zA-Z0-9]/gm, '');
 }
+export function getCookie(cname: string) {
+    const name: string = cname + "=";
+    const decodedCookie: string = decodeURIComponent(document.cookie);
+    const ca = decodedCookie.split(';');
+    for(let i = 0; i <ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) === ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) === 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
+export function deleteCookie(cname: string) {
+    document.cookie = cname + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+}

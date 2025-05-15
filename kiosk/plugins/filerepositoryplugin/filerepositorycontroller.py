@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from pprint import pprint
@@ -75,6 +76,7 @@ def get_stdfile_for_fileext(file_extension, only_if_unsupported=False):
                 if "general" in file_images:
                     return file_images["general"]
     return None
+
 
 
 @filerepository.route('/fetch_tile/<string:uuid>', defaults={'force_reload': 0}, methods=['POST'])
@@ -267,7 +269,11 @@ def file_repository_show():
     else:
         filtered_site = ""
 
-    if request.method == "POST":
+    kiosk_call_params = None
+    if "kiosk_call_params" in request.cookies:
+        kiosk_call_params = json.loads(request.cookies["kiosk_call_params"])
+
+    if request.method == "POST" or kiosk_call_params:
         try:
             if "ajax" not in request.form and trigger_fid_refresh_if_needed(kioskglobals.general_store):
                 logging.debug(f"filerepositorycontroller.file_repository_show: triggered fid refresh")
@@ -276,7 +282,7 @@ def file_repository_show():
                           f"in trigger_fid_refresh_if_needed: "
                           f"{repr(e)}")
 
-        options = {"context": str(filter_form.context.data).upper(),
+        options = {"context": str(filter_form.context.data).upper() if filter_form.context.data else None,
                    "no_context": filter_form.no_context.data,
                    "recording_context": m_file_repository.get_recording_context_from_alias(
                        filter_form.recording_context.data),
@@ -286,6 +292,13 @@ def file_repository_show():
                    "tags": filter_form.tags.data,
                    "site": filtered_site_uuid
                    }
+        if kiosk_call_params and "tags" in kiosk_call_params:
+            filter_form.tags.data = kiosk_call_params["tags"]
+            options["tags"] = filter_form.tags.data
+        if kiosk_call_params and "identifier" in kiosk_call_params:
+            filter_form.context.data = kiosk_call_params["identifier"].upper()
+            options["context"] = filter_form.context.data
+
         try:
             m_file_repository.set_filter_values(options)
         except ValueError as e:
@@ -329,7 +342,7 @@ def file_repository_show():
 
         img_list = None
         authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
-        if request.method == "POST":
+        if request.method == "POST" or kiosk_call_params:
             m_file_repository.sorting_option = session["kiosk_fr_sorting"]
             img_list = m_file_repository.query_images()
             # if len(img_list) > MAX_IMAGES_PER_PAGE:
@@ -349,7 +362,7 @@ def file_repository_show():
             logging.debug(f"filerepositorycontroller.file_repository_show: "
                           f"showing images {(current_page - 1) * MAX_IMAGES_PER_PAGE}:{current_page * MAX_IMAGES_PER_PAGE}"
                           f" = {len(img_list)}")
-        return render_template('file_repository.html',
+        resp = make_response( render_template('file_repository.html',
                                filter_form=filter_form,
                                image_list=img_list,
                                image_resolutions=thumbnail_resolutions,
@@ -364,8 +377,11 @@ def file_repository_show():
                                sorting_option=session["kiosk_fr_sorting"],
                                authorized_to=authorized_to,
                                site_filter=filtered_site_uuid,
-                               filtered_site=filtered_site)
+                               filtered_site=filtered_site))
+    if kiosk_call_params:
+        resp.delete_cookie('kiosk_call_params')
 
+    return resp
 
 
 #  **************************************************************

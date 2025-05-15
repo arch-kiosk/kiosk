@@ -37,6 +37,9 @@ export class KioskQuerySelector extends KioskAppComponent {
     @property()
     protected queryFilter: string = "";
 
+    @property()
+    public autoSelect: string = "";  //if set the query selector will automatically select the query with this id and close. Only if the id does not exist will it stay open.
+
     @consume({context: constantsContext})
     @state()
     private constants?: Constant[]
@@ -87,6 +90,16 @@ export class KioskQuerySelector extends KioskAppComponent {
                     handleErrorInApp(this, MSG_ERROR, "Kiosk reported an error when loading available queries", "KioskQuerySelector.loadQueries")
                 } else {
                     try {
+                        if (this.autoSelect) {
+                            const selectQuery = this.autoSelect.toLowerCase()
+                            const kioskQueries: ApiResultKioskQueryDescription[] = data
+                            for (const q of kioskQueries) {
+                                if (q.id.toLowerCase() === selectQuery) {
+                                    this.tryClose(q)
+                                    return
+                                }
+                            }
+                        }
                         this.showQueries(data);
                     } catch(e) {
                         handleErrorInApp(this, MSG_ERROR, `Error on the client side when preparing available queries: ${e}`, "KioskQuerySelector.loadQueries")

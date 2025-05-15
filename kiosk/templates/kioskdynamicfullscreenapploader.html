@@ -1,0 +1,103 @@
+{% extends "kioskbasicfullscreen.html" %}
+{% block links %}
+    <link rel="stylesheet"
+          href="{{ url_for(load_dynamic_app["controller_name"] + '.static',
+          filename=load_dynamic_app["controller_name"] + 'plugin.css') }}?v=1"/>
+    <style>
+                .loading {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 5px;
+                    width: 100vw;
+                    background-color: black;
+                }
+                .loading-progress {
+                    height: 5px;
+                    width: 100%;
+                    border-radius: 3px;
+                    background: linear-gradient(
+                        90deg,
+                        red 0%,
+                        yellow 15%,
+                        lime 30%,
+                        cyan 50%,
+                        blue 65%,
+                        magenta 80%,
+                        red 100%
+                    );
+                    background-size: 200%;
+                    animation: move-gradient 2s ease-in infinite;
+                }
+                @keyframes move-gradient {
+                    0% {
+                        background-position: 0% 0%;
+                    }
+                    100% {
+                        background-position: -200% 0%;
+                    }
+                }
+
+    </style>
+{% endblock %}
+{% block body %}
+    <div id="dynamic-app-loading" class="loading">
+        <div class="loading-progress"></div>
+    </div>
+    <script>
+        var retries = 0
+
+        function loadAppHtml() {
+            let address = `{{ url_for(load_dynamic_app["controller_name"] + "." + load_dynamic_app["load_from_address"]) }}`
+            let module = `url_for(load_dynamic_app["controller_name"]`
+            console.log(`Loading kiosk app from ${address}`)
+            kioskAjaxGetPartial(
+                address,
+                {"mainModule": true},
+                'kiosk-dynamic-app-container',
+                (target_id, textStatus, jqXHR, statusData) => {
+                    let el = document.querySelector("#dynamic-app-loading");
+                    el.style.display = "none";
+                    console.log("fetching app html ... success")
+                },
+                (err_msg, textStatus, jqXHR, statusData) => {
+                    let el = document.querySelector("#dynamic-app-loading");
+                    el.style.display = "none";
+                    retries++;
+                    if (retries > 5) {
+                        kioskErrorToast(`the app ${module} cannot be fetched from the server. <br/>
+                                The server returned status ${jqXHR.status}: ${err_msg}. Refresh page to try again.`);
+                        return
+                    } else {
+                        console.log(`Error ${jqXHR.status} in ${module}.html.loadAppHtml: trying again (${retries}).`)
+                    }
+                    loadAppHtml()
+                }
+            )
+        }
+
+
+        function tryInsertScript() {
+            function _defaultRequirements() {
+                return window.jQuery && typeof $.magnificPopup != 'undefined' && typeof kioskAjaxGetPartial != 'undefined'
+            }
+
+            {% block TEST_REQUIREMENTS %}
+                function checkRequirements() {
+                    return _defaultRequirements()
+                }
+            {% endblock %}
+            if (checkRequirements()) {
+                console.log("initializing app html ...")
+                document.querySelector("#content-wrapper").insertAdjacentHTML("afterbegin", '<div id="kiosk-dynamic-app-container"></div>');
+                loadAppHtml()
+            } else {
+                console.log("main script cannot yet be initialized")
+                setTimeout(tryInsertScript, 500)
+            }
+        }
+
+        tryInsertScript()
+    </script>
+{% endblock %}
+{#<script src="../dynamic-app-loader.html.js"></script>#}

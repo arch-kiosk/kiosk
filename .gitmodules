@@ -16,3 +16,6 @@
 [submodule "kiosk/sync/sync/sync_plugins/buap_ancdb_bridge"]
 	path = kiosk/sync/sync/sync_plugins/buap_ancdb_bridge
 	url = https://github.com/arch-kiosk/buap_ancdb_bridge.git
+[submodule "kiosk/sync/sync/sync_plugins/rliim_kiosk_bridge"]
+	path = kiosk/sync/sync/sync_plugins/rliim_kiosk_bridge
+	url = https://github.com/arch-kiosk/rliim_kiosk_bridge.git

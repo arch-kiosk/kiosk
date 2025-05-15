@@ -1,0 +1,27 @@
+@import "../../../static/styles/_constants"
+@import "../../../static/styles/_basics"
+
+//#content-wrapper
+//  //min-height: 100vh
+//  background-color: $col-bg-1-lighter
+
+.landing-top
+  height: 85vh
+  @media #{$screen-phone-portrait}
+    height: 50vh
+  max-height: 620px
+  width: 100%
+  //background-color: $col-bg-1
+  background-image: var(--kiosk-facade-hero-image)
+  background-size: cover
+  background-position: center
+  background-repeat: no-repeat
+  border-bottom: 2px solid $col-bg-body
+  cursor: pointer
+
+.landing-bottom
+  border-top: 2px solid $col-bg-1
+  padding: 2em
+  color: $col-primary-bg-1
+  background-color: $col-bg-1-lighter
+

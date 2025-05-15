@@ -18,7 +18,7 @@ export default defineConfig(({ command, mode }) => {
             command == "build"
                 ? {
                       // No console.logs in the distribution
-                      drop: ["console", "debugger"],
+                      // drop: ["console", "debugger"],
                   }
                 : {},
         build: {

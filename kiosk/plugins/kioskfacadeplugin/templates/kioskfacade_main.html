@@ -1,0 +1,164 @@
+<div id="kiosk-dynamic-app-container">
+    <!--<div id="broken-image" class="broken-image">
+        <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="203" height="203" viewBox="0 0 512 512">
+            <path d="M380.993 512c-59.343 0-107.624-48.279-107.624-107.622V276.455c0-9.425 7.641-17.067 17.067-17.067s17.067 7.641 17.067 17.067v127.923c0 40.522 32.968 73.489 73.49 73.489 9.425 0 17.067 7.641 17.067 17.067S390.419 512 380.993 512z" style="fill:#e7a53b"/><path d="M388.37 432.62c-30.071 0-54.536-24.465-54.536-54.536V230.086c0-9.425 7.641-17.067 17.067-17.067 9.425 0 17.067 7.641 17.067 17.067v147.999c0 11.25 9.152 20.403 20.403 20.403s20.403-9.152 20.403-20.403v-63.243c0-9.425 7.641-17.067 17.067-17.067h43.217c9.425 0 17.067 7.641 17.067 17.067 0 9.425-7.641 17.067-17.067 17.067h-26.151v46.177c-.002 30.069-24.465 54.534-54.537 54.534z" style="fill:#e7a53b"/><path d="M131.007 512c-9.425 0-17.067-7.641-17.067-17.067s7.641-17.067 17.067-17.067c40.522 0 73.49-32.967 73.49-73.489V276.455c0-9.425 7.641-17.067 17.067-17.067 9.425 0 17.067 7.641 17.067 17.067v127.923C238.63 463.721 190.35 512 131.007 512z" style="fill:#f3b73f"/><path d="M123.63 434.307c-30.071 0-54.536-24.465-54.536-54.536v-46.177H42.943c-9.425 0-17.067-7.641-17.067-17.067 0-9.425 7.641-17.067 17.067-17.067H86.16c9.425 0 17.067 7.641 17.067 17.067v63.243c0 11.25 9.152 20.403 20.403 20.403s20.403-9.152 20.403-20.403V230.085c0-9.425 7.641-17.067 17.067-17.067s17.067 7.641 17.067 17.067v149.686c-.001 30.071-24.466 54.536-54.537 54.536z" style="fill:#f3b73f"/><path d="M256 299.824c-37.646 0-73.647-17.92-101.375-50.459-25.857-30.345-40.686-69.456-40.686-107.305C113.94 63.728 177.667 0 256 0s142.06 63.728 142.06 142.06c0 37.849-14.829 76.96-40.686 107.305-27.727 32.539-63.728 50.459-101.374 50.459z" style="fill:#ffc843"/><path d="M256 0v299.824c37.646 0 73.647-17.92 101.375-50.459 25.857-30.345 40.686-69.456 40.686-107.305C398.06 63.728 334.333 0 256 0z" style="fill:#f3b73f"/><circle cx="209.328" cy="226.702" r="22.577" style="fill:#555c5e"/><circle cx="302.672" cy="226.702" r="22.577" style="fill:#555c5e"/>
+        </svg>
+    </div>
+    -->
+    <kiosk-lightbox data-fullscreen-res="{{ fullscreen_representation_id }}" data-resolutions="{{ resolutions }}">
+        <div id="filerepository-data-container" class="filerepository-data-container">
+            <div id="broken-image" class="broken-image">
+                <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="203" height="203"
+                     viewBox="0 0 512 512">
+                <path
+                    d="M380.993 512c-59.343 0-107.624-48.279-107.624-107.622V276.455c0-9.425 7.641-17.067 17.067-17.067s17.067 7.641 17.067 17.067v127.923c0 40.522 32.968 73.489 73.49 73.489 9.425 0 17.067 7.641 17.067 17.067S390.419 512 380.993 512z"
+                    style="fill:#e7a53b" />
+                    <path
+                        d="M388.37 432.62c-30.071 0-54.536-24.465-54.536-54.536V230.086c0-9.425 7.641-17.067 17.067-17.067 9.425 0 17.067 7.641 17.067 17.067v147.999c0 11.25 9.152 20.403 20.403 20.403s20.403-9.152 20.403-20.403v-63.243c0-9.425 7.641-17.067 17.067-17.067h43.217c9.425 0 17.067 7.641 17.067 17.067 0 9.425-7.641 17.067-17.067 17.067h-26.151v46.177c-.002 30.069-24.465 54.534-54.537 54.534z"
+                        style="fill:#e7a53b" />
+                    <path
+                        d="M131.007 512c-9.425 0-17.067-7.641-17.067-17.067s7.641-17.067 17.067-17.067c40.522 0 73.49-32.967 73.49-73.489V276.455c0-9.425 7.641-17.067 17.067-17.067 9.425 0 17.067 7.641 17.067 17.067v127.923C238.63 463.721 190.35 512 131.007 512z"
+                        style="fill:#f3b73f" />
+                    <path
+                        d="M123.63 434.307c-30.071 0-54.536-24.465-54.536-54.536v-46.177H42.943c-9.425 0-17.067-7.641-17.067-17.067 0-9.425 7.641-17.067 17.067-17.067H86.16c9.425 0 17.067 7.641 17.067 17.067v63.243c0 11.25 9.152 20.403 20.403 20.403s20.403-9.152 20.403-20.403V230.085c0-9.425 7.641-17.067 17.067-17.067s17.067 7.641 17.067 17.067v149.686c-.001 30.071-24.466 54.536-54.537 54.536z"
+                        style="fill:#f3b73f" />
+                    <path
+                        d="M256 299.824c-37.646 0-73.647-17.92-101.375-50.459-25.857-30.345-40.686-69.456-40.686-107.305C113.94 63.728 177.667 0 256 0s142.06 63.728 142.06 142.06c0 37.849-14.829 76.96-40.686 107.305-27.727 32.539-63.728 50.459-101.374 50.459z"
+                        style="fill:#ffc843" />
+                    <path
+                        d="M256 0v299.824c37.646 0 73.647-17.92 101.375-50.459 25.857-30.345 40.686-69.456 40.686-107.305C398.06 63.728 334.333 0 256 0z"
+                        style="fill:#f3b73f" />
+                    <circle cx="209.328" cy="226.702" r="22.577" style="fill:#555c5e" />
+                    <circle cx="302.672" cy="226.702" r="22.577" style="fill:#555c5e" />
+            </svg>
+                <div id="broken-image-text"></div>
+            </div>
+            <div id="fr-data-partial"></div>
+        </div>
+    </kiosk-lightbox>
+    <div class='thetop'></div>
+    {% block landing %}
+        {% block landing_top %}
+            {% if kiosk_facade_hero_image %}
+                <div style="--kiosk-facade-hero-image: url('{{ kiosk_facade_hero_image }}')"
+                     data-uuid="{{ kiosk_facade_hero_uuid }}"
+                     data-width="{{ kiosk_facade_hero_width }}"
+                     data-height="{{ kiosk_facade_hero_height }}"
+                     onclick="onFacadeImageClicked(this,event)"
+                     class="landing-top">
+                    <img src="" class="landing-image" />
+                </div>
+            {% endif %}
+        {% endblock landing_top %}
+        {% block landing_bottom %}
+            <div class="landing-bottom {% if not kiosk_facade_hero_image %}landing-bottom-no-hero-image{% endif %}">
+                <h1>{{ global_constants["project_name"] }}</h1>
+                <span class="landing-text">Welcome. These are your options:</span>
+            </div>
+        {% endblock landing_bottom %}
+        <div id='scroll-to-top'>
+        </div>
+    {% endblock landing %}
+
+
+
+    <!-- Dynamic App. Currently not in use
+{#    <{{ load_dynamic_app["controller_name"] + "-app" }} id="kiosk-app" showprogress="true"></{{ load_dynamic_app["controller_name"] + "-app" }}>#}
+{#    {% with load_dynamic_app=load_dynamic_app %}#}
+{#            {% include "_kioskdynamicapploader_include.html" %}#}
+{#    {% endwith %}#}
+    -->
+
+    {% include "_kioskmodaldialog_api_connector_include.html" %}
+
+    <script>
+        if (typeof FileViewerController === "undefined")
+            kioskErrorToast("Error in kioskfacade_main.html: FileViewerController or apiContext not available. Viewing images will not be possible.");
+        else
+            console.log("kioskfacade_main.html: FileViewerController available.");
+
+        function popupApiConnected(api) {
+            try {
+                window.apiContext = api;
+                let lb = document.getElementsByTagName("kiosk-lightbox")[0];
+                document.fileViewerController = new FileViewerController(api, lb, false, true);
+                console.log("FileViewerController initialized");
+                facadeInit(api)
+
+            } catch (e) {
+                console.warn("FileViewer not initialized. Can't show any images right now. Try refreshing the page?");
+                console.error(e);
+            }
+        }
+
+        function popupApiFailed() {
+            console.warn("Sorry, it was not possible to connect to Kiosk's Api. " +
+                "That's why this feature can't run. You can try again, but most likely " +
+                "you'll have to report this as a bug ");
+        }
+
+        function facadeInit(api) {
+            $("#content-wrapper").on("scroll", function() {
+                //alert("scroll Top is " + String($(this).scrollTop()))
+                if ($(this).scrollTop() > 50) {
+                    $("#scroll-to-top:hidden").stop(true, true).fadeIn();
+                } else {
+                    $("#scroll-to-top").stop(true, true).fadeOut();
+                }
+            });
+            $("#scroll-to-top").on("click",
+                function() {
+                    $("#content-wrapper").animate(
+                        {
+                            scrollTop: $(".thetop").offset().top,
+                        }, "1000");
+                    return false;
+                });
+        }
+
+        function showImagesWithTags(tags) {
+            const url = new URL("{{ url_for('filerepository.file_repository_show') }}", window.location.origin);
+            setCookie("kiosk_call_params", JSON.stringify({ tags: tags }));
+            window.location.replace(url);
+        }
+
+        function showImagesForIdentifier(identifier) {
+            const url = new URL("{{ url_for('filerepository.file_repository_show') }}", window.location.origin);
+            setCookie("kiosk_call_params", JSON.stringify({ identifier: identifier }));
+            window.location.replace(url);
+        }
+
+        function showViewForIdentifier(identifier, tableName, dsdIdentifierFieldName) {
+            const url = new URL("{{ url_for('queryandview.query_and_view_show') }}", window.location.origin);
+            setCookie("kiosk_call_params", JSON.stringify({
+                identifier: identifier,
+                tableName: tableName,
+                dsdIdentifierFieldName: dsdIdentifierFieldName }));
+            window.location.replace(url);
+        }
+
+        function showQuery(query_id) {
+            const url = new URL("{{ url_for('queryandview.query_and_view_show') }}", window.location.origin);
+            setCookie("kiosk_call_params", JSON.stringify({ query: query_id }));
+            window.location.replace(url);
+        }
+
+        /*
+        const app = document.querySelector('{{ load_dynamic_app["controller_name"] }}' + "-app")
+
+        app.addEventListener("select-image", (event) => {
+        })
+        app.addEventListener("scrolled-into-view", (event) => {
+            console.log(`scrolled into view ${event.detail}`)
+            let wrapper = document.getElementById("content-wrapper")
+            //wrapper.scrollBy(0,-60)
+            setTimeout(() => {
+                console.log("wrapper scrolling", wrapper)
+                wrapper.scrollBy(0,-60)}
+                , 500)
+        })
+        */
+        console.log("main script was executed");
+    </script>
+</div>
+
