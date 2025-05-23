@@ -81,7 +81,7 @@ werkzeug.cached_property = werkzeug.utils.cached_property
 # ##########
 
 from appfactory import AppFactory
-from flask import redirect, url_for, request, jsonify, abort, render_template, g
+from flask import redirect, url_for, request, jsonify, abort, render_template, g, Blueprint
 from flask.helpers import send_from_directory
 from flask_admin import Admin
 from flaskapppluginmanager import FlaskAppPluginManager
@@ -639,6 +639,7 @@ class KioskAppFactory(AppFactory):
     @classmethod
     def add_app_url_rules(cls, app):
         app.add_url_rule('/refresh', "refresh_config", refresh_config)
+        app.add_url_rule('/<path:filename>', "rootfile", root_file)
         app.add_url_rule('/custom_file/<path:filename>', "custom_file", custom_file)
         app.add_url_rule('/urap_progress', "urap_progress", get_progress, methods=['POST'])
         app.add_url_rule('/kiosk_progress', "kiosk_progress", get_progress, methods=['POST'])
@@ -650,7 +651,7 @@ class KioskAppFactory(AppFactory):
         app.add_url_rule('/get_system_messages', "get_system_messages", get_system_messages, methods=['POST'])
 
     @classmethod
-    def load_plugins(cls, is_plugin_active: Union[Callable, None]=None):
+    def load_plugins(cls, is_plugin_active: Union[Callable, None] = None):
         plugin_manager = FlaskAppPluginManager()
         plugin_manager.is_plugin_active = cls._is_plugin_active
         project_id = cls.cfg.get_project_id()
@@ -939,7 +940,7 @@ class KioskAppFactory(AppFactory):
     def init_fid_caches(cls):
         try:
             # The file - identifier cache can be built after migration
-            sync=Synchronization()
+            sync = Synchronization()
             if not FileIdentifierCache.build_fic_indexes(sync.type_repository, kioskglobals.master_view.dsd):
                 raise Exception("Some file identifier cache in build_fic_indexes failed.")
             # fic = FileIdentifierCache(kioskglobals.master_view.dsd)
@@ -952,7 +953,6 @@ class KioskAppFactory(AppFactory):
                                     body="""Kiosk might fail applying the right files to a context. This 
                                     needs the attention of an administrator. """,
                                     sender=f"{cls.__name__}.migrate")
-
 
     @classmethod
     def init_users_and_privileges(cls):
@@ -1006,8 +1006,6 @@ class KioskAppFactory(AppFactory):
                                              f"privileges for this Kiosk ({repr(e)}). Please review the users and privileges "
                                              f"in the administration module.",
                                         sender="init_users_and_privileges")
-
-
 
     @classmethod
     def register_emergency_error_handlers(cls, app):
@@ -1099,6 +1097,29 @@ def custom_file(filename):
         cache_timeout = None
     return send_from_directory(custom_static_path, filename,
                                max_age=cache_timeout)
+
+
+def root_file(filename):
+    """Function used to send unrestricted static files that are expected in the root folder.
+    The files are actually located in static/root
+    Especially robots.txt. This is rather for development environments. In production
+    the web server should serve static files from /static/root
+    """
+
+    cache_timeout = None
+    if filename.lower() in ["robots.txt"]:
+        static_path = os.path.join(kioskglobals.cfg.base_path, "static", "root")
+        if current_app.config["SEND_FILE_MAX_AGE_DEFAULT"]:
+            if isinstance(current_app.config["SEND_FILE_MAX_AGE_DEFAULT"], int):
+                cache_timeout = datetime.timedelta.total_seconds(
+                    datetime.timedelta(current_app.config["SEND_FILE_MAX_AGE_DEFAULT"]))
+            else:
+                logging.error(f"kioskappfactory.root_file: SEND_FILE_MAX_AGE_DEFAULT not an int")
+        return send_from_directory(static_path, filename,
+                                   max_age=cache_timeout)
+    else:
+        logging.debug(f"kioskappfactory.root_file: illegal attempt to access /{filename}")
+        abort(404)
 
 
 #  **************************************************************
