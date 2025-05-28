@@ -1107,7 +1107,7 @@ def root_file(filename):
     """
 
     cache_timeout = None
-    if filename.lower() in ["robots.txt"]:
+    if filename.lower() in ["robots.txt", "favicon.ico"]:
         static_path = os.path.join(kioskglobals.cfg.base_path, "static", "root")
         if current_app.config["SEND_FILE_MAX_AGE_DEFAULT"]:
             if isinstance(current_app.config["SEND_FILE_MAX_AGE_DEFAULT"], int):
