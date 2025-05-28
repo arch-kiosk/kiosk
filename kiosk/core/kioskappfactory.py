@@ -1081,7 +1081,7 @@ def refresh_config():
 
 
 def custom_file(filename):
-    """Function used to send static custom files from the custom
+    """Function used to send static, unrestricted custom files from the custom
     folder to the browser.
     """
 
