@@ -37,6 +37,20 @@ class KioskQueryVariables:
         field_instructions.append(f"dsd('{dsd_table}','{dsd_field}')")
         return field_instructions
 
+    def _check_default_value(self, variable_name: str, default_value: str) -> str:
+        if default_value.lower() == "'null'":
+            logging.debug(f"{self.__class__.__name__}._check_default_value: "
+                          f"Encountered a single-quoted 'null' for the default instruction of "
+                          f"input variable {variable_name}. "
+                          f"This is discouraged because it can be ambiguous. If you want the "
+                          f"text null here, use $$null$$. Here it will be assumed you wanted null")
+            return 'null'
+
+        if default_value.lower().strip("'") == "$$null$$":
+            default_value = "'" + default_value.strip("'$") + "'"
+
+        return default_value
+
     def _parse_variable_declaration(self, vname: str, decl: list):
         result = {}
         field_instructions = {}
@@ -92,6 +106,15 @@ class KioskQueryVariables:
                                 f"syntax error in label instruction of variable {vname}: {decl}.")
             else:
                 result["label"] = parser.parameters[0].lower()
+
+        if "input_default" in field_instructions.keys():
+            parser.parse(field_instructions["input_default"])
+            if not parser.ok or len(parser.parameters) != 1:
+                logging.warning(f"{self.__class__.__name__}._parse_variable_declaration: "
+                                f"syntax error in input_default instruction of variable "
+                                f"{vname}: {decl}.")
+            else:
+                result["input_default"] = self._check_default_value(vname, parser.parameters[0])
 
         return result
 
@@ -203,7 +226,10 @@ class KioskQueryVariables:
         if "is_list" in self._variable_definitions[key]:
             return self.get_list_variable_sql(data_type, self._variables[key])
         else:
-            return DatabaseDriver.quote_value(data_type, self._variables[key])
+            if self._variables[key] is None:
+                return 'null'
+            else:
+                return DatabaseDriver.quote_value(data_type, self._variables[key])
 
     @staticmethod
     def get_list_variable_sql(data_type: str, list_value: list):

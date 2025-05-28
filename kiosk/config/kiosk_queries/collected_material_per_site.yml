@@ -1,0 +1,59 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+variables:
+  input_b_cm_type: ["dsd(collected_material, cm_type)"]
+  input_c_material_type: ["dsd(collected_material, type)", "input_default(null)"]
+  input_a_site: [ "dsd(site, id)"]
+queries:
+  'collected_material_per_site':
+    name: 'List all materials by type.'
+    description: 'Lists all materials found at a site by collected material type (bulk, small find...) and material (stone, metal etc.).'
+    type: 'SQL'
+    output_type: 'list'
+    query: "  
+      select
+            u.arch_context trench,
+            l.arch_context op,
+            cm.cm_type,
+            cm.type material,
+            cm.arch_context cm_id,
+            cm.description,
+            cm.quantity,
+            cm.weight,
+            cm.volume,
+            cm.dearregistrar
+       from {{unit}} u
+         inner join {{locus}} l on u.uid = l.uid_unit
+         inner join {{collected_material}} cm on l.uid = cm.uid_locus
+      where u.id_site = {{#input_a_site}}
+        and ({{#input_b_cm_type}} is null or cm.cm_type={{#input_b_cm_type}})
+        and (coalesce({{#input_c_material_type}}, '') = '' or cm.type={{#input_c_material_type}})
+      group by u.arch_context, l.arch_context, 
+            cm.cm_type, cm.type,
+            cm.arch_context,
+            cm.description,
+            cm.quantity,
+            cm.weight,
+            cm.volume,
+            cm.dearregistrar
+      order by trench, op, material;
+      "
+    column_information:
+      trench: DSD('unit','arch_context')
+      op: DSD('locus','arch_context')
+      cm_id: DSD('collected_material','arch_context')
+      cm_type: DSD('collected_material','cm_type')
+      material: DSD('collected_material','type')
+      description: DSD('collected_material','description')
+      quantity: DSD('collected_material','quantity')
+      weight: DSD('collected_material','weight')
+      volume: DSD('collected_material','volume')
+      dearregistrar: DSD('collected_material','dearregistrar')
+#    charts:
+#      chart1:
+#        type: "pie"
+#        title: "#: % material in #($/constants/labels/label_for_unit_on_start_page) #(/variables/inputs/unit_id) by quantity"
+#        categories: "material"
+#        values: "quantity"

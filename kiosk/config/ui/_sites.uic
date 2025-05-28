@@ -11,6 +11,16 @@ element_type:
     selection: ["arch_context"]
     key: "arch_context"
 
+# dsd('site','id') && query-ui
+element_type:
+  name: "selection"
+  links_to: site
+  items:
+    lookup_type: "table"
+    topic: "site"
+    selection: ["id"]
+    key: "id"
+
 # dsd('site','purpose') && view-ui
 layout:
   min_width: max

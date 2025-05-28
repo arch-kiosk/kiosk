@@ -56,6 +56,8 @@ import {
     RESULT_VIEW_TYPE_PIECHART,
 } from "./structuredkioskquerycharts";
 import { MSG_ERROR } from "./lib/appmessaging";
+import { DataSetDefinition } from "../kioskapplib/datasetdefinition";
+import SimpleFunctionParser from "../kioskapplib/simplefunctionparser";
 
 const RESULT_VIEW_TYPE_DATA = 1;
 type ResultViewType = typeof RESULT_VIEW_TYPE_DATA | typeof RESULT_VIEW_TYPE_PIECHART | typeof RESULT_VIEW_TYPE_BARCHART
@@ -391,6 +393,7 @@ export class StructuredKioskQuery extends KioskAppComponent {
         if (_changedProperties.has("queryDefinition") && this.queryDefinition) {
             //translate and amened the query definition into a correct UISchema here.
             this.getQueryUiSchema(this.queryDefinition.ui["ui_elements"])
+
             console.log("uiSchema", this.uiSchema)
             if (!this.queryDefinition.show_rows) {
                 if (this.queryDefinition.charts && Object.keys(this.queryDefinition.charts).length > 0) {
@@ -407,9 +410,14 @@ export class StructuredKioskQuery extends KioskAppComponent {
     queryUIChanged(event: CustomEvent) {
         if (event.detail.srcElement === "start") {
             try {
-                Object.entries(event.detail.newData).forEach(([_, v]) => {
+                Object.entries(event.detail.newData).forEach(([k, v]) => {
                     if (!v) {
-                        throw "Please fill out all the input fields."
+                        const input_default = this.getColumnInputDefault(k)
+                        if (!input_default[0]) {
+                            throw `Please fill out all the input fields (${k}).`
+                        } else {
+                            event.detail.newData[k] = input_default[1]
+                        }
                     }
                 })
             } catch(e) {
@@ -460,6 +468,17 @@ export class StructuredKioskQuery extends KioskAppComponent {
     private getColumnLabel(dsdName: string) {
         const colInfo = <AnyDict>this.data.document_information.columns[dsdName];
         return (colInfo && colInfo.hasOwnProperty("label")) ? colInfo["label"] : dsdName;
+    }
+
+    private getColumnInputDefault(dsdName: string): [boolean, any] {
+        const colInfo : Array<string> = (<AnyDict>this.uiSchema.dsd)[dsdName];
+        const input_default = colInfo.find((instruction) => instruction.startsWith("input_default") )
+        if (input_default) {
+            const parser = new SimpleFunctionParser()
+            if (parser.parse(input_default)) {
+                return [true, parser.parameters[0] === "null" ? null : parser.parameters[0] ]
+            }
+        } else return [false, null]
     }
 
     private gotoIdentifier(event: MouseEvent) {
