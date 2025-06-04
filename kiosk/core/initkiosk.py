@@ -20,7 +20,7 @@ from werkzeug.exceptions import BadRequest, Forbidden, NotFound, Unauthorized
 import kioskglobals
 import kiosklib
 import kioskstdlib
-from jinjafilters import newline_to_br
+from jinjafilters import newline_to_br, jinja_fake_version
 from kioskconfig import KioskConfig
 from kioskmenuitem import KioskMenuItem
 from kioskthread import KioskThread
@@ -152,6 +152,7 @@ def register_context_processors(app):
 
 def register_jinja_filters(app):
     app.jinja_env.filters['newline_to_br'] = newline_to_br
+    app.jinja_env.filters['jinja_fake_version'] = jinja_fake_version
 
 
 def handle_csrf_error(e):

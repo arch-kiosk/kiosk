@@ -1,9 +1,12 @@
 import datetime
 import logging
 import re
+from random import randint
 
 from jinja2 import pass_eval_context
 from markupsafe import escape, Markup
+
+import kioskglobals
 
 
 @pass_eval_context
@@ -22,6 +25,14 @@ def newline_to_br(eval_ctx, value: str) -> str:
     )
     return Markup(result) if eval_ctx.autoescape else result
 
+def jinja_fake_version(value: str) -> str:
+    if value:
+        if value == "kiosk_version":
+            from kioskglobals import kiosk_version, is_development_system
+            if not is_development_system():
+                return f"{hash(kiosk_version)}"
+
+    return f"{randint(1,100)}"
 
 @pass_eval_context
 def format_datetime(eval_ctx, value, format='medium'):
