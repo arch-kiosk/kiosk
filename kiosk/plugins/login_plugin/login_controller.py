@@ -41,7 +41,7 @@ def login():
                 if str(request.form['user-pwd']).strip() == "" or user.must_change_pwd:
                     return render_template('login.html', no_burger_menu=True, change_password=True)
                 else:
-                    response = redirect(url_for('get_index'))
+                    response = redirect(url_for('get_index'), code=303)
                     return process_client_time_zone(response, user)
             except BaseException as e:
                 logging.error(f"login_controller.login: Error when logging you in: {repr(e)}")

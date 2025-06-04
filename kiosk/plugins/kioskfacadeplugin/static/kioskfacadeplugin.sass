@@ -4,6 +4,21 @@
 //#content-wrapper
 //  //min-height: 100vh
 //  background-color: $col-bg-1-lighter
+#marker-below-toolbar, #marker-end-of-hero
+  width: 100%
+  z-index: 1000
+  visibility: hidden
+  height: 1px
+
+#marker-below-toolbar
+  position: absolute
+  background-color: pink
+  top: 100px
+
+#marker-end-of-hero
+  position: relative
+  background-color: cornflowerblue
+  top: -150px
 
 .landing-top
   height: 85vh
@@ -25,3 +40,9 @@
   color: $col-primary-bg-1
   background-color: $col-bg-1-lighter
 
+.landing-text-section
+  display: flex
+  align-items: center
+  flex-direction: column
+  background-color: $col-bg-1-lighter
+  padding-bottom: 2em

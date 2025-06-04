@@ -1,0 +1,51 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+#variables:
+#  input_b_cm_type: ["dsd(collected_material, cm_type)"]
+#  input_c_material_type: ["dsd(collected_material, type)", "input_default(null)"]
+#  input_a_site: [ "dsd(site, id)"]
+queries:
+  'anc_1997_objects':
+    name: 'List all objects of Season 1997'
+    description: 'Lists all objects of Season 1997. Note that not all objects are registered and connected to the archaeological record, yet.'
+    type: 'SQL'
+    output_type: 'list'
+    query: "  
+      select
+            u.arch_context trench,
+            l.arch_context op,
+            cm.arch_context cm_id,
+            sf.material object_type,
+            cm.type material,
+            cm.description
+            
+       from {{unit}} u
+         inner join {{locus}} l on u.uid = l.uid_unit
+         inner join {{collected_material}} cm on l.uid = cm.uid_locus
+         inner join {{small_find}} sf on cm.uid = sf.uid_cm
+      where cm.cm_type = 'small_find' and cm.date::date > '1996-12-31' and cm.date::date < '1998-01-01'
+      group by 
+            u.arch_context, 
+            l.arch_context,
+            sf.material, 
+            cm.type,
+            cm.arch_context,
+            cm.description
+      order by trench, op, cm_id, object_type;
+      "
+    column_information:
+      trench: DSD('unit','arch_context')
+      op: DSD('locus','arch_context')
+      cm_id: DSD('collected_material','arch_context')
+      cm_type: DSD('collected_material','cm_type')
+      material: DSD('collected_material','type')
+      description: DSD('collected_material','description')
+      object_type: DSD('small_find','material')
+#    charts:
+#      chart1:
+#        type: "pie"
+#        title: "#: % material in #($/constants/labels/label_for_unit_on_start_page) #(/variables/inputs/unit_id) by quantity"
+#        categories: "material"
+#        values: "quantity"

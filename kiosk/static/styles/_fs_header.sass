@@ -7,14 +7,19 @@
   padding-left: 20px
   padding-right: 20px
   background-color: rgba(255,255,255,.5)
-
+  transition: opacity 0.5s ease-in-out
   //padding-top: 10px
   width: 100%
   @media #{$screen-max-500}
     padding-left: 0px
     padding-right: 0px
-  &:hover
+  &:hover, &:active
     opacity: 1
+    //transition: opacity 0.5s ease-in-out
+
+.full-screen-headers.opaque-header
+    opacity: 1
+    background-color: $col-bg-body
     transition: opacity 0.5s ease-in-out
 
 .full-screen-logogroup
@@ -27,14 +32,8 @@
   display: flex
   align-items: center
   float: left
-  //background-color: rgba(255,255,255,.5)
   height: 100%
-  //border-right: 10px solid white
   overflow: hidden
-  //@media #{$screen-max-700}
-  //  border-right: 5px solid white
-  //@media #{$screen-phone-portrait}
-  //  border-right: 3px solid white
   #img
     background: $header-logo-img no-repeat
     background-size: contain

@@ -5,6 +5,7 @@
         </svg>
     </div>
     -->
+    <div id="marker-below-toolbar">&nbsp;</div>
     <kiosk-lightbox data-fullscreen-res="{{ fullscreen_representation_id }}" data-resolutions="{{ resolutions }}">
         <div id="filerepository-data-container" class="filerepository-data-container">
             <div id="broken-image" class="broken-image">
@@ -37,30 +38,31 @@
         </div>
     </kiosk-lightbox>
     <div class='thetop'></div>
-    {% block landing %}
-        {% block landing_top %}
-            {% if kiosk_facade_hero_image %}
-                <div style="--kiosk-facade-hero-image: url('{{ kiosk_facade_hero_image }}')"
-                     data-uuid="{{ kiosk_facade_hero_uuid }}"
-                     data-width="{{ kiosk_facade_hero_width }}"
-                     data-height="{{ kiosk_facade_hero_height }}"
-                     onclick="onFacadeImageClicked(this,event)"
-                     class="landing-top">
-                    <img src="" class="landing-image" />
+    <section class="landing-text-section">
+        {% block landing %}
+            {% block landing_top %}
+                {% if kiosk_facade_hero_image %}
+                    <div style="--kiosk-facade-hero-image: url('{{ kiosk_facade_hero_image }}')"
+                         data-uuid="{{ kiosk_facade_hero_uuid }}"
+                         data-width="{{ kiosk_facade_hero_width }}"
+                         data-height="{{ kiosk_facade_hero_height }}"
+                         onclick="onFacadeImageClicked(this,event)"
+                         class="landing-top">
+                        <img src="" class="landing-image" />
+                    </div>
+                {% endif %}
+            {% endblock landing_top %}
+            <div id="marker-end-of-hero">&nbsp;</div>
+            {% block landing_bottom %}
+                <div class="landing-bottom {% if not kiosk_facade_hero_image %}landing-bottom-no-hero-image{% endif %}">
+                    <h1>{{ global_constants["project_name"] }}</h1>
+                    <span class="landing-text">Welcome. These are your options:</span>
                 </div>
-            {% endif %}
-        {% endblock landing_top %}
-        {% block landing_bottom %}
-            <div class="landing-bottom {% if not kiosk_facade_hero_image %}landing-bottom-no-hero-image{% endif %}">
-                <h1>{{ global_constants["project_name"] }}</h1>
-                <span class="landing-text">Welcome. These are your options:</span>
+            {% endblock landing_bottom %}
+            <div id='scroll-to-top'>
             </div>
-        {% endblock landing_bottom %}
-        <div id='scroll-to-top'>
-        </div>
-    {% endblock landing %}
-
-
+        {% endblock landing %}
+    </section>
 
     <!-- Dynamic App. Currently not in use
 {#    <{{ load_dynamic_app["controller_name"] + "-app" }} id="kiosk-app" showprogress="true"></{{ load_dynamic_app["controller_name"] + "-app" }}>#}
@@ -83,7 +85,7 @@
                 let lb = document.getElementsByTagName("kiosk-lightbox")[0];
                 document.fileViewerController = new FileViewerController(api, lb, false, true);
                 console.log("FileViewerController initialized");
-                facadeInit(api)
+                facadeInit(api);
 
             } catch (e) {
                 console.warn("FileViewer not initialized. Can't show any images right now. Try refreshing the page?");
@@ -97,15 +99,55 @@
                 "you'll have to report this as a bug ");
         }
 
+        function installScrollToTopObserver() {
+            let e = document.querySelector("#marker-below-toolbar")
+
+            if (!scrollToTopObserver && e) {
+                var scrollToTopObserver = new IntersectionObserver((entries) => {
+                    let el = document.getElementById("scroll-to-top")
+                    if (entries[0].isIntersecting)
+                        el.style.display = "none"
+                    else
+                        el.style.display = "block"
+                }, {
+                    root: null,
+                    rootMargin: "0px",
+                    threshold: 1.0
+                })
+                scrollToTopObserver.observe(e)
+            }
+        }
+
+        function installHeaderObserver() {
+            let e = document.querySelector("#marker-end-of-hero")
+
+            if (!headerObserver && e) {
+                var headerObserver = new IntersectionObserver((entries) => {
+                    let el = document.getElementById("full-screen-headers")
+                    if (entries[0].isIntersecting)
+                        el.classList.remove("opaque-header")
+                    else
+                        el.classList.add("opaque-header")
+                }, {
+                    root: null,
+                    rootMargin: "0px",
+                    threshold: 1.0
+                })
+                headerObserver.observe(e)
+            }
+        }
+
         function facadeInit(api) {
-            $("#content-wrapper").on("scroll", function() {
-                //alert("scroll Top is " + String($(this).scrollTop()))
+
+            installScrollToTopObserver()
+            installHeaderObserver()
+            /*$("#content-wrapper").on("scroll", function() {
                 if ($(this).scrollTop() > 50) {
                     $("#scroll-to-top:hidden").stop(true, true).fadeIn();
                 } else {
                     $("#scroll-to-top").stop(true, true).fadeOut();
                 }
-            });
+            });*/
             $("#scroll-to-top").on("click",
                 function() {
                     $("#content-wrapper").animate(
@@ -119,13 +161,13 @@
         function showImagesWithTags(tags) {
             const url = new URL("{{ url_for('filerepository.file_repository_show') }}", window.location.origin);
             setCookie("kiosk_call_params", JSON.stringify({ tags: tags }));
-            window.location.replace(url);
+            window.location.assign(url);
         }
 
         function showImagesForIdentifier(identifier) {
             const url = new URL("{{ url_for('filerepository.file_repository_show') }}", window.location.origin);
             setCookie("kiosk_call_params", JSON.stringify({ identifier: identifier }));
-            window.location.replace(url);
+            window.location.assign(url);
         }
 
         function showViewForIdentifier(identifier, tableName, dsdIdentifierFieldName) {
@@ -133,14 +175,15 @@
             setCookie("kiosk_call_params", JSON.stringify({
                 identifier: identifier,
                 tableName: tableName,
-                dsdIdentifierFieldName: dsdIdentifierFieldName }));
-            window.location.replace(url);
+                dsdIdentifierFieldName: dsdIdentifierFieldName,
+            }));
+            window.location.assign(url);
         }
 
         function showQuery(query_id) {
             const url = new URL("{{ url_for('queryandview.query_and_view_show') }}", window.location.origin);
             setCookie("kiosk_call_params", JSON.stringify({ query: query_id }));
-            window.location.replace(url);
+            window.location.assign(url);
         }
 
         /*
