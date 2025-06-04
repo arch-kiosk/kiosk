@@ -2,7 +2,7 @@
 {% block links %}
     <link rel="stylesheet"
           href="{{ url_for(load_dynamic_app["controller_name"] + '.static',
-          filename=load_dynamic_app["controller_name"] + 'plugin.css') }}?v=1"/>
+          filename=load_dynamic_app["controller_name"] + 'plugin.css') }}?v={{ "kiosk_version"|jinja_fake_version }}"/>
     <style>
                 .loading {
                     display: flex;

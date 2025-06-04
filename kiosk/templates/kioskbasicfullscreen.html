@@ -4,7 +4,7 @@
     <meta name="robots" content="noindex">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}?v=1"/>
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}?v={{ "kiosk_version"|jinja_fake_version }}"/>
 
 
     <link rel="apple-touch-icon" sizes="180x180"
@@ -55,7 +55,7 @@
 
 <body>
 <div id="outer-wrapper">
-    <div id="full-screen-headers" class="full-screen-headers">
+    <div id="full-screen-headers" tabindex=0 class="full-screen-headers">
         <div class="full-screen-logogroup">
             <a href="{{ url_for("refresh_config") }}">
                 <div class="full-screen-logo">
@@ -97,8 +97,14 @@
             }
         }
     });
+
+    document.getElementsByClassName("full-screen-menus")[0].addEventListener("click", function (e) {
+            document.getElementById("full-screen-headers").focus()
+            {#document.getElementById("full-screen-headers").classList.toggle("opaque-header")#}
+        }
+    )
 </script>
 <!-- the custom css must always win, so it comes last! -->
-<link rel=stylesheet type=text/css href="{{ url_for('custom_file', filename="css/" + project_id + '.css') }}"/>
+<link rel=stylesheet type=text/css href="{{ url_for('custom_file', filename="css/" + project_id + '.css') }}?v={{ ""|jinja_fake_version }}"/>
 </body>
 </html>
