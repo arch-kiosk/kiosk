@@ -345,5 +345,5 @@ function join_route(route, subroute) {
 function kioskActivateFileManager(url, back_url='', back_name='') {
   setCookie("kiosk_fm_back_url", back_url)
   setCookie("kiosk_fm_back_name", back_name)
-  if (url) window.location.replace(url);
+  if (url) window.location.assign(url);
 }

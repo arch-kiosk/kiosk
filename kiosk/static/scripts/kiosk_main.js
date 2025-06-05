@@ -145,5 +145,5 @@ function stopFetchingSystemMessages() {
 }
 
 function triggerModule(endpoint = "") {
-  window.location.replace(getRoutefor(endpoint));
+  window.location.assign(getRoutefor(endpoint));
 }

@@ -1,5 +1,5 @@
 function triggerBugsAndFeatures(endpoint="") {
-  window.location.replace(getRoutefor(endpoint));
+  window.location.assign(getRoutefor(endpoint));
 };
 
 function editBug(uuid) {

@@ -1,9 +1,9 @@
 function triggerAdministration(endpoint = "") {
-    window.location.replace(getRoutefor(endpoint));
+    window.location.assign(getRoutefor(endpoint));
 }
 
 function triggerAdminInterface(endpoint = "") {
-    window.location.replace(getRoutefor(endpoint));
+    window.location.assign(getRoutefor(endpoint));
 }
 
 function triggerBackup() {

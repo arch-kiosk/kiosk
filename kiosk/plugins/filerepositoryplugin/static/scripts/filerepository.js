@@ -1,7 +1,7 @@
 // noinspection CssUnresolvedCustomProperty
 
 function triggerFileRepository(endpoint = "") {
-    window.location.replace(getRoutefor(endpoint));
+    window.location.assign(getRoutefor(endpoint));
 }
 
 /******************************************************

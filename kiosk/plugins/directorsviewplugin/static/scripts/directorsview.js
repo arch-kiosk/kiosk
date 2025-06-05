@@ -1,4 +1,4 @@
 function triggerDirectorsView(endpoint="") {
-  window.location.replace(getRoutefor(endpoint));
-};
+  window.location.assign(getRoutefor(endpoint));
+}
 

@@ -15,7 +15,7 @@ function kioskReportingStart(ws_id, action_url) {
 }
 
 function kioskReportingActivateFileManager(url) {
-  if (url) window.location.replace(url);
+  if (url) window.location.assign(url);
 }
 
 function krd_action(ws_id, title, action_url) {

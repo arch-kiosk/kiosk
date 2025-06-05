@@ -1,5 +1,5 @@
 function triggerSyncManager(endpoint = "") {
-    window.location.replace(getRoutefor(endpoint));
+    window.location.assign(getRoutefor(endpoint));
 }
 
 function triggerNewWorkstation(endpoint = "") {
@@ -52,7 +52,7 @@ function startCreateWorkstation() {
                 let workstationType = $("#workstation-type").val();
                 if (workstationType) {
                     let route = `${workstationType.toLowerCase()}.create_kiosk_workstation`;
-                    window.location.replace(getRoutefor(route));
+                    window.location.assign(getRoutefor(route));
                 } else {
                     kioskModalErrorToast(`<div>Sorry, something went really wrong.<br> I cannot ascertain the workstation type. 
                                           This is usually due to a wrong kiosk installation.<br><br>Please inform a

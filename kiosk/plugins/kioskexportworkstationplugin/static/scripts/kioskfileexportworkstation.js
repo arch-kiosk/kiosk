@@ -21,7 +21,7 @@ function submitPage() {
 function cancelPage(event) {
   event.preventDefault();
   kioskYesNoToast("Your changes will be lost, are you sure you want to cancel?", () => {
-    window.location.replace(getRoutefor("syncmanager.sync_manager_show"));
+    window.location.assign(getRoutefor("syncmanager.sync_manager_show"));
   })
 }
 

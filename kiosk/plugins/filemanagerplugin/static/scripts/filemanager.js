@@ -1,7 +1,7 @@
 function initFileManager() {
   $(".fa-arrow-circle-right").on("click", (e) => {
     let topic = $(e.target).parent().next().text()
-    window.location.replace(`${join_route(getRoutefor("filemanager.filemanager_show"), topic)}`);
+    window.location.assign(`${join_route(getRoutefor("filemanager.filemanager_show"), topic)}`);
   })
 }
 
