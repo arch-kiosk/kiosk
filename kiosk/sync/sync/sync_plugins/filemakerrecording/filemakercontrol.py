@@ -81,7 +81,8 @@ class FileMakerControl:
         logging.error("direct call to base class FileMakerControl.select_table_data")
         return None
 
-    def sync_internal_files_tables(self, files_table: str, columns_to_copy: [str]):
+    def sync_internal_files_tables(self, files_table: str, columns_to_copy: [str],
+                                       callback_progress=None):
         """
         synchronizes the files table with the files_load table. Note that the modified_by in files has not
         been tampered with at this point (the old records are still in there) and files_load does not automatically

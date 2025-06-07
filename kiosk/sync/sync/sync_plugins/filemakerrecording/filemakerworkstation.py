@@ -546,7 +546,8 @@ class FileMakerWorkstation(RecordingWorkstation):
                                                       current_tz=self.current_tz):
                     report_progress(self.interruptable_callback_progress, 50, None,
                                     "Preparing images transfer to FileMaker...")
-                    if self._sync_file_tables_in_filemaker(fm, current_tz=self.current_tz):
+                    if self._sync_file_tables_in_filemaker(fm, current_tz=self.current_tz,
+                                                           callback_progress=self.interruptable_callback_progress):
                         # raise InterruptedError()
                         report_progress(self.interruptable_callback_progress, 55, None,
                                         "Transferring images to FileMaker...")
@@ -897,7 +898,15 @@ class FileMakerWorkstation(RecordingWorkstation):
         cur.close()
         return False
 
-    def _sync_file_tables_in_filemaker(self, fm: FileMakerControl, current_tz: KioskTimeZoneInstance):
+    def _sync_file_tables_in_filemaker(self, fm: FileMakerControl, current_tz: KioskTimeZoneInstance,
+                                       callback_progress=None):
+        """
+
+        :param fm:
+        :param current_tz:
+        :param callback_progress:
+        :return:
+        """
         dsd = self._get_workstation_dsd()
         replfield_modified = dsd.get_modified_field(dsd.files_table)
         modified_ww = f"{replfield_modified}_ww" if replfield_modified else ""
@@ -924,7 +933,8 @@ class FileMakerWorkstation(RecordingWorkstation):
             finally:
                 cur.close()
 
-        return fm.sync_internal_files_tables(dsd.files_table, columns)
+        return fm.sync_internal_files_tables(dsd.files_table, columns,
+                                             callback_progress=callback_progress)
 
     def _transfer_image_transfer_table(self, cur, fm, current_tz) -> bool:
         """ transfers the contents of the table id_fm_image_transfer from the master-Model to the

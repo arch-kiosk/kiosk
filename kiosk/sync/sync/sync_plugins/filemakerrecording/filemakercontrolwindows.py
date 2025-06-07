@@ -371,7 +371,7 @@ class FileMakerControlWindows(FileMakerControl):
         ts = ts.replace(tzinfo=None, microsecond=0)
         return f"TIMESTAMP '{ts.isoformat(sep=' ')}'"
 
-    def count_images_modified_recently(self, current_timestamp: datetime.datetime=None):
+    def count_images_modified_recently(self, current_timestamp: datetime.datetime = None):
         """
         This checks how many records in the images table have been modified within the last 5 minutes
         # todo: time zone
@@ -573,7 +573,8 @@ class FileMakerControlWindows(FileMakerControl):
                 comma = ", "
                 field_data_type = dsd.get_field_datatype(tablename, f)
                 if field_data_type in ["varchar", "text"] or \
-                        (tablename == "fm_repldata_transfer" and f == "modified_by"):  # todo: That looks hacky. Why the direct reference to "modified_by"?
+                        (
+                                tablename == "fm_repldata_transfer" and f == "modified_by"):  # todo: That looks hacky. Why the direct reference to "modified_by"?
                     varchar_fields.append(f)
                 else:
                     if field_data_type == "timestamptz":
@@ -607,7 +608,8 @@ class FileMakerControlWindows(FileMakerControl):
                             if not field_value:
                                 modified_value = row["modified"]
                                 modified_tz_value = row["modified_tz"]
-                                field_value = current_tz.utc_dt_to_tz_dt(modified_value, modified_tz_value,drop_ms=True) \
+                                field_value = current_tz.utc_dt_to_tz_dt(modified_value, modified_tz_value,
+                                                                         drop_ms=True) \
                                     if modified_tz_value else modified_value
                         else:
                             field_value = row[f]
@@ -655,18 +657,17 @@ class FileMakerControlWindows(FileMakerControl):
                 average = sum_time / r_count
                 row = db_cur.fetchone()
 
-
             logging.debug(f"About to commit {str(r_count - 1)} lines in {dest_tablename}")
             self.cnxn.commit()
             logging.info(f"Copied {str(r_count - 1)} lines from {tablename} to filemaker: {dest_tablename}")
             logging.debug(f"sum_time is {sum_time}. max_time_elapsed is {max_time_elapsed}. "
-                         f"Average is {sum_time / r_count} ")
+                          f"Average is {sum_time / r_count} ")
             logging.debug(f"{self.__class__.__name__}.transfer_table_data_to_filemaker: "
-                         f"Converted {str(c_ts_to_u)} of {str(c_ts_values)} timestamps "
-                         f"to user time zone {current_tz.user_tz_iana_name}")
+                          f"Converted {str(c_ts_to_u)} of {str(c_ts_values)} timestamps "
+                          f"to user time zone {current_tz.user_tz_iana_name}")
             logging.debug(f"{self.__class__.__name__}.transfer_table_data_to_filemaker: "
-                         f"Converted {str(c_ts_to_tz)} of {str(c_ts_values)} timestamptz fields "
-                         f"to the recorded time zone. Using timestamptz fields is rather experimental.")
+                          f"Converted {str(c_ts_to_tz)} of {str(c_ts_values)} timestamptz fields "
+                          f"to the recorded time zone. Using timestamptz fields is rather experimental.")
 
             return 1
         except BaseException as e:
@@ -868,11 +869,11 @@ class FileMakerControlWindows(FileMakerControl):
             logging.info(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
                          f"Copied {str(r_count - 1)} lines from {dest_tablename} to filemaker: {dest_tablename}")
             logging.debug(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
-                         f"sum_time is {sum_time}. max_time_elapsed is {max_time_elapsed}. "
-                         f"Average is {sum_time / r_count} ")
+                          f"sum_time is {sum_time}. max_time_elapsed is {max_time_elapsed}. "
+                          f"Average is {sum_time / r_count} ")
             logging.debug(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
-                         f"Converted {str(c_ts_to_u)} of {str(c_ts_values)} timestamps "
-                         f"to user time zone {current_tz.user_tz_iana_name}")
+                          f"Converted {str(c_ts_to_u)} of {str(c_ts_values)} timestamps "
+                          f"to user time zone {current_tz.user_tz_iana_name}")
             logging.info(f"{self.__class__.__name__}.transfer_non_dsd_table_data_to_filemaker: "
                          f"Converted {str(c_ts_to_tz)} of {str(c_ts_values)} timestamptz fields "
                          f"to the recorded time zone. Using timestamptz fields is rather experimental.")
@@ -932,9 +933,8 @@ class FileMakerControlWindows(FileMakerControl):
             #  That leads to a different template, so we can be sure that the dates we find in the modified field
             #  have been transformed to the same user time zone as the current user time zone
 
-
-            pg_utc_dt: datetime.datetime = max_modified   # this is either utc or a legacy time stamp
-            fm_utc_dt: datetime.datetime = fm_record[0]   # this is user time zone
+            pg_utc_dt: datetime.datetime = max_modified  # this is either utc or a legacy time stamp
+            fm_utc_dt: datetime.datetime = fm_record[0]  # this is user time zone
 
             logging.debug(f"{self.__class__.__name__}._is_table_already_up_to_date: "
                           f"FM {dest_tablename}: max_modified={fm_record[0]}, count={fm_record[1]}")
@@ -980,7 +980,8 @@ class FileMakerControlWindows(FileMakerControl):
 
         return field_value
 
-    def sync_internal_files_tables(self, files_table: str, columns_to_copy: [str]):
+    def sync_internal_files_tables(self, files_table: str, columns_to_copy: [str],
+                                   callback_progress=None):
         """
         synchronizes the files table with the files_load table. Note that the modified_by in files has not
         been tampered with at this point (the old records are still in there) and files_load does not automatically
@@ -989,12 +990,14 @@ class FileMakerControlWindows(FileMakerControl):
         Records not in files_load are deleted in files,
         records with files.modified_by < files_load.modified_by are deleted, too.
 
+        :param callback_progress:
         :param files_table: name of the files table (e.G. "images")
         :param columns_to_copy: the columns to copy from images_load to images (or whatever files_table name is)
         """
         fm_cur = self.cnxn.cursor()
         try:
-            if self._sync_files_load_and_files(columns_to_copy, files_table, fm_cur):
+            if self._sync_files_load_and_files(columns_to_copy, files_table, fm_cur,
+                                               callback_progress=callback_progress):
                 fm_cur.execute(f"select count(uid) from \"{files_table}\"")
                 c_files = int(fm_cur.fetchone()[0])
 
@@ -1020,12 +1023,26 @@ class FileMakerControlWindows(FileMakerControl):
 
         return False
 
-    def _sync_files_load_and_files(self, columns_to_copy, files_table, fm_cur):
-        """
+    def _check_fm_sql(self, fm_cur, sql) -> int:
+        try:
+            fm_cur.execute(sql)
+            v = fm_cur.fetchone()
+            if v:
+                return int(v[0])
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}._check_fm_sql: {repr(e)}")
+        return -1
 
-        :param columns_to_copy:
-        :param files_table:
-        :param fm_cur:
+    def _sync_files_load_and_files_old(self, columns_to_copy, files_table, fm_cur,
+                                       callback_progress=None):
+        """
+        synchronizes the files_load table and the files table.
+        Why not just copy the files_load table onto the files_table? Was that too slow?
+
+        :param columns_to_copy: a list of column names that are transferred between the two tables
+        :param files_table: name of the files table
+        :param fm_cur: an open FM cursor
+        :param callback_progress: a function that the report_progress def can use to report the progress
         :return:
         todo: this is using static field names for modified and img_proxy. The dsd should provide the field names.
         """
@@ -1034,33 +1051,95 @@ class FileMakerControlWindows(FileMakerControl):
             files_load_table = files_table + "_load"
 
             # first delete all records in the file table that are not in the _load table
+
+            c = self._check_fm_sql(fm_cur, f"""select count(*) c from \"{files_table}\"
+                           where \"uid\" in (
+                              select \"{files_table}\".\"uid\" from \"{files_table}\" 
+                              left outer join \"{files_load_table}\" 
+                              on \"{files_table}\".\"uid\" = \"{files_load_table}\".\"uid\" 
+                              where \"{files_load_table}\".\"uid\" is Null
+                             )""")
+
             logging.debug(f"{self.__class__.__name__}.sync_internal_files_tables: "
-                          f"deleting obsolete records in {files_table}")
+                          f"deleting {c} obsolete records in {files_table}")
+
+            report_progress(callback_progress, 51, None, f"deleting obsolete {c} record(s)... ")
             # fm_cur.execute(f"delete from \"{files_table}\" "
             #                f"where \"uid\" not in (select \"uid\" from \"{files_load_table}\")")
-            sql = f"""delete from \"{files_table}\"
+
+
+            sql = f"""update \"{files_table}\" set ref_uid='obsolete'
                            where \"uid\" in (
                               select \"{files_table}\".\"uid\" from \"{files_table}\" 
                               left outer join \"{files_load_table}\" 
                               on \"{files_table}\".\"uid\" = \"{files_load_table}\".\"uid\" 
                               where \"{files_load_table}\".\"uid\" is Null
                              )"""
+            self.cnxn.commit()
             fm_cur.execute(sql)
+            logging.debug(f"{self.__class__.__name__}.sync_internal_files_tables: "
+                          f"marked {c} obsolete records in {files_table}")
+
+            self.cnxn.commit()
+            sql = f"""
+                 delete from \"{files_table}\" where ref_uid='obsolete'
+                """
+            fm_cur.execute(sql)
+            logging.debug(f"{self.__class__.__name__}.sync_internal_files_tables: "
+                          f"finally deleted {c} marked records in {files_table}")
+            self.cnxn.commit()
+            logging.debug(f"{self.__class__.__name__}.sync_internal_files_tables: "
+                          f"finally commited {c} deleted records in {files_table}")
+
+            report_progress(callback_progress, 51, None, f"deleting {c} outdated records... ")
 
             # then delete all records in the files table that are newer in the load table
+            # c = self._check_fm_sql(fm_cur, f"""
+            #      select count(*) c from \"{files_table}\" where \"uid\" in (
+            #         select \"{files_table}\".\"uid\" from \"{files_table}\"
+            #         inner join \"{files_load_table}\" on \"{files_table}\".\"uid\"=\"{files_load_table}\".\"uid\"
+            #         where (\"{files_table}\".\"modified\" < \"{files_load_table}\".\"modified\")
+            #         or (\"{files_table}\".\"img_proxy\" <> \"{files_load_table}\".\"img_proxy\")
+            #         )
+            #     """)
+            c = ""
             logging.debug(f"{self.__class__.__name__}.sync_internal_files_tables: "
-                          f"deleting outdated or modified records in {files_table}")
+                          f"deleting {c} outdated or modified records in {files_table}")
+
             sql = f"""
-                 delete from \"{files_table}\" where \"uid\" in (
+                 update \"{files_table}\" set ref_uid='obsolete' where \"uid\" in (
                     select \"{files_table}\".\"uid\" from \"{files_table}\" 
                     inner join \"{files_load_table}\" on \"{files_table}\".\"uid\"=\"{files_load_table}\".\"uid\" 
                     where (\"{files_table}\".\"modified\" < \"{files_load_table}\".\"modified\")
                     or (\"{files_table}\".\"img_proxy\" <> \"{files_load_table}\".\"img_proxy\")
                     )
                 """
+            self.cnxn.commit()
             fm_cur.execute(sql)
+            self.cnxn.commit()
+            report_progress(callback_progress, 52, None, f"deleting {c} outdated records... ")
+            logging.debug(f"{self.__class__.__name__}.sync_internal_files_tables: "
+                          f"now finally deleting the {c} marked records in {files_table}")
+
+            sql = f"""
+                 delete from \"{files_table}\" where ref_uid='obsolete'
+                """
+            fm_cur.execute(sql)
+            self.cnxn.commit()
 
             # finally insert all new records from the load table into the files table
+
+            # c = self._check_fm_sql(fm_cur, f"""
+            #         select count(*) c from \"{files_load_table}\"
+            #         left outer join \"{files_table}\"
+            #         on \"{files_load_table}\".\"uid\" = \"{files_table}\".\"uid\"
+            #         where \"{files_table}\".\"uid\" is Null
+            #     """)
+
+            report_progress(callback_progress, 53, None, f"adding {c} image records ...")
+            logging.debug(f"{self.__class__.__name__}.sync_internal_files_tables: "
+                          f"adding {c} records from {files_table}_load to {files_table}")
+
             sql_insert_columns = ",".join([f"\"{x}\"" for x in columns_to_copy])
             sql_select_columns = ",".join([f"\"{files_load_table}\".\"{x}\"" for x in columns_to_copy])
             sql = f"""
@@ -1070,9 +1149,59 @@ class FileMakerControlWindows(FileMakerControl):
                     on \"{files_load_table}\".\"uid\" = \"{files_table}\".\"uid\" 
                     where \"{files_table}\".\"uid\" is Null   
                 """
-            logging.debug(f"{self.__class__.__name__}.sync_internal_files_tables: "
-                          f"adding from {files_table}_load to {files_table}")
             fm_cur.execute(sql)
+            report_progress(callback_progress, 55, None, "internal files table finished")
+            self.cnxn.commit()
+            return True
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}._sync_files_load_and_files: {repr(e)}")
+            logging.info(f"last sql was {sql}")
+
+        return False
+    def _sync_files_load_and_files(self, columns_to_copy, files_table, fm_cur,
+                                       callback_progress=None):
+        """
+        synchronizes the files_load table and the files table.
+        Why not just copy the files_load table onto the files_table? Was that too slow?
+
+        :param columns_to_copy: a list of column names that are transferred between the two tables
+        :param files_table: name of the files table
+        :param fm_cur: an open FM cursor
+        :param callback_progress: a function that the report_progress def can use to report the progress
+        :return:
+        todo: this is using static field names for modified and img_proxy. The dsd should provide the field names.
+        """
+        sql = ""
+        try:
+            files_load_table = files_table + "_load"
+
+            # first delete all records in the file table that are not in the _load table
+
+
+            self.cnxn.commit()
+            logging.debug(f"{self.__class__.__name__}.sync_internal_files_tables: "
+                          f"truncation internal files table")
+            report_progress(callback_progress, 51, None, "truncating internal files table ...")
+            sql = f"""
+                 truncate table \"{files_table}\"
+                """
+            fm_cur.execute(sql)
+            self.cnxn.commit()
+            logging.debug(f"{self.__class__.__name__}.sync_internal_files_tables: "
+                          f"truncation internal files table finished")
+
+            report_progress(callback_progress, 53, None, f"adding image records ...")
+            logging.debug(f"{self.__class__.__name__}.sync_internal_files_tables: "
+                          f"adding records from {files_table}_load to {files_table}")
+
+            sql_insert_columns = ",".join([f"\"{x}\"" for x in columns_to_copy])
+            sql_select_columns = ",".join([f"\"{files_load_table}\".\"{x}\"" for x in columns_to_copy])
+            sql = f"""
+                 insert into \"{files_table}\" ({sql_insert_columns})
+                    select {sql_select_columns} from \"{files_load_table}\" 
+                """
+            fm_cur.execute(sql)
+            report_progress(callback_progress, 55, None, "internal files table finished")
             self.cnxn.commit()
             return True
         except BaseException as e:
