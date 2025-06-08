@@ -1179,16 +1179,26 @@ class FileMakerControlWindows(FileMakerControl):
 
 
             self.cnxn.commit()
-            logging.debug(f"{self.__class__.__name__}.sync_internal_files_tables: "
-                          f"truncation internal files table")
-            report_progress(callback_progress, 51, None, "truncating internal files table ...")
-            sql = f"""
-                 truncate table \"{files_table}\"
-                """
-            fm_cur.execute(sql)
-            self.cnxn.commit()
-            logging.debug(f"{self.__class__.__name__}.sync_internal_files_tables: "
-                          f"truncation internal files table finished")
+
+            rc = self._start_fm_script_and_wait("prepare_image_transfer", 60)
+            if rc == "1":
+                prep_result = self.get_constant("image_transfer_prep")
+                logging.info(f"{self.__class__.__name__}.sync_internal_files_tables: "
+                              f"The FM Script prepare_image_transfer requests {prep_result} updated image records.")
+            else:
+                logging.info(f"{self.__class__.__name__}.sync_internal_files_tables: "
+                              f"prepare_image_transfer did not work, so I truncate the internal files table")
+                report_progress(callback_progress, 51, None, "truncating internal files table ...")
+                sql = f"""
+                     truncate table \"{files_table}\"
+                    """
+                fm_cur.execute(sql)
+                self.cnxn.commit()
+                logging.debug(f"{self.__class__.__name__}.sync_internal_files_tables: "
+                              f"truncation internal files table finished")
+
+
+
 
             report_progress(callback_progress, 53, None, f"adding image records ...")
             logging.debug(f"{self.__class__.__name__}.sync_internal_files_tables: "
@@ -1199,7 +1209,11 @@ class FileMakerControlWindows(FileMakerControl):
             sql = f"""
                  insert into \"{files_table}\" ({sql_insert_columns})
                     select {sql_select_columns} from \"{files_load_table}\" 
+                    left outer join \"{files_table}\" 
+                    on \"{files_load_table}\".\"uid\" = \"{files_table}\".\"uid\" 
+                    where \"{files_table}\".\"uid\" is Null   
                 """
+
             fm_cur.execute(sql)
             report_progress(callback_progress, 55, None, "internal files table finished")
             self.cnxn.commit()

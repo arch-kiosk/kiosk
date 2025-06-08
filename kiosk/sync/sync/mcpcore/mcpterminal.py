@@ -389,6 +389,8 @@ if __name__ == '__main__':
 
     from sync_plugins.redisgeneralstore.redisgeneralstore import RedisGeneralStore
     from sync_config import SyncConfig
+    if not kioskstdlib.is_platform_admin():
+        raise Exception("MCP needs admin privileges.")
 
     filename = inspect.getframeinfo(inspect.currentframe()).filename
     root_path = os.path.dirname(os.path.abspath(filename))

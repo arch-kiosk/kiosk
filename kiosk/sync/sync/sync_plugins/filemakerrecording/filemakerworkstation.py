@@ -909,9 +909,8 @@ class FileMakerWorkstation(RecordingWorkstation):
         """
         dsd = self._get_workstation_dsd()
         replfield_modified = dsd.get_modified_field(dsd.files_table)
-        modified_ww = f"{replfield_modified}_ww" if replfield_modified else ""
+        # modified_ww = f"{replfield_modified}_ww" if replfield_modified else ""
 
-        columns = dsd.omit_fields_by_datatype(dsd.files_table, dsd.list_fields(dsd.files_table), "tz")
         if self._table_didnt_need_transfer(dsd.files_table):
             cur = KioskSQLDb.get_dict_cursor()
             if cur is None:
@@ -933,6 +932,7 @@ class FileMakerWorkstation(RecordingWorkstation):
             finally:
                 cur.close()
 
+        columns = dsd.omit_fields_by_datatype(dsd.files_table, dsd.list_fields(dsd.files_table), "tz")
         return fm.sync_internal_files_tables(dsd.files_table, columns,
                                              callback_progress=callback_progress)
 
