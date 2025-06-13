@@ -2111,6 +2111,23 @@ constants:
 
 archival_entity:
   structure:
+    2:
+      identifier: [datatype(VARCHAR), not_null(), unique(), identifier()]
+      alternative_id: [datatype(VARCHAR), identifier("additional")]
+      local_id: [datatype(NUMBER), local_id("identifier")]
+      domain: [datatype(VARCHAR), id_domain("identifier")]
+      description: [datatype(VARCHAR)]
+      type: [datatype(VARCHAR)]
+      location: [datatype(VARCHAR)]
+      condition: [datatype(VARCHAR)]
+      date_from: [datatype(DATE)]
+      date_to: [datatype(DATE)]
+      status_done: [datatype(VARCHAR)]
+      status_todo: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by()]
     1:
       identifier: [datatype(VARCHAR), not_null(), unique(), identifier()]
       alternative_id: [datatype(VARCHAR), identifier("additional")]
@@ -2126,6 +2143,11 @@ archival_entity:
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by()]
+  migration:
+    2:
+      upgrade:
+        - add("status_todo")
+        - add("status_done")
 
 archival_entity_activity:
   structure:

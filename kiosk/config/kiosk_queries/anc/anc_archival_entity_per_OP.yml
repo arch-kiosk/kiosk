@@ -1,0 +1,47 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+variables:
+  unit_id: ["dsd('unit', 'arch_context')"]
+queries:
+  'archival_entity_per_OP':
+    name: '#: List all archival entities per #($/constants/labels/label_for_unit_on_start_page)'
+    description: '#: Lists all archival entities for a given #($/constants/labels/label_for_unit_on_start_page).'
+    type: 'SQL'
+    output_type: 'list'
+    query: "  
+      select distinct ae.identifier identifier, 
+                      ae.date_from date_from, ae.date_to date_to, 
+                      ae.status_todo status_todo, ae.status_done status_done
+      from archival_entity ae
+          inner join archival_entity_units au on ae.uid = au.uid_archival_entity
+          inner join unit on au.uid_unit = unit.uid
+      where unit.arch_context = {{#unit_id}}
+      order by ae.identifier
+      "
+#    query: "
+#      select distinct ae.identifier identifier,
+#                      ae.description description, ae.type type,
+#                      ae.date_from date_from, ae.date_to date_to,
+#                      ae.status_todo status_todo, ae.status_done status_done
+#      from archival_entity ae
+#          inner join archival_entity_units au on ae.uid = au.uid_archival_entity
+#          inner join unit on au.uid_unit = unit.uid
+#      where unit.arch_context = {{#unit_id}}
+#      order by ae.identifier
+#      "
+    column_information:
+      identifier: DSD('archival_entity','identifier')
+      description: DSD('archival_entity','description')
+      type: DSD('archival_entity','type')
+      date_from: ["DSD('archival_entity','date_from')",label(from)]
+      date_to: ["DSD('archival_entity','date_to')",label(to)]
+      status_todo: ["DSD('archival_entity','status_todo')", label(to do)]
+      status_done: ["DSD('archival_entity','status_done')", label(done)]
+#    charts:
+#      chart1:
+#        type: "pie"
+#        title: "#: % material in #($/constants/labels/label_for_unit_on_start_page) #(/variables/inputs/unit_id) by quantity"
+#        categories: "material"
+#        values: "quantity"
