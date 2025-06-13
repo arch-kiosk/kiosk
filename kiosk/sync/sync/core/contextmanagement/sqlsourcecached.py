@@ -79,13 +79,14 @@ class SqlSourceCached(SqlSource):
         :exception: Can throw all kinds of exceptions.
         """
         # KioskSQLDb.execute(f"DROP TABLE IF EXISTS {self.cache_table_name}")
+        del_where = ""
         try:
-            savepoint = ""
             if KioskSQLDb.does_table_exist(tablename=self._name, schema=self.schema_name):
                 savepoint = KioskSQLDb.begin_savepoint(savepoint_prefix="sscinv")
                 try:
                     if condition_field:
-                        sql = f" DELETE FROM {self.cache_table_name} {self._get_where(condition_field, condition)}"
+                        del_where = self._get_where(condition_field, condition)
+                        sql = " DELETE" + f" FROM {self.cache_table_name} {del_where}"
                     else:
                         sql = f" DELETE FROM {self.cache_table_name}"
                     c = KioskSQLDb.execute(sql)
@@ -98,7 +99,7 @@ class SqlSourceCached(SqlSource):
             else:
                 return 0
         except BaseException as e:
-            logging.error(f"{self.__class__.__name__}.invalidate_cache : {repr(e)}")
+            logging.error(f"{self.__class__.__name__}.invalidate_cache {del_where}:  {repr(e)}")
             raise e
 
     def _get_union_select(self):

@@ -26,13 +26,19 @@ class FileIdentifierCache:
         rc = True
         fic_indexes = sync_type_repository.list_types(TYPE_FILE_IDENTIFIER_CACHE)
         for fic_index in fic_indexes:
-            context_type = sync_type_repository.get_type(TYPE_FILE_IDENTIFIER_CACHE, fic_index)
-            logging.debug(f"{cls.__class__.__name__}.build_fic_type_indexes: building {context_type}")
-            fic = FileIdentifierCache(dsd, context_type=context_type)
-            if fic.build_file_identifier_cache_from_contexts():
-                logging.info(f"{cls.__class__.__name__}.build_fic_type_indexes: building {context_type} done")
-            else:
-                logging.info(f"{cls.__class__.__name__}.build_fic_type_indexes: building {context_type} failed.")
+            context_type = "unknown"
+            try:
+                context_type = sync_type_repository.get_type(TYPE_FILE_IDENTIFIER_CACHE, fic_index)
+                logging.debug(f"{cls.__class__.__name__}.build_fic_type_indexes: building {context_type}")
+                fic = FileIdentifierCache(dsd, context_type=context_type)
+                if fic.build_file_identifier_cache_from_contexts():
+                    logging.info(f"{cls.__class__.__name__}.build_fic_type_indexes: building {context_type} done")
+                else:
+                    logging.info(f"{cls.__class__.__name__}.build_fic_type_indexes: building {context_type} failed.")
+                    rc = False
+            except BaseException as e:
+                logging.error(f"{cls.__name__}.build_fic_indexes: Error building fic {fic_index}, "
+                              f"context type {context_type}: {repr(e)}")
                 rc = False
         return rc
 
