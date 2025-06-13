@@ -114,7 +114,9 @@
 {% endblock %}
 {% block kiosk_modal_dialog_after %}
   <script src="{{ url_for('kioskfilemakerworkstation.static',
-                  filename='scripts/kioskfilemakerworkstationactions.js') }}"></script>
+                  filename='scripts/kioskfilemakerworkstationactions.js') }}?v={{ "kiosk_version"|jinja_fake_version }}">
+
+  </script>
   <script>
       ensureLibrariesAndinitDialog();
 

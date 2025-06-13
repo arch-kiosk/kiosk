@@ -171,8 +171,8 @@ function kfw_initFileUpload() {
         }
       }
     },
-    onUploadError: function (id, message) {
-      $("#ws-message-div").html("<i class=\"fas fa-angry\"></i> Really? The upload failed: <span style='color: red'>" + message + "</span>");
+    onUploadError: function (id, xhr, status, errorThrown) {
+      $("#ws-message-div").html(`<i class="fas fa-angry"></i> Really? The upload failed with error code ${status}: <span style="color: red">${errorThrown}</span>`);
     },
     onFallbackMode: function (message) {
       kioskErrorToast('Browser not supported!: ' + message);
