@@ -5,3 +5,4 @@ node_modules/
 .env.development.local
 /src/*.css
 /src/*.css.map
+/kioskfilemakerworkstation/**/*
