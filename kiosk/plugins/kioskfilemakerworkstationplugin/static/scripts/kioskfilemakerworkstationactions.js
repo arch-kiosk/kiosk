@@ -172,7 +172,13 @@ function kfw_initFileUpload() {
       }
     },
     onUploadError: function (id, xhr, status, errorThrown) {
-      $("#ws-message-div").html(`<i class="fas fa-angry"></i> Really? The upload failed with error code ${status}: <span style="color: red">${errorThrown}</span>`);
+      console.log("error uploading", id, xhr, status, errorThrown)
+      console.log("xhr:", xhr.status, xhr.readyState, xhr.statusText)
+      if (xhr.status !== 0) {
+        $("#ws-message-div").html(`<i class="fas fa-angry"></i> Really? The upload failed with error code ${status}: <span style="color: red">${errorThrown}</span>`);
+      } else {
+        $("#ws-message-div").html(`<i class="fas fa-angry"></i> Really? The upload failed with an unspecified error, which suggests a network failure of some sort (<span style="color: red">${xhr.statusText}</span>). Please try to repeat the upload.`);
+      }
     },
     onFallbackMode: function (message) {
       kioskErrorToast('Browser not supported!: ' + message);
