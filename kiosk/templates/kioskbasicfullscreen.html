@@ -82,7 +82,7 @@
 {#    </div>#}
 </div>
 
-<script src="{{ url_for('static', filename='scripts/kiosk_main.js') }}"></script>
+<script src="{{ url_for('static', filename='scripts/kiosk_main.js') }}?v={{ "kiosk_version"|jinja_fake_version }}"></script>
 
 {{ global_sync_scripts |safe }}
 {{ global_async_scripts |safe }}
@@ -105,6 +105,6 @@
     )
 </script>
 <!-- the custom css must always win, so it comes last! -->
-<link rel=stylesheet type=text/css href="{{ url_for('custom_file', filename="css/" + project_id + '.css') }}?v={{ ""|jinja_fake_version }}"/>
+<link rel=stylesheet type=text/css href="{{ url_for('custom_file', filename="css/" + project_id + '.css') }}?v={{ "kiosk_version"|jinja_fake_version }}"/>
 </body>
 </html>
