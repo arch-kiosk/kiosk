@@ -133,18 +133,20 @@ function kfw_download(ws_id) {
     });
 }
 
-function kfw_initFileUpload() {
-  console.log("initializing file upload...")
+function kfw_initFileUpload(maxFileSize) {
+  console.log(`initializing file upload with maxFileSize ${maxFileSize} ...`)
   try {
     $("#drop-area-div").dmUploader("cancel");
   } catch (e) {
     console.log(e)
   }
+
   let ws_id = $("#file-upload").attr("data");
   $('#drop-area-div').dmUploader({
     url: '/kioskfilemakerworkstation/workstation/' + ws_id + "/upload",
     dataType: 'json',
     extFilter: ['fmp12'],
+    maxFileSize: parseInt(maxFileSize),
     queue: false,
     auto: true,
     onInit: function () {
@@ -185,6 +187,10 @@ function kfw_initFileUpload() {
     },
     onFileExtError: function (file) {
       kioskErrorToast('Please upload only filemaker files (with the extension .fmp12).');
+    },
+    onFileSizeError: function (file) {
+      kioskErrorToast(`The file you tried to upload is too large. 
+      Please don't upload files with more than ${(maxFileSize / 1024 / 1024).toFixed(2)} MB. `);
     }
   }); //end $('#drop-area-div').dmUploader
 }

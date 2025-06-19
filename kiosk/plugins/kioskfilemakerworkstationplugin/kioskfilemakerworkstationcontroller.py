@@ -189,6 +189,9 @@ def create_filemaker_workstation(form: KioskFileMakerWorkstationForm, general_er
 @full_login_required
 def workstation_actions(ws_id: str):
     print(f"# actions for {ws_id}")
+    cfg = kioskglobals.cfg.get_plugin_config(_plugin_name_)
+    max_file_size = kioskstdlib.try_get_dict_entry(cfg,
+                                                   "max_file_size",0, True)
     try:
         check_ajax()
 
@@ -202,7 +205,7 @@ def workstation_actions(ws_id: str):
         if not workstation.exists:
             abort(HTTPStatus.BAD_REQUEST, "Attempt to load a workstation that does not exist")
 
-        return render_template('kioskfilemakerworkstationactions.html', ws=workstation)
+        return render_template('kioskfilemakerworkstationactions.html', ws=workstation, max_file_size=max_file_size)
 
     except HTTPException as e:
         logging.error(f"kioskfilemakerworkstationcontroller.workstation_actions: {repr(e)}")
@@ -278,7 +281,6 @@ def trigger_action(action: str, ws_id: str):
         ws.load_workstation()
         if not ws.exists:
             abort(HTTPStatus.BAD_REQUEST, f"Unknown workstation id '{ws_id}'")
-
 
         if not ws.is_option_available("enable" if ws.disabled else action,
                                       current_plugin_controller=get_plugin_for_controller(_plugin_name_)):

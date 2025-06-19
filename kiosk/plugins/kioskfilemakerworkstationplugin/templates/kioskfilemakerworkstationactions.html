@@ -134,7 +134,7 @@
             });
             kioskActivateButton($("#bt-delete"), null);
             kioskActivateButton($("#bt-cancel"), null);
-            kfw_initFileUpload();
+            kfw_initFileUpload({{ max_file_size }});
             $.magnificPopup.instance.ev.on("mfpBeforeClose", mfpActionsOnClose);
           })
         }

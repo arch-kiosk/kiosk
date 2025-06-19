@@ -360,6 +360,8 @@ kiosk:
   kioskfilemakerworkstationplugin:
     active: true
     no_csrf_defense: true
+    max_file_size: 0
+#    max_file_size: 750000000
     menu:
       "prepare filemaker workstations": [ "+syncmanagerplugin" ]
       "import filemaker workstations": [ "+syncmanagerplugin" ]
