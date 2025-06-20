@@ -615,13 +615,16 @@ class KioskFileMakerWorkstation(KioskWorkstation):
                 add_to_option_list(self._get_option("import_option"), low=True)
 
             if self.status == "IN_THE_FIELD" and self.allow_download:
-                self._modify_option("fork_export_option", "description",
-                                    "prepare workstation for download from scratch AGAIN.")
-                if kioskglobals.get_development_option("allow_repeat_export_ws").lower() == "true":
+                allow_repeat_export_ws = kioskglobals.get_development_option("allow_repeat_export_ws").lower() == "true"
+                if allow_repeat_export_ws or self.download_upload_status == FileMakerWorkstation.NOT_SET:
+                    self._modify_option("fork_export_option", "description",
+                                        "prepare workstation for download from scratch AGAIN.")
+                    add_to_option_list(self._get_option("fork_export_option"), low=True)
+
+                if allow_repeat_export_ws:
                     self._modify_option("export_option", "description",
-                                        "export workstation to FileMaker from scratch AGAIN.")
+                                        "export to FileMaker AGAIN.")
                     add_to_option_list(self._get_option("export_option"), low=True)
-                add_to_option_list(self._get_option("fork_export_option"), low=True)
 
             add_to_option_list(self._get_option("reset_option"), low=True)
             add_to_option_list(self._get_option("renew_option"), low=True)
