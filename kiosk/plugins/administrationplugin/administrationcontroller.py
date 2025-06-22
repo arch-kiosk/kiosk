@@ -92,7 +92,6 @@ def inject_current_plugin_controller():
 def get_plugin_config():
     return kioskglobals.cfg.get_plugin_config(_plugin_name_)
 
-
 #  **************************************************************
 #  ****    /administration/test route
 #  *****************************************************************/
@@ -870,6 +869,99 @@ def start_mcp_housekeeping(params):
 
     return errors, job_uid
 
+#  **************************************************************
+#  ****    /administration.download_transfer_catalog
+#  *****************************************************************/
+@administration.route('/download_transfer_catalog', methods=['GET'])
+@full_login_required
+@requires(IsAuthorized(ENTER_ADMINISTRATION_PRIVILEGE))
+# @nocache
+def download_transfer_catalog():
+    print("\n*************** administration/download_transfer_catalog ")
+    print(f"\nGET: get_plugin_for_controller returns {get_plugin_for_controller(_plugin_name_)}")
+    print(f"\nGET: plugin.name returns {get_plugin_for_controller(_plugin_name_).name}")
+    result = {}
+
+    if not kiosklib.is_ajax_request():
+        logging.error(f"administrationcontroller.download_transfer_catalog: No AJAX request.")
+        abort(HTTPStatus.BAD_REQUEST)
+
+    try:
+        assert_mcp(kioskglobals.general_store)
+        errors, job = start_mcp_update_transfer_catalog()
+
+        if not errors:
+            if job:
+                result["result"] = "ok"
+                result["job"] = job
+                result["message"] = "Preparing an updated transfer catalog, please wait a moment... "
+            else:
+                raise Exception("The job was not started correctly.")
+        else:
+            raise Exception(errors[0])
+
+    except Exception as e:
+        logging.error(f"administrationcontroller.download_transfer_catalog: Exception: {repr(e)}")
+        result["result"] = repr(e)
+
+    return jsonify(**result)
+
+
+def start_mcp_update_transfer_catalog():
+    errors = []
+    job_uid = ""
+    try:
+        job_data = {}
+
+        job = MCPJob(kioskglobals.general_store)
+        job.set_worker("plugins.administrationplugin.updatetransfercatalogworker", "UpdateTransferCatalogWorker")
+        job.job_data = job_data
+        job.queue()
+        job_uid = job.job_id
+
+    except Exception as e:
+        logging.error("Exception in administrationcontroller.start_mcp_update_transfer_catalog: " + repr(e))
+        errors.append("Lazy server refuses to update the transfer catalog: " + repr(e))
+
+    return errors, job_uid
+
+#  **************************************************************
+#  ****    /administration.download_transfer_catalog/download
+#  *****************************************************************/
+@administration.route('/download_transfer_catalog/download', methods=['GET'])
+@full_login_required
+@requires(IsAuthorized(ENTER_ADMINISTRATION_PRIVILEGE))
+@kiosklib.nocache
+def download_transfer_catalog_download():
+    print("\n*************** administration/download_transfer_catalog_download ")
+    print(f"\nGET: get_plugin_for_controller returns {get_plugin_for_controller(_plugin_name_)}")
+    print(f"\nGET: plugin.name returns {get_plugin_for_controller(_plugin_name_).name}")
+
+    try:
+        transfer_dir = kioskglobals.cfg.get_create_transfer_dir()
+        if not transfer_dir:
+            raise Exception("Cannot create transfer directory for this server")
+
+        download_file = os.path.join(transfer_dir, 'cat_file.json')
+        if not kioskstdlib.file_exists(download_file):
+            raise Exception("There is no updated catalog file in the transfer directory.")
+
+        mime_type = 'text/plain'
+        resp = make_response(send_file(download_file,
+                                       mimetype=mime_type,
+                                       download_name=kioskstdlib.get_filename(download_file),
+                                       as_attachment=True,
+                                       etag=kioskdatetimelib.get_utc_now_as_str()))
+
+        resp.headers['Last-Modified'] = str(kioskdatetimelib.get_utc_now().timestamp())
+        resp.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, ' \
+                                        'pre-check=0, max-age=0'
+        resp.headers['Pragma'] = 'no-cache'
+        resp.headers['Expires'] = '-1'
+        return resp
+    except BaseException as e:
+        logging.error(f"administrationcontroller.download_transfer_catalog_download: {repr(e)}")
+        abort(HTTPStatus.INTERNAL_SERVER_ERROR, description=repr(e))
 
 #  **************************************************************
 #  ****    /administration.processes_show

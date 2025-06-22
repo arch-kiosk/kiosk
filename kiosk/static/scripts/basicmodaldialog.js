@@ -326,14 +326,18 @@ function kioskRetrieveAjaxPartial(jqBt, url, jsonData, jqTarget, onSuccess, onFa
  */
 function kioskSendAjaxCommand(type, jqBt, url, jsonData, onSuccess, onFailure) {
   if (jqBt) inject_button_loader(jqBt, "#dddddd");
-  kioskDeleteAllToasts();
-  $.ajax({
+  const options = {
     type: type,
-    dataType: "json",
-    data: JSON.stringify(jsonData),
     contentType: "application/json",
     url: url,
-  })
+  }
+  if (jsonData) {
+    options.dataType ="json"
+    options.data =JSON.stringify(jsonData)
+  }
+
+  kioskDeleteAllToasts();
+  $.ajax(options)
     .done((json) => {
       if (jqBt) remove_button_loader(jqBt);
       if (json && ((json.result && json.result === "ok") || json.success)) {

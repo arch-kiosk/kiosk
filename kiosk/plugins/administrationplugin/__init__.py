@@ -90,7 +90,25 @@ if "mcpcore.mcpworker" not in sys.modules:
                                       if hasattr(current_user, "fulfills_requirement") else True,
                               parent_menu='administration'
                               ),
-                KioskMenuItem(name="users",
+                # KioskMenuItem(name="users",
+                #               onclick="triggerAdminInterface('kioskuser.index_view')",
+                #               endpoint="kioskuser.index_view",
+                #               menu_cfg=plugin.get_menu_config(),
+                #               is_active=lambda:
+                #                   current_user.fulfills_requirement(MANAGE_USERS)
+                #                       if hasattr(current_user, "fulfills_requirement") else False,
+                #               parent_menu='administration'
+                #               ),
+                # KioskMenuItem(name="privileges",
+                #               onclick="triggerAdminInterface('kioskprivilege.index_view')",
+                #               endpoint="kioskprivilege.index_view",
+                #               menu_cfg=plugin.get_menu_config(),
+                #               is_active=lambda:
+                #                   current_user.fulfills_requirement(MANAGE_USERS)
+                #                       if hasattr(current_user, "fulfills_requirement") else False,
+                #               parent_menu='administration'
+                #               ),
+                KioskMenuItem(name="settings",
                               onclick="triggerAdminInterface('kioskuser.index_view')",
                               endpoint="kioskuser.index_view",
                               menu_cfg=plugin.get_menu_config(),
@@ -99,54 +117,54 @@ if "mcpcore.mcpworker" not in sys.modules:
                                       if hasattr(current_user, "fulfills_requirement") else False,
                               parent_menu='administration'
                               ),
-                KioskMenuItem(name="privileges",
-                              onclick="triggerAdminInterface('kioskprivilege.index_view')",
-                              endpoint="kioskprivilege.index_view",
-                              menu_cfg=plugin.get_menu_config(),
-                              is_active=lambda:
-                                  current_user.fulfills_requirement(MANAGE_USERS)
-                                      if hasattr(current_user, "fulfills_requirement") else False,
-                              parent_menu='administration'
-                              ),
-                KioskMenuItem(name="file picking rules",
-                              onclick="triggerAdminInterface('kioskfilepickingrules.index_view')",
-                              endpoint="kioskfilepickingrules.index_view",
-                              menu_cfg=plugin.get_menu_config(),
-                              is_active=lambda:
-                                  current_user.fulfills_requirement(MANAGE_SERVER_PRIVILEGE)
-                                      if hasattr(current_user, "fulfills_requirement") else False,
-                              parent_menu='administration'
-                              ),
-                KioskMenuItem(name="ports",
-                              onclick="triggerAdminInterface('kioskports.index_view')",
-                              endpoint="kioskports.index_view",
-                              menu_cfg=plugin.get_menu_config(),
-                              is_active=lambda:
-                                  current_user.fulfills_requirement(MANAGE_PORTS)
-                                      if hasattr(current_user, "fulfills_requirement") else False,
-                              parent_menu='administration'
-                              ),
-                KioskMenuItem(name="quality control rules",
-                              onclick="triggerAdminInterface('kioskqcrules.index_view')",
-                              endpoint="kioskqcrules.index_view",
-                              menu_cfg=plugin.get_menu_config(),
-                              is_active=lambda:
-                                  current_user.fulfills_requirement(MANAGE_SERVER_PRIVILEGE)
-                                      if hasattr(current_user, "fulfills_requirement") else False,
-                              parent_menu='administration'
-                              ),
-                KioskMenuItem(name="kiosk queries",
-                              onclick="triggerAdminInterface('kioskqueries.index_view')",
-                              endpoint="kioskqueries.index_view",
-                              menu_cfg=plugin.get_menu_config(),
-                              is_active=lambda:
-                                  current_user.fulfills_requirement(MANAGE_SERVER_PRIVILEGE)
-                                      if hasattr(current_user, "fulfills_requirement") else False,
-                              parent_menu='administration'
-                              ),
+                # KioskMenuItem(name="file picking rules",
+                #               onclick="triggerAdminInterface('kioskfilepickingrules.index_view')",
+                #               endpoint="kioskfilepickingrules.index_view",
+                #               menu_cfg=plugin.get_menu_config(),
+                #               is_active=lambda:
+                #                   current_user.fulfills_requirement(MANAGE_SERVER_PRIVILEGE)
+                #                       if hasattr(current_user, "fulfills_requirement") else False,
+                #               parent_menu='administration'
+                #               ),
+                # KioskMenuItem(name="ports",
+                #               onclick="triggerAdminInterface('kioskports.index_view')",
+                #               endpoint="kioskports.index_view",
+                #               menu_cfg=plugin.get_menu_config(),
+                #               is_active=lambda:
+                #                   current_user.fulfills_requirement(MANAGE_PORTS)
+                #                       if hasattr(current_user, "fulfills_requirement") else False,
+                #               parent_menu='administration'
+                #               ),
+                # KioskMenuItem(name="quality control rules",
+                #               onclick="triggerAdminInterface('kioskqcrules.index_view')",
+                #               endpoint="kioskqcrules.index_view",
+                #               menu_cfg=plugin.get_menu_config(),
+                #               is_active=lambda:
+                #                   current_user.fulfills_requirement(MANAGE_SERVER_PRIVILEGE)
+                #                       if hasattr(current_user, "fulfills_requirement") else False,
+                #               parent_menu='administration'
+                #               ),
+                # KioskMenuItem(name="kiosk queries",
+                #               onclick="triggerAdminInterface('kioskqueries.index_view')",
+                #               endpoint="kioskqueries.index_view",
+                #               menu_cfg=plugin.get_menu_config(),
+                #               is_active=lambda:
+                #                   current_user.fulfills_requirement(MANAGE_SERVER_PRIVILEGE)
+                #                       if hasattr(current_user, "fulfills_requirement") else False,
+                #               parent_menu='administration'
+                #               ),
                 KioskMenuItem(name="logs",
                               onclick="triggerAdminInterface('administration.show_logs')",
                               endpoint="administration.show_logs",
+                              menu_cfg=plugin.get_menu_config(),
+                              is_active=lambda:
+                              current_user.fulfills_requirement(ENTER_ADMINISTRATION_PRIVILEGE)
+                              if hasattr(current_user, "fulfills_requirement") else False,
+                              parent_menu='administration'
+                              ),
+                KioskMenuItem(name="download transfer catalog",
+                              onclick="triggerDownloadTransferCatalog('administration.download_transfer_catalog')",
+                              endpoint="administration.download_transfer_catalog",
                               menu_cfg=plugin.get_menu_config(),
                               is_active=lambda:
                               current_user.fulfills_requirement(ENTER_ADMINISTRATION_PRIVILEGE)
@@ -159,7 +177,8 @@ if "mcpcore.mcpworker" not in sys.modules:
     def register_global_routes() -> List[Union[str, Tuple[str, str]]]:
         global plugin
         return ["administration.trigger_patch",
-                "administration.upload_catalog"
+                "administration.upload_catalog",
+                "administration.download_transfer_catalog"
                 ]
 
     def register_global_scripts():

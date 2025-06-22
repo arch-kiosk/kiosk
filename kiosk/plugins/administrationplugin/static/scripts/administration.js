@@ -3,7 +3,7 @@ function triggerAdministration(endpoint = "") {
 }
 
 function triggerAdminInterface(endpoint = "") {
-    window.location.assign(getRoutefor(endpoint));
+    triggerAdministration(endpoint);
 }
 
 function triggerBackup() {
@@ -33,6 +33,100 @@ function triggerUploadPatch(endpoint) {
         },
     });
 }
+
+function triggerDownloadTransferCatalog(endpoint) {
+    if (waitForTransferCatalog.job) {
+        kioskErrorToast("A transfer catalog is already being prepared. You can't start this twice.");
+        return;
+    }
+
+    const route = getRoutefor(endpoint);
+    kioskYesNoToast(`This updates and downloads a transfer catalog from this server (the target) 
+    so that a second server (the source) can prepare a data transfer. Is that what you want?`,
+        () => {
+
+            kioskSendAjaxCommand("GET", null,
+                route,
+                null,
+                (json) => {
+                    if (json && "result" in json && json.result === "ok") {
+                        waitForTransferCatalog(json["job"], json["message"], route)
+                    } else {
+                        if (json && "result" in json) {
+                            kioskErrorToast(`The server reported an error: ${json.result}`)
+                        } else {
+                            kioskErrorToast(`The server terminated the operation with an unspecific error.`)
+                        }
+                    }
+                },
+                (err_code, json) => {
+                    if ("result" in json) {
+                        kioskErrorToast(json.result);
+                    } else {
+                        kioskErrorToast(`An Error occurred when trying to initiate the triggerDownloadTransferCatalog 
+                        operation: ${err_code}`);
+                    }
+                });
+        });
+}
+
+function waitForTransferCatalog(job_uid, message, route) {
+    console.log(`waitForTransferCatalog called with ${job_uid} and message: ${message}`);
+    waitForTransferCatalog.job = undefined
+
+    const contentWrapper = document.getElementById("content-wrapper")
+    const node = document.createElement("div");
+    node.id = "transfer-catalog-waiting";
+    node.classList.add("kiosk-waiting-for-transfer-catalog");
+    const innerNode = document.createElement("div")
+    innerNode.innerText = message
+    node.appendChild(innerNode)
+    const progressNode = document.createElement("div")
+    progressNode.innerHTML = "<div class=\"bounce1\"></div><div class=\"bounce2\"></div><div class=\"bounce3\"></div>"
+    progressNode.classList.add("spinner")
+    node.appendChild(progressNode)
+    contentWrapper.insertBefore(node, contentWrapper.firstChild)
+    const job = new KioskJob($(contentWrapper.firstChild));
+    if (job) {
+        job.onSuccess = (result) => {
+            // $("#transfer-catalog-waiting").remove()
+            waitForTransferCatalog.job = undefined
+            if (result.success) {
+                kioskYesNoToast(result.message, () => {
+                    const fileRoute = `${route}/download`
+                    window.location.assign(fileRoute);
+                    kioskSuccessToast('Please check your download folder. It should contain the catalog file.');
+                }, () => {})
+            } else {
+                kioskErrorToast(`The Operation failed: ${result.message}`);
+            }
+        };
+        job.onStopProgress = () => {
+            try {$("#transfer-catalog-waiting").remove()}catch{}
+            // try {$(".spinner").remove()}catch{}
+        };
+        job.onError = (err_msg) => {
+            waitForTransferCatalog.job = undefined
+            try {$("#transfer-catalog-waiting").remove()}catch{}
+            kioskErrorToast(`waitForTransferCatalog failed due to an error: ` + err_msg);
+        };
+        job.onInitProgress = () => {
+            // kioskDisableButton($("#bt-ok"), true);
+            // kioskDisableButton($("#bt-cancel"), true);
+            // installSpinner(isBackup ? $("#backup-form") : $("#restore-form"), "initializing ... ");
+        };
+        job.onProgress = (progress, message, topic) => {
+            if (progress >= 100) {
+                try {$(".spinner").remove()}catch{}
+            }
+        };
+        waitForTransferCatalog.job = job;
+        waitForTransferCatalog.job.connect(job_uid)
+    } else {
+        kioskModalErrorToast(`<div>Sorry, some error made it impossible to start a job to wait for the transfer catalog.`)
+    }
+}
+
 
 
 function init_bt_backup() {
