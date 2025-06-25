@@ -1,6 +1,8 @@
 # time zone relevant
 import datetime
 import logging
+from typing import Tuple, Union
+
 import flake8
 
 from http import HTTPStatus
@@ -114,7 +116,6 @@ def check_ajax():
         logging.error(f"kioskfilemakerworkstationcontroller.workstation_actions: "
                       f"attempt to access endpoint other than by ajax")
 
-
 @kioskfilemakerworkstation.route('create_kiosk_workstation', methods=['GET', 'POST'])
 @full_login_required
 @requires(IsAuthorized(CREATE_WORKSTATION))
@@ -205,7 +206,18 @@ def workstation_actions(ws_id: str):
         if not workstation.exists:
             abort(HTTPStatus.BAD_REQUEST, "Attempt to load a workstation that does not exist")
 
-        return render_template('kioskfilemakerworkstationactions.html', ws=workstation, max_file_size=max_file_size)
+        if (not workstation.disabled and
+            not workstation.sync_ws.has_option('PERMANENT_DOWNLOAD') and
+            workstation.is_option_available("download",
+                                      current_plugin_controller=get_plugin_for_controller(_plugin_name_))):
+            download_file_size_status = workstation.check_download_size(cfg)
+        else:
+            download_file_size_status = None
+
+        return render_template('kioskfilemakerworkstationactions.html',
+                               ws=workstation,
+                               max_file_size=max_file_size,
+                               download_file_size_status=download_file_size_status)
 
     except HTTPException as e:
         logging.error(f"kioskfilemakerworkstationcontroller.workstation_actions: {repr(e)}")

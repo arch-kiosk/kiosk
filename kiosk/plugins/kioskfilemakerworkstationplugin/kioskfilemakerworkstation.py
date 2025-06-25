@@ -4,7 +4,7 @@ import copy
 import logging
 import textwrap
 import zoneinfo
-from typing import List
+from typing import List, Dict, Union, Tuple
 
 from charset_normalizer.utils import iana_name
 from werkzeug import datastructures
@@ -666,3 +666,36 @@ class KioskFileMakerWorkstation(KioskWorkstation):
                     return True
 
         return False
+
+    def get_workstation_size(self):
+        """
+        returns the size of the dock's filemaker file in bytes
+        :return:
+        """
+        path_and_filename = self.sync_ws.get_export_path_and_filename()
+        return kioskstdlib.get_file_size(path_and_filename)
+
+    def check_download_size(self, cfg: Dict) -> Union[None, Tuple[int, int]]:
+        """
+        checks if the download size of a workstation is below the max limits
+        :param cfg: a dict with the optional keys "max_download_file_size" and "max_file_size", which
+                    is what is expected in the KioskFileMakerWorkstation plugin's config section
+        :return: None if everything is alright, a Tuple of rc, max_size if not:
+                 rc = -1: exceeding the upload limit (worse!)
+                 rc = -2: exceeding the download limit
+        """
+        current_size=self.get_workstation_size()
+        max_download_file_size = kioskstdlib.try_get_dict_entry(cfg,
+                                                       "max_download_file_size",0, True)
+        max_upload_file_size = kioskstdlib.try_get_dict_entry(cfg,
+                                                       "max_file_size",0, True)
+        if max_upload_file_size:
+            if current_size >= max_upload_file_size:
+                return -1, max_upload_file_size
+
+
+        if max_download_file_size:
+            if current_size >= max_download_file_size:
+                return -2, max_download_file_size
+
+        return None

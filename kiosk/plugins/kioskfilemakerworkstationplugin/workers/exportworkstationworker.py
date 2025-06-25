@@ -12,6 +12,27 @@ from tz.kiosktimezoneinstance import KioskTimeZoneInstance
 
 class ExportWorkstationWorker(WorkstationManagerWorker):
 
+    def check_workstation_size(self, workstation: KioskFileMakerWorkstation):
+        try:
+            try:
+                plugin_cfg = self.cfg.kiosk["kioskfilemakerworkstationplugin"]
+            except BaseException as e:
+                return
+
+            download_file_size_status = workstation.check_download_size(plugin_cfg)
+            if download_file_size_status:
+                if download_file_size_status[0] == -1:
+                    logging.warning(f"The resulting file size for this dock exceeds the upload size of "
+                                    f"{round(download_file_size_status[1]/1024/1024,2)} MB. This recording group needs "
+                                    f"file picking rules urgently! It won't be possible to upload this dock again.")
+                if download_file_size_status[0] == -2:
+                    logging.warning(f"The resulting file size for this dock exceeds the limit of "
+                                    f"{round(download_file_size_status[1]/1024/1024,2)} MB. This recording group needs "
+                                    f"file picking rules soon.")
+
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.check_workstation_size: {repr(e)}")
+
     def report_progress(self, prg):
         """ ***** sub report_progress ****** """
         if not self.job_is_ok("Export to FileMaker"):
@@ -59,6 +80,7 @@ class ExportWorkstationWorker(WorkstationManagerWorker):
                     if status == MCPJobStatus.JOB_STATUS_CANCELLING:
                         result = KioskResult(False, "Exporting to FM has been cancelled by a user.")
                     else:
+                        self.check_workstation_size(ws)
                         self.job.publish_progress(100, "Finished.")
                         if rc:
                             result = KioskResult(True)

@@ -3,11 +3,33 @@ import kioskglobals
 
 from kioskresult import KioskResult
 from mcpinterface.mcpjob import MCPJobStatus
+from plugins.kioskfilemakerworkstationplugin import KioskFileMakerWorkstation
 from plugins.syncmanagerplugin.workstationmanagerworker import WorkstationManagerWorker
 from synchronization import Synchronization
 
 
 class ForkNExportWorkstationWorker(WorkstationManagerWorker):
+
+    def check_workstation_size(self, workstation: KioskFileMakerWorkstation):
+        try:
+            try:
+                plugin_cfg = self.cfg["kiosk", "kioskfilemakerworkstationplugin"]
+            except BaseException as e:
+                return
+
+            download_file_size_status = workstation.check_download_size(plugin_cfg)
+            if download_file_size_status:
+                if download_file_size_status[0] == -1:
+                    logging.warning(f"The resulting file size for this dock exceeds the upload size of "
+                                    f"{download_file_size_status[1]/1024/1024} MB. This recording group needs "
+                                    f"file picking rules urgently! It won't be possible to upload this dock again.")
+                if download_file_size_status[0] == -2:
+                    logging.warning(f"The resulting file size for this dock exceeds the limit of "
+                                    f"{download_file_size_status[1]/1024/1024} MB. This recording group needs "
+                                    f"file picking rules soon.")
+
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.check_workstation_size: {repr(e)}")
 
     def report_fork_progress(self, prg):
         """ ***** sub report_fork_progress ****** """

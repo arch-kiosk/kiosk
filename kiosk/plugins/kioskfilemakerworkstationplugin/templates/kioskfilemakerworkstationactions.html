@@ -32,7 +32,10 @@
     {{ kiosk_general_form_errors(general_errors) }}
   </div>
     <div id="dialog-workzone">
-      <div id="workstation-options">
+      <div id="workstation-options"
+           {% if download_file_size_status %}
+           data-file-size-status="{{ download_file_size_status[0] }}"
+           data-max-download-file-size-mb="{{ download_file_size_status[1] / (1024 * 1024) }}"{% endif %}>
         {% if ws.has_no_next_option_msg(current_plugin_controller) %}
           <div class="workstation-option-frame">
             <p class="nothing-todo-option">{{ ws.has_no_next_option_msg(current_plugin_controller) }} </p>

@@ -361,6 +361,7 @@ kiosk:
     active: true
     no_csrf_defense: true
     max_file_size: 786432000
+    max_download_file_size: 524288000
     menu:
       "prepare filemaker workstations": [ "+syncmanagerplugin" ]
       "import filemaker workstations": [ "+syncmanagerplugin" ]

@@ -115,8 +115,10 @@ class FileMakerWorkstation(RecordingWorkstation):
         return self._options
 
     @options.setter
-    def options(self, value: bool):
-        self._options = value
+    def options(self, value: str):
+        options = value.split(";")
+        for opt in options:
+            self.add_option(opt)
 
     def add_option(self, option: str):
         if self._options:
@@ -337,7 +339,7 @@ class FileMakerWorkstation(RecordingWorkstation):
             self._download_upload_status = r["download_upload_status"]
             self._download_upload_ts = r["ts_status"]
             self._disabled = r["disabled"]
-            self._options = r["options"]
+            self.options = r["options"]
         r = KioskSQLDb.get_first_record("repl_workstation_filemaker", "id", self._id, )
         if r:
             if "x_state_info" in r:

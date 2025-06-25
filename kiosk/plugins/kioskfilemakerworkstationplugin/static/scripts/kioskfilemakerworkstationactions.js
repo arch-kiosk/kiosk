@@ -93,9 +93,44 @@ function kfw_action(ws_id, title, action_url, ack = false, jsonData = {}) {
 // }
 
 
-function kfw_download(ws_id) {
+function kfw_download(ws_id, checkFileSize = true) {
 
-//$("#"+ctl_id).css('visibility', 'hidden');
+  function kfw_check_file_size() {
+    const el = document.getElementById("workstation-options")
+    if (!el) {
+      kioskErrorToast("An error occurred in kfw_check_file_size: element with id 'workstation-options' not found. Operation can't proceed.");
+      return false;
+    }
+    if (el.dataset.hasOwnProperty("fileSizeStatus")) {
+      let msg =""
+      if (el.dataset.fileSizeStatus === "-1") {
+        msg = `The file size of the FileMaker database you are about to download exceeds
+          the maximum size of ${parseFloat(el.dataset.maxDownloadFileSizeMb).toFixed(2)} MB. There should be file picking rules in place to reduce the file size.</br>NOTE: You will not be able to upload that file later 
+          because this file already exceeds the maximum you are allowed to upload. Do you want to proceed?`
+      }
+      if (el.dataset.fileSizeStatus === "-2") {
+        msg = `The file size of the FileMaker database you are about to download is larger
+          than ${parseFloat(el.dataset.maxDownloadFileSizeMb).toFixed(2)} MB. You might want some file picking rules to avoid this download size.   
+          Do you want to download that much?`
+      }
+
+      if (msg) {
+        kioskYesNoToast(msg, () => {
+          kfw_download(ws_id, false)
+        }, () => {
+          $.magnificPopup.close()
+        })
+        return false
+      }
+    }
+    else
+      return true
+  }
+
+  if (checkFileSize && !kfw_check_file_size())
+    return;
+
+  //$("#"+ctl_id).css('visibility', 'hidden');
   $("#dialog-subtitle").text("downloading recording system");
   installSpinner($("#workstation-options"), "Working on it...");
 
