@@ -392,13 +392,9 @@ kiosk:
       "process management": [ "+administrationplugin" ]
       "backup": [ "+administrationplugin" ]
       "install patch": [ "+administrationplugin" ]
-      "privileges": [ "+administrationplugin" ]
-      "users": [ "+administrationplugin" ]
-      "kiosk queries": [ "+administrationplugin" ]
+      "settings": [ "+administrationplugin" ]
+      "download transfer catalog": [ "+administrationplugin" ]
       "logs": [ "+administrationplugin" ]
-      "file picking rules": [ "+administrationplugin", "+syncmanagerplugin" ]
-      "ports": [ "+administrationplugin", "+syncmanagerplugin" ]
-      "quality control rules": [ "+administrationplugin" ]
 
   playgroundplugin:
     active: false

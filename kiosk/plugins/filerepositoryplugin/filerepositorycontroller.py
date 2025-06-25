@@ -296,8 +296,12 @@ def file_repository_show():
             filter_form.tags.data = kiosk_call_params["tags"]
             options["tags"] = filter_form.tags.data
         if kiosk_call_params and "identifier" in kiosk_call_params:
-            filter_form.context.data = kiosk_call_params["identifier"].upper()
-            options["context"] = filter_form.context.data
+            if kiosk_call_params["identifier"] == "-":
+                filter_form.no_context.data = True
+                options["no_context"] = True
+            else:
+                filter_form.context.data = kiosk_call_params["identifier"].upper()
+                options["context"] = filter_form.context.data
 
         try:
             m_file_repository.set_filter_values(options)

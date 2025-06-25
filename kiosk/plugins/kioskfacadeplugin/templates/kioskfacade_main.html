@@ -158,6 +158,12 @@
                 });
         }
 
+        function showImagesWithTagsNoContext(tags) {
+            const url = new URL("{{ url_for('filerepository.file_repository_show') }}", window.location.origin);
+            setCookie("kiosk_call_params", JSON.stringify({ tags: tags, identifier: "-" }));
+            window.location.assign(url);
+        }
+
         function showImagesWithTags(tags) {
             const url = new URL("{{ url_for('filerepository.file_repository_show') }}", window.location.origin);
             setCookie("kiosk_call_params", JSON.stringify({ tags: tags }));
