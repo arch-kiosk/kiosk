@@ -1,7 +1,7 @@
 # Master Control Program - job scheduler for Kiosk
 import kioskdatetimelib
 
-MCP_VERSION = "0.4"
+MCP_VERSION = "0.5"
 
 import inspect
 import logging
