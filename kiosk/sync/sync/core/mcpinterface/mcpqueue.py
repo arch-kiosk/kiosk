@@ -1,3 +1,4 @@
+import inspect
 import logging
 
 from generalstore.generalstore import GeneralStore
@@ -139,6 +140,15 @@ class MCPQueue:
             key = self._get_gs_job_key(job_id)
             d = self.gs.get_dict(key)
             return d[attribute]
+        except BaseException as e:
+            caller = "?"
+            try:
+                caller = inspect.currentframe().f_back.f_code.co_name
+            except:
+                pass
+            logging.debug(f"{self.__class__.__name__}.read_job_attribute, called by [{caller}]: {repr(e)}")
+            raise e
+
         finally:
             if use_lock and lock:
                 self.unlock(lock)
