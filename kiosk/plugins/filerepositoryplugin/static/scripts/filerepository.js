@@ -94,6 +94,11 @@ function setFileRepositoryEventHandlers() {
 
     input = document.getElementById("frf-context");
     input.addEventListener("awesomplete-selectcomplete", fetchImageCount);
+
+    document.getElementById("fr-bt-archive").addEventListener("click", function () {
+        showhidemenu('#fr-bt-archive','#archive-menu');
+      });
+
 }
 
 function initPageList() {
@@ -512,7 +517,7 @@ function getMarkedFiles(fileCallback = null) {
         let key = sessionStorage.key(c);
         if (key.startsWith("filemarked_")) {
             if (sessionStorage.getItem(key) === "true") {
-                let uid = key.substr(11);
+                let uid = key.substring(11);
                 if (fileCallback)
                     fileCallback(uid)
                 else
@@ -1103,6 +1108,46 @@ function startBulkTagging() {
         $.magnificPopup.close();
     }
 }
+
+/* **************************************************************************************
+                  Archiving Dialog
+************************************************************************************** */
+function fr_archiveMenuClick(option, route) {
+    closeMenu("#archive-menu", $("#fr-bt-archive"))
+
+    // let files = getMarkedFiles();
+    // const formData = $("#frf").serializeArray();
+    // formData.push({ name: "ajax", value: "true" })
+
+    $.magnificPopup.open({
+        type: "ajax",
+        ajax: {
+            settings: {
+                type: "GET",
+                // contentType: "application/json"
+                // // data: JSON.stringify({
+                // //                     "files": files,
+                // //                     "form": formData,
+                // //                 }),
+            },
+        },
+        items: {
+            src: route,
+        },
+        removalDelay: 200,
+        mainClass: "mfp-with-anim",
+        callbacks: {
+            beforeOpen: function() {
+                changeToolButtonState("fr-bt-archive", 0);
+            },
+            afterClose: function() {
+                changeToolButtonState("fr-bt-archive", 1);
+            },
+        },
+    })
+}
+
+
 
 function fetchIdentifiers() {
     let site_filter = getCookie("site_filter")

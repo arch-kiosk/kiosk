@@ -1,0 +1,244 @@
+{% extends "basicmodaldialog.html" %}
+{% block dialog_css %}
+    <link rel=stylesheet href="/filerepository/static/archivedialog.css" type="text/css">
+{% endblock %}
+{% block kiosk_modal_dialog_id %}id="fr-archive-dialog"{% endblock %}
+{% block kiosk_modal_dialog_classes %}kiosk-modal-dialog-fullscreen{% endblock %}
+{% block kiosk_modal_dialog_name %}{{ title }}{% endblock %}
+{% block kiosk_modal_dialog_image %}
+    <!--Vectors and icons https://www.svgrepo.com/svg/507917/archive"
+    COLLECTION: Scarlab Duotone Line Vectors
+    LICENSE: MIT License
+    AUTHOR: scarlab-->
+    <svg width="64px" height="64px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path opacity="0.1"
+              d="M4 9V16C4 17.8856 4 18.8284 4.58579 19.4142C5.17157 20 6.11438 20 8 20H16C17.8856 20 18.8284 20 19.4142 19.4142C20 18.8284 20 17.8856 20 16V9H4Z"
+              fill="#323232" />
+        <path d="M9 13H15" stroke="#323232" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        <path
+            d="M3 6.5C3 6.03534 3 5.80302 3.03843 5.60982C3.19624 4.81644 3.81644 4.19624 4.60982 4.03843C4.80302 4 5.03534 4 5.5 4H12H18.5C18.9647 4 19.197 4 19.3902 4.03843C20.1836 4.19624 20.8038 4.81644 20.9616 5.60982C21 5.80302 21 6.03534 21 6.5V6.5V6.5C21 6.96466 21 7.19698 20.9616 7.39018C20.8038 8.18356 20.1836 8.80376 19.3902 8.96157C19.197 9 18.9647 9 18.5 9H12H5.5C5.03534 9 4.80302 9 4.60982 8.96157C3.81644 8.80376 3.19624 8.18356 3.03843 7.39018C3 7.19698 3 6.96466 3 6.5V6.5V6.5Z"
+            stroke="#323232" stroke-width="2" stroke-linejoin="round" />
+        <path
+            d="M4 9V15.9999C4 17.8856 4 18.8284 4.58579 19.4142C5.17157 19.9999 6.11438 19.9999 8 19.9999H9H15H16C17.8856 19.9999 18.8284 19.9999 19.4142 19.4142C20 18.8284 20 17.8856 20 15.9999V9"
+            stroke="#323232" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+    {#    <i class="far header-icon"></i>#}
+{% endblock %}
+{% block kiosk_modal_dialog_content %}
+    <div id="fr-archive-dialog" class="pagecontrol-content">
+        <form id="fr-dialog-form">
+            <input id="selected" name="selected" type="hidden" />
+            {{ archive_dialog_form.csrf_token }}
+{#        {{ archive_dialog_form.page_initialized() }}#}
+            <div class="grid-12">
+{#                <div class="col-12">#}
+{#                    Please configure your import.#}
+{#                </div>#}
+                <div id="marked-images-panel" class="col-6 ad-panel">
+                    {{ archive_dialog_form.marked_images(
+                                class="kiosk-dialog-checkbox",
+                                shapeclass="p-icon p-round p-thick p-plain p-smooth",
+                                iconclass="mdi mdi-circle",
+                                labelclass="kiosk-dialog-label kiosk-dialog-checkbox-label",
+                                errclass="kiosk-error-checkbox") }}
+                </div>
+                <div id="filtered-images-panel" class="col-6 ad-panel">
+                    {{ archive_dialog_form.filtered_images(
+                                class="kiosk-dialog-checkbox",
+                                shapeclass="p-icon p-round p-thick p-plain p-smooth",
+                                iconclass="mdi mdi-circle",
+                                labelclass="kiosk-dialog-label kiosk-dialog-checkbox-label",
+                                errclass="kiosk-error-checkbox") }}
+                </div>
+                <div class="col-12 ad-panel">
+                    <div id="panel-existing-archive">
+                        {{ archive_dialog_form.use_existing_archive(
+                                    class="kiosk-dialog-checkbox",
+                                    shapeclass="p-icon p-round p-thick p-plain p-smooth",
+                                    iconclass="mdi mdi-circle",
+                                    labelclass="kiosk-dialog-label kiosk-dialog-checkbox-label",
+                                    errclass="kiosk-error-checkbox") }}
+                        <div class="indent">
+                            {{ archive_dialog_form.selected_archive(
+                                class="kiosk-dialog-textfield",
+                                errclass="kiosk-error-border",
+                                labelclass="kiosk-dialog-label") }}
+                        </div>
+                    </div>
+                    {{ archive_dialog_form.use_new_archive(
+                                class="kiosk-dialog-checkbox",
+                                shapeclass="p-icon p-round p-thick p-plain p-smooth",
+                                iconclass="mdi mdi-circle",
+                                labelclass="kiosk-dialog-label kiosk-dialog-checkbox-label",
+                                errclass="kiosk-error-checkbox") }}
+                    <div class="indent">
+                        {{ archive_dialog_form.new_archive(
+                            class="kiosk-dialog-textfield",
+                            errclass="kiosk-error-border",
+                            labelclass="kiosk-dialog-label") }}
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+{% endblock %}
+
+{% block kiosk_modal_dialog_after %}
+    {% include "_kioskmodaldialog_api_connector_include.html" %}
+    <script>
+
+        function popupApiConnected(api) {
+            initDialog();
+        }
+
+        function popupApiFailed() {
+            kioskErrorToast("Could not connect to the Kiosk API. The dialog cannot be initialized. Maybe try again?");
+            $.magnificPopup.close();
+        }
+
+        function initDialog() {
+            // inject_loader_div($("#image-spinner"), "white", 50, 50);
+            bindReturnKeyToButtons("fr-archive-dialog", "bt-ok", ["bt-cancel"]);
+            kioskShowFooter(true);
+            kioskActivateButton($("#bt-next"), null);
+            kioskActivateButton($("#bt-back"), null);
+            kioskActivateButton($("#bt-close"), null);
+            kioskActivateButton($("#bt-delete"), null);
+
+            kioskActivateButton($("#bt-cancel"), () => {
+                $.magnificPopup.close();
+            });
+            kioskActivateButton($("#bt-ok"), () => {
+                executeArchiveFiles();
+            });
+            frInitArchiveFilesDialog();
+        }
+
+        function repositoryHasFilter() {
+            const formData = $("#frf").serializeArray();
+            for (const item of formData) {
+                if (item.value !== '') return true
+            }
+            return false
+        }
+
+        function frInitArchiveFilesDialog() {
+            let files = getMarkedFiles()
+            const hasFilter= repositoryHasFilter()
+            const hasMarked = files.length > 0
+            if (!(hasFilter || hasMarked)) {
+                $.magnificPopup.close()
+                kioskErrorToast(`Please select files to archive or apply at least a filter.
+                You cannot archive or unarchive just everything.`)
+                return;
+            }
+            const elFilter = document.querySelector("#filtered-images")
+            const elMarked = document.querySelector("#marked-images")
+            elFilter.checked = false
+            elMarked.checked = true
+            if (!hasFilter) {
+                elFilter.disabled = true
+                document.getElementById("filtered-images-panel").style.display = "none"
+            }
+            if (!hasMarked) {
+                elFilter.checked = true
+                elMarked.checked = false
+                elMarked.disabled = true
+                document.getElementById("marked-images-panel").style.display = "none"
+            }
+            if (hasFilter && hasMarked) {
+                elFilter.addEventListener("change", configureCheckboxes)
+                elMarked.addEventListener("change", configureCheckboxes)
+            }
+
+            const elArchives = document.querySelector("#selected-archive")
+            const elUseExisting = document.querySelector("#use-existing-archive")
+            const elUseNewArchive = document.querySelector("#use-new-archive")
+
+            if (elArchives.getElementsByTagName("option").length === 0) {
+                elUseExisting.disabled = true
+                elUseExisting.checked = false
+                elArchives.disabled = true
+                elUseNewArchive.checked = true
+                document.getElementById("panel-existing-archive").style.display = "none";
+            } else {
+                elUseExisting.addEventListener("change", configureCheckboxes)
+                elUseNewArchive.addEventListener("change", configureCheckboxes)
+            }
+        }
+
+        function configureCheckboxes(event) {
+            console.log("configureCheckboxes called", event)
+
+            const elFilter = document.querySelector("#filtered-images")
+            const elMarked = document.querySelector("#marked-images")
+            if (event.currentTarget.id==="filtered-images") {
+                elMarked.checked = !elFilter.checked
+            }
+            if (event.currentTarget.id==="marked-images") {
+                elFilter.checked = !elMarked.checked
+            }
+            const elUseExisting = document.querySelector("#use-existing-archive")
+            const elUseNewArchive = document.querySelector("#use-new-archive")
+            if (event.currentTarget.id==="use-existing-archive") {
+                elUseNewArchive.checked = !elUseExisting.checked
+            }
+
+            if (event.currentTarget.id==="use-new-archive") {
+                elUseExisting.checked = !elUseNewArchive.checked
+            }
+        }
+
+        function validateArchiveDialog() {
+            const elFilter = document.querySelector("#filtered-images")
+            const elMarked = document.querySelector("#marked-images")
+            if (!(elFilter.checked || elMarked.checked)) {
+                kioskErrorToast("Please select whether you want to move marked files or filtered files to the archive.")
+                return false;
+            }
+
+            const elUseExisting = document.querySelector("#use-existing-archive")
+            const elUseNewArchive = document.querySelector("#use-new-archive")
+            if (!(elUseNewArchive.checked || elUseExisting.checked)) {
+                kioskErrorToast("Please select whether you want to move the files to a new or an existing archive.")
+                return false;
+            }
+            if (elUseExisting.checked) {
+                const elArchives = document.querySelector("#selected-archive")
+                if (elArchives.value === "") {
+                    kioskErrorToast("Please select an existing archive to move the files to.")
+                    return false;
+                }
+            }
+            if (elUseNewArchive.checked) {
+                const elArchive = document.querySelector("#new-archive")
+                if (elArchive.value === "") {
+                    kioskErrorToast("Please give the new archive a meaningful name.")
+                    return false;
+                }
+            }
+            return true
+        }
+
+        function executeArchiveFiles() {
+            if (!validateArchiveDialog()) {
+                return;
+            }
+            alert("doin' it ...")
+            return
+            const selected = document.querySelector(".sf-selected")?.dataset.uuid ?? "-";
+            const frm = document.querySelector("#sf-dialog-form");
+            frm.querySelector("#selected").value = selected;
+            $.post("/filerepository/sitefilterdialog", $(frm).serialize(), (data) => {
+                $.magnificPopup.close();
+                if (data.result !== "none") {
+                    setTimeout(() => {
+                        resetFileReposFilters();
+                        $("#frf").submit();
+                    }, 50);
+                }
+            });
+        }
+    </script>
+{% endblock %}

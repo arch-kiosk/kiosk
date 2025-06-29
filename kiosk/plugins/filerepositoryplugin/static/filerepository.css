@@ -982,6 +982,21 @@ kiosk-tz-combo-box.kiosk-dialog-textfield {
   opacity: 0.3;
 }
 
+#fr-bt-archive.is-open {
+  color: var(--col-accent-bg-3);
+}
+
+#archive-menu.dropdown-content {
+  background-color: var(--col-bg-3);
+}
+#archive-menu.dropdown-content a {
+  color: var(--col-primary-bg-3);
+}
+#archive-menu.dropdown-content a:hover {
+  background-color: var(--col-bg-att);
+  color: var(--col-primary-bg-att);
+}
+
 .col-bg-body-lighter {
   background-color: var(--col-bg-body-lighter);
 }

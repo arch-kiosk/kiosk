@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from http import HTTPStatus
 from pprint import pprint
 
 import flask
@@ -8,6 +9,7 @@ from flask import make_response, Blueprint, abort, request, render_template, jso
     send_from_directory, current_app, session, send_file, redirect, url_for
 from flask_login import current_user
 from flask_wtf import FlaskForm
+
 from werkzeug.datastructures import MultiDict
 from werkzeug.utils import secure_filename
 from wtforms import StringField, SelectField
@@ -30,6 +32,7 @@ from kioskresult import KioskResult
 from kiosksqldb import KioskSQLDb
 from plugins.filerepositoryplugin.ModelFileRepository import ModelFileRepository, FileRepositoryFile
 from plugins.filerepositoryplugin.filerepositorylib import get_std_file_images, trigger_fid_refresh_if_needed, get_pagination
+from plugins.filerepositoryplugin.forms.archivedialogform import ArchiveDialogForm
 from plugins.filerepositoryplugin.forms.editform import ModalFileEditForm
 from sync.core.filerepository import FileRepository
 
@@ -1225,3 +1228,31 @@ def file_repository_download_file(img, cmd):
     except BaseException as e:
         # if cmd == "response":
         return jsonify(result=f"filerepositorycontroller.file_repository_download_file: {repr(e)}")
+
+@filerepository.route('/show_archive_popup', methods=['GET'])
+@full_login_required
+def show_archive_popup():
+    """
+    asks for a dialog to tag a list of files
+
+    :return:
+    """
+    try:
+        print("\n*************** Request to show archive popup *************************++")
+        archive_mode = True
+        archives = []
+        archive_dialog_form = ArchiveDialogForm(archives)
+
+        authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
+        if "modify data" not in authorized_to:
+            logging.warning(f"Unauthorized attempt to archive files by user {current_user.user_id}")
+            abort(HTTPStatus.UNAUTHORIZED, "You do not have the privilege to (un)archive files.")
+
+        return render_template('archivedialog.html',
+                               archive_mode=archive_mode,
+                               archive_dialog_form = archive_dialog_form,
+                               title="archive files" if archive_mode else "un-archive files",)
+    except BaseException as e:
+        logging.error(f"filerepositorycontroller.show_archive_popup: {repr(e)}")
+        print(repr(e))
+        abort(500, repr(e))
