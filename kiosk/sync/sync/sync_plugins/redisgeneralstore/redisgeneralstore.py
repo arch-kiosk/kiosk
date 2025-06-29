@@ -1,9 +1,9 @@
+import inspect
 import logging
 import json
 import os
 import time
 from functools import reduce
-from threading import Lock
 
 from redis.commands.json.path import Path
 from redis import Redis as Client
@@ -243,9 +243,19 @@ class RedisGeneralStore(GeneralStore):
         json_path = self._make_json_path(path)
         self._connect()
 
-        lock = Lock(self.redis, name=self.gs_id + GENERAL_LOCK_NAME, expire=10)
-        if not lock.acquire(timeout=10):
-            raise Exception("Lock not acquired")
+        try:
+            # What is the point of a process lock here? Shouldn't REDIS be handling concurrency?
+            # And if it is really needed, why not use the red_lock_lock method?
+            lock = Lock(self.redis, name=self.gs_id + GENERAL_LOCK_NAME, expire=10)
+            if not lock.acquire(timeout=10):
+                raise NotAcquired()
+        except NotAcquired:
+            caller = "?"
+            try:
+                caller = inspect.currentframe().f_back.f_code.co_name
+            except:
+                pass
+            raise Exception(f"redisgeneralstore.put_dict_value: Called by [{caller}]: Lock not acquired")
 
         try:
             rc = self.redis.json().set(key, json_path, value)
@@ -264,9 +274,19 @@ class RedisGeneralStore(GeneralStore):
         key = self.gs_id + key
         json_path = self._make_json_path(path)
 
-        lock = Lock(self.redis, name=self.gs_id + GENERAL_LOCK_NAME, expire=10)
-        if not lock.acquire(timeout=10):
-            raise Exception("Lock not acquired")
+        try:
+            # What is the point of a process lock here? Shouldn't REDIS be handling concurrency?
+            # And if it is really needed, why not use the red_lock_lock method?
+            lock = Lock(self.redis, name=self.gs_id + GENERAL_LOCK_NAME, expire=10)
+            if not lock.acquire(timeout=10):
+                raise NotAcquired()
+        except NotAcquired:
+            caller = "?"
+            try:
+                caller = inspect.currentframe().f_back.f_code.co_name
+            except:
+                pass
+            raise Exception(f"redisgeneralstore.get_dict: Called by [{caller}]: Red-Lock not acquired")
 
         try:
             # note the no_escape parameter! see https://github.com/RedisJSON/redisjson-py/pull/26
