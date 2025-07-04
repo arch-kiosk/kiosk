@@ -1,0 +1,59 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+queries:
+  'mafs_collected_material_lot':
+    name: 'MAFS: List all materials'
+    description: 'MAFS: Lists all materials found across all sites.'
+    type: 'SQL'
+    output_type: 'list'
+    query: "  
+      select
+            cm.arch_context cm_id,
+            u.arch_context trench,
+            l.arch_context op,
+            lot.id lot_id,
+            cm.cm_type,
+            cm.type material,
+            cm.description,
+            cm.quantity,
+            cm.weight,
+            cm.volume,
+            cm.dearregistrar
+       from {{unit}} u
+         inner join {{locus}} l on u.uid = l.uid_unit
+         inner join {{collected_material}} cm on l.uid = cm.uid_locus
+         left outer join {{lot}} lot on cm.uid_lot = lot.uid
+      group by 
+            u.arch_context,
+            l.arch_context,
+            lot.id,
+            cm.arch_context,
+            cm.cm_type,
+            cm.type,
+            cm.description,
+            cm.quantity,
+            cm.weight,
+            cm.volume,
+            cm.dearregistrar
+      order by cm_id;
+      "
+    column_information:
+      trench: DSD('unit','arch_context')
+      op: DSD('locus','arch_context')
+      lot_id: ["DSD('lot','id')","label('lot')"]
+      cm_id: DSD('collected_material','arch_context')
+      cm_type: DSD('collected_material','cm_type')
+      material: DSD('collected_material','type')
+      description: DSD('collected_material','description')
+      quantity: DSD('collected_material','quantity')
+      weight: DSD('collected_material','weight')
+      volume: DSD('collected_material','volume')
+      dearregistrar: DSD('collected_material','dearregistrar')
+#    charts:
+#      chart1:
+#        type: "pie"
+#        title: "#: % material in #($/constants/labels/label_for_unit_on_start_page) #(/variables/inputs/unit_id) by quantity"
+#        categories: "material"
+#        values: "quantity"
