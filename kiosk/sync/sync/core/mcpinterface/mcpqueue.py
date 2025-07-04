@@ -155,7 +155,7 @@ class MCPQueue:
 
     def force_flush(self):
         """
-        force flushes the queue: All job data will be list instantenously.
+        force flushes the queue: All job data will be lost instantly.
         Use for testing or emergency situations only.
         """
         lock = self.lock()

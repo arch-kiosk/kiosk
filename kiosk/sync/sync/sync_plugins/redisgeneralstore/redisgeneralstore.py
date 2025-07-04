@@ -89,6 +89,11 @@ class RedisGeneralStore(GeneralStore):
     def _read_config(self, config: Config):
         self.address = config["config"]["redis_address"]
         self.port = int(config["config"]["redis_port"])
+        self._use_process_lock_on_dicts = kioskstdlib.to_bool(kioskstdlib.try_get_dict_entry(config["config"],"use_process_lock_on_dicts",True, True))
+        if self._use_process_lock_on_dicts:
+            logging.debug(f"{self.__class__.__name__}._read_config: use_process_lock_on_dicts is on")
+        else:
+            logging.debug(f"{self.__class__.__name__}._read_config: NOTE: use_process_lock_on_dicts is turned off")
 
     def _connect(self, force=False) -> Client:
         if (not self.redis or force) and isinstance(self.port, int):
@@ -255,12 +260,20 @@ class RedisGeneralStore(GeneralStore):
                 caller = inspect.currentframe().f_back.f_code.co_name
             except:
                 pass
-            raise Exception(f"redisgeneralstore.put_dict_value: Called by [{caller}]: Lock not acquired")
+            if self._use_process_lock_on_dicts:
+                raise Exception(f"redisgeneralstore.put_dict_value: Called by [{caller}]: Lock not acquired")
+            else:
+                logging.debug(f"{self.__class__.__name__}.put_dict_value: Issues with a lock "
+                              f"(_use_process_lock_on_dicts is False!) - called by [{caller}]: Lock not acquired")
 
         try:
             rc = self.redis.json().set(key, json_path, value)
         finally:
-            lock.release()
+            try:
+                lock.release()
+            except BaseException as e:
+                logging.warning(f"{self.__class__.__name__}.put_dict_value: trouble when releasing lock: {repr(e)}")
+
         return rc
 
     def get_dict(self, key, path: [] = None):
@@ -286,7 +299,11 @@ class RedisGeneralStore(GeneralStore):
                 caller = inspect.currentframe().f_back.f_code.co_name
             except:
                 pass
-            raise Exception(f"redisgeneralstore.get_dict: Called by [{caller}]: Red-Lock not acquired")
+            if self._use_process_lock_on_dicts:
+                raise Exception(f"redisgeneralstore.get_dict: Called by [{caller}]: Red-Lock not acquired")
+            else:
+                logging.debug(f"{self.__class__.__name__}.get_dict_value: Issues with a lock "
+                              f"(_use_process_lock_on_dicts is False!) - called by [{caller}]: Lock not acquired")
 
         try:
             # note the no_escape parameter! see https://github.com/RedisJSON/redisjson-py/pull/26
@@ -294,7 +311,10 @@ class RedisGeneralStore(GeneralStore):
         except BaseException as e:
             logging.debug(f"{self.__class__.__name__}.get_dict: {repr(e)}")
         finally:
-            lock.release()
+            try:
+                lock.release()
+            except BaseException as e:
+                logging.warning(f"{self.__class__.__name__}.get_dict_value: trouble when releasing lock: {repr(e)}")
 
         if rc is None:
             raise KeyError(f"Key {key} not found")
