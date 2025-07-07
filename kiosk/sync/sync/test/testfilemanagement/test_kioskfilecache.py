@@ -29,7 +29,7 @@ class TestKioskFileCache(KioskPyTestHelper):
     @pytest.fixture()
     def db_truncate_session(self, urapdb):
         try:
-            KioskFileCacheModel.truncate()
+            KioskFileCacheModel().truncate()
         finally:
             return KioskSQLDb
 

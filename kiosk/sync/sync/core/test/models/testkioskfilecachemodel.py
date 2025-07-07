@@ -28,7 +28,7 @@ class TestKioskFileCacheModel(KioskPyTestHelper):
 
     @pytest.fixture()
     def truncated_db(self, db_session):
-        KioskFileCacheModel.truncate(commit=True)
+        KioskFileCacheModel().truncate(commit=True)
         return db_session
 
     def test_init(self):
