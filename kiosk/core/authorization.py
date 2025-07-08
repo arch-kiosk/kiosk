@@ -20,6 +20,8 @@ DOWNLOAD_FILE = "download file"
 DEVELOP_PRIVILEGE = "develop"
 SYNCHRONIZE = "synchronize"
 INSTALL_PLUGIN = "install plugin"
+ARCHIVE_FILES = "archive files"
+ENTER_FILE_ARCHIVES = "enter file archives"
 
 # workstation / docks and hub
 EDIT_WORKSTATION_PRIVILEGE = "edit workstation"
@@ -41,6 +43,8 @@ selection_of_privileges = [
     RESTORE_PRIVILEGE,
     MANAGE_USERS,
     MODIFY_DATA,
+    ARCHIVE_FILES,
+    ENTER_FILE_ARCHIVES,
     DOWNLOAD_FILE,
     DEVELOP_PRIVILEGE,
     SYNCHRONIZE,

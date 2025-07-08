@@ -1,3 +1,6 @@
+input:disabled
+  opacity: 0.7
+
 #fr-wrapper
   width: 100%
   background-color: $col-bg-body
@@ -394,3 +397,36 @@
     &:hover
       background-color: $col-bg-att
       color: $col-primary-bg-att
+
+.selected-archive-indicator
+  position: sticky
+  top: 0px
+  background-color: $col-bg-att
+  color: $col-primary-bg-att
+  width: 100%
+  padding: 1em
+  display: inline-flex
+  flex-wrap: wrap
+  place-content: center
+  align-items: center
+  margin-bottom: 2px
+  i
+    font-size: 1.5em
+    color: $col-accent-bg-att
+    font-weight: bold
+  span
+    margin-left: .5em
+    &:nth-child(3)
+      font-weight: bold
+
+  #fr-leave-archive
+    margin-left: 2em
+    height: 2em
+    width: auto
+    padding: 15px
+    line-height: 1.5px
+    background-color: var(--col-bg-att-lighter)
+    &:hover,&:focus
+      background-color: var(--col-bg-att-darker)
+    &:active
+      background-color: var(--col-bg-ack)

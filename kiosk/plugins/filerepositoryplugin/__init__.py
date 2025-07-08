@@ -4,7 +4,9 @@
 # Last update LK, 20.XI.2018
 #
 # ********************************************
+from flask_login import current_user
 
+from authorization import ENTER_FILE_ARCHIVES
 from core.kioskcontrollerplugin import KioskControllerPlugin
 from kioskmenuitem import KioskMenuItem
 from .filerepositorycontroller import filerepository
@@ -52,7 +54,15 @@ def register_menus():
                           onclick="fr_limitToSite()",
                           endpoint="filerepository.site_filter_dialog",
                           menu_cfg=plugin.get_menu_config(),
-                          parent_menu="file repository")
+                          parent_menu="file repository"),
+            KioskMenuItem(name="switch to archive",
+                          onclick="fr_switchToArchive()",
+                          is_active=lambda:
+                          current_user.fulfills_requirement(ENTER_FILE_ARCHIVES)
+                          if hasattr(current_user, "fulfills_requirement") else False,
+                          endpoint="filerepository.archive_selector_dialog",
+                          menu_cfg=plugin.get_menu_config(),
+                          parent_menu="file repository"),
             ]
 
 

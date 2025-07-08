@@ -625,6 +625,10 @@ kiosk-tz-combo-box.kiosk-dialog-textfield {
   padding-left: 0;
 }
 
+input:disabled {
+  opacity: 0.7;
+}
+
 #fr-wrapper {
   width: 100%;
   background-color: var(--col-bg-body);
@@ -995,6 +999,45 @@ kiosk-tz-combo-box.kiosk-dialog-textfield {
 #archive-menu.dropdown-content a:hover {
   background-color: var(--col-bg-att);
   color: var(--col-primary-bg-att);
+}
+
+.selected-archive-indicator {
+  position: sticky;
+  top: 0px;
+  background-color: var(--col-bg-att);
+  color: var(--col-primary-bg-att);
+  width: 100%;
+  padding: 1em;
+  display: inline-flex;
+  flex-wrap: wrap;
+  place-content: center;
+  align-items: center;
+  margin-bottom: 2px;
+}
+.selected-archive-indicator i {
+  font-size: 1.5em;
+  color: var(--col-accent-bg-att);
+  font-weight: bold;
+}
+.selected-archive-indicator span {
+  margin-left: 0.5em;
+}
+.selected-archive-indicator span:nth-child(3) {
+  font-weight: bold;
+}
+.selected-archive-indicator #fr-leave-archive {
+  margin-left: 2em;
+  height: 2em;
+  width: auto;
+  padding: 15px;
+  line-height: 1.5px;
+  background-color: var(--col-bg-att-lighter);
+}
+.selected-archive-indicator #fr-leave-archive:hover, .selected-archive-indicator #fr-leave-archive:focus {
+  background-color: var(--col-bg-att-darker);
+}
+.selected-archive-indicator #fr-leave-archive:active {
+  background-color: var(--col-bg-ack);
 }
 
 .col-bg-body-lighter {

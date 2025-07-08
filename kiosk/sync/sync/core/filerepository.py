@@ -527,7 +527,7 @@ class FileRepository:
         filename = uid + "." + extension if extension else uid
         return os.path.join(self.get_repository_path_for_file(uid, old_style=old_style), filename)
 
-    def get_contextual_file(self, uid=None) -> KioskContextualFile:
+    def get_contextual_file(self, uid=None, files_table_name = None) -> KioskContextualFile:
         """
         Instantiates the KioskContextualFile class.
         :param uid: the uid. If given, an existing contextual file under that uid will be loaded, otherwise
@@ -538,7 +538,8 @@ class FileRepository:
                                    cache_manager=self._cache_manager,
                                    file_repository=self,
                                    type_repository=self._type_repository,
-                                   plugin_loader=self._plugin_loader)
+                                   plugin_loader=self._plugin_loader,
+                                   files_table_name=files_table_name)
 
     def do_housekeeping(self, console=False, progress_handler=None, housekeeping_tasks=None):
         """

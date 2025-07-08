@@ -310,6 +310,7 @@ kiosk:
     menu:
       "file repository": [ "-filerepositoryplugin" ]
       "limit to site": [ "+filerepositoryplugin" ]
+      "switch to archive": [ "+filerepositoryplugin" ]
 
     file_icons:
       general: 'dummyfile.svg'

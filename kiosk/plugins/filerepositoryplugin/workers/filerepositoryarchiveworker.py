@@ -6,12 +6,14 @@ from dsd.dsd3singleton import Dsd3Singleton
 from dsd.dsdyamlloader import DSDYamlLoader
 from generalstore.generalstore import GeneralStore
 from generalstore.generalstorekeys import KIOSK_GENERAL_CACHE_REFRESH
+from kiosksqldb import KioskSQLDb
 from mcpinterface.mcpjob import MCPJob, MCPJobStatus
+from plugins.filerepositoryplugin.filerepositoryarchive import FileRepositoryArchive
 from sync_config import SyncConfig
 from kioskuser import KioskUser
 
 
-class FileSequenceImportWorker:
+class FileRepositoryArchiveWorker:
     def __init__(self, cfg: SyncConfig, job: MCPJob, gs: GeneralStore):
         self.job: MCPJob = job
         self.gs: GeneralStore = gs
@@ -23,8 +25,8 @@ class FileSequenceImportWorker:
         master_dsd.register_loader("yml", DSDYamlLoader)
         if not master_dsd.append_file(self.cfg.get_dsdfile()):
             logging.error(
-                f"FileSequenceImportWorker: DSD {self.cfg.get_dsdfile()} could not be loaded by append_file.")
-            raise Exception(f"FileSequenceImportWorker: DSD {self.cfg.get_dsdfile()} could not be loaded.")
+                f"FileRepositoryArchiveWorker: DSD {self.cfg.get_dsdfile()} could not be loaded by append_file.")
+            raise Exception(f"FileRepositoryArchiveWorker: DSD {self.cfg.get_dsdfile()} could not be loaded.")
         return master_dsd
 
     def start(self):
@@ -39,14 +41,14 @@ class FileSequenceImportWorker:
         """
         try:
             user_uuid = self.job.user_data["uuid"]
-            logging.info(f"FileSequenceImportWorker.get_kiosk_user: loading user {user_uuid}")
+            logging.info(f"FileRepositoryArchiveWorker.get_kiosk_user: loading user {user_uuid}")
             user = KioskUser(user_uuid, check_token=False)
             user.init_from_dict(self.job.user_data)
-            logging.info(f"FileSequenceImportWorker.get_kiosk_user: user settings are "
+            logging.info(f"FileRepositoryArchiveWorker.get_kiosk_user: user settings are "
                          f"{pprint.pformat(self.job.user_data)}")
             return user
         except BaseException as e:
-            logging.error(f"FileSequenceImportWorker.get_kiosk_user: {repr(e)}")
+            logging.error(f"FileRepositoryArchiveWorker.get_kiosk_user: {repr(e)}")
             return None
 
     def worker(self):
@@ -60,11 +62,11 @@ class FileSequenceImportWorker:
 
             new_progress = int(prg["progress"])
             if new_progress >= self.job.progress.get_progress():
-                extended_progress = kioskstdlib.try_get_dict_entry(prg, "extended_progress", None, True)
-                if extended_progress:
-                    msg = f"{extended_progress[1]} of {extended_progress[0]} files imported"
-                else:
-                    msg = ""
+                # extended_progress = kioskstdlib.try_get_dict_entry(prg, "extended_progress", None, True)
+                # if extended_progress:
+                #     msg = f"{extended_progress[1]} of {extended_progress[0]} files imported"
+                # else:
+                msg = ""
                 self.job.publish_progress(new_progress, msg)
 
             return True
@@ -72,15 +74,18 @@ class FileSequenceImportWorker:
         # #########
         # Code of worker function
         # #########
-        logging.debug("File Sequence Worker starts")
+        logging.debug("FileRepositoryArchiveWorker starts")
 
         try:
             from synchronization import Synchronization
             import filerepository
-            from filesequenceimport import FileSequenceImport
-            from contextmanagement.memoryidentifiercache import MemoryIdentifierCache
             import kiosklib
 
+            options = self.job.job_data["options"]
+            if "unarchive" in options:
+                self.job.publish_progress(5, "un-archiving...")
+            else:
+                self.job.publish_progress(5, "archiving...")
             dsd = self.init_dsd()
             sync = Synchronization()
             file_repos = filerepository.FileRepository(self.cfg,
@@ -89,26 +94,40 @@ class FileSequenceImportWorker:
                                                        sync)
 
             kiosk_user = self.get_kiosk_user()
-            file_import = FileSequenceImport(self.cfg, sync, tz_index=kiosk_user.get_active_tz_index())
-            logging.info(pprint.pformat(self.job.job_data))
-            file_import.set_from_dict(self.job.job_data)
-            # if not file_import.time_zone_index:
-            #     file_import.time_zone_index = kiosk_user.get_active_tz_index()
-            logging.debug(f"filesequenceimportworker: User is {kiosk_user.repl_user_id}")
-            file_import.modified_by = kiosk_user.repl_user_id
-            logging.debug(f"filesequenceimportworker: {file_import.get_wtform_values()}")
-            logging.debug(f"filesequenceimportworker: using time zone {file_import.tz_index}")
-            file_import.file_repository = file_repos
-            file_import.callback_progress = report_progress
-            ic = MemoryIdentifierCache(dsd)
-            file_import.identifier_evaluator = ic.has_identifier
-            file_import.move_finished_files = True
-            rc = file_import.execute()
-            try:
-                kiosklib.run_quality_control()
-            except BaseException as e:
-                logging.warning(f"{self.__class__.__name__}.worker: Error running quality control: {repr(e)}. "
-                                f"Please use Housekeeping if you want to rerun quality control rules after the import.")
+            logging.debug(pprint.pformat(self.job.job_data))
+            archive = ""
+            if "unarchive" in options:
+                if "selected_archive" in options:
+                    archive = options["selected_archive"]
+                if not archive:
+                    raise Exception("There was no archive selected from which to un-archive files.")
+            else:
+                if "use_new_archive" in options and options["use_new_archive"]:
+                    archive = options["new_archive"]
+                if "use_existing_archive" in options and options["use_existing_archive"]:
+                    archive = options["selected_archive"]
+
+                if not archive:
+                    raise Exception("There was neither a new nor an existing archive selected")
+
+
+            fr_archive = FileRepositoryArchive(dsd,self.cfg, archive)
+            fr_archive.set_frf_options(self.job.job_data["frf"])
+            fr_archive.set_selected_files(self.job.job_data["files"])
+
+            if "unarchive" in options:
+                rows = fr_archive.un_archive()
+                if rows:
+                    logging.info(f"FileRepositoryArchiveWorker: {rows} files moved from archive {archive} "
+                                 f"back to file repository")
+                    KioskSQLDb.commit()
+            else:
+                rows = fr_archive.archive()
+                if rows:
+                    logging.info(f"FileRepositoryArchiveWorker: {rows} files moved to archive {archive}")
+                    KioskSQLDb.commit()
+            self.job.publish_progress(100, "")
+
             try:
                 self.gs.invalidate_cache(KIOSK_GENERAL_CACHE_REFRESH)
             except BaseException as e:
@@ -119,22 +138,20 @@ class FileSequenceImportWorker:
 
             if self.job.fetch_status() == MCPJobStatus.JOB_STATUS_RUNNING:
                 self.job.set_status_to(MCPJobStatus.JOB_STATUS_DONE)
-                if rc:
+                if rows:
                     self.job.publish_result({"success": True,
-                                             "files_processed": file_import.files_processed,
-                                             "files_imported": file_import.files_added
+                                             "message": f"{rows} files got moved to archive {archive}.",
+                                             "archived_files": rows,
                                              })
                     logging.info(f"job {self.job.job_id}: done")
                 else:
                     self.job.publish_result({"success": False,
-                                             "message": "An error occurred during file sequence import. "
-                                                        "Please check the logs.",
-                                             "files_processed": file_import.files_processed,
-                                             "files_imported": file_import.files_added
+                                             "message": "No files got (un-)archived. ",
+                                             "archived_files": rows,
                                              })
             else:
                 self.job.publish_result({"success": False,
-                                         "message": "File Sequence Import cancelled by user."})
+                                         "message": "file repository archiving cancelled by user."})
 
         except InterruptedError:
             if self.job.progress.get_message():
@@ -146,4 +163,4 @@ class FileSequenceImportWorker:
                                          "message": "An error occurred. Please refer to the log for details."
                                          })
 
-        logging.debug("File Sequence Import - worker ends")
+        logging.debug("FileRepositoryArchiveWorker ends")

@@ -1,4 +1,4 @@
-from typing import Union, Callable
+from typing import Union, Callable, List, Any
 import os
 
 import nanoid
@@ -8,6 +8,7 @@ import psycopg2.extensions
 import threading
 
 from psycopg2.pool import PoolError
+from sqlalchemy import column
 
 from kioskthreadedconnectionpool import KioskThreadedConnectionPool, PoolNoConnectionError
 
@@ -357,7 +358,7 @@ class KioskSQLDb(SqlSafeIdentMixin):
                 return None
 
     @classmethod
-    def execute(cls, sql, parameters=None, commit=False):
+    def execute(cls, sql, parameters=None, commit=False) -> Union[int, None]:
         """
         executes an sql statement and returns the number of affected rows.
         :param sql: the sql statement
@@ -464,7 +465,8 @@ class KioskSQLDb(SqlSafeIdentMixin):
         :param sql:
         :param parameters:
         :param commit:
-        :return: an open cursor (only if no error occured, otherwise it makes sure not to leave a cursor open)
+        :return: an open cursor if no error occurred, otherwise it makes sure not to
+                  leave a cursor open passes the exception on
         :exception: Lets all kinds of exceptions through. But closes the cursor in case of an exception.
         """
         rc = None
@@ -1179,3 +1181,31 @@ class KioskSQLDb(SqlSafeIdentMixin):
     @classmethod
     def apply_post_filter(cls, records, ):
         pass
+
+    @classmethod
+    def get_table_columns(cls, tablename: str) -> Union[List[str],None]:
+        """
+        returns the column names of a table (by opening it with a cursor, not by accessing from information_schema)
+        :param tablename: the table name, which can include a namespace
+        :return: the list of columns or an empty list in case of error
+        :throws no exceptions
+        """
+
+        column_names = None
+        curs = None
+        try:
+            curs = cls.execute_return_cursor(f"Select * FROM {tablename} LIMIT 0")
+            column_names = [desc[0] for desc in curs.description]
+        except BaseException as e:
+            logging.error(f"{cls.__name__}.get_table_columns: {repr(e)}")
+        finally:
+            try:
+                if curs: curs.close()
+            except:
+                pass
+        return column_names
+
+    @classmethod
+    def list_tables(cls, schema_name: str="public") -> List[str]:
+        sql = f"""SELECT tablename FROM pg_catalog.pg_tables where schemaname='{schema_name}';"""
+        return [r[0] for r in cls.get_records(sql)]

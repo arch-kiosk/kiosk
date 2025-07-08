@@ -19,7 +19,7 @@ FILE_ATTRIBUTES_VERSION = 2
 
 class KioskLogicalFile:
     def __init__(self, uid, session_deprecated=None, cache_manager=None, file_repository=None,
-                 type_repository=None, plugin_loader=None, test_mode=False):
+                 type_repository=None, plugin_loader=None, test_mode=False, files_table_name=None):
 
         if session_deprecated is not None:
             raise DeprecationWarning("call to KioskLogicalFile.__init__ with a sqlalchemy session.")
@@ -38,16 +38,17 @@ class KioskLogicalFile:
         self._file_repository_file = ""
         self._plugin_loader: PluginLoader = plugin_loader
         self._test_mode = test_mode
+        self._files_table_name = files_table_name
 
     @classmethod
-    def get_image_count(cls, sqlalchemy_session=None):
+    def get_image_count(cls, sqlalchemy_session=None, files_table_name=None):
         if sqlalchemy_session is not None:
             raise DeprecationWarning("call to kiosklogicalfile.get_image_count with sqlachemy_session deprecated")
-        rows = KioskFilesModel().count()
+        rows = KioskFilesModel(table_name=files_table_name).count()
         return rows
 
     def _get_file_record(self) -> KioskFilesModel:
-        kfm = KioskFilesModel(uid=self._uid)
+        kfm = KioskFilesModel(uid=self._uid, table_name=self._files_table_name)
         if kfm.get_by_key():
             self._file_record = kfm
         else:

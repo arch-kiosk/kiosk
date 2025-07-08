@@ -26,7 +26,7 @@ from kiosksqldb import KioskSQLDb
 class KioskContextualFile(KioskLogicalFile):
     def __init__(self, uid, cache_manager=None, file_repository=None,
                  type_repository=None, plugin_loader: PluginLoader = None, test_mode=False,
-                 fic=None, dsd=None):
+                 files_table_name=None, fic=None, dsd=None):
 
         # self.data = None
         # self.data: KioskFilesModel
@@ -46,6 +46,7 @@ class KioskContextualFile(KioskLogicalFile):
         self._fic = fic  # file-identifier-cache
         self._contexts = LocalContextList(self._fetch_contexts)
         self._dsd = dsd if dsd else Dsd3Singleton.get_dsd3()
+
         # prevents the file_datetime to be set to now() when modifying an image record.
         # In General we don't want to set the file_datetime to the current date implicitly
         self.dont_set_file_datetime = True
@@ -58,7 +59,8 @@ class KioskContextualFile(KioskLogicalFile):
                          file_repository=file_repository,
                          type_repository=type_repository,
                          plugin_loader=plugin_loader,
-                         test_mode=test_mode)
+                         test_mode=test_mode,
+                         files_table_name=files_table_name)
 
         self._load_from_record()
 

@@ -4,7 +4,7 @@ import pprint
 import time
 from collections import deque
 from functools import reduce
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 
 from flask import url_for
 
@@ -370,7 +370,7 @@ class ModelFileRepository:
         self.filter_options = {"records_per_chunk": self.MAX_RECORDS_PER_CHUNK}
         self.conf = conf
         self.file_repos = FileRepository(conf)
-        self.plugin_controller = get_plugin_for_controller(plugin_name)
+        self.plugin_controller = get_plugin_for_controller(plugin_name) if plugin_name else None
         self.sorting_option = self.SORTING_OPTIONS[0]
 
     def set_filter_values(self, options):
@@ -410,7 +410,7 @@ class ModelFileRepository:
 
         self.filter_options["filter_values"][option] = value
 
-    def _get_where(self, file_identifier_cache_table_name):
+    def _get_where(self, file_identifier_cache_table_name, files_table_name = "images"):
         """
         This is really baaaad code. It is so bad. But it will be completely removed and changed one day, anyhow.
         Currently it is not using a dsd and everything is entirely hardcoded.
@@ -454,7 +454,6 @@ class ModelFileRepository:
                     param = None
                 else:
                     if self.filter_options["filter_values"][o]:
-                        # where_part = " file_identifier_cache.identifier ilike %s"
                         where_part = f" {file_identifier_cache_table_name}.\"identifier\" ilike %s"
                         param = kioskstdlib.escape_backslashs(self.filter_options["filter_values"][o])
             elif o in ["description"] and self.filter_options["filter_values"][o]:
@@ -463,15 +462,15 @@ class ModelFileRepository:
                 #  deprecated: Throw this out once Q&V has a full text search.
                 description = self.filter_options["filter_values"][o]
                 if description.startswith("ext:."):
-                    where_part = f"""images.filename ilike %s"""
+                    where_part = f"""{files_table_name}.filename ilike %s"""
                     ext = description[4:]
                     param = kioskstdlib.escape_backslashs('%' + ext)
                 else:
                     where_part = f"""
                         (({file_identifier_cache_table_name}.\"description\" ilike %s 
-                            or images.description ilike %s 
-                            or cast(images.uid as VARCHAR) = %s)
-                            or images.uid in 
+                            or {files_table_name}.description ilike %s 
+                            or cast({files_table_name}.uid as VARCHAR) = %s)
+                            or {files_table_name}.uid in 
                             ( 
                                 select cm_photo.uid_photo from collected_material_photo cm_photo
                                 inner join collected_material cm on cm_photo.uid_cm = cm.uid
@@ -480,7 +479,7 @@ class ModelFileRepository:
                                 concat(cm.description, ' ', sf.material, ' ')
                                 ilike %s                
                             )
-                            or images.export_filename ilike %s   
+                            or {files_table_name}.export_filename ilike %s   
                         ) """
                     param = kioskstdlib.escape_backslashs("%" + self.filter_options["filter_values"][o] + "%")
                     param2 = kioskstdlib.escape_backslashs("%" + self.filter_options["filter_values"][o] + "%")
@@ -552,8 +551,11 @@ class ModelFileRepository:
             sql_site = ""
         return sql_site
 
-    def query_image_count(self):
-        cur = KioskSQLDb.get_dict_cursor()
+    def get_uid_query_sql(self, files_table_name="images") -> Tuple[str, List]:
+        """
+        returns an sql statement that selects the uids of the filtered images.
+        :return: string
+        """
         file_identifier_cache_table_name = KioskSQLDb.sql_safe_namespaced_table(CONTEXT_CACHE_NAMESPACE,
                                                                                 'file_identifier_cache')
         sql_where, params = self._get_where(file_identifier_cache_table_name)
@@ -562,7 +564,24 @@ class ModelFileRepository:
 
         sql_site = self._get_site_sql()
 
-        sql = "select " + "  count(distinct images.uid) c from images " + sql_site + \
+        sql = f"select distinct images.uid from {files_table_name} images " + sql_site + \
+              f"left outer join " \
+              f"{file_identifier_cache_table_name} " \
+              f"on images.uid={file_identifier_cache_table_name}.\"data\"::uuid {sql_where}"
+        return sql.strip(), params
+
+    def query_image_count(self, files_table: str = None):
+        cur = KioskSQLDb.get_dict_cursor()
+        file_identifier_cache_table_name = KioskSQLDb.sql_safe_namespaced_table(CONTEXT_CACHE_NAMESPACE,
+                                                                                'file_identifier_cache')
+        files_table = files_table if files_table else KioskSQLDb.sql_safe_namespaced_table("","images")
+        sql_where, params = self._get_where(file_identifier_cache_table_name)
+        if sql_where:
+            sql_where = " " + sql_where
+
+        sql_site = self._get_site_sql()
+
+        sql = "select " + f" count(distinct images.uid) c from {files_table} images " + sql_site + \
               f"left outer join " \
               f"{file_identifier_cache_table_name} " \
               f"on images.uid={file_identifier_cache_table_name}.\"data\"::uuid {sql_where};"
@@ -582,7 +601,7 @@ class ModelFileRepository:
             cur.close()
         return None
 
-    def query_images(self):
+    def query_images(self, files_table: str = None):
         result = []
         cur = KioskSQLDb.get_dict_cursor()
         file_identifier_cache_table_name = KioskSQLDb.sql_safe_namespaced_table(CONTEXT_CACHE_NAMESPACE,
@@ -595,10 +614,12 @@ class ModelFileRepository:
         if sql_order:
             sql_order = " " + sql_order
 
+        files_table = files_table if files_table else KioskSQLDb.sql_safe_namespaced_table("","images")
+
         sql_site = self._get_site_sql()
 
         sql = "select " + f" distinct images.*, COALESCE(\"file_datetime\", '0001-01-01') sort_fd, " \
-                          "array_to_string(identifier_array, ', ') identifiers from \"images\" " + sql_site + \
+                          f"array_to_string(identifier_array, ', ') identifiers from {files_table} images {sql_site} " \
               f"left outer join " \
               f"{file_identifier_cache_table_name} " \
               f"on images.uid={file_identifier_cache_table_name}.data::uuid " + \
@@ -635,7 +656,7 @@ class ModelFileRepository:
             KioskSQLDb.rollback()
         return []
 
-    def get_image(self, uuid) -> FileRepositoryFile:
+    def get_image(self, uuid, files_table=None) -> FileRepositoryFile:
         cur = KioskSQLDb.get_dict_cursor()
         # sql = "select " + " distinct images.*, array_to_string(identifier_array, ',') identifiers from \"images\" " \
         #                   "left outer join file_identifier_cache on images.uid=file_identifier_cache.uid_file " \
@@ -643,7 +664,8 @@ class ModelFileRepository:
         #       "array_agg(concat(\"identifier\", '(', \"recording_context\", ')')) \"identifier_array\" " \
         #       "from file_identifier_cache where \"primary\"=1 group by uid_file) id_array " \
         #       "on images.uid = id_array.uid_file where images.uid=%s;"
-        sql = "select " + " distinct images.* from \"images\" " \
+        files_table = files_table if files_table else KioskSQLDb.sql_safe_namespaced_table("","images")
+        sql = "select " + f" distinct images.* from {files_table} images" \
                           " where images.uid=%s;"
         try:
             cur.execute(sql, [uuid])

@@ -11,6 +11,7 @@ from flask_login import current_user
 from flask_wtf import FlaskForm
 
 from werkzeug.datastructures import MultiDict
+from werkzeug.exceptions import BadRequest, Unauthorized
 from werkzeug.utils import secure_filename
 from wtforms import StringField, SelectField
 
@@ -19,7 +20,8 @@ import kioskglobals
 import kiosklib
 import kioskstdlib
 import synchronization
-from authorization import full_login_required, get_local_authorization_strings, MODIFY_DATA, DOWNLOAD_FILE
+from authorization import full_login_required, get_local_authorization_strings, MODIFY_DATA, DOWNLOAD_FILE, \
+    ARCHIVE_FILES, ENTER_FILE_ARCHIVES
 from contextmanagement.memoryidentifiercache import MemoryIdentifierCache
 from core.kioskcontrollerplugin import get_plugin_for_controller
 from core.kioskwtforms import KioskStringField, KioskLabeledBooleanField
@@ -30,10 +32,14 @@ from kioskcontextualfile import KioskContextualFile
 from kioskrepresentationtype import KioskRepresentationType, KioskRepresentations
 from kioskresult import KioskResult
 from kiosksqldb import KioskSQLDb
+from mcpinterface.mcpjob import MCPJob
 from plugins.filerepositoryplugin.ModelFileRepository import ModelFileRepository, FileRepositoryFile
-from plugins.filerepositoryplugin.filerepositorylib import get_std_file_images, trigger_fid_refresh_if_needed, get_pagination
+from plugins.filerepositoryplugin.filerepositoryarchive import FileRepositoryArchive
+from plugins.filerepositoryplugin.filerepositorylib import get_std_file_images, trigger_fid_refresh_if_needed, \
+    get_pagination
 from plugins.filerepositoryplugin.forms.archivedialogform import ArchiveDialogForm
 from plugins.filerepositoryplugin.forms.editform import ModalFileEditForm
+from plugins.filerepositoryplugin.forms.selectarchivedialogform import SelectArchiveDialogForm
 from sync.core.filerepository import FileRepository
 
 _plugin_name_ = "filerepositoryplugin"
@@ -53,6 +59,8 @@ filerepository = Blueprint(_controller_name_, __name__,
 LOCAL_FILE_REPOSITORY_PRIVILEGES = {
     DOWNLOAD_FILE: "download file",
     MODIFY_DATA: "modify data",
+    ARCHIVE_FILES: "archive files",
+    ENTER_FILE_ARCHIVES: "enter file archives",
 }
 
 
@@ -81,7 +89,6 @@ def get_stdfile_for_fileext(file_extension, only_if_unsupported=False):
     return None
 
 
-
 @filerepository.route('/fetch_tile/<string:uuid>', defaults={'force_reload': 0}, methods=['POST'])
 @filerepository.route('/fetch_tile/<string:uuid>/force_reload=<int:force_reload>', methods=['POST'])
 @full_login_required
@@ -91,10 +98,26 @@ def repository_fetch_image(uuid, force_reload):
     print(f"\n*************** file_repository/fetch_tile/{uuid} with force_reload={force_reload} ")
     cfg = kioskglobals.cfg
     m_file_repos = ModelFileRepository(cfg, _plugin_name_)
-    img = m_file_repos.get_image(uuid)
+    files_table = get_current_files_table_name()
+
+    img = m_file_repos.get_image(uuid, files_table)
     return (render_template('_file_repository_image.html',
                             img=img,
                             force_reload=bool(force_reload)))
+
+
+def get_current_files_table_name() -> str:
+    """
+    returns the current name of the table with file records. Either the central files table or
+    if an archive is selected the archive's table
+    :return:
+    """
+    files_table = Dsd3Singleton.get_dsd3().files_table
+    selected_archive = FileRepositoryArchive.check_archive_name(
+        session["fr_selected_archive"]) if "fr_selected_archive" in session else None
+    if selected_archive:
+        files_table = FileRepositoryArchive.get_namespaced_archive_table_name(selected_archive, files_table)
+    return files_table
 
 
 @filerepository.route('/fetch/<path:file_uuid>', defaults={'resolution': ''})
@@ -118,6 +141,7 @@ def fetch_repository_file(file_uuid, resolution):
             abort(400)
 
         if file_uuid:
+            files_table = get_current_files_table_name()
             sync = synchronization.Synchronization()
             if search_params.get("ct"):
                 file_repos = FileRepository(kioskglobals.cfg,
@@ -128,7 +152,7 @@ def fetch_repository_file(file_uuid, resolution):
             else:
                 file_repos = FileRepository(kioskglobals.cfg)
 
-            ctx_file = file_repos.get_contextual_file(file_uuid)
+            ctx_file = file_repos.get_contextual_file(file_uuid, files_table_name=files_table)
             if ctx_file:
                 filename = ctx_file.get()
 
@@ -140,7 +164,8 @@ def fetch_repository_file(file_uuid, resolution):
                 if search_params.get("ct"):
                     thumbnail_file = ctx_file.get(representation_type, create=True)
                     if not thumbnail_file:
-                        raise Exception(f"'Could not create representation '{representation_type}' for file '{file_uuid}'")
+                        raise Exception(
+                            f"'Could not create representation '{representation_type}' for file '{file_uuid}'")
                 else:
                     thumbnail_file = ctx_file.get(representation_type)
             else:
@@ -247,7 +272,7 @@ def file_repository_index():
 @full_login_required
 def file_repository_show():
     page_count = 1
-    pages=[]
+    pages = []
     current_page = 1
 
     filter_form = FilterForm()
@@ -275,6 +300,11 @@ def file_repository_show():
     kiosk_call_params = None
     if "kiosk_call_params" in request.cookies:
         kiosk_call_params = json.loads(request.cookies["kiosk_call_params"])
+
+    options = {}
+    files_table = get_current_files_table_name()
+    selected_archive = FileRepositoryArchive.check_archive_name(
+        session["fr_selected_archive"]) if "fr_selected_archive" in session else None
 
     if request.method == "POST" or kiosk_call_params:
         try:
@@ -310,6 +340,9 @@ def file_repository_show():
             m_file_repository.set_filter_values(options)
         except ValueError as e:
             return jsonify(result=f"{str(e)}")
+    else:
+        if request.method == "GET":
+            session["fr_active_filter_options"] = {}
 
     tag_list = m_file_repository.get_tags()
     sorting_options = m_file_repository.get_sorting_options()
@@ -325,7 +358,8 @@ def file_repository_show():
 
     thumbnail_resolutions = m_file_repository.get_thumbnail_types()
     fullscreen_representation_id = kioskglobals.cfg.file_repository["fullscreen_representation"]
-    representations = [f"{x[0]},{x[1]}" for x in KioskRepresentations.get_representation_labels_and_ids(kioskglobals.cfg)]
+    representations = [f"{x[0]},{x[1]}" for x in
+                       KioskRepresentations.get_representation_labels_and_ids(kioskglobals.cfg)]
 
     if "ajax" in request.form:
         if not options["no_context"] and options["context"]:
@@ -342,7 +376,7 @@ def file_repository_show():
                 return jsonify(result=repr(e))
 
         logging.debug(f"filerepositorycontroller.file_repository_show: Before query_image_count ")
-        c = m_file_repository.query_image_count()
+        c = m_file_repository.query_image_count(files_table=files_table)
         logging.debug(f"filerepositorycontroller.file_repository_show: After query_image_count ")
         return jsonify(result=c)
     else:
@@ -351,7 +385,8 @@ def file_repository_show():
         authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
         if request.method == "POST" or kiosk_call_params:
             m_file_repository.sorting_option = session["kiosk_fr_sorting"]
-            img_list = m_file_repository.query_images()
+            session["fr_active_filter_options"] = options
+            img_list = m_file_repository.query_images(files_table=files_table)
             # if len(img_list) > MAX_IMAGES_PER_PAGE:
             #     img_list = None
             page_count, rest = divmod(len(img_list), MAX_IMAGES_PER_PAGE)
@@ -369,22 +404,25 @@ def file_repository_show():
             logging.debug(f"filerepositorycontroller.file_repository_show: "
                           f"showing images {(current_page - 1) * MAX_IMAGES_PER_PAGE}:{current_page * MAX_IMAGES_PER_PAGE}"
                           f" = {len(img_list)}")
-        resp = make_response( render_template('file_repository.html',
-                               filter_form=filter_form,
-                               image_list=img_list,
-                               image_resolutions=thumbnail_resolutions,
-                               sorting_options=sorting_options,
-                               fullscreen_representation_id=fullscreen_representation_id,
-                               resolutions=",".join(representations),
-                               tag_list=tag_list,
-                               max_images_per_page=MAX_IMAGES_PER_PAGE,
-                               page_count=page_count,
-                               pages=pages,
-                               current_page=current_page,
-                               sorting_option=session["kiosk_fr_sorting"],
-                               authorized_to=authorized_to,
-                               site_filter=filtered_site_uuid,
-                               filtered_site=filtered_site))
+        resp = make_response(render_template('file_repository.html',
+                                             filter_form=filter_form,
+                                             image_list=img_list,
+                                             image_resolutions=thumbnail_resolutions,
+                                             sorting_options=sorting_options,
+                                             fullscreen_representation_id=fullscreen_representation_id,
+                                             resolutions=",".join(representations),
+                                             tag_list=tag_list,
+                                             max_images_per_page=MAX_IMAGES_PER_PAGE,
+                                             page_count=page_count,
+                                             pages=pages,
+                                             current_page=current_page,
+                                             sorting_option=session["kiosk_fr_sorting"],
+                                             authorized_to=authorized_to,
+                                             site_filter=filtered_site_uuid,
+                                             selected_archive=FileRepositoryArchive.get_archive_display_name(
+                                                 selected_archive) if selected_archive else None,
+                                             archive_is_active=True if selected_archive else False,
+                                             filtered_site=filtered_site))
     if kiosk_call_params:
         resp.delete_cookie('kiosk_call_params')
 
@@ -409,14 +447,15 @@ def filerepository_editpartial(uuid):
                                 plugin_loader=current_app
                                 )
 
-    img = m_file_repos.get_image(uuid)
+    files_table = get_current_files_table_name()
+    img = m_file_repos.get_image(uuid, files_table=files_table)
 
     recorded_description = img.get_description_summary(include_image_description=False)
 
     file_extension = "?"
     file_size = "?"
     try:
-        ctx_file = file_repos.get_contextual_file(uuid)
+        ctx_file = file_repos.get_contextual_file(uuid, files_table_name=files_table)
         if ctx_file:
             file_name = ctx_file.get()
             file_extension = kioskstdlib.get_file_extension(file_name)
@@ -447,7 +486,7 @@ def filerepository_editpartial(uuid):
         created_latin = kioskstdlib.latin_date(img.get_value("created"))
 
         authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
-        read_only = request.args.get('read_only')
+        read_only = request.args.get('read_only') or ("fr_selected_archive" in session)
         if read_only:
             try:
                 authorized_to.remove("modify data")
@@ -648,6 +687,7 @@ def site_filter_dialog():
             resp.set_cookie("site_filter", selected)
 
         return resp
+
 
 @filerepository.route('/delete/<uid>/<string:force>', methods=['POST'])
 @full_login_required
@@ -907,44 +947,6 @@ def repository_bulk_tag_execute():
     return result.jsonify()
 
 
-# @filerepository.route('/bulklink', methods=['POST'])
-# @full_login_required
-# def repository_bulk_link_files():
-#     """
-#     asks for a dialog to tag a list of files
-#
-#     :return:
-#     """
-#
-#     print("\n*************** Request to link files  in bulk *************************++")
-#     if hasattr(request, 'json') and request.json and 'files' in request.json:
-#         files = request.json["files"]
-#     else:
-#         files = []
-#
-#     print(f"\n*************** {len(files)} about to be linked with the bulk link dialog *************************++")
-#     logging.info(f"filerepositorycontroller.repository_bulk_link_files: request to link {len(files)} files.")
-#
-#     authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
-#     if "modify data" not in authorized_to:
-#         logging.warning(f"Unauthorized attempt to link files by user {current_user.user_id}")
-#         return jsonify(result="you do not have the privilege to modify any data.")
-#
-#     false_tags = []
-#     true_tags = []
-#     undefined_tags = []
-#
-#     # noinspection PyTypeChecker
-#     file_repos = FileRepository(kioskglobals.cfg,
-#                                 event_manager=None,
-#                                 type_repository=kioskglobals.type_repository,
-#                                 plugin_loader=current_app
-#                                 )
-#
-#     m_file_repository = ModelFileRepository(kioskglobals.cfg, _plugin_name_)
-#
-#     return render_template('bulklinkdialog.html', file_repository=m_file_repository)
-
 @filerepository.route('/bulklink/execute', methods=['POST'])
 @full_login_required
 def repository_bulk_link_execute():
@@ -1181,7 +1183,7 @@ def file_repository_download_file(img, cmd):
             representation = img_args[1]
         except:
             pass
-        ctx_file = file_repos.get_contextual_file(uuid)
+        ctx_file = file_repos.get_contextual_file(uuid, files_table_name=get_current_files_table_name())
         if ctx_file:
 
             if representation:
@@ -1229,30 +1231,206 @@ def file_repository_download_file(img, cmd):
         # if cmd == "response":
         return jsonify(result=f"filerepositorycontroller.file_repository_download_file: {repr(e)}")
 
+
 @filerepository.route('/show_archive_popup', methods=['GET'])
 @full_login_required
 def show_archive_popup():
     """
-    asks for a dialog to tag a list of files
+    asks for a dialog to set the options for an (un-)archive operation
 
     :return:
     """
     try:
         print("\n*************** Request to show archive popup *************************++")
-        archive_mode = True
-        archives = []
+        selected_archive = None
+        if "fr_selected_archive" in session:
+            selected_archive = session["fr_selected_archive"]
+        archives = FileRepositoryArchive.list_archives(Dsd3Singleton.get_dsd3())
         archive_dialog_form = ArchiveDialogForm(archives)
 
         authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
-        if "modify data" not in authorized_to:
+        if "archive files" not in authorized_to:
             logging.warning(f"Unauthorized attempt to archive files by user {current_user.user_id}")
             abort(HTTPStatus.UNAUTHORIZED, "You do not have the privilege to (un)archive files.")
 
         return render_template('archivedialog.html',
-                               archive_mode=archive_mode,
-                               archive_dialog_form = archive_dialog_form,
-                               title="archive files" if archive_mode else "un-archive files",)
+                               archive_mode=False if selected_archive else True,
+                               selected_archive=selected_archive,
+                               archive_dialog_form=archive_dialog_form,
+                               # archives=archives,
+                               title="un-archive files" if selected_archive else "archive files", )
     except BaseException as e:
         logging.error(f"filerepositorycontroller.show_archive_popup: {repr(e)}")
         print(repr(e))
         abort(500, repr(e))
+
+
+@filerepository.route('/archive', methods=['POST'])
+@full_login_required
+def archive():
+    """
+    starts an (un-)archive operation
+
+    :return:
+    """
+
+    authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
+    if "archive files" not in authorized_to:
+        logging.warning(f"Unauthorized attempt to archive files by user {current_user.user_id}")
+        abort(HTTPStatus.UNAUTHORIZED, "You do not have the privilege to (un)archive files.")
+
+    result = KioskResult()
+    result.message = "Something unspeakable went wrong"
+    result.success = False
+    result.set_data("job_uid", "")
+
+    try:
+        selected_archive = None
+        if "fr_selected_archive" in session:
+            selected_archive = session["fr_selected_archive"]
+
+        print(f"\n*************** Request to {'un-archive' if selected_archive else 'archive'} "
+              f"files *************************++")
+        logging.debug(f"FileRepositoryController.archive: "
+                      f"Request to {'un-archive' if selected_archive else 'archive'} files")
+
+        if hasattr(request, 'json') and request.json and 'files' in request.json:
+            files = request.json["files"]
+        else:
+            files = []
+
+        try:
+            frf = session["fr_active_filter_options"] if "fr_active_filter_options" in session else {}
+            if not selected_archive:
+                options = {"use_existing_archive": False,
+                           "use_new_archive": False}
+
+                for option_dict in request.json["options"]:
+                    option = option_dict["name"].lower()
+                    value = option_dict["value"]
+
+                    if option == "filtered_images":
+                        options[option] = True if value == "on" else False
+                    elif option == "use_new_archive" or option == "use_existing_archive":
+                        options[option] = True if value == "on" else False
+                    else:
+                        options[option] = value
+
+                frf["no_context"] = True
+            else:
+                options = {"use_existing_archive": True,
+                           "selected_archive": selected_archive,
+                           "unarchive": True}
+
+            if not options:
+                raise Exception()
+        except BaseException as e:
+            raise Exception(f"Technical error: No or wrong options in request ({repr(e)})")
+
+        authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
+        if "modify data" not in authorized_to:
+            logging.warning(f"Unauthorized attempt to un/archive files by user {current_user.user_id}")
+            raise Exception("You do not have the privilege to un/archive images.")
+
+        job = MCPJob(kioskglobals.general_store)
+        job.set_worker("plugins.filerepositoryplugin.workers.filerepositoryarchiveworker",
+                       "FileRepositoryArchiveWorker")
+        job.job_data = {"files": files,
+                        "options": options,
+                        "frf": frf}
+        job.user_data = current_user.to_dict()
+        job.queue()
+        result.success = True
+        result.set_data("job_uid", job.job_id)
+        return result.jsonify()
+
+    except BaseException as e:
+        logging.error(f"filerepositorycontroller.archive: {repr(e)}")
+        print(repr(e))
+        result.success = "False"
+        result.message = repr(e)
+        return result.jsonify()
+
+
+#  **************************************************************
+#  ****    selectarchive
+#  *****************************************************************/
+@filerepository.route('/selectarchive', methods=['GET', 'POST'])
+@full_login_required
+def select_archive_dialog():
+    result = KioskResult()
+    result.message = "Something unspeakable went wrong"
+    result.success = False
+    try:
+        cfg = kioskglobals.cfg
+        dsd = Dsd3Singleton.get_dsd3()
+        archives = ["no archive, show repository files"]
+        archives.extend(FileRepositoryArchive.list_archives(dsd))
+        select_archive_dialog_form = SelectArchiveDialogForm(archives)
+
+        authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
+        if "enter file archives" not in authorized_to:
+            print(authorized_to)
+            logging.warning(f"Unauthorized attempt to enter a file archive by user {current_user.user_id}")
+            abort(HTTPStatus.UNAUTHORIZED)
+
+        if request.method == "GET":
+            print("\n*************** filerepository.select_archive_dialog: fetch dialog")
+
+            if "fr_selected_archive" in session:
+                select_archive_dialog_form.selected_archive.data = session["fr_selected_archive"]
+            else:
+                select_archive_dialog_form.selected_archive.data = archives[0]
+            return render_template('selectarchivedialog.html',
+                                   title="select archive",
+                                   select_archive_dialog_form=select_archive_dialog_form
+                                   )
+        elif request.method == "POST":
+            print("\n*************** filerepository.select_archive_dialog: selected")
+
+            selected = select_archive_dialog_form.selected_archive.data
+            if selected in archives:
+                if selected == archives[0]:
+                    if "fr_selected_archive" in session:
+                        session.pop("fr_selected_archive")
+                else:
+                    session["fr_selected_archive"] = selected
+                result.success = True
+            else:
+                raise BadRequest("selected archive does not exist")
+
+            resp = make_response(result.jsonify())
+            return resp
+    except BaseException as e:
+        logging.error(f"filerepositorycontroller.select_archive_dialog: Exception occured {repr(e)}")
+        if isinstance(e, Unauthorized):
+            abort(HTTPStatus.UNAUTHORIZED, "You do not have the privilege to enter a file archive.")
+        if request.method == "GET":
+            abort(HTTPStatus.INTERNAL_SERVER_ERROR, repr(e))
+        else:
+            result.success = "False"
+            result.message = repr(e)
+            return result.jsonify()
+
+#  **************************************************************
+#  ****    noarchive
+#  *****************************************************************/
+@filerepository.route('/noarchive', methods=['POST'])
+@full_login_required
+def no_archive():
+    print("\n*************** filerepository.no_archive")
+    result = KioskResult()
+    result.message = "Something unspeakable went wrong"
+    result.success = False
+    try:
+        if "fr_selected_archive" in session:
+            session.pop("fr_selected_archive")
+        result.success = True
+
+        resp = make_response(result.jsonify())
+        return resp
+    except BaseException as e:
+        logging.error(f"filerepositorycontroller.no_archive: {repr(e)}")
+        result.success = "False"
+        result.message = repr(e)
+        return result.jsonify()

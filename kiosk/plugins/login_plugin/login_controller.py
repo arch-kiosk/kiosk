@@ -1,5 +1,5 @@
 from flask import Blueprint, request, redirect, render_template, jsonify, \
-    flash, url_for, Response, abort
+    flash, url_for, Response, abort, session
 from flask_login import current_user, login_user, logout_user, login_required
 from authorization import full_login_required
 from flask_wtf import FlaskForm
@@ -100,6 +100,7 @@ def process_client_time_zone(response: Response, user: KioskUser):
 def logout():
     print("\n*************** kiosk_authentication/logout")
     logout_user()
+    session.clear()
     return redirect(url_for('get_index'))
 
 

@@ -6,34 +6,44 @@
 {% block kiosk_modal_dialog_classes %}kiosk-modal-dialog-fullscreen{% endblock %}
 {% block kiosk_modal_dialog_name %}{{ title }}{% endblock %}
 {% block kiosk_modal_dialog_image %}
-    <!--Vectors and icons https://www.svgrepo.com/svg/507917/archive"
-    COLLECTION: Scarlab Duotone Line Vectors
-    LICENSE: MIT License
-    AUTHOR: scarlab-->
-    <svg width="64px" height="64px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path opacity="0.1"
-              d="M4 9V16C4 17.8856 4 18.8284 4.58579 19.4142C5.17157 20 6.11438 20 8 20H16C17.8856 20 18.8284 20 19.4142 19.4142C20 18.8284 20 17.8856 20 16V9H4Z"
-              fill="#323232" />
-        <path d="M9 13H15" stroke="#323232" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-        <path
-            d="M3 6.5C3 6.03534 3 5.80302 3.03843 5.60982C3.19624 4.81644 3.81644 4.19624 4.60982 4.03843C4.80302 4 5.03534 4 5.5 4H12H18.5C18.9647 4 19.197 4 19.3902 4.03843C20.1836 4.19624 20.8038 4.81644 20.9616 5.60982C21 5.80302 21 6.03534 21 6.5V6.5V6.5C21 6.96466 21 7.19698 20.9616 7.39018C20.8038 8.18356 20.1836 8.80376 19.3902 8.96157C19.197 9 18.9647 9 18.5 9H12H5.5C5.03534 9 4.80302 9 4.60982 8.96157C3.81644 8.80376 3.19624 8.18356 3.03843 7.39018C3 7.19698 3 6.96466 3 6.5V6.5V6.5Z"
-            stroke="#323232" stroke-width="2" stroke-linejoin="round" />
-        <path
-            d="M4 9V15.9999C4 17.8856 4 18.8284 4.58579 19.4142C5.17157 19.9999 6.11438 19.9999 8 19.9999H9H15H16C17.8856 19.9999 18.8284 19.9999 19.4142 19.4142C20 18.8284 20 17.8856 20 15.9999V9"
-            stroke="#323232" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-    </svg>
+    {% if archive_mode %}
+        <!--Vectors and icons https://www.svgrepo.com/svg/507917/archive"
+        COLLECTION: Scarlab Duotone Line Vectors
+        LICENSE: MIT License
+        AUTHOR: scarlab-->
+        <svg width="64px" height="64px" style="margin-right: 1em" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path opacity="0.1"
+                  d="M4 9V16C4 17.8856 4 18.8284 4.58579 19.4142C5.17157 20 6.11438 20 8 20H16C17.8856 20 18.8284 20 19.4142 19.4142C20 18.8284 20 17.8856 20 16V9H4Z"
+                  fill="#323232" />
+            <path d="M9 13H15" stroke="#323232" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            <path
+                d="M3 6.5C3 6.03534 3 5.80302 3.03843 5.60982C3.19624 4.81644 3.81644 4.19624 4.60982 4.03843C4.80302 4 5.03534 4 5.5 4H12H18.5C18.9647 4 19.197 4 19.3902 4.03843C20.1836 4.19624 20.8038 4.81644 20.9616 5.60982C21 5.80302 21 6.03534 21 6.5V6.5V6.5C21 6.96466 21 7.19698 20.9616 7.39018C20.8038 8.18356 20.1836 8.80376 19.3902 8.96157C19.197 9 18.9647 9 18.5 9H12H5.5C5.03534 9 4.80302 9 4.60982 8.96157C3.81644 8.80376 3.19624 8.18356 3.03843 7.39018C3 7.19698 3 6.96466 3 6.5V6.5V6.5Z"
+                stroke="#323232" stroke-width="2" stroke-linejoin="round" />
+            <path
+                d="M4 9V15.9999C4 17.8856 4 18.8284 4.58579 19.4142C5.17157 19.9999 6.11438 19.9999 8 19.9999H9H15H16C17.8856 19.9999 18.8284 19.9999 19.4142 19.4142C20 18.8284 20 17.8856 20 15.9999V9"
+                stroke="#323232" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+    {% else %}
+        <!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+        <svg width="64px" height="64px" style="margin-right: 1em"  fill="#3f3f3f" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
+             xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 456.812 456.812" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+            <g id="SVGRepo_iconCarrier"> <g> <path
+                d="M456.168,156.079L414.84,55.069c-1.732-4.236-6.464-6.392-10.798-4.917l-81.427,27.703H134.197L52.77,50.152 c-4.333-1.475-9.064,0.68-10.798,4.917L0.644,156.079c-0.89,2.176-0.856,4.62,0.092,6.771c0.949,2.15,2.732,3.822,4.939,4.632 l80.738,29.589c0.001,0.041-0.001,0.079,0,0.119h0.008c-0.035,3.896-0.063,28.486-0.059,193.753c0,8.922,7.258,16.18,16.18,16.18 H354.27c8.922,0,16.18-7.258,16.18-16.181c0,0-0.045-182.74-0.047-193.872l80.734-29.589c2.206-0.81,3.989-2.481,4.938-4.632 C457.024,160.699,457.058,158.255,456.168,156.079z M259.7,245.177h-62.588c-5.378,0-9.735-4.359-9.735-9.736 s4.357-9.736,9.735-9.736H259.7c5.378,0,9.734,4.359,9.734,9.736S265.078,245.177,259.7,245.177z M120.076,182.05l21.475-75.222 h173.671l21.476,75.222H120.076z"></path> </g> </g></svg>
+    {% endif %}
     {#    <i class="far header-icon"></i>#}
 {% endblock %}
 {% block kiosk_modal_dialog_content %}
-    <div id="fr-archive-dialog" class="pagecontrol-content">
+    <div id="fra-dialog" style="visibility: hidden" class="pagecontrol-content">
         <form id="fr-dialog-form">
-            <input id="selected" name="selected" type="hidden" />
+            {#            <input id="selected" name="selected" type="hidden" />#}
             {{ archive_dialog_form.csrf_token }}
-{#        {{ archive_dialog_form.page_initialized() }}#}
-            <div class="grid-12">
-{#                <div class="col-12">#}
-{#                    Please configure your import.#}
-{#                </div>#}
+            {#        {{ archive_dialog_form.page_initialized() }}#}
+            {% if archive_mode %}
+                <div class="grid-12">
+                {#                <div class="col-12">#}
+                {#                    Please configure your import.#}
+                {#                </div>#}
                 <div id="marked-images-panel" class="col-6 ad-panel">
                     {{ archive_dialog_form.marked_images(
                                 class="kiosk-dialog-checkbox",
@@ -79,6 +89,13 @@
                     </div>
                 </div>
             </div>
+            {% else %}
+                <div class="grid-12" style="margin: 0 0">
+                    <div id="marked-images-panel" class="col-12 ad-panel">
+                        <span id="unarchive-message"></span>
+                    </div>
+                </div>
+            {% endif %}
         </form>
     </div>
 
@@ -112,133 +129,228 @@
             kioskActivateButton($("#bt-ok"), () => {
                 executeArchiveFiles();
             });
-            frInitArchiveFilesDialog();
+            frInitArchiveFilesDialog({% if selected_archive %}"{{ selected_archive }}"{% endif %});
         }
 
         function repositoryHasFilter() {
             const formData = $("#frf").serializeArray();
             for (const item of formData) {
-                if (item.value !== '') return true
+                if (item.name !== "no_context" && item.value !== "") return true;
             }
-            return false
+            return false;
         }
 
-        function frInitArchiveFilesDialog() {
-            let files = getMarkedFiles()
-            const hasFilter= repositoryHasFilter()
-            const hasMarked = files.length > 0
+        function frInitArchiveFilesDialog(selected_archive=null) {
+            console.log("selected_archive", selected_archive)
+            const hasFilter = repositoryHasFilter();
+            let files = getMarkedFiles();
+            const hasMarked = files.length > 0;
+            if (selected_archive) {
+               const el = document.getElementById("unarchive-message");
+               if (hasMarked)
+                   el.innerHTML = `You are about to un-archive ${files.length} file(s) from archive '${selected_archive}'. Is that what you want to do?`
+                else
+                   el.innerHTML = `Do you really want to move all those files back from archive '${selected_archive}' to the file repository?`
+            } else {
+               frInitDialogInArchiveMode(hasFilter, hasMarked)
+            }
+            document.getElementById("fra-dialog").style.visibility = "visible";
+        }
+
+        function frInitDialogInArchiveMode(hasFilter, hasMarked) {
             if (!(hasFilter || hasMarked)) {
-                $.magnificPopup.close()
-                kioskErrorToast(`Please select files to archive or apply at least a filter.
-                You cannot archive or unarchive just everything.`)
+                $.magnificPopup.close();
+                kioskErrorToast(`Please select files to archive or apply at least a filter
+                (the "no context" filter does not suffice).
+                You cannot archive or un-archive just everything.`);
                 return;
             }
-            const elFilter = document.querySelector("#filtered-images")
-            const elMarked = document.querySelector("#marked-images")
-            elFilter.checked = false
-            elMarked.checked = true
+            const elFilter = document.querySelector("#filtered-images");
+            const elMarked = document.querySelector("#marked-images");
+            elFilter.checked = false;
+            elMarked.checked = true;
             if (!hasFilter) {
-                elFilter.disabled = true
-                document.getElementById("filtered-images-panel").style.display = "none"
+                elFilter.disabled = true;
+                document.getElementById("filtered-images-panel").style.display = "none";
             }
             if (!hasMarked) {
-                elFilter.checked = true
-                elMarked.checked = false
-                elMarked.disabled = true
-                document.getElementById("marked-images-panel").style.display = "none"
+                elFilter.checked = true;
+                elMarked.checked = false;
+                elMarked.disabled = true;
+                document.getElementById("marked-images-panel").style.display = "none";
             }
             if (hasFilter && hasMarked) {
-                elFilter.addEventListener("change", configureCheckboxes)
-                elMarked.addEventListener("change", configureCheckboxes)
+                elFilter.addEventListener("change", configureCheckboxes);
+                elMarked.addEventListener("change", configureCheckboxes);
             }
 
-            const elArchives = document.querySelector("#selected-archive")
-            const elUseExisting = document.querySelector("#use-existing-archive")
-            const elUseNewArchive = document.querySelector("#use-new-archive")
+            const elArchives = document.querySelector("#selected-archive");
+            const elUseExisting = document.querySelector("#use-existing-archive");
+            const elUseNewArchive = document.querySelector("#use-new-archive");
 
             if (elArchives.getElementsByTagName("option").length === 0) {
-                elUseExisting.disabled = true
-                elUseExisting.checked = false
-                elArchives.disabled = true
-                elUseNewArchive.checked = true
+                elUseExisting.disabled = true;
+                elUseExisting.checked = false;
+                elArchives.disabled = true;
+                elUseNewArchive.checked = true;
                 document.getElementById("panel-existing-archive").style.display = "none";
             } else {
-                elUseExisting.addEventListener("change", configureCheckboxes)
-                elUseNewArchive.addEventListener("change", configureCheckboxes)
+                elUseExisting.addEventListener("change", configureCheckboxes);
+                elUseNewArchive.addEventListener("change", configureCheckboxes);
             }
         }
-
         function configureCheckboxes(event) {
-            console.log("configureCheckboxes called", event)
+            console.log("configureCheckboxes called", event);
 
-            const elFilter = document.querySelector("#filtered-images")
-            const elMarked = document.querySelector("#marked-images")
-            if (event.currentTarget.id==="filtered-images") {
-                elMarked.checked = !elFilter.checked
+            const elFilter = document.querySelector("#filtered-images");
+            const elMarked = document.querySelector("#marked-images");
+            if (event.currentTarget.id === "filtered-images") {
+                elMarked.checked = !elFilter.checked;
             }
-            if (event.currentTarget.id==="marked-images") {
-                elFilter.checked = !elMarked.checked
+            if (event.currentTarget.id === "marked-images") {
+                elFilter.checked = !elMarked.checked;
             }
-            const elUseExisting = document.querySelector("#use-existing-archive")
-            const elUseNewArchive = document.querySelector("#use-new-archive")
-            if (event.currentTarget.id==="use-existing-archive") {
-                elUseNewArchive.checked = !elUseExisting.checked
+            const elUseExisting = document.querySelector("#use-existing-archive");
+            const elUseNewArchive = document.querySelector("#use-new-archive");
+            if (event.currentTarget.id === "use-existing-archive") {
+                elUseNewArchive.checked = !elUseExisting.checked;
             }
 
-            if (event.currentTarget.id==="use-new-archive") {
-                elUseExisting.checked = !elUseNewArchive.checked
+            if (event.currentTarget.id === "use-new-archive") {
+                elUseExisting.checked = !elUseNewArchive.checked;
             }
         }
 
         function validateArchiveDialog() {
-            const elFilter = document.querySelector("#filtered-images")
-            const elMarked = document.querySelector("#marked-images")
+            const elFilter = document.querySelector("#filtered-images");
+            const elMarked = document.querySelector("#marked-images");
             if (!(elFilter.checked || elMarked.checked)) {
-                kioskErrorToast("Please select whether you want to move marked files or filtered files to the archive.")
+                kioskErrorToast("Please select whether you want to move marked files or filtered files to the archive.");
                 return false;
             }
 
-            const elUseExisting = document.querySelector("#use-existing-archive")
-            const elUseNewArchive = document.querySelector("#use-new-archive")
+            const elUseExisting = document.querySelector("#use-existing-archive");
+            const elUseNewArchive = document.querySelector("#use-new-archive");
             if (!(elUseNewArchive.checked || elUseExisting.checked)) {
-                kioskErrorToast("Please select whether you want to move the files to a new or an existing archive.")
+                kioskErrorToast("Please select whether you want to move the files to a new or an existing archive.");
                 return false;
             }
             if (elUseExisting.checked) {
-                const elArchives = document.querySelector("#selected-archive")
+                const elArchives = document.querySelector("#selected-archive");
                 if (elArchives.value === "") {
-                    kioskErrorToast("Please select an existing archive to move the files to.")
+                    kioskErrorToast("Please select an existing archive to move the files to.");
                     return false;
                 }
             }
             if (elUseNewArchive.checked) {
-                const elArchive = document.querySelector("#new-archive")
+                const elArchive = document.querySelector("#new-archive");
+                elArchive.value = elArchive.value.trim();
                 if (elArchive.value === "") {
-                    kioskErrorToast("Please give the new archive a meaningful name.")
+                    kioskErrorToast("Please give the new archive a meaningful name.");
+                    return false;
+                }
+                if (!/^[a-z0-9 ]+$/.test(elArchive.value)) {
+                    kioskErrorToast("Please use only letters, digits and space for the archive's name.");
                     return false;
                 }
             }
-            return true
+            return true;
         }
 
         function executeArchiveFiles() {
+            {% if archive_mode %}
             if (!validateArchiveDialog()) {
                 return;
             }
-            alert("doin' it ...")
-            return
-            const selected = document.querySelector(".sf-selected")?.dataset.uuid ?? "-";
-            const frm = document.querySelector("#sf-dialog-form");
-            frm.querySelector("#selected").value = selected;
-            $.post("/filerepository/sitefilterdialog", $(frm).serialize(), (data) => {
-                $.magnificPopup.close();
-                if (data.result !== "none") {
-                    setTimeout(() => {
-                        resetFileReposFilters();
-                        $("#frf").submit();
-                    }, 50);
-                }
+            {% endif %}
+
+            const frm = document.querySelector("#fr-dialog-form");
+            const data = {
+                "files": getMarkedFiles(),
+                "options": $(frm).serializeArray()
+            };
+
+
+            kioskAjax("/filerepository/archive", JSON.stringify(data), "POST",
+                {
+                    beforeSend: function(xhr, settings) {
+                        csrf_token = $("#csrf_token").attr("value");
+                        if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+                        }
+                    },
+                    dataType: "json",
+                    contentType: "application/json",
+                    onSuccess: (result, textStatus, jqXHR) => {
+                        console.log(result);
+                        if (!result.success) {
+                            archiveFilesFailed(result.message);
+                        } else {
+                            connectToArchiveKioskJob(result.data.job_uid);
+                        }
+                    },
+                    onError: (errStr, status, xhr, stateData) => {
+                        archiveFilesFailed(errStr);
+                    },
+                });
+        }
+
+        function connectToArchiveKioskJob(jobId) {
+            connectToArchiveKioskJob.archive_job = undefined;
+            let job = new KioskJob($("#fr-dialog-form"));
+            if (job) {
+                job.onSuccess = (result) => {
+                    console.log(result);
+                    $.magnificPopup.close();
+                    if (result.success)
+                        archiveFilesSuccess(result.message);
+                    else
+                        archiveFilesFailed(result.message);
+                };
+                job.onStopProgress = () => {
+                    stop_spinner();
+                };
+                job.onError = (err_msg) => {
+                    archiveFilesFailed("Task aborted due to an error: " + err_msg);
+                };
+                job.onInitProgress = () => {
+                    kioskDisableButton($("#bt-ok"), true);
+                    kioskDisableButton($("#bt-cancel"), true);
+                    installSpinner($("#fr-dialog-form"), "initializing ... ");
+                };
+                job.onProgress = (progress, message, topic) => {
+                    if (!topic) {
+                        $("#ws-message-div").html(`${progress}%: ${message}`);
+                    }
+                };
+                connectToArchiveKioskJob.archive_job = job;
+            }
+            if (connectToArchiveKioskJob.archive_job)
+                connectToArchiveKioskJob.archive_job.connect(jobId);
+            else {
+                archiveFilesFailed(`<div>Sorry, some error makes it impossible to say whether or not the
+archiving process has started. Please look at the logs.</div>`);
+            }
+        }
+
+        function archiveFilesFailed(message) {
+            $.magnificPopup.close();
+            changeToolButtonState("fr-bt-archive", 1);
+            if (message && message !== "") kioskErrorToast(message);
+            fetchImageCount();
+        }
+
+        function archiveFilesSuccess(message) {
+            $.magnificPopup.close();
+            changeToolButtonState("fr-bt-archive", 1);
+            clearAllFileMarkers();
+            kioskSuccessToast(message, {
+                timeout: 0,
+                onClosed: () => {
+                    $("#frf").submit();
+                },
             });
         }
     </script>
+
 {% endblock %}

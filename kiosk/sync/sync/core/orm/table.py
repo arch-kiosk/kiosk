@@ -73,9 +73,9 @@ class Table:
     def _get_fields(cls):
         return cls._fields
 
-    @classmethod
-    def _get_table_name(cls):
-        return cls._table_name
+    def _get_table_name(self):
+        return self._table_name if self._table_name else (self.__class__._table_name
+                                                          if hasattr(self.__class__, "_table_name") else "")
 
     @classmethod
     def _field_has_attribute(cls, field, attributes: list):
@@ -130,10 +130,9 @@ class Table:
         if not self._sql_select_columns:
             self._sql_select_columns = self._get_column_str()
 
-    @classmethod
-    def truncate(cls, commit=False):
-        qi = cls._quote_identifier
-        sql = "DELETE " + f" from {qi}{cls._get_table_name()}{qi}"
+    def truncate(self, commit=False):
+        qi = self._quote_identifier
+        sql = "DELETE " + f" from {qi}{self._get_table_name()}{qi}"
         KioskSQLDb.execute(sql, commit=commit)
 
     def _execute_and_fetch(self, sql, sql_params, commit=False) -> bool:

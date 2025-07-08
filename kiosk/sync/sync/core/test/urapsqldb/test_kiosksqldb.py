@@ -132,3 +132,9 @@ class TestKioskSQLDb(KioskPyTestHelper):
 
     def test_get_default_time_zone(self, cfg):
         assert KioskSQLDb.get_default_time_zone() == "UTC"
+
+    def test_get_table_columns(self,cfg):
+        KioskSQLDb.execute("drop table if exists images")
+        KioskSQLDb.execute("create table if not exists images( uid varchar, description varchar)")
+
+        assert KioskSQLDb.get_table_columns("images") == ["uid", "description"]

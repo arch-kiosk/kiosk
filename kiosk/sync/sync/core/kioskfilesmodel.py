@@ -25,7 +25,23 @@ class KioskFilesModel(Table):
                ("filename",),
                ]
 
-    def __init__(self, **kwargs):
+    # noinspection PyMissingConstructor
+    def __init__(self, table_name=None, **kwargs):
+        # todo needs refactoring
+        # A hack: This is usually done by the Table constructor. But in this particular
+        # sub-class I need the chance to set a different table name. So I skip the constructor. Bad.
+        # Just because of the table_name being set on the instance the whole mini ORM needs a thorough refactoring.
+
+        self._r = {}
+        self._fields = []
+        self._table_name = ""
+        self._sql_insert_values = ""
+        self._sql_insert_columns = ""
+        self._sql_update = ""
+        self._sql_select_columns = ""
+        self._key_fields_names = []
+        self._key_fields_columns_str = ""
+
         self.uid = ""
         self.created = None
         self.modified = None
@@ -42,7 +58,8 @@ class KioskFilesModel(Table):
         self.tags = ""
         self.image_attributes = {}
         self.filename = ""
-        super().__init__(**kwargs)
+        self._table_name = table_name if table_name else "images"
+        self._init_instance(**kwargs)
 
     @property
     def uid(self):
@@ -52,6 +69,18 @@ class KioskFilesModel(Table):
     def uid(self, value):
         setattr(self, "_uid", str(value))
 
+    def remove_outer_quotes(self, table_name: str):
+        """
+        terrible hack: If tablename has a schema name, it must come as "schemanme"."tablename". By removing the outer quotes
+        it can be handled like an unquoted table. Hopefully. Horrible idea.
+        :param table_name:
+        :return:
+        """
+        if table_name.startswith("\""):
+            table_name = table_name[1:]
+        if table_name.endswith("\""):
+            table_name = table_name[:-1]
+        return table_name
 
 
 

@@ -69,9 +69,9 @@ function setFileRepositoryEventHandlers() {
     document.querySelector("#fr-bt-toggle").addEventListener("click", toggleFileMarkers);
     document.querySelector("#fr-bt-clear-markers").addEventListener("click", clearAllFileMarkers);
     document.querySelector("#fr-bt-set-markers").addEventListener("click", setAllFileMarkers);
-    document.querySelector("#fr-bt-bulk-delete").addEventListener("click", askBulkDelete);
-    document.querySelector("#fr-bt-bulk-tag").addEventListener("click", askBulkTag);
-    document.querySelector("#fr-bt-bulk-attach").addEventListener("click", askBulkAttach);
+    document.querySelector("#fr-bt-bulk-delete")?.addEventListener("click", askBulkDelete);
+    document.querySelector("#fr-bt-bulk-tag")?.addEventListener("click", askBulkTag);
+    document.querySelector("#fr-bt-bulk-attach")?.addEventListener("click", askBulkAttach);
 
     $(function() {
         $("#scroll-to-top").on("click",
@@ -95,9 +95,13 @@ function setFileRepositoryEventHandlers() {
     input = document.getElementById("frf-context");
     input.addEventListener("awesomplete-selectcomplete", fetchImageCount);
 
-    document.getElementById("fr-bt-archive").addEventListener("click", function () {
-        showhidemenu('#fr-bt-archive','#archive-menu');
-      });
+    document.getElementById("fr-bt-archive")?.addEventListener("click", function () {
+        openArchivePopup('/filerepository/show_archive_popup')
+    });
+
+    document.getElementById("fr-leave-archive")?.addEventListener("click", function () {
+        leaveArchive()
+    })
 
 }
 
@@ -132,7 +136,9 @@ function onPageClick(evt) {
 
 
 function refreshContext() {
-    if ($("#frf-no-context").is(":checked")) {
+    const el = document.getElementById("frf-no-context")
+    if (el.disabled) return;
+    if ($(el).is(":checked")) {
         $("#frf-context").prop("disabled", true);
     } else {
         $("#frf-context").prop("disabled", false);
@@ -1112,8 +1118,7 @@ function startBulkTagging() {
 /* **************************************************************************************
                   Archiving Dialog
 ************************************************************************************** */
-function fr_archiveMenuClick(option, route) {
-    closeMenu("#archive-menu", $("#fr-bt-archive"))
+function openArchivePopup(route) {
 
     // let files = getMarkedFiles();
     // const formData = $("#frf").serializeArray();
@@ -1124,11 +1129,6 @@ function fr_archiveMenuClick(option, route) {
         ajax: {
             settings: {
                 type: "GET",
-                // contentType: "application/json"
-                // // data: JSON.stringify({
-                // //                     "files": files,
-                // //                     "form": formData,
-                // //                 }),
             },
         },
         items: {
@@ -1147,11 +1147,11 @@ function fr_archiveMenuClick(option, route) {
     })
 }
 
-
-
 function fetchIdentifiers() {
     let site_filter = getCookie("site_filter")
     let urlSearchParams = undefined
+    let element = document.getElementById("frf-context")
+    if (element.disabled) return
     if (site_filter && site_filter !== "-") {
         urlSearchParams = new URLSearchParams();
         urlSearchParams.append("site_filter", site_filter);
@@ -1177,18 +1177,75 @@ function fetchIdentifiers() {
 }
 
 function fr_limitToSite() {
-    $.magnificPopup.open({
-        type: "ajax",
-        items: {
-            src: "/filerepository/sitefilterdialog",
-        },
-        //  focus: "create-workstation-id",
-        removalDelay: 200,
-        mainClass: "mfp-with-anim"
-    });
+    try {
+        $.magnificPopup.open({
+            type: "ajax",
+            items: {
+                src: "/filerepository/sitefilterdialog",
+            },
+            callbacks: {
+                updateStatus: function(data) {
+                    if (data.status === "error") {
+                        kioskErrorToast("It was not possible to start this operation due to an error. Sorry for that.")
+                    }
+                    console.log("updateStatus", data);
+                }
+            },
+            //  focus: "create-workstation-id",
+            removalDelay: 200,
+            mainClass: "mfp-with-anim"
+        });
+    } catch(e){
+        console.log("exception", e)
+    }
+
 
 }
 
+function fr_switchToArchive() {
+    $.magnificPopup.open({
+        type: "ajax",
+        items: {
+            src: "/filerepository/selectarchive",
+        },
+        callbacks: {
+            updateStatus: function(data) {
+                if (data.status === "error") {
+                    kioskErrorToast("It was not possible to start this operation. You might be lacking privileges to view an archive or you might have been logged out.")
+                }
+                console.log("updateStatus", data);
+            }
+        },
+        //  focus: "create-workstation-id",
+        removalDelay: 200,
+        mainClass: "mfp-with-anim",
+
+    });
+}
+
+function leaveArchive() {
+    $("#fr-leave-archive").prop("disabled", true);
+    kioskSendAjaxCommand("POST", null,
+                    "/filerepository/noarchive",
+                    {},
+                    (data) => {
+                        clearAllFileMarkers()
+                        if (data.success) {
+                            setTimeout(() => {
+                                $("#frf").submit();
+                            },50)
+                        }
+                    },
+                    (err_code, json) => {
+                        $("#fr-leave-archive").prop("disabled", false);
+                        if ("result" in json) {
+                            kioskErrorToast(json.result);
+                        } else {
+                            kioskErrorToast(`An Error occurred in when calling leaveArchive: ${err_code}`);
+                        }
+
+                    });
+}
 function frInitFileViewer(apiContext) {
     let lb = document.getElementsByTagName("kiosk-lightbox")[0];
     document.fileViewerController = new FileViewerController(apiContext, lb, true)
