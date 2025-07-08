@@ -66,9 +66,9 @@ function setFileRepositoryEventHandlers() {
         resetFileReposFilters(true);
     });
 
-    document.querySelector("#fr-bt-toggle").addEventListener("click", toggleFileMarkers);
-    document.querySelector("#fr-bt-clear-markers").addEventListener("click", clearAllFileMarkers);
-    document.querySelector("#fr-bt-set-markers").addEventListener("click", setAllFileMarkers);
+    document.querySelector("#fr-bt-toggle")?.addEventListener("click", toggleFileMarkers);
+    document.querySelector("#fr-bt-clear-markers")?.addEventListener("click", clearAllFileMarkers);
+    document.querySelector("#fr-bt-set-markers")?.addEventListener("click", setAllFileMarkers);
     document.querySelector("#fr-bt-bulk-delete")?.addEventListener("click", askBulkDelete);
     document.querySelector("#fr-bt-bulk-tag")?.addEventListener("click", askBulkTag);
     document.querySelector("#fr-bt-bulk-attach")?.addEventListener("click", askBulkAttach);
@@ -90,10 +90,10 @@ function setFileRepositoryEventHandlers() {
             list: "fr-tags",
             minChars: 0,
         });
-    input.addEventListener("awesomplete-selectcomplete", fetchImageCount);
+    input?.addEventListener("awesomplete-selectcomplete", fetchImageCount);
 
     input = document.getElementById("frf-context");
-    input.addEventListener("awesomplete-selectcomplete", fetchImageCount);
+    input?.addEventListener("awesomplete-selectcomplete", fetchImageCount);
 
     document.getElementById("fr-bt-archive")?.addEventListener("click", function () {
         openArchivePopup('/filerepository/show_archive_popup')

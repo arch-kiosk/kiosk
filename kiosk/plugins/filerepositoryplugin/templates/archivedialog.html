@@ -135,7 +135,7 @@
         function repositoryHasFilter() {
             const formData = $("#frf").serializeArray();
             for (const item of formData) {
-                if (item.name !== "no_context" && item.value !== "") return true;
+                if (item.name !== "no_context" && item.name !== "csrf_token" && item.value !== "") return true;
             }
             return false;
         }

@@ -117,15 +117,15 @@ if "mcpcore.mcpworker" not in sys.modules:
                                       if hasattr(current_user, "fulfills_requirement") else False,
                               parent_menu='administration'
                               ),
-                # KioskMenuItem(name="file picking rules",
-                #               onclick="triggerAdminInterface('kioskfilepickingrules.index_view')",
-                #               endpoint="kioskfilepickingrules.index_view",
-                #               menu_cfg=plugin.get_menu_config(),
-                #               is_active=lambda:
-                #                   current_user.fulfills_requirement(MANAGE_SERVER_PRIVILEGE)
-                #                       if hasattr(current_user, "fulfills_requirement") else False,
-                #               parent_menu='administration'
-                #               ),
+                KioskMenuItem(name="file picking rules",
+                              onclick="triggerAdminInterface('kioskfilepickingrules.index_view')",
+                              endpoint="kioskfilepickingrules.index_view",
+                              menu_cfg=plugin.get_menu_config(),
+                              is_active=lambda:
+                                  current_user.fulfills_requirement(MANAGE_SERVER_PRIVILEGE)
+                                      if hasattr(current_user, "fulfills_requirement") else False,
+                              parent_menu='administration'
+                              ),
                 # KioskMenuItem(name="ports",
                 #               onclick="triggerAdminInterface('kioskports.index_view')",
                 #               endpoint="kioskports.index_view",

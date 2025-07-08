@@ -394,6 +394,7 @@ kiosk:
       "backup": [ "+administrationplugin" ]
       "install patch": [ "+administrationplugin" ]
       "settings": [ "+administrationplugin" ]
+      "file picking rules": [ "+syncmanagerplugin" ]
       "download transfer catalog": [ "+administrationplugin" ]
       "logs": [ "+administrationplugin" ]
 
