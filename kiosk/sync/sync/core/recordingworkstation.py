@@ -584,7 +584,8 @@ class RecordingWorkstation(Dock):
                 c += 1
                 if callback_progress:
                     progress = int(c * 100 / c_records)  # cannot lead to div/0
-                    try: #  we have had trouble with the process lock (#3257), hence the exception handling here
+                    uid_file = r["uid"]
+                    try:  # we have had trouble with the process lock (#3257), hence the exception handling here
                         if not report_progress(callback_progress, progress,
                                                "_prepare_files_table_for_file_export_v2:" + self._id + "_" +
                                                FILES_TABLE_NAME):
@@ -592,7 +593,9 @@ class RecordingWorkstation(Dock):
                     except BaseException as e:
                         logging.warning(f"{self.__class__.__name__}._prepare_files_table_for_file_export_v2: "
                                         f"Encountered an error that is not critical: {repr(e)}")
-                uid_file = r["uid"]
+                        logging.info(f"{self.__class__.__name__}._prepare_files_table_for_file_export_v2:"
+                                     f"The last error happened with file {uid_file}")
+
                 ok = self._prepare_file_for_export_v2(file_repos,
                                                       uid_file,
                                                       fh_set, file_picking_rules)
@@ -611,7 +614,7 @@ class RecordingWorkstation(Dock):
                           f" {repr(e)}")
             if uid_file:
                 logging.error(f"{self.__class__.__name__}._prepare_files_table_for_file_export_v2:"
-                          f"The last error happened with file {uid_file}")
+                              f"The last error happened with file {uid_file}")
             ok = False
         return ok
 
