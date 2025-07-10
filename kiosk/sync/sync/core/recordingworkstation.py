@@ -555,6 +555,7 @@ class RecordingWorkstation(Dock):
             :return boolean, does not throw exceptions
         """
         ok = True
+        uid_file = ""
         try:
             c_records = 0
             # what the heck is that? That must be an old check from times when there was trouble around here.
@@ -583,10 +584,14 @@ class RecordingWorkstation(Dock):
                 c += 1
                 if callback_progress:
                     progress = int(c * 100 / c_records)  # cannot lead to div/0
-                    if not report_progress(callback_progress, progress,
-                                           "_prepare_files_table_for_file_export_v2:" + self._id + "_" +
-                                           FILES_TABLE_NAME):
-                        return False
+                    try: #  we have had trouble with the process lock (#3257), hence the exception handling here
+                        if not report_progress(callback_progress, progress,
+                                               "_prepare_files_table_for_file_export_v2:" + self._id + "_" +
+                                               FILES_TABLE_NAME):
+                            return False
+                    except BaseException as e:
+                        logging.warning(f"{self.__class__.__name__}._prepare_files_table_for_file_export_v2: "
+                                        f"Encountered an error that is not critical: {repr(e)}")
                 uid_file = r["uid"]
                 ok = self._prepare_file_for_export_v2(file_repos,
                                                       uid_file,
@@ -604,6 +609,9 @@ class RecordingWorkstation(Dock):
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}._prepare_files_table_for_file_export_v2:"
                           f" {repr(e)}")
+            if uid_file:
+                logging.error(f"{self.__class__.__name__}._prepare_files_table_for_file_export_v2:"
+                          f"The last error happened with file {uid_file}")
             ok = False
         return ok
 

@@ -518,7 +518,7 @@ class MCPJob:
                          "message": message
                          }
             if self._job_info.status >= MCPJobStatus.JOB_STATUS_REGISTERED:
-                self._change_data_attribute("progress", _progress)
+                self._change_data_attribute("progress", _progress, lock_queue=False)
             self._progress = _progress
             return True
         return False
