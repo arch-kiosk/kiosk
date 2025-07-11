@@ -110,8 +110,7 @@ class FileRepositoryArchiveWorker:
                 if not archive:
                     raise Exception("There was neither a new nor an existing archive selected")
 
-
-            fr_archive = FileRepositoryArchive(dsd,self.cfg, archive)
+            fr_archive = FileRepositoryArchive(dsd, self.cfg, archive)
             fr_archive.set_frf_options(self.job.job_data["frf"])
             fr_archive.set_selected_files(self.job.job_data["files"])
 
@@ -139,19 +138,26 @@ class FileRepositoryArchiveWorker:
             if self.job.fetch_status() == MCPJobStatus.JOB_STATUS_RUNNING:
                 self.job.set_status_to(MCPJobStatus.JOB_STATUS_DONE)
                 if rows:
+                    message = (f"{rows} files got moved from archive '{archive}' "
+                               f"to the file repository.") if "unarchive" in \
+                                                              options else (f"{rows} files got "
+                                                                            f"moved to archive '{archive}'.")
                     self.job.publish_result({"success": True,
-                                             "message": f"{rows} files got moved to archive {archive}.",
+                                             "message": message,
                                              "archived_files": rows,
                                              })
                     logging.info(f"job {self.job.job_id}: done")
                 else:
                     self.job.publish_result({"success": False,
-                                             "message": "No files got (un-)archived. ",
+                                             "message": ("No files got (un-)archived. This can easily happen "
+                                                         "if you try to archive files that are bound to archaeological "
+                                                         "data. Only files that are not connected to an archaeological "
+                                                         "record can be archived."),
                                              "archived_files": rows,
                                              })
             else:
                 self.job.publish_result({"success": False,
-                                         "message": "file repository archiving cancelled by user."})
+                                         "message": "file repository (un-)archiving cancelled by user."})
 
         except InterruptedError:
             if self.job.progress.get_message():
