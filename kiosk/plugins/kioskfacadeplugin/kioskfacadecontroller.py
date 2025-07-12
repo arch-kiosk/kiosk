@@ -4,7 +4,8 @@ import os.path
 import shutil
 from pprint import pprint
 
-from flask import Blueprint, request, render_template, session, redirect, url_for, abort, render_template_string
+from flask import Blueprint, request, render_template, session, redirect, url_for, abort, render_template_string, \
+    send_file, make_response
 from flask_login import current_user
 from http import HTTPStatus
 
@@ -63,6 +64,30 @@ def kiosk_facade_index():
     print("------------- redirecting")
     return redirect(url_for("kioskfacade.kiosk_facade_show"))
 
+
+#  **************************************************************
+#  ****    /custom_facade_file
+#  *****************************************************************/
+@kioskfacade.route('custom_facade_file/<filename>', methods=['GET'])
+@full_login_required
+@nocache
+def custom_facade_file(filename:str):
+    print("\n*************** custom_facade_file / ")
+    print(f"\nGET: get_plugin_for_controller returns {get_plugin_for_controller(_plugin_name_)}")
+    print(f"\nGET: plugin.name returns {get_plugin_for_controller(_plugin_name_).name}")
+
+
+    response = None
+    conf = kioskglobals.get_config()
+    filename = kioskstdlib.get_filename(kioskstdlib.get_valid_filename(filename))
+    custom_facade_asset = str(os.path.join(conf.custom_path, "images", filename))
+    print(f"\nGET custom facade asset {custom_facade_asset}")
+
+    if os.path.exists(custom_facade_asset):
+        response = send_file(custom_facade_asset)
+        return response
+
+    return make_response("not found", 404)
 
 #  **************************************************************
 #  ****    /kiosk_facade_show
