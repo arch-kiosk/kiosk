@@ -261,8 +261,9 @@ function file_repos_load_by_tag(tag) {
 
 function updateFileRepositoryImage(uuid) {
     //todo: Why does this have its own CSRF Token? I thought that is added automatically when using ajax?
+    const apiURL = "/filerepository/fetch_tile/" + uuid + "/force_reload=1"
     $.ajax({
-        url: "/filerepository/fetch_tile/" + uuid + "/force_reload=1",
+        url: apiURL,
         type: "POST",
         dataType: "html",
         beforeSend: function(xhr, settings) {
@@ -1282,7 +1283,7 @@ function onEditImage(evt) {
             fwc.clear()
             document.filesOnPage.forEach(f => fwc.addFile(f))
             // fwc.addFile({ uuid: clickedUuid })
-            fwc.showFiles(clickedUuid)
+            fwc.showFiles(clickedUuid, true)
             return
         }
     }

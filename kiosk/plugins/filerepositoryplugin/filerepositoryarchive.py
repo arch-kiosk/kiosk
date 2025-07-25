@@ -15,7 +15,7 @@ class FileRepositoryArchive:
 
     @classmethod
     def check_archive_name(cls, archive_name: str):
-        if not re.match(r"^[a-z0-9 ]+$", archive_name):
+        if not (archive_name and re.match(r"^[a-z0-9 _]+$", archive_name)):
             return ""
         archive_name = archive_name.replace(" ","_").lower()
         return archive_name

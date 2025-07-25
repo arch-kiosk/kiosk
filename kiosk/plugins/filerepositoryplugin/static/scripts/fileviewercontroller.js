@@ -25,6 +25,7 @@ class FileViewerController {
     url=  ""
     hasData = false
     readOnly = false
+    useArchive = false  // if true, the file viewer will try to get the file from the current archive
     defaultFullScreenRes = "master"
     resolutions = {}  // object with label = key (yup!)
 
@@ -98,6 +99,9 @@ class FileViewerController {
 
     _loadData(uuid) {
         let address = `/filerepository/editpartial/${uuid}`;
+        if (this.useArchive) {
+            address = address + "/use_archive=1"
+        }
         let url = new URL(address, window.location.origin)
         if (this.readOnly) url.searchParams.append("readonly", true)
         console.log(`fetching ${url.toString()}`)
@@ -313,10 +317,12 @@ class FileViewerController {
     /**
      * shows the files in the file viewer.
      * @param uuid if set this is the first file the file viewer will show.
+     * @param useArchive
      */
-    showFiles(uuid = null) {
+    showFiles(uuid = null, useArchive = false) {
         this.initialIndex = uuid ? this.getFileIndex(uuid) : 0
         this.currentIndex = -1
+        this.useArchive = useArchive
         if (this.initialIndex > -1) {
             this.lightBoxElement.openDialog()
         }

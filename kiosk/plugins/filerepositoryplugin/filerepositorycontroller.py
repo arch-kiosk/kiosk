@@ -94,27 +94,37 @@ def get_stdfile_for_fileext(file_extension, only_if_unsupported=False):
 @full_login_required
 # @nocache
 def repository_fetch_image(uuid, force_reload):
-    """ This fetches a single div for a file in the file-repository, not the file itself! """
+    """ This fetches a single div for a file in the file-repository, not the file itself! It is only used
+        by updateFileRepositoryImage when a whole div needs to be replaced.
+        This always takes the archive from the current session. So only use this in the file repository.
+    """
     print(f"\n*************** file_repository/fetch_tile/{uuid} with force_reload={force_reload} ")
     cfg = kioskglobals.cfg
     m_file_repos = ModelFileRepository(cfg, _plugin_name_)
     files_table = get_current_files_table_name()
+    selected_archive = session["fr_selected_archive"] if "fr_selected_archive" in session else None
 
     img = m_file_repos.get_image(uuid, files_table)
     return (render_template('_file_repository_image.html',
                             img=img,
+                            selected_archive=selected_archive,
                             force_reload=bool(force_reload)))
 
 
-def get_current_files_table_name() -> str:
+def get_current_files_table_name(archive=None) -> str:
     """
     returns the current name of the table with file records. Either the central files table or
     if an archive is selected the archive's table
-    :return:
+    :param archive: optional. If given this is the archive name to use.
+                        Otherwise, session["fr_selected_archive"] will be tried.
+                        If you pass an empty string as archive, NO archive will be used (that's a side effect).
+    :return: something falsy or the name of the files table
     """
     files_table = Dsd3Singleton.get_dsd3().files_table
+    if archive is None:
+        archive = session["fr_selected_archive"] if "fr_selected_archive" in session else None
     selected_archive = FileRepositoryArchive.check_archive_name(
-        session["fr_selected_archive"]) if "fr_selected_archive" in session else None
+        archive)
     if selected_archive:
         files_table = FileRepositoryArchive.get_namespaced_archive_table_name(selected_archive, files_table)
     return files_table
@@ -141,7 +151,12 @@ def fetch_repository_file(file_uuid, resolution):
             abort(400)
 
         if file_uuid:
-            files_table = get_current_files_table_name()
+            files_table=None
+            if search_params.get("archive"):
+                files_table = get_current_files_table_name(archive=search_params["archive"])
+                print(f"Archive is {search_params['archive']}, files table name is {files_table} ")
+            # else:
+            #     files_table = get_current_files_table_name()
             sync = synchronization.Synchronization()
             if search_params.get("ct"):
                 file_repos = FileRepository(kioskglobals.cfg,
@@ -423,7 +438,8 @@ def file_repository_show():
                                              authorized_to=authorized_to,
                                              allow_archive=allow_archive,
                                              site_filter=filtered_site_uuid,
-                                             selected_archive=FileRepositoryArchive.get_archive_display_name(
+                                             selected_archive=selected_archive,
+                                             selected_archive_name=FileRepositoryArchive.get_archive_display_name(
                                                  selected_archive) if selected_archive else None,
                                              archive_is_active=True if selected_archive else False,
                                              filtered_site=filtered_site))
@@ -437,9 +453,10 @@ def file_repository_show():
 #  ****    edit image dialog
 #  *****************************************************************/
 
-@filerepository.route('/editpartial/<uuid>', methods=['GET', 'POST'])
+@filerepository.route('/editpartial/<uuid>', methods=['GET', 'POST'], defaults={"use_archive": 0})
+@filerepository.route('/editpartial/<uuid>/use_archive=<int:use_archive>', methods=['GET', 'POST'])
 @full_login_required
-def filerepository_editpartial(uuid):
+def filerepository_editpartial(uuid, use_archive):
     print(f"***** editpartial/{uuid}")
     search_params = request.args
 
@@ -451,9 +468,10 @@ def filerepository_editpartial(uuid):
                                 plugin_loader=current_app
                                 )
 
-    files_table = get_current_files_table_name()
+    files_table = get_current_files_table_name(archive=None if use_archive else '')  # '' uses NO archive, see get_current_files_table_name
     img = m_file_repos.get_image(uuid, files_table=files_table)
-
+    if not img:
+        abort(HTTPStatus.BAD_REQUEST, f"Error accessing information for file {uuid}")
     recorded_description = img.get_description_summary(include_image_description=False)
 
     file_extension = "?"

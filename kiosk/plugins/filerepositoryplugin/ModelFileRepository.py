@@ -95,7 +95,7 @@ class FileRepositoryFile:
             logging.debug(f"{self.__class__.__name__}.get_dimensions: Image {self.uid} caused Exception {repr(e)}")
         return rc
 
-    def get_image_file_ref(self, representation_id, force_reload=False):
+    def get_image_file_ref(self, representation_id, force_reload=False, archive=None):
         """
         returns the url that fetches a representation of this image
         todo: needs redesign/refactoring when standard images are redesigned
@@ -104,11 +104,19 @@ class FileRepositoryFile:
         """
         if "uid" in self.r:
             if not force_reload:
-                return url_for('filerepository.fetch_repository_file', file_uuid=self.r["uid"],
-                               resolution=representation_id)
+                if archive:
+                    return url_for('filerepository.fetch_repository_file', file_uuid=self.r["uid"],
+                                   resolution=representation_id, archive=archive)
+                else:
+                    return url_for('filerepository.fetch_repository_file', file_uuid=self.r["uid"],
+                                   resolution=representation_id)
             else:
-                s = url_for('filerepository.fetch_repository_file', file_uuid=self.r["uid"],
-                            resolution=representation_id) + "?" + str(datetime.datetime.now())
+                if archive:
+                    s = url_for('filerepository.fetch_repository_file', file_uuid=self.r["uid"],
+                                resolution=representation_id, archive=archive) + "&" + str(datetime.datetime.now())
+                else:
+                    s = url_for('filerepository.fetch_repository_file', file_uuid=self.r["uid"],
+                                resolution=representation_id) + "?" + str(datetime.datetime.now())
                 logging.debug(f"get_image_file_ref with force_reload: {s}")
                 return s
         else:
