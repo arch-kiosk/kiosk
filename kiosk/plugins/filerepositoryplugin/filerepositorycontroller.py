@@ -383,6 +383,9 @@ def file_repository_show():
 
         img_list = None
         authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
+        allow_archive = (("archive files" in authorized_to) and
+                         (not kiosklib.is_local_server(kioskglobals.cfg) or kioskglobals.is_development_system()))
+
         if request.method == "POST" or kiosk_call_params:
             m_file_repository.sorting_option = session["kiosk_fr_sorting"]
             session["fr_active_filter_options"] = options
@@ -418,6 +421,7 @@ def file_repository_show():
                                              current_page=current_page,
                                              sorting_option=session["kiosk_fr_sorting"],
                                              authorized_to=authorized_to,
+                                             allow_archive=allow_archive,
                                              site_filter=filtered_site_uuid,
                                              selected_archive=FileRepositoryArchive.get_archive_display_name(
                                                  selected_archive) if selected_archive else None,

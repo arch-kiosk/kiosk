@@ -6,8 +6,11 @@
 # ********************************************
 from flask_login import current_user
 
+import kioskglobals
 from authorization import ENTER_FILE_ARCHIVES
 from core.kioskcontrollerplugin import KioskControllerPlugin
+from kioskconfig import KioskConfig
+from kiosklib import is_local_server
 from kioskmenuitem import KioskMenuItem
 from .filerepositorycontroller import filerepository
 from .filerepositorycontroller import file_repository_index
@@ -46,6 +49,7 @@ def register_index(app):
 
 def register_menus():
     global plugin
+    cfg = KioskConfig.get_config()
     return [KioskMenuItem(name="file repository",
                           onclick="triggerFileRepository('filerepository.file_repository_show')",
                           endpoint="filerepository.file_repository_show",
@@ -58,7 +62,8 @@ def register_menus():
             KioskMenuItem(name="switch to archive",
                           onclick="fr_switchToArchive()",
                           is_active=lambda:
-                          current_user.fulfills_requirement(ENTER_FILE_ARCHIVES)
+                          (current_user.fulfills_requirement(ENTER_FILE_ARCHIVES) and (not is_local_server(cfg) or
+                            kioskglobals.is_development_system()))
                           if hasattr(current_user, "fulfills_requirement") else False,
                           endpoint="filerepository.archive_selector_dialog",
                           menu_cfg=plugin.get_menu_config(),
