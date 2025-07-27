@@ -655,6 +655,9 @@ class TestMigration(KioskPyTestHelper):
             2: {"upgrade": ["add('field2')"]},
         })
         pgm.dsd._dsd_data.set(["migration_flags"], {
+            "meta": {
+                "flags": ["system_table"]
+            },
             "structure": {
                 1: {
                     "uid": ["datatype('UUID')", "uuid_key()"],
@@ -1020,6 +1023,7 @@ class TestMigration(KioskPyTestHelper):
         self.db_execute(db, "drop table if exists \"test\";")
         helper = testhelpers.KioskPyTestHelper()
         helper.assert_table_missing("test", "test_schema")
+        helper.assert_table_missing("test2", "test_schema")
 
         pgm.dsd._dsd_data.set(["config"], {
             "migration_scripts": {

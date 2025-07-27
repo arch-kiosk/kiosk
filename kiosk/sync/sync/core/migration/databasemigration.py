@@ -209,7 +209,8 @@ class DatabaseMigration:
         if not db_table:
             db_table = dsd_table
 
-        if self._adapter_table_exists(db_table):
+        # This was if self._adapter_table_exists(db_table), which is such a bad bug that I can't believe it did not harm
+        if self._adapter_table_exists(db_table, namespace=namespace):
             logging.error(f"DatabaseMigration.create_table: attempt to create existing table {db_table}.")
             return False
 
@@ -479,7 +480,7 @@ class DatabaseMigration:
         # *************************************************
         # method body
         # *************************************************
-        most_recent_version = self.dsd.get_current_version(dsd_table)
+        most_recent_version = self.dsd.get_current_version(dsd_table, refresh_cache=True)
         if not version:
             version = most_recent_version
 
@@ -489,71 +490,77 @@ class DatabaseMigration:
         if current_db_table_version == -1:
             raise Exception(f"DatabaseMigration.migrate_table: "
                             f"Get_table_structure_version reported an error. Table is \"{prefixed_db_table}\".")
-        if not current_db_table_version:
-            # one reason why no table version can be found is that the table has been renamed
-            # so let's get name and instantiated dsd structure version of the table in the db
-            current_db_table_version, old_dsd_table = _get_most_recent_former_table_version()
-            if current_db_table_version:
-                # we have a renamed table here. So first of all the dsd name needs to be fixed in the migration catalog
-                self._adapter_fix_migration_catalog(old_dsd_table=old_dsd_table, new_dsd_table=dsd_table)
-                prefixed_db_table = prefix + old_dsd_table
+        restore_dont_cache = self.dsd.dont_cache
+        try:
+            self.dsd.dont_cache = True
 
-        if not current_db_table_version:
-            # still no table version, so there is really no table
-            # but it could have been deleted, so let's check that first
-            if self.dsd.is_table_dropped(dsd_table, version):
-                return tuple((version, most_recent_version))
+            if not current_db_table_version:
+                # one reason why no table version can be found is that the table has been renamed
+                # so let's get name and instantiated dsd structure version of the table in the db
+                current_db_table_version, old_dsd_table = _get_most_recent_former_table_version()
+                if current_db_table_version:
+                    # we have a renamed table here. So first of all the dsd name needs to be fixed in the migration catalog
+                    self._adapter_fix_migration_catalog(old_dsd_table=old_dsd_table, new_dsd_table=dsd_table)
+                    prefixed_db_table = prefix + old_dsd_table
+
+            if not current_db_table_version:
+                # still no table version, so there is really no table
+                # but it could have been deleted, so let's check that first
+                if self.dsd.is_table_dropped(dsd_table, version):
+                    return tuple((version, most_recent_version))
+                else:
+                    if one_step_only:
+                        version = 1
+                    rc = self.create_table(dsd_table=dsd_table, version=version,
+                                           db_table=prefixed_db_table, namespace=namespace)
+                    if not rc:
+                        raise Exception(f"DatabaseMigration.migrate_table: "
+                                        f"create table reported an error. Table is \"{prefixed_db_table}\", "
+                                        f"version is {version}.")
+                    return tuple((version, most_recent_version))
+
+            # check if there is anything to do at all
+            if current_db_table_version == most_recent_version:
+                return tuple((current_db_table_version, most_recent_version))
+
+            # migration is necessary.
+            if current_db_table_version < version:
+                if one_step_only:
+                    version = current_db_table_version + 1
+                r = range(current_db_table_version + 1, version + 1)
             else:
                 if one_step_only:
-                    version = 1
-                rc = self.create_table(dsd_table=dsd_table, version=version,
-                                       db_table=prefixed_db_table, namespace=namespace)
-                if not rc:
+                    version = current_db_table_version - 1
+                r = range(current_db_table_version, version, -1)
+
+            rc = tuple()
+            for ver in r:
+                if current_db_table_version < version:
+                    from_version = ver - 1
+                    to_version = ver
+                else:
+                    from_version = ver
+                    to_version = ver - 1
+
+                table_migration: _TableMigration = \
+                    self._adapter_get_table_migration_class()(migration=self,
+                                                              dsd_table=dsd_table,
+                                                              from_version=from_version,
+                                                              to_version=to_version,
+                                                              prefix=prefix,
+                                                              namespace=namespace)
+                if not table_migration.execute():
                     raise Exception(f"DatabaseMigration.migrate_table: "
-                                    f"create table reported an error. Table is \"{prefixed_db_table}\", "
-                                    f"version is {version}.")
-                return tuple((version, most_recent_version))
+                                    f"_adapter_get_table_migration_class failed. Table is \"{prefixed_db_table}\".")
+                else:
+                    rc = (to_version, most_recent_version)
 
-        # check if there is anything to do at all
-        if current_db_table_version == most_recent_version:
-            return tuple((current_db_table_version, most_recent_version))
+            if rc:
+                self.affected_tables += 1
 
-        # migration is necessary.
-        if current_db_table_version < version:
-            if one_step_only:
-                version = current_db_table_version + 1
-            r = range(current_db_table_version + 1, version + 1)
-        else:
-            if one_step_only:
-                version = current_db_table_version - 1
-            r = range(current_db_table_version, version, -1)
-
-        rc = tuple()
-        for ver in r:
-            if current_db_table_version < version:
-                from_version = ver - 1
-                to_version = ver
-            else:
-                from_version = ver
-                to_version = ver - 1
-
-            table_migration: _TableMigration = \
-                self._adapter_get_table_migration_class()(migration=self,
-                                                          dsd_table=dsd_table,
-                                                          from_version=from_version,
-                                                          to_version=to_version,
-                                                          prefix=prefix,
-                                                          namespace=namespace)
-            if not table_migration.execute():
-                raise Exception(f"DatabaseMigration.migrate_table: "
-                                f"_adapter_get_table_migration_class failed. Table is \"{prefixed_db_table}\".")
-            else:
-                rc = (to_version, most_recent_version)
-
-        if rc:
-            self.affected_tables += 1
-
-        return rc
+            return rc
+        finally:
+            self.dsd.dont_cache = restore_dont_cache
 
     def reverse_engineer_table(self, dsd, dsd_table: str, namespace="", prefix="", current_version_only=True) -> bool:
         """
