@@ -2011,20 +2011,6 @@ involved_as:
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
 
-todos:
-  structure:
-    1:
-      title: [datatype(VARCHAR)]
-      description: [datatype(VARCHAR)]
-      involved: [datatype(VARCHAR)]
-      priority: [datatype(VARCHAR)]
-      state: [datatype(VARCHAR)]
-      until: [datatype(DATE)]
-      uid: [datatype(UUID), replfield_uuid()]
-      created: [datatype(TIMESTAMP), replfield_created()]
-      modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
-
 constants:
   meta:
     flags: [export_dont_truncate, sync_ignore_unique_key_violation, no_file_export]
@@ -2203,3 +2189,16 @@ archival_entity_units:
     2:
       upgrade:
         - add("some_description")
+todos:
+  structure:
+    1:
+      title: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      involved: [datatype(VARCHAR)]
+      priority: [datatype(VARCHAR)]
+      state: [datatype(VARCHAR)]
+      until: [datatype(DATE)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
