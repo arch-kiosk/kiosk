@@ -507,9 +507,14 @@ class DataSetDefinition:
 
     def get_current_version(self, table):
         """ returns the highest (current) version of the table structure for a table """
+        try:
+            return self._dsd_data.get([table, KEY_TABLE_CACHE, "current_version"])
+        except KeyError:
+            pass
         versions = self.list_table_versions(table)
         if versions:
-            return max(versions)
+            self._dsd_data.set([table, KEY_TABLE_CACHE, "current_version"], max(versions), create_entire_index=True)
+            return self._dsd_data.get([table, KEY_TABLE_CACHE, "current_version"])
         else:
             return DSDError(f"dsd.get_current_version: table {table} has no versions or isn't defined at all")
 

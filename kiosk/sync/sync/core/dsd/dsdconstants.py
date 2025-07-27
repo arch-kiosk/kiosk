@@ -6,6 +6,7 @@ KEY_CONFIG_IMPORTS = "imports"
 KEY_CONFIG_MIGRATION_SCRIPTS = "migration_scripts"
 KEY_CONFIG_CONTEXTS = "contexts"
 KEY_TABLE_META_DATA = "meta"
+KEY_TABLE_CACHE = "_cache"
 
 # system tables are invisible in almost all dsd operations. e.G. list_tables.
 KEY_TABLE_FLAG_SYSTEM_TABLE = "system_table"
