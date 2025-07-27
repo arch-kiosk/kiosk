@@ -8,7 +8,7 @@ class DSDStore:
     def get(self, index: List):
         raise NotImplementedError
 
-    def set(self, index: List, value):
+    def set(self, index: List, value, create_entire_index=False):
         raise NotImplementedError
 
     def merge(self, index: List, value: dict) -> dict:
