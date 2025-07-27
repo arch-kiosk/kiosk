@@ -510,7 +510,7 @@ class DatabaseMigration:
                     return tuple((version, most_recent_version))
                 else:
                     if one_step_only:
-                        version = 1
+                        version = self.dsd.get_lowest_version(dsd_table)
                     rc = self.create_table(dsd_table=dsd_table, version=version,
                                            db_table=prefixed_db_table, namespace=namespace)
                     if not rc:

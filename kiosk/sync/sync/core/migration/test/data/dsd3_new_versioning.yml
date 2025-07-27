@@ -13,74 +13,18 @@ kiosk_migration_catalog:
       "namespace": [datatype('TEXT'), default("''")]
       "version": [datatype('INT'), not_null()]
 
-file:
-#  fork_options:
-#    where: 'coalesce("images"."table_context",'''') <> '''''
+migration_flags:
+  meta:
+    flags: [system_table]
   structure:
-    2:
-      table_context: [datatype(VARCHAR)]
-      excavation_context: [datatype(VARCHAR)]
-      description: [datatype(VARCHAR), describes_file(uid)]
-      img_proxy : [datatype(TIMESTAMP), proxy_for(uid)]
-      ref_uid: [datatype(UUID)]
-      id_locus: [datatype(NUMBER)]
-      id_unit: [datatype(VARCHAR)]
-      id_cm: [datatype(NUMBER)]
-      id_site: [datatype(VARCHAR)]
-      file_datetime: [datatype(TIMESTAMP)]
-      filename: [datatype(VARCHAR)]
-      image_attributes: [datatype(JSON)]
-      md5_hash: [datatype(VARCHAR)]
-      original_md5: [datatype(VARCHAR)]
-      tags: [datatype(VARCHAR)]
-      uid: [datatype(UUID), replfield_uuid(), file_for(img_proxy), excavation_context(excavation_context), table_context(table_context)]
-      created: [datatype(TIMESTAMP), replfield_created()]
-      modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("Null")]
     1:
-      table_context: [datatype(VARCHAR)]
-      excavation_context: [datatype(VARCHAR)]
-      description: [datatype(VARCHAR), describes_file(uid)]
-      img_proxy : [datatype(TIMESTAMP), proxy_for(uid)]
-      ref_uid: [datatype(UUID)]
-      id_locus: [datatype(NUMBER)]
-      id_unit: [datatype(VARCHAR)]
-      id_cm: [datatype(NUMBER)]
-      id_site: [datatype(VARCHAR)]
-      file_datetime: [datatype(TIMESTAMP)]
-      filename: [datatype(VARCHAR)]
-      image_attributes: [datatype(JSON)]
-      md5_hash: [datatype(VARCHAR)]
-      original_md5: [datatype(VARCHAR)]
-      tags: [datatype(VARCHAR)]
-      uid: [datatype(UUID), replfield_uuid(), file_for(img_proxy), excavation_context(excavation_context), table_context(table_context)]
-      created: [datatype(TIMESTAMP), replfield_created()]
-      modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("Null")]
-  migration:
-    2:
-      upgrade:
-        - rename_table("images", "file")
+      "uid": [datatype('UUID'), uuid_key()]
+      "flag": [datatype('TEXT'), not_null(), unique()]
+      "value": [datatype('TEXT'), not_null()]
 
 locus:
   structure:
     2:
-      uid_unit: [datatype(UUID)]
-      id: [datatype(NUMBER)]
-      type: [datatype(VARCHAR)]
-      opening elevations txt: [datatype(VARCHAR)]
-      closing elevations txt: [datatype(VARCHAR)]
-      description: [datatype(VARCHAR)]
-      date_defined: [datatype(DATE)]
-      date_closed: [datatype(DATE)]
-      interpretation: [datatype(VARCHAR)]
-      phase: [datatype(VARCHAR)]
-      colour: [datatype(VARCHAR)]
-      uid: [datatype(UUID), replfield_uuid()]
-      created: [datatype(TIMESTAMP), replfield_created()]
-      modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
-    1:
       uid_unit: [datatype(UUID)]
       id: [datatype(NUMBER)]
       type: [datatype(VARCHAR)]
@@ -96,23 +40,19 @@ locus:
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
-  migration:
-    2:
-      upgrade:
-        - rename("opening elevations", "opening elevations txt")
-        - rename("closing elevations", "closing elevations txt")
 
-#unit_narrative:
-#  structure:
-#    1:
-#      id_unit: [datatype(TEXT)]
-#      id_excavator: [datatype(TEXT)]
-#      narrative: [datatype(TEXT)]
-#      date: [datatype(TIMESTAMP)]
-#      uid: [datatype(UUID), replfield_uuid()]
-#      created: [datatype(TIMESTAMP), replfield_created()]
-#      modified: [datatype(TIMESTAMP), replfield_modified()]
-#      modified_by: [datatype(TEXT), replfield_modified_by(), default("'sys'")]
+unit_narrative:
+  structure:
+    1:
+      id_unit: [datatype(TEXT)]
+      id_excavator: [datatype(TEXT)]
+      narrative: [datatype(TEXT)]
+      date: [datatype(TIMESTAMP)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(TEXT), replfield_modified_by(), default("'sys'")]
+
 collected_material:
   structure:
     1:
@@ -177,6 +117,28 @@ feature_unit:
       elevation: [datatype(NUMBER)]
       revisit: [datatype(VARCHAR)]
       uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+images:
+#  fork_options:
+#    where: 'coalesce("images"."table_context",'''') <> '''''
+  structure:
+    1:
+      description: [datatype(VARCHAR), describes_file(uid)]
+      img_proxy : [datatype(TIMESTAMP), proxy_for(uid)]
+      ref_uid: [datatype(UUID)]
+      id_locus: [datatype(NUMBER)]
+      id_unit: [datatype(VARCHAR)]
+      id_cm: [datatype(NUMBER)]
+      id_site: [datatype(VARCHAR)]
+      file_datetime: [datatype(TIMESTAMP)]
+      filename: [datatype(VARCHAR)]
+      image_attributes: [datatype(JSON)]
+      md5_hash: [datatype(VARCHAR)]
+      original_md5: [datatype(VARCHAR)]
+      tags: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid(), file_for(img_proxy)]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
@@ -254,19 +216,6 @@ locus_types:
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
 lot:
   structure:
-    2:
-      uid_locus: [datatype(UUID)]
-      id: [datatype(NUMBER)]
-      purpose: [datatype(VARCHAR)]
-      date: [datatype(TIMESTAMP)]
-      opening_elevations: [datatype(DECIMAL)]
-      closing_elevations: [datatype(DECIMAL)]
-      opening_elevations_txt: [datatype(VARCHAR)]
-      closing_elevations_txt: [datatype(VARCHAR)]
-      uid: [datatype(UUID), replfield_uuid()]
-      created: [datatype(TIMESTAMP), replfield_created()]
-      modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
     1:
       uid_locus: [datatype(UUID)]
       id: [datatype(NUMBER)]
@@ -278,13 +227,6 @@ lot:
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
-  migration:
-    2:
-      upgrade:
-        - rename("opening_elevations", "opening_elevations_txt")
-        - rename("closing_elevations", "closing_elevations_txt")
-        - add("opening_elevations")
-        - add("closing_elevations")
 pottery:
   structure:
     1:
@@ -425,7 +367,6 @@ tags:
       tag: [datatype(VARCHAR), not_null()]
       description: [datatype(VARCHAR)]
       category: [datatype(VARCHAR)]
-      table_contexts: [datatype(VARCHAR)]
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
@@ -524,3 +465,9 @@ inventory:
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+replication:
+  structure:
+    1:
+      id: [datatype(VARCHAR), primary(), unique(), not_null()]
+      value: [datatype(VARCHAR)]
+      ts: [datatype(TIMESTAMP), default('now()')]

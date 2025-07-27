@@ -1,0 +1,103 @@
+config:
+  format_version: 3
+  imports:
+    - dsd3_sync_subsystem.yml
+    - dsd3_kiosk_tables.yml
+
+kiosk_migration_catalog:
+  structure:
+    1:
+      "uid": [datatype('UUID'), uuid_key()]
+      "table": [datatype('TEXT'), not_null(), unique()]
+      "table_definition": [datatype('TEXT'), not_null()]
+      "namespace": [datatype('TEXT'), default("''")]
+      "version": [datatype('INT'), not_null()]
+
+file:
+#  fork_options:
+#    where: 'coalesce("images"."table_context",'''') <> '''''
+  structure:
+    2:
+      table_context: [datatype(VARCHAR)]
+      excavation_context: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR), describes_file(uid)]
+      img_proxy : [datatype(TIMESTAMP), proxy_for(uid)]
+      ref_uid: [datatype(UUID)]
+      id_locus: [datatype(NUMBER)]
+      id_unit: [datatype(VARCHAR)]
+      id_cm: [datatype(NUMBER)]
+      id_site: [datatype(VARCHAR)]
+      file_datetime: [datatype(TIMESTAMP)]
+      filename: [datatype(VARCHAR)]
+      image_attributes: [datatype(JSON)]
+      md5_hash: [datatype(VARCHAR)]
+      original_md5: [datatype(VARCHAR)]
+      tags: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid(), file_for(img_proxy), excavation_context(excavation_context), table_context(table_context)]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("Null")]
+    1:
+      table_context: [datatype(VARCHAR)]
+      excavation_context: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR), describes_file(uid)]
+      img_proxy : [datatype(TIMESTAMP), proxy_for(uid)]
+      ref_uid: [datatype(UUID)]
+      id_locus: [datatype(NUMBER)]
+      id_unit: [datatype(VARCHAR)]
+      id_cm: [datatype(NUMBER)]
+      id_site: [datatype(VARCHAR)]
+      file_datetime: [datatype(TIMESTAMP)]
+      filename: [datatype(VARCHAR)]
+      image_attributes: [datatype(JSON)]
+      md5_hash: [datatype(VARCHAR)]
+      original_md5: [datatype(VARCHAR)]
+      tags: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid(), file_for(img_proxy), excavation_context(excavation_context), table_context(table_context)]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("Null")]
+  migration:
+    2:
+      upgrade:
+        - rename_table("images", "file")
+
+locus:
+  structure:
+    3:
+      uid_unit: [datatype(UUID)]
+      id: [datatype(NUMBER)]
+      type: [datatype(VARCHAR)]
+      opening elevations txt: [datatype(VARCHAR)]
+      closing elevations txt: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      date_defined: [datatype(DATE)]
+      date_closed: [datatype(DATE)]
+      interpretation: [datatype(VARCHAR)]
+      phase: [datatype(VARCHAR)]
+      colour: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    2:
+      uid_unit: [datatype(UUID)]
+      id: [datatype(NUMBER)]
+      type: [datatype(VARCHAR)]
+      opening elevations: [datatype(VARCHAR)]
+      closing elevations: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR)]
+      date_defined: [datatype(DATE)]
+      date_closed: [datatype(DATE)]
+      interpretation: [datatype(VARCHAR)]
+      phase: [datatype(VARCHAR)]
+      colour: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+  migration:
+    3:
+      upgrade:
+        - rename("opening elevations", "opening elevations txt")
+        - rename("closing elevations", "closing elevations txt")

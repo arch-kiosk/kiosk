@@ -616,7 +616,7 @@ class KioskPyTestHelper:
         return fields
 
     @staticmethod
-    def sort_structure(structure: []):
+    def sort_structure(structure: List):
         structure.sort(key=lambda x: x[0])
         return structure
 

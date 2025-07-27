@@ -528,6 +528,15 @@ class DataSetDefinition:
         else:
             return DSDError(f"dsd.get_current_version: table {table} has no versions or isn't defined at all")
 
+    def get_lowest_version(self, table):
+        """ returns the lowest (first) version of the table structure for a table.
+                Not necessarily 1 if the table history has been cut off """
+        versions = self.list_table_versions(table)
+        if versions:
+            return min(versions)
+        else:
+            return DSDError(f"dsd.get_lowest_version: table {table} has no versions or isn't defined at all")
+
     def list_fields(self, table, version=0):
         """ returns a list of the fieldnames of a given version of a tabledefinition in the DataSetDefinition.
         :param table: the table in the dsd
