@@ -1,5 +1,5 @@
 # todo time zone simpliciation (done)
-from typing import Tuple
+from typing import Tuple, List
 
 from dsd.dsd3 import DataSetDefinition
 from dsd.dsdview import DSDView
@@ -38,6 +38,26 @@ class Migration:
         """
         return self._db_adapter.affected_tables
 
+    def is_there_a_table_migration(self, tables: List[str], prefix="", namespace="") -> bool:
+        """
+        checks if there is at least one table in the list that already exists and will be upgraded instead
+        of created from scratch.
+
+        :param tables: List of table names
+        :return: True as soon as a table is detected that already exists
+        """
+        for table in tables:
+            prefixed_db_table = prefix + table
+            rc = self._db_adapter.get_table_structure_version(prefixed_db_table, namespace=namespace)
+            if rc == -1:
+                raise Exception(f"Error in is_there_a_table_migration/get_table_structure_version when "
+                                f"checking {namespace + '.' if namespace else ''}{prefixed_db_table}")
+            if rc > 0:
+                if rc < self._dsd.get_current_version(table):
+                    return True
+
+        return False
+
     def migrate_dataset(self, prefix="", namespace=""):
         """
         Migrates the current database to the recent structure defined by the dsd.
@@ -56,14 +76,19 @@ class Migration:
                 f"{self.__class__.__name__}.migrate_datatable: Cross table migration has been prepared successfully")
 
         self._db_adapter.reset_affected_tables()
+        tables = self._dsd.list_tables(include_dropped_tables=True)
+        one_step_only = self.is_there_a_table_migration(tables, prefix, namespace)
+        if not one_step_only:
+            logging.debug(f"{self.__class__.__name__}.migrate_dataset: quick migration "
+                          f"because none of the tables needs to be upgraded from an existing version.")
         while True:
             continue_migration = False
-            for table_name in self._dsd.list_tables(include_dropped_tables=True):
+            for table_name in tables:
                 try:
                     rc = self.migrate_datatable(dsd_table=table_name,
                                                 prefix=prefix,
                                                 namespace=namespace,
-                                                one_step_only=True
+                                                one_step_only=one_step_only
                                                 )
                     if not rc:
                         return False
