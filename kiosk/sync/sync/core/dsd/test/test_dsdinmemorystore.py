@@ -66,3 +66,10 @@ class TestDSDInMemoryStore:
         test_deleted = store.delete(["test"])
         assert test == test_deleted
         assert "test" not in store.get_keys([])
+
+    def test_set_get_create_entire_path(self):
+        store = DSDInMemoryStore()
+        with pytest.raises(KeyError):
+            store.set(["config", "format_version"], 3)
+        store.set(["config", "format_version"], 3, create_entire_index=True)
+        assert store.get(["config", "format_version"]) == 3
