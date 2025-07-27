@@ -117,6 +117,7 @@ class DataSetDefinition:
         self.format = self.CURRENT_DSD_FORMAT_VERSION
         self._glossary = None
         self._cache = {}
+        self._dont_cache = False
 
     @classmethod
     def translate_datatype(cls, data_type):
@@ -135,6 +136,14 @@ class DataSetDefinition:
     def register_loader(self, file_ext: str, DSDLoaderClass):
         """"""
         self._loaders[file_ext.lower()] = DSDLoaderClass
+
+    @property
+    def dont_cache(self):
+        return self._dont_cache
+
+    @dont_cache.setter
+    def dont_cache(self, value):
+        self._dont_cache = value
 
     def register_glossary(self, glossary):
         self._glossary = glossary
@@ -505,12 +514,13 @@ class DataSetDefinition:
                           f"structure of {table}: {repr(e)}")
             raise DSDError(f"Error in Dataset Definition: Structure of Table {table} not well defined!")
 
-    def get_current_version(self, table):
+    def get_current_version(self, table, refresh_cache=False):
         """ returns the highest (current) version of the table structure for a table """
-        try:
-            return self._dsd_data.get([table, KEY_TABLE_CACHE, "current_version"])
-        except KeyError:
-            pass
+        if not (self._dont_cache or refresh_cache):
+            try:
+                return self._dsd_data.get([table, KEY_TABLE_CACHE, "current_version"])
+            except KeyError:
+                pass
         versions = self.list_table_versions(table)
         if versions:
             self._dsd_data.set([table, KEY_TABLE_CACHE, "current_version"], max(versions), create_entire_index=True)
