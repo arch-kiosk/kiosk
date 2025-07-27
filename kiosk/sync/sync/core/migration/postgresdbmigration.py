@@ -146,7 +146,8 @@ class PostgresDbMigration(DatabaseMigration):
         cur = self._get_dict_cursor()
         try:
             cur.execute(f"SELECT to_regclass('{self.sql_safe_namespaced_table(namespace, table)}')")
-            result = bool(cur.fetchone()[0])
+            r = cur.fetchone()
+            result = bool(r[0])
         except BaseException as e:
             logging.error(f"PostgresMigration._adapter_table_exists: "
                           f"Exception {repr(e)}")
