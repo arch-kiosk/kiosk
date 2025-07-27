@@ -1,0 +1,21 @@
+config:
+  format_version: 3
+  some_other_config: 3
+
+name3:
+  structure:
+    4:
+      name: [datatype("VARCHAR")]
+    3:
+      name: [datatype("VARCHAR")]
+    2:
+      name: [datatype("VARCHAR")]
+
+  migration:
+    4:
+      upgrade:
+      - rename_table("name2")
+    3:
+      upgrade:
+      - rename_table("name1")
+

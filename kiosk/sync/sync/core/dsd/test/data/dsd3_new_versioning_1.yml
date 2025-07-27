@@ -1,0 +1,25 @@
+config:
+  format_version: 3
+  some_config: 2
+images:
+  meta:
+    fork_options:
+      where: 'coalesce("images"."table_context",'''') <> '''''
+  structure: 
+    3:
+      table_context: [datatype("VARCHAR")]
+      description: [datatype("VARCHAR"), describes_file(uid)]
+      img_proxy : [datatype("TIMESTAMP"), proxy_for(uid)]
+      ref_uid: [datatype("UUID")]
+      id_locus: [datatype("NUMBER")]
+      id_unit: [datatype("VARCHAR")]
+      id_cm: [datatype("NUMBER")]
+      filename: [datatype(VARCHAR), no_sync()]
+      extra_field: [datatype(VARCHAR), no_sync()]
+      file_datetime: [datatype("TIMESTAMP")]
+      original_md5: [datatype("VARCHAR")]
+      tags: [datatype("VARCHAR")]
+      uid: [datatype("UUID"), REPLFIELD_UUID(), file_for(img_proxy)]
+      created: [datatype("datetime"), REPLFIELD_CREATED()]
+      modified: [datatype("utctimestamp"), REPLFIELD_MODIFIED()]
+      modified_by: [datatype("varchar"), REPLFIELD_MODIFIED_BY(), default("sys")]

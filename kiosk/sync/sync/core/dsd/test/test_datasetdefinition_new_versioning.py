@@ -16,26 +16,43 @@ log_file = os.path.join(test_path, r"log", "test_log.log")
 base_path = KioskPyTestHelper.get_kiosk_base_path_from_test_path(test_path)
 
 data_dir = os.path.join(test_path, "data")
-dsd3_dropped_table_file = os.path.join(data_dir, "dsd3_dropped_table.yml")
-dsd3_images_file2 = os.path.join(data_dir, "dsd3_unit.yml")
-dsd3_images_file = os.path.join(data_dir, "dsd3_images.yml")
-dsd2_file = os.path.join(data_dir, "dsd2.yml")
-dsd3_test_file = os.path.join(data_dir, "dsd3_test.yml")
-dsd3_test_tz_file = os.path.join(data_dir, "dsd3_test_tz.yml")
-dsd3_external_test_base_file = os.path.join(data_dir, "dsd3_external_test_base.yml")
-dsd3_import_test_base_file = os.path.join(data_dir, "dsd3_import_test_base_file.yml")
-dsd3_rename_table_test = os.path.join(data_dir, "dsd3_rename_table_test.yml")
-dsd3_dayplan = os.path.join(data_dir, "dsd3_dayplan.yml")
-dsd3_constants = os.path.join(data_dir, "dsd3_constants.yml")
-dsd3_urap = os.path.join(data_dir, "urap_dsd3.yml")
-real_urap_dsd = os.path.join(base_path, "config", "dsd", "default_dsd3.yml")
-lookup_test_dsd3 = os.path.join(data_dir, "lookup_test_dsd3.yml")
+dsd3_dropped_table_file = os.path.join(data_dir, "dsd3_new_versioning_dropped_table.yml")
+dsd3_images_file2 = os.path.join(data_dir, "dsd3_new_versioning_unit.yml")
+dsd3_new_versioning_1_file = os.path.join(data_dir, "dsd3_new_versioning_1.yml")
+dsd3_test_file = os.path.join(data_dir, "dsd3_new_versioning_test.yml")
+dsd3_rename_table_test = os.path.join(data_dir, "dsd3_new_versioning_rename_table_test.yml")
+dsd3_constants = os.path.join(data_dir, "dsd3_new_versioning_constants.yml")
+dsd3_urap = os.path.join(data_dir, "urap_new_versioning_dsd3.yml")
 
-
-class TestDataSetDefinition(KioskPyTestHelper):
+class TestDataSetDefinitionNewVersioning(KioskPyTestHelper):
     @pytest.fixture(scope="module")
     def cfg(self):
         return self.get_config(config_file, log_file=log_file)
+
+    @pytest.fixture()
+    def dsd_images_and_units(self):
+        dsd = DataSetDefinition()
+        dsd.register_loader("yml", DSDYamlLoader)
+        assert dsd.append_file(dsd3_new_versioning_1_file)
+        assert dsd.append_file(dsd3_images_file2)
+        return dsd
+
+    @pytest.fixture()
+    def dsd_images_and_units_and_test(self, dsd_images_and_units, cfg):
+        assert dsd_images_and_units.append_file(dsd3_test_file)
+        return dsd_images_and_units
+
+    @pytest.fixture()
+    def dsd_constants(self, dsd_images_and_units, cfg):
+        assert dsd_images_and_units.append_file(dsd3_constants)
+        return dsd_images_and_units
+
+    @pytest.fixture()
+    def dsd_urap_dsd3(self, cfg):
+        dsd = DataSetDefinition()
+        dsd.register_loader("yml", DSDYamlLoader)
+        assert dsd.append_file(dsd3_urap)
+        return dsd
 
     def test_init(self):
         dsd = DataSetDefinition()
@@ -48,25 +65,52 @@ class TestDataSetDefinition(KioskPyTestHelper):
     def test_load_yaml_file(self):
         dsd = DataSetDefinition()
 
-        assert not dsd.append_file(dsd3_images_file)
+        assert not dsd.append_file(dsd3_new_versioning_1_file)
 
         dsd.register_loader("yml", DSDYamlLoader)
-        assert dsd.append_file(dsd3_images_file)
+        assert dsd.append_file(dsd3_new_versioning_1_file)
         assert "images" in dsd._dsd_data.get([])
 
-    def test_check_version(self):
-        dsd = DataSetDefinition()
+    def test_list_versions(self, dsd_images_and_units_and_test):
+        dsd: DataSetDefinition = dsd_images_and_units_and_test
+        assert dsd.append_file(dsd3_dropped_table_file)
+        versions = dsd.list_table_versions("test")
+        assert len(versions) == 3
+        assert 1 in versions
+        assert 2 in versions
+        assert 3 in versions
 
-        dsd.register_loader("yml", DSDYamlLoader)
-        assert not dsd.append_file(dsd2_file)
+        versions = self.sort_list(dsd.list_table_versions("images"))
+        assert versions == [3]
+
+        versions = self.sort_list(dsd.list_table_versions("unit"))
+        assert versions == [1]
+
+        versions = self.sort_list(dsd.list_table_versions("test"))
+        assert versions == [1,2,3]
+
+        versions = self.sort_list(dsd.list_table_versions("dropped_table"))
+        assert versions == [2,3]
+
+        versions = dsd.list_table_versions("test2")
+        assert versions == [3]
+
+    def test_get_recent_version(self, dsd_images_and_units_and_test):
+        dsd: DataSetDefinition = dsd_images_and_units_and_test
+        assert dsd.append_file(dsd3_dropped_table_file)
+        assert dsd.get_current_version("test") == 3
+        assert dsd.get_current_version("unit") == 1
+        assert dsd.get_current_version("images") == 3
+        assert dsd.get_current_version("dropped_table") == 3
+        assert dsd.get_current_version("test2") == 3
 
     def test_load_2_yaml_files(self):
         dsd = DataSetDefinition()
 
-        assert not dsd.append_file(dsd3_images_file)
+        assert not dsd.append_file(dsd3_new_versioning_1_file)
 
         dsd.register_loader("yml", DSDYamlLoader)
-        assert dsd.append_file(dsd3_images_file)
+        assert dsd.append_file(dsd3_new_versioning_1_file)
         dsddata = dsd._dsd_data.get([])
         assert "images" in dsddata
         assert not "unit" in dsddata
@@ -80,37 +124,6 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert "unit" in dsddata
         assert "some_other_config" in dsddata["config"]
 
-    @pytest.fixture()
-    def dsd_images_and_units(self):
-        dsd = DataSetDefinition()
-        dsd.register_loader("yml", DSDYamlLoader)
-        assert dsd.append_file(dsd3_images_file)
-        assert dsd.append_file(dsd3_images_file2)
-        return dsd
-
-    @pytest.fixture()
-    def dsd_urap_dsd3(self, cfg):
-        dsd = DataSetDefinition()
-        dsd.register_loader("yml", DSDYamlLoader)
-        assert dsd.append_file(dsd3_urap)
-        return dsd
-
-    @pytest.fixture()
-    def dsd_real_urap_dsd(self, cfg):
-        dsd = DataSetDefinition()
-        dsd.register_loader("yml", DSDYamlLoader)
-        assert dsd.append_file(real_urap_dsd)
-        return dsd
-
-    @pytest.fixture()
-    def dsd_images_and_units_and_test(self, dsd_images_and_units, cfg):
-        assert dsd_images_and_units.append_file(dsd3_test_file)
-        return dsd_images_and_units
-
-    @pytest.fixture()
-    def dsd_constants(self, dsd_images_and_units, cfg):
-        assert dsd_images_and_units.append_file(dsd3_constants)
-        return dsd_images_and_units
 
     def test_list_tables(self, dsd_images_and_units_and_test):
         dsd: DataSetDefinition = dsd_images_and_units_and_test
@@ -119,44 +132,21 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert "unit" in tables
         assert "images" in tables
         assert "test" in tables
-        assert "test_types" in tables
-        assert "migration_catalog" not in tables
-        assert len(tables) == 4
-
-        tables = dsd.list_tables(include_dropped_tables=True)
-        assert "unit" in tables
-        assert "images" in tables
-        assert "dropped_table" in tables
-        assert "migration_catalog" not in tables
+        assert "test2" in tables
         assert "test_types" in tables
         assert "migration_catalog" not in tables
         assert len(tables) == 5
 
-    def test_list_versions(self, dsd_images_and_units_and_test):
-        dsd: DataSetDefinition = dsd_images_and_units_and_test
-        assert dsd.append_file(dsd3_dropped_table_file)
-        versions = dsd.list_table_versions("test")
-        assert len(versions) == 3
-        assert 1 in versions
-        assert 2 in versions
-        assert 3 in versions
-
-        versions = dsd.list_table_versions("images")
-        assert len(versions) == 1
-
-        versions = dsd.list_table_versions("unit")
-        assert len(versions) == 1
-
-        versions = dsd.list_table_versions("dropped_table")
-        assert len(versions) == 3
-
-    def test_get_recent_version(self, dsd_images_and_units_and_test):
-        dsd: DataSetDefinition = dsd_images_and_units_and_test
-        assert dsd.append_file(dsd3_dropped_table_file)
-        assert dsd.get_current_version("test") == 3
-        assert dsd.get_current_version("unit") == 1
-        assert dsd.get_current_version("images") == 1
-        assert dsd.get_current_version("dropped_table") == 3
+        tables = dsd.list_tables(include_dropped_tables=True)
+        assert "unit" in tables
+        assert "images" in tables
+        assert "test" in tables
+        assert "test2" in tables
+        assert "dropped_table" in tables
+        assert "dropped_table_2" in tables
+        assert "test_types" in tables
+        assert "migration_catalog" not in tables
+        assert len(tables) == 7
 
     def test_list_fields(self, dsd_images_and_units_and_test):
         dsd: DataSetDefinition = dsd_images_and_units_and_test
@@ -360,8 +350,8 @@ class TestDataSetDefinition(KioskPyTestHelper):
         with pytest.raises(DSDTableDropped):
             fields = dsd.list_fields_of_type("dropped_table", "varchar")
 
-        fields = dsd.list_fields_of_type("dropped_table", "varchar", version=1)
-        assert len(fields) == 1
+        fields = dsd.list_fields_of_type("dropped_table", "varchar", version=2)
+        assert len(fields) == 2
         assert "name" in fields
 
     def test_list_fields_with_additional_type(self, dsd_images_and_units_and_test):
@@ -427,72 +417,6 @@ class TestDataSetDefinition(KioskPyTestHelper):
     #     with pytest.raises(DSDTableDropped):
     #         assert dsd.get_table_context_reference("dropped_table", "uid") == "table_context"
 
-    def test_resolve_externals(self):
-        dsd: DataSetDefinition = DataSetDefinition()
-        dsd.register_loader("yml", DSDYamlLoader)
-        assert dsd.append_file(dsd3_external_test_base_file)
-        dsddata = dsd._dsd_data.get([])
-        assert "uid" in dsddata["table2"]["structure"][1]
-        assert "uid" in dsddata["table1"]["structure"][1]
-        assert dsddata["table1"]["structure"] == {1: {'created': ['datatype("timestamp")', 'REPLFIELD_CREATED()'],
-                                                      'description': ['datatype("VARCHAR")', 'describes_file(uid)'],
-                                                      'excavation_context': ['datatype("VARCHAR")'],
-                                                      'file_datetime': ['datatype("TIMESTAMP")'],
-                                                      'id_cm': ['datatype("NUMBER")'],
-                                                      'id_locus': ['datatype("NUMBER")'],
-                                                      'id_unit': ['datatype("VARCHAR")'],
-                                                      'img_proxy': ['datatype("TIMESTAMP")', 'proxy_for(uid)'],
-                                                      'modified': ['datatype(TIMESTAMPTZ)', 'REPLFIELD_MODIFIED()'],
-                                                      'modified_by': ['datatype("REPLFIELD_MODIFIED_BY")',
-                                                                      'default("sys")'],
-                                                      'modified_tz': ['datatype(TZ)', 'modified_tz()'],
-                                                      'modified_ww': ['datatype(TIMESTAMP)', 'modified_ww()'],
-                                                      'original_md5': ['datatype("VARCHAR")'],
-                                                      'ref_uid': ['datatype("UUID")'],
-                                                      'table_context': ['datatype("VARCHAR")'],
-                                                      'tags': ['datatype("VARCHAR")'],
-                                                      'uid': ['datatype("REPLFIELD_UUID")',
-                                                              'file_for(img_proxy)',
-                                                              'excavation_context(excavation_context)',
-                                                              'table_context(table_context)']}}
-        assert len(dsddata["table2"]["structure"][1]) == 6
-
-    def test_resolve_imports(self):
-        dsd: DataSetDefinition = DataSetDefinition()
-        dsd.register_loader("yml", DSDYamlLoader)
-        assert dsd.append_file(dsd3_import_test_base_file)
-        dsddata = dsd._dsd_data.get([])
-        assert "uid" in dsddata["test"]["structure"][3]
-        assert "uid" in dsddata["table2"]["structure"][1]
-        assert "uid" in dsddata["table1"]["structure"][1]
-        assert "uid" in dsddata["repl_deleted_uids"]["structure"][1]
-        assert "uid" in dsddata["repl_deleted_uids_2"]["structure"][2]
-        assert len(dsddata["table1"]["structure"][1]) == 17
-        assert len(dsddata["table2"]["structure"][1]) == 6
-        assert len(dsddata["repl_deleted_uids"]["structure"][1]) == 5
-        assert len(dsddata["repl_deleted_uids_2"]["structure"][2]) == 5
-        assert dsddata["test"]["structure"][3] == {'created': ['datatype("timestamp")', 'REPLFIELD_CREATED()'],
-                                                   'description': ['datatype("VARCHAR")'],
-                                                   'dontsync': ['datatype("TIMESTAMP")', 'nosync()'],
-                                                   'modified': ['datatype(TIMESTAMPTZ)', 'REPLFIELD_MODIFIED()'],
-                                                   'modified_by': ['datatype("REPLFIELD_MODIFIED_BY")',
-                                                                   'default("sys")'],
-                                                   'modified_tz': ['datatype(TZ)', 'modified_tz()'],
-                                                   'modified_ww': ['datatype(TIMESTAMP)', 'modified_ww()'],
-                                                   'name': ['datatype("VARCHAR")'],
-                                                   'uid': ['datatype("REPLFIELD_UUID")']}
-
-    def test_delete_table(self, dsd_images_and_units_and_test):
-        dsd: DataSetDefinition = dsd_images_and_units_and_test
-        assert dsd.append_file(dsd3_dropped_table_file)
-
-        assert "images" in dsd.list_tables()
-        dsd.delete_table("images")
-        assert "images" not in dsd.list_tables()
-
-        assert "dropped_table" in dsd.list_tables(include_dropped_tables=True)
-        dsd.delete_table("dropped_table")
-        assert "dropped_table" not in dsd.list_tables(include_dropped_tables=True)
 
     def test_get_migration_instructions(self, dsd_images_and_units_and_test):
         dsd: DataSetDefinition = dsd_images_and_units_and_test
@@ -515,8 +439,8 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert dsd.append_file(dsd3_dropped_table_file)
 
         assert dsd.is_table_dropped("dropped_table")
-        assert not dsd.is_table_dropped("dropped_table", 1)
         assert not dsd.is_table_dropped("dropped_table", 2)
+        assert not dsd.is_table_dropped("dropped_table", 1)
         assert not dsd.is_table_dropped("test")
 
     def test_list_tables_dropped(self, dsd_images_and_units_and_test):
@@ -524,9 +448,15 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert dsd.append_file(dsd3_dropped_table_file)
 
         assert dsd.is_table_dropped("dropped_table")
-        assert not dsd.is_table_dropped("dropped_table", 1)
         assert not dsd.is_table_dropped("dropped_table", 2)
+        assert not dsd.is_table_dropped("dropped_table", 1)
         assert not dsd.is_table_dropped("test")
+
+        assert dsd.is_table_dropped("dropped_table_2", 1)
+        assert dsd.is_table_dropped("dropped_table_2", 2)
+        assert dsd.is_table_dropped("dropped_table_2")
+
+
 
     def test_get_former_table_names(self):
         dsd = DataSetDefinition()
@@ -535,15 +465,14 @@ class TestDataSetDefinition(KioskPyTestHelper):
 
         result = dsd.get_former_table_names("name3")
         assert len(result) == 2
-        assert result[0] == ("name2", 3)
-        assert result[1] == ("name1", 2)
+        assert result[0] == ("name2", 4)
+        assert result[1] == ("name1", 3)
 
-        result = dsd.get_former_table_names("name3", version=2)
-        result = dsd.get_former_table_names("name3", version=2)
+        result = dsd.get_former_table_names("name3", version=3)
         assert len(result) == 1
-        assert result[0] == ("name1", 2)
+        assert result[0] == ("name1", 3)
 
-        result = dsd.get_former_table_names("name3", version=1)
+        result = dsd.get_former_table_names("name3", version=2)
         assert len(result) == 0
 
     def test_identify_files_table(self, dsd_images_and_units_and_test):
@@ -559,6 +488,7 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert dsd.get_field_datatype("images", "replfield_modified") == "timestamptz"
         assert dsd.get_field_datatype("images", "modified_ww") == "timestamp"
 
+
     def test_get_modified_field(self, dsd_images_and_units_and_test):
         dsd: DataSetDefinition = dsd_images_and_units_and_test
         assert dsd.get_modified_field("images") == "modified"
@@ -570,25 +500,6 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert dsd.list_fields_with_instruction("images", "file_for") == ["uid"]
         assert dsd.list_fields_with_instruction("images", "uuid_for") == []
 
-    def test_list_file_fields(self, dsd_images_and_units_and_test):
-        dsd: DataSetDefinition = dsd_images_and_units_and_test
-        assert dsd.list_file_fields() == {}
-        dsd.append_file(dsd3_dayplan)
-        assert dsd.list_file_fields() == {"dayplan": ["uid_image"]}
-
-    def test_get_description_field_for_file_field(self, dsd_images_and_units_and_test):
-        dsd: DataSetDefinition = dsd_images_and_units_and_test
-        dsd.append_file(dsd3_dayplan)
-        assert dsd.get_description_field_for_file_field("dayplan", "uid_image") == ["image_description"]
-        assert dsd.get_description_field_for_file_field("dayplan", "uid") == []
-
-    def test_list_tables_with_instructions(self, dsd_images_and_units_and_test):
-        dsd: DataSetDefinition = dsd_images_and_units_and_test
-        tables = dsd.list_tables_with_instructions(["replfield_uuid"])
-        assert tables == ["images", "unit", "test"]
-        dsd.append_file(dsd3_dayplan)
-        tables = dsd.list_tables_with_instructions(["replfield_uuid"])
-        assert tables == ["images", "unit", "test", "dayplan"]
 
     def test_table_has_meta_flag(self, dsd_images_and_units_and_test):
         dsd: DataSetDefinition = dsd_images_and_units_and_test
@@ -616,12 +527,6 @@ class TestDataSetDefinition(KioskPyTestHelper):
 
         tables = dsd.list_tables_with_flags(["not_in_master", "filemaker_workstation"])
         assert tables == ["test"]
-
-    def test_list_context_tables(self, dsd_urap_dsd3):
-        dsd: DataSetDefinition = dsd_urap_dsd3
-        contexts = dsd.list_context_tables()
-        assert contexts.sort() == ["unit", "site", "locus", "collected_material", "pottery"].sort()
-        dsd.append_file(dsd3_dayplan)
 
     def test_get_fork_options(self, dsd_images_and_units_and_test):
         dsd: DataSetDefinition = dsd_images_and_units_and_test
@@ -673,7 +578,7 @@ class TestDataSetDefinition(KioskPyTestHelper):
         with pytest.raises(DSDTableDropped):
             v, t = dsd.get_instruction_parameters_and_types("dropped_table", "uid", "datatype")[0]
 
-        v, t = dsd.get_instruction_parameters_and_types("dropped_table", "uid", "datatype", version=1)[0]
+        v, t = dsd.get_instruction_parameters_and_types("dropped_table", "uid", "datatype", version=2)[0]
         assert v == "REPLFIELD_UUID"
         assert t == "other"
 
@@ -754,28 +659,6 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert dsd.list_identifier_fields("unit") == ["arch_context"]
         assert dsd.list_identifier_fields("locus") == ["arch_context"]
         assert dsd.list_identifier_fields("site") == ["arch_context"]
-
-    def test_get_default_join(self, dsd_real_urap_dsd):
-        # site_notes is using join("site")
-        assert dsd_real_urap_dsd.get_default_join("site", "site_notes") == Join(root_table="site",
-                                                                                related_table="site_notes",
-                                                                                _type="inner",
-                                                                                related_field="uid_site",
-                                                                                root_field="uid")
-
-        # unit is using join("site", "id")
-        assert dsd_real_urap_dsd.get_default_join("site", "unit") == Join(root_table="site",
-                                                                          related_table="unit",
-                                                                          _type="inner",
-                                                                          related_field="id_site",
-                                                                          root_field="id")
-
-        # locus_relations is using join("locus", "identifier()")
-        assert dsd_real_urap_dsd.get_default_join("locus", "locus_relations") == Join(root_table="locus",
-                                                                                      related_table="locus_relations",
-                                                                                      _type="inner",
-                                                                                      related_field="uid_locus",
-                                                                                      root_field="uid")
 
     def test_list_default_joins(self, dsd_urap_dsd3):
         dsd: DataSetDefinition = dsd_urap_dsd3
@@ -860,15 +743,6 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert dsd.get_unparsed_field_instructions("locus", "arch_domain") == ['datatype(VARCHAR)',
                                                                                'id_domain("arch_context")']
 
-    def test_get_lookup_joins(self):
-        dsd = DataSetDefinition()
-        dsd.register_loader("yml", DSDYamlLoader)
-        assert dsd.append_file(lookup_test_dsd3)
-        assert [(x.related_table, x.related_field) for x in dsd.get_lookup_joins("locus")] == [("locus_types", "id"),
-                                                                                               ("locus_color", "uid")]
-
-        assert dsd.get_lookup_joins("locus_architecture") == []
-
     def test_assert_raw(self, dsd_urap_dsd3):
         dsd: DataSetDefinition = dsd_urap_dsd3
         assert dsd.assert_raw(["locus"])
@@ -880,11 +754,6 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert "new_field" not in dsd.list_fields("locus")
         dsd.append_field("locus", "new_field", ["datatype(VARCHAR)", "default('Null')"])
         assert "new_field" in dsd.list_fields("locus")
-
-    def test_table_can_sync(self, dsd_real_urap_dsd):
-        dsd: DataSetDefinition = dsd_real_urap_dsd
-        assert dsd.table_can_sync("locus")
-        assert not dsd.table_can_sync("kiosk_user")
 
     def test_get_virtual_fields(self):
         dsd: DataSetDefinition = DataSetDefinition()
@@ -900,46 +769,6 @@ class TestDataSetDefinition(KioskPyTestHelper):
                 }
             }
         }) == {'table1': {1: {'feld2_tz': ['datatype(TZ)', 'modified_tz()'],
-                              'feld2_ww': ['datatype(TIMESTAMP)', 'modified_ww()']}}}
+                'feld2_ww': ['datatype(TIMESTAMP)', 'modified_ww()']}}}
 
-    def test_omit_fields_by_datatype(self, dsd_images_and_units):
-        dsd: DataSetDefinition = dsd_images_and_units
-        assert dsd.append_file(dsd3_test_tz_file)
-        field_list = dsd.list_fields("test")
-        assert field_list == ['name',
-                              'description',
-                              'some_date',
-                              'explicit_r',
-                              'dontsync',
-                              'uid',
-                              'created',
-                              'modified',
-                              'modified_by',
-                              'modified_tz',
-                              'modified_ww']
-        assert dsd.omit_fields_by_datatype("test", field_list, "tz") == ['name',
-                                                                         'description',
-                                                                         'some_date',
-                                                                         'explicit_r',
-                                                                         'dontsync',
-                                                                         'uid',
-                                                                         'created',
-                                                                         'modified',
-                                                                         'modified_by',
-                                                                         'modified_ww'
-                                                                         ]
 
-    def test_get_proxy_field_reference_for_tz(self, cfg, dsd_images_and_units):
-        dsd: DataSetDefinition = dsd_images_and_units
-        assert dsd.append_file(dsd3_test_tz_file)
-        assert dsd.get_proxy_field_reference("test", "some_date_tz", test=True) == ""
-
-        dsd_workstation_view = DSDView(dsd)
-        dsd_workstation_view.apply_view_instructions({"config":
-                                                          {"format_ver": 3},
-                                                      "tables": [
-                                                          "include_tables_with_instruction('replfield_uuid')",
-                                                          "exclude_fields_with_instruction('no_sync')",
-                                                      ]})
-        ws_dsd = dsd_workstation_view.dsd
-        assert ws_dsd.get_proxy_field_reference("test", "some_date_tz", test=True) == ""

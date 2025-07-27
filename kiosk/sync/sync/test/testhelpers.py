@@ -3,6 +3,8 @@ import json
 import logging
 import os
 import time
+from typing import List
+
 import kioskglobals
 from unittest import TestCase
 
@@ -647,3 +649,7 @@ class KioskPyTestHelper:
         kioskglobals.general_store = rgs
         return kioskglobals.general_store
 
+
+    def sort_list(self, l: List):
+        l.sort()
+        return l

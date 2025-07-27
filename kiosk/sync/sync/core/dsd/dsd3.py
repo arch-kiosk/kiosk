@@ -131,26 +131,6 @@ class DataSetDefinition:
             pass
         return ""
 
-    # # ********************************************************
-    # #  deprecated stuff
-    # # ********************************************************
-    # def list_externally_bound_fields(self, table, version=0):
-    #     """ returns a list of the fields of a given version of a table definition
-    #         in the DataSetDefinition that have a FILE_FOR attribute, which indicates that the
-    #         field refers to an external file.
-    #
-    #         In fact that should only be the images / files table
-    #         :todo: This should not be needed any longer!
-    #                 Get rid of it when working on the next version of the DSD
-    #
-    #     """
-    #
-    #     raise DeprecationWarning("call to DataSetDefinition.list_externally_bound_fields is obsolete.")
-
-    # ********************************************************
-    #  end deprecated stuff
-    # ********************************************************
-
     # noinspection PyPep8Naming
     def register_loader(self, file_ext: str, DSDLoaderClass):
         """"""
@@ -420,11 +400,25 @@ class DataSetDefinition:
         return new_dsd
 
     def is_table_dropped(self, table_name: str, version=0):
+        """
+        tests if a table is dropped. If a certain version is checked this will test
+        if that version is the one that drops the table.
+        :param table_name:
+        :param version: optional. Use to check if a certain version drops the table.
+                          If the version is earlier than the lowest in the DSD,
+                          the lowest available version will be checked.
+        :return:
+        """
         if not self.table_is_defined(table_name):
             return False
 
         if version == 0:
             version = self.get_current_version(table_name)
+        versions = self.list_table_versions(table_name)
+        versions.sort()
+        if version < versions[0]:
+            version = versions[0]
+
         structure = self._dsd_data.get([table_name, KEY_TABLE_STRUCTURE, version])
 
         if isinstance(structure, str):
@@ -495,10 +489,10 @@ class DataSetDefinition:
         return [table for table in tables if set(self.table_has_meta_flag(table, flags))]
 
     def list_versions(self, table):
-        raise DeprecationWarning("list_versions is obsolete!")
+        raise DeprecationWarning("list_versions is obsolete. Use list_table_versions!")
 
-    def list_table_versions(self, table) -> []:
-        """ returns a list of the versions of a tabledefinition in the DataSetDefinition
+    def list_table_versions(self, table) -> List:
+        """ returns a list of the versions of a table definition in the DataSetDefinition
             returns an empty list if the table is not defined at all.
         """
         try:
@@ -1052,10 +1046,13 @@ class DataSetDefinition:
             :param upgrade:  Default True. State False if you want to search the downgrade section
             :return: a dictionary with the instruction as key and a list of parameters as value:
                         {"instruction": ["param1", "param2"]
+            :throws KeyError if any parameter leads to an attempt to read a line that does not exist in the DSD
         """
         parser = SimpleFunctionParser()
 
         direction = "upgrade" if upgrade else "downgrade"
+        if not version:
+            version = self.get_current_version(table)
 
         for instruction in self._dsd_data.get([table, KEY_TABLE_MIGRATION, version, direction]):
             if find_instruction:
@@ -1099,9 +1096,12 @@ class DataSetDefinition:
             version = self.get_current_version(dsd_table)
         if version > 1:
             for ver in range(version, 1, -1):
-                instruction = self.find_migration_instruction(dsd_table, "rename_table", version=ver)
-                if instruction:
-                    result.append((instruction["rename_table"][0], ver))
+                try:
+                    instruction = self.find_migration_instruction(dsd_table, "rename_table", version=ver)
+                    if instruction:
+                        result.append((instruction["rename_table"][0], ver))
+                except KeyError:
+                    break
         return result
 
     def _identify_files_table(self):

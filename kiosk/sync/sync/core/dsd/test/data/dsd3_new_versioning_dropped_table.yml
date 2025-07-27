@@ -1,0 +1,28 @@
+config:
+  format_version: 3
+  some_other_config: 3
+
+dropped_table:
+  structure:
+    3: dropped
+    2:
+      name: [datatype("VARCHAR")]
+      test_description: [datatype("VARCHAR")]
+      uid: [datatype("REPLFIELD_UUID")]
+      created: [datatype("REPLFIELD_CREATED")]
+      modified: [datatype("REPLFIELD_MODIFIED")]
+      modified_by: [datatype("REPLFIELD_MODIFIED_BY"), default("sys")]
+
+  migration:
+    3:
+      upgrade:
+      - drop_table()
+
+dropped_table_2:
+  structure:
+    3: dropped
+
+  migration:
+    3:
+      upgrade:
+      - drop_table()
