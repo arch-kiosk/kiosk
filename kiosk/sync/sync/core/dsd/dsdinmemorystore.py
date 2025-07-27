@@ -16,7 +16,7 @@ class DSDInMemoryStore(DSDStore):
 
         return current_position
 
-    def set(self, index: List, value):
+    def set(self, index: List, value, create_entire_index=False):
         current_position = self._dsd_data
         if not index:
             if isinstance(value, dict):
@@ -27,7 +27,15 @@ class DSDInMemoryStore(DSDStore):
         else:
             last_idx = index.pop()
             for idx in index:
-                current_position = current_position[idx]
+                try:
+                    current_position = current_position[idx]
+                except KeyError as e:
+                    if create_entire_index:
+                        current_position[idx] = {}
+                        current_position = current_position[idx]
+                    else:
+                        raise e
+
             current_position[last_idx] = value
             return current_position[last_idx]
 
