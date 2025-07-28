@@ -263,3 +263,45 @@ class TestSvgFileHandling(KioskPyTestHelper):
         assert svg.width == "64px"
         assert svg.height == "64px"
         svg.close()
+
+    def test_get_file_attributes(self, sync: Synchronization, shared_datadir):
+        cfg = SyncConfig.get_config()
+
+        f_class = sync.type_repository.get_type(TYPE_PHYSICALFILEHANDLER, "KioskPhysicalSvgFile")
+        assert f_class
+
+        src_file = os.path.join(shared_datadir, "svg_with_width.svg")
+
+        file: KioskPhysicalImageFile = f_class(src_file)
+        file_attributes = file.get_file_attributes()
+        assert file_attributes
+        assert file._file_attributes[FILE_ATTR_FORMAT] == "SVG"
+        assert file._file_attributes[FILE_ATTR_WIDTH] == "256"
+        assert file._file_attributes[FILE_ATTR_HEIGHT] == "256"
+
+        src_file = os.path.join(shared_datadir, "svg_with_dimensions.svg")
+
+        file: KioskPhysicalImageFile = f_class(src_file)
+        file_attributes = file.get_file_attributes()
+        assert file_attributes
+        assert file._file_attributes[FILE_ATTR_FORMAT] == "SVG"
+        assert file._file_attributes[FILE_ATTR_WIDTH] == "128"
+        assert file._file_attributes[FILE_ATTR_HEIGHT] == "128"
+
+        src_file = os.path.join(shared_datadir, "svg.svg")
+
+        file: KioskPhysicalImageFile = f_class(src_file)
+        file_attributes = file.get_file_attributes()
+        assert file_attributes
+        assert file._file_attributes[FILE_ATTR_FORMAT] == "SVG"
+        assert FILE_ATTR_WIDTH not in file._file_attributes
+        assert FILE_ATTR_HEIGHT not in file._file_attributes
+
+        src_file = os.path.join(shared_datadir, "406521555-cc860253-169d-4e7a-93a0-c8b7c83288ba.svg")
+
+        file: KioskPhysicalImageFile = f_class(src_file)
+        file_attributes = file.get_file_attributes()
+        assert file_attributes
+        assert file._file_attributes[FILE_ATTR_FORMAT] == "SVG"
+        assert file._file_attributes[FILE_ATTR_WIDTH] == ""
+        assert file._file_attributes[FILE_ATTR_HEIGHT] == ""

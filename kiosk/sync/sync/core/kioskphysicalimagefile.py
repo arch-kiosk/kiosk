@@ -109,7 +109,7 @@ class KioskPhysicalImageFile(KioskPhysicalFile):
                                   Optional, defaults to true.
 
         :return: the dict or explicitly None (don't test for an empty dict!)
-        :raises alll Exceptions are passed on
+        :raises all Exceptions are passed on
         """
         if self._file_attributes is None:
             if open_if_necessary:
