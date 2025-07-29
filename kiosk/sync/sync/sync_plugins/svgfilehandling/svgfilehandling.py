@@ -108,9 +108,9 @@ class KioskPhysicalSvgFile(KioskPhysicalImageFile):
                 svg_tag = elem[1]
                 if hasattr(svg_tag, "attrib"):
                     self._file_attributes = {FILE_ATTR_FORMAT: "SVG"}
-                    if "width" in svg_tag.attrib:
+                    if "width" in svg_tag.attrib and get_pixel(svg_tag.attrib["width"]):
                         self._file_attributes[FILE_ATTR_WIDTH] = get_pixel(svg_tag.attrib["width"])
-                    if "height" in svg_tag.attrib:
+                    if "height" in svg_tag.attrib and get_pixel(svg_tag.attrib["height"]):
                         self._file_attributes[FILE_ATTR_HEIGHT] = get_pixel(svg_tag.attrib["height"])
                 break
 

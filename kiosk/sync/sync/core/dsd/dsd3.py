@@ -103,22 +103,6 @@ class DataSetDefinition:
         "UTCTIMESTAMP": "TIMESTAMPTZ"
     }
 
-    def __init__(self, dsd_store=None):
-        # don't forget that all attributes added here might have to be added in .clone()!
-        self._default_locations = {}
-        self._file_locations = {}
-        if not dsd_store:
-            dsd_store = DSDInMemoryStore()
-        self._dsd_data: DSDStore = dsd_store
-        self._loaders = {}
-        self.files_table = ""
-        self.files_table_filename_field = ""
-        self.dsd_root_path = ""
-        self.format = self.CURRENT_DSD_FORMAT_VERSION
-        self._glossary = None
-        self._cache = {}
-        self._dont_cache = False
-
     @classmethod
     def translate_datatype(cls, data_type):
         """
@@ -131,6 +115,61 @@ class DataSetDefinition:
         except:
             pass
         return ""
+
+    def __init__(self, dsd_store=None):
+        # !!! If you make changes here !!!
+        # don't forget that all attributes added here might have to be added in .clone() and .clone_refs()!
+        # !!! If you make changes here !!!
+        if not dsd_store:
+            dsd_store = DSDInMemoryStore()
+        self._dsd_data: DSDStore = dsd_store
+        self._loaders = {}
+        self.files_table = ""
+        self.files_table_filename_field = ""
+        self.dsd_root_path = ""
+        self.format = self.CURRENT_DSD_FORMAT_VERSION
+        self._default_locations = {}
+        self._file_locations = {}
+        self._glossary = None
+        self._cache = {}
+        self._dont_cache = False
+        # !!! If you make changes here !!!
+        # don't forget that all attributes added here might have to be added in .clone() and .clone_refs()!
+        # !!! If you make changes here !!!
+
+    def clone(self, dsd_class=None):
+        ### clones a dsd with deepcopy. If the new dsd makes changes to data it will not change data in here.
+        if dsd_class:
+            new_dsd = dsd_class()
+        else:
+            new_dsd = self.__class__()
+        new_dsd.dsd_root_path = self.dsd_root_path
+        new_dsd.files_table = self.files_table
+        new_dsd.files_table_filename_field = self.files_table_filename_field
+        for ext in self._loaders:
+            new_dsd.register_loader(ext, self._loaders[ext])
+        dsddata = deepcopy(self._dsd_data.get([]))
+        new_dsd.append(dsddata)
+        new_dsd._glossary = deepcopy(self._glossary)
+        new_dsd._dont_cache = self.dont_cache
+        new_dsd._default_locations = deepcopy(self._default_locations)
+        new_dsd._file_locations = deepcopy(self._file_locations)
+        return new_dsd
+
+    def _clone_refs(self, target_dsd):
+        ### unlike clone this here does not make a deep copy of the dsd data
+        # it just copies the references of this dsd instance to the target_dsd.
+        # if the target dsd changes dsd data, it will change data in this instance here, too.
+        target_dsd.dsd_root_path = self.dsd_root_path
+        target_dsd.files_table = self.files_table
+        target_dsd.files_table_filename_field = self.files_table_filename_field
+        for ext in self._loaders:
+            target_dsd.register_loader(ext, self._loaders[ext])
+        target_dsd._dsd_data = self._dsd_data
+        target_dsd._glossary = self._glossary
+        target_dsd._dont_cache = self.dont_cache
+        target_dsd._default_locations = self._default_locations
+        target_dsd._file_locations = self._file_locations
 
     # noinspection PyPep8Naming
     def register_loader(self, file_ext: str, DSDLoaderClass):
@@ -397,17 +436,6 @@ class DataSetDefinition:
             raise e
         return {}
 
-    def clone(self):
-        new_dsd = self.__class__()
-        new_dsd.dsd_root_path = self.dsd_root_path
-        new_dsd.files_table = self.files_table
-        new_dsd.files_table_filename_field = self.files_table_filename_field
-        for ext in self._loaders:
-            new_dsd.register_loader(ext, self._loaders[ext])
-        dsddata = deepcopy(self._dsd_data.get([]))
-        new_dsd.append(dsddata)
-        return new_dsd
-
     def is_table_dropped(self, table_name: str, version=0):
         """
         tests if a table is dropped. If a certain version is checked this will test
@@ -634,30 +662,30 @@ class DataSetDefinition:
         instructions = self._dsd_data.get([table, KEY_TABLE_STRUCTURE, version, fieldname])
         return copy(instructions)
 
-    def _get_field_instructions_from_cache(self, table, fieldname):
+    def _get_field_instructions_from_cache(self, table, fieldname, version):
         try:
-            t = self._cache[table]
+            t = self._cache[table][version]
             f = t[fieldname]
             return f
         except:
             pass
         return None
 
-    def _set_field_instructions_in_cache(self, table, fieldname, instructions):
+    def _set_field_instructions_in_cache(self, table, fieldname, instructions, version):
         try:
-            self._cache[table][fieldname] = instructions
+            self._cache[table][version][fieldname] = instructions
         except:
             try:
-                self._cache[table] = {}
-                self._cache[table][fieldname] = instructions
+                self._cache[table] = {version: {}}
+                self._cache[table][version][fieldname] = instructions
             except:
                 pass
 
-    def get_field_instructions(self, table, fieldname, version=0, patterns: List[str] = None) -> dict:
+    def get_field_instructions(self, table, fieldname, _version=0, patterns: List[str] = None) -> dict:
         """ returns a dictionary with all the instructions and their parameters for a field
         :param table: the table
         :param fieldname: the field
-        :param version: the version. 0 for the most recent version.
+        :param _version: the version. 0 for the most recent version.
         :param patterns: optional. Only instructions that start with one of the patterns are returned
         :return: a dictionary with the instructions as key and a list of parameters as values.
                  The instruction (the key) is lowercase
@@ -665,14 +693,15 @@ class DataSetDefinition:
         :todo this won't work if a field can have the same instruction twice! Not a use case so far...
         :todo test
         """
-        if version == 0 and not patterns:
-            ins = self._get_field_instructions_from_cache(table, fieldname)
+        if not patterns:
+            version = self.get_current_version(table) if not _version else _version
+            ins = self._get_field_instructions_from_cache(table, fieldname, version)
             if ins:
                 return ins
 
         result = {}
         parser = SimpleFunctionParser()
-        version = version if version else self.get_current_version(table)
+        version = _version if _version else self.get_current_version(table)
         if self.is_table_dropped(table, version):
             raise DSDTableDropped(f"{table}, version {version} dropped.")
 
@@ -684,11 +713,11 @@ class DataSetDefinition:
                 else:
                     raise DSDInstructionSyntaxError(instruction)
 
-        if version == 0 and not patterns:
-            self._set_field_instructions_in_cache(table, fieldname, result)
+        if _version == 0 and not patterns:
+            self._set_field_instructions_in_cache(table, fieldname, result, version)
         return result
 
-    def get_fields_with_instructions(self, table, required_instructions: [] = None, version=0) -> dict:
+    def get_fields_with_instructions(self, table, required_instructions: List = None, version=0) -> dict:
         """ returns a dictionary with all the fields and
         all the instructions and their parameters for a field.
         The dictionary values are a dictionary with the instructions as keys pointing to a list of parameters. 
@@ -707,7 +736,7 @@ class DataSetDefinition:
         if self.is_table_dropped(table, version):
             raise DSDTableDropped(f"{table}, version {version} dropped.")
 
-        version = version if version else self.get_current_version(table)
+        # version = version if version else self.get_current_version(table)
         result = {}
         fields = self.list_fields(table, version)
         for f in fields:
@@ -818,6 +847,14 @@ class DataSetDefinition:
         :changes:
                 02.12.2020: now returns only lowercase types.
         """
+        if table in self._cache and field_or_instruction in self._cache[table]:
+            try:
+                _version = self.get_current_version(table) if not version else version
+                return self.translate_datatype(self._cache[table][_version][field_or_instruction]["datatype"][0])
+            except BaseException as e:
+                logging.debug(f"{self.__class__.__name__}.get_field_datatype: can't get datatype "
+                              f"from cache because of {repr(e)}")
+
         fields = self.get_fields_with_instructions(table, ["datatype"], version=version)
         if field_or_instruction in fields:
             return self.translate_datatype(fields[field_or_instruction]['datatype'][0])

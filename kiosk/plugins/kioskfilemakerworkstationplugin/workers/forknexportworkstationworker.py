@@ -1,4 +1,6 @@
 import logging
+import time
+
 import kioskglobals
 
 from kioskresult import KioskResult
@@ -9,6 +11,8 @@ from synchronization import Synchronization
 
 
 class ForkNExportWorkstationWorker(WorkstationManagerWorker):
+    last_stop = 0.0
+    last_message = ""
 
     def check_workstation_size(self, workstation: KioskFileMakerWorkstation):
         try:
@@ -33,54 +37,62 @@ class ForkNExportWorkstationWorker(WorkstationManagerWorker):
 
     def report_fork_progress(self, prg):
         """ ***** sub report_fork_progress ****** """
-        if not self.job_is_ok("Fork"):
-            return False
+        new_stop = time.monotonic()
+        if new_stop - self.last_stop > .1:
+            if not self.job_is_ok("Fork"):
+                return False
 
-        if "progress" in prg:
-            new_progress = 0
+            if "progress" in prg:
+                new_progress = 0
 
-            if "topic" in prg:
-                if prg["topic"].find("images"):
-                    new_progress = 10 + int(prg["progress"] * 80 / 100)
-            else:
-                new_progress = int(prg["progress"])
+                if "topic" in prg:
+                    if prg["topic"].find("images"):
+                        new_progress = 10 + int(prg["progress"] * 80 / 100)
+                else:
+                    new_progress = int(prg["progress"])
 
-            # self.job.publish_detailed_progress("fork", new_progress, "forking...", 1)
-            self.job.publish_progress(int(new_progress * 50 / 100), "forking...")
+                # self.job.publish_detailed_progress("fork", new_progress, "forking...", 1)
+                self.job.publish_progress(int(new_progress * 50 / 100), "forking...")
+            self.last_stop = new_stop
 
         return True
 
     def report_export_progress(self, prg):
         """ ***** sub report_export_progress ****** """
-        if not self.job_is_ok("Export to FileMaker"):
-            return False
+        new_stop = time.monotonic()
+        if (new_stop - self.last_stop > .1 or
+                ("extended_progress" in prg and prg["extended_progress"] != self.last_message)):
+            if not self.job_is_ok("Export to FileMaker"):
+                return False
 
-        message = ""
-        new_progress = 0
+            message = ""
+            new_progress = 0
 
-        if "progress" in prg:
-            if "topic" in prg:
-                if prg["topic"] == "transfer_tables":
-                    new_progress = 20 + int(prg["progress"] * 30 / 100)
+            if "progress" in prg:
+                if "topic" in prg:
+                    if prg["topic"] == "transfer_tables":
+                        new_progress = 20 + int(prg["progress"] * 30 / 100)
 
-                if prg["topic"] == "import_images":
-                    new_progress = 55 + int(prg["progress"] * 30 / 100)
-                    message = "Exporting images to FileMaker..."
+                    if prg["topic"] == "import_images":
+                        new_progress = 55 + int(prg["progress"] * 30 / 100)
+                        message = "Exporting images to FileMaker..."
 
-                # if prg["topic"] == "index_all_images":
-                #     new_progress = 70 + int(prg["progress"] * 20 / 100)
-                #     message = "Creating file identifier cache ..."
-            else:
-                new_progress = int(prg["progress"])
+                    # if prg["topic"] == "index_all_images":
+                    #     new_progress = 70 + int(prg["progress"] * 20 / 100)
+                    #     message = "Creating file identifier cache ..."
+                else:
+                    new_progress = int(prg["progress"])
 
-            if "extended_progress" in prg:
-                message = prg["extended_progress"]
+                if "extended_progress" in prg:
+                    message = prg["extended_progress"]
 
-            if not message:
-                message = "Exporting to FileMaker..."
+                if not message:
+                    message = "Exporting to FileMaker..."
 
-            # self.job.publish_detailed_progress("export", new_progress, message, 2)
-            self.job.publish_progress(50 + int(new_progress * 50 / 100), message)
+                # self.job.publish_detailed_progress("export", new_progress, message, 2)
+                self.job.publish_progress(50 + int(new_progress * 50 / 100), message)
+                self.last_message = message
+            self.last_stop = new_stop
 
         return True
 

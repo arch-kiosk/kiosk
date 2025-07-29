@@ -1993,6 +1993,8 @@ class FileMakerWorkstation(RecordingWorkstation):
 
                 uid = fm.getfieldvalue(fm_rec, "uid")
                 if uid:
+                    # why us this inside the loop? Couldn't the sql be constructed first and then
+                    # only the values being gathered inside the loop?
                     sql_insert, insert_values, sql_update, update_values = self._import_table_get_sqls(dest_table_name,
                                                                                                        dsd,
                                                                                                        dsd_table_name,

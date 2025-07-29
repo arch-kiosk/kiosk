@@ -1,6 +1,6 @@
 import datetime
 
-kiosk_version = "1.7.13"
+kiosk_version = "1.7.14"
 kiosk_version_name = "tiddliest times"
-kiosk_date = datetime.datetime(2025,7,27)
+kiosk_date = datetime.datetime(2025,7,28)
 

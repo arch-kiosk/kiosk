@@ -1,4 +1,5 @@
 import logging
+import time
 
 import kioskglobals
 from kioskresult import KioskResult
@@ -9,27 +10,29 @@ from synchronization import Synchronization
 
 
 class ForkWorkstationWorker(WorkstationManagerWorker):
-
+    last_stop = 0.0
     def report_progress(self, prg):
         """ ***** sub report_progress ****** """
-        status = self.job.fetch_status()
-        if status == MCPJobStatus.JOB_STATUS_CANCELLING:
-            return False
+        new_stop = time.monotonic()
+        if new_stop - self.last_stop > .1:
+            status = self.job.fetch_status()
+            if status == MCPJobStatus.JOB_STATUS_CANCELLING:
+                return False
 
-        if not self.job.check_pulse():
-            logging.error("Export to FileMaker job timed out.")
-            return False
+            if not self.job.check_pulse():
+                logging.error("Export to FileMaker job timed out.")
+                return False
 
-        if "progress" in prg:
-            new_progress = 0
-            if "topic" in prg:
-                if prg["topic"].find("images"):
-                    new_progress = 10 + int(prg["progress"] * 80 / 100)
-            else:
-                new_progress = int(prg["progress"])
+            if "progress" in prg:
+                new_progress = 0
+                if "topic" in prg:
+                    if prg["topic"].find("images"):
+                        new_progress = 10 + int(prg["progress"] * 80 / 100)
+                else:
+                    new_progress = int(prg["progress"])
 
-            self.job.publish_progress(new_progress, "forking...")
-
+                self.job.publish_progress(new_progress, "forking...")
+            self.last_stop = new_stop
         return True
 
     def worker(self):

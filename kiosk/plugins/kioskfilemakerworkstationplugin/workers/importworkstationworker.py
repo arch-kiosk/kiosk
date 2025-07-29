@@ -1,5 +1,6 @@
 import logging
 import pprint
+import time
 
 import kioskglobals
 from kioskresult import KioskResult
@@ -12,30 +13,38 @@ from plugins.kioskfilemakerworkstationplugin import KioskFileMakerWorkstation
 
 
 class ImportWorkstationWorker(WorkstationManagerWorker):
+    last_stop = 0.0
+    last_message = ""
 
     def report_progress(self, prg):
         """ ***** sub report_progress ****** """
-        if not self.job_is_ok("Import to FileMaker"):
-            return False
+        new_stop = time.monotonic()
+        if (new_stop - self.last_stop > .1 or
+                ("extended_progress" in prg and prg["extended_progress"] != self.last_message)):
+            if not self.job_is_ok("Import to FileMaker"):
+                return False
 
-        message = ""
-        new_progress = 0
-        if "progress" in prg:
-            if "topic" in prg:
-                if prg["topic"] == "_import_tables_from_filemaker":
-                    new_progress = 15 + int(prg["progress"] * 35 / 100)
-                elif prg["topic"] == "ExportImages":
-                    new_progress = 50 + int(prg["progress"] * 50 / 100)
-            else:
-                new_progress = int(prg["progress"])
+            message = ""
+            new_progress = 0
+            if "progress" in prg:
+                if "topic" in prg:
+                    if prg["topic"] == "_import_tables_from_filemaker":
+                        new_progress = 15 + int(prg["progress"] * 35 / 100)
+                    elif prg["topic"] == "ExportImages":
+                        new_progress = 50 + int(prg["progress"] * 50 / 100)
+                else:
+                    new_progress = int(prg["progress"])
 
-            if "extended_progress" in prg:
-                message = prg["extended_progress"]
+                if "extended_progress" in prg:
+                    message = prg["extended_progress"]
 
-            if not message:
-                message = "Importing from FileMaker..."
+                if not message:
+                    message = "Importing from FileMaker..."
 
-            self.job.publish_progress(new_progress, message)
+                self.job.publish_progress(new_progress, message)
+                self.last_message = message
+
+            self.last_stop = new_stop
 
         return True
 
