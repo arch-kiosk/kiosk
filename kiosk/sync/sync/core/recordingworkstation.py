@@ -703,8 +703,8 @@ class RecordingWorkstation(Dock):
                                                                         file_picking,
                                                                         src_file,
                                                                         uid_file)
-            logging.debug(f"{self.__class__.__name__}._prepare_file_for_export_v2: "
-                          f"file handling results for file {uid_file}: {file_handling_results}")
+            # logging.debug(f"{self.__class__.__name__}._prepare_file_for_export_v2: "
+            #               f"file handling results for file {uid_file}: {file_handling_results}")
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}._prepare_file_for_export_v2(1): {repr(e)}")
             return False
@@ -730,10 +730,10 @@ class RecordingWorkstation(Dock):
                 cache_file = "dummy"
 
             if cache_file:
-                if cache_file != "dummy":
-                    logging.debug(f"using "
-                                  f"{'raw' if not file_handling_results['representation'] else file_handling_results['representation'].unique_name}"
-                                  f" representation {cache_file}")
+                # if cache_file != "dummy":
+                    # logging.debug(f"using "
+                    #               f"{'raw' if not file_handling_results['representation'] else file_handling_results['representation'].unique_name}"
+                    #               f" representation {cache_file}")
                 ok = self._register_fm_image_transfer_file(uid_file, cache_file,
                                                            file_handling_results["location"],
                                                            file_handling_results["resolution"],
