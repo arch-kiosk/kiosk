@@ -1,4 +1,5 @@
 import logging
+import time
 
 import kioskglobals
 from kioskresult import KioskResult
@@ -11,6 +12,8 @@ from tz.kiosktimezoneinstance import KioskTimeZoneInstance
 
 
 class ExportWorkstationWorker(WorkstationManagerWorker):
+    last_stop = 0.0
+    last_message = ""
 
     def check_workstation_size(self, workstation: KioskFileMakerWorkstation):
         try:
@@ -35,33 +38,38 @@ class ExportWorkstationWorker(WorkstationManagerWorker):
 
     def report_progress(self, prg):
         """ ***** sub report_progress ****** """
-        if not self.job_is_ok("Export to FileMaker"):
-            return False
+        new_stop = time.monotonic()
+        if (new_stop - self.last_stop > .5 or
+                ("extended_progress" in prg and prg["extended_progress"] != self.last_message)):
+            if not self.job_is_ok("Export to FileMaker"):
+                return False
 
-        message = ""
-        new_progress = 0
-        if "progress" in prg:
-            if "topic" in prg:
-                if prg["topic"] == "transfer_tables":
-                    new_progress = 20 + int(prg["progress"] * 30 / 100)
+            message = ""
+            new_progress = 0
+            if "progress" in prg:
+                if "topic" in prg:
+                    if prg["topic"] == "transfer_tables":
+                        new_progress = 20 + int(prg["progress"] * 30 / 100)
 
-                if prg["topic"] == "import_images":
-                    new_progress = 55 + int(prg["progress"] * 30 / 100)
-                    message = "Exporting images to FileMaker..."
+                    if prg["topic"] == "import_images":
+                        new_progress = 55 + int(prg["progress"] * 30 / 100)
+                        message = "Exporting images to FileMaker..."
 
-                # if prg["topic"] == "index_all_images":
-                #     new_progress = 70 + int(prg["progress"] * 20 / 100)
-                #     message = "Creating file identifier cache ..."
-            else:
-                new_progress = int(prg["progress"])
+                    # if prg["topic"] == "index_all_images":
+                    #     new_progress = 70 + int(prg["progress"] * 20 / 100)
+                    #     message = "Creating file identifier cache ..."
+                else:
+                    new_progress = int(prg["progress"])
 
-            if "extended_progress" in prg:
-                message = prg["extended_progress"]
+                if "extended_progress" in prg:
+                    message = prg["extended_progress"]
 
-            if not message:
-                message = "Exporting to FileMaker..."
+                if not message:
+                    message = "Exporting to FileMaker..."
 
-            self.job.publish_progress(new_progress, message)
+                self.job.publish_progress(new_progress, message)
+                self.last_message = message
+            self.last_stop = new_stop
 
         return True
 

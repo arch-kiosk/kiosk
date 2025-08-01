@@ -1,13 +1,16 @@
 # todo time zone simpliciation
+import cProfile
 import datetime
 import logging
 import os
+import pstats
 import shutil
 import zoneinfo
 from datetime import tzinfo
 from shutil import copyfile
 import time
 from os import path
+import io
 from typing import Tuple, Optional, List
 from zoneinfo import ZoneInfo
 
@@ -207,21 +210,33 @@ class FileMakerWorkstation(RecordingWorkstation):
         """
 
         super().init_state_machine()
+        fork_func = self.fork
+        export_func = self.export
+        import_func = self.import_workstation
+
+        cfg = SyncConfig.get_config()
+        try:
+            if kioskstdlib.to_bool(cfg.development["profile_fm_operations"]):
+                fork_func = self.fork_with_profiling
+                export_func = self.export_with_profiling
+                import_func = self.import_with_profiling
+        except:
+            pass
 
         self.state_machine.add_transition(self.READY_FOR_EXPORT,
-                                          StateTransition("EXPORT_TO_FILEMAKER", self.IN_THE_FIELD, None, self.export))
+                                          StateTransition("EXPORT_TO_FILEMAKER", self.IN_THE_FIELD, None, export_func))
         self.state_machine.add_transition(self.IN_THE_FIELD,
-                                          StateTransition("FORK", self.READY_FOR_EXPORT, None, self.fork,
+                                          StateTransition("FORK", self.READY_FOR_EXPORT, None, fork_func,
                                                           failed_state=self.IDLE))
         self.state_machine.add_transition(self.IN_THE_FIELD,
-                                          StateTransition("EXPORT_TO_FILEMAKER", self.IN_THE_FIELD, None, self.export,
+                                          StateTransition("EXPORT_TO_FILEMAKER", self.IN_THE_FIELD, None, export_func,
                                                           failed_state=self.READY_FOR_EXPORT))
         self.state_machine.add_transition(self.IN_THE_FIELD,
                                           StateTransition("IMPORT_FROM_FILEMAKER", self.BACK_FROM_FIELD, None,
-                                                          self.import_workstation))
+                                                          import_func))
         self.state_machine.add_transition(self.BACK_FROM_FIELD,
                                           StateTransition("IMPORT_FROM_FILEMAKER", self.BACK_FROM_FIELD, None,
-                                                          self.import_workstation,
+                                                          import_func,
                                                           failed_state=self.IN_THE_FIELD))
         self.state_machine.add_transition(self.BACK_FROM_FIELD,
                                           StateTransition("SYNCHRONIZE", self.IDLE, None, self._on_synchronized))
@@ -477,6 +492,9 @@ class FileMakerWorkstation(RecordingWorkstation):
         """
         if not self.callback_progress(*args, **kwargs):
             raise UserCancelledError
+
+    def export_with_profiling(self):
+        return self.profile_operation(self.export, "export")
 
     def export(self):
         """ exports the workstation's shadow tables
@@ -1145,7 +1163,8 @@ class FileMakerWorkstation(RecordingWorkstation):
             logging.error("SQL is " + sql_select)
             return False
 
-    def _get_up_to_date_markers_from_table(self, cur, dsd: DataSetDefinition, src_table_name, tablename, current_tz: KioskTimeZoneInstance):
+    def _get_up_to_date_markers_from_table(self, cur, dsd: DataSetDefinition, src_table_name, tablename,
+                                           current_tz: KioskTimeZoneInstance):
         """
         returns markers that can be used to find out if a table's data is up to date.
         The markers are the max and the number of dates in the table's modified timestamp field.
@@ -1179,7 +1198,6 @@ class FileMakerWorkstation(RecordingWorkstation):
                 if r[0]:
                     max_modified = r[0]
 
-
             if max_modified:
                 max_modified = max_modified.replace(tzinfo=None)
                 cur.execute(f"select count(\"{modified_field}\") count_date from {san_src_table_name}")
@@ -1189,7 +1207,6 @@ class FileMakerWorkstation(RecordingWorkstation):
 
         logging.debug(f"{self.__class__.__name__}._transfer_table_data_to_filemaker: "
                       f"latest_record_data for table {src_table_name} is {latest_record_data}")
-
 
         return latest_record_data
 
@@ -1224,7 +1241,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                                  f"{time_zone_offset_str} ")
                 else:
                     logging.error(f"{self.__class__.__name__}._set_workstation_constants: "
-                                 f"could not set time zone information for dock {self.get_id()}.")
+                                  f"could not set time zone information for dock {self.get_id()}.")
 
             else:
                 logging.warning(f"{self.__class__.__name__}._set_workstation_constants: "
@@ -1343,6 +1360,9 @@ class FileMakerWorkstation(RecordingWorkstation):
     # *******************************************************************
     # ***********             import from filemaker           ***********
     # *******************************************************************
+
+    def import_with_profiling(self):
+        return self.profile_operation(self.import_workstation, "import")
 
     def import_workstation(self):
         """ imports the data from a workstation's file maker file. Afterwards the workstation will
@@ -1534,12 +1554,12 @@ class FileMakerWorkstation(RecordingWorkstation):
                                                                       self.current_tz.user_tz_iana_name)
             if fm_tz_offset and current_tz_offset and fm_tz_offset == current_tz_offset:
                 logging.info((f"FileMakerWorkstation._import_check_fm_time_zones:"
-                                 f"When importing a filemaker source it was on export "
-                                 f"set to user time zone "
-                                 f"'{fm_tz.user_tz_long_name}' but now is expected in user time zone "
-                                 f"'{self.current_tz.user_tz_long_name}'). "
-                                 f"But it turns out the UTC offsets of these two time zones are the same, so "
-                                 f"this can proceed."))
+                              f"When importing a filemaker source it was on export "
+                              f"set to user time zone "
+                              f"'{fm_tz.user_tz_long_name}' but now is expected in user time zone "
+                              f"'{self.current_tz.user_tz_long_name}'). "
+                              f"But it turns out the UTC offsets of these two time zones are the same, so "
+                              f"this can proceed."))
             else:
                 logging.debug(f"FileMakerWorkstation._import_check_fm_time_zones: "
                               f"fm_tz_offset {fm_tz_offset} != current_tz_offset {current_tz_offset} ")
@@ -1721,8 +1741,8 @@ class FileMakerWorkstation(RecordingWorkstation):
                           "Calling Filemaker 'PrepareExport'")
 
             rc = bool(fm.start_fm_script_with_progress("PrepareExport", "prepare_export",
-                                                  printdots=bool(callback_progress),
-                                                  callback_progress=callback_progress) != "")
+                                                       printdots=bool(callback_progress),
+                                                       callback_progress=callback_progress) != "")
             return rc
         except Exception as e:
             logging.info(f"{self.__class__.__name__}._prepare_import_from_filemaker: {repr(e)}")
@@ -1904,7 +1924,8 @@ class FileMakerWorkstation(RecordingWorkstation):
                      f" ELSE {f_ww} END"
 
         v_ww = value.replace(tzinfo=datetime.timezone.utc)
-        v_utc = tz.user_dt_to_utc_dt(value).replace(tzinfo=datetime.timezone.utc)  # that's wristwatch time converted to UTC without time zone!
+        v_utc = tz.user_dt_to_utc_dt(value).replace(
+            tzinfo=datetime.timezone.utc)  # that's wristwatch time converted to UTC without time zone!
 
         value_list.append(v_ww)  # when ({f_tz} is null and {f_dt} != %s OR
         value_list.append(v_utc)  # ({f_tz} is not null  and {f_dt} != %s::timestamptz)
@@ -2105,7 +2126,6 @@ class FileMakerWorkstation(RecordingWorkstation):
                     "value_list": update_values,
                     "tz": tz}
 
-
             if f == replfield_modified:
                 sql_field_update = self._import_table_get_update_user_tz_field_sql(f, argv["value"],
                                                                                    update_values, tz)
@@ -2117,13 +2137,14 @@ class FileMakerWorkstation(RecordingWorkstation):
                         sql_with_joins += (f" left outer join kiosk_time_zones tz{c_join} on "
                                            f"{dest_table_name}.\"{f}_tz\" = tz{c_join}.id")
                     else:
-                        argv["data_type"] = "timestamp" # value is being transported as is -> no conversion
+                        argv["data_type"] = "timestamp"  # value is being transported as is -> no conversion
                 sql_field_update = self._import_table_get_update_field_sql(**argv)
 
             sql_update = sql_update + comma + sql_field_update
 
             argv["value_list"] = insert_values
-            sql_field_insert, sql_field_insert_values = self._import_table_get_insert_field_sql(f == replfield_modified, **argv)
+            sql_field_insert, sql_field_insert_values = self._import_table_get_insert_field_sql(f == replfield_modified,
+                                                                                                **argv)
 
             sql_insert = sql_insert + comma + sql_field_insert
             sql_insert_values = sql_insert_values + comma + sql_field_insert_values
@@ -2342,7 +2363,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                                                                    "exclude_field('images', 'filename')",
                                                                    "exclude_field('images', 'md5_hash')",
                                                                    "exclude_field('images', 'image_attributes')"
-                                                                   ]})
+                                                               ]})
         return self.dsd_workstation_view.dsd
 
     def _update_file_identifier_cache_necessary(self):

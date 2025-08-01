@@ -38,7 +38,7 @@ class ForkNExportWorkstationWorker(WorkstationManagerWorker):
     def report_fork_progress(self, prg):
         """ ***** sub report_fork_progress ****** """
         new_stop = time.monotonic()
-        if new_stop - self.last_stop > .1:
+        if new_stop - self.last_stop > .5:
             if not self.job_is_ok("Fork"):
                 return False
 
@@ -60,7 +60,7 @@ class ForkNExportWorkstationWorker(WorkstationManagerWorker):
     def report_export_progress(self, prg):
         """ ***** sub report_export_progress ****** """
         new_stop = time.monotonic()
-        if (new_stop - self.last_stop > .1 or
+        if (new_stop - self.last_stop > .5 or
                 ("extended_progress" in prg and prg["extended_progress"] != self.last_message)):
             if not self.job_is_ok("Export to FileMaker"):
                 return False

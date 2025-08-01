@@ -19,7 +19,7 @@ class ImportWorkstationWorker(WorkstationManagerWorker):
     def report_progress(self, prg):
         """ ***** sub report_progress ****** """
         new_stop = time.monotonic()
-        if (new_stop - self.last_stop > .1 or
+        if (new_stop - self.last_stop > .5 or
                 ("extended_progress" in prg and prg["extended_progress"] != self.last_message)):
             if not self.job_is_ok("Import to FileMaker"):
                 return False

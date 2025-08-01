@@ -14,7 +14,7 @@ class ForkWorkstationWorker(WorkstationManagerWorker):
     def report_progress(self, prg):
         """ ***** sub report_progress ****** """
         new_stop = time.monotonic()
-        if new_stop - self.last_stop > .1:
+        if new_stop - self.last_stop > .5:
             status = self.job.fetch_status()
             if status == MCPJobStatus.JOB_STATUS_CANCELLING:
                 return False

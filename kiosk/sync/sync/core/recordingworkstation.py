@@ -1,6 +1,10 @@
 # todo time zone simpliciation
+import cProfile
 import datetime
 import logging
+import os
+import io
+import pstats
 
 from werkzeug import datastructures
 
@@ -40,9 +44,16 @@ class RecordingWorkstation(Dock):
 
     def init_state_machine(self):
         super().init_state_machine()
-        self.state_machine.add_transition(self.IDLE, StateTransition("FORK", self.READY_FOR_EXPORT, None, self.fork))
+        fork_func = self.fork
+        cfg = SyncConfig.get_config()
+        try:
+            if kioskstdlib.to_bool(cfg.development["profile_fm_operations"]):
+                fork_func = self.fork_with_profiling
+        except:
+            pass
+        self.state_machine.add_transition(self.IDLE, StateTransition("FORK", self.READY_FOR_EXPORT, None, fork_func))
         self.state_machine.add_transition(self.READY_FOR_EXPORT,
-                                          StateTransition("FORK", self.READY_FOR_EXPORT, None, self.fork,
+                                          StateTransition("FORK", self.READY_FOR_EXPORT, None, fork_func,
                                                           failed_state=self.IDLE))
 
     @classmethod
@@ -98,6 +109,23 @@ class RecordingWorkstation(Dock):
         logging.debug(f"{self.__class__.__name__}.get_file_handling: call to deprecated method. "
                       f"Use recording group. ")
         return self.get_recording_group()
+
+    def profile_operation(self, op_func, op_name: str):
+        cfg = SyncConfig.get_config()
+        logging.info(f"{self.__class__.__name__}.profile_operation: Profiling {op_name}.")
+        output_file = os.path.join(cfg.base_path,
+                                   kioskstdlib.get_datetime_template_filename(f"{op_name}_#a#d#m#y-#H#M#S.pstat"))
+        profiler = cProfile.Profile()
+        try:
+            profiler.enable()
+            return op_func()
+        finally:
+            profiler.disable()
+            s = io.StringIO()
+            ps = pstats.Stats(profiler, stream=s).sort_stats('cumulative')
+            ps.dump_stats(output_file)
+            logging.info(f"{self.__class__.__name__}.profile_operation: saved profile file "
+                         f"for operation {op_name} to {output_file}")
 
     def _on_create_workstation(self, cur):
         """
@@ -358,6 +386,9 @@ class RecordingWorkstation(Dock):
     # *******************************************************************
     # ********                  fork                         ************
     # *******************************************************************
+
+    def fork_with_profiling(self):
+        return self.profile_operation(self.fork, "fork")
 
     def fork(self):
         """forks the data in the master database and all the files needed by a workstation
