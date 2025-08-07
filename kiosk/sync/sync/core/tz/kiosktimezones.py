@@ -384,7 +384,7 @@ class KioskTimeZones:
     @classmethod
     def get_modified_components_from_now(cls, tz_index: int=None):
         """
-        create a current time stamp and return all components neede for a modified field
+        create a current time stamp and return all components needed for a modified field
         :param tz_index: the tz_index of the time zone within which the _ww part of the modified is expected.
                           if None a tz_index is created from the current system settings.
                           Whatever that'll be, so avoid it!

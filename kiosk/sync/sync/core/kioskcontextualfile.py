@@ -4,7 +4,7 @@ import os
 import shutil
 import uuid
 from os.path import basename
-from typing import Union
+from typing import Union, Tuple
 
 import kioskdatetimelib
 from kioskglobals import kiosk_time_zones
@@ -627,9 +627,19 @@ class KioskContextualFile(KioskLogicalFile):
                           f"error in FileIdentifierCache.get_contexts_for_file: {repr(e)}")
             raise e
 
-    def push_contexts(self, commit_on_change=False, idc: MemoryIdentifierCache=None):
+    def push_contexts(self, commit_on_change=False, idc: MemoryIdentifierCache=None,
+                      modified_info: Tuple[datetime.datetime, int, datetime.datetime, str]=None):
         """
         pushes the change in contexts to the database.
+        :param modified_info: List with four elements or none
+                                (in which case the values of the image itself will be used):
+                                modified = modified_info[0]
+                                modified_tz = modified_info[1]
+                                modified_ww = modified_info[2]
+                                modified_by = modified_info[3]
+
+
+
         :param commit_on_change: if set the method issues commits and rollbacks
         :return: True if successful, False if not
         """
@@ -643,7 +653,7 @@ class KioskContextualFile(KioskLogicalFile):
             for ctx in self._contexts.get_added_contexts():
                 changed = True
                 last_identifier = ctx[0]
-                if not self._push_context(ctx, cur):
+                if not self._push_context(ctx, cur, modified_info=modified_info):
                     raise Exception(f"call to _push_context failed with context {last_identifier}")
 
             for ctx in self._contexts.get_dropped_contexts():
@@ -674,7 +684,8 @@ class KioskContextualFile(KioskLogicalFile):
 
         return False
 
-    def _push_context(self, ctx: tuple, cur, use_idc: IdentifierCache = None) -> bool:
+    def _push_context(self, ctx: tuple, cur, use_idc: IdentifierCache = None,
+                      modified_info: Tuple[datetime.datetime, int, datetime.datetime, str]=None) -> bool:
         """
         adds a file to the context and record type.
         :param ctx: a tuple consisting of the context identifier and file_location.
@@ -704,7 +715,8 @@ class KioskContextualFile(KioskLogicalFile):
 
         # ok, we can create the sql
         sql, params = self._get_insert_context_sql(file_location, file_location_field,
-                                                   identifier_uuid, identifier_table)
+                                                   identifier_uuid, identifier_table,
+                                                   modified_info = modified_info)
         if not sql:
             return False
 
@@ -727,7 +739,8 @@ class KioskContextualFile(KioskLogicalFile):
             return False
 
     def _get_insert_context_sql(self, file_location: str, file_location_field: str,
-                                identifier_uuid: str, identifier_table: str):
+                                identifier_uuid: str, identifier_table: str,
+                                modified_info: Tuple[datetime.datetime, int, datetime.datetime, str]=None):
         """
         returns the sql string that inserts a new record into a file location
         :param file_location: the table where the file is stored
@@ -770,8 +783,19 @@ class KioskContextualFile(KioskLogicalFile):
                ")"
         sql += f" values(%s,%s,%s,%s,%s,%s,%s)"
         # time zone relevant
-        values = [self.uid, self.modified_ww, self.modified, self.modified_tz, self.modified_ww,
-                  self.modified_by if self.modified_by else "sys", identifier_uuid]
+        if modified_info:
+            modified = modified_info[0]
+            modified_tz = modified_info[1]
+            modified_ww = modified_info[2]
+            modified_by = modified_info[3]
+        else:
+            modified = self.modified
+            modified_tz =self.modified_tz
+            modified_ww = self.modified_ww
+            modified_by = self.modified_by if self.modified_by else "sys"
+
+        values = [self.uid, modified_ww, modified, modified_tz, modified_ww,
+                  modified_by, identifier_uuid]
         return sql, values
 
     def _drop_context(self, ctx, cur, use_idc: IdentifierCache = None) -> bool:

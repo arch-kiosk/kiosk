@@ -1040,13 +1040,20 @@ def repository_bulk_link_execute():
             c_added = 0
             c_error = 0
             updated = {}
+
+            utc_ts, tz_index, ww_ts = file_repos.kiosk_time_zones.get_modified_components_from_now(
+                current_user.get_active_tz_index())
+            modified_by = current_user.repl_user_id
+
             for file_uid in files:
                 f = file_repos.get_contextual_file(file_uid)
                 contexts = f.contexts.get_contexts()
                 if (identifier, default_location) not in contexts:
                     try:
                         f.contexts.add_context(identifier, context_info["record_type"])
-                        f.push_contexts(commit_on_change=False, idc=idc)
+
+                        f.push_contexts(commit_on_change=False, idc=idc,
+                                        modified_info = (utc_ts, tz_index, ww_ts, modified_by))
                         updated[file_uid] = ", ".join([x[0] for x in f.contexts.get_contexts()])
                         logging.debug(f"filerepositorycontroller._repository_bulk_link_execute: "
                                       f"Linked file {file_uid} "
@@ -1058,6 +1065,8 @@ def repository_bulk_link_execute():
                             logging.error(f"filerepositorycontroller._repository_bulk_link_execute: "
                                           f"Error linking file {file_uid} "
                                           f"to context {identifier}{repr(e)}")
+                        else:
+                            raise Exception("Too many errors.")
 
             result.set_data('updated', updated)
             if c_added > 0:
