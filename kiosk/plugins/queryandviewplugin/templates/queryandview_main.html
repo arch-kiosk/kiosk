@@ -35,7 +35,7 @@
 
         app.addEventListener("select-image", (event) => {
             if (initFileViewer(app)) {
-                console.log(`Selecting image ${event.detail}`);
+
                 onViewImageClicked(event);
             } else {
                 kioskErrorToast("FileViewer not initialized. Can't show any images right now. Try refreshing the page?")

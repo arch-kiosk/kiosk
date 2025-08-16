@@ -127,10 +127,11 @@ config:
     drop_empty_dayplans:
 #     This migration script drops all dayplans that have neither an image nor a description
       migration: "sql\\drop_empty_dayplans.sql"
+      options: [only_on_idle]
       preconditions:
         dayplan: 2
       flags:
-        drop_empty_dayplans: 2
+        drop_empty_dayplans: 3
 
     add_collected_material_types:
 #     This migration script adds collected material types if there are none

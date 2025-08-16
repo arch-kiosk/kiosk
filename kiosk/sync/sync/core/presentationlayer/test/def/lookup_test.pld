@@ -1,0 +1,39 @@
+config:
+  format_version: 1
+
+compilations:
+  locus_compilation:
+    name: unit view
+    record_type: unit
+    groups:
+      group_1:
+        type: "single"
+        parts:
+          unit_cm.list:
+            text: 'collected materials'
+            position: 3
+
+unit_cm.list:
+  record_type: collected_material
+  view_type: list
+  max_height: 20em
+  fields_selection: dsd
+  layout_settings:
+    type: list
+    orchestration_strategy: table
+    order_records_by: [">arch_context"]
+    allow_ordering_by: ["arch_context", "cm_type", "type", "date", "storage","files"]
+    order: [arch_context, cm_type, type, date, storage, files]
+  ui_elements:
+    "files":
+      element_type:
+        name: "textfield"
+        text: "files"
+        value: "#(collected_material/uid)"
+        lookup:
+          lookup_type: "aggregate"
+          record_type: "collected_material_photo"
+          key_field: "uid_cm"
+          aggregation_field: "uid_photo"
+          aggregation_method: "count"
+          default_to: "nothing"

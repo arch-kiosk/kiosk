@@ -97,4 +97,14 @@ INSERT INTO collected_material (uid, id, uid_locus, external_id, arch_context, m
 VALUES ('25531aa1-f7b2-4f67-9b08-ba3030889b5b', 2, 'adbef66e-f6fd-422d-b20b-c2d0f09309a5', 'ext-2-2', 'CC-002-2',
         '2019-01-18 09:11:48.000000', 'aes', '2019-01-02 08:04:40.000000', 1);
 
+INSERT INTO public.collected_material_photo(uid_cm, uid_photo, description, created)
+VALUES('9495ce6f-da74-4e58-bf0b-f3b6775116f9', 'be17288f-863e-4d76-a641-21ad333d81f0', 'description 1', '1994-09-25 22:36:47');
 
+INSERT INTO public.collected_material_photo(uid_cm, uid_photo, description, created)
+VALUES('9495ce6f-da74-4e58-bf0b-f3b6775116f9', 'b2cde9ee-cd44-4ae4-8b41-a2cb9d8c8b2a', 'description 2', '1994-09-25 22:36:47');
+
+INSERT INTO public.collected_material_photo(uid_cm, uid_photo, description, created)
+VALUES('9495ce6f-da74-4e58-bf0b-f3b6775116f9', '5f2bee02-e112-471d-9ba3-4d017a5987ef', 'description 3', '1994-09-25 22:36:47');
+
+INSERT INTO public.collected_material_photo(uid_cm, uid_photo, description, created)
+VALUES('9495ce6f-da74-4e58-bf0b-f3b6775116f9', 'c8dd43f9-4131-474b-8aea-e77eb1f5477c', 'description 3', '1994-09-25 22:36:47');

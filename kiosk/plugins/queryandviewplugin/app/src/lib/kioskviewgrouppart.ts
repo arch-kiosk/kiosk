@@ -150,12 +150,38 @@ export class KioskViewGroupPart {
         return false
     }
 
-    private getFieldOrderComparer(sortField: string, dec: boolean, viewDocument: KioskViewDocument): FieldOrderComparer {
-        let dataType: string
+    getCurrentFileList(viewDocument: KioskViewDocument) {
+        const fileFields = viewDocument.dsd.get_fields_with_instruction(this.recordType, "uid_file")
+        if( fileFields && fileFields.length == 1) {
+            const fileField = fileFields[0]
+            const columns = this._partData[0]
+            const fileColumn = columns.findIndex(e => e === fileField)
+            const imageDataProvider = this.dataContext.getAccessor("images")
+            if (fileColumn) {
+                const imageList = this._partData
+                    .filter((row,index) => index > 0 && row[fileColumn] )
+                    .map(row => row[fileColumn])
+                const dataContext = this._dataContext
+                const imageDescriptions = imageList.map((uuid) => {
+                    return {
+                        "uuid": uuid,
+                        "data": dataContext.get(`$/images/descriptions/${uuid}`),
+                    };
+                })
+                return imageDescriptions
+                    .filter(el => el.data && el.data.hasOwnProperty("attributes") && el.data?.attributes?.width > 0 && el.data?.attributes?.height > 0)
+                    .map(el => {
+                        return { uuid: el.uuid, width: el.data.attributes?.width, height: el.data.attributes?.height };
+                    })
+            }
+        }
+        return []
+    }
+
+    private getFieldOrderComparer(sortField: string, dec: boolean, dataType: string): FieldOrderComparer {
         let orderComparers: {[name: string]: {inc: FieldOrderComparer,
                                                 dec: FieldOrderComparer}} = {};
         let comparer = ""
-
         orderComparers["text"] = ({
             inc: (v1: string, v2: string) => safeLocaleCompare(v1, v2),
             dec: (v1: string, v2: string) => safeLocaleCompare(v2, v1)})
@@ -164,10 +190,9 @@ export class KioskViewGroupPart {
             dec: (v1: string, v2: string) => compareISODateTime(v2,v1)})
 
         try {
-            dataType = viewDocument.dsd.get_field_data_type(this.recordType, sortField).toUpperCase()
             if (["VARCHAR", "TEXT"].includes(dataType))
                 comparer = "text"
-            if (["DATE", "DATETIME", "TIMESTAMP", "TIME"].includes(dataType))
+            if (["DATE", "DATETIME", "TIMESTAMP", "TIMESTAMPTZ", "TIME"].includes(dataType))
                 comparer = "datetime"
         } catch (e) {
             console.log(`Unknown sort field ${this.recordType}/${sortField}`)
@@ -177,9 +202,33 @@ export class KioskViewGroupPart {
         if (!comparer)
             return ((x) => 0)
         if (dec) {
-            return orderComparers["text"].dec
+            return orderComparers[comparer].dec
         } else {
-            return orderComparers["text"].inc
+            return orderComparers[comparer].inc
+        }
+    }
+
+
+    private getImageAttributeComparer(sortField: string, dec: boolean, lookup_settings: AnyDict): FieldOrderComparer {
+        const filesAccessor = this.dataContext.getAccessor("imagedescriptions")
+        let dataType: string
+
+        function fileAttributeCmp(uid1: string, uid2: string) : number {
+            if (!uid1 && !uid2) return 0
+            if (!uid1) return -1
+            if (!uid2) return 1
+
+            const ts1 = filesAccessor.get("", uid1, DataContext.GET_MODE_DEFAULT)?.file_datetime
+            const ts2 = filesAccessor.get("", uid2, DataContext.GET_MODE_DEFAULT)?.file_datetime
+
+            return compareISODateTime(ts1,ts2)
+        }
+
+        if (lookup_settings?.attribute_name === "file_datetime") {
+            return dec ? (v1: string, v2: string) => fileAttributeCmp(v2, v1)
+                       : (v1: string, v2: string) => fileAttributeCmp(v1, v2)
+        } else {
+            console.log(`Attempt to sort field ${sortField} by image attribute ${lookup_settings?.attribute_name} not supported, yet.`)
         }
     }
 
@@ -197,12 +246,28 @@ export class KioskViewGroupPart {
             }
             let index = columns.findIndex(x => x === sortInstruction)
             if (index > -1) {
+                const dataType = viewDocument.dsd.get_field_data_type(this.recordType, sortInstruction).toUpperCase()
                 this._sort_order.push({
                     name: sortInstruction,
                     idx: index,
-                    cmp: this.getFieldOrderComparer(sortInstruction, dec, viewDocument)
+                    cmp: this.getFieldOrderComparer(sortInstruction, dec, dataType)
                 })
             } else {
+                let element = this.findElement(sortInstruction)
+                if (element && element?.element_type?.lookup) {
+                    if (element.element_type.lookup.lookup_type === "file_attribute") {
+                        let index = columns.findIndex(x => x === "uid_image")
+                        if (index > -1) {
+                            this._sort_order.push({
+                                name: sortInstruction,
+                                idx: index,
+                                cmp: this.getImageAttributeComparer(sortInstruction, dec, element.element_type.lookup)
+                            })
+                        }
+                    } else {
+                        console.error(`Lookup column not supported for sorting. Column is ${sortInstruction}.`)
+                    }
+                }
                 console.error(`sort column ${sortInstruction} unknown.`)
             }
         })
@@ -394,6 +459,10 @@ export class KioskViewGroupPart {
                 return this._lookup_record(value, element_id, lookup_def)
             case "dictionary":
                 return this._lookup_in_dictionary(value, element_id, lookup_def)
+            case "file_attribute":
+                return this._lookup_file_attribute(value, element_id, lookup_def)
+            case "aggregate":
+                return this._lookup_aggregate(value, element_id, lookup_def)
             default:
                 console.error(`kioskviewgrouppart.lookup: Unknown lookup type "${lookup_def["lookup_type"]}" in ui element "${element_id}"`)
         }
@@ -403,6 +472,7 @@ export class KioskViewGroupPart {
     private _lookup_record(value: any, element_id: string, lookup_def: AnyDict) {
         try {
             const lookup_record_type = lookup_def["record_type"]
+            // if (lookup_record_type === "collected_material_photo") debugger;
             const lookup_data = (this._document as ApiKioskViewDocument)["kioskview.lookup_data"]
             if (!lookup_data)
                 return value
@@ -423,19 +493,61 @@ export class KioskViewGroupPart {
             throw `_lookup_records: ${e}`
         }
     }
+
+    private _lookup_aggregate(value: any, element_id: string, lookup_def: AnyDict) {
+        try {
+            const lookup_record_type = lookup_def["record_type"]
+            const lookup_agg_field = lookup_def["aggregation_field"]
+            const lookup_agg_method = lookup_def["aggregation_method"]
+            const lookup_table = `${lookup_record_type}.${lookup_agg_field}.${lookup_agg_method}`
+            const default_to = lookup_def["default_to"]
+            // if (lookup_record_type === "collected_material_photo") debugger;
+            const lookup_data = (this._document as ApiKioskViewDocument)["kioskview.lookup_data"]
+            if (!lookup_data)
+                return default_to ?? value
+            const table_data = lookup_data[lookup_table]
+            if (!table_data || table_data.length < 2)
+                return default_to ?? value
+            const valueFieldIdx = table_data[0].findIndex(v => v === "c")
+            const keyFieldIdx = table_data[0].findIndex(v => v === lookup_def["key_field"])
+            for (let rowNr = 1; rowNr < table_data.length; rowNr++) {
+                const row = table_data[rowNr]
+                if (rowNr > 0) {
+                    if (row[keyFieldIdx] === value)
+                        return row[valueFieldIdx] ?? default_to ?? value
+                }
+            }
+            return default_to ?? value
+        } catch (e) {
+            throw `_lookup_records: ${e}`
+        }
+    }
+
     private _lookup_in_dictionary(value: any, element_id: string, lookup_def: AnyDict) {
         const dictionary = this.dataContext.getAccessor("dictionary")
         return dictionary.get(lookup_def.path, value, DataContext.GET_MODE_DEFAULT)
     }
 
+    private _lookup_file_attribute(value: any, element_id: string, lookup_def: AnyDict) {
+        const filesAccessor = this.dataContext.getAccessor("imagedescriptions")
+        const file_record = filesAccessor.get("", value, DataContext.GET_MODE_DEFAULT)
+        if (file_record.hasOwnProperty(lookup_def["attribute_name"])) {
+            return file_record[lookup_def["attribute_name"]]
+        } else if (file_record["attributes"]?.hasOwnProperty(lookup_def["attribute_name"])) {
+            return file_record["attributes"][lookup_def["attribute_name"]]
+        }
+        return undefined
+    }
 
     public resolveDataRequest(exp: string, elementId: string) {
+        // if (exp === "#(dayplan/uid_image)") debugger;
         const i_result = this.interpreter.interpret(exp)
         try {
             if (elementId && i_result) {
                 const element = this.findElement(elementId)
                 if (element && element["element_type"].hasOwnProperty("lookup")) {
-                    return this._lookup(i_result, elementId, element["element_type"]["lookup"])
+                    const v = this._lookup(i_result, elementId, element["element_type"]["lookup"])
+                    return v
                 }
             }
             return i_result

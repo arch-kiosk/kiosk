@@ -148,9 +148,19 @@ unit_files.list:
   layout_settings:
     type: list
     orchestration_strategy: gallery
-    order_records_by: [">modified"]
-    allow_ordering_by: ["modified", "modified_by"]
-    order: [uid_image, modified, modified_by]
+    order_records_by: [">modified", "file_datetime"]
+    allow_ordering_by: ["modified", "modified_by", "file_datetime"]
+    order: [uid_image, modified, modified_by, file_datetime]
+
+  ui_elements:
+    "file_datetime":
+      element_type:
+        name: "datetimefield"
+        text: "file date time"
+        value: "#(dayplan/uid_image)"
+        lookup:
+          lookup_type: "file_attribute"
+          attribute_name: "file_datetime"
 
 unit_loci.list:
   record_type: locus
@@ -167,6 +177,18 @@ unit_loci.list:
     allow_ordering_by: [arch_context, type, date_defined, date_closed, recorded_by]
     order: [arch_context, type, date_defined, date_closed, recorded_by, description]
 
+#unit_cm.list:
+#  record_type: collected_material
+#  view_type: list
+#  max_height: 20em
+#  fields_selection: dsd
+#  layout_settings:
+#    type: list
+#    orchestration_strategy: table
+#    order_records_by: [">arch_context"]
+#    allow_ordering_by: ["arch_context", "cm_type", "type", "date", "storage"]
+#    order: [arch_context, cm_type, type, date, storage]
+
 unit_cm.list:
   record_type: collected_material
   view_type: list
@@ -177,4 +199,17 @@ unit_cm.list:
     orchestration_strategy: table
     order_records_by: [">arch_context"]
     allow_ordering_by: ["arch_context", "cm_type", "type", "date", "storage"]
-    order: [arch_context, cm_type, type, date, storage]
+    order: [arch_context, cm_type, type, date, storage, files]
+  ui_elements:
+    "files":
+      element_type:
+        name: "textfield"
+        text: "files"
+        value: "#(collected_material/uid)"
+        lookup:
+          lookup_type: "aggregate"
+          record_type: "collected_material_photo"
+          key_field: "uid_cm"
+          aggregation_field: "uid_photo"
+          aggregation_method: "count"
+          default_to: "0"

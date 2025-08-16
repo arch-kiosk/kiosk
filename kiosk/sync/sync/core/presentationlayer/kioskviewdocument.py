@@ -1,6 +1,7 @@
 import copy
 import logging
 from pprint import pprint
+import datetime
 from typing import List, Dict, Tuple
 
 from contextmanagement.kioskscopeselect import KioskScopeSelect
@@ -103,12 +104,11 @@ class KioskViewDocument:
                 logging.error(f"{self.__class__.__name__}._get_elements_with_lookup: {repr(e)}")
         return lookups
 
-    def _get_lookup_table_data(self, target_types: List[str], lookup_types: List[str]) -> Tuple[Dict[str, List[List[any]]], Dict]:
+    def _get_lookup_record_data(self, target_types: List[str], lookups: List[LookupElement]) -> Tuple[Dict[str, List[List[any]]], Dict]:
         """
         returns the actually needed records for all the relevant lookup table relations
         :param target_types: the record_types requested by the document's parts
-        :param lookup_types: the record_types that are actually used
-                             in a lookup section on some element in the document
+        :param lookups: A list of LookupElement objects
         :return: a tuple with
                  - a dictionary with the lookup record type as the key that
                    points to a list of records (each a list). The first record is always the list
@@ -117,7 +117,16 @@ class KioskViewDocument:
                    (or "-" if an equivocal key could not be determined)
 
         """
+        lookup_types = set()
         try:
+            for lookup in lookups:
+                if "lookup_type" in lookup.lookup_def and lookup.lookup_def["lookup_type"] == "record":
+                    if "record_type" in lookup.lookup_def:
+                        lookup_types.add(lookup.lookup_def["record_type"])
+                    else:
+                        logging.warning(f"{self.__class__.__name__}._get_lookup_data: lookup_type 'record' "
+                                        f" for element {lookup.element_id} lacks a record type.")
+
             scope_select = KioskScopeSelect(include_lookups=True)
             scope_select.set_dsd(self._dsd)
             result = dict()
@@ -155,16 +164,83 @@ class KioskViewDocument:
                 f"{self.__class__.__name__}._get_lookup_table_data: when processing {lookup_types}: {repr(e)}")
             raise e
 
-    def _get_lookup_data(self, target_types):
-        parts = self._get_parts_from_doc()
+
+    def _get_aggregation_select(self, base_select, lookup_element: LookupElement) -> Tuple[str, str]:
+        """
+        Wraps an aggregation select statement around the base select that connects
+        the base record type of the ViewDocument with the record type that is being looked up.
+
+        :param base_select: the base select constructed with KioskScopeSelects
+        :param lookup_element: the lookup element definition
+        :return: A tuple consisting of the select statement and the name under which the result should be stored
+        """
+        lookup_def = lookup_element.lookup_def
+        agg_method = lookup_def["aggregation_method"].lower()
+        sql = "select "
+        if agg_method == "count":
+            sql += (f"{KioskSQLDb.sql_safe_ident(lookup_def['key_field'])}, "
+                    f"count({KioskSQLDb.sql_safe_ident(lookup_def['aggregation_field'])}) c "
+                    f"from ({base_select}) t group by {KioskSQLDb.sql_safe_ident(lookup_def['key_field'])}")
+            return sql, f"{lookup_def['record_type']}.{lookup_def['aggregation_field']}.count"
+        else:
+            raise Exception(f"aggregation method {agg_method} unknown for lookup field {lookup_element.element_id}")
+
+    def _get_lookup_aggregate_data(self, lookups: List[LookupElement]) -> Tuple[Dict[str, List[List[any]]], Dict]:
+        """
+        returns the actually needed records for all the relevant aggregate lookups
+        :param lookups: A list of LookupElement objects
+
+        """
         lookup_types = set()
+        try:
+            for lookup in lookups:
+                if "lookup_type" in lookup.lookup_def and lookup.lookup_def["lookup_type"] == "aggregate":
+                    if "record_type" in lookup.lookup_def:
+                        lookup_types.add(lookup.lookup_def["record_type"])
+                    else:
+                        logging.warning(f"{self.__class__.__name__}._get_lookup_aggregate_data: lookup_type 'record' "
+                                        f" for element {lookup.element_id} lacks a record type.")
+
+            scope_select = KioskScopeSelect(include_lookups=True)
+            scope_select.set_dsd(self._dsd)
+            result = dict()
+            selects = scope_select.get_selects(self._record_type,
+                                               target_types=list(lookup_types),
+                                               add_lore=False, only_lookups=False)
+            for select in selects:
+                lookup_element = next(iter(filter(lambda x: x.lookup_def["lookup_type"] == "aggregate" and x.lookup_def["record_type"] == select[0],
+                                                  lookups)), None)
+                if lookup_element:
+                    select, result_name = self._get_aggregation_select(select[1], lookup_element)
+                    try:
+                        records = KioskSQLDb.get_records(select,
+                                                         {"identifier": self._identifier.upper()},
+                                                         add_column_row=True)
+                        if records:
+                            result[result_name] = records
+                    except BaseException as e:
+                        logging.warning(f"{self.__class__.__name__}._get_lookup_table_data: "
+                                        f"Error selecting lookups for {select[0]}: {repr(e)}")
+            return result, scope_select.lookup_key_fields
+        except BaseException as e:
+            logging.error(
+                f"{self.__class__.__name__}._get_lookup_aggregate_data: when processing {lookup_types}: {repr(e)}")
+            raise e
+
+    def _get_lookup_data(self, target_types) -> Dict[str, List[List]]:
+        """
+        This returns the complete lookup data for the View. That includes normal record lookups and aggregations.
+        :param target_types: the record types requested by all the parts of the view
+        :return: a dict with {lookup_table_name: [records[values]]]
+        """
+        parts = self._get_parts_from_doc()
         lookups = self._get_elements_with_lookup(parts)
-        for lookup in lookups:
-            if "record_type" in lookup.lookup_def:
-                lookup_types.add(lookup.lookup_def["record_type"])
 
-        data, lookup_key_fields = self._get_lookup_table_data(target_types, list(lookup_types))
 
+        data, lookup_key_fields = self._get_lookup_record_data(target_types, lookups)
+        agg_data, agg_lookup_key_fields = self._get_lookup_aggregate_data(lookups)
+        data.update(agg_data)
+        lookup_key_fields.update(agg_lookup_key_fields)
         for lookup in lookups:
             if "record_type" in lookup.lookup_def and "key_field" not in lookup.lookup_def:
                 record_type = lookup.lookup_def["record_type"]
@@ -193,16 +269,30 @@ class KioskViewDocument:
             logging.error(f"{self.__class__.__name__}._get_dsd_definitions: {repr(e)}")
             raise e
 
-    def _get_image_attributes(self, uid):
-        image_attributes = KioskSQLDb.get_field_value("images","uid",uid,"image_attributes")
-        return image_attributes
+    def _get_image_attributes(self, uid) -> Tuple[dict, datetime.datetime]:
+        image_record = KioskSQLDb.get_first_record(self._dsd.files_table, "uid", uid)
+        file_datetime = None
+        image_attributes = {}
+        if image_record:
+            try:
+                image_attributes = image_record["image_attributes"]
+            except:
+                pass
+            try:
+                #refactor: this is an explicit reference to a field name. Should rather use a dsd instruction or so.
+                file_datetime = image_record["file_datetime"]
+            except:
+                pass
+        return image_attributes, file_datetime
 
     def _get_file_info(self, uid):
+        file_attributes, file_datetime = self._get_image_attributes(uid)
         file_info = {"description": self._file_description.get_description_summary(uid),
-                     "attributes": self._get_image_attributes(uid)}
+                     "file_datetime": file_datetime,
+                     "attributes": file_attributes}
         return file_info
 
-    def _get_file_infos(self, data: dict[str, list[list[any]]]) -> dict:
+    def _get_file_infos(self, data: dict[str, list[list]]) -> dict:
         c_error = 0
         try:
             result = {}

@@ -93,6 +93,7 @@ export interface ApiKioskViewData {
 
 export interface ApiKioskViewImageRecord {
     description: string
+    file_datetime: string,
     attributes: AnyDict
 }
 

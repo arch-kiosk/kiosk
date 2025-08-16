@@ -107,10 +107,42 @@ class TestKioskViewDocument(KioskPyTestHelper):
         doc = KioskViewDocument("locus", "test", "CC-001")
         result = doc.compile()
         assert "kioskview.header" in result
-        assert result["kioskview.header"] == {"version": 1}
+        assert result["kioskview.header"] == {"version": 1, 'dsd_version': 3}
         assert "compilation" in result
         assert "kioskview.data" in result
         assert "kioskview.dsd" in result
-        assert list(result["kioskview.dsd"].keys()) == ["locus"]
+        assert list(result["kioskview.dsd"].keys()) == ['locus', 'unit', 'site']
         assert "locus.sheet" in result
         # assert result == {}
+
+    def test_lookup_aggregate(self, config, uic_tree, monkeypatch, dsd, urapdb_with_records):
+        monkeypatch.setattr(SyncConfig, "get_dsd_path", self.mock_get_dsd_path)
+        monkeypatch.setattr(PLDLoader, "load_pld", self.mock_load_pld)
+
+        config._config["glossary"] = {"locus": "context"}
+
+        assert Dsd3Singleton.get_dsd3()
+        doc = KioskViewDocument("unit", "lookup_test", "CC")
+        result = doc.compile()
+        assert "kioskview.header" in result
+        assert result["kioskview.header"] == {"version": 1, 'dsd_version': 3}
+        assert "compilation" in result
+        assert "kioskview.data" in result
+        assert "kioskview.dsd" in result
+        assert list(result["kioskview.dsd"].keys()) == ['collected_material', 'site']
+        assert "unit_cm.list" in result
+        ui_files = result["unit_cm.list"]["ui_elements"]["files"]
+        assert ui_files == {'element_type': {'lookup': {'default_to': 'nothing',
+                                                        'aggregation_method': 'count',
+                                                        'aggregation_field': 'uid_photo',
+                                                        'key_field': 'uid_cm',
+                                                        'lookup_type': 'aggregate',
+                                                        'record_type': 'collected_material_photo'},
+                                             'name': 'textfield',
+                                             'text': 'files',
+                                             'value': '#(collected_material/uid)'}}
+        assert "kioskview.lookup_data" in result
+        assert "collected_material_photo.uid_photo.count" in result["kioskview.lookup_data"]
+        assert result["kioskview.lookup_data"]["collected_material_photo.uid_photo.count"] == [['uid_cm', 'c'],
+                                                                                               ['9495ce6f-da74-4e58-bf0b-f3b6775116f9',
+                                                                                                4]]

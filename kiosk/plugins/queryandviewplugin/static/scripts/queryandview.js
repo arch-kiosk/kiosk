@@ -40,13 +40,14 @@ function onViewImageClicked(evt) {
         }
         if (fwc) {
             fwc.clear()
-            // document.filesOnPage.forEach(f => fwc.addFile(f))
-            // fwc.addFile({ uuid: clickedUuid })
-            fwc.addFile({
-                uuid: uuid,
-                width: numOr0(evt.detail.width),
-                height: numOr0(evt.detail.height),
-            });
+            debugger;
+            console.log(`Selecting image ${evt.detail}`);
+            const fileList = evt.detail?.fileList
+            if (fileList) {
+                for (const fileObject of fileList) {
+                    fwc.addFile(fileObject);
+                }
+            }
             fwc.showFiles(uuid)
             return
         }

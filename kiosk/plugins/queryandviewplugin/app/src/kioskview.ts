@@ -493,7 +493,7 @@ export class KioskView  extends KioskAppComponent {
 
                             ui.moveToNextRow = (lastUID: string) => part.moveToNextRow(lastUID)
                             ui.setSortOrder = (sortOrder: string[]) => {
-                                console.log("settings sort order to ", sortOrder)
+                                console.log(`settings sort order for part ${part.partId} to `, sortOrder)
                                 part.createSortOrder(this.viewDocument, sortOrder)
                                 part.orderRecords()
                             }
@@ -535,12 +535,22 @@ export class KioskView  extends KioskAppComponent {
         }
     }
 
+    selectImage(event: CustomEvent) {
+        const partId = (event.currentTarget as HTMLElement)?.getAttribute("part-id")
+        if (partId) {
+            const part = this.findPart(partId)
+            const fileList = part.getCurrentFileList(this.viewDocument)
+            event.detail["fileList"] = fileList
+        }
+    }
+
     renderPart(part: KioskViewGroupPart):TemplateResult {
         if (part.recordMissing && part.layout.on_record_missing === "message") {
          return html`<div class="missing-record-message"><i></i> Sorry, but there is no available data of this type</div>`
         } else {
             return html`
-                <ui-component id="ui-${part.cssPartId}"></ui-component>`
+                <ui-component id="ui-${part.cssPartId}" part-id="${part.partId}" 
+                @select-image=${this.selectImage}></ui-component>`
         }
     }
 
