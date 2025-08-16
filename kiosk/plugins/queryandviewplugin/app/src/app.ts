@@ -417,15 +417,23 @@ export class QueryAndViewApp extends KioskApp {
 
     onCloseQuery(e: CustomEvent) {
         const queryId = e.detail;
-        const idx = this.queries.findIndex((q) => q.uid === queryId);
-        this.queries.splice(idx, 1);
+        if (queryId === "-all-") {
+            this.queries = []
+        } else {
+            const idx = this.queries.findIndex((q) => q.uid === queryId);
+            this.queries.splice(idx, 1);
+        }
         this.requestUpdate();
     }
 
     onCloseView(e: CustomEvent) {
         const viewId = e.detail;
-        this.views.delete(e.detail);
-        this.requestUpdate();
+        if (viewId === "-all-") {
+            this.views = new Map();
+        } else {
+            this.views.delete(e.detail);
+            this.requestUpdate();
+        }
     }
 
     renderLayout() {

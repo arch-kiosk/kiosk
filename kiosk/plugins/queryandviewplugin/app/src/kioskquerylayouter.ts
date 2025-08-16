@@ -70,9 +70,15 @@ export class KioskQueryLayouter extends KioskAppComponent {
         view.bookmarkTop(this.topOffset)
     }
 
+    closeAll() {
+        const event = new CustomEvent("close", { "detail": "-all-" })
+        this.dispatchEvent(event)
+    }
+
     apiRender(): TemplateResult {
         return (this.assignedPages.length==0)?html``:html`
             <div class="kiosk-query-layouter">
+                ${this.assignedPages.length > 1?html`<i class="fas fa-burst query-layouter-close-all" @click="${this.closeAll}"></i>`:nothing}
                 <sl-tab-group @sl-close="${this.tryClose}" @sl-tab-show="${this.tabShow}" @sl-tab-hide="${this.tabHide}">
                     ${this.assignedPages.map(q => html`
                         <sl-tab slot="nav" panel="${q[0]}" closable>${q[1]}</sl-tab>
