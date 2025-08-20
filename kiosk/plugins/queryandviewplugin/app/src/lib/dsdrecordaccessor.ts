@@ -32,7 +32,9 @@ export class DSDRecordAccessor extends DataContextAccessor {
     public assignData(data: DSDRecord) {
         this._data = {};
         for (let i = 0; i <= data.fields.length; i++) {
-            this._data[data.fields[i]] = [data && data.record ? data.record[i] : undefined, i < this._types.length?this._types[i]:undefined];
+            this._data[data.fields[i]] = [data && data.record ? data.record[i] : undefined,
+                i < this._types.length?this._types[i]:undefined
+            ];
         }
     }
 

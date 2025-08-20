@@ -541,10 +541,12 @@ export class KioskViewGroupPart {
 
     public resolveDataRequest(exp: string, elementId: string) {
         // if (exp === "#(dayplan/uid_image)") debugger;
-        const i_result = this.interpreter.interpret(exp)
+        const element = this.findElement(elementId)
+        const isIdentifier = element?.element_type?.is_identifier
+        const i_result = this.interpreter.interpret(exp,undefined,undefined,isIdentifier ? "" : " ")
         try {
-            if (elementId && i_result) {
-                const element = this.findElement(elementId)
+            if (i_result) {
+
                 if (element && element["element_type"].hasOwnProperty("lookup")) {
                     const v = this._lookup(i_result, elementId, element["element_type"]["lookup"])
                     return v
