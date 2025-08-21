@@ -123,3 +123,12 @@ class TestKioskTimeZoneInstance(KioskPyTestHelper):
         kti2.user_tz_index = 27743346
         assert kti2.user_tz_iana_name == "US/Mountain"
 
+    def test_get_tz_offset(self, mock_kiosk_time_zones):
+        kti = KioskTimeZoneInstance(KioskTimeZones())
+        kti.user_tz_index = 96554373
+        assert kti.user_tz_iana_name == "Europe/Berlin"
+        assert kti.get_tz_offset(datetime.datetime.fromisoformat("20240801T00:00:00+00")) == "02:00:00"
+
+        kti.user_tz_index = 27743346
+        assert kti.user_tz_iana_name == "US/Mountain"
+        assert kti.get_tz_offset(datetime.datetime.fromisoformat("20240801T00:00:00+00")) == "-06:00:00"

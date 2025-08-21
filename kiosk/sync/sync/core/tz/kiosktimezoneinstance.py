@@ -112,3 +112,12 @@ class KioskTimeZoneInstance:
         # dt_from = utc_dt.replace(tzinfo=None)
         # return kioskdatetimelib.utc_ts_to_timezone_ts(dt_from, self.user_tz_iana_name)
 
+    def get_tz_offset(self, utc_dt: datetime.datetime=None) -> str:
+        """
+        returns the time offset of the instance's time zone in the moment of certain UTC time.
+        :param utc_dt: a utc time stamp
+        :return: a string like "02:00:00"
+        """
+        if not utc_dt:
+            utc_dt = kioskdatetimelib.get_utc_now()
+        return kioskdatetimelib.get_time_zone_offset_str(utc_dt, self.user_tz_iana_name)

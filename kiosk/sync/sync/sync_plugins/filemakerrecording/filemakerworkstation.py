@@ -31,6 +31,7 @@ from sync_config import SyncConfig
 from kiosksqldb import KioskSQLDb
 from kioskstdlib import report_progress
 from tz.kiosktimezoneinstance import KioskTimeZoneInstance
+from tz.kiosktimezones import KioskTimeZones
 from .filemakercontrol import FileMakerControl
 from contextmanagement.sqlsourcecached import CONTEXT_CACHE_NAMESPACE
 
@@ -257,7 +258,13 @@ class FileMakerWorkstation(RecordingWorkstation):
                                  "recording_groups",
                                  kioskstdlib.get_valid_filename(recording_group))
         if time_zone_index is not None:
-            group_dir = os.path.join(str(group_dir), f"ts_{time_zone_index}")
+            kti = KioskTimeZoneInstance(KioskTimeZones())
+            kti.user_tz_index = time_zone_index
+            ts_offset = kti.get_tz_offset(datetime.datetime.fromisoformat("20240801T00:00:00+00"))
+            offset_str = ts_offset.replace(":", "")
+            offset_str = offset_str.replace("+", "_")
+            offset_str = offset_str.replace("-", "")
+            group_dir = os.path.join(str(group_dir), f"ts_{offset_str}")
 
         return group_dir
 
