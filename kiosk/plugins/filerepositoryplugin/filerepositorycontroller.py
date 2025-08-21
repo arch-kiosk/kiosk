@@ -298,10 +298,7 @@ def file_repository_show():
         session["kiosk_fr_resolution"] = m_file_repository.get_thumbnail_types()[request.form["frf-resolution-select"]]
     if "frf-sorting" in request.form:
         session["kiosk_fr_sorting"] = request.form["frf-sorting"]
-    if "frf-current-page" in request.form:
-        session["kiosk_current_page"] = request.form["frf-current-page"]
-    else:
-        session["kiosk_current_page"] = 1
+    kiosk_current_page = request.form["frf-current-page"] if "frf-current-page" in request.form else 1
     filtered_site_uuid = request.cookies["site_filter"] if "site_filter" in request.cookies else "-"
     # print("site_filter", filtered_site_uuid)
     if filtered_site_uuid != "-":
@@ -358,6 +355,8 @@ def file_repository_show():
     else:
         if request.method == "GET":
             session["fr_active_filter_options"] = {}
+            session.pop("fr_files_count")
+
 
     tag_list = m_file_repository.get_tags()
     sorting_options = m_file_repository.get_sorting_options()
@@ -392,6 +391,7 @@ def file_repository_show():
 
         logging.debug(f"filerepositorycontroller.file_repository_show: Before query_image_count ")
         c = m_file_repository.query_image_count(files_table=files_table)
+        session["fr_files_count"] = c
         logging.debug(f"filerepositorycontroller.file_repository_show: After query_image_count ")
         return jsonify(result=c)
     else:
@@ -402,23 +402,33 @@ def file_repository_show():
                          (not kiosklib.is_local_server(kioskglobals.cfg) or kioskglobals.is_development_system()))
 
         if request.method == "POST" or kiosk_call_params:
+            current_page = int(kiosk_current_page)
             m_file_repository.sorting_option = session["kiosk_fr_sorting"]
             session["fr_active_filter_options"] = options
-            img_list = m_file_repository.query_images(files_table=files_table)
+            from_file = (current_page-1) * MAX_IMAGES_PER_PAGE
+
+            img_list = m_file_repository.query_images(files_table=files_table,
+                                                      from_file = from_file,
+                                                      page_size = MAX_IMAGES_PER_PAGE)
             # if len(img_list) > MAX_IMAGES_PER_PAGE:
             #     img_list = None
-            page_count, rest = divmod(len(img_list), MAX_IMAGES_PER_PAGE)
+            try:
+                fr_files_count = session["fr_files_count"]
+            except KeyError:
+                fr_files_count = m_file_repository.query_image_count(files_table=files_table)
+                session["fr_files_count"] = fr_files_count
+                fr_files_count = session["fr_files_count"]
+
+            page_count, rest = divmod(fr_files_count, MAX_IMAGES_PER_PAGE)
             logging.debug(f"filerepositorycontroller.file_repository_show: "
                           f"divmod returned {page_count},{rest}")
             page_count = page_count + 1 if rest else page_count
 
-            current_page = int(session["kiosk_current_page"])
             if current_page > page_count:
                 current_page = 1
-                session["kiosk_current_page"] = 1
 
             pages = get_pagination(current_page, page_count)
-            img_list = img_list[((current_page - 1) * MAX_IMAGES_PER_PAGE):current_page * MAX_IMAGES_PER_PAGE]
+            # img_list = img_list[((current_page - 1) * MAX_IMAGES_PER_PAGE):current_page * MAX_IMAGES_PER_PAGE]
             logging.debug(f"filerepositorycontroller.file_repository_show: "
                           f"showing images {(current_page - 1) * MAX_IMAGES_PER_PAGE}:{current_page * MAX_IMAGES_PER_PAGE}"
                           f" = {len(img_list)}")

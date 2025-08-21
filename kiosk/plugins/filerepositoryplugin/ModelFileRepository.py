@@ -609,7 +609,7 @@ class ModelFileRepository:
             cur.close()
         return None
 
-    def query_images(self, files_table: str = None):
+    def query_images(self, files_table: str = None, from_file=0, page_size=0):
         result = []
         cur = KioskSQLDb.get_dict_cursor()
         file_identifier_cache_table_name = KioskSQLDb.sql_safe_namespaced_table(CONTEXT_CACHE_NAMESPACE,
@@ -625,7 +625,7 @@ class ModelFileRepository:
         files_table = files_table if files_table else KioskSQLDb.sql_safe_namespaced_table("","images")
 
         sql_site = self._get_site_sql()
-
+        sql_limit = f" LIMIT {page_size} OFFSET {from_file}" if page_size else ""
         sql = "select " + f" distinct images.*, COALESCE(\"file_datetime\", '0001-01-01') sort_fd, " \
                           f"array_to_string(identifier_array, ', ') identifiers from {files_table} images {sql_site} " \
               f"left outer join " \
@@ -637,7 +637,7 @@ class ModelFileRepository:
               f"where {file_identifier_cache_table_name}.\"primary\" = True " \
               f"group by {file_identifier_cache_table_name}.\"data\") id_array " + \
               "on images.uid = id_array.data" + \
-              sql_where + sql_order + ";"
+              sql_where + sql_order + sql_limit + ";"
         try:
             cur.execute(sql, params)
             # print(cur.query)
