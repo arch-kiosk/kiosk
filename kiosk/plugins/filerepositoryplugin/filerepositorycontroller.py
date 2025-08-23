@@ -355,8 +355,8 @@ def file_repository_show():
     else:
         if request.method == "GET":
             session["fr_active_filter_options"] = {}
-            session.pop("fr_files_count")
-
+            if "fr_files_count" in session:
+                session.pop("fr_files_count")
 
     tag_list = m_file_repository.get_tags()
     sorting_options = m_file_repository.get_sorting_options()
@@ -395,7 +395,6 @@ def file_repository_show():
         logging.debug(f"filerepositorycontroller.file_repository_show: After query_image_count ")
         return jsonify(result=c)
     else:
-
         img_list = None
         authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
         allow_archive = (("archive files" in authorized_to) and
