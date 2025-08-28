@@ -6,3 +6,4 @@ node_modules/
 /src/*.css
 /src/*.css.map
 **/*.css
+**/_constants.sass
