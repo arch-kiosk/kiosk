@@ -13,30 +13,45 @@ export default defineConfig(({ command, mode }) => {
                 },
 
             }),
+            copy({
+                targets: [
+                    {
+                        src: '../../../static/styles/_constants.sass',
+                        dest: 'src/styles/'
+                    }
+                ],
+                hook: 'buildStart'
+            })
         ],
         esbuild:
             command == "build"
                 ? {
                       // No console.logs in the distribution
-                      // drop: ["console", "debugger"],
+                      drop: ["console", "debugger"],
                   }
                 : {},
+        resolve: {
+            alias: {
+                // Add alias to resolve the deep static paths
+                "@static": "../../../static",
+                "@styles": "../../../static/styles"
+            }
+        },
         build: {
             // commonjsOptions: {
             //   dynamicRequireTargets: "node_modules/"
             // },
-            watch: {
-                exclude: ['node_modules/**', "/__uno.css"]
-            },
             outDir: "../static/app",
+            emptyOutDir: true,
+            minify: true,
             lib: {
                 entry: "src/app.ts",
                 formats: ["es"],
             },
-            // rollupOptions: {
-            //
-            //   external: /^lit/,
-            // },
+            rollupOptions: {
+                // "external": (id) => id.match(/kioskuicomponents/gmi)
+                "external": ["@arch-kiosk/kioskuicomponents"]
+            },
         },
         server: {
             hmr: false,

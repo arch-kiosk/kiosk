@@ -1,5 +1,4 @@
-//@ts-ignore
-import {FetchException} from "../../../../../static/scripts/kioskapputils.js"
+import { FetchException } from "../../kioskapplib/kioskapi";
 //@ts-ignore
 import {MessageData, MSG_NETWORK_ERROR, MSG_LOGGED_OUT, sendMessage} from "./appmessaging"
 import {LitElement} from "lit-element";

@@ -16,8 +16,7 @@ import {
     UISchemaLookupProvider,
     UISchemaLookupSettings,
     UISchemaUIElement,
-// @ts-ignore
-} from "ui-component";
+} from "@arch-kiosk/uicomponent";
 import "@vaadin/grid";
 import "@vaadin/grid/vaadin-grid-column-group.js";
 import "@vaadin/grid/vaadin-grid-filter-column.js";
@@ -84,7 +83,7 @@ export class StructuredKioskQuery extends KioskAppComponent {
     public queryDefinition: KioskQueryInstance;
 
     @state()
-    uiSchema: UISchema;
+    uiSchema: UISchema | {};
 
     @state()
     _inputData: AnyDict;
@@ -326,7 +325,7 @@ export class StructuredKioskQuery extends KioskAppComponent {
     };
 
     getQueryUiSchema(elements: Dictionary<UISchemaUIElement>) {
-        if (!elements || elements.length == 0) {
+        if (!elements || Object.keys(elements).length == 0) {
             this.uiSchema = {}
             return
         }
@@ -352,6 +351,7 @@ export class StructuredKioskQuery extends KioskAppComponent {
                 },
                 "query_ui_controls": {
                     "element_type": <UISchemaLayoutElement>{
+                        "enabled": true,
                         "name": "layout",
                         "layout_settings": {
                             "orchestration_strategy": "stack",
@@ -471,14 +471,16 @@ export class StructuredKioskQuery extends KioskAppComponent {
     }
 
     private getColumnInputDefault(dsdName: string): [boolean, any] {
-        const colInfo : Array<string> = (<AnyDict>this.uiSchema.dsd)[dsdName];
-        const input_default = colInfo.find((instruction) => instruction.startsWith("input_default") )
-        if (input_default) {
-            const parser = new SimpleFunctionParser()
-            if (parser.parse(input_default)) {
-                return [true, parser.parameters[0] === "null" ? null : parser.parameters[0] ]
-            }
-        } else return [false, null]
+        if (this.uiSchema && "dsd" in this.uiSchema) {
+            const colInfo: Array<string> = (this.uiSchema.dsd as AnyDict)[dsdName];
+            const input_default = colInfo.find((instruction) => instruction.startsWith("input_default"))
+            if (input_default) {
+                const parser = new SimpleFunctionParser()
+                if (parser.parse(input_default)) {
+                    return [true, parser.parameters[0] === "null" ? null : parser.parameters[0]]
+                }
+            } else return [false, null]
+        }
     }
 
     private gotoIdentifier(event: MouseEvent) {

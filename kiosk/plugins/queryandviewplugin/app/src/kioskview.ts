@@ -1,7 +1,7 @@
 // @ts-ignore
 import local_css from './styles/component-kioskview.sass?inline'
 // @ts-ignore
-import 'ui-component'
+import '@arch-kiosk/uicomponent'
 import { KioskViewDetails } from "./apptypes";
 import { customElement, state } from "lit/decorators.js";
 import { KioskAppComponent } from "../kioskapplib/kioskappcomponent";
@@ -15,9 +15,8 @@ import { property } from "lit/decorators.js";
 import {
     UISchema,
     ApiTimeZoneInfo,
-    UIComponent,
-// @ts-ignore
-} from "ui-component"
+    UIComponent, UISchemaDSDDict,
+} from "@arch-kiosk/uicomponent";
 import { FetchException } from "../kioskapplib/kioskapi";
 import { handleCommonFetchErrors } from "./lib/applib";
 
@@ -30,7 +29,7 @@ import { KioskViewGroupPart } from "./lib/kioskviewgrouppart";
 // import { SymbolicDataReferenceInterpreter } from "../kioskapplib/symbolicdatareferenceinterpreter";
 // import { Template } from "ejs";
 import { ImageDescriptionAccessor } from "./lib/imagedescriptionsaccessor";
-import { KioskTimeZones } from "../../../../../../../kiosktsapplib";
+import { KioskTimeZones } from "@arch-kiosk/kiosktsapplib";
 
 // @ts-ignore
 const DEVELOPMENT = (import.meta as unknown).env.VITE_MODE === 'DEVELOPMENT'
@@ -338,7 +337,8 @@ export class KioskView  extends KioskAppComponent {
         const layout = part.layout
         return {
             header: { version: 1 },
-            dsd: this.viewDocument.getDSD(),
+            // todo: That is not okay
+            dsd: this.viewDocument.getDSD() as unknown as UISchemaDSDDict,
             layout_settings: {...layout.layout_settings, "readonly": true},
             meta: {
                 scenario: "view"
@@ -483,7 +483,8 @@ export class KioskView  extends KioskAppComponent {
                                 if (this.timeZoneInfo) {
                                     let rc = this.timeZoneInfo.getTimeZoneInfoFromLocalCache(tzIndex)
                                     console.log(`access to time zone ${tzIndex}: ${rc}`)
-                                    return rc
+                                    //Todo: These apis should be synced one day
+                                    return {...rc, tz_index: tzIndex, deprecated: (rc.deprecated !== 0)}
                                 }
                                 else {
                                     console.error("access to TimeZoneInfo but time zones was not ready")
@@ -498,6 +499,7 @@ export class KioskView  extends KioskAppComponent {
                                 part.orderRecords()
                             }
                             //todo: Need to use the proper type UIComponentFileFetchParams from uicomponent  here
+                            // @ts-ignore
                             ui.fetchFileProvider = (params: any) => {
                                 console.log("FetchFileProvider",params)
                                 this.fetchFileFromApi(params.uuid, params.resolution)

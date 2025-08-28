@@ -141,10 +141,10 @@
                     opt.addEventListener("change", updateDialog)
                 }
 
-                {#let recording_options = document.getElementsByName("mtz-recording-tz-mode")#}
-                {#for (const opt of recording_options) {#}
-                {#    opt.addEventListener("change", updateDialog)#}
-                {#}#}
+                /* let recording_options = document.getElementsByName("mtz-recording-tz-mode")
+                for (const opt of recording_options) {
+                    opt.addEventListener("change", updateDialog)
+                } */
 
                 kioskShowFooter(true);
                 bindReturnKeyToButtons("time-zone-dialog", "bt-ok", ["bt-cancel"]);
@@ -159,7 +159,6 @@
                     $.magnificPopup.close();
                 });
                 kioskActivateButton($("#bt-ok"), saveDialog);
-
 
             }
 

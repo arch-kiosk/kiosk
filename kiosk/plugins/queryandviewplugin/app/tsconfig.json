@@ -5,16 +5,17 @@
     "noImplicitAny": true,
     "module": "es2020",
     "target": "es2020",
-//    "jsx": "react",
     "allowJs": true,
-    "moduleResolution": "bundler",
+    "noEmit": true,
+    "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
-//    "allowImportingTsExtensions": true,
-    "allowSyntheticDefaultImports": true
+    "moduleResolution": "bundler",
+    "skipLibCheck": true,
+    //    "allowImportingTsExtensions": true,
 //    "typeRoots": [
 //      "./node_modules/@types",
 //      "./types/common"
 //    ]
   },
-  "exclude": ["node_modules", "old", "./dist/**/*"]
+  "exclude": ["./node_modules/**/*", "old", "./dist/**/*"]
 }

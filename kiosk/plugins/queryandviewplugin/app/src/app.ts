@@ -24,7 +24,7 @@ import { KioskView } from "./kioskview";
 import { deleteCookie, fowlerNollVo1aHashModern, getCookie, handleCommonFetchErrors } from "./lib/applib";
 import { FetchException } from "../kioskapplib/kioskapi";
 import { identifierInfoContext } from "./identifierinfocontext";
-import { KioskTimeZones } from "../../../../../../../kiosktsapplib";
+import { KioskTimeZones } from "@arch-kiosk/kiosktsapplib";
 import { timeZoneInfoContext } from "./timezoneinfocontext";
 import { KioskQuerySelector } from "./kioskqueryselector";
 
