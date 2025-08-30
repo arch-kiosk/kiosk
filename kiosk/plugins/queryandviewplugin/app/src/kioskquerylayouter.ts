@@ -1,7 +1,7 @@
 // @ts-ignore
 import local_css from './styles/component-kioskquerylayouter.sass?inline'
 
-import { KioskAppComponent } from "../kioskapplib/kioskappcomponent";
+import { KioskAppComponent } from "@arch-kiosk/kiosktsapplib"
 import { html, nothing, PropertyValues, TemplateResult, unsafeCSS } from "lit";
 import { property, state, customElement } from "lit/decorators.js";
 

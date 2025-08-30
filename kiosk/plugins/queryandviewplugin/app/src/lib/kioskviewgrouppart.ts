@@ -8,12 +8,12 @@ import {
     ApiKioskViewLayout, ApiKioskViewListLayout, ApiKioskViewTable,
 } from "./apitypes";
 import { DataContext } from "./datacontext";
-import { InterpreterManager } from "../../kioskapplib/interpretermanager";
+import { InterpreterManager } from "@arch-kiosk/kiosktsapplib"
 import { InterpreterFactory } from "./interpreterfactory";
 import { DSDRecordAccessor } from "./dsdrecordaccessor";
 import { KioskViewDocument } from "./kioskviewdocument";
 import { compareISODateTime, safeLocaleCompare } from "./applib";
-import { DataSetDefinition } from "../../kioskapplib/datasetdefinition";
+import { DataSetDefinition } from "@arch-kiosk/kiosktsapplib"
 import { KioskView } from "../kioskview";
 
 type FieldOrderComparer = (v1: any,v2: any) => number

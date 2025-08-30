@@ -4,7 +4,7 @@
 
 import local_css from "./styles/component-structuredkioskquery.sass?inline";
 import { DateTime } from "luxon";
-import { KioskAppComponent } from "../kioskapplib/kioskappcomponent";
+import { KioskAppComponent } from "@arch-kiosk/kiosktsapplib";
 import { css, html, nothing, TemplateResult, unsafeCSS } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { AnyDict, ApiResultKioskQuery, Constant, KioskQueryInstance } from "./lib/apitypes";
@@ -37,13 +37,13 @@ import { getLatinDate, handleCommonFetchErrors, handleErrorInApp } from "./lib/a
 import { Grid, GridDataProviderCallback, GridDataProviderParams, GridSorterDefinition } from "@vaadin/grid";
 
 import { columnBodyRenderer, columnHeaderRenderer, GridColumnBodyLitRenderer } from "@vaadin/grid/lit";
-import { FetchException } from "../kioskapplib/kioskapi";
+import { FetchException } from "@arch-kiosk/kiosktsapplib";
 import { consume } from "@lit/context";
 import { constantsContext } from "./constantscontext";
 import { DictionaryAccessor } from "./lib/dictionaryAccessor";
 import { DataContext } from "./lib/datacontext";
 import { InterpreterFactory } from "./lib/interpreterfactory";
-import { InterpreterManager } from "../kioskapplib/interpretermanager";
+import { InterpreterManager } from "@arch-kiosk/kiosktsapplib";
 import { SheetExport } from "./exporter";
 // import { BarChart, PieChart } from "@toast-ui/chart";
 import {
@@ -55,8 +55,8 @@ import {
     RESULT_VIEW_TYPE_PIECHART,
 } from "./structuredkioskquerycharts";
 import { MSG_ERROR } from "./lib/appmessaging";
-import { DataSetDefinition } from "../kioskapplib/datasetdefinition";
-import SimpleFunctionParser from "../kioskapplib/simplefunctionparser";
+import { DataSetDefinition } from "@arch-kiosk/kiosktsapplib";
+import { SimpleFunctionParser } from "@arch-kiosk/kiosktsapplib"
 
 const RESULT_VIEW_TYPE_DATA = 1;
 type ResultViewType = typeof RESULT_VIEW_TYPE_DATA | typeof RESULT_VIEW_TYPE_PIECHART | typeof RESULT_VIEW_TYPE_BARCHART

@@ -1,4 +1,4 @@
-import { KioskApp } from "../kioskapplib/kioskapp";
+import { KioskApp } from "@arch-kiosk/kiosktsapplib";
 import { nothing, unsafeCSS } from "lit";
 import { html, literal } from "lit/static-html.js";
 import {provide} from '@lit/context'
@@ -22,7 +22,7 @@ import "./kioskquerylayouter.ts";
 import { KioskQueryLayouter } from "./kioskquerylayouter";
 import { KioskView } from "./kioskview";
 import { deleteCookie, fowlerNollVo1aHashModern, getCookie, handleCommonFetchErrors } from "./lib/applib";
-import { FetchException } from "../kioskapplib/kioskapi";
+import { FetchException } from "@arch-kiosk/kiosktsapplib"
 import { identifierInfoContext } from "./identifierinfocontext";
 import { KioskTimeZones } from "@arch-kiosk/kiosktsapplib";
 import { timeZoneInfoContext } from "./timezoneinfocontext";

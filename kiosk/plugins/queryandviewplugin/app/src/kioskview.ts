@@ -4,7 +4,7 @@ import local_css from './styles/component-kioskview.sass?inline'
 import '@arch-kiosk/uicomponent'
 import { KioskViewDetails } from "./apptypes";
 import { customElement, state } from "lit/decorators.js";
-import { KioskAppComponent } from "../kioskapplib/kioskappcomponent";
+import { KioskAppComponent } from "@arch-kiosk/kiosktsapplib"
 import { css, html, nothing, TemplateResult, unsafeCSS } from "lit";
 import {constantsContext} from "./constantscontext";
 import {timeZoneInfoContext} from "./timezoneinfocontext";
@@ -17,7 +17,7 @@ import {
     ApiTimeZoneInfo,
     UIComponent, UISchemaDSDDict,
 } from "@arch-kiosk/uicomponent";
-import { FetchException } from "../kioskapplib/kioskapi";
+import { FetchException } from "@arch-kiosk/kiosktsapplib"
 import { handleCommonFetchErrors } from "./lib/applib";
 
 import { KioskViewDocument } from "./lib/kioskviewdocument";

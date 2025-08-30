@@ -1,4 +1,4 @@
-import { DataSetDefinition } from "../../kioskapplib/datasetdefinition";
+import { DataSetDefinition } from "@arch-kiosk/kiosktsapplib"
 import { DataContextAccessor } from "./datacontextaccessor";
 
 export class DataContext {

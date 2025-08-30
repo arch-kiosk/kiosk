@@ -1,9 +1,13 @@
-import { DevKioskApi } from "./kioskapplib/devkioskapi";
-import { KioskApp } from "./kioskapplib/kioskapp";
+import { DevKioskApi } from "@arch-kiosk/kiosktsapplib"
+import { KioskApp } from "@arch-kiosk/kiosktsapplib"
 
 window.addEventListener("load", () => {
     console.log("let's start...");
-    let api = new DevKioskApi();
+    let api = new DevKioskApi(
+        undefined,
+        import.meta.env.VITE_DEV_API_URL,
+        import.meta.env.VITE_DEV_API_USER,
+        import.meta.env.VITE_DEV_API_PWD);
     registerDevRoutes(api)
     api.initApi()
         .catch((e) => {
@@ -12,6 +16,7 @@ window.addEventListener("load", () => {
         .finally(() => {
             let app: KioskApp = document.querySelector("#kiosk-app");
             if (app !== undefined) {
+                app.kioskBaseUrl = import.meta.env.VITE_KIOSK_BASE_URL
                 app.apiContext = api;
                 console.log(app.apiContext);
             } else {

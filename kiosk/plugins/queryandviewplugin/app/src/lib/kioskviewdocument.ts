@@ -9,7 +9,7 @@ import {
 } from "./apitypes";
 import { KioskViewGroupPart } from "./kioskviewgrouppart";
 import { DataContext } from "./datacontext";
-import { DataSetDefinition } from "../../kioskapplib/datasetdefinition";
+import { DataSetDefinition } from "@arch-kiosk/kiosktsapplib"
 
 
 export class KioskViewDocument {

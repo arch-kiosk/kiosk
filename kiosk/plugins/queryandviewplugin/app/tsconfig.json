@@ -11,6 +11,7 @@
     "experimentalDecorators": true,
     "moduleResolution": "bundler",
     "skipLibCheck": true,
+    "types": ["vite/client"],
     //    "allowImportingTsExtensions": true,
 //    "typeRoots": [
 //      "./node_modules/@types",

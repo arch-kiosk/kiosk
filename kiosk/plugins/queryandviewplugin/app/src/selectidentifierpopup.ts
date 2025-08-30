@@ -3,10 +3,10 @@ import local_css from "./styles/component-selectidentifier.sass?inline";
 import { html, nothing, PropertyValues, TemplateResult, unsafeCSS } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { ApiResultKioskQueryDescription, ApiResultContextsFullIdentifierInformation, AnyDict } from "./lib/apitypes";
-import { KioskAppComponent } from "../kioskapplib/kioskappcomponent";
+import { KioskAppComponent } from "@arch-kiosk/kiosktsapplib"
 import { consume } from "@lit/context";
 import { DataContext } from "./lib/datacontext";
-import { InterpreterManager } from "../kioskapplib/interpretermanager";
+import { InterpreterManager } from "@arch-kiosk/kiosktsapplib"
 import { identifierInfoContext } from "./identifierinfocontext";
 
 @customElement("select-identifier-popup")

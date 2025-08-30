@@ -58,7 +58,7 @@ export default defineConfig(({ command, mode }) => {
             fs: {
                 strict: true,
                 host: true,
-                allow: [searchForWorkspaceRoot(process.cwd()), "../../../static/scripts/kioskapplib"],
+                // allow: [searchForWorkspaceRoot(process.cwd()), "../../../static/scripts/kioskapplib"],
             },
         },
         publicDir: "/static",

@@ -1,4 +1,4 @@
-import { FetchException } from "../../kioskapplib/kioskapi";
+import { FetchException } from "@arch-kiosk/kiosktsapplib"
 //@ts-ignore
 import {MessageData, MSG_NETWORK_ERROR, MSG_LOGGED_OUT, sendMessage} from "./appmessaging"
 import {LitElement} from "lit-element";

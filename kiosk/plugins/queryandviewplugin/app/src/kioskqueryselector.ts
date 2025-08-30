@@ -4,8 +4,8 @@ import { html, nothing, TemplateResult, unsafeCSS } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { handleCommonFetchErrors, handleErrorInApp } from "./lib/applib";
 import { Constant, ApiResultKioskQueryDescription } from "./lib/apitypes";
-import { FetchException } from "../kioskapplib/kioskapi";
-import { KioskAppComponent } from "../kioskapplib/kioskappcomponent";
+import { FetchException } from "@arch-kiosk/kiosktsapplib"
+import { KioskAppComponent } from "@arch-kiosk/kiosktsapplib"
 import { KioskQueryFactory } from "./kioskqueryfactory";
 import { QUERY_UI_SCENARIO } from "./apptypes";
 import { consume } from "@lit/context";
@@ -13,7 +13,7 @@ import { constantsContext } from "./constantscontext";
 import { DataContext } from "./lib/datacontext";
 import { DictionaryAccessor } from "./lib/dictionaryAccessor";
 import { InterpreterFactory } from "./lib/interpreterfactory";
-import { InterpreterManager } from "../kioskapplib/interpretermanager";
+import { InterpreterManager } from "@arch-kiosk/kiosktsapplib"
 import { MSG_ERROR } from "./lib/appmessaging";
 
 @customElement("kiosk-query-selector")

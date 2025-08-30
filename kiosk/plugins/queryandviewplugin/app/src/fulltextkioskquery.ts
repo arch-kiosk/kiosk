@@ -1,7 +1,7 @@
 
 // @ts-ignore
 import local_css from './styles/component-fulltextkioskquery.sass?inline'
-import { KioskAppComponent } from "../kioskapplib/kioskappcomponent";
+import { KioskAppComponent } from "@arch-kiosk/kiosktsapplib"
 import { html, nothing, TemplateResult, unsafeCSS } from "lit";
 import {unsafeHTML} from 'lit/directives/unsafe-html.js';
 import { consume } from "@lit/context";
@@ -12,11 +12,11 @@ import { DictionaryAccessor } from "./lib/dictionaryAccessor";
 import { InterpreterFactory } from "./lib/interpreterfactory";
 import { GridSorterDefinition } from "@vaadin/grid";
 import { handleCommonFetchErrors, handleErrorInApp } from "./lib/applib";
-import { FetchException } from "../kioskapplib/kioskapi";
+import { FetchException } from "@arch-kiosk/kiosktsapplib"
 import { APIResultFTS, ApiResultKioskFTSHit } from "./apptypes";
 import { MSG_ERROR, MSG_SEVERITY_ERROR } from "./lib/appmessaging";
 import { DataContext } from "./lib/datacontext";
-import { InterpreterManager } from "../kioskapplib/interpretermanager";
+import { InterpreterManager } from "@arch-kiosk/kiosktsapplib"
 
 @customElement('full-text-kiosk-query')
 export class FullTextKioskQuery extends KioskAppComponent {
