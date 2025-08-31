@@ -681,11 +681,11 @@ class DataSetDefinition:
             except:
                 pass
 
-    def get_field_instructions(self, table, fieldname, _version=0, patterns: List[str] = None) -> dict:
+    def get_field_instructions(self, table, fieldname, version=0, patterns: List[str] = None) -> dict:
         """ returns a dictionary with all the instructions and their parameters for a field
         :param table: the table
         :param fieldname: the field
-        :param _version: the version. 0 for the most recent version.
+        :param version: the version. 0 for the most recent version.
         :param patterns: optional. Only instructions that start with one of the patterns are returned
         :return: a dictionary with the instructions as key and a list of parameters as values.
                  The instruction (the key) is lowercase
@@ -694,18 +694,18 @@ class DataSetDefinition:
         :todo test
         """
         if not patterns:
-            version = self.get_current_version(table) if not _version else _version
-            ins = self._get_field_instructions_from_cache(table, fieldname, version)
+            _version = self.get_current_version(table) if not version else version
+            ins = self._get_field_instructions_from_cache(table, fieldname, _version)
             if ins:
                 return ins
 
         result = {}
         parser = SimpleFunctionParser()
-        version = _version if _version else self.get_current_version(table)
-        if self.is_table_dropped(table, version):
-            raise DSDTableDropped(f"{table}, version {version} dropped.")
+        _version = version if version else self.get_current_version(table)
+        if self.is_table_dropped(table, _version):
+            raise DSDTableDropped(f"{table}, version {_version} dropped.")
 
-        for instruction in self._dsd_data.get([table, KEY_TABLE_STRUCTURE, version, fieldname]):
+        for instruction in self._dsd_data.get([table, KEY_TABLE_STRUCTURE, _version, fieldname]):
             if not patterns or kioskstdlib.str_starts_with_element(instruction, patterns):
                 parser.parse(instruction)
                 if parser.ok:
@@ -713,8 +713,8 @@ class DataSetDefinition:
                 else:
                     raise DSDInstructionSyntaxError(instruction)
 
-        if _version == 0 and not patterns:
-            self._set_field_instructions_in_cache(table, fieldname, result, version)
+        if version == 0 and not patterns:
+            self._set_field_instructions_in_cache(table, fieldname, result, _version)
         return result
 
     def get_fields_with_instructions(self, table, required_instructions: List = None, version=0) -> dict:
