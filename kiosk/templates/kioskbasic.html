@@ -21,9 +21,9 @@
     {% endblock %}
     <script src="{{ url_for('static', filename='scripts/thirdparty/jquery-3.7.1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='scripts/urap_lib.js') }}"></script>
+    <script src="{{ url_for('static', filename='scripts/kioskjslib.exports.js') }}" type="module"></script>
     <script src="{{ url_for('static', filename='scripts/kioskapiutils.js') }}" type="module"></script>
     <script src="{{ url_for('static', filename='scripts/kioskuicomponents.js') }}" type="module"></script>
-    <script src="{{ url_for('static', filename='scripts/kioskjslib.exports.js') }}" type="module"></script>
     <script>
         //this is a Polymer hack to address "DOMException: Failed to execute 'define' on 'CustomElementRegistry'" "
         //It makes sure that the custom element 'dom-module' does not get registered again.
