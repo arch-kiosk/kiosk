@@ -260,7 +260,7 @@ class FileMakerWorkstation(RecordingWorkstation):
         if time_zone_index is not None:
             kti = KioskTimeZoneInstance(KioskTimeZones())
             kti.user_tz_index = time_zone_index
-            ts_offset = kti.get_tz_offset(datetime.datetime.fromisoformat("20240801T00:00:00+00"))
+            ts_offset = kti.get_tz_offset(datetime.datetime.fromisoformat("2024-08-01T00:00:00"))
             offset_str = ts_offset.replace(":", "")
             offset_str = offset_str.replace("+", "_")
             offset_str = offset_str.replace("-", "")
