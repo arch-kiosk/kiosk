@@ -262,8 +262,9 @@ class FileMakerWorkstation(RecordingWorkstation):
             kti.user_tz_index = time_zone_index
             ts_offset = kti.get_tz_offset(datetime.datetime.fromisoformat("2024-08-01T00:00:00"))
             offset_str = ts_offset.replace(":", "")
-            offset_str = offset_str.replace("+", "_")
-            offset_str = offset_str.replace("-", "")
+            offset_str = offset_str.replace("+", "")
+            offset_str = offset_str.replace("-", "_")
+            logging.debug(f"{cls.__name__}.get_recording_group_path: ts_offset {ts_offset} translates to {offset_str}.")
             group_dir = os.path.join(str(group_dir), f"ts_{offset_str}")
 
         return group_dir
@@ -292,10 +293,10 @@ class FileMakerWorkstation(RecordingWorkstation):
             master_template_filename = kioskstdlib.get_filename(template_file)
 
             # todo: time zone
-            # different time zones might need to call for different templates
             group_dir = cls.get_recording_group_path(kioskstdlib.get_file_path(template_file),
                                                      recording_group,
                                                      time_zone_index)
+            logging.info(f"{cls.__name__}.get_template_filepath_and_name: Using recording group dir {group_dir}.")
             template_path_and_filename = os.path.join(str(group_dir), master_template_filename)
             if path.isfile(template_path_and_filename):
                 return template_path_and_filename
