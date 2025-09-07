@@ -244,7 +244,7 @@ class FileMakerWorkstation(RecordingWorkstation):
 
     @classmethod
     def get_recording_group_path(cls, fm_path, recording_group, time_zone_index=None):
-        """
+        r"""
         returns the path to a template file (without the template file itself)
         Will be something like kiosk\sync\sync\filemaker\recording_groups\default\ts_4123232.
 

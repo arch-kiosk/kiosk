@@ -170,7 +170,7 @@ class FileImportFilter:
         self._plugin_loader = plugin_loader
 
     def set_base_path(self, pathname):
-        """
+        r"""
         This sets the root path of a file import.
         E.g. if a recursive file import starts in c:\import, that's what would be set here.
         Needed so that filters that are concerned with the path can ignore that part.

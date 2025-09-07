@@ -261,7 +261,7 @@ class ReportingMapper:
                     result["instruction"] = parser.instruction.lower()
                     result["params"] = copy.deepcopy(parser.parameters)
                 else:
-                    if not re.match("^.*\(.*\)$", g):
+                    if not re.match(r"^.*\(.*\)$", g):
                         result["instruction"] = g.strip()
                         result["params"] = []
                     else:
