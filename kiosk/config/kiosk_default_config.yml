@@ -377,7 +377,7 @@ kiosk:
       "import files": [ "+filerepositoryplugin" ]
 
   bugsandfeaturesplugin:
-    active: true
+    active: false
     is_main_index: false
     menu:
       "import files": [ "-bugsandfeaturesplugin" ]
