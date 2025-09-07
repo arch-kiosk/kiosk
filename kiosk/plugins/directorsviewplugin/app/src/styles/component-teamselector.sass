@@ -1,0 +1,38 @@
+@use "constants" as *
+@use "icons" as *
+@use "reset" as *
+
+\:host
+  display: block
+  //padding-right: 1em
+
+div, p
+  font-family: $standard-text
+  user-select: none
+
+.team-selector
+  width: 100%
+  background-color: $col-bg-2
+  color: $col-primary-bg-2
+  display: flex
+  flex-direction: row
+  align-items: center
+  justify-content: center
+  flex-wrap: wrap
+  cursor: pointer
+  border-bottom: 2px solid $col-bg-1-darker
+
+.selected-member
+  background: $col-bg-ack
+  color: $col-accent-bg-ack
+  font-weight: bold
+  font-size: 1.2em
+  cursor: default
+
+.team-member
+  padding: .2em .5em .2em .5em
+  &:hover
+    background-color: rgba(255,255,255,.5)
+  &:active
+    background-color: $col-bg-ack
+

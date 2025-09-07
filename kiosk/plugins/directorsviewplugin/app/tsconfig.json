@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "sourceMap": true,
+    "outDir": "/dist/",
+    "noImplicitAny": true,
+    "module": "es2020",
+    "target": "es2020",
+    "allowJs": true,
+    "noEmit": true,
+    "allowSyntheticDefaultImports": true,
+    "allowImportingTsExtensions": false,
+    "experimentalDecorators": true,
+    "moduleResolution": "bundler",
+    "skipLibCheck": true,
+    "types": ["vite/client"],
+    //    "jsx": "react",
+//    "typeRoots": [
+//      "./node_modules/@types",
+//      "./types/common"
+//    ]
+  },
+  "exclude": ["./node_modules/**/*", "old", "./dist/**/*"]
+}
