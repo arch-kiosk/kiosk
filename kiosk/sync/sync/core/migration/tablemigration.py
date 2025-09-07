@@ -39,13 +39,19 @@ class _TableMigration:
             :returns: True if okay, otherwise exceptions will be thrown
         """
 
-        if self.to_version > self.from_version:
-            self.migration_instructions = self.migration.dsd.get_migration_instructions(self.dsd_table,
-                                                                                        version=self.to_version)
-        else:
-            self.migration_instructions = self.migration.dsd.get_migration_instructions(self.dsd_table,
-                                                                                        version=self.from_version,
-                                                                                        upgrade=False)
+        try:
+            if self.to_version > self.from_version:
+                self.migration_instructions = self.migration.dsd.get_migration_instructions(self.dsd_table,
+                                                                                            version=self.to_version)
+            else:
+                self.migration_instructions = self.migration.dsd.get_migration_instructions(self.dsd_table,
+                                                                                            version=self.from_version,
+                                                                                            upgrade=False)
+        except KeyError as e:
+            if "migration" in repr(e):
+                raise KeyError(f"When migrating table '{self.db_table}' from {self.from_version} to {self.to_version} "
+                               f"no migration instructions where found.")
+            raise e
 
         self.migration_sqls = []
         self.pre_migration_sqls = []
