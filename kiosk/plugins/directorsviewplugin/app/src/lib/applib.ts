@@ -1,6 +1,24 @@
 import {FetchException} from "@arch-kiosk/kiosktsapplib"
 import {MessageData, MSG_LOGGED_OUT, MSG_NETWORK_ERROR, sendMessage} from "./appmessaging"
 import {LitElement} from "lit-element";
+import { State } from "../store/reducer";
+import { StoreWidgetSelector } from "../store/actions";
+
+export const AVAILABLE_WIDGETS = [
+    "unit-info-widget",
+    "narrative-widget",
+    "file-widget",
+    "locus-widget",
+    "cm-widget",
+    "feature-widget"
+]
+
+export type WidgetDescriptor = {
+    id: string
+    displayName: string
+    active: boolean
+    order: number
+}
 
 export class Constant {
     path: string
@@ -144,4 +162,27 @@ export function handleCommonFetchErrors(handlerInstance: LitElement,
             The server might be down or perhaps you are not logged in properly.`)
         return
     }
+}
+
+export function getAllWidgets(state: State, record_type_names: { [p: string]: string }): Array<WidgetDescriptor> {
+    const allWidgets: Array<WidgetDescriptor> = []
+    AVAILABLE_WIDGETS.forEach(w => {
+        let wd: WidgetDescriptor = {id: w, displayName: "", active: true, order: -1 }
+        switch(w) {
+            case "unit-info-widget": wd.displayName = `${record_type_names["unit"]} information`;wd.order=1; break;
+            case "narrative-widget": wd.displayName = `${record_type_names["unit"]} narratives`;wd.order=2; break;
+            case "file-widget": wd.displayName = `images and files`;wd.order=3;break;
+            case "locus-widget": wd.displayName = `${getStandardTerm(state.constants,
+                "standard_term_for_loci", true, "loci")}`;wd.order=4; break;
+            case "cm-widget": wd.displayName = `${getStandardTerm(state.constants,
+                "standard_term_for_cm", true, "collected materials")}`;wd.order=5; break;
+            case "feature-widget": wd.displayName = `${getStandardTerm(state.constants,
+                "standard_term_for_feature_unit", true, "features")}`;wd.order=6 ;break;
+        }
+        if (wd.order !== -1) {
+            allWidgets.push(wd)
+        }
+    })
+    allWidgets.sort((w1,w2) => w1.order - w2.order)
+    return allWidgets
 }

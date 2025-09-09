@@ -1,16 +1,13 @@
 import { html, LitElement, unsafeCSS } from "lit";
 import {customElement} from 'lit/decorators.js'
-// @ts-ignore
 import local_css from "./styles/component-selectionframe.sass?inline";
 import "./dateselector.ts"
 import "./contextselector.ts"
 import "./teamselector.ts"
-// @ts-ignore
-import {State} from "./store/reducer.ts";
-// @ts-ignore
-import {store} from "./store/store.ts";
-// @ts-ignore
-import { KioskStoreAppComponent } from "../kioskapplib/kioskStoreAppComponent.ts";
+import "./widgetselector"
+import {State} from "./store/reducer";
+import {store} from "./store/store";
+import { KioskStoreAppComponent } from "../kioskapplib/kioskStoreAppComponent";
 
 @customElement('selection-frame')
 class SelectionFrame extends KioskStoreAppComponent {
@@ -35,6 +32,7 @@ class SelectionFrame extends KioskStoreAppComponent {
 
     protected renderSelectors() {
         return html`
+            <widget-selector .apiContext="${this.apiContext}"></widget-selector>
             <date-selector .apiContext="${this.apiContext}"></date-selector>
             <context-selector .apiContext="${this.apiContext}"></context-selector>
             <team-selector .apiContext="${this.apiContext}"></team-selector>

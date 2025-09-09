@@ -1,20 +1,12 @@
-// @ts-ignore
+import '@vaadin/vaadin-date-picker'
 import { html, LitElement, unsafeCSS } from "lit";
 import {customElement} from 'lit/decorators.js'
-
-// @ts-ignore
 import local_css from './styles/component-dateselector.sass?inline';
 import {State} from "./store/reducer";
-// @ts-ignore
-import {store} from './store/store.ts';
-// @ts-ignore
-import {setSelector, StoreDateSelector} from './store/actions.ts';
-import {connect} from "pwa-helpers/connect-mixin";
-import '@vaadin/vaadin-date-picker'
-// @ts-ignore
-import {getSqlDate, fromSqlDate} from "./lib/applib.ts";
-// @ts-ignore
-import { KioskStoreAppComponent } from "../kioskapplib/kioskStoreAppComponent.ts";
+import {store} from './store/store';
+import {setSelector, StoreDateSelector} from './store/actions';
+import {getSqlDate, fromSqlDate} from "./lib/applib";
+import { KioskStoreAppComponent } from "../kioskapplib/kioskStoreAppComponent";
 
 
 @customElement('date-selector')

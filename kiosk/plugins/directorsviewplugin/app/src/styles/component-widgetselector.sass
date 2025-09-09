@@ -1,0 +1,45 @@
+@use "constants" as c
+@use "reset" as *
+@use "icons" as *
+
+\:host
+  display: block
+  //padding-right: 1em
+
+div, p
+  font-family: c.$standard-text
+  user-select: none
+
+.widget-selector-button
+  width: 2rem
+  height: 2rem
+  position: absolute
+  margin-top: 1em
+  margin-left: 1em
+
+.widget-selector-button-closed
+  background-color: c.$col-bg-2-button
+  color: c.$col-primary-bg-btn
+  &:hover, &:focus
+    background-color: c.$col-bg-2-button
+    color: c.$col-accent-bg-btn
+    border: solid 2px c.$col-accent-bg-btn
+
+.widget-selector-button-open
+  background-color: c.$col-bg-ack
+  color: c.$col-primary-bg-ack
+  &:hover, &:focus
+    background-color: c.$col-bg-ack-lighter
+    color: c.$col-primary-bg-ack
+    border: solid 2px c.$col-bg-ack-lighter
+
+.widget-selector-list
+  position: absolute
+  background: var(--col-bg-body)
+  padding: .1em 1em .1em .1rem
+  margin-top: 3rem
+  margin-left: 1rem
+  border: 2px solid var(--col-bg-1-darker)
+
+.widget-selector-closed
+  display: none

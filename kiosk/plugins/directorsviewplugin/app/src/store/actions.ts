@@ -46,6 +46,11 @@ export class StoreTeamSelector {
     selectedMember: string;
 }
 
+export class StoreWidgetSelector {
+    selectedWidgets: string[];
+}
+
+
 export const initApp = (): Action => {
     return {
         type: INIT_APP,
