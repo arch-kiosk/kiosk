@@ -1,23 +1,35 @@
-import '@vaadin/vaadin-list-box'
-import '@vaadin/vaadin-item'
+import "@vaadin/vaadin-list-box";
+import "@vaadin/vaadin-item";
 import { html, LitElement, unsafeCSS, nothing } from "lit";
-import {customElement, state} from 'lit/decorators.js'
-import local_css from './styles/component-widgetselector.sass?inline';
-import {State} from "./store/reducer";
-import {store} from './store/store';
-import {setSelector, StoreWidgetSelector} from './store/actions';
+import { customElement, state } from "lit/decorators.js";
+import local_css from "./styles/component-widgetselector.sass?inline";
+import { State } from "./store/reducer";
+import { store } from "./store/store";
+import { setSelector, StoreWidgetSelector } from "./store/actions";
 import { KioskStoreAppComponent } from "../kioskapplib/kioskStoreAppComponent";
 import { AVAILABLE_WIDGETS, getRecordTypeNames, getAllWidgets, WidgetDescriptor } from "./lib/applib";
+import { ListBox } from "@vaadin/vaadin-list-box";
 
-@customElement('widget-selector')
+@customElement("widget-selector")
 class WidgetSelector extends KioskStoreAppComponent {
     static styles = unsafeCSS(local_css);
-    login_token = ""
-    api_url = ""
+    static properties = {
+        ...super.properties,
+        selectedWidgets: { type: Array },
+    };
+    widgets: Array<WidgetDescriptor>;
+    selectedWidgets:Array<string>
+
+
+    login_token = "";
+    api_url = "";
     record_type_names: { [key: string]: string } = null
-    selectedWidgets = AVAILABLE_WIDGETS.slice()
-    widgets: Array<WidgetDescriptor>
-    private docClicked: Any
+
+
+    @state()
+    selectorIsOpen: boolean = false;
+
+    private docClicked: any;
 
     constructor() {
         super();
@@ -25,80 +37,129 @@ class WidgetSelector extends KioskStoreAppComponent {
     }
 
     _init() {
-        store.dispatch(setSelector("widgetSelector", {"selectedWidgets": this.selectedWidgets}))
+        store.dispatch(setSelector("widgetSelector", { "selectedWidgets": this.selectedWidgets }));
     }
-
-
 
     stateChanged(state: State) {
-        const changed = false
-        if ("widgetSelector" in state.selectors) {
-            let selectedWidgets = (<StoreWidgetSelector>state.selectors["widgetSelector"]).selectedWidgets
-            this.selectedWidgets = selectedWidgets
+        if (this.widgets) {
+            if ("widgetSelector" in state.selectors && (<StoreWidgetSelector>state.selectors["widgetSelector"]).selectedWidgets) {
+                this.selectedWidgets = (<StoreWidgetSelector>state.selectors["widgetSelector"]).selectedWidgets
+                console.log("new widget selection: ", this.selectedWidgets)
+            }
         }
-        if (state.constants.length > 0 && !this.record_type_names) {
-            this.record_type_names = getRecordTypeNames(state.constants)
-            this.widgets = getAllWidgets(state, this.record_type_names)
-            if (!changed) this.requestUpdate()
+        if (state.constants.length > 0 && !this.widgets) {
+            this.record_type_names = getRecordTypeNames(state.constants);
+            this.widgets = getAllWidgets(state);
+            if (!this.selectedWidgets) {
+                this.selectedWidgets = AVAILABLE_WIDGETS.slice();
+                store.dispatch(setSelector("widgetSelector", { "selectedWidgets": this.selectedWidgets }));
+            } else {
+
+                this.requestUpdate()
+
+            }
         }
     }
 
-    static properties = {
-        ...super.properties,
-        selected_widgets: {type: Array}
-    };
+    closeSelector() {
+        if (this.docClicked)
+            document.removeEventListener("click", this.docClicked);
+        const selectedWidgets = this.getWidgetSelection()
+        this.selectorIsOpen = false;
+        if (!(selectedWidgets.length === this.selectedWidgets?.length &&
+            selectedWidgets.every((val, i) => val === this.selectedWidgets[i]))) {
+            console.log("selection has changed: publishing", selectedWidgets)
+            store.dispatch(setSelector("widgetSelector", {"selectedWidgets": selectedWidgets}))
+        }
 
-    @state()
-    selectorIsOpen: boolean = false
+    }
+
+    getWidgetSelection() {
+        const listBox: ListBox = this.shadowRoot.querySelector("#widget-selector");
+        let selectedWidgets: Array<string> = []
+        if (listBox) {
+            const selections = listBox.selectedValues;
+            selections.sort()
+            console.log("selected values is ", selections)
+            for (const selection of selections) {
+                const widget = this.widgets.find(w => w.order === selection);
+                if (widget) selectedWidgets.push(widget.id)
+            }
+        }
+        if (selectedWidgets.length == 0) {
+            selectedWidgets = AVAILABLE_WIDGETS.slice()
+        }
+        return selectedWidgets
+
+    }
+
+    getWidgetIndices(): Array<number> {
+        return this.widgets.filter(x => this.selectedWidgets?.includes(x.id)).map(x => x.order)
+    }
+
+    protected updated(_changedProperties: any) {
+        super.updated(_changedProperties);
+        if (_changedProperties.has("selectedWidgets")) {
+            const target: ListBox = this.shadowRoot.querySelector("#widget-selector");
+            if (target) {
+                const selectedValues = this.getWidgetIndices();
+                console.log("target.selectedValues was", target.selectedValues)
+                console.log("selected Values set to", selectedValues)
+                target.selectedValues = selectedValues
+            }
+        }
+    }
 
 
     selectorButtonClicked() {
-        const target: HTMLElement = this.shadowRoot.querySelector('#widget-selector')
-        console.log("target", target)
+        const target: HTMLElement = this.shadowRoot.querySelector("#widget-selector");
+        console.log("target", target);
 
         if (this.selectorIsOpen) {
-            if (this.docClicked)
-                document.removeEventListener('click', this.docClicked)
+            this.closeSelector();
         } else {
-            this.docClicked = (event: MouseEvent)=> {
-                const withinBoundaries = event.composedPath().includes(target)
-
+            this.docClicked = (event: MouseEvent) => {
+                const withinBoundaries = event.composedPath().includes(target);
                 if (!withinBoundaries) {
-                    const bt: HTMLElement = this.shadowRoot.querySelector('#widget-selector-button')
-
+                    const bt: HTMLElement = this.shadowRoot.querySelector("#widget-selector-button");
                     if (!event.composedPath().includes(bt)) {
-
-                        this.selectorIsOpen = false
-                        document.removeEventListener('click', this.docClicked)
+                        this.closeSelector();
+                        document.removeEventListener("click", this.docClicked);
                     }
                 }
-            }
+            };
 
-            document.addEventListener('click', this.docClicked)
+            document.addEventListener("click", this.docClicked);
+            this.selectorIsOpen = true;
         }
-
-        this.selectorIsOpen = !this.selectorIsOpen
     }
 
     apiRender() {
-        console.log(`widgets are ${this.widgets}`)
         if (!this.widgets?.length)
-            return html``
+            return html``;
 
         return html`
-            <button id="widget-selector-button" class="widget-selector-button ${this.selectorIsOpen?'widget-selector-button-open':'widget-selector-button-closed'}"
-            @click=${this.selectorButtonClicked}><i class="fas fa-list-check"></i></button>
-            <vaadin-list-box id="widget-selector" class="widget-selector-list ${this.selectorIsOpen?'':'widget-selector-closed'}" 
-                             multiple
-                             .selectedValues=${[0,2,3]}>
+            <button id="widget-selector-button"
+                    class="widget-selector-button ${this.selectorIsOpen ? "widget-selector-button-open" : "widget-selector-button-closed"}"
+                    @click="${this.selectorButtonClicked}"><i class="fas fa-list-check"></i></button>
+            <vaadin-list-box id="widget-selector"
+                             class="widget-selector-list ${this.selectorIsOpen ? "" : "widget-selector-closed"}"
+                             multiple ">
                 ${this.widgets.map(widget => html`
                     <vaadin-item>${widget.displayName}</vaadin-item>
                 `)}
             </vaadin-list-box>
-        
-        `
+
+        `;
     }
 
+    public disconnectedCallback() {
+        super.disconnectedCallback();
+        if (this.docClicked) {
+            console.log("Removed docClicked event listener");
+            document.removeEventListener("click", this.docClicked);
+        }
+    }
 
     protected firstUpdated(_changedProperties: any) {
         super.firstUpdated(_changedProperties);

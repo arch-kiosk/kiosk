@@ -1,8 +1,5 @@
-// @ts-ignore
-import {developMode} from './lib/const.js'
-import { html, LitElement} from "lit";
-import {customElement} from 'lit/decorators.js'
-// @ts-ignore
+import { html, LitElement, nothing} from "lit";
+import {customElement, state} from 'lit/decorators.js'
 import local_css from './styles/component-dataframe.sass?inline';
 import "./datawidgets/unitinfowidget.ts"
 import "./datawidgets/narrativewidget.ts"
@@ -16,6 +13,7 @@ import {connect} from "pwa-helpers/connect-mixin";
 // @ts-ignore
 import { KioskStoreAppComponent } from "../kioskapplib/kioskStoreAppComponent.ts";
 import { unsafeCSS } from "lit";
+import { StoreWidgetSelector } from "./store/actions";
 
 
 @customElement('dataview-frame')
@@ -26,12 +24,20 @@ class DataViewFrame extends KioskStoreAppComponent {
         ...super.properties,
     };
 
+    @state()
+    selectedWidgets:Array<string>
+
     constructor() {
         super();
         // @ts-ignore
     }
 
     stateChanged(state: State) {
+        if ("widgetSelector" in state.selectors) {
+            this.selectedWidgets = (<StoreWidgetSelector>state.selectors["widgetSelector"]).selectedWidgets;
+            console.log("new widget configuration: ", this.selectedWidgets)
+            this.requestUpdate()
+        }
     }
 
     protected firstUpdated(_changedProperties: any) {
@@ -39,14 +45,14 @@ class DataViewFrame extends KioskStoreAppComponent {
     }
 
     protected renderDataWidgets() {
+        if (!this.selectedWidgets) return html``
         return html`
-            <unit-info-widget .apiContext="${this.apiContext}"></unit-info-widget>
-            <narrative-widget .apiContext="${this.apiContext}"></narrative-widget>
-            <file-widget .apiContext="${this.apiContext}"></file-widget>
-            <locus-widget .apiContext="${this.apiContext}"></locus-widget>
-            <cm-widget .apiContext="${this.apiContext}"></cm-widget>
-            <feature-widget .apiContext="${this.apiContext}"></feature-widget>
-            
+            <unit-info-widget .apiContext="${this.apiContext}" style="${this.selectedWidgets.includes('unit-info-widget')?nothing:'display:none'}"></unit-info-widget>
+            <narrative-widget .apiContext="${this.apiContext}" style="${this.selectedWidgets.includes('narrative-widget')?nothing:'display:none'}"></narrative-widget>
+            <file-widget .apiContext="${this.apiContext}" style="${this.selectedWidgets.includes('file-widget')?nothing:'display:none'}"></file-widget>
+            <locus-widget .apiContext="${this.apiContext}" style="${this.selectedWidgets.includes('locus-widget')?nothing:'display:none'}"></locus-widget>
+            <cm-widget .apiContext="${this.apiContext}" style="${this.selectedWidgets.includes('cm-widget')?nothing:'display:none'}"></cm-widget>
+            <feature-widget .apiContext="${this.apiContext}" style="${this.selectedWidgets.includes('feature-widget')?nothing:'display:none'}"></feature-widget>
         `
     }
 
