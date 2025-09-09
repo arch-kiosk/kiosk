@@ -10,6 +10,8 @@ import { KioskStoreAppComponent } from "../kioskapplib/kioskStoreAppComponent";
 import { AVAILABLE_WIDGETS, getRecordTypeNames, getAllWidgets, WidgetDescriptor } from "./lib/applib";
 import { ListBox } from "@vaadin/vaadin-list-box";
 
+const KIOSKDVDEFAULTWIDGETSELECTION = "kioskDVDefaultWidgetSelection"
+
 @customElement("widget-selector")
 class WidgetSelector extends KioskStoreAppComponent {
     static styles = unsafeCSS(local_css);
@@ -18,12 +20,12 @@ class WidgetSelector extends KioskStoreAppComponent {
         selectedWidgets: { type: Array },
     };
     widgets: Array<WidgetDescriptor>;
-    selectedWidgets:Array<string>
+    selectedWidgets: Array<string>;
 
 
     login_token = "";
     api_url = "";
-    record_type_names: { [key: string]: string } = null
+    record_type_names: { [key: string]: string } = null;
 
 
     @state()
@@ -43,58 +45,76 @@ class WidgetSelector extends KioskStoreAppComponent {
     stateChanged(state: State) {
         if (this.widgets) {
             if ("widgetSelector" in state.selectors && (<StoreWidgetSelector>state.selectors["widgetSelector"]).selectedWidgets) {
-                this.selectedWidgets = (<StoreWidgetSelector>state.selectors["widgetSelector"]).selectedWidgets
-                console.log("new widget selection: ", this.selectedWidgets)
+                this.selectedWidgets = (<StoreWidgetSelector>state.selectors["widgetSelector"]).selectedWidgets;
+                console.log("new widget selection: ", this.selectedWidgets);
             }
         }
         if (state.constants.length > 0 && !this.widgets) {
             this.record_type_names = getRecordTypeNames(state.constants);
             this.widgets = getAllWidgets(state);
             if (!this.selectedWidgets) {
-                this.selectedWidgets = AVAILABLE_WIDGETS.slice();
-                store.dispatch(setSelector("widgetSelector", { "selectedWidgets": this.selectedWidgets }));
+                this.getDefaultSelection().then((v) => {
+                    this.selectedWidgets = v
+                    store.dispatch(setSelector("widgetSelector", { "selectedWidgets": this.selectedWidgets }));
+                })
+                    .catch((e) => {console.error("Error getting the default widget selection",e)})
             } else {
-
-                this.requestUpdate()
-
+                this.requestUpdate();
             }
         }
+    }
+
+    async getDefaultSelection() {
+        const cookie = await cookieStore.get(KIOSKDVDEFAULTWIDGETSELECTION)
+        return cookie?JSON.parse(cookie.value):AVAILABLE_WIDGETS.slice()
     }
 
     closeSelector() {
         if (this.docClicked)
             document.removeEventListener("click", this.docClicked);
-        const selectedWidgets = this.getWidgetSelection()
+        const selectedWidgets = this.getWidgetSelection();
         this.selectorIsOpen = false;
         if (!(selectedWidgets.length === this.selectedWidgets?.length &&
             selectedWidgets.every((val, i) => val === this.selectedWidgets[i]))) {
-            console.log("selection has changed: publishing", selectedWidgets)
-            store.dispatch(setSelector("widgetSelector", {"selectedWidgets": selectedWidgets}))
+            store.dispatch(setSelector("widgetSelector", { "selectedWidgets": selectedWidgets }));
+            this.storeSelectionInCookie(selectedWidgets);
         }
 
+    }
+
+    private storeSelectionInCookie(selectedWidgets: Array<string>) {
+        const cookie: CookieInit = {
+            name: KIOSKDVDEFAULTWIDGETSELECTION,
+            value: JSON.stringify(selectedWidgets),
+            expires: Date.now() + 30 * 24 * 60 * 60 * 1000, //30 days
+            path: "/",
+        };
+        cookieStore.set(cookie).catch(() => {
+            console.error("Error setting the widget selection as a cookie");
+        });
     }
 
     getWidgetSelection() {
         const listBox: ListBox = this.shadowRoot.querySelector("#widget-selector");
-        let selectedWidgets: Array<string> = []
+        let selectedWidgets: Array<string> = [];
         if (listBox) {
             const selections = listBox.selectedValues;
-            selections.sort()
-            console.log("selected values is ", selections)
+            selections.sort();
+            console.log("selected values is ", selections);
             for (const selection of selections) {
                 const widget = this.widgets.find(w => w.order === selection);
-                if (widget) selectedWidgets.push(widget.id)
+                if (widget) selectedWidgets.push(widget.id);
             }
         }
         if (selectedWidgets.length == 0) {
-            selectedWidgets = AVAILABLE_WIDGETS.slice()
+            selectedWidgets = AVAILABLE_WIDGETS.slice();
         }
-        return selectedWidgets
+        return selectedWidgets;
 
     }
 
     getWidgetIndices(): Array<number> {
-        return this.widgets.filter(x => this.selectedWidgets?.includes(x.id)).map(x => x.order)
+        return this.widgets.filter(x => this.selectedWidgets?.includes(x.id)).map(x => x.order);
     }
 
     protected updated(_changedProperties: any) {
@@ -103,13 +123,12 @@ class WidgetSelector extends KioskStoreAppComponent {
             const target: ListBox = this.shadowRoot.querySelector("#widget-selector");
             if (target) {
                 const selectedValues = this.getWidgetIndices();
-                console.log("target.selectedValues was", target.selectedValues)
-                console.log("selected Values set to", selectedValues)
-                target.selectedValues = selectedValues
+                console.log("target.selectedValues was", target.selectedValues);
+                console.log("selected Values set to", selectedValues);
+                target.selectedValues = selectedValues;
             }
         }
     }
-
 
     selectorButtonClicked() {
         const target: HTMLElement = this.shadowRoot.querySelector("#widget-selector");
@@ -145,9 +164,9 @@ class WidgetSelector extends KioskStoreAppComponent {
             <vaadin-list-box id="widget-selector"
                              class="widget-selector-list ${this.selectorIsOpen ? "" : "widget-selector-closed"}"
                              multiple ">
-                ${this.widgets.map(widget => html`
-                    <vaadin-item>${widget.displayName}</vaadin-item>
-                `)}
+            ${this.widgets.map(widget => html`
+                <vaadin-item>${widget.displayName}</vaadin-item>
+            `)}
             </vaadin-list-box>
 
         `;
