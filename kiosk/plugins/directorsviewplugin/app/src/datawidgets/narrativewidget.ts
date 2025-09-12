@@ -87,6 +87,11 @@ class NarrativeWidget extends KioskStoreAppComponent {
                         "cql": {
                             "base": {
                                 "scope": {
+                                    "site": {
+                                      "site_notes": {
+                                          "join": "inner(uid, uid_site)"
+                                      }
+                                    },
                                     "unit": {
                                         "unit_narrative": {
                                             "join": "inner(uid, uid_unit)"

@@ -136,6 +136,8 @@ class UnitInfoWidget extends KioskStoreAppComponent {
                 }
             }
         }
+        debugger;
+        console.log(cql)
         this.apiContext.fetchFromApi("", "cql/query",
             {
                 method: "POST",

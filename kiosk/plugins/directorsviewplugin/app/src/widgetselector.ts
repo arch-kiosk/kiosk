@@ -10,7 +10,8 @@ import { KioskStoreAppComponent } from "../kioskapplib/kioskStoreAppComponent";
 import { AVAILABLE_WIDGETS, getRecordTypeNames, getAllWidgets, WidgetDescriptor } from "./lib/applib";
 import { ListBox } from "@vaadin/vaadin-list-box";
 
-const KIOSKDVDEFAULTWIDGETSELECTION = "kioskDVDefaultWidgetSelection"
+//Whenever a new widget gets invented, the version for the cookie needs to go up.
+const COOKIE_KIOSKDVDEFAULTWIDGETSELECTION = "kioskDVDefaultWidgetSelectionV2"
 
 @customElement("widget-selector")
 class WidgetSelector extends KioskStoreAppComponent {
@@ -65,7 +66,7 @@ class WidgetSelector extends KioskStoreAppComponent {
     }
 
     async getDefaultSelection() {
-        const cookie = await cookieStore.get(KIOSKDVDEFAULTWIDGETSELECTION)
+        const cookie = await cookieStore.get(COOKIE_KIOSKDVDEFAULTWIDGETSELECTION)
         return cookie?JSON.parse(cookie.value):AVAILABLE_WIDGETS.slice()
     }
 
@@ -84,7 +85,7 @@ class WidgetSelector extends KioskStoreAppComponent {
 
     private storeSelectionInCookie(selectedWidgets: Array<string>) {
         const cookie: CookieInit = {
-            name: KIOSKDVDEFAULTWIDGETSELECTION,
+            name: COOKIE_KIOSKDVDEFAULTWIDGETSELECTION,
             value: JSON.stringify(selectedWidgets),
             expires: Date.now() + 30 * 24 * 60 * 60 * 1000, //30 days
             path: "/",

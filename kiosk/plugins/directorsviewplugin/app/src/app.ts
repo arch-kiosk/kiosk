@@ -37,15 +37,6 @@ class DirectorsViewApp extends KioskApp {
 
     constructor() {
         super();
-        // @ts-ignore
-        // if (DEVELOPMENT) {
-        //     this._init();
-        // } else {
-        //     // @ts-ignore
-        //     kioskStartWhenReady(this._init.bind(this), () => {
-        //         console.log("kioskStartWhenReady failed.")
-        //     })
-        // }
     }
 
     _show_message(e: CustomEvent) {

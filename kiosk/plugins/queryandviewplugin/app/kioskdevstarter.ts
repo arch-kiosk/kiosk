@@ -22,17 +22,6 @@ window.addEventListener("load", () => {
             } else {
                 console.log("there is no app.");
             }
-            //Todo: Needs an es6 implementation used for the fetch api
-            // $.ajaxSetup({
-            //     beforeSend: function (xhr)
-            //     {
-            //         // @ts-ignore
-            //         xhr.setRequestHeader("webapp-user-id",import.meta.env.VITE_DEV_API_USER);
-            //         // @ts-ignore
-            //         xhr.setRequestHeader("webapp-user-pwd",import.meta.env.VITE_DEV_API_PWD);
-            //     }
-            // });
-
         });
 });
 

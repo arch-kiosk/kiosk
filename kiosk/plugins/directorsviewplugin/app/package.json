@@ -11,7 +11,11 @@
   "files": [
     "dist"
   ],
-  "keywords": ["kiosk", "archaeology", "field recoring"],
+  "keywords": [
+    "kiosk",
+    "archaeology",
+    "field recoring"
+  ],
   "author": "Lutz Klein",
   "license": "AGPL-3.0",
   "prettier": {
@@ -27,22 +31,25 @@
     "build": "vite build --emptyOutDir"
   },
   "dependencies": {
-    "lit": "^3.3.1",
-    "nanoid": "^5.1.5",
     "@arch-kiosk/kiosktsapplib": "^0.3.1",
-    "@vaadin/vaadin-date-picker": "~23.6.1",
-    "@vaadin/vaadin-list-box": "~23.6.1",
-    "@vaadin/vaadin-item": "~23.6.1",
     "@popperjs/core": "~2.11.8",
+    "@types/luxon": "^3.7.1",
+    "@vaadin/vaadin-date-picker": "~23.6.1",
+    "@vaadin/vaadin-item": "~23.6.1",
+    "@vaadin/vaadin-list-box": "~23.6.1",
     "blob-util": "~2.0.2",
     "deepfreeze": "~2.0.0",
     "jquery": "^3.5.1",
+    "lit": "^3.3.1",
+    "lodash": "^4.17.21",
+    "nanoid": "^5.1.5",
     "pwa-helpers": "~0.9.1",
     "redux": "~4.0.5"
   },
   "devDependencies": {
     "@types/ejs": "^3.1.5",
     "@types/html-minifier-terser": "^7.0.2",
+    "@types/lodash": "^4.17.20",
     "@types/luxon": "^3.7.1",
     "prettier": "^3.6.2",
     "rollup-plugin-copy": "^3.5.0",

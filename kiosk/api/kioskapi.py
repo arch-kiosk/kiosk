@@ -21,6 +21,7 @@ from .kioskapikioskquery import ApiKioskQuery
 from .kioskapilookup import ApiLookup
 from .kioskapilib import PublicApiInfo
 from .kioskapitz import ApiTimeZones, ApiFavouriteTimeZones
+from .kioskapideletions import ApiDeletions
 
 
 def register_resources(api: KioskApi):
@@ -43,6 +44,7 @@ def register_resources(api: KioskApi):
     ApiKioskQuery.register(api)
     ApiLookup.register(api)
     ApiFTS.register(api)
+    ApiDeletions.register(api)
 
 
 

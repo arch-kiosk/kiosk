@@ -414,6 +414,10 @@ class KioskContext:
 
         identifier_fields = self._dsd.get_fields_with_instruction(self.identifier_table, "identifier")
         sqls = []
+        if not identifier_fields:
+            raise KioskContextError(f"KioskContext._get_sql_select: Context {self.name} "
+                                    f"does not have any identifiers in scope.")
+
         for identifier_field in identifier_fields:
             # if len(identifier_fields) != 1:
             #     logging.warning(f"KioskContext._get_sql_select: {self.identifier_table} "

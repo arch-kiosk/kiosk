@@ -10,7 +10,8 @@ export const AVAILABLE_WIDGETS = [
     "file-widget",
     "locus-widget",
     "cm-widget",
-    "feature-widget"
+    "feature-widget",
+    "deletion-info-widget"
 ]
 
 export type WidgetDescriptor = {
@@ -199,6 +200,10 @@ export function getAllWidgets(state: State): Array<WidgetDescriptor> {
                         wd.displayName = `${getStandardTerm(state.constants,
                             "standard_term_for_feature_unit", true, "features")}`;
                         wd.order = 5;
+                        break;
+                    case "deletion-info-widget":
+                        wd.displayName = `deletions`;
+                        wd.order = 6;
                         break;
                 }
                 if (wd.order !== -1) {

@@ -58,7 +58,7 @@ class TeamSelector extends KioskStoreAppComponent {
                             },
                             "base": {
                                 "scope": {
-                                    "unit": "browse()"
+                                    "site": "browse()"
                                 },
                                 "target": {
                                     "field_or_instruction": "modified_ww()",

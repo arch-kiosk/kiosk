@@ -135,6 +135,13 @@ class FileWidget extends KioskStoreAppComponent {
                         "cql": {
                             "base": {
                                 "scope": {
+                                    "site": {
+                                        "site_notes": {
+                                            "site_note_photo": {
+                                                "join": "inner(uid, uid_site_note)"
+                                            }
+                                        }
+                                    },
                                     "unit": "browse()"
                                 },
                                 "target": {
@@ -156,7 +163,7 @@ class FileWidget extends KioskStoreAppComponent {
                                     },
                                     "description": {
                                         "field_or_instruction": "describes_file()",
-                                        "default": ""
+                                        "default": "null"
                                     },
                                     "image_description": {
                                         "field_or_instruction": "uid_file()",

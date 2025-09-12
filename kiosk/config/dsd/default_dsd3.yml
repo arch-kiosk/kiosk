@@ -1330,7 +1330,7 @@ site_notes:
       uid_site: [datatype(UUID), join("site")]
       date: [datatype(TIMESTAMP)]
       id_excavator: [datatype(VARCHAR), "label(#(/$/constants/labels/label_supervisor))"]
-      note: [datatype(VARCHAR)]
+      note: [datatype(VARCHAR), record_description()]
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]

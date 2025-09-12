@@ -7,6 +7,7 @@ import "./datawidgets/locuswidget.ts"
 import "./datawidgets/cmwidget.ts"
 import "./datawidgets/featurewidget.ts"
 import "./datawidgets/filewidget.ts"
+import "./datawidgets/deletioninfowidget"
 // @ts-ignore
 import {State} from "./store/reducer.ts";
 import {connect} from "pwa-helpers/connect-mixin";
@@ -48,6 +49,7 @@ class DataViewFrame extends KioskStoreAppComponent {
         if (!this.selectedWidgets) return html``
         return html`
             <unit-info-widget .apiContext="${this.apiContext}" style="${this.selectedWidgets.includes('unit-info-widget')?nothing:'display:none'}"></unit-info-widget>
+            <deletion-info-widget .apiContext="${this.apiContext}" style="${this.selectedWidgets.includes('deletion-info-widget')?nothing:'display:none'}"></deletion-info-widget>
             <narrative-widget .apiContext="${this.apiContext}" style="${this.selectedWidgets.includes('narrative-widget')?nothing:'display:none'}"></narrative-widget>
             <file-widget .apiContext="${this.apiContext}" style="${this.selectedWidgets.includes('file-widget')?nothing:'display:none'}"></file-widget>
             <locus-widget .apiContext="${this.apiContext}" style="${this.selectedWidgets.includes('locus-widget')?nothing:'display:none'}"></locus-widget>

@@ -18,10 +18,23 @@ div, p
   justify-content: center
 
 .date-selector-date
-  padding: .5em
+  padding: 0 .5em 6px .5em
   cursor: pointer
   color: $col-primary-bg-1
   --lumo-body-text-color: $col-accent-bg-1
+.date-selector-date-inactive
+  margin: 0px .2em
+  cursor: pointer
+  color: $col-primary-bg-1
+  height: 2em
+  line-height: 2em
+  vertical-align: middle
+  --lumo-body-text-color: $col-accent-bg-1
+  span
+    display: inline-block
+    width: 2em
+    text-align: center
+
 
 .selected-date
   background-color: $col-bg-2
@@ -31,3 +44,32 @@ div, p
 
 vaadin-date-picker::part(clear-button)
   display: none
+
+.date-navigation
+  display: flex
+  flex-direction: row
+  flex-wrap: wrap
+  margin: 0 1em
+  &:first-child
+    margin: 0 1em 0 3.5em
+  i
+    font-size: 15px
+  button
+    background-color: $col-bg-2
+    color: $col-primary-bg-2
+    height: 35px
+    width: 35px
+    &:hover, &:focus
+      background-color: $col-bg-ack-lighter
+      color: $col-primary-bg-ack
+      border: solid 2px $col-bg-ack-lighter
+
+.active-day
+  color: $col-accent-bg-2
+  //text-decoration-line: underline
+  border: 1px solid $col-accent-bg-2
+  border-radius: 25px
+  padding-left: 0px
+  padding-right: 0px
+  &:hover, &:focus
+    background-color: $col-bg-2-lighter
