@@ -5,7 +5,11 @@ import {
     API_STATE_INITIALIZING,
     API_STATE_READY,
     API_STATE_UNINITIALZED,
-} from "./kioskapi.js";
+
+} from "../kioskjslib.js";
+
+// import {
+// } from "./kioskapi.js";
 
 export class ProdKioskApi extends KioskApi {
     // token = "";
