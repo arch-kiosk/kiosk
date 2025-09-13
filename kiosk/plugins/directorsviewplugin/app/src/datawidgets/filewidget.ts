@@ -384,10 +384,33 @@ class FileWidget extends KioskStoreAppComponent {
     }
 
     protected selectImage(e: CustomEvent) {
-        const uid = e.detail
-        this.selected_image = uid
-        this.viewMode = "image"
+        const uuid = e.detail.uuid
+        debugger;
+        this.selected_image = uuid
+        // see comment below about getCurrentFileList
+        // e.detail["fileList"] = this.getCurrentFileList()
+        e.detail["fileList"] = [
+            { uuid: e.detail.uuid, width: e.detail.width, height: e.detail.height }
+        ]
     }
+
+    // This approach is not possible because many files have not been loaded as thumbnails and hence width and height are not there
+    // To make this work width and height would have to be transported with the CQL query.
+    //
+    // getCurrentFileList() {
+    //     return this.files.filter(file => (this.show_record_types === "" || file.record_type === this.show_record_types))
+    //         .map((file) => {
+    //
+    //             return {
+    //                 uuid: e.detail.uuid, width: e.detail.width, height: e.detail.height
+    //             }
+    //     } )
+    //     ${this.files.map(file => html`
+    //                 ${(this.show_record_types === "" || file.record_type === this.show_record_types)
+    //         return [
+    //
+    //     ]
+    // }
 
     apiRender() {
         const filteredCount = this.files.filter(x => (this.show_record_types === "" || x.record_type === this.show_record_types)).length
@@ -408,8 +431,6 @@ class FileWidget extends KioskStoreAppComponent {
                                    class="fa fa-view-list ${this.viewMode === "list" ? `selected-view-mode` : ``}"></i>
                                 <i @click=${this.gridView}
                                    class="fa fa-view-grid ${this.viewMode === "grid" ? `selected-view-mode` : ``}"></i>
-                                <i @click=${this.imageView}
-                                   class="fa fa-view-image ${this.viewMode === "image" ? `selected-view-mode` : ``}"></i>
                             </div>
                         </div>
                         ${this.selected_date !== null && this.selected_resolution
@@ -458,8 +479,6 @@ class FileWidget extends KioskStoreAppComponent {
             } else {
                 if (this.viewMode == "grid") {
                     return this.renderGridView()
-                } else {
-                    return this.renderImageView()
                 }
             }
         }
@@ -545,35 +564,6 @@ class FileWidget extends KioskStoreAppComponent {
         `
     }
 
-    protected renderImageView() {
-        return html`
-            <div class="file-view">
-                ${this.files.map(file => html`
-                    ${(this.selected_image === file.uid_file 
-                        && (this.show_record_types === "" || file.record_type === this.show_record_types))
-                        ?html`
-                            <file-view id="${file.uid_file}"
-                                       .apiContext="${this.apiContext}"
-                                       .uuid_file="${file.uid_file}"
-                                       resolution="master">
-                            </file-view>
-                            <div class="file-headline">
-                                <div class="main-headline">
-                                    <p>${file.identifier}</p>
-                                    <p>by: ${file.modified_by}
-                                        (${file.modified.toLocaleTimeString([],
-                                {hour: '2-digit', minute: '2-digit'})})
-                                    </p>
-                                </div>
-                                <p>${recordType2Name(this.record_type_names, file.record_type)}</p>
-                                <p>${file.description}</p>
-                                <p>ref# [${this.selected_image}]</p>
-                            </div>`
-                        : undefined
-                }`
-            )}
-            </div>`
-    }
 
     public updated(_changedProperties: any) {
         super.updated(_changedProperties);

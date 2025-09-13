@@ -1,9 +1,10 @@
 import { html, LitElement, unsafeCSS } from "lit";
 import {customElement} from 'lit/decorators.js'
 import local_css from '../styles/component-file-view.sass?inline';
-import { FetchException} from "@arch-kiosk/kiosktsapplib"
+import { FetchException, KioskApi} from "@arch-kiosk/kiosktsapplib"
 import {handleCommonFetchErrors} from "../lib/applib";
 import { KioskStoreAppComponent } from "../../kioskapplib/kioskStoreAppComponent"
+import { AnyDict } from "../../kioskapplib/datasetdefinition";
 
 @customElement('file-view')
 class FileWidget extends KioskStoreAppComponent {
@@ -17,6 +18,8 @@ class FileWidget extends KioskStoreAppComponent {
     private imageUrl = ""
     private observer: IntersectionObserver = null
     _uuid_file = ""
+    width: number
+    height: number
 
     static properties = {
         ...super.properties,
@@ -126,27 +129,39 @@ class FileWidget extends KioskStoreAppComponent {
         delete this.observer;
     }
 
-    protected clicked(e: Event) {
+    protected clicked() {
         this.dispatchEvent(new CustomEvent("select-image",
-            {bubbles: true, composed: true, detail: this._uuid_file}));
+            {
+                bubbles: true,
+                composed: true,
+                detail: {
+                    uuid: this.uuid_file,
+                    width: this.width ?? "0",
+                    height: this.height ?? "0"
+                }
+            }));
     }
-
 
     fetch_image() {
         this.loaded = false
+        const attributes: AnyDict = {}
         let searchParams = new URLSearchParams({
             uuid: this._uuid_file,
             resolution: this._resolution
-        })
-        this.apiContext.fetchBlobFromApi("", "files/file",
+        });
+        (this.apiContext as KioskApi).fetchBlobFromApi("", "files/file",
             {
                 method: "GET",
                 caller: "directorsview.fileview"
 
-            },"v1", searchParams)
+            },"v1", searchParams,undefined,attributes)
             .then((blob: Blob) => {
                 this.imageUrl = URL.createObjectURL(blob);
                 this.loaded = true
+                if (attributes.hasOwnProperty("width") && attributes.hasOwnProperty("height")) {
+                    this.width = attributes["width"]
+                    this.height = attributes["height"]
+                }
             })
             .catch((e: FetchException) => {
                 if (e.response.status != 404) {

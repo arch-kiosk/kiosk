@@ -1,3 +1,58 @@
+function onViewImageClicked(evt) {
+    const numOr0 = (v) => {
+        try {
+            return parseInt(v)
+        } catch{}
+        return 0
+    }
+
+    function showRainbowProgress(show) {
+        const el = document.querySelector(".rainbow-loading")
+        if (el) el.style.display = show ? "unset" : "none"
+    }
+
+    console.log("onViewImageClicked", evt)
+    const uuid = evt.detail.uuid
+    if (document.hasOwnProperty("fileViewerController")) {
+        const fwc = document.fileViewerController
+        const elOpenInNewTab= document.getElementById("open-image-in-new-tab")
+        const elOpenInNewTabText= document.getElementById("open-in-new-tab-text")
+        elOpenInNewTab.style.display = 'none'
+        fwc.opened = (e) => {
+            console.log("fws.opened", e)
+            showRainbowProgress(false)
+            if (e?.result) {
+                document.getElementById("broken-image").style.display = "none"
+                // here comes a hack: The issue here is that this can only be reliably
+                // done once both the image and the data have arrived. Let's hope it does that within a second.
+                setTimeout(function () {
+                    elOpenInNewTab.style.display = elOpenInNewTabText.innerText === '' ? 'none' : 'block'
+                }, 1000)
+            } else {
+                document.getElementById("broken-image").style.display = "grid"
+            }
+        }
+        fwc.beforeOpen = () => {
+            elOpenInNewTab.style.display = "none"
+            document.getElementById("broken-image").style.display = "none"
+            showRainbowProgress(true)
+        }
+        if (fwc) {
+            fwc.clear()
+            debugger;
+            console.log(`Selecting image ${evt.detail}`);
+            const fileList = evt.detail?.fileList
+            if (fileList) {
+                for (const fileObject of fileList) {
+                    fwc.addFile(fileObject);
+                }
+            }
+            fwc.showFiles(uuid)
+            return
+        }
+    }
+    kioskErrorToast("Currently the viewer is not present. Please try refreshing the page. (Err: There is no FileViewerController present)")
+}
 
 /*tools */
 function fvOpenInNewTab(uuid, representationId="") {

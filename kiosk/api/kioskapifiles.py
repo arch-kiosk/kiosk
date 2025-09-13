@@ -90,6 +90,7 @@ class ApiFile(Resource):
 
         ctx_file = file_repos.get_contextual_file(uuid)
         if ctx_file:
+            file_attr = ctx_file.get_file_attributes()
             try:
                 resolution = params["resolution"]
                 if resolution:
@@ -112,7 +113,10 @@ class ApiFile(Resource):
                                                         'pre-check=0, max-age=0'
                         resp.headers['Pragma'] = 'no-cache'
                         resp.headers['Expires'] = '-1'
+                        resp.headers["X-Image-Height"] = file_attr["height"] if "height" in file_attr else 0
+                        resp.headers["X-Image-Width"] = file_attr["width"] if "width" in file_attr else 0
                         logging.info("Starting download of file " + fm_filename)
+                        resp.headers["Access-Control-Expose-Headers"] = "X-Image-Height, X-Image-Width"
                         return resp
                     except BaseException as e:
                         logging.error(f"ApiFile.get: file_repository_download_file: {repr(e)}")

@@ -47,9 +47,12 @@ export default defineConfig(({ command, mode }) => {
                 entry: "src/app.ts",
                 formats: ["es"],
             },
-            // rollupOptions: {
-            //   external: [/^@vaadin/],
-            // },
+            rollupOptions: {
+                // this did not work: see #2863
+                // external: (id) =>
+                //     // id.match(/vaadin\/vaadin-lumo-styles/)
+                //     // external: ["@vaadin/vaadin-lumo-styles", "@vaadin/input-container"],
+            },
         },
         server: {
             fs: {

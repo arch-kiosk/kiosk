@@ -7,6 +7,7 @@ from authorization import full_login_required
 import kioskstdlib
 
 import kioskglobals
+from kioskrepresentationtype import KioskRepresentations
 
 from core.kioskcontrollerplugin import get_plugin_for_controller
 
@@ -61,13 +62,24 @@ def directors_view_show():
     print(f"\nGET: get_plugin_for_controller returns {get_plugin_for_controller(_plugin_name_)}")
     print(f"\nGET: plugin.name returns {get_plugin_for_controller(_plugin_name_).name}")
 
+    conf = kioskglobals.get_config()
+
+    fullscreen_representation_id = conf.file_repository["fullscreen_representation"]
+    representations = [f"{x[0]},{x[1]}" for x in KioskRepresentations.get_representation_labels_and_ids(conf)]
+
     load_dynamic_app = {
         "controller_name": _controller_name_,
         "load_from_address": "directors_view_show"
     }
     if not main_module:
-        return render_template('directorsview.html', load_dynamic_app=load_dynamic_app)
+        return render_template('directorsview.html',
+                               fullscreen_representation_id=fullscreen_representation_id,
+                               resolutions=",".join(representations),
+                               load_dynamic_app=load_dynamic_app)
     else:
-        return render_template('directorsview_main.html', load_dynamic_app=load_dynamic_app)
+        return render_template('directorsview_main.html',
+                               fullscreen_representation_id=fullscreen_representation_id,
+                               resolutions=",".join(representations),
+                               load_dynamic_app=load_dynamic_app)
 
 
