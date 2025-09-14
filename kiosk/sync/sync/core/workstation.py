@@ -56,6 +56,7 @@ class Dock:
         self._sync = sync
         self.recording_group = ""
         self._user_time_zone_index = None
+        self._most_recent_time_zone_index = None
         self.grant_access_to = ""
         self.current_tz: Union[KioskTimeZoneInstance, None] = None
 
@@ -84,6 +85,29 @@ class Dock:
 
     def set_user_time_zone_index(self, tz_index: int):
         self._user_time_zone_index = tz_index
+
+    @property
+    def most_recent_time_zone_index(self) -> Union[int, None]:
+        """
+        The user time zone index that was last used in an import transaction
+        Only required for docks that partake in synchronization
+
+        :return: int | None
+        """
+        return self._most_recent_time_zone_index
+
+    @most_recent_time_zone_index.setter
+    def most_recent_time_zone_index(self, value):
+        self.set_most_recent_time_zone_index(value)
+
+    def set_most_recent_time_zone_index(self, tz_index: int):
+        """
+        Sets the user time zone index that was last used in an import transaction
+        Only required for docks that partake in synchronization
+
+        :return: int | None
+        """
+        self._most_recent_time_zone_index = tz_index
 
     @classmethod
     def get_workstation_type(cls) -> str:
@@ -191,7 +215,7 @@ class Dock:
             try:
                 cur.execute(
                     f'select ' + f'description, state, recording_group, user_time_zone_index,'
-                                 f'grant_access_to from "repl_workstation" '
+                                 f'grant_access_to, most_recent_time_zone_index from "repl_workstation" '
                                  f'where id=%s;',
                     [self._id])
                 r = cur.fetchone()
@@ -200,6 +224,7 @@ class Dock:
                     self.recording_group = r[2]
                     self._user_time_zone_index = r[3]
                     self.grant_access_to = r[4] if r[4] else "*"
+                    self._most_recent_time_zone_index = r[5]
                     state = self.get_state_from_code(r[1])
                     self.state_machine.set_initial_state(state)
                     cur.close()
@@ -309,7 +334,7 @@ class Dock:
 
                 cur.execute("DELETE " + "FROM \"repl_workstation\" where \"id\" = %s", [self._id])
                 sql = "INSERT " + ("INTO \"repl_workstation\"(\"id\",\"description\",\"recording_group\", \"state\", "
-                                   "\"workstation_type\", \"user_time_zone_index\", \"grant_access_to\") "
+                                   "\"workstation_type\", \"user_time_zone_index\", \"grant_access_to\", \"most_recent_time_zone_index\") "
                                    "VALUES(%s, %s, %s, %s, %s, %s, %s)")
 
                 cur.execute(sql, [self._id,
@@ -318,7 +343,8 @@ class Dock:
                                   self.get_code_from_state("IDLE"),
                                   self.get_workstation_type(),
                                   self._user_time_zone_index,
-                                  self.grant_access_to])
+                                  self.grant_access_to,
+                                  self.most_recent_time_zone_index])
                 KioskSQLDb.commit()
                 self.state_machine.set_initial_state("IDLE")
 
@@ -374,11 +400,12 @@ class Dock:
                 self._on_update_workstation(cur)
 
                 sql = (f"\"repl_workstation\" set \"description\"=%s, \"recording_group\"=%s, "
-                       f"\"user_time_zone_index\"=%s, \"grant_access_to\"=%s "
+                       f"\"user_time_zone_index\"=%s, \"grant_access_to\"=%s, \"most_recent_time_zone_index\"=%s "
                        f"where \"id\"=%s")
 
                 cur.execute("Update " + sql, [self.description, self.recording_group,
                                               self.user_time_zone_index, self.grant_access_to,
+                                              self.most_recent_time_zone_index,
                                               self._id])
                 KioskSQLDb.commit()
 
