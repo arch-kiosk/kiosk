@@ -1475,6 +1475,10 @@ class FileMakerWorkstation(RecordingWorkstation):
 
                     self.x_state_info[self.XSTATE_IMPORT_ERROR] = self.IMPORT_ERROR_FM_PREPARE
 
+                    # time zone relevant
+                    # this is required so that synchronization knows
+                    # what actual time zone a workstation was using during import
+                    self.most_recent_time_zone_index = ws_time_zone.user_tz_index
                     rc = self.save()
                     if not rc:
                         raise Exception("Saving dock state failed.")
@@ -2022,7 +2026,7 @@ class FileMakerWorkstation(RecordingWorkstation):
 
                 uid = fm.getfieldvalue(fm_rec, "uid")
                 if uid:
-                    # why us this inside the loop? Couldn't the sql be constructed first and then
+                    # why use this inside the loop? Couldn't the sql be constructed first and then
                     # only the values being gathered inside the loop?
                     sql_insert, insert_values, sql_update, update_values = self._import_table_get_sqls(dest_table_name,
                                                                                                        dsd,
