@@ -490,12 +490,14 @@ class KioskSQLDb(SqlSafeIdentMixin):
 
     @classmethod
     def delete_records(cls, table, where_field, where_value, add_to_repl_deleted=False):
-        """ delete records from a table just chaining where_field and where_value with "="
+        """ deprecated.
+            delete records from a table just chaining where_field and where_value with "="
         .. parameters: add_to_repl_deleted is optional. If set the uid and modified values of the
                         deleted records will be added to repl_deleted_uids.
 
-        .. todo: document properly
+        .. todo: deprecated
         """
+        logging.warning(f"{cls.__name__}.delete_records: this method is deprecated.")
         rc = 0
         cur = cls.get_cursor()
         try:
@@ -603,7 +605,7 @@ class KioskSQLDb(SqlSafeIdentMixin):
         if cur:
             try:
                 sql = "SELECT EXISTS ("
-                sql = sql + f"SELECT 1 FROM pg_tables WHERE"
+                sql = sql + f"{'SELECT'} 1 FROM pg_tables WHERE"
                 if schema == "":
                     sql = sql + f" (schemaname = 'public' or schemaname = '')"
                 else:
@@ -664,7 +666,7 @@ class KioskSQLDb(SqlSafeIdentMixin):
         cur = cls.get_cursor()
         if cur:
             try:
-                sql = "SELECT count(*) c from \"" + tablename + "\";"
+                sql = f"{'SELECT'} count(*) c from \"" + tablename + "\";"
                 cur.execute(sql)
                 exists = cur.fetchone()
                 cur.close()
@@ -675,7 +677,7 @@ class KioskSQLDb(SqlSafeIdentMixin):
                 cur.close()
             except:
                 pass
-        return (False)
+        return False
 
     @classmethod
     def drop_table_if_exists(cls, tablename, namespace=""):
