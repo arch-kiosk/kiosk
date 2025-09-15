@@ -65,7 +65,7 @@ def register_menus():
                           (current_user.fulfills_requirement(ENTER_FILE_ARCHIVES) and (not is_local_server(cfg) or
                             kioskglobals.is_development_system()))
                           if hasattr(current_user, "fulfills_requirement") else False,
-                          endpoint="filerepository.archive_selector_dialog",
+                          endpoint="filerepository.select_archive_dialog",
                           menu_cfg=plugin.get_menu_config(),
                           parent_menu="file repository"),
             ]
