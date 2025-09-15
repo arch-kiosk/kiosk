@@ -27,8 +27,8 @@ class ApiDeletionsResult(Schema):
                   "records")
         ordered = True
 
-    result_msg: fields.Str()
-    records: fields.List(fields.List(fields.Str()))
+    result_msg = fields.Str()
+    records = fields.List(fields.List(fields.Str()))
 
 
 class ApiDeletions(Resource):
@@ -39,9 +39,10 @@ class ApiDeletions(Resource):
 
     @httpauth.login_required
     def get(self):
-        ''' retrieves information about deletions of a certain time span
+        """ retrieves information about deletions of a certain time span
             ---
             summary: retrieves a list of deletions
+            description: retrieves a list of deletions
             security:
                 - jwt: []
             parameters:
@@ -50,8 +51,7 @@ class ApiDeletions(Resource):
                   schema: ApiDeletionsGetParameter
             responses:
                 '200':
-                    description: returns a list of json records.
-                    IF neither parameter is set returns a list of distinct days on which a deletion occurred.
+                    description: returns a list of json records. IF neither parameter is set returns a list of distinct days on which a deletion occurred.
                     content:
                         application/json:
                             schema: ApiDeletionsResult
@@ -60,7 +60,7 @@ class ApiDeletions(Resource):
                     content:
                         application/json:
                             schema: LoginError
-        '''
+        """
 
         # ******************************************
         # get main
@@ -85,18 +85,18 @@ class ApiDeletions(Resource):
                 result = self.get_distinct_deletion_days()
             else:
                 sql = f"""
-                    {'select'} "modified"::varchar, "table" record_type, "repl_workstation_id" dock, count(uid) c from "repl_deleted_uids"
+                    {'select'} coalesce("master_deletion_ww", "modified")::varchar modified, "table" record_type, "repl_workstation_id" dock, count(uid) c from "repl_deleted_uids"
                 """
                 if from_date and to_date:
-                    sql_where = f" WHERE modified::date >=%s AND modified::date <= %s"
+                    sql_where = f""" WHERE coalesce("master_deletion_ww", "modified")::date >=%s AND coalesce("master_deletion_ww", "modified")::date <= %s"""
                     params = [from_date, to_date]
                 elif from_date:
-                    sql_where = f" WHERE modified::date >=%s"
+                    sql_where = f""" WHERE coalesce("master_deletion_ww", "modified")::date >=%s"""
                     params = [from_date]
                 else:
-                    sql_where = f" WHERE modified::date <=%s"
+                    sql_where = f""" WHERE coalesce("master_deletion_ww", "modified")::date <=%s"""
                     params = [to_date]
-                sql = sql + sql_where + """ group by modified, "table", "repl_workstation_id" """
+                sql = sql + sql_where + """ group by coalesce("master_deletion_ww", "modified"), "table", "repl_workstation_id" """
                 result['records'] = KioskSQLDb.get_records(sql, params, raise_exception=True)
                 result['result_msg'] = "ok"
         except BaseException as e:
@@ -106,7 +106,9 @@ class ApiDeletions(Resource):
     def get_distinct_deletion_days(self):
         result = {}
         sql = """
-            select distinct "modified"::date::varchar from public.repl_deleted_uids order by modified
+            select distinct coalesce("master_deletion_ww", "modified")::timestamp::varchar modified
+            from public.repl_deleted_uids
+            order by modified
         """
 
         result['records'] = KioskSQLDb.get_records(sql, raise_exception=True)

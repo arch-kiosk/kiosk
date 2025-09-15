@@ -21,6 +21,7 @@ import {
 } from "../lib/applib";
 import "./fileview.ts"
 import { KioskStoreAppComponent } from "../../kioskapplib/kioskStoreAppComponent"
+import { DateTime } from "luxon"
 
 class FileRecord {
     identifier: string
@@ -154,7 +155,7 @@ class FileWidget extends KioskStoreAppComponent {
                                         "format": "datetime(date)"
                                     },
                                     "modified_timestamp": {
-                                        "field_or_instruction": "modified",
+                                        "field_or_instruction": "modified_ww",
                                         "default": "",
                                     },
                                     "modified_by": {
@@ -249,7 +250,7 @@ class FileWidget extends KioskStoreAppComponent {
             let file = new FileRecord()
             file.identifier = r.identifier
             file.modified_by = r.modified_by ? r.modified_by : "?"
-            file.modified = new Date(r.modified_timestamp)
+            file.modified = DateTime.fromISO(r.modified_timestamp).toJSDate()  // new Date(r.modified_timestamp)
             file.uid_file = r.uid_file
             file.description = r.description
             file.image_description = r.image_description
@@ -385,7 +386,7 @@ class FileWidget extends KioskStoreAppComponent {
 
     protected selectImage(e: CustomEvent) {
         const uuid = e.detail.uuid
-        debugger;
+        // debugger;
         this.selected_image = uuid
         // see comment below about getCurrentFileList
         // e.detail["fileList"] = this.getCurrentFileList()

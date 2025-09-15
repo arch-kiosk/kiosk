@@ -73,7 +73,7 @@ class DateSelector extends KioskStoreAppComponent {
         const cql = { "cql": {
                 "base": {
                     "scope": {
-                        "archival_entity": "browse()",
+                        // "archival_entity": "browse()",
                         "site": "browse()",
                     },
                     "target": {
@@ -118,12 +118,14 @@ class DateSelector extends KioskStoreAppComponent {
 
     loadWorkDays(records: Array<AnyDict>, deletionRecords: Array<Array<string>>) {
         const workDays = new Set<number>(records.map((r) => {
-            return DateTime.fromISO(r["data"], {zone: "utc"}).toMillis();
+            return DateTime.fromISO(r["data"]).startOf("day").toMillis();
         }))
         deletionRecords.forEach(r => {
             try {
-                const d = DateTime.fromISO(r[0], {zone: "utc"}).toMillis()
-                // if (r[0] === "2025-09-10") debugger;
+                // Deletion Timestamps are expected to be _WW time stamps. Legacy deletion timestamps are UTC, so
+                // they can be a day off.
+                const d = DateTime.fromSQL(r[0]).startOf("day").toMillis()
+                // if (r[0].startsWith("2025-09-13")) debugger;
                 workDays.add(d);
             } catch {}
         })
@@ -136,7 +138,7 @@ class DateSelector extends KioskStoreAppComponent {
 
     jumpToWorkday(evt: MouseEvent) {
         const el = <HTMLElement>evt.currentTarget
-        const selectedDate = DateTime.fromJSDate(this.selected_date, { zone: "utc" }).startOf("day")
+        const selectedDate = DateTime.fromJSDate(this.selected_date).startOf("day")
         const selectedDateMs = selectedDate.toMillis()
         let nextIndex: number
 
@@ -181,12 +183,12 @@ class DateSelector extends KioskStoreAppComponent {
         let start_date = this.selected_date.getDate() - 3;
         let end_date = this.selected_date.getDate() + 3;
         let dateList: Array<any> = [];
-        const selectedDate = DateTime.fromJSDate(this.selected_date, { zone: "utc" }).startOf("day")
+        const selectedDate = DateTime.fromJSDate(this.selected_date).startOf("day")
         console.log(`selected date is ${selectedDate}`);
         for (let d = start_date; d <= end_date; d++) {
             let newDate = new Date(selectedDate.toJSDate());
             newDate.setDate(d);
-            const jsDate = DateTime.fromJSDate(newDate, {zone: "utc"}).startOf("day")
+            const jsDate = DateTime.fromJSDate(newDate).startOf("day")
             // if (jsDate.day === 10) debugger;
             console.log("selected js-date", jsDate.toMillis())
             dateList.push(jsDate);

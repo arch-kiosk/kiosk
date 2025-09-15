@@ -13,6 +13,8 @@ import {
 import { unsafeCSS } from "lit";
 import { KioskStoreAppComponent } from "../../kioskapplib/kioskStoreAppComponent"
 import { store } from "../store/store";
+import { DateTime } from "luxon"
+
 class DeletionInfoRecord {
     record_type: string
     modified: string
@@ -91,7 +93,11 @@ class DeletionInfoWidget extends KioskStoreAppComponent {
             const unitId = r.primary_identifier
             const recordTypeName = r[1] in this.record_type_names?this.record_type_names[r[1]]:getStandardTerm(store.getState().constants,r[1],false,r[1])
             const deletion = new DeletionInfoRecord()
-            deletion.modified = new Date(r[0]).toLocaleString()
+            deletion.modified = DateTime.fromSQL(r[0], {zone: "utc"}).toLocaleString({
+                // dateStyle: "full",
+                timeStyle: "short",
+                // timeZone: "Australia/Sydney",
+            })
             deletion.record_type = recordTypeName
             deletion.dock = r[2]
             deletion.deleted_records = r[3]
@@ -218,14 +224,16 @@ class DeletionInfoWidget extends KioskStoreAppComponent {
                 <div class="deletion-list">
                     <div class="list-header red">dock</div>
                     <div class="list-header red">record type</div>
-                    <div class="list-header red">sync time</div>
-                    <div class="list-header red">number of deletions</div>
+                    <div class="list-header red" style="text-align: end">sync time</div>
+                    <div class="list-header red" style="text-align: end">number of deletions</div>
+                    <div class="list-header red">&nbsp;</div>
                     ${this.deletions.map((d: DeletionInfoRecord) =>
                     html`
                         <div>${d.dock}</div>
                         <div>${d.record_type}</div>
-                        <div>${d.modified}</div>
-                        <div>${d.deleted_records}</div>
+                        <div style="text-align: end">${d.modified}</div>
+                        <div style="text-align: end">${d.deleted_records}</div>
+                        <div>&nbsp;</div>
                     `
                 )}
                 </div>`

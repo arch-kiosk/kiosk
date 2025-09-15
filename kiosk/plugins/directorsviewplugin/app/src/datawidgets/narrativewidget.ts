@@ -4,6 +4,7 @@ import local_css from '../styles/component-narrative-widget.sass?inline';
 import {State} from "../store/reducer";
 import {StoreContextSelector, StoreDateSelector, StoreTeamSelector} from '../store/actions';
 import { FetchException} from "@arch-kiosk/kiosktsapplib"
+import { DateTime } from "luxon"
 
 import {
     getRecordTypeNames,
@@ -115,7 +116,7 @@ class NarrativeWidget extends KioskStoreAppComponent {
                                         "default": "",
                                     },
                                     "modified_timestamp": {
-                                        "field_or_instruction": "modified",
+                                        "field_or_instruction": "modified_ww",
                                         "default": "",
                                     },
                                     "id_excavator": {
@@ -185,7 +186,7 @@ class NarrativeWidget extends KioskStoreAppComponent {
             narrative.identifier = r.identifier
             narrative.domain_identifier = r.domain_identifier
             narrative.modified_by = r.modified_by ? r.modified_by : "?"
-            narrative.modified = new Date(r.modified_timestamp)
+            narrative.modified = DateTime.fromISO(r.modified_timestamp).toJSDate()
             narrative.narrative = r.narrative
             narrative.record_type = r.record_type
             this.record_types.add(narrative.record_type)
