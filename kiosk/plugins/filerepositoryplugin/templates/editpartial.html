@@ -70,7 +70,7 @@
                                     {% if "modify data" not in authorized_to %} disabled {% endif %}></button>
                             </div>
                         </div>
-                        <div class="kiosk-modal-dialog-toasts"></div>
+                        <div id="kiosk-modal-dialog-toasts" class="kiosk-modal-dialog-toasts"></div>
                         <form id="ef-form" method="post" class="grid-2 kiosk-align-flex-end">
                             {{ ef_form.csrf_token }}
                             <div class="col-12">
