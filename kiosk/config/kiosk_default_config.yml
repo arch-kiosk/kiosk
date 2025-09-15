@@ -85,14 +85,15 @@ file_repository:
   fullscreen_representation: 'master'
 
   recording_context_aliases:
-    locus_photo: "context"
+    locus_photo: "context photo"
     dayplan: "trench/area"
-    locus_relations: "context relations"
-    collected_material_photo: "collected material / small find"
-    site_note_photo: "site note"
+    locus_relations: "context relation"
+    collected_material_photo: "collected material / small find photo"
+    site_note: "site note"
+    site_note_photo: "site note photo"
     site: "site map"
     pottery_images: "pottery"
-    coordinate_photo: "coordinate"
+    coordinate_photo: "coordinate photo"
     coordinate_categories: "coordinate category"
     archival_entity_file: "archival entity"
 
