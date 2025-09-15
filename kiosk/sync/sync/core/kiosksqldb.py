@@ -7,9 +7,11 @@ import psycopg2.extras
 import psycopg2.extensions
 import threading
 
+from numpy import integer
 from psycopg2.pool import PoolError
 from sqlalchemy import column
 
+import kioskdatetimelib
 from kioskthreadedconnectionpool import KioskThreadedConnectionPool, PoolNoConnectionError
 
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT, TRANSACTION_STATUS_INERROR, \
@@ -522,28 +524,36 @@ class KioskSQLDb(SqlSafeIdentMixin):
         return rc
 
     @classmethod
-    def repl_mark_as_deleted(cls, table, where_field, where_value):
+    def repl_mark_as_deleted(cls, table, where_field, where_value,
+                             ts_delete_ww: datetime.datetime = None,
+                             ts_delete_tz: int = None):
         """ The uid and modified values of the
             deleted records will be added to repl_deleted_uids.
 
+            ts_delete_ww: the timestamp when the record was actually deleted from the master database
+            ts_delete_tz: Kiosk TimeZone Index for the ww time
+
+            Todo: time zone
         """
         rc = 0
         cur = cls.get_cursor()
+
         try:
             sql = f"""
             insert into \"repl_deleted_uids\"
-            (\"deleted_uid\", \"table\",\"repl_workstation_id\", \"modified\") 
-            select t.\"uid", '{table}', 'kiosk', t.\"modified" 
-            from \"{table}\" t 
-            where \"{where_field}\"=%s; 
+            ("deleted_uid", "table","repl_workstation_id", "modified", "master_deletion_ww", 
+            "master_deletion_tz") 
+            select t."uid", '{table}', 'kiosk', %s, %s, %s 
+            from {cls.sql_safe_ident(table)} t 
+            where {cls.sql_safe_ident(where_field)}=%s; 
             """
 
-            cur.execute(sql, [where_value])
+            cur.execute(sql, [kioskdatetimelib.get_utc_now(), ts_delete_ww, ts_delete_tz, where_value])
             logging.debug(str(cur.rowcount) + " new deleted uids added to repl_deleted_uids")
 
             rc = cur.rowcount
         except Exception as e:
-            logging.error("Exception in kioskstdlib.delete_records: " + repr(e))
+            logging.error("Exception in kioskstdlib.repl_mark_as_deleted: " + repr(e))
         finally:
             cur.close()
         return rc
@@ -1185,7 +1195,7 @@ class KioskSQLDb(SqlSafeIdentMixin):
         pass
 
     @classmethod
-    def get_table_columns(cls, tablename: str) -> Union[List[str],None]:
+    def get_table_columns(cls, tablename: str) -> Union[List[str], None]:
         """
         returns the column names of a table (by opening it with a cursor, not by accessing from information_schema)
         :param tablename: the table name, which can include a namespace
@@ -1208,6 +1218,6 @@ class KioskSQLDb(SqlSafeIdentMixin):
         return column_names
 
     @classmethod
-    def list_tables(cls, schema_name: str="public") -> List[str]:
+    def list_tables(cls, schema_name: str = "public") -> List[str]:
         sql = f"""SELECT tablename FROM pg_catalog.pg_tables where schemaname='{schema_name}';"""
         return [r[0] for r in cls.get_records(sql)]

@@ -34,6 +34,7 @@ from kiosksqldb import KioskSQLDb
 from kioskstdlib import report_progress
 from filerewirerer import FileRewirerer
 from databasedrivers import DatabaseDriver
+from tz.kiosktimezones import KioskTimeZones
 
 sync_version = '0.9'
 
@@ -80,6 +81,7 @@ class Synchronization(PluginLoader):
         self._rewired_files = 0
         self._table_rewire_files = ""
         self._ignored_files = 0  # this is just for testing purposes.
+        self._kiosk_time_zones: KioskTimeZones = None
         register_basic_types(self.type_repository)
         if self.autoload_plugins is not None:
             self.load_plugins(self.autoload_plugins)
@@ -95,6 +97,18 @@ class Synchronization(PluginLoader):
     @property
     def ignored_files(self):
         return self._ignored_files
+
+    @property
+    def kiosk_time_zones(self):
+        if not self._kiosk_time_zones:
+            self._kiosk_time_zones = KioskTimeZones()
+
+        return self._kiosk_time_zones
+
+    @kiosk_time_zones.setter
+    def kiosk_time_zones(self, value: KioskTimeZones):
+        self._kiosk_time_zones = value
+
 
     def load_plugins(self, plugins_to_load: List[str], is_plugin_active: typing.Union[typing.Callable, None]=None) -> bool:
         """
@@ -1268,6 +1282,7 @@ class Synchronization(PluginLoader):
 
             tables = dsd.list_tables()
             ctable = 0
+            deletion_utc = kioskdatetimelib.get_utc_now()  # Note: Just used as a placeholder
             for table in tables:
                 temp_table = "temp_" + table
                 sql = "select count(*) from \"" + temp_table + "\" where \"repl_deleted\" IS NOT DISTINCT FROM True"
@@ -1283,16 +1298,19 @@ class Synchronization(PluginLoader):
                                         f"synchronization from deleting anything")
                     else:
                         # first insert uids about to be deleted into the table repl_deleted_uids
-                        sql = f"{'insert'} into \"repl_deleted_uids\"(\"deleted_uid\", \"table\", \"repl_workstation_id\", \"modified\")"
-                        sql = sql + " select tmp.\"uid\", '" + table + "' \"table\", tmp.\"repl_workstation_id\", tmp.\"modified\""
+                        sql = f"{'insert'} into \"repl_deleted_uids\"(\"deleted_uid\", \"table\", \"repl_workstation_id\", \"modified\", \"master_deletion_ww\")"
+                        sql = sql + " select tmp.\"uid\", '" + table + "' \"table\", tmp.\"repl_workstation_id\", tmp.\"modified\", %s"
                         sql = sql + " from \"" + temp_table + "\" tmp"
                         sql = sql + " inner join \"" + table + "\" main on tmp.\"uid\" = main.\"uid\""
                         sql = sql + " where tmp.\"repl_deleted\" is not distinct from true"
                         sql = sql + " and not tmp.\"uid\" in (select \"deleted_uid\" from \"repl_deleted_uids\")"
                         sql = sql + " and coalesce(main.\"modified\", main.\"created\") < coalesce(tmp.\"modified\", tmp.\"created\")"
                         sql = sql + ";"
-                        cur.execute(sql)
+                        cur.execute(sql, [deletion_utc]) # Note: The master_deletion_ww inserted here is just a placeholder
                         logging.debug(str(cur.rowcount) + " new deleted uids added to repl_deleted_uids")
+
+                        if not self.set_deleted_uids_time_zones(proxy_time_stamp=deletion_utc):
+                            return False
 
                         sql = f" {'delete'} from \"" + table + "\" where \"" + table + "\".\"uid\" in "
                         sql = sql + "( "
@@ -1323,6 +1341,50 @@ class Synchronization(PluginLoader):
         except Exception as e:
             logging.error("Synchronization._sync_deleted_records: Exception " + repr(e))
         return False
+
+    def set_deleted_uids_time_zones(self, proxy_time_stamp):
+        """
+        sets all records in repl_deleted_uids that have just been marked with the utc proxy_time_stamp to the
+        translation of that proxy time stamp that matches the dock's last used time zone.
+        The result is a wrist watch timestamp for every deletion at the moment of synchronization (which is when
+        the deletion actually got instantiated)
+
+        :param proxy_time_stamp: the UTC time stamp that has been used to mark all the deletions that occurred during
+                                  the current sync run
+        """
+        ws_time_zones = {}
+        try:
+            tz_indices = KioskSQLDb.get_records("""
+                                                select "id", "most_recent_time_zone_index" from repl_workstation 
+                                                   where "most_recent_time_zone_index" is not null
+                                                """,
+                                             raise_exception=True)
+            c = 0
+            for r in tz_indices:
+                logging.debug(f"{self.__class__.__name__}.set_deleted_uids_time_zones: setting timestamps for records deleted by dock {r['id']}")
+                sql = """
+                      update repl_deleted_uids 
+                      set master_deletion_ww = %s, 
+                          master_deletion_tz = %s 
+                      where repl_workstation_id=%s and master_deletion_tz is null 
+                        and master_deletion_ww=%s"""
+
+                params =[
+                    kioskdatetimelib.utc_ts_to_timezone_ts(proxy_time_stamp, self.kiosk_time_zones.get_iana_time_zone(r["most_recent_time_zone_index"])),
+                    r["most_recent_time_zone_index"],
+                    r["id"],
+                    proxy_time_stamp
+                ]
+
+                c += KioskSQLDb.execute(sql, params)
+
+            logging.debug(
+                f"{self.__class__.__name__}.set_deleted_uids_time_zones: timestamps for {c} records set.")
+            return True
+
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}._set_deleted_uids_time_zones: {repr(e)}")
+            return False
 
     def _sync_change_workstation_states(self):
         """

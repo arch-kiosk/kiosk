@@ -1,6 +1,8 @@
 # import time
 import logging
 import os
+from typing import Union
+
 import kioskstdlib
 import datetime
 
@@ -372,20 +374,25 @@ class FileRepository:
         rc = ctx_file.upload(file_path_and_name, override=True)
         return rc, ctx_file.last_error
 
-    def delete_file_from_repository(self, uid, clear_referencing_records=False, commit=False):
+    def delete_file_from_repository(self, uid, clear_referencing_records=False, commit=False,
+                                    ts_delete_ww: datetime.datetime=None,
+                                    ts_delete_tz: int=None) -> Union[int,bool]:
         """
             removes a record and its file from the repository. If there is only a record but no file,
             the file will be removed with a warning.
             If the file's record is still referenced by any of the tables in the dsd that have a file-field,
             the process will fail unless clear_referencing_records is set to True.
 
-            23.Feb19: After deletion the uid of the file is added in repl_deleted_uids.
+            23.Feb19: After deletion the uid of the file is added in repl_deleted_uids via KioskLogicalFile.mark_as_deleted
             09.May19: New version with new file management.
 
         :param commit:  If commit is set to false, the caller needs to commit KioskSQLDb
         :param uid: the file's uid
         :param clear_referencing_records: True if all the fields in all the tables that reference the
                                           image should be set to None
+        :param ts_delete_ww: timestamp when the file was deleted
+        :param ts_delete_tz:  time zone for the _ww ts
+
         :return: False if an error occurred
                  -1 if the file's record is still referenced by any other table
                  True if file and record are removed.
@@ -402,47 +409,51 @@ class FileRepository:
 
         # start of main method
         rc = True
-        ctx_file = self.get_contextual_file(uid)
-        if not ctx_file:
-            logging.error(f"{self.__class__.__name__}.delete_file_from_repository: File with uid {uid} does not exist.")
-            return False
+        try:
+            ctx_file = self.get_contextual_file(uid)
+            if not ctx_file:
+                logging.error(f"{self.__class__.__name__}.delete_file_from_repository: File with uid {uid} does not exist.")
+                return False
 
-        ref = self.get_actual_file_references(uid, stop_after_one=False)
-        if ref:
-            if not clear_referencing_records:
-                logging.error(
-                    f"{self.__class__.__name__}.delete_file_from_repository: File with uid {uid} "
-                    f"cannot be deleted since it is still referenced by {ref}")
-                return -1
-            else:
-                try:
-                    for t in ref:
-                        clear_image_reference(t[0], t[1], uid)
-                    logging.debug(
-                        f"{self.__class__.__name__}.delete_file_from_repository: References for file with uid {uid} "
-                        f"deleted")
-                except Exception as e:
-                    logging.error("Exception in clear_image_reference: " + repr(e))
-                    rc = False
+            ref = self.get_actual_file_references(uid, stop_after_one=False)
+            if ref:
+                if not clear_referencing_records:
+                    logging.error(
+                        f"{self.__class__.__name__}.delete_file_from_repository: File with uid {uid} "
+                        f"cannot be deleted since it is still referenced by {ref}")
+                    return -1
+                else:
+                    try:
+                        for t in ref:
+                            clear_image_reference(t[0], t[1], uid)
+                        logging.debug(
+                            f"{self.__class__.__name__}.delete_file_from_repository: References for file with uid {uid} "
+                            f"deleted")
+                    except Exception as e:
+                        logging.error("Exception in clear_image_reference: " + repr(e))
+                        rc = False
 
-        if rc:
+            if rc:
+                rc = False
+                if not ctx_file.delete(commit=False,ts_delete_ww=ts_delete_ww, ts_delete_tz=ts_delete_tz):
+                    logging.error("delete_file_from_repository: record " + uid + " could not be deleted from images")
+                    try:
+                        logging.debug("delete_file_from_repository: rollback of KioskSQLDb")
+                        KioskSQLDb.rollback()
+                    except BaseException as e:
+                        logging.error(f"{self.__class__.__name__}.delete_file_from_repository: "
+                                      f"Exception when rolling back: {repr(e)}")
+                else:
+                    try:
+                        if commit:
+                            KioskSQLDb.commit()
+                        rc = True
+                    except BaseException as e:
+                        logging.error(f"{self.__class__.__name__}.delete_file_from_repository: "
+                                      f"Exception when rolling back: {repr(e)}")
+        except Exception as e:
+            logging.error(f"{self.__class__.__name__}.delete_file_from_repository: {repr(e)}")
             rc = False
-            if not ctx_file.delete(commit=False):
-                logging.error("delete_file_from_repository: record " + uid + " could not be deleted from images")
-                try:
-                    logging.debug("delete_file_from_repository: rollback of KioskSQLDb")
-                    KioskSQLDb.rollback()
-                except BaseException as e:
-                    logging.error(f"{self.__class__.__name__}.delete_file_from_repository: "
-                                  f"Exception when rolling back: {repr(e)}")
-            else:
-                try:
-                    if commit:
-                        KioskSQLDb.commit()
-                    rc = True
-                except BaseException as e:
-                    logging.error(f"{self.__class__.__name__}.delete_file_from_repository: "
-                                  f"Exception when rolling back: {repr(e)}")
         return rc
 
     def get_thumbnail(self, uid, representation_id):

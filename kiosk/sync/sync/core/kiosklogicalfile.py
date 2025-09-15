@@ -11,11 +11,13 @@ from kiosksqldb import KioskSQLDb
 from kioskrepresentationtype import KioskRepresentationType, KioskRepresentations
 from kioskfilecache import KioskFileCache
 from kioskfilesmodel import KioskFilesModel
+import datetime
 
 # import filerepository
 
 FILES_TABLE_NAME = "images"
 FILE_ATTRIBUTES_VERSION = 2
+
 
 class KioskLogicalFile:
     def __init__(self, uid, session_deprecated=None, cache_manager=None, file_repository=None,
@@ -222,7 +224,7 @@ class KioskLogicalFile:
             # fixes an old error where NEFs were rotated and so width and height
             # got confused. NEFs that don't have a "rotate" attribute need new attributes
             if "format" in file_record.image_attributes and \
-                file_record.image_attributes["format"].upper() in ["NEF", "CR2"]:
+                    file_record.image_attributes["format"].upper() in ["NEF", "CR2"]:
                 if "rotate" not in file_record.image_attributes:
                     file_record.image_attributes = {}
                     logging.debug(f"{self.__class__.__name__}.get_file_attributes: "
@@ -232,7 +234,7 @@ class KioskLogicalFile:
             # Fixes an old error where the file attributes are potentially not from the physical
             # file but from a representation
             if not "version" in file_record.image_attributes or \
-                file_record.image_attributes["version"] < FILE_ATTRIBUTES_VERSION:
+                    file_record.image_attributes["version"] < FILE_ATTRIBUTES_VERSION:
                 logging.debug(f"{self.__class__.__name__}.get_file_attributes: "
                               f"File {self._uid} needs new attributes.")
                 file_record.image_attributes = {}
@@ -254,7 +256,7 @@ class KioskLogicalFile:
         return {}
 
     def get_dimensions(self):
-        rc = [0,0]
+        rc = [0, 0]
         try:
             attr = self.get_file_attributes()
             if isinstance(attr, dict):
@@ -268,6 +270,7 @@ class KioskLogicalFile:
         except BaseException as e:
             logging.debug(f"{self.__class__.__name__}.get_dimensions: Image {self._uid} caused Exception {repr(e)}")
         return rc
+
     def get(self, representation_type: KioskRepresentationType = None,
             create=False, create_to_file=None):
         """
@@ -301,7 +304,7 @@ class KioskLogicalFile:
         gets the representation type that promises the best viewing results for the file's size and type
         :return:
         """
-        attr =  self.get_file_attributes()
+        attr = self.get_file_attributes()
         if attr and "width" in attr and "height" in attr:
             return KioskRepresentationType(
                 KioskRepresentations.get_closest_dimension(
@@ -309,7 +312,6 @@ class KioskLogicalFile:
         else:
             return KioskRepresentationType(
                 KioskRepresentations.get_fullscreen_representation())
-
 
     def get_representation(self, representation_type, create, create_to_file=None, renew=False):
         """
@@ -330,7 +332,6 @@ class KioskLogicalFile:
             except BaseException as e:
                 logging.error(f"{self.__class__.__name__}.get_representation : {repr(e)}")
                 representation_type.unique_name = "master"
-
 
         path_and_filename = self._get_representation_from_cache(representation_type, renew)
         if path_and_filename:
@@ -502,13 +503,17 @@ class KioskLogicalFile:
 
         return False
 
-    def delete(self, commit=True):
+    def delete(self, commit=True,
+               ts_delete_ww: datetime.datetime = None,
+               ts_delete_tz: int = None):
         """
         deletes the file and with all its representations.
-        note: Use ContextualFile.delete if you want to make sure that the file is being archived first.
+        note: Use Contextual File.delete if you want to make sure that the file is being archived first.
 
         :param commit: leaves the general commit and rollback to the caller if False but always uses a savepoint
                        to rollback the changes made within the method.
+        :param ts_delete_ww: timestamp when the file was deleted
+        :param ts_delete_tz:  time zone for the _ww ts
 
         :return: bool
         """
@@ -527,7 +532,9 @@ class KioskLogicalFile:
             logging.warning(f"{self.__class__.__name__}.delete: Non fatal: cache could not be invalidated. ")
 
         try:
-            if KioskSQLDb.repl_mark_as_deleted(FILES_TABLE_NAME, "uid", self._uid):
+            if KioskSQLDb.repl_mark_as_deleted(FILES_TABLE_NAME, "uid", self._uid,
+                                               ts_delete_ww=ts_delete_ww,
+                                               ts_delete_tz=ts_delete_tz):
                 rollback = True
                 try:
                     filename = self.get()

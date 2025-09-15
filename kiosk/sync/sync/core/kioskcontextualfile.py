@@ -34,9 +34,9 @@ class KioskContextualFile(KioskLogicalFile):
         self.description = None
         self.export_filename = None
         self.modified_by = None
-        self._modified: Union[datetime.datetime|None] = None
+        self._modified: Union[datetime.datetime | None] = None
         self._modified_tz: Union[int, None] = None
-        self._modified_ww: Union[datetime.datetime|None] = None
+        self._modified_ww: Union[datetime.datetime | None] = None
         self.ts_file = None
         self.ts_file: datetime.datetime
         self.image_proxy = None
@@ -76,7 +76,7 @@ class KioskContextualFile(KioskLogicalFile):
     def modified_ww(self):
         return self._modified_ww
 
-    def set_modified(self, utc: datetime.datetime, tz: int, ww:datetime.datetime):
+    def set_modified(self, utc: datetime.datetime, tz: int, ww: datetime.datetime):
         """
         sets all components of the modified field
         :param utc: the utc datetime
@@ -234,7 +234,6 @@ class KioskContextualFile(KioskLogicalFile):
             raise Exception(f"{self.__class__.__name__}.file_hash_exists: "
                             f"Can't create a hash for file {src_path_and_filename}")
 
-
     def upload(self, src_path_and_filename: str,
                override: bool = False,
                backup_old: bool = True,
@@ -305,14 +304,14 @@ class KioskContextualFile(KioskLogicalFile):
                     }
                     if log_duplicate_errors:
                         logging.error(f"{self.__class__.__name__}.upload: "
-                                  f"The repository file \"{uid_hash}\" is identical to the import"
-                                  f" candidate {src_path_and_filename}. It is not allowed to import a duplicate.")
+                                      f"The repository file \"{uid_hash}\" is identical to the import"
+                                      f" candidate {src_path_and_filename}. It is not allowed to import a duplicate.")
                         logging.debug(f"{self.__class__.__name__}.upload: "
                                       f"md5 hash is {md5_hash}")
                     else:
                         logging.debug(f"{self.__class__.__name__}.upload: "
-                                  f"The repository file \"{uid_hash}\" is identical to the import"
-                                  f" candidate {src_path_and_filename}. It is not allowed to import a duplicate.")
+                                      f"The repository file \"{uid_hash}\" is identical to the import"
+                                      f" candidate {src_path_and_filename}. It is not allowed to import a duplicate.")
                         logging.debug(f"{self.__class__.__name__}.upload: "
                                       f"md5 hash is {md5_hash}")
                     return None
@@ -379,7 +378,8 @@ class KioskContextualFile(KioskLogicalFile):
                 except FileNotFoundError as e:
                     pass
                 except BaseException as e:
-                    logging.error(f"{self.__class__.__name__}.upload: Error deleting old file {current_file}: {repr(e)}")
+                    logging.error(
+                        f"{self.__class__.__name__}.upload: Error deleting old file {current_file}: {repr(e)}")
                     raise e
 
             directory = kioskstdlib.get_file_path(dst_path_and_filename)
@@ -597,12 +597,15 @@ class KioskContextualFile(KioskLogicalFile):
         """
         return tag in self._tags
 
-
-    def delete(self, no_history=False, commit=True) -> bool:
+    def delete(self, no_history=False, commit=True,
+               ts_delete_ww: datetime.datetime = None,
+               ts_delete_tz: int = None) -> bool:
         """
         deletes the file and all its representations. Physically and logically!
         :param commit: leaves the commit to the caller if False
         :param no_history: if set to True, the file will not be moved to the history directory
+        :param ts_delete_ww: timestamp when the file was deleted
+        :param ts_delete_tz:  time zone for the _ww ts
         :return: bool
         """
 
@@ -610,7 +613,7 @@ class KioskContextualFile(KioskLogicalFile):
             if not self._archive_file():
                 logging.error(f"{self.__class__.__name__}.delete: File not archived: deletion aborted.")
                 return False
-        rc = super().delete(commit)
+        rc = super().delete(commit, ts_delete_ww=ts_delete_ww, ts_delete_tz=ts_delete_tz)
         return rc
 
     def _fetch_contexts(self):
@@ -627,8 +630,8 @@ class KioskContextualFile(KioskLogicalFile):
                           f"error in FileIdentifierCache.get_contexts_for_file: {repr(e)}")
             raise e
 
-    def push_contexts(self, commit_on_change=False, idc: MemoryIdentifierCache=None,
-                      modified_info: Tuple[datetime.datetime, int, datetime.datetime, str]=None):
+    def push_contexts(self, commit_on_change=False, idc: MemoryIdentifierCache = None,
+                      modified_info: Tuple[datetime.datetime, int, datetime.datetime, str] = None):
         """
         pushes the change in contexts to the database.
         :param modified_info: List with four elements or none
@@ -685,7 +688,7 @@ class KioskContextualFile(KioskLogicalFile):
         return False
 
     def _push_context(self, ctx: tuple, cur, use_idc: IdentifierCache = None,
-                      modified_info: Tuple[datetime.datetime, int, datetime.datetime, str]=None) -> bool:
+                      modified_info: Tuple[datetime.datetime, int, datetime.datetime, str] = None) -> bool:
         """
         adds a file to the context and record type.
         :param ctx: a tuple consisting of the context identifier and file_location.
@@ -716,7 +719,7 @@ class KioskContextualFile(KioskLogicalFile):
         # ok, we can create the sql
         sql, params = self._get_insert_context_sql(file_location, file_location_field,
                                                    identifier_uuid, identifier_table,
-                                                   modified_info = modified_info)
+                                                   modified_info=modified_info)
         if not sql:
             return False
 
@@ -740,7 +743,7 @@ class KioskContextualFile(KioskLogicalFile):
 
     def _get_insert_context_sql(self, file_location: str, file_location_field: str,
                                 identifier_uuid: str, identifier_table: str,
-                                modified_info: Tuple[datetime.datetime, int, datetime.datetime, str]=None):
+                                modified_info: Tuple[datetime.datetime, int, datetime.datetime, str] = None):
         """
         returns the sql string that inserts a new record into a file location
         :param file_location: the table where the file is stored
@@ -790,7 +793,7 @@ class KioskContextualFile(KioskLogicalFile):
             modified_by = modified_info[3]
         else:
             modified = self.modified
-            modified_tz =self.modified_tz
+            modified_tz = self.modified_tz
             modified_ww = self.modified_ww
             modified_by = self.modified_by if self.modified_by else "sys"
 

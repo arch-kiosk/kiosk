@@ -335,7 +335,7 @@ class Dock:
                 cur.execute("DELETE " + "FROM \"repl_workstation\" where \"id\" = %s", [self._id])
                 sql = "INSERT " + ("INTO \"repl_workstation\"(\"id\",\"description\",\"recording_group\", \"state\", "
                                    "\"workstation_type\", \"user_time_zone_index\", \"grant_access_to\", \"most_recent_time_zone_index\") "
-                                   "VALUES(%s, %s, %s, %s, %s, %s, %s)")
+                                   "VALUES(%s, %s, %s, %s, %s, %s, %s, %s)")
 
                 cur.execute(sql, [self._id,
                                   self.description,

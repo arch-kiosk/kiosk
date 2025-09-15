@@ -12,7 +12,7 @@ from tz.kiosktimezones import KioskTimeZones
 
 class KioskTimeZoneInstance:
     """
-    A class representing time zone information for an instance of user-tz and recording-tz
+    A class representing time zone information for an instance of user-tz
     Used to cache and transfer time zone information of a certain pair of time zones
     between systems, classes and methods
     """

@@ -1475,10 +1475,6 @@ class FileMakerWorkstation(RecordingWorkstation):
 
                     self.x_state_info[self.XSTATE_IMPORT_ERROR] = self.IMPORT_ERROR_FM_PREPARE
 
-                    # time zone relevant
-                    # this is required so that synchronization knows
-                    # what actual time zone a workstation was using during import
-                    self.most_recent_time_zone_index = ws_time_zone.user_tz_index
                     rc = self.save()
                     if not rc:
                         raise Exception("Saving dock state failed.")
@@ -1495,7 +1491,13 @@ class FileMakerWorkstation(RecordingWorkstation):
                                             "Database ok, importing data ...")
                             logging.info(("FileMakerWorkstation._import_from_filemaker: "
                                           "import of fm-database %s successful." % fm.opened_filename))
-                            rc = True
+                            # time zone relevant
+                            # this is required so that synchronization knows
+                            # what actual time zone a workstation was using during import
+                            self.most_recent_time_zone_index = ws_time_zone.user_tz_index
+                            rc = self.save()
+                            if not rc:
+                                raise Exception("Saving dock state failed.")
                     else:
                         if self.x_state_info[self.XSTATE_IMPORT_ERROR] == self.IMPORT_ERROR_FM_IMPORT_RECORD:
                             logging.error(f"{self.__class__.__name__}._import_from_filemaker: "
