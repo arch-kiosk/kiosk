@@ -747,7 +747,17 @@ def repository_delete_file(uid, force):
                                 type_repository=kioskglobals.type_repository,
                                 plugin_loader=current_app
                                 )
-    rc = file_repos.delete_file_from_repository(uid, clear_referencing_records=force, commit=True)
+    try:
+        delete_tz = current_user.get_active_tz_index()
+        delete_ww = kioskdatetimelib.utc_ts_to_timezone_ts(kioskdatetimelib.get_utc_now(),
+                                                           current_user.get_active_time_zone_name(iana=True))
+    except Exception as e:
+        logging.warning(f"filerepositorycontroller.repository_delete_file: failed to get current time and time zone")
+        delete_tz = None
+        delete_ww = None
+
+    rc = file_repos.delete_file_from_repository(uid, clear_referencing_records=force, commit=True,
+                                                ts_delete_ww=delete_ww, ts_delete_tz=delete_tz)
     if rc is True or (rc == -1 and force):
         try:
             # todo: This is too coarse. The qc processing should be limited to the
@@ -798,9 +808,18 @@ def repository_bulk_delete_files():
                                 )
 
     try:
+        delete_tz = current_user.get_active_tz_index()
+        delete_ww = kioskdatetimelib.utc_ts_to_timezone_ts(kioskdatetimelib.get_utc_now(),
+                                                           current_user.get_active_time_zone_name(iana=True))
+    except Exception as e:
+        logging.warning(f"filerepositorycontroller.repository_bulk_delete_files: failed to get current time and time zone")
+        delete_tz = None
+        delete_ww = None
+    try:
         deleted_files = []
         for uid in files:
-            if file_repos.delete_file_from_repository(uid, clear_referencing_records=True, commit=True) == True:
+            if file_repos.delete_file_from_repository(uid, clear_referencing_records=True, commit=True,
+                                                      ts_delete_ww=delete_ww, ts_delete_tz=delete_tz) == True:
                 deleted_files.append(uid)
             else:
                 logging.info(f"filerepositorycontroller.repository_bulk_delete_files: File {uid} was not deleted.")
