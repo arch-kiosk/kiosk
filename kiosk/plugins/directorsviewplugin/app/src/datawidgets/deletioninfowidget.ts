@@ -230,7 +230,7 @@ class DeletionInfoWidget extends KioskStoreAppComponent {
                     ${this.deletions.map((d: DeletionInfoRecord) =>
                     html`
                         <div>${d.dock}</div>
-                        <div>${d.record_type}</div>
+                        <div>${d.record_type.replace("_", " ")}</div>
                         <div style="text-align: end">${d.modified}</div>
                         <div style="text-align: end">${d.deleted_records}</div>
                         <div>&nbsp;</div>
