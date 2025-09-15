@@ -47,11 +47,31 @@ from (
 where r2_images.uid = locus_relations.uid;
     """
 
-    # time zone relevance
-    # this is using the current UTC time for the "modified" in repl_deleted_uids, which is okay.
+    # todo: time zone - repl_deleted_uids needs time zone information
+    #  this is using the current UTC time for the "modified" in repl_deleted_uids, which is okay.
+    #  This needs the current user's time zone. But synchronization does not have that information
+    #  so synchronization needs more info first. See also further down.
+    # sql_delete_r2_without_image_insert_delete_uids = """
+    # insert into repl_deleted_uids(deleted_uid, "table", repl_workstation_id, modified, master_deletion_ww, master_deletion_tz)
+    #     select distinct r2.uid, 'locus_relations', 'kiosk', now(), %s, %s from locus_relations r1
+    #     inner join relation_types on r1.type = relation_types.r1
+    #     inner join locus_relations r2
+    #         on r1.uid_locus = r2.uid_locus_2_related and
+    #            r2.uid_locus = r1.uid_locus_2_related and
+    #            r2.type = relation_types.r2
+    # where r1.uid_locus is not null and r1.uid_locus_2_related is not null and
+    #       r2.uid_locus is not null and r2.uid_locus_2_related is not null and
+    #       r1.type is not null and r2.type is not null
+    #       and r1.modified > r2.modified
+    #       and r1.uid_sketch is not null
+    #       and r2.uid_sketch is null
+    #     """
+
+    # todo: time zone - Until the above issue is solved we keep it the old way, which will lead to UTC time stamps in
+    #  director's view
     sql_delete_r2_without_image_insert_delete_uids = """
     insert into repl_deleted_uids(deleted_uid, "table", repl_workstation_id, modified)
-        select distinct r2.uid, 'locus_relations', 'kiosk', now() from locus_relations r1
+        select distinct r2.uid, 'locus_relations', 'kiosk', now() from locus_relations r1 
         inner join relation_types on r1.type = relation_types.r1
         inner join locus_relations r2
             on r1.uid_locus = r2.uid_locus_2_related and
@@ -194,8 +214,8 @@ where r1.uid not in (
             # return self.manage_locus_relations_v2()
 
     def manage_locus_relations_v3(self, chron_types_sql):
-        def execute(sql, text=""):
-            rc = KioskSQLDb.execute(sql)
+        def execute(sql, text="", parameters=None):
+            rc = KioskSQLDb.execute(sql, parameters)
             if text:
                 if rc:
                     logging.info(f"{rc} {text}.")
@@ -226,8 +246,12 @@ where r1.uid not in (
 
             # delete subordinate relations that don't have an image while the dominant relation has one
             # add them to repl_deleted_uids first
+            # todo time zone: This needs the current user's time zone. But synchronization does not have that information
+            #  so synchronization needs more info first: #
             sql = sql_relation_types + " " + self.sql_delete_r2_without_image_insert_delete_uids
             execute(sql, " subordinate locus relations will be recreated because the dominant relation has an image.")
+            # execute(sql, " subordinate locus relations will be recreated because the dominant relation has an image.",
+            #         parameters = [now(), 0])
 
             # now delete them
             sql = sql_relation_types + " " + self.sql_delete_r2_without_image
