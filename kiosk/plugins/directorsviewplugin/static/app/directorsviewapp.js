@@ -30036,7 +30036,7 @@ function print() { __p += __j.call(arguments, '') }
                     ${this.deletions.map(
         (r) => S`
                         <div>${r.dock}</div>
-                        <div>${r.record_type}</div>
+                        <div>${r.record_type.replace("_", " ")}</div>
                         <div style="text-align: end">${r.modified}</div>
                         <div style="text-align: end">${r.deleted_records}</div>
                         <div>&nbsp;</div>
