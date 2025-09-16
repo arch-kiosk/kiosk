@@ -92,6 +92,9 @@ export class StructuredKioskQuery extends KioskAppComponent {
     private grid!: Grid;
 
     @state()
+    private selectedItems: any = [];
+
+    @state()
     data: ApiResultKioskQuery | null = null;
 
     @consume({ context: constantsContext })
@@ -583,10 +586,16 @@ export class StructuredKioskQuery extends KioskAppComponent {
         // console.log(this.data)
         return html`
             <vaadin-grid style="${this.activeView == RESULT_VIEW_TYPE_DATA ? "display: block" : "display:none"}"
-                         id="grid" .dataProvider="${this.dataProvider}" theme="no-border">
+                         id="grid" .dataProvider="${this.dataProvider}" theme="no-border" .selectedItems="${this.selectedItems}"
+                         @active-item-changed="${(e: any) => {
+                            const item = e.detail.value;
+                            this.selectedItems = item ? [item] : [];
+                        }}"">
                 ${this.data ? this.data.document_information.column_order.map((col: string) => html`
                         <vaadin-grid-column
                             data-column="${col}"
+                            auto-width
+                            resizable
                             ${columnHeaderRenderer(this.headerRenderer, [])}
                             ${columnBodyRenderer(this.cellRenderer, [])}></vaadin-grid-column>
                     `,
