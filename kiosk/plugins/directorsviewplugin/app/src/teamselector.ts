@@ -58,6 +58,7 @@ class TeamSelector extends KioskStoreAppComponent {
                             },
                             "base": {
                                 "scope": {
+                                    "archival_entity": "browse()",
                                     "site": "browse()"
                                 },
                                 "target": {

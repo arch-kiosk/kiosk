@@ -240,10 +240,10 @@ class LocusWidget extends KioskStoreAppComponent {
                 locus.identifier = r.primary_identifier
                 locus.unitId = r.identifier
                 locus.record_type = r.record_type
-                if (r.modified > locus.modified)
-                    locus.modified = r.modified
-                    locus.modified_by = r.modified_by
-
+                if (r.modified > locus.modified) {
+                    locus.modified = r.modified;
+                    locus.modified_by = r.modified_by;
+                }
                 // if (r.modified_by) locus.modified_by = r.modified_by ? r.modified_by : "?"
                 if (r.type) locus.type = r.type
                 if (r.date_defined) {

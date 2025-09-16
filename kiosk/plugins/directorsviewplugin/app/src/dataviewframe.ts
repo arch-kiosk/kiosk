@@ -8,11 +8,10 @@ import "./datawidgets/cmwidget.ts"
 import "./datawidgets/featurewidget.ts"
 import "./datawidgets/filewidget.ts"
 import "./datawidgets/deletioninfowidget"
-// @ts-ignore
-import {State} from "./store/reducer.ts";
+import "./datawidgets/archivalentitywidget"
+import {State} from "./store/reducer";
 import {connect} from "pwa-helpers/connect-mixin";
-// @ts-ignore
-import { KioskStoreAppComponent } from "../kioskapplib/kioskStoreAppComponent.ts";
+import { KioskStoreAppComponent } from "../kioskapplib/kioskStoreAppComponent";
 import { unsafeCSS } from "lit";
 import { StoreWidgetSelector } from "./store/actions";
 
@@ -55,6 +54,7 @@ class DataViewFrame extends KioskStoreAppComponent {
             <locus-widget .apiContext="${this.apiContext}" style="${this.selectedWidgets.includes('locus-widget')?nothing:'display:none'}"></locus-widget>
             <cm-widget .apiContext="${this.apiContext}" style="${this.selectedWidgets.includes('cm-widget')?nothing:'display:none'}"></cm-widget>
             <feature-widget .apiContext="${this.apiContext}" style="${this.selectedWidgets.includes('feature-widget')?nothing:'display:none'}"></feature-widget>
+            <archival-entity-widget .apiContext="${this.apiContext}" style="${this.selectedWidgets.includes('archival-entity-widget')?nothing:'display:none'}"></archival-entity-widget>
         `
     }
 

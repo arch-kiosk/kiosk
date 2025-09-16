@@ -11,7 +11,8 @@ export const AVAILABLE_WIDGETS = [
     "locus-widget",
     "cm-widget",
     "feature-widget",
-    "deletion-info-widget"
+    "deletion-info-widget",
+    "archival-entity-widget"
 ]
 
 export type WidgetDescriptor = {
@@ -204,6 +205,10 @@ export function getAllWidgets(state: State): Array<WidgetDescriptor> {
                     case "deletion-info-widget":
                         wd.displayName = `deletions`;
                         wd.order = 6;
+                        break;
+                    case "archival-entity-widget":
+                        wd.displayName = `archival entities`;
+                        wd.order = 7;
                         break;
                 }
                 if (wd.order !== -1) {
