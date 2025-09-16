@@ -73,7 +73,7 @@ class DateSelector extends KioskStoreAppComponent {
         const cql = { "cql": {
                 "base": {
                     "scope": {
-                        // "archival_entity": "browse()",
+                        "archival_entity": "browse()",
                         "site": "browse()",
                     },
                     "target": {

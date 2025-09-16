@@ -189,6 +189,7 @@ class UnitInfoWidget extends KioskStoreAppComponent {
             if (r.modified > unit.modified)
                 unit.modified = r.modified
             if (r.unit_creation_date) {
+                debugger
                 unit.unit_creation = fromSqlDate(r.unit_creation_date).toLocaleDateString()
             }
 

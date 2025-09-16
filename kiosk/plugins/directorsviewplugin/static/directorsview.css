@@ -526,6 +526,13 @@ button:disabled {
   user-select: none;
 }
 
+@view-transition {
+  navigation: auto;
+}
+::view-transition-group(root) {
+  animation-duration: 200ms;
+}
+
 html {
   font-family: var(--standard-text-font);
   font-size: var(--font-size-standard, 1rem);
