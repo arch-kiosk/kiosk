@@ -3,7 +3,7 @@ header:
 meta:
   query_type: StructuredKioskQuery
 variables:
-  involved: ["dsd(excavator, id)", "label(participant)"]
+  involved: ["dsd(excavator, id)", "label(participant)", "input_default(null)"]
 queries:
   'todos':
     name: 'tasks on the to-do list'
@@ -17,6 +17,6 @@ queries:
        todos.until \"date\",
        todos.state state 
        from {{todos}} todos
-       where todos.involved ilike {{#involved}} or coalesce({{#involved}},'')=''
+       where coalesce({{#involved}},'')='' or todos.involved ilike {{#involved}}
       order by state, until, priority, title
     "
