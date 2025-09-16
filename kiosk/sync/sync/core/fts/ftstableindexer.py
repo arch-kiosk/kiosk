@@ -171,10 +171,24 @@ class FTSTableIndexer:
         sql_alter = ""
         try:
             params = []
-            if not self._excluded_from_fts(table):
+            if self._excluded_from_fts(table):
+                if "fts" not in KioskSQLDb.get_table_columns(table):
+                    return True
+            else:
                 sql_alter, params = self._get_fts_sql_and_params(table)
 
-            KioskSQLDb.execute(sql_drop + sql_alter, params, commit)
+            sp = KioskSQLDb.begin_savepoint()
+            try:
+                KioskSQLDb.execute(sql_drop + sql_alter, params, commit)
+            except BaseException as inner_e:
+                KioskSQLDb.rollback_savepoint(sp)
+                if "timeout" in repr(inner_e):
+                    logging.warning(f"{self.__class__.__name__}.create_or_refresh_fts_column_for_table: "
+                                    f"Not a drama, but FYI: I could not refresh the full text index for table {table} "
+                                    f"because that table is in use.")
+                    return True
+                else:
+                    raise inner_e
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.create_or_refresh_fts_column_for_table: {repr(e)}")
             logging.error(f"{self.__class__.__name__}.create_or_refresh_fts_column_for_table: "

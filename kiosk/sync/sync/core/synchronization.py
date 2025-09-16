@@ -341,7 +341,7 @@ class Synchronization(PluginLoader):
 
     def synchronize(self, callback_progress=None):
         """
-                TODO: redesign and refactor. This is way too long.
+                TODO: redesign and refactor. This is way too long and even has ugly redundancies
                 TODO: document
         """
 
@@ -349,6 +349,8 @@ class Synchronization(PluginLoader):
             if callback_progress and not callback_progress(*args, **kwargs):
                 raise UserCancelledError
 
+        cur = None
+        dsd_workstation_view = None
         try:
             conf = SyncConfig.get_config()
             successful_run = False  # indicates whether synchronization actually ran and succeeded.
@@ -470,26 +472,32 @@ class Synchronization(PluginLoader):
                 FileIdentifierCache.build_fic_indexes(self.type_repository, dsd_workstation_view.dsd)
                 logging.info("rebuilding file-identifier-caches ok.")
             except BaseException as e:
-                logging.error(
-                    f"{self.__class__.__name__}.synchronization: "
-                    f"exception when rebuilding file-identifier-cache."
+                logging.warning(
+                    f"{self.__class__.__name__}.synchronization: " +
+                    (f"After synchronization itself succeeded, something went wrong " if successful_run else
+                     f"Something went wrong ") +
+                    f"in the aftermath when rebuilding the file-identifier-cache." +
                     f" {repr(e)}")
 
-            if FTSView.refresh():
+            try:
+                FTSView.refresh(throw=True)
                 KioskSQLDb.commit()
                 logging.info("full text search index refreshed.")
-            else:
-                logging.error(
-                    f"{self.__class__.__name__}.synchronization: "
-                    f"Error when refreshing full text search index."
-                    f" {repr(e)}")
+            except Exception as e:
+                logging.warning(
+                    f"{self.__class__.__name__}.synchronization: " +
+                    (f"After synchronization itself succeeded, it was not possible " if successful_run else
+                     f"It was not possible ") +
+                    f"in the aftermath to refresh the full text search index. ")
                 KioskSQLDb.rollback()
 
             return successful_run
+
         except BaseException as e:
             logging.error("Synchronization.synchronize: Exception " + repr(e))
             try:
-                cur.close()
+                if cur:
+                    cur.close()
             except BaseException:
                 pass
 
@@ -504,9 +512,10 @@ class Synchronization(PluginLoader):
         logging.info("********** synchronization aborted **********")
         kioskrepllib.log_repl_event("synchronization", "ABORTED", "", commit=True)
         try:
-            fic = FileIdentifierCache(dsd_workstation_view.dsd)
-            fic.build_file_identifier_cache_from_contexts()
-            logging.info("rebuilding file-identifier-cache ok.")
+            if dsd_workstation_view:
+                fic = FileIdentifierCache(dsd_workstation_view.dsd)
+                fic.build_file_identifier_cache_from_contexts()
+                logging.info("rebuilding file-identifier-cache ok.")
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.synchronization: exception when rebuilding file-identifier-cache:"
                           f" {repr(e)}")

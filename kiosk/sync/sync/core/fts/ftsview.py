@@ -58,17 +58,20 @@ class FTSView:
         KioskSQLDb.execute(sql, commit=commit)
 
     @staticmethod
-    def refresh():
+    def refresh(throw: bool=False):
         """
         refreshes the kiosk_fts_view materialized view. This is necessary after recording data changed.
         If the database changed structurally use create_or_replace_fts_view instead.
         This will fail if the view does not exist.
+        throw: set to True if you want this to throw an exception instead of logging the error
         :return: boolean
         """
         try:
             KioskSQLDb.execute("REFRESH MATERIALIZED VIEW kiosk_fts_view;")
             return True
         except BaseException as e:
+            if throw:
+                raise Exception(f"FTSView.refresh: {repr(e)}")
             logging.error(f"FTSView.refresh: {repr(e)}")
             return False
 
