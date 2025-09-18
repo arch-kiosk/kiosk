@@ -1,4 +1,4 @@
-![logo256x64](https://github.com/arch-kiosk/kiosk/assets/38838314/5bfbd02c-00e9-4275-9196-39b488ef224b)
+<p style="text-align: center;">![logo256x64](https://github.com/arch-kiosk/kiosk/assets/38838314/5bfbd02c-00e9-4275-9196-39b488ef224b)</p>
 
 ### ⚙️ code repository
 - this is the virtual environment base directory for the kiosk server application. This repository is for code only
