@@ -208,7 +208,7 @@ We can't wait for the next major release to let you know about this new feature 
 
 It has been a while since the last major rollout and more than 200 small and medium-sized improvements have accumulated
 not last due to feedback and requests from this year's field seasons. As of today all Kiosk field projects will receive
-the benefits of our collaboration with now 18 archaeological projects.
+the benefits of our collaboration with now 17 archaeological projects.
 And these are the noteworthy improvements in Kiosk and the Recording App:
 
 #### **📍 Director's View**
@@ -253,7 +253,7 @@ And these are the noteworthy improvements in Kiosk and the Recording App:
 - Supports archival records.
 
 #### **📍 Recording App**
-- New locus type: "locus_type_structure" for inputting architecture (alternative to "locus_type_ac").
+- New locus type: "locus_type_structure" for inputting architecture (an alternative to "locus_type_ac").
 - List of units displayed per archival entity row.
 - Fixed bugs related to decimal values and international formatting differences.
 
