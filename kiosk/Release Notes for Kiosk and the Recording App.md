@@ -183,4 +183,83 @@ https://sites.brown.edu/kiosk/videos/
 But since this release here introduces even newer features, more tutorials are about to come. Promised. 
 
 
+---
+### 🥽 👓 🔍  Released for all field projects: Kiosk 1.6.18 - New Image Viewer  🥽 👓 🔍
+✏️ As always: The release notes are best viewed on GitHub: https://github.com/arch-kiosk/arch-kiosk-office/issues/1434#issuecomment-2619828150
+We can't wait for the next major release to let you know about this new feature because we think it is really cool and helpful: 
 
+📣 Kiosk has a new image viewer and it can deep zoom 📣
+
+- no need anymore to download an image to look at its details. You can 
+- zoom in and out of details, pan and 
+- rotate in situ
+- the viewer is showing your images full screen (well, full browser rather)
+- Use your mouse scroll wheel or your fingers. Both touch gestures and mouse operations are supported
+- you can flip through images and their meta data in the file repository without having to close the viewer
+- there is a menu button down at the lower edge of the browser: click it to slide in the meta data, where you can download and upload images, change contexts and the description and do everything you are used to do from the old image viewer
+- query & view supports the new image viewer as well
+
+🚧 one caveat: The new viewer cannot show vectors, yet. If you have an SVG file, you can only see it in detail if you download it.
+
+---
+
+### 📣 Release Notes for Kiosk 1.7.22 📣
+✏️ As always: The release notes are best viewed on GitHub https://github.com/arch-kiosk/arch-kiosk-office/issues/1434
+
+It has been a while since the last major rollout and more than 200 small and medium-sized improvements have accumulated
+not last due to feedback and requests from this year's field seasons. As of today all Kiosk field projects will receive
+the benefits of our collaboration with now 18 archaeological projects.
+And these are the noteworthy improvements in Kiosk and the Recording App:
+
+#### **📍 Director's View**
+- Buttons to jump between days on which anything actually happened (referred to as "work days").
+- Work days are now marked with a circle.
+- Selector to limit the visible widgets to your needs.
+- All the benefits of the new file viewer when clicking on an image in DV.
+- New widget that shows if something has been deleted on a day.
+- New widget for archival records.
+- Improved time zone support (previously inconsistent, see #3309).
+- Site notes now appear in the narrative and file widget if a site note or site note file is changed or added.
+
+#### **📍 Query and View**
+- A filter field helps navigate the growing list of queries: type to reduce the list.
+- Sort image galleries by date and time when the photo was shot (currently limited to unit/trench/area/OP photos).
+- Collected material list in units shows the number of files and images attached to any collected material.
+- Query results have an improved grid: column widths match their contents and are adjustable via mouse.
+- Query to-do list: improved (no longer requires selecting a team member).
+- Clicking on an image opens the new file viewer introduced in the file repository.
+- Step through images in an open gallery using the new file viewer.
+- Supports archival records.
+- **New Queries:**
+  - OPs by time range.
+  - List collected materials by type.
+  - List archaeological entities recorded by a specific team member.
+  - List archaeological entities recorded within a time span.
+
+#### **📍 New File and Image Viewer**
+- Download file size is displayed in the download menu.
+- "Best" resolution automatically selects the most detailed available resolution in the viewer.
+- Open PDF files directly in a new browser tab.
+- Improved SVG support (though not yet perfect).
+
+#### **📍 File Repository**
+- The tag filter now allows filtering out files with specific tags by adding a `-` (EN dash) to the tag name. ([see #3178](https://github.com/arch-kiosk/arch-kiosk-office/issues/3178#issuecomment-2839659164))
+- File repository archives: move images out of the regular repository into an "archive" (useful for private photos or non-recording data).
+- "Limit to site" option in the menu restricts file repository operations to a specific site.
+- Pagination supports projects with thousands of images.
+- The download menu allows downloading various file sizes and opening files in a new browser tab.
+- New sort option: "Recently modified first."
+- File import now supports time zones.
+- Supports archival records.
+
+#### **📍 Recording App**
+- New locus type: "locus_type_structure" for inputting architecture (alternative to "locus_type_ac").
+- List of units displayed per archival entity row.
+- Fixed bugs related to decimal values and international formatting differences.
+
+#### **📍 Administration**
+- "Users," "privileges," and other configuration options are now under "Settings" to reduce menu clutter.
+
+#### **📍 Landing Page**
+Kiosk can now display a custom landing page after login (instead of the hub or file repository).
+The landing page supports large images, plans, text, and links to jump directly into the file repository or specific units in "Query and View."
