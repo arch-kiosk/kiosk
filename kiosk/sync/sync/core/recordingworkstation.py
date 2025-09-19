@@ -5,6 +5,7 @@ import logging
 import os
 import io
 import pstats
+from typing import Tuple
 
 from werkzeug import datastructures
 
@@ -16,6 +17,7 @@ from dsd.dsd3singleton import Dsd3Singleton
 from filehandlingsets import get_file_handling_set, FileHandlingSet
 from fileidentifiercache import FileIdentifierCache
 from filerepository import FileRepository
+from kioskcontextualfile import KioskContextualFile
 from kioskrepresentationtype import KioskRepresentationType, KioskRepresentationTypeDimensions
 from kiosksqldb import KioskSQLDb
 from kioskstdlib import report_progress
@@ -818,11 +820,12 @@ class RecordingWorkstation(Dock):
         :param src_file:
         :return: KioskRepresentationDimensions
         """
+        dimensions = None
         try:
             dimensions = f.get_file_attributes(True)
         except BaseException as e:
             logging.debug(f"{self.__class__.__name__}._get_file_dimensions: cannot open file "
-                          f"{self.source_path_and_filename}: {repr(e)}")
+                          f"{src_file}: {repr(e)}")
 
         if dimensions and "width" in dimensions and "height" in dimensions:
             dimensions = KioskRepresentationTypeDimensions(dimensions["width"], dimensions["height"])
@@ -834,7 +837,7 @@ class RecordingWorkstation(Dock):
 
         return dimensions
 
-    def _get_file_and_filename(self, cfg, file_repos, uid_file) -> (object, str):
+    def _get_file_and_filename(self, cfg, file_repos, uid_file) -> Tuple[KioskContextualFile, str]:
         """
         subroutine of _prepare_file_for_export_v2. determines the filename and the contextual file
         :param cfg:
