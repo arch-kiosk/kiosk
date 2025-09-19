@@ -130,7 +130,6 @@ class DateSelector extends KioskStoreAppComponent {
             } catch {}
         })
         const workDayList = Array.from(workDays)
-        debugger;
         workDayList.sort((x,y) => x-y)
         this.workDays = workDayList
         // const newDate = DateTime.fromMillis(this.workDays[nextIndex])

@@ -25934,7 +25934,7 @@ function print() { __p += __j.call(arguments, '') }
         }
       });
       const i = Array.from(t);
-      i.sort(), this.workDays = i;
+      i.sort((o, a) => o - a), this.workDays = i;
     }
     jumpToWorkday(r) {
       const e = r.currentTarget, i = z.fromJSDate(this.selected_date).startOf("day").toMillis();

@@ -2151,7 +2151,7 @@ archival_entity_file:
   structure:
     1:
       uid_archival_entity: [datatype(UUID), join(archival_entity)]
-      uid_file: [datatype(UUID),uid_file(), file_storage_for("archival_entity")]
+      uid_file: [datatype(UUID),uid_file(), file_location_for("archival_entity")]
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
