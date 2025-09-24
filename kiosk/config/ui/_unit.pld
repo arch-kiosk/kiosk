@@ -28,7 +28,7 @@ compilations:
             text: '#(unit/term_for_locus) list'
             position: 2
           unit_cm.list:
-            text: 'collected materials'
+            text: '#(/$/glossary/collected_material:2)'
             position: 3
 
 unit.sheet:

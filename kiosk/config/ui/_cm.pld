@@ -9,7 +9,7 @@ compilations:
         type: "stacked"
         parts:
           cm.sheet:
-            text: 'collected material'
+            text: '#(/$/glossary/collected_material:1)'
             position: 1
           small_find.sheet:
             text: '#(/$/constants/collected_material_types/small_find)'

@@ -34,7 +34,7 @@ compilations:
             text: 'lots'
             position: 2
           locus_cm.list:
-            text: '#(/$/glossary/collected material)'
+            text: '#(/$/glossary/collected_material:2)'
             position: 3
           locus_files.list:
             text: '#(unit/term_for_locus) photos and files'
