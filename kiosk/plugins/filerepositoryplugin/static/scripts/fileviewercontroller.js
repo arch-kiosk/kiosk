@@ -96,10 +96,12 @@ class FileViewerController {
     }
 
     get width() {
+        //todo deprecated: Not necessary anymore with new openseadragon Width and Height will be taken from the downloaded image
         return this.files[this.currentIndex < 0?this.initialIndex:this.currentIndex].width
     }
 
     get height() {
+        //todo deprecated: Not necessary anymore with new openseadragon. Width and Height will be taken from the downloaded image
         return this.files[this.currentIndex < 0?this.initialIndex:this.currentIndex].height
     }
 

@@ -716,7 +716,6 @@ function efInitDropContext() {
         let button = $(dropButtons[idx]);
         button.on("click", efDropContext.bind(button));
     }
-
 }
 
 function efInitFormFields() {
