@@ -105,6 +105,11 @@ class FileViewerController {
         return this.files[this.currentIndex < 0?this.initialIndex:this.currentIndex].height
     }
 
+    get fileType() {
+        //needed for SVGs
+        return this.files[this.currentIndex < 0?this.initialIndex:this.currentIndex].fileType
+    }
+
     clear() {
         this.files = []
         this.initialIndex = 0
@@ -138,7 +143,9 @@ class FileViewerController {
                         caller: "kioskview.fetchFileFromApi",
                     },
                     "v1",
-                    new URLSearchParams({
+                    this.files[fileIndex].fileType?.toLowerCase()==="svg"?new URLSearchParams({
+                        uuid: uuid
+                    }):new URLSearchParams({
                         uuid: uuid,
                         resolution: resolutionId
                     })).url;

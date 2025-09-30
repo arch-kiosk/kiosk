@@ -79,6 +79,21 @@ class FileRepositoryFile:
     def tags(self) -> List[str]:
         return self.r["tags"].upper().split(",")
 
+    def get_file_type(self) -> str:
+        """
+        returns the file's "format" attribute or an empty string
+        :return: string
+        """
+        try:
+            attr = self.get_value("image_attributes")
+            if isinstance(attr, dict):
+                if "format" in attr:
+                    return attr["format"]
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}. : {repr(e)}")
+            logging.debug(f"{self.__class__.__name__}.get_dimensions: Image {self.uid} caused Exception {repr(e)}")
+        return ""
+
     def get_dimensions(self):
         rc = [0, 0]
         try:

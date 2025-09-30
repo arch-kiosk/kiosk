@@ -347,7 +347,8 @@ function refreshMarkers() {
         document.filesOnPage.push({
             uuid: element.id,
             width: numOr0(element.dataset.width),
-            height: numOr0(element.dataset.height)
+            height: numOr0(element.dataset.height),
+            fileType: element.dataset?.fileType?element.dataset?.fileType:""
         })
         showFileChecked(element);
     });
@@ -357,7 +358,6 @@ function toggleFileMarkers() {
     $("#fr-image-list-wrapper").children().each((index, element) => {
         identifierClicked.bind(element)();
     });
-
 }
 
 function clearAllFileMarkers() {

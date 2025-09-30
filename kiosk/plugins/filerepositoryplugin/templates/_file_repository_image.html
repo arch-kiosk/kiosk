@@ -1,6 +1,7 @@
 <div id="{{ img.get_value("uid") }}"
      data-width="{{ img.get_dimensions()[0] }}"
      data-height="{{ img.get_dimensions()[1] }}"
+     data-file-type="{{ img.get_file_type() }}"
      class="fr-image-wrapper fr-image-wrapper-{{ img.get_image_class_postfix(session['kiosk_fr_resolution']) }}">
   <div class="fr-img-wrapper-{{ img.get_image_class_postfix(session['kiosk_fr_resolution']) }}">
     <img class="b-lazy fr-thumbnail" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
