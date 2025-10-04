@@ -395,6 +395,7 @@ class ModelFileRepository:
         self.file_repos = FileRepository(conf)
         self.plugin_controller = get_plugin_for_controller(plugin_name) if plugin_name else None
         self.sorting_option = self.SORTING_OPTIONS[0]
+        self.agnostic_mode = kioskglobals.cfg.get_agnostic_mode()
 
     def set_filter_values(self, options):
         if "filter_values" not in self.filter_options:
@@ -489,26 +490,40 @@ class ModelFileRepository:
                     ext = description[4:]
                     param = kioskstdlib.escape_backslashs('%' + ext)
                 else:
-                    where_part = f"""
-                        (({file_identifier_cache_table_name}.\"description\" ilike %s 
-                            or {files_table_name}.description ilike %s 
-                            or cast({files_table_name}.uid as VARCHAR) = %s)
-                            or {files_table_name}.uid in 
-                            ( 
-                                select cm_photo.uid_photo from collected_material_photo cm_photo
-                                inner join collected_material cm on cm_photo.uid_cm = cm.uid
-                                left outer join small_find sf on cm_photo.uid_cm = sf.uid_cm
-                                where
-                                concat(cm.description, ' ', sf.material, ' ')
-                                ilike %s                
-                            )
-                            or {files_table_name}.export_filename ilike %s   
-                        ) """
-                    param = kioskstdlib.escape_backslashs("%" + self.filter_options["filter_values"][o] + "%")
-                    param2 = kioskstdlib.escape_backslashs("%" + self.filter_options["filter_values"][o] + "%")
-                    param3 = self.filter_options["filter_values"][o]
-                    param4 = param
-                    param5 = param
+                    if self.agnostic_mode:
+                        where_part = f"""
+                            (({file_identifier_cache_table_name}.\"description\" ilike %s 
+                                or {files_table_name}.description ilike %s 
+                                or cast({files_table_name}.uid as VARCHAR) = %s)
+                                or {files_table_name}.export_filename ilike %s   
+                            ) """
+                        param = kioskstdlib.escape_backslashs("%" + self.filter_options["filter_values"][o] + "%")
+                        param2 = kioskstdlib.escape_backslashs("%" + self.filter_options["filter_values"][o] + "%")
+                        param3 = self.filter_options["filter_values"][o]
+                        param4 = param
+                    else:
+                        # This is the structure-dependent part that just needs to go
+                        where_part = f"""
+                            (({file_identifier_cache_table_name}.\"description\" ilike %s
+                                or {files_table_name}.description ilike %s
+                                or cast({files_table_name}.uid as VARCHAR) = %s)
+                                or {files_table_name}.uid in
+                                (
+                                    select cm_photo.uid_photo from collected_material_photo cm_photo
+                                    inner join collected_material cm on cm_photo.uid_cm = cm.uid
+                                    left outer join small_find sf on cm_photo.uid_cm = sf.uid_cm
+                                    where
+                                    concat(cm.description, ' ', sf.material, ' ')
+                                    ilike %s
+                                )
+                                or {files_table_name}.export_filename ilike %s
+                            ) """
+                        param = kioskstdlib.escape_backslashs("%" + self.filter_options["filter_values"][o] + "%")
+                        param2 = kioskstdlib.escape_backslashs("%" + self.filter_options["filter_values"][o] + "%")
+                        param3 = self.filter_options["filter_values"][o]
+                        param4 = param
+                        param5 = param
+
             elif o == "recording_context" and self.filter_options["filter_values"][o]:
                 where_part = f"{file_identifier_cache_table_name}.record_type = %s"
                 param = self.filter_options["filter_values"][o]
