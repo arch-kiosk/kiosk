@@ -1393,17 +1393,6 @@ def get_zip_compression_method(compression_method) -> int:
         return zipfile.ZIP_DEFLATED
 
 
-def to_bool(v) -> bool:
-    """
-    returns boolean true or false if v is a string that contains "true" or "false" or returns
-    v interpreted as bool
-    """
-    if isinstance(v, str):
-        return v.lower() == "true"
-    else:
-        return bool(v)
-
-
 def replace_keys(dc: dict, keys: list, value: str = ""):
     """
     replaces all values in the dictionary that belong to a key in the keys list with a new value.

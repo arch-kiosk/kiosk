@@ -221,9 +221,14 @@ class KioskLogicalFile:
 
         file_record: KioskFilesModel = self._record_exists()
         if file_record:
+            if not file_record.image_attributes:
+                logging.debug(f"{self.__class__.__name__}.get_file_attributes: "
+                              f"cannot acquire file attributes for {self._uid}")
+                return {}
+
             # fixes an old error where NEFs were rotated and so width and height
             # got confused. NEFs that don't have a "rotate" attribute need new attributes
-            if "format" in file_record.image_attributes and \
+            if file_record.image_attributes and "format" in file_record.image_attributes and \
                     file_record.image_attributes["format"].upper() in ["NEF", "CR2"]:
                 if "rotate" not in file_record.image_attributes:
                     file_record.image_attributes = {}
@@ -244,11 +249,7 @@ class KioskLogicalFile:
                     logging.debug(f"{self.__class__.__name__}.get_file_attributes: "
                                   f"created file attributes for {self._uid}")
 
-            if file_record.image_attributes:
-                return file_record.image_attributes
-            else:
-                logging.debug(f"{self.__class__.__name__}.get_file_attributes: "
-                              f"cannot acquire file attributes for {self._uid}")
+            return file_record.image_attributes
         else:
             logging.error(f"{self.__class__.__name__}.get_file_attributes: "
                           f"no file record for {self._uid}")
