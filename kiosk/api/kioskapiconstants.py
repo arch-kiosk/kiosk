@@ -69,15 +69,21 @@ class ApiConstants(Resource):
             constants.append(constant)
 
     def add_collected_material_type_names(self, constants):
-        cur = KioskSQLDb.execute_return_cursor("select id, \"name\" from collected_material_types")
-        r = cur.fetchone()
-        while r:
-            constant = ApiResultConstant()
-            constant.path = "constants/collected_material_types"
-            constant.key = r["id"]
-            constant.value = kioskstdlib.null_val(r["name"], "")
-            constants.append(constant)
+        # todo: this is not structure agnostic. While we accept that the constants table is an integral part of Kiosk,
+        #  collected_material_types for sure is not. For now I just check if the table exists.
+        #  But a more general solution here would be to have a hook in order for projects to add
+        #  project-specific data to the constants.
+
+        if KioskSQLDb.does_table_exist("collected_material_types"):
+            cur = KioskSQLDb.execute_return_cursor("select id, \"name\" from collected_material_types")
             r = cur.fetchone()
+            while r:
+                constant = ApiResultConstant()
+                constant.path = "constants/collected_material_types"
+                constant.key = r["id"]
+                constant.value = kioskstdlib.null_val(r["name"], "")
+                constants.append(constant)
+                r = cur.fetchone()
 
     def add_labels(self, constants):
         cur = KioskSQLDb.execute_return_cursor("select id, value from constants where category=%s", ["labels"])
