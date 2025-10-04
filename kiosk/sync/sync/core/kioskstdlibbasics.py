@@ -88,3 +88,12 @@ def resolve_symbols(term:str, symbol_dict: dict, error_unknown_symbol = False)->
             next_symbol = rx_symbol.search(term)
     return term
 
+def to_bool(v) -> bool:
+    """
+    returns boolean true or false if v is a string that contains "true" or "false" or returns
+    v interpreted as bool
+    """
+    if isinstance(v, str):
+        return v.lower() == "true"
+    else:
+        return bool(v)
