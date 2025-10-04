@@ -2,6 +2,7 @@ from __future__ import annotations
 import sys
 import os
 import logging
+from typing import Union, List
 
 import kioskstdlibbasics as kioskstdlib
 from config import Config
@@ -603,4 +604,10 @@ class SyncConfig(Config):
             return self._config[section]
         else:
             return default
+
+    def get_fic_types(self) -> Union[List, None]:
+        try:
+            return kioskstdlib.try_get_dict_entry(self.config, "fic_types", None)
+        except BaseException as e:
+            return None
 
