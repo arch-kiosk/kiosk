@@ -1,59 +1,10 @@
 import_configurations:
   - kiosk_default_config.yml
-  - kiosk_local_config.yml
+#  - kiosk_local_config.yml
   - kiosk_secure.yml
+  - kiosk_u2ers.yml
 
 config:
   # The project_id must be in the kiosk_config file! Some tools rely on that convention!
-  project_id: 'pvd'
+  project_id: 'u2ers'
 
-housekeeping:
-  clear_log:
-    max_days: 1
-
-buap_ancdb_bridge:
-  active: true
-
-file_repository:
-  recording_context_aliases:
-    locus: 'context'
-    unit: 'trench/area'
-    locus_photo: 'context photo'
-    dayplan: 'trench/area'
-    locus_relations: 'context relation'
-    collected_material_photo: 'collected material photo'
-    collected_material: 'collected material & small find'
-    unit_narrative: 'trench/area narrative'
-    site_notes: 'site note'
-    site_note_photo: 'site note photo'
-    site: 'site map'
-    pottery_images: 'pottery'
-    tags: 'context tags'
-#  representations:
-#    master:
-#      requested_manipulations: [ "FIX_ROTATION", "DROP_EXIF_DATA", "AUTO_WHITE_BALANCE"]
-
-glossary:
-  "locus": ["SU", "SUs"]
-  "collected_material": ["bag","bags"]
-#  "unit": ["trench", "trenches"]
-
-file_import:
-  file_import_filters:
-      FileImportQRCodeFilter:
-        active: False
-
-kiosk:
-  global_constants:
-    project_logo_bottom: ' '
-    project_logo_main: 'Abydos North Cemetery'
-    project_logo_top: ''
-    project_name: 'Abydos North Cemetery'
-    project_short: ANC
-
-  administrationplugin:
-    fake_transfer: True
-
-  playgroundplugin:
-    active: true
-    is_main_index: false

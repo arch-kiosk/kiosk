@@ -1,0 +1,25 @@
+config:
+  format_version: 3
+  imports:
+    - dsd3_u2ers_sync_subsystem.yml
+    - dsd3_kiosk_tables.yml
+
+migration_catalog:
+  meta:
+    flags: [system_table]
+  structure:
+    1:
+      "uid": [datatype('UUID'), uuid_key()]
+      "table": [datatype('TEXT'), not_null(), unique()]
+      "table_definition": [datatype('TEXT'), not_null()]
+      "namespace": [datatype('TEXT'), default("''")]
+      "version": [datatype('INT'), not_null()]
+
+migration_flags:
+  meta:
+    flags: [system_table]
+  structure:
+    1:
+      "uid": [datatype('UUID'), uuid_key()]
+      "flag": [datatype('TEXT'), not_null(), unique()]
+      "value": [datatype('TEXT'), not_null()]

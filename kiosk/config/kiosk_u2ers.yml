@@ -1,0 +1,72 @@
+housekeeping:
+  clear_log:
+    max_days: 1
+
+config:
+  base_path: 'C:\notebook_source\kiosk\server\kiosk\kiosk'
+
+  no_console: True
+  dataset_definition: '%base_path%\config\dsd\%project_id%_dsd3.yml'
+  autoload_plugins:
+    - 'filemakerrecording'
+    - 'redisgeneralstore'
+#    - 'simpleqcengine'
+#    - 'locusrelationshook'
+    - 'fileexportworkstation'
+    - 'reportingdock'
+  expected_filemaker_template_version: '1'
+  filemaker_db_filename: '%project_id%.fmp12'
+
+  # from local config
+  odbc_ini_dsn: kiosk_odbc
+  server_type: 'online'
+  log_level: 'DEBUG'
+  database_port: 5432
+  werkzeug_log_level: 'INFO'
+  database_name: u2ers
+
+file_repository:
+  recording_context_aliases:
+    u2ers_sites: 'site'
+    u2ers_site_files: 'site images'
+
+glossary:
+  "u2ers_sites": ["site", "sites"]
+
+kiosk:
+  administrationplugin:
+    defaults:
+      backup_directory: 'C:\notebook_source\kiosk\server\test_backup'
+      restore_file: 'C:\notebook_source\kiosk\server\test_backup'
+
+  global_constants:
+    project_logo_bottom: ' '
+    project_logo_main: 'U2Egypt Aerial Photography Remote Survey Project'
+    project_logo_top: ''
+    project_name: 'U2Egypt Aerial Photography Remote Survey Project'
+    project_short: 'U2ERS'
+
+  filerepositoryplugin:
+    active: true
+    is_main_index: false
+
+  syncmanagerplugin:
+    active: true
+    is_main_index: true
+
+  directorsviewplugin:
+    active: false
+
+  pointrepositoryplugin:
+    active: false
+
+  kioskfacadeplugin:
+    active: false
+    is_main_index: false
+    hero_representation: 1024x768JPEG
+
+  locusrelationsapiplugin:
+    active: false
+
+  hmlabplugin:
+    active: false
