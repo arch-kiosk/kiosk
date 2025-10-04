@@ -37990,18 +37990,16 @@ function kg(s) {
      * @param node SVGSVGElement A SVGElement that will be loaded into the overlay
      */
     loadSVG(t) {
-      t.attributes.width, this._node.firstChild && this._node.removeChild(this._node.firstChild);
-      let i = document.createElementNS(n, "svg");
-      i.setAttribute("width", "1"), i.setAttribute("height", "1"), i.innerHTML = t.outerHTML, this._node.appendChild(i);
+      let i = t.attributes.width;
+      return i ? i = i.value : i = t.viewBox.baseVal.width, this._node.firstChild && this._node.replaceChildren(), this._node.replaceChildren(...t.children), Number(i);
     },
     // ----------
     resize: function() {
-      this._containerWidth !== this._viewer.container.clientWidth && (this._containerWidth = this._viewer.container.clientWidth, this._svg.setAttribute("width", this._containerWidth)), this._containerHeight !== this._viewer.container.clientHeight && (this._containerHeight = this._viewer.container.clientHeight, this._svg.setAttribute("height", this._containerHeight));
-      var t = this._viewer.viewport.pixelFromPoint(new s.Point(0, 0), !0), i = this._viewer.viewport.getZoom(!0), r = this._viewer.viewport.getRotation(), o = this._viewer.viewport.getFlip(), l = this._viewer.viewport._containerInnerSize.x, a = l * i, c = a;
-      o && (a = -a, t.x = -t.x + l), this._node.setAttribute(
-        "transform",
-        "translate(" + t.x + "," + t.y + ") scale(" + a + "," + c + ") rotate(" + r + ")"
-      );
+      var t = this._viewer.viewport.pixelFromPoint(new s.Point(0, 0), !0), i = this._viewer.viewport.getZoom(!0), r = this._viewer.viewport.getRotation(), o = this._viewer.viewport.getFlip(), l = this._viewer.viewport._containerInnerSize.x, a = l * i;
+      if (o && (a = -a, t.x = -t.x + l), this._node.firstChild) {
+        const c = "translate(" + t.x + "px," + t.y + "px) scale(" + a + ") rotate(" + r + "deg)";
+        this._node.style.transform = c;
+      }
     },
     // ----------
     onClick: function(t, i) {
@@ -38088,14 +38086,17 @@ let Qe = class extends Sr {
       ajaxWithCredentials: !0
     };
   }
-  getSVGFileOptions() {
+  getSVGFileOptions(s) {
     return {
-      height: Math.min(window.innerWidth, window.innerHeight) * 2,
-      width: Math.min(window.innerWidth, window.innerHeight) * 2,
-      tileSize: Math.min(window.innerWidth, window.innerHeight) * 2,
-      minLevel: 1,
-      getTileUrl: () => {
-      }
+      tileSource: {
+        height: window.innerHeight * 2,
+        width: window.innerWidth * 2,
+        tileSize: window.innerWidth * 2,
+        minLevel: 1,
+        getTileUrl: () => {
+        }
+      },
+      width: Math.max(window.innerWidth / 2, s)
     };
   }
   _openFile() {
@@ -38114,19 +38115,26 @@ let Qe = class extends Sr {
             t[o] = r;
           });
           let i;
-          this.urlProvider?.fileType && this.urlProvider.fileType.toLowerCase() === "svg" ? (i = this.getSVGFileOptions(), n && (n.show(), this._loadSVG(t, this.urlProvider.url).then((r) => {
-            try {
-              const o = new DOMParser().parseFromString(r, "image/svg+xml").documentElement;
-              if (o instanceof SVGElement)
-                n.loadSVG(o);
-              else
-                throw Error("no SVG");
-            } catch (o) {
-              n.hide(), this.opened(!1, `Could not open SVG: ${o}`);
+          if (this.urlProvider?.fileType && this.urlProvider.fileType.toLowerCase() === "svg") {
+            if (n) {
+              const r = this;
+              this._loadSVG(t, this.urlProvider.url).then((o) => {
+                try {
+                  const l = new DOMParser().parseFromString(o, "image/svg+xml").documentElement;
+                  if (l instanceof SVGElement) {
+                    const a = n.loadSVG(l);
+                    i = this.getSVGFileOptions(a), r.viewer && r.viewer.open(i), n.show();
+                  } else
+                    throw Error("no SVG");
+                } catch (l) {
+                  n.hide(), this.opened(!1, `Could not open SVG: ${l}`);
+                }
+              }).catch((o) => {
+                n.hide(), this.opened(!1, `Could not open SVG: ${o}`);
+              });
             }
-          }).catch((r) => {
-            n.hide(), this.opened(!1, `Could not open SVG: ${r}`);
-          }))) : i = this.getDefaultSingleFileOptions(t, this.urlProvider.url), this.viewer.open(i);
+          } else
+            i = this.getDefaultSingleFileOptions(t, this.urlProvider.url), this.viewer.open(i);
         } catch (s) {
           this.viewerError = `An error occurred: ${s}`;
         }
@@ -38135,7 +38143,9 @@ let Qe = class extends Sr {
     });
   }
   async _loadSVG(s, n) {
-    return await (await fetch(n, { headers: s, method: "GET" })).text();
+    const e = await fetch(n, { headers: s, method: "GET" });
+    if (Number(e.headers.get("content-length")) > 2e6) throw Error("For safety the viewer is not showing SVGs larger than 2MB.");
+    return await e.text();
   }
   disconnectedCallback() {
     this.viewer && this.viewer.destroy();
