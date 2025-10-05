@@ -2376,7 +2376,8 @@ class FileMakerWorkstation(RecordingWorkstation):
                                                                    "include_tables_with_flag('filemaker_recording')",
                                                                    "exclude_field('images', 'filename')",
                                                                    "exclude_field('images', 'md5_hash')",
-                                                                   "exclude_field('images', 'image_attributes')"
+                                                                   "exclude_field('images', 'image_attributes')",
+                                                                   "exclude_fields_with_instruction('no_sync')"
                                                                ]})
         return self.dsd_workstation_view.dsd
 
