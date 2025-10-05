@@ -1,0 +1,8 @@
+# header
+version: 1
+# selector 2
+yaml:
+  key_2: value_2
+# selector override
+yaml:
+  override: false

@@ -22,9 +22,11 @@ class UICKioskFile:
         subpath_and_filename = kioskstdlib.get_secure_windows_sub_path(subpath_and_filename)
         cfg = SyncConfig.get_config()
         if base_path == "":
-            base_path = os.path.join(cfg.base_path, "config")
-        if base_path == "":
-            raise UICError(f"UICKioskFile.get_file_stream: configuration not available.")
+            if not subpath_and_filename.startswith("%custom_path%"):
+                base_path = os.path.join(cfg.base_path, "config")
+                if base_path == "":
+                    raise UICError(f"UICKioskFile.get_file_stream: configuration not available.")
+
         path_and_filename = os.path.join(base_path, cfg.resolve_symbols(subpath_and_filename))
         if os.path.isfile(path_and_filename):
             return open(path_and_filename, "r")

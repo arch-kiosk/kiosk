@@ -164,7 +164,7 @@ class TestUICStream(KioskPyTestHelper):
             key: value
         # selector override
         yaml:
-            override: true    
+            override: 'true'    
         """)
 
         def _get_file_stream(file_name: str):
@@ -242,4 +242,35 @@ class TestUICStream(KioskPyTestHelper):
              'children': [{'__selector': [0, 1],
                            '_data': {'yaml': {'key2': 'value2'}},
                            'children': []}]}
+        ]
+
+
+    def test_uic_stream_custom_imports(self, config):
+        stream = StringIO(r"""
+        # header
+          version: 1
+          imports:
+            required:
+                - '%custom_path%\import_1.uic'
+            optional: 
+                - '%custom_path%\import_2.uic'
+        # selector 1
+        yaml:
+            key: value
+        # selector override
+        yaml:
+            override: 'true'    
+        """)
+
+        def _get_file_stream(file_name: str):
+            return UICKioskFile.get_file_stream(file_name)
+        config.custom_path = os.path.join(test_path, 'custom')
+        # config.config["custom_path"] = os.path.join(test_path, 'custom')
+        config.clear_symbol_cache_()
+        uic = UICStream(stream, get_import_stream=_get_file_stream)
+        assert set(uic._tree.selectors) == {"selector 1", "selector 2", "selector override"}
+        assert uic._tree.to_dict(include_data=True)["children"] == [
+            {'__selector': [0], '_data': {'yaml': {'key_2': 'value_custom_path'}}, 'children': []},
+            {'__selector': [1], '_data': {'yaml': {'override': 'true'}}, 'children': []},
+            {'__selector': [2], '_data': {'yaml': {'key': 'value'}}, 'children': []}
         ]

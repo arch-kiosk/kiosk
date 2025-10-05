@@ -1,0 +1,8 @@
+# header
+version: 1
+# selector 2
+yaml:
+  key_2: value_custom_path
+# selector override
+yaml:
+  override: false
