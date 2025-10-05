@@ -16,8 +16,14 @@ MANIPULATION_AUTO_WHITE_BALANCE = "AUTO_WHITE_BALANCE"
 
 class KioskRepresentationTypeDimensions:
     def __init__(self, width=0, height=0):
-        self.width = int(width)
-        self.height = int(height)
+        if isinstance(width, str):
+            self.width = round(float(width))
+        else:
+            self.width = int(width)
+        if isinstance(height, str):
+            self.height = round(float(height))
+        else:
+            self.height = int(height)
 
     def from_string(self, s: str):
         """
