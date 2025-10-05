@@ -280,3 +280,10 @@ class Config(logginglib.LoggingFeature):
         :param value: usually a dict. But can be everything.
         """
         self._config[key] = value
+
+    def clear_symbol_cache_(self):
+        """
+        clears the internal symbol cache.
+        This is mostly for tests that manipulate config keys that are used in symbolic references
+        """
+        self._symbol_cache.clear()

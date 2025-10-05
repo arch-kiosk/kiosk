@@ -101,7 +101,7 @@ class SyncConfig(Config):
         yamlreader = YAMLConfigReader(self.configfile)
         self.on_read_config(yamlreader)
         self.read_config(self.configfile)
-        self._config["custom_path"] = r"%base_path%\custom\%project_id%"
+        self.config["custom_path"] = r"%base_path%\custom\%project_id%"
 
         if "secure_file" in self.default_config:
             self.read_config(self.default_config["secure_file"])
@@ -119,8 +119,7 @@ class SyncConfig(Config):
             self.config["temp_dir"] = self.temp_dir
             logging.debug(f"No temp_dir configured. Defaulting to {self.temp_dir}.")
 
-        self.config["custom_path"] = self.resolve_symbols(self._config["custom_path"])
-        self.custom_path = self.config["custom_path"]
+        self.config["custom_path"] = self.resolve_symbols(self.config["custom_path"])
 
         if "dataset_definition" in self.config:
             self.dsdfile = self.resolve_symbols(self.config["dataset_definition"])
@@ -611,3 +610,10 @@ class SyncConfig(Config):
         except BaseException as e:
             return None
 
+    @property
+    def custom_path(self):
+        return self.config["custom_path"] if "custom_path" in self.config else ''
+
+    @custom_path.setter
+    def custom_path(self, value):
+        self.config["custom_path"] = value
