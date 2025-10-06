@@ -83,7 +83,7 @@ class ApiLookup(Resource):
                   }
         try:
             lookup_type = request.json["lookup_type"]
-            if not type:
+            if not lookup_type:
                 raise Exception("Bad parameter: lookup type missing")
 
             if lookup_type == "table":
