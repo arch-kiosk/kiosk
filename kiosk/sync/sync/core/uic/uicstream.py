@@ -23,8 +23,8 @@ class UICKioskFile:
         cfg = SyncConfig.get_config()
         if base_path == "":
             if not subpath_and_filename.startswith("%custom_path%"):
-                if subpath_and_filename == "kiosk_ui_classes.yml":
-                    # Only the kiosk_ui_classes.yml can be located with the ui_classes setting.
+                if subpath_and_filename == "kiosk_ui_classes.uic":
+                    # Only the kiosk_ui_classes.uic can be located with the ui_classes setting.
                     base_path = kioskstdlib.try_get_dict_entry(cfg.kiosk, "ui_classes", None,
                                                            True)
                 base_path = base_path if base_path else os.path.join(cfg.base_path, "config")
