@@ -4,6 +4,7 @@ from pprint import pprint
 import datetime
 from typing import List, Dict, Tuple
 
+import kioskstdlib
 from contextmanagement.kioskscopeselect import KioskScopeSelect
 from dsd.dsd3singleton import Dsd3Singleton
 from filedescription import FileDescription
@@ -36,11 +37,14 @@ class KioskViewDocument:
             self._doc = {}
             self._identifier = identifier
             self._file_description = FileDescription(self._cfg, self._dsd)
-            self._uic_stream = UICStream(UICKioskFile.get_file_stream("kiosk_ui_classes.uic"),
-                                         get_import_stream=UICKioskFile.get_file_stream)
+
+            base_path = kioskstdlib.try_get_dict_entry(self._cfg.kiosk,"ui_classes",None,True) if self._cfg else None
+            self._uic_stream = UICStream(UICKioskFile.get_file_stream("kiosk_ui_classes.uic", base_path),
+                                   get_import_stream=UICKioskFile.get_file_stream)
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.__init__: {repr(e)}")
-            raise Exception(f"Error initializing KioskViewDocument with {record_type}, {pld_id} and {identifier}")
+            raise Exception(f"Error initializing KioskViewDocument with {record_type}, {pld_id} and {identifier}: "
+                            f"{repr(e)}")
 
     def _initialize_view(self, identifier):
         view = KioskView(self._cfg, self._pld_id, self._uic_stream.tree)

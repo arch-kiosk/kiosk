@@ -22,13 +22,12 @@ class PLDLoader:
             :param filename: the filename to import. With or without an extension (will be replaced with .pld)
             :return: path and filename
             """
-            path_and_filename = ""
             filename = kioskstdlib.get_filename_without_extension(filename)
             if filename.lower().startswith('%custom_path%'):
                 path_and_filename = cfg.resolve_symbols(filename)
             else:
-                if not importing_path_and_filename.startswith(cfg.custom_path):
-                    path_and_filename = os.path.join(cfg.custom_path, "ui", filename + ".pld")
+                # if not importing_path_and_filename.startswith(cfg.custom_path):
+                path_and_filename = os.path.join(cfg.custom_path, "ui", filename + ".pld")
                 if not path_and_filename or not os.path.isfile(path_and_filename):
                     path_and_filename = os.path.join(cfg.base_path, "config", "ui", filename + ".pld")
             return path_and_filename

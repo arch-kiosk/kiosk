@@ -23,12 +23,17 @@ class UICKioskFile:
         cfg = SyncConfig.get_config()
         if base_path == "":
             if not subpath_and_filename.startswith("%custom_path%"):
-                base_path = os.path.join(cfg.base_path, "config")
+                if subpath_and_filename == "kiosk_ui_classes.yml":
+                    # Only the kiosk_ui_classes.yml can be located with the ui_classes setting.
+                    base_path = kioskstdlib.try_get_dict_entry(cfg.kiosk, "ui_classes", None,
+                                                           True)
+                base_path = base_path if base_path else os.path.join(cfg.base_path, "config")
                 if base_path == "":
                     raise UICError(f"UICKioskFile.get_file_stream: configuration not available.")
 
-        path_and_filename = os.path.join(base_path, cfg.resolve_symbols(subpath_and_filename))
+        path_and_filename = os.path.join(cfg.resolve_symbols(base_path), cfg.resolve_symbols(subpath_and_filename))
         if os.path.isfile(path_and_filename):
+            logging.debug(f"UICKioskFile.get_file_stream: using uic file {path_and_filename}.")
             return open(path_and_filename, "r")
         else:
             raise UICError(f"UICKioskFile.get_file_stream: file {path_and_filename} does not exist.")

@@ -62,9 +62,11 @@ class ViewPartSheet(ViewPart):
                 layout = layout_and_element[0]
                 element = layout_and_element[1]
                 orchestration_strategy = layout["layout_settings"]["orchestration_strategy"]
-
                 element_definition = UICFinder(self._uic_tree).get_ui_definition_from_selector(
-                    table_def[element_id] +
+                    # that's a bit hacky: But sometimes the dsd sends datatype('varchar') and sometimes datatype(varchar),
+                    #   which must be the same
+                    [t.replace("'","").replace('"','') if t.lower().startswith("datatype") else t
+                     for t in table_def[element_id]] +
                     [f"dsd('{self.view_record_type}','{element_id}')",
                      f"orchestration_strategy:{orchestration_strategy}"] +
                     self._uic_literals)
