@@ -152,8 +152,10 @@ def is_development_system() -> bool:
 
 def get_uic_tree() -> UICTree:
     global uic_tree
+    global cfg
     try:
-        if not uic_tree:
+        if not uic_tree or is_development_system():
+            # base_path = kioskstdlib.try_get_dict_entry(cfg.kiosk,"ui_classes",None,True) if cfg else None
             uic_stream = UICStream(UICKioskFile.get_file_stream("kiosk_ui_classes.uic"),
                                    get_import_stream=UICKioskFile.get_file_stream)
             uic_tree = uic_stream.tree
