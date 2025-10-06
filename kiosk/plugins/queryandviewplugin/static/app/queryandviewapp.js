@@ -144701,27 +144701,31 @@ let Jn = class extends ta {
     return !1;
   }
   processSchemaDefinition() {
-    const u = (m) => {
-      m && Object.entries(m).map(([v, x]) => {
-        const k = new RegExp("^[a-z][a-z0-9\\-_]*$", "gmi");
-        if (!v.match(k)) {
-          l = `There is an error in the schema definition: the element id "${v}" is illegal. It must start with a letter followed by only letters and numbers`;
+    const u = (v) => {
+      v && Object.entries(v).map(([x, k]) => {
+        const L = new RegExp("^[a-z][a-z0-9\\-_]*$", "gmi");
+        if (!x.match(L)) {
+          _ = `There is an error in the schema definition: the element id "${x}" is illegal. It must start with a letter followed by only letters and numbers`;
           return;
         }
-        if (o.find((N) => N === v)) {
-          l = `There is an error in the schema definition: the element id "${v}" is used more than once in the UI schema`;
+        if (o.find((N) => N === x)) {
+          _ = `There is an error in the schema definition: the element id "${x}" is used more than once in the UI schema`;
           return;
         }
-        o.push(v);
-        const L = x.binding?.field_name?.toLowerCase();
-        L && (L in _ ? (l = `There is an error in the schema definition: dsd field "${L}" bound again in element "${v}" in UI schema`, x.element_type.enabled = !1) : _[L] = { id: v, element: x }), x.element_type.enabled === void 0 && (x.element_type.enabled = !0), x.element_type.default && this.registerDefault(v, x), h[v] = x, x.element_type.name === "layout" && u(x.element_type.ui_elements);
+        if (Object.keys(k).length == 0 || !Object.hasOwn(k, "element_type"))
+          l.push(x);
+        else {
+          o.push(x);
+          const N = k.binding?.field_name?.toLowerCase();
+          N && (N in h ? (_ = `There is an error in the schema definition: dsd field "${N}" bound again in element "${x}" in UI schema`, k.element_type.enabled = !1) : h[N] = { id: x, element: k }), k.element_type.enabled === void 0 && (k.element_type.enabled = !0), k.element_type.default && this.registerDefault(x, k), m[x] = k, k.element_type.name === "layout" && u(k.element_type.ui_elements);
+        }
       });
     };
     this._dsd_to_element_list = {};
-    const o = [];
-    let l = "";
-    const _ = this._dsd_to_element_list, h = this._element_list;
-    this.uiSchema && u(this.uiSchema.ui_elements), this._showError = l;
+    const o = [], l = [];
+    let _ = "";
+    const h = this._dsd_to_element_list, m = this._element_list;
+    this.uiSchema && u(this.uiSchema.ui_elements), l.forEach((v) => delete this.uiSchema?.ui_elements[v]), this._showError = _;
   }
   registerDefault(u, o) {
     o.element_type?.default && (this._default[o.element_type.default] = u);
@@ -144837,8 +144841,8 @@ let Jn = class extends ta {
       return _.entry.element_type.readonly = _.entry.element_type.readonly || l?.layoutSettings?.readonly, h.render(_, u);
     } catch (_) {
       return tn`
-                    ${o.element_type.name} "${u}": ${_}
-                    `;
+                ${o.element_type.name} "${u}": ${_}
+            `;
     }
   }
   renderElement(u, o, l) {
@@ -144884,7 +144888,10 @@ let Jn = class extends ta {
   render() {
     const u = [];
     let o;
-    this.showDevelopmentInfo && u.push(tn`<div class="uicomponent-version" @click="${this.hideDevelopmentInfo}">${tn`${"0.6.19"}`}</div>`);
+    this.showDevelopmentInfo && u.push(tn`
+                <div class="uicomponent-version" @click="${this.hideDevelopmentInfo}">
+                    ${tn`${"0.6.20"}`}
+                </div>`);
     try {
       o = this.getLayoutClass("root", this.uiSchema?.layout_settings), o.onRequestUpdate = this.onRequestUpdate.bind(this);
     } catch {
