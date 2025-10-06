@@ -25,6 +25,7 @@ repl_deleted_uids:
       deleted_uid: [datatype(UUID), not_null()]
       table: [datatype(VARCHAR)]
       repl_workstation_id: [datatype(VARCHAR)]
+      modified: [datatype(TIMESTAMPTZ)]
       master_deletion_ww: [datatype(TIMESTAMP)]
       master_deletion_tz: [datatype(TZ)]
     2:
