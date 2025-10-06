@@ -124,6 +124,7 @@ class ApiKioskQuery(Resource):
             print("uic_literals", uic_literals)
             api_queries = []
             store_queries = KioskQueryStore.list()
+            uic_tree = kioskglobals.get_uic_tree()
             for store_query in store_queries:
                 try:
                     store_query: tuple
@@ -131,7 +132,6 @@ class ApiKioskQuery(Resource):
                     (api_query.id, api_query.type, api_query.name, api_query.description,
                      api_query.category, api_query.order_priority) = store_query
                     kiosk_query = KioskQueryStore.get(api_query.id)
-                    uic_tree = kioskglobals.get_uic_tree()
                     if not uic_tree:
                         raise KioskQueryException("Kiosk has no ui classes configured or "
                                                   "the class definitions have errors. Please consult the Kiosk log for"
