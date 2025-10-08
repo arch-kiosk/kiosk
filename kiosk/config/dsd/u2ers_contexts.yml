@@ -1,0 +1,15 @@
+config:
+  format_version: 3
+  contexts:
+    fs_u2ers:
+      type: file_search
+      scope:
+        u2ers_sites: browse()
+    fp_u2ers:
+      type: file_picking
+      scope:
+        u2ers_sites: browse()
+    fts_u2ers:
+      type: full_text_search
+      scope:
+        u2ers_sites: browse()

@@ -3,6 +3,7 @@ config:
   imports:
     - dsd3_u2ers_sync_subsystem.yml
     - dsd3_kiosk_tables.yml
+    - u2ers_contexts.yml
 
 migration_catalog:
   meta:
@@ -23,3 +24,88 @@ migration_flags:
       "uid": [datatype('UUID'), uuid_key()]
       "flag": [datatype('TEXT'), not_null(), unique()]
       "value": [datatype('TEXT'), not_null()]
+
+u2ers_sites:
+  structure:
+    1:
+      site_id: [datatype(VARCHAR), identifier(), unique(), label("site id")]
+      site_name: [datatype(VARCHAR), label("site name")]
+      visible_in_u2: ["datatype(VARCHAR)", "label('site on U2?')"]
+      u2_images_showing_the_site: [datatype(VARCHAR)]
+      visible_in_corona: [datatype(VARCHAR), "label('site on Corona?')"]
+      g_earth_general_condition: [datatype(VARCHAR), label('recent general condition')]
+      g_earth_damage_cause: [datatype(VARCHAR), label('recent damage cause')]
+      u2_better_site_preservation: [datatype(VARCHAR), "label('u2 better than corona?')"]
+      u2_benefit_over_corona: [datatype(VARCHAR), label('u2 advantages')]
+      qc_state: [datatype(VARCHAR), label('state of record')]
+      at_reference: [datatype(VARCHAR), "label('EES reference')"]
+      at_condition: [datatype(VARCHAR), "label('EES condition')"]
+      at_dated_as: [datatype(VARCHAR), "label('EES date')"]
+      at_asnde_no: [datatype(VARCHAR), "label('ASNDE No')"]
+      at_governorate: [datatype(VARCHAR)]
+      at_geometry: [datatype(JSON), no_sync()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
+
+u2ers_site_files:
+  structure:
+    1:
+      uid_site: [datatype(UUID), join("u2ers_sites")]
+      uid_file: [datatype(UUID), uid_file(), file_location_for("u2ers_sites")]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
+
+images:
+  structure:
+    4:
+      description: [datatype(VARCHAR), describes_file(uid)]
+      img_proxy : [datatype(TIMESTAMP), proxy_for(uid), no_file_export()]
+      ref_uid: [datatype(UUID), no_file_export()]
+      file_datetime: [datatype(TIMESTAMP)]
+      filename: [datatype(VARCHAR), no_sync(), filename()]
+      export_filename: [datatype(VARCHAR), unique()]
+      image_attributes: [datatype(JSON), no_sync(), no_file_export()]
+      md5_hash: [datatype(VARCHAR), no_sync(), no_file_export()]
+      original_md5: [datatype(VARCHAR), no_file_export()]
+      tags: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid(), file_for(img_proxy)]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
+
+constants:
+  meta:
+    flags: [export_dont_truncate, sync_ignore_unique_key_violation, no_file_export]
+    import_filter:
+      fm12: "\"category\" <> 'system' and (\"sync\" is null or \"sync\"=1)"
+  structure:
+    5:
+      id: [datatype(VARCHAR)]
+      value: [datatype(VARCHAR)]
+      value_ts: [datatype(TIMESTAMP)]
+      category: [datatype(VARCHAR)]
+      comment: [datatype(VARCHAR)]
+      field_type: [datatype(VARCHAR)]
+      patch_index: [datatype(BIGINT)]
+      show_in_reduced_config: [datatype(VARCHAR)]
+      sync: [datatype(NUMBER), default(1)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created(), default('now()')]
+      modified: [datatype(TIMESTAMP), replfield_modified(), default('now()')]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
+
+excavator:
+  structure:
+    3:
+      id: [datatype(VARCHAR)]
+      name: [datatype(VARCHAR)]
+      properties: [datatype(VARCHAR)]
+      password_hash: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid(), default(gen_random_uuid())]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]

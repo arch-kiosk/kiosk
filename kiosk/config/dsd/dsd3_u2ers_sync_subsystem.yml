@@ -25,6 +25,7 @@ repl_deleted_uids:
       deleted_uid: [datatype(UUID), not_null()]
       table: [datatype(VARCHAR)]
       repl_workstation_id: [datatype(VARCHAR)]
+      modified: [datatype(TIMESTAMPTZ)]
       master_deletion_ww: [datatype(TIMESTAMP)]
       master_deletion_tz: [datatype(TZ)]
     2:
@@ -287,46 +288,3 @@ repl_dock_reporting:
       report_file_type: [datatype(VARCHAR)]
       output_file_prefix: [datatype(VARCHAR)]
       variables: [datatype(JSON)]
-
-qc_rules:
-  meta:
-    flags: [no_file_export]
-  structure:
-    2:
-      id: [datatype(VARCHAR)]
-      type: [datatype(VARCHAR)]
-      type_param: [datatype(VARCHAR)]
-      trigger: [datatype(VARCHAR)]
-      suppress_on: [datatype(VARCHAR)]
-      process_only_on: [datatype(VARCHAR)]
-      objective: [datatype(VARCHAR)]
-      inputs: [datatype(VARCHAR)]
-      hosts: [datatype(VARCHAR)]
-      flag: [datatype(VARCHAR)]
-      enabled: [datatype(NUMBER)]
-      uid: [datatype(UUID), replfield_uuid()]
-      created: [datatype(TIMESTAMP), replfield_created(),default("now()")]
-      modified: [datatype(TIMESTAMP), replfield_modified(),default("now()")]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
-    1:
-      id: [datatype(VARCHAR)]
-      type: [datatype(VARCHAR)]
-      type_param: [datatype(VARCHAR)]
-      trigger: [datatype(VARCHAR)]
-      suppress_on: [datatype(VARCHAR)]
-      process_only_on: [datatype(VARCHAR)]
-      objective: [datatype(VARCHAR)]
-      inputs: [datatype(VARCHAR)]
-      hosts: [datatype(VARCHAR)]
-      flag: [datatype(VARCHAR)]
-      enabled: [datatype(NUMBER)]
-      uid: [datatype(UUID), replfield_uuid()]
-      created: [datatype(TIMESTAMP), replfield_created()]
-      modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by()]
-  migration:
-    2:
-      upgrade:
-        - alter("created")
-        - alter("modified")
-        - alter("modified_by")

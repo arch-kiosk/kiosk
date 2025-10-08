@@ -4,7 +4,8 @@ import_configurations:
   - kiosk_secure.yml
   - kiosk_u2ers.yml
 
+
 config:
   # The project_id must be in the kiosk_config file! Some tools rely on that convention!
-  project_id: 'u2ers'
-
+#  project_id: 'u2ers'
+  project_id: "u2ers"
