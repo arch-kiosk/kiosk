@@ -19,3 +19,6 @@
 [submodule "kiosk/sync/sync/sync_plugins/rliim_kiosk_bridge"]
 	path = kiosk/sync/sync/sync_plugins/rliim_kiosk_bridge
 	url = https://github.com/arch-kiosk/rliim_kiosk_bridge.git
+[submodule "kiosk/custom/u2ers"]
+	path = kiosk/custom/u2ers
+	url = https://github.com/arch-kiosk/u2ers.git
