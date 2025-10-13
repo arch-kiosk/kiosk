@@ -189,7 +189,7 @@
         {% endif %}
     </div>
     <div id='scroll-to-top'></div>
-    <script src="{{ url_for('filerepository.static', filename='scripts/fileviewercontroller.js') }}"></script>
+    <script src="{{ url_for('filerepository.static', filename='scripts/fileviewercontroller.js') }}?v={{ "kiosk_version"|jinja_fake_version }}"></script>
     <script src="{{ url_for('static', filename='scripts/thirdparty/blazy.min.js') }}"></script>
 
     {% include "_kioskmodaldialog_api_connector_include.html" %}
