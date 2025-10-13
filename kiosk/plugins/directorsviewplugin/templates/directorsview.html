@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block body %}
-    <script src="{{ url_for('filerepository.static', filename='scripts/fileviewercontroller.js') }}"></script>
+    <script src="{{ url_for('filerepository.static', filename='scripts/fileviewercontroller.js') }}?v={{ "kiosk_version"|jinja_fake_version }}"></script>
     {{ super() }}
 {% endblock %}
 

@@ -120,6 +120,7 @@ class FileViewerController {
     _loadImage(fileIndex, loadData=true) {
         const resolutionLabel = this.lightBoxElement?.currentResolution??""
         let resolutionId = "master"
+        this.lastErrorOnOpen = undefined
 
         try {
             if (resolutionLabel !== "") {
@@ -199,14 +200,18 @@ class FileViewerController {
             const fileType = elFileInfo.dataset.fileType
             const newTabRes = elFileInfo.dataset.openInNewTab??""
             if (fileType) {
-                if (fileType === "svg" || fileType === "pdf" || fileType === "mov" || fileType.startsWith("mp")) {
+                if (fileType === "pdf" || fileType === "mov" || fileType.startsWith("mp")) {
                     // elBrokenImageText.style.display = "block"
                     elBrokenImageText.innerHTML = `Sorry, this file type (${fileType.toUpperCase()}) is not supported by the current viewer or it has no visual representation.` +
                         (newTabRes ? "": "<br/>Please use the download button and download the file into a new browser tab.!")
 
                 } else {
-                    elBrokenImageText.innerText = `Sorry, the file is either broken or missing or the file type (${fileType.toUpperCase()}) has no visual representation.`
-                    // elBrokenImageText.style.display = "none"
+                    if (this.lastErrorOnOpen) {
+                        elBrokenImageText.innerText = this.lastErrorOnOpen
+                    } else {
+                        elBrokenImageText.innerText = `Sorry, the file is either broken or missing or the file type (${fileType.toUpperCase()}) has no visual representation.`
+                        // elBrokenImageText.style.display = "none"
+                    }
                 }
                 if (newTabRes) {
                     elBrokenImageText.innerHTML += '<br/><span class="fr-click-to-open-tab">Click here to download the original file into a new browser tab</span>'
@@ -310,6 +315,18 @@ class FileViewerController {
     }
 
     onOpened(e) {
+        try {
+            if (!e.detail?.result) {
+                if (e.detail?.errMsg) {
+                    this.lastErrorOnOpen = e.detail.errMsg
+                    const elBrokenImageText = document.getElementById("broken-image-text")
+                    elBrokenImageText.innerText = this.lastErrorOnOpen
+                    if (this.lastErrorOnOpen.includes("SVGs larger than")) {
+                        elBrokenImageText.innerText += "<br/>Please use the download button and download the file into a new browser tab.!"
+                    }
+                }
+            }
+        } catch {}
         this.opened(e.detail)
     }
 
