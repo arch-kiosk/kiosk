@@ -48,7 +48,7 @@ def interpolate_year(year: int, margin_1900=3) -> int:
         return year + 2000
 
 
-def check_urap_date_time(str_ts, allow_date_only=False) -> tuple:
+def check_urap_date_time(str_ts, allow_date_only=False, log=True) -> tuple:
     """checks whether or not str_ts contains a valid date/time statement.
        If allow_date_only is False, the time part is expected.
 
@@ -68,6 +68,7 @@ def check_urap_date_time(str_ts, allow_date_only=False) -> tuple:
 
         In case of a latin date also allowed:
             dd mm yyyy (so a whitespace as separator)
+
 
     """
 
@@ -123,7 +124,8 @@ def check_urap_date_time(str_ts, allow_date_only=False) -> tuple:
         try:
             ts_date = datetime.datetime.strptime(date_part, '%Y-%m-%d')
         except Exception as e:
-            logging.info("Exception in check_urap_date_time: " + repr(e))
+            if log:
+                logging.info("Exception in check_urap_date_time: " + repr(e))
             # ok, apparently that is not a valid date
             return None, date_part + " is not a valid date in the format YYYY-MM-DD"
 
@@ -132,11 +134,13 @@ def check_urap_date_time(str_ts, allow_date_only=False) -> tuple:
             try:
                 ts_time = datetime.time(*time.strptime(time_part, "%H:%M:%S")[3:6])
             except Exception as e:
-                logging.info("Exception in check_urap_date_time: " + repr(e))
+                if log:
+                    logging.info("Exception in check_urap_date_time: " + repr(e))
                 try:
                     ts_time = datetime.time(*time.strptime(time_part, "%H:%M")[3:6])
                 except Exception as e:
-                    logging.info("Exception in check_urap_date_time: " + repr(e))
+                    if log :
+                        logging.info("Exception in check_urap_date_time: " + repr(e))
                     return None, time_part + " is not a valid time in format HH:MM[:SS]"
             ts_date = datetime.datetime.combine(ts_date, ts_time)
     if ts_date:
