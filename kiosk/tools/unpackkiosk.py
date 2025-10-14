@@ -644,6 +644,10 @@ if __name__ == '__main__':
             if not path.isfile(cfg_file):
                 logging.error(f"Configuration file {cfg_file} does not seem to exist.")
                 usage()
+            if not KioskRestore.add_base_path_if_necessary(kiosk_dir, cfg_file):
+                logging.error(f"It was not possible to add the base_path to the config file {cfg_file}")
+                usage()
+
             current_version = get_current_kiosk_version(kiosk_dir)
             if not current_version:
                 logging.error("Error: Cannot read the version of the existing Kiosk")
@@ -719,6 +723,7 @@ if __name__ == '__main__':
         KioskRestore.create_kiosk(src_dir, kiosk_dir, cfg_file, options)
         options.update({"create_kiosk": None})
 
+    ### From now on this is using KioskConfig:
     print(f"target kiosk is using config file {cfg_file}")
     check_db_name(cfg_file, options)
     if not KioskRestore.check_file_repository_path(cfg_file):
