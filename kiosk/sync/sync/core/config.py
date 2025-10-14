@@ -56,6 +56,7 @@ class Config(logginglib.LoggingFeature):
         self._on_read_config_handler = None
         self._symbol_cache = {}
         self._on_resolve_symbols_handler = self._resolve_symbols_recursive
+        self._on_resolve_special_symbols_handler = None
         self._aliases = {}
         self._import_mode = import_mode
         self._base_path = ""
@@ -116,17 +117,32 @@ class Config(logginglib.LoggingFeature):
         """
         self._on_resolve_symbols_handler = resolve_symbols_handler
 
+    def on_resolve_special_symbols(self, resolve_special_symbols_handler):
+        """
+        sets a handler that resolves symbols in strings. The handler's signature is:
+         function(str, dict) with
+          str being the symbol that needs a value (without the surrounding "!" characters )
+          dict being the configuration dictionary as it is known up to that point
+        """
+        self._on_resolve_special_symbols_handler = resolve_special_symbols_handler
+
     def resolve_symbols(self, value):
         """
         resolves symbols in a string or list of strings and returns the result.
         If not handler to resolve symbols is active, value will just be returned as it is
         """
         if isinstance(value, str) and self._on_resolve_symbols_handler:
-            return self._on_resolve_symbols_handler(value, self._config)
+            rc = self._on_resolve_symbols_handler(value, self._config)
+            if re.match(r"!.*!", rc) and self._on_resolve_special_symbols_handler:
+                rc = self._resolve_special_symbols(rc, self._config)
+            return rc
         elif isinstance(value, list) and self._on_resolve_symbols_handler:
             result = []
             for s in value:
-                result.append(self._on_resolve_symbols_handler(s, self._config))
+                rc = self._on_resolve_symbols_handler(s, self._config)
+                if re.match(r"!.*!", rc) and self._on_resolve_special_symbols_handler:
+                    rc = self._resolve_special_symbols(rc, self._config)
+                result.append(rc)
             return result
         else:
             return value
@@ -204,6 +220,33 @@ class Config(logginglib.LoggingFeature):
                 next_symbol = rx_symbol.search(config_str)
         return result_str
 
+    def _resolve_special_symbols(self, config_str, current_config):
+        """
+        This simply resolves formerly unresolved symbols (marked as !symbol!) with the help of the
+        special symbol handler.
+        :param config_str:
+        :param current_config:
+        :return:
+        """
+        c = 0
+        result_str = config_str
+        if config_str:
+            rx_symbol = re.compile(r"(!.*?!)", re.I)
+            next_symbol = rx_symbol.search(config_str)
+            while next_symbol:
+                c += 1
+                if c > 10:
+                    logging.error("_resolve_special_symbols exceed depth of 10")
+                    return None
+
+                key = next_symbol.group(0)[1:-1]
+                value = self._on_resolve_special_symbols_handler(key, current_config)
+                if value is not None:
+                    result_str = result_str.replace(next_symbol.group(0), value)
+
+                config_str = config_str.replace(next_symbol.group(0), "" if value is None else value)
+                next_symbol = rx_symbol.search(config_str)
+        return result_str
 
     def on_read_config(self, get_config_dict):
         self._on_read_config_handler = get_config_dict

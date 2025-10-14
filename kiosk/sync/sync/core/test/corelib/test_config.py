@@ -301,3 +301,22 @@ class TestConfig:
 
         assert cfg.config["some_value"] == "custom"
         assert cfg.config["some_default_value"] == "default"
+
+    def test_resolve_special_symbols(self):
+        cfg = config.Config()
+
+        cfg["SOMEMODULE"] = {"SOMEPATH1": "NOTING", "SOMEPATH2": "c:\\some_path"}
+        cfg["SOMEOTHERMODULE"] = {"SOMEPATH3": "NOTING", "SOMEPATH4": "c:\\some_other_path"}
+        cfg["SOMEFILE1"] = "%SOMEPATH2%\\some_file"
+        cfg["SOMEFILE2"] = "%SOMEPATH4%\\some_other_file"
+        cfg["CUSTOMFILE"] = "%CUSTOM_PATH%\\some_custom_file"
+        assert cfg.resolve_symbols(cfg["SOMEFILE1"]) == "c:\\some_path\\some_file"
+        assert cfg.resolve_symbols(cfg["SOMEFILE2"]) == "c:\\some_other_path\\some_other_file"
+        assert cfg.resolve_symbols("%SOMEFILE5% and %SOMEFILE1%") == "!SOMEFILE5! and c:\\some_path\\some_file"
+        assert cfg.resolve_symbols("%CUSTOMFILE%") == "!CUSTOM_PATH!\\some_custom_file"
+
+        cfg.on_resolve_special_symbols(lambda x,y: "TEST" if x == "CUSTOM_PATH" else None)
+        assert cfg.resolve_symbols(cfg["SOMEFILE1"]) == "c:\\some_path\\some_file"
+        assert cfg.resolve_symbols(cfg["SOMEFILE2"]) == "c:\\some_other_path\\some_other_file"
+        assert cfg.resolve_symbols("%SOMEFILE5% and %SOMEFILE1%") == "!SOMEFILE5! and c:\\some_path\\some_file"
+        assert cfg.resolve_symbols("%CUSTOMFILE%") == "TEST\\some_custom_file"
