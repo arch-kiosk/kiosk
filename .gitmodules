@@ -22,3 +22,6 @@
 [submodule "kiosk/custom/u2ers"]
 	path = kiosk/custom/u2ers
 	url = https://github.com/arch-kiosk/u2ers.git
+[submodule "kiosk/custom/anc"]
+	path = kiosk/custom/anc
+	url = https://github.com/arch-kiosk/anc.git
