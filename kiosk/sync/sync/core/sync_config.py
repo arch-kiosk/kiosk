@@ -65,6 +65,7 @@ class SyncConfig(Config):
         # initialize defaults
         path = '.' if os.path.dirname(sys.argv[0]) == "" else os.path.dirname(sys.argv[0])
         self._log_warnings = log_warnings
+        self.on_resolve_special_symbols(self._resolve_special_paths)
         self.default_config = default_config
         self.configfile = ""
         self.logfile = path + r"\default.log"
@@ -84,6 +85,21 @@ class SyncConfig(Config):
 
         if "log_to_screen" in self.config:
             self.log_to_screen = bool(self.config["log_to_screen"])
+
+    def _resolve_special_paths(self, symbol, _cfg):
+        try:
+            if symbol.upper() == "CUSTOM_PATH":
+                # can't use self.base_path here! It is not set, yet.
+                if "config" in _cfg and "base_path" in _cfg["config"] and "project_id" in _cfg["config"]:
+                    return os.path.join(_cfg["config"]["base_path"], "custom", _cfg["config"]["project_id"])
+                else:
+                    raise Exception("base_path and project_id must both be set in the kiosk_config.yml itself. "
+                                    "That does not seem to be the case.")
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}._resolve_special_paths: {repr(e)}")
+            if "must both be set" in repr(e):
+                raise e
+        return None
 
     def _load_config(self):
         fatal_error = False

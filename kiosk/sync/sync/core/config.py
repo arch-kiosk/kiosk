@@ -130,6 +130,7 @@ class Config(logginglib.LoggingFeature):
         """
         resolves symbols in a string or list of strings and returns the result.
         If not handler to resolve symbols is active, value will just be returned as it is
+
         """
         if isinstance(value, str) and self._on_resolve_symbols_handler:
             rc = self._on_resolve_symbols_handler(value, self._config)
@@ -261,7 +262,12 @@ class Config(logginglib.LoggingFeature):
         if not self._on_read_config_handler:
             raise Exception("no reader registered: use get_config_dict_handler")
 
-        new_config = self._on_read_config_handler(config_to_add)
+        try:
+            new_config = self._on_read_config_handler(config_to_add)
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.read_config: Cannot read file '{config_to_add}': {repr(e)}")
+            return
+
         if isinstance(new_config, dict):
             if "import_configurations" in new_config:
                 import_cfg = new_config.pop("import_configurations")
@@ -295,8 +301,9 @@ class Config(logginglib.LoggingFeature):
                         import_config: str = cfg
 
                     if self._on_resolve_symbols_handler:
-                        import_config = self._on_resolve_symbols_handler(config_str=import_config,
-                                                                         current_config=self._config)
+                        import_config = self.resolve_symbols(import_config)
+                        # import_config = self._on_resolve_symbols_handler(config_str=import_config,
+                        #                                                  current_config=self._config)
                     if not os.path.dirname(import_config):
                         base_dir = os.path.dirname(config_to_add)
                         import_config = os.path.join(base_dir, import_config)

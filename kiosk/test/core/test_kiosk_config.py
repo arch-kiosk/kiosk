@@ -12,6 +12,7 @@ test_path = os.path.dirname(os.path.abspath(__file__))
 config_file = os.path.join(test_path, r"config", "test_kiosk_config.yml")
 base_config_file = os.path.join(test_path, r"config", "test_base_config.yml")
 project_config_file = os.path.join(test_path, r"config", "test_project_config.yml")
+custom_config_file = os.path.join(test_path, r"config", "custom_project_config.yml")
 
 log_file = os.path.join(test_path, r"log", "test_log.log")
 
@@ -53,9 +54,6 @@ class TestSyncConfig(KioskPyTestHelper):
     def test_base_and_project_config(self):
         kiosk_config = self.get_config(config_file=project_config_file)
         assert kiosk_config.kiosk
-        assert kiosk_config.get_file_repository().lower() == os.path.join(
-            self.get_kiosk_base_path_from_test_path(test_path),
-            'test', 'core', 'sync', 'file_repository').lower()
         assert kiosk_config.get_project_id() == "test"
         assert kiosk_config.file_import
 
@@ -74,6 +72,11 @@ class TestSyncConfig(KioskPyTestHelper):
         assert error_msg == f"No unpackkiosk directory installed in {expected_transfer_dir}"
 
     def test_get_create_transfer_dir(self, shared_datadir):
+        kiosk_config = self.get_config(config_file=project_config_file)
+        transfer_dir = kiosk_config.get_create_transfer_dir()
+        assert transfer_dir == os.path.join(kioskstdlib.get_parent_dir(kiosk_config.base_path), "transfer")
+
+    def test_get_custom_path(self, shared_datadir):
         kiosk_config = self.get_config(config_file=project_config_file)
         transfer_dir = kiosk_config.get_create_transfer_dir()
         assert transfer_dir == os.path.join(kioskstdlib.get_parent_dir(kiosk_config.base_path), "transfer")

@@ -9,7 +9,7 @@ from zoneinfo import ZoneInfo
 import psycopg2
 from wrapt import wrap_function_wrapper
 
-import pytest, pytest_mock
+import pytest  # , pytest_mock
 import kioskdatetimelib
 from dsd.dsd3 import DataSetDefinition
 from filemakerrecording.filemakercontrolwindows import FileMakerControlWindows
