@@ -1183,10 +1183,10 @@ class FileMakerControlWindows(FileMakerControl):
             rc = self._start_fm_script_and_wait("prepare_image_transfer", 60)
             if rc == "1":
                 prep_result = self.get_constant("image_transfer_prep")
-                logging.info(f"{self.__class__.__name__}.sync_internal_files_tables: "
+                logging.info(f"{self.__class__.__name__}._sync_files_load_and_files: "
                               f"The FM Script prepare_image_transfer requests {prep_result} updated image records.")
             else:
-                logging.info(f"{self.__class__.__name__}.sync_internal_files_tables: "
+                logging.info(f"{self.__class__.__name__}._sync_files_load_and_files: "
                               f"prepare_image_transfer did not work, so I truncate the internal files table")
                 report_progress(callback_progress, 51, None, "truncating internal files table ...")
                 sql = f"""
@@ -1194,14 +1194,14 @@ class FileMakerControlWindows(FileMakerControl):
                     """
                 fm_cur.execute(sql)
                 self.cnxn.commit()
-                logging.debug(f"{self.__class__.__name__}.sync_internal_files_tables: "
+                logging.debug(f"{self.__class__.__name__}._sync_files_load_and_files: "
                               f"truncation internal files table finished")
 
 
 
 
             report_progress(callback_progress, 53, None, f"adding image records ...")
-            logging.debug(f"{self.__class__.__name__}.sync_internal_files_tables: "
+            logging.debug(f"{self.__class__.__name__}._sync_files_load_and_files: "
                           f"adding records from {files_table}_load to {files_table}")
 
             sql_insert_columns = ",".join([f"\"{x}\"" for x in columns_to_copy])

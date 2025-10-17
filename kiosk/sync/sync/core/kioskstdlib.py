@@ -140,7 +140,7 @@ def change_file_ext(filename, new_ext):
     new_filename, ext = os.path.splitext(filename)
     if new_ext[0] != ".":
         new_ext = "." + new_ext
-    return (new_filename + new_ext)
+    return new_filename + new_ext
 
 
 def get_file_dimensions(filename):
