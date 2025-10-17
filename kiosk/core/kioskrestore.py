@@ -333,6 +333,34 @@ class KioskRestore:
         return "local" if local_server == "y" else "online"
 
     @classmethod
+    def add_base_path_if_necessary(cls, base_path, kiosk_config_file):
+        """
+        Makes sure that there is a base_path in the central Kiosk config.
+        This only does anything if the config file and the base path exist.
+        :param base_path:
+        :param kiosk_config_file:
+        :return: boolean, throws no exceptions
+        """
+        try:
+            if os.path.isfile(kiosk_config_file) and os.path.isdir(base_path):
+                with open(kiosk_config_file, "r", encoding='utf8') as ymlfile:
+                    cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
+                    if not cfg:
+                        cfg = {}
+                    if "config" not in cfg:
+                        cfg["config"] = {}
+                    cfg["config"]["base_path"] = str(base_path)
+
+                    with open(kiosk_config_file, "w") as ymlfile:
+                        yaml.dump(cfg, ymlfile, default_flow_style=False, default_style="'")
+                    return True
+            else:
+                return False
+        except BaseException as e:
+            print(repr(e))
+            return False
+
+    @classmethod
     def create_kiosk(cls, src_dir, kiosk_dir, kiosk_configfile, options):
 
         if "project_id" not in options:
@@ -347,8 +375,6 @@ class KioskRestore:
             os.makedirs(kiosk_dir)
             config_dir = path.join(kiosk_dir, 'config')
             os.mkdir(config_dir)
-            with open(secure_file, "w") as f:
-                f.writelines(["config:\n", f"  base_path: {kiosk_dir}\n"])
 
             cls.zip_extract_files(kiosk_dir, kiosk_zip, 'config/*.yml', )
             try:
@@ -382,8 +408,11 @@ class KioskRestore:
             else:
                 cfg["config"]["project_id"] = options["project_id"]
 
+            # starting with 1.7.25 the base_path must be registered in the kiosk_config itself.
+            cfg["config"]["base_path"] = kiosk_dir
+
             with open(kiosk_configfile, "w") as ymlfile:
-                yaml.dump(cfg, ymlfile, default_flow_style=False)
+                yaml.dump(cfg, ymlfile, default_flow_style=False, default_style="'")
             print("ok", flush=True)
 
             cls.zip_extract_files(kiosk_dir, kiosk_zip, 'config/dsd', )
