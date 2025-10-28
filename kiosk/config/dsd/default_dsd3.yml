@@ -459,6 +459,22 @@ feature_unit:
 
 images:
   structure:
+    5:
+      description: [datatype(VARCHAR), describes_file(uid)]
+      img_proxy : [datatype(TIMESTAMP), proxy_for(uid), no_file_export()]
+      ref_uid: [datatype(UUID), no_file_export()]
+      file_datetime: [datatype(TIMESTAMP)]
+      filename: [datatype(VARCHAR), no_sync(), filename()]
+      export_filename: [datatype(VARCHAR), unique()]
+      import_filename: [datatype(VARCHAR), no_sync()]
+      image_attributes: [datatype(JSON), no_sync(), no_file_export()]
+      md5_hash: [datatype(VARCHAR), no_sync(), no_file_export()]
+      original_md5: [datatype(VARCHAR), no_file_export()]
+      tags: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid(), file_for(img_proxy)]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     4:
       description: [datatype(VARCHAR), describes_file(uid)]
       img_proxy : [datatype(TIMESTAMP), proxy_for(uid), no_file_export()]
@@ -523,6 +539,9 @@ images:
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
   migration:
+    5:
+      upgrade:
+        - add("import_filename")
     4:
       upgrade:
         - add("export_filename")
