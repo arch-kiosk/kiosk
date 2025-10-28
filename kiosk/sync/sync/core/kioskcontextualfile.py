@@ -33,6 +33,7 @@ class KioskContextualFile(KioskLogicalFile):
 
         self.description = None
         self.export_filename = None
+        self.import_filename = None
         self.modified_by = None
         self._modified: Union[datetime.datetime | None] = None
         self._modified_tz: Union[int, None] = None
@@ -175,6 +176,7 @@ class KioskContextualFile(KioskLogicalFile):
         self._tags = self.get_tags_from_csv(self._file_record.tags)
         self.description = self._file_record.description
         self.export_filename = self._file_record.export_filename
+        self.import_filename = self._file_record.import_filename
         self.ts_file = self._file_record.file_datetime
         self.image_proxy = self._file_record.img_proxy
 
@@ -211,6 +213,7 @@ class KioskContextualFile(KioskLogicalFile):
         r.tags = self.get_csv_tags()
         r.description = self.description
         r.export_filename = self.export_filename
+        r.import_filename = self.import_filename
         r.uid = self._uid
 
     def file_hash_exists(self, src_path_and_filename: str) -> bool:
@@ -343,6 +346,7 @@ class KioskContextualFile(KioskLogicalFile):
         try:
             # todo: refactor. This is done by set_filename
             r.filename = dst_filename
+            self.import_filename = kioskstdlib.get_filename(src_path_and_filename)
             if not keep_image_data:
                 # time zone relevant
                 self.image_proxy = kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True)

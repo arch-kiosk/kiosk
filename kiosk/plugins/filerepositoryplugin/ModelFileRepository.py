@@ -451,6 +451,7 @@ class ModelFileRepository:
             param3 = None
             param4 = None
             param5 = None
+            param6 = None
             # print(o)
 
             if o == "tags" and self.filter_options["filter_values"][o]:
@@ -495,12 +496,14 @@ class ModelFileRepository:
                             (({file_identifier_cache_table_name}.\"description\" ilike %s 
                                 or {files_table_name}.description ilike %s 
                                 or cast({files_table_name}.uid as VARCHAR) = %s)
-                                or {files_table_name}.export_filename ilike %s   
+                                or {files_table_name}.export_filename ilike %s    
+                                or {files_table_name}.import_filename ilike %s   
                             ) """
                         param = kioskstdlib.escape_backslashs("%" + self.filter_options["filter_values"][o] + "%")
                         param2 = kioskstdlib.escape_backslashs("%" + self.filter_options["filter_values"][o] + "%")
                         param3 = self.filter_options["filter_values"][o]
                         param4 = param
+                        param5 = param
                     else:
                         # This is the structure-dependent part that just needs to go
                         where_part = f"""
@@ -516,13 +519,15 @@ class ModelFileRepository:
                                     concat(cm.description, ' ', sf.material, ' ')
                                     ilike %s
                                 )
-                                or {files_table_name}.export_filename ilike %s
+                                or {files_table_name}.export_filename ilike %s 
+                                or {files_table_name}.import_filename ilike %s   
                             ) """
                         param = kioskstdlib.escape_backslashs("%" + self.filter_options["filter_values"][o] + "%")
                         param2 = kioskstdlib.escape_backslashs("%" + self.filter_options["filter_values"][o] + "%")
                         param3 = self.filter_options["filter_values"][o]
                         param4 = param
                         param5 = param
+                        param6 = param
 
             elif o == "recording_context" and self.filter_options["filter_values"][o]:
                 where_part = f"{file_identifier_cache_table_name}.record_type = %s"
@@ -554,6 +559,8 @@ class ModelFileRepository:
                     params.append(param4)
                 if param5:
                     params.append(param5)
+                if param6:
+                    params.append(param6)
         if sql:
             sql = "where " + sql
         return sql, params

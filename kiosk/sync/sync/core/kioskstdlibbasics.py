@@ -29,6 +29,8 @@ def try_get_dict_entry(d, key, default, null_defaults=False):
     :return: returns the value or if the value does not exist or an error occurs the default
     """
     try:
+        if not d:
+            return default
         if key in d:
             v = d[key]
             if null_defaults and v is None:

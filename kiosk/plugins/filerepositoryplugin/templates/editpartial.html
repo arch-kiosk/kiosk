@@ -184,6 +184,9 @@
                     {% endif %}
                     <div>modified by <span>{{ img.get_value('modified_by') }}</span></div>
                     <div>file type/size: <span>{{ file_extension }} / {{ file_size }}</span></div>
+                    {% if img.get_value('import_filename') %}
+                        <div>original filename: <span>{{ img.get_value('import_filename') }}</span></div>
+                    {% endif %}
                 </div>
             </div>
         </div>

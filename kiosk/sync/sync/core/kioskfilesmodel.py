@@ -16,6 +16,7 @@ class KioskFilesModel(Table):
                ("modified_by", ),
                ("description",),
                ("export_filename",),
+               ("import_filename",),
                ("img_proxy",),
                ("md5_hash",),
                ("ref_uid",),
@@ -51,6 +52,7 @@ class KioskFilesModel(Table):
         self.modified_by = ""
         self.description = ""
         self.export_filename = ""
+        self.import_filename = None
         self.img_proxy = None
         self.md5_hash = ""
         self.ref_uid = None
