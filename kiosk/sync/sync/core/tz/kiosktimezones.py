@@ -420,7 +420,7 @@ class KioskTimeZones:
     @classmethod
     def get_local_scripts_time_zone_name(cls):
         """
-        returns the iana name of the loca system (the one on which this python script runs!).
+        returns the iana name of the local system (the one on which this python script runs!).
         So this is usually not want you want!
         :return:
         """

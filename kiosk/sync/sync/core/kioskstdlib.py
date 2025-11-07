@@ -137,6 +137,13 @@ def delete_files(file_list, exception_if_missing=False):
 
 
 def change_file_ext(filename, new_ext):
+    """
+    changes the file extension and returns the new filename.
+
+    :param filename:
+    :param new_ext: the new extension (without the .)
+    :return:
+    """
     new_filename, ext = os.path.splitext(filename)
     if new_ext[0] != ".":
         new_ext = "." + new_ext

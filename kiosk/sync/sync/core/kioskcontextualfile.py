@@ -654,6 +654,10 @@ class KioskContextualFile(KioskLogicalFile):
         changed = False
         cur = KioskSQLDb.get_dict_cursor()
         last_identifier = ""
+
+        if self._contexts.count == 0:
+            return True
+
         try:
             idc = MemoryIdentifierCache(self._dsd)
 

@@ -367,7 +367,7 @@ class KioskSQLDb(SqlSafeIdentMixin):
         :param parameters: list with parameters (matching the %s occurrences in the statement)
         :param commit: if true the sql statement will be commited but in case of error NOT rolled back!
         :return: number of affected rows
-        :exception: throws exceptions in case of an error
+        :raises exceptions: throws exceptions in case of an error
         """
         rc = None
         cur = cls.get_cursor()
