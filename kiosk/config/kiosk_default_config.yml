@@ -367,7 +367,7 @@ kiosk:
     menu:
       "prepare filemaker workstations": [ "+syncmanagerplugin" ]
       "import filemaker workstations": [ "+syncmanagerplugin" ]
-      "reset all filemaker workstations": [ "+syncmanagerplugin" ]
+      "reset filemaker workstations": [ "+syncmanagerplugin" ]
       "update recording software": [ "+syncmanagerplugin" ]
 
   fileimportplugin:
