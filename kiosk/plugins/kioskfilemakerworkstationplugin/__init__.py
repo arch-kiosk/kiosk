@@ -78,7 +78,7 @@ if "mcpcore.mcpworker" not in sys.modules:
                                                                    "fulfills_requirement") else True,
                               parent_menu="Hub",
                               order="2020"),
-                KioskMenuItem(name="reset all filemaker workstations",
+                KioskMenuItem(name="reset filemaker workstations",
                               onclick="kfwGroupAction('kioskfilemakerworkstation.reset_all')",
                               endpoint="kioskfilemakerworkstation.reset_all",
                               menu_cfg=plugin.get_menu_config(),
