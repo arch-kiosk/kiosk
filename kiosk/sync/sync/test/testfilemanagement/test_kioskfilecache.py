@@ -19,7 +19,6 @@ class TestKioskFileCache(KioskPyTestHelper):
 
     @pytest.fixture(scope="module")
     def cfg(self):
-        # not using , test_config_file="config_kiosk_imagemanagement.yml"
         return self.get_standard_test_config(__file__)
 
     @pytest.fixture(scope="module")

@@ -15,11 +15,14 @@ def mock_kiosk_time_zones(mocker):
                             27743346: [27743346, 'Mountain Time (US/Mountain)',
                                        'US/Mountain', False, 1720205986
                                        ],
+                            88846771: [88846771,'Eastern European Time (Egypt)',
+                            'Egypt', False, 1720205986]
                         }[tz_index])
     mocker.patch.object(KioskTimeZones, "get_time_zone_index",
                         lambda _, iana_name: {
                             'Europe/Berlin': 96554373,
                             'US/Mountain': 27743346,
+                            'Egypt': 88846771,
                             # 'America/New_York': 40079121
                         }[iana_name])
     return mocker
