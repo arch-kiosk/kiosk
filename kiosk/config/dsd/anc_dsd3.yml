@@ -4,3 +4,41 @@ config:
     - default_dsd3.yml
     - wc_pottery_dsd3.yml
 
+anc_forum_record:
+  structure:
+    1:
+      forum_ssid: [ datatype(VARCHAR), unique(), not_null(), identifier() ]
+      forum_filename: [ datatype(VARCHAR) ]
+      image_date: [ datatype(VARCHAR) ]
+      materials: [ datatype(VARCHAR) ]
+      artstor_class: [ datatype(VARCHAR) ]
+      work_type: [ datatype(VARCHAR) ]
+      repository: [ datatype(VARCHAR) ]
+      repository_acc_number: [ datatype(VARCHAR) ]
+      location: [ datatype(VARCHAR) ]
+      creation_site: [ datatype(VARCHAR) ]
+      description: [ datatype(VARCHAR) ]
+      photographer: [ datatype(VARCHAR) ]
+      id_number: [ datatype(VARCHAR) ]
+      type_of_photo: [ datatype(VARCHAR) ]
+      image_notes: [ datatype(VARCHAR) ]
+      site: [ datatype(VARCHAR) ]
+      excavation_photo_type: [ datatype(VARCHAR) ]
+      excavation_photo_content: [ datatype(VARCHAR) ]
+      feature: [ datatype(VARCHAR) ]
+      architecture_mudbrick: [ datatype(VARCHAR) ]
+      architecture_stone: [ datatype(VARCHAR) ]
+      architectural_conservation_type: [ datatype(VARCHAR) ]
+      candid_type: [ datatype(VARCHAR) ]
+      object_conservation_location: [ datatype(VARCHAR) ]
+      object_notes: [ datatype(VARCHAR) ]
+      period: [ datatype(VARCHAR) ]
+      data_entered_date: [ datatype(VARCHAR) ]
+      data_entered_by: [ datatype(VARCHAR) ]
+      season: [ datatype(VARCHAR) ]
+      uid_image: [ datatype(UUID), uid_file()]
+      uid: [ datatype(UUID), replfield_uuid() ]
+      created: [ datatype(TIMESTAMP), replfield_created() ]
+      modified: [ datatype(TIMESTAMP), replfield_modified() ]
+      modified_by: [ datatype(VARCHAR), replfield_modified_by(), default("''") ]
+
