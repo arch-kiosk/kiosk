@@ -562,8 +562,12 @@ class KioskRestore:
     def set_new_database_credentials(cls, kiosk_configfile, kiosk_secure_file, options):
         try:
             print("setting new database credentials ... ", end=" ", flush=True)
-            with open(kiosk_secure_file, "r", encoding='utf8') as ymlfile:
-                cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
+
+            try:
+                with open(kiosk_secure_file, "r", encoding='utf8') as ymlfile:
+                    cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
+            except:
+                cfg = None
 
             if not cfg:
                 cfg = {"config": {}}
