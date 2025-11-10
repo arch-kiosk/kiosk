@@ -1,5 +1,8 @@
+import logging
+
 from dsd.dsd3 import DataSetDefinition
-from dsd.dsdconstants import KEY_INSTRUCTION_IDENTIFIER, KEY_INSTRUCTION_REPLFIELD_UUID, KEY_INSTRUCTION_SKIP_INDEX_ON
+from dsd.dsdconstants import (KEY_INSTRUCTION_IDENTIFIER, KEY_INSTRUCTION_REPLFIELD_UUID,
+                              KEY_INSTRUCTION_SKIP_INDEX_ON, KEY_INSTRUCTION_PRIMARY)
 from dsd.dsderrors import DSDError, DSDSemanticError
 from kiosksqldb import KioskSQLDb
 
@@ -34,7 +37,21 @@ class IdentifierCache:
             fields = self._dsd.list_fields_with_instruction(t, KEY_INSTRUCTION_IDENTIFIER)
             fields.sort()
             if fields:
-                uid_field = self._dsd.list_fields_with_instruction(t, KEY_INSTRUCTION_REPLFIELD_UUID)[0]
+                uid_fields = self._dsd.list_fields_with_instruction(t, KEY_INSTRUCTION_REPLFIELD_UUID)
+                if uid_fields:
+                    uid_field = uid_fields[0]
+                else:
+                    uid_fields = self._dsd.list_fields_with_instruction(t, KEY_INSTRUCTION_PRIMARY)
+                    if uid_fields:
+                        uid_field = uid_fields[0]
+                    else:
+                        logging.error(f"{self.__class__.__name__}._get_identifiers_from_dsd: "
+                                      f"dsd table {t} has an identifier() instruction but "
+                                      f"neither a replfield_uuid nor a primary instruction. That is not allowed. "
+                                      f"Table skipped")
+                        continue
+
+
                 for f in fields:
                     identifiers.append((t, f, uid_field))
 

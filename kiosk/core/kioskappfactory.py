@@ -248,13 +248,17 @@ class KioskAppFactory(AppFactory):
         # time.sleep(8)
 
         # this can only happen after migration because it needs the tables to be up
-        kioskglobals.identifier_cache = MemoryIdentifierCache(kioskglobals.master_view.dsd)
+        try:
+            kioskglobals.identifier_cache = MemoryIdentifierCache(kioskglobals.master_view.dsd)
+        except BaseException as e:
+            logging.error(f"{cls.__name__}._before_app_creation: Exception when initializing identifier_cache: {repr(e)}")
+            raise Exception("Error in _before_app_creation when initializing identifier cache")
         try:
             kioskglobals.init_counter = kioskglobals.get_system_wide_init_counter()
             logging.info(
-                f"{cls.__name__}._create_std_app: kiosk init counter starts with {kioskglobals.init_counter}")
+                f"{cls.__name__}._before_app_creation: kiosk init counter starts with {kioskglobals.init_counter}")
         except BaseException as e:
-            logging.error(f"{cls.__name__}._create_std_app: Exception when querying init counter {repr(e)}")
+            logging.error(f"{cls.__name__}._before_app_creation: Exception when querying init counter {repr(e)}")
 
         return plugin_manager
 
