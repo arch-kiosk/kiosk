@@ -5,6 +5,8 @@ config:
     - wc_pottery_dsd3.yml
 
 anc_forum_record:
+  meta:
+    flags: ["no_filemaker_recording"]
   structure:
     1:
       forum_ssid: [ datatype(VARCHAR), unique(), not_null(), identifier() ]
@@ -37,7 +39,7 @@ anc_forum_record:
       data_entered_by: [ datatype(VARCHAR) ]
       season: [ datatype(VARCHAR) ]
       uid_image: [ datatype(UUID), uid_file()]
-      uid: [ datatype(UUID), replfield_uuid() ]
+      uid: [ datatype(UUID), replfield_uuid()]
       created: [ datatype(TIMESTAMP), replfield_created() ]
       modified: [ datatype(TIMESTAMP), replfield_modified() ]
       modified_by: [ datatype(VARCHAR), replfield_modified_by(), default("''") ]
