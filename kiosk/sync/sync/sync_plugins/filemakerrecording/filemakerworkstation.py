@@ -2374,6 +2374,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                                                                "tables": [
                                                                    "include_tables_with_instruction('replfield_uuid')",
                                                                    "include_tables_with_flag('filemaker_recording')",
+                                                                   "exclude_tables_with_flag('no_filemaker_recording')",
                                                                    "exclude_field('images', 'filename')",
                                                                    "exclude_field('images', 'md5_hash')",
                                                                    "exclude_field('images', 'image_attributes')",
