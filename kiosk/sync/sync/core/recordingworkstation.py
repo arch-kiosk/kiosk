@@ -640,7 +640,7 @@ class RecordingWorkstation(Dock):
                     break
             if ok:
                 self._check_fm_transfer_table_record_count("Line 907")
-                ok = self._remove_contextless_dummy_images(cur, dsd=master_dsd)
+                ok = self._remove_contextless_dummy_images(cur, dsd=self._get_workstation_dsd())
 
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}._prepare_files_table_for_file_export_v2:"
