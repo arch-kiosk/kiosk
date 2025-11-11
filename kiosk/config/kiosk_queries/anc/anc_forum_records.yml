@@ -1,0 +1,21 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+variables:
+  season_param: ["dsd('anc_forum_record', 'season')", "label('season')", "input_default(null)"]
+queries:
+  'forum_records_by_ssid':
+    name: '#: List all forum records by season'
+    description: '#: Lists all forum records by season and gives their description'
+    type: 'SQL'
+    output_type: 'list'
+    query: "  
+      select forum_ssid, season, description from anc_forum_record  
+      where coalesce({{#season_param}},'')='' or anc_forum_record.season ilike {{#season_param}}
+      order by season, forum_ssid
+      "
+    column_information:
+      forum_ssid: DSD('anc_forum_record','forum_ssid')
+      description: DSD('anc_forum_record','description')
+      season: DSD('anc_forum_record','season')
