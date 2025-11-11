@@ -44,7 +44,7 @@ anc_forum_record:
       data_entered_date: [ datatype(VARCHAR) ]
       data_entered_by: [ datatype(VARCHAR) ]
       season: [ datatype(VARCHAR) ]
-      uid_image: [ datatype(UUID), uid_file()]
+      uid_image: [ datatype(UUID), uid_file(), label('photo')]
       uid: [ datatype(UUID), replfield_uuid()]
       created: [ datatype(TIMESTAMP), replfield_created() ]
       modified: [ datatype(TIMESTAMP), replfield_modified() ]
