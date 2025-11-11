@@ -26,11 +26,19 @@ class PLDLoader:
             if filename.lower().startswith('%custom_path%'):
                 path_and_filename = cfg.resolve_symbols(filename)
             else:
-                # if not importing_path_and_filename.startswith(cfg.custom_path):
-                path_and_filename = os.path.join(cfg.custom_path, "ui", filename + ".pld")
+                path_and_filename = ""
+                if not importing_path_and_filename.startswith(cfg.custom_path):
+                    path_and_filename = os.path.join(cfg.custom_path, "ui", filename + ".pld")
                 if not path_and_filename or not os.path.isfile(path_and_filename):
                     path_and_filename = os.path.join(cfg.base_path, "config", "ui", filename + ".pld")
-            return path_and_filename
+                    if not path_and_filename or not os.path.isfile(path_and_filename):
+                        if importing_path_and_filename.startswith(cfg.custom_path):
+                            # a custom file imports a file by leaving out the %custom_pat% variable.
+                            # But the general file does not exist. Is there a custom file instead?
+                            # This is really only a fallback and has the potential of an infinite recursion
+                            path_and_filename = os.path.join(cfg.custom_path, "ui", filename + ".pld")
+
+            return str(path_and_filename)
 
         try:
             pld = PresentationLayerDefinition()
