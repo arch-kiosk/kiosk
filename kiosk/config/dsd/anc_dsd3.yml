@@ -4,12 +4,6 @@ config:
     - default_dsd3.yml
     - wc_pottery_dsd3.yml
 
-  contexts:
-    forum_images:
-      type: file_search
-      scope:
-        anc_forum_record: {}
-
 anc_forum_record:
   meta:
     flags: ["no_filemaker_recording"]
@@ -45,7 +39,7 @@ anc_forum_record:
       data_entered_by: [ datatype(VARCHAR) ]
       season: [ datatype(VARCHAR) ]
       uid_image: [ datatype(UUID), uid_file(), label('photo')]
-      uid: [ datatype(UUID), replfield_uuid()]
+      uid: [ datatype(UUID), primary()]
       created: [ datatype(TIMESTAMP), replfield_created() ]
       modified: [ datatype(TIMESTAMP), replfield_modified() ]
       modified_by: [ datatype(VARCHAR), replfield_modified_by(), default("''") ]

@@ -1374,15 +1374,13 @@ def after_synchronization():
         dsd = Dsd3Singleton.get_dsd3()
         sync = Synchronization()
         # sync.load_plugins([])
-        if not sync.fire_event("after_synchronization"):
-            logging.error(f"after_synchronization: fire_event returned False")
+        sync.fire_event("after_synchronization")
     except Exception as e:
         logging.error(f"after_synchronization: Exception when handling "
                       f"administration/after_synchronization : {repr(e)}")
         result["result"] = "Exception thrown. Please consult the logs."
 
     return jsonify(**result)
-
 
 #  **************************************************************
 #  ****    /administration/refresh_file_cache route

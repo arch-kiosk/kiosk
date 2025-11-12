@@ -16,6 +16,7 @@ from ..kiosksyncmanager import KioskSyncManager
 from ..workstationmanagerworker import WorkstationManagerWorker
 # from ..modelworkstation import ModelWorkstation
 import filerepository
+import kioskglobals
 
 
 class SynchronizationWorker(WorkstationManagerWorker):
@@ -57,6 +58,8 @@ class SynchronizationWorker(WorkstationManagerWorker):
     def worker(self):
 
         # #################################################
+
+        kioskglobals.general_store = self.gs
 
         def synchronize():
             worker_result = KioskResult(message="An unknown error occurred in start_synchronization.worker")
