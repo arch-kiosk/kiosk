@@ -143,7 +143,7 @@ class FileRepository:
         return config.file_repository["representations"][representation_type]
 
     def add_contextual_file(self, path_and_filename: str, file: KioskContextualFile,
-                            override=False, fire_events=True) -> bool:
+                            override=False, fire_events=True, omit_by_hashes=None) -> Union[str| bool]:
         """ Adds / updates (and transfers) a single file to the file repository.
 
             The md5 hash of the file must not be the same as an existing md5 hash in the database.
@@ -164,12 +164,16 @@ class FileRepository:
             :param fire_events: optional. If explicitly turned off no event manager events will be fired.
                                 This is rather for testing purposes.
 
-            :return: True or False
-
+            :param omit_by_hashes: optional. a list of hash strings.
+                                    If an image has that hash it will not be imported and no error will be thrown.
+            :return: the destination path and filename or something falsish
         """
         logging.info("trying to add file " + path_and_filename + " to repository.")
         try:
-            dst_path_and_filename = file.upload(path_and_filename, push_contexts=True, override=override)
+            dst_path_and_filename = file.upload(path_and_filename,
+                                                push_contexts=True,
+                                                override=override,
+                                                omit_by_hashes=omit_by_hashes)
             if dst_path_and_filename:
                 if self._event_manager and fire_events:
                     try:
@@ -183,6 +187,7 @@ class FileRepository:
             return dst_path_and_filename
         except Exception as e:
             logging.error(f"{self.__class__.__name__}.add_contextual_file: Exception {repr(e)}.")
+            return False
 
     def get_file_repository_filename(self, uid) -> str:
         """

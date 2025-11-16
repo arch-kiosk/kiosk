@@ -39,7 +39,8 @@ div, p
 
 .toolbar
   height: 3em
-  background: $col-bg-3
+  background: var(--col-toolbar-bg, var(--col-bg-3))
+  color: var(--col-text-toolbar-bg, var(--col-primary-bg-3))
   display: flex
   flex-direction: row
   padding: 0px 1em 0px 1em
@@ -52,7 +53,7 @@ div, p
 #toolbar-filters
   flex-grow: 1
 #toolbar-buttons
-  background-color: $col-bg-3-darker
+  background-color: var(--col-toolbar-bg-darker, var(--col-bg-3-darker))
   height: 100%
   display: flex
   flex-direction: row

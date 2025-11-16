@@ -4,7 +4,7 @@ import os
 import shutil
 import uuid
 from os.path import basename
-from typing import Union, Tuple
+from typing import Union, Tuple, List
 
 import kioskdatetimelib
 from kioskglobals import kiosk_time_zones
@@ -244,8 +244,9 @@ class KioskContextualFile(KioskLogicalFile):
                commit=True,
                keep_image_data=False,
                push_contexts=False,
-               log_duplicate_errors=True
-               ):
+               log_duplicate_errors=True,
+               omit_by_hashes: Union[List, None]=None
+               ) -> Union[str, None]:
         """
         uploads a file from outside of the file repository
         into the file repository under the uid set at __init__.
@@ -276,6 +277,8 @@ class KioskContextualFile(KioskLogicalFile):
                                 Otherwise the image-proxy field will be changed!
         :param push_contexts: if set, successfully pushing the contexts is part of an upload or otherwise makes it fail.
         :param commit: set to False if this runs within a larger transaction
+        :param omit_by_hashes: optional. a list of hash strings.
+                             If an image has that hash it will not be imported and no error will be thrown.
 
 
         :return: path and filename of the file in the file repository or None, if an error occurred.
@@ -300,6 +303,13 @@ class KioskContextualFile(KioskLogicalFile):
             uid_hash = self._get_uid_from_hash(md5_hash=md5_hash)
             logging.debug(f"{self.__class__.__name__}.upload : _get_uid_from_hash returned {uid_hash}, {md5_hash}")
             if uid_hash:
+                if omit_by_hashes and uid_hash in omit_by_hashes:
+                    self._last_error = "omitted by hash"
+                    logging.info(f"{self.__class__.__name__}.upload: "
+                                  f"file candidate {src_path_and_filename} won't be imported because its"
+                                  f"md5 hash is supposed to be omitted: {md5_hash}.")
+                    return None
+
                 if uid_hash != self._uid:
                     self._last_error = "Duplicate"
                     self._last_error_details = {
