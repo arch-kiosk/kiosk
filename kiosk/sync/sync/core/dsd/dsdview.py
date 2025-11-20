@@ -101,7 +101,8 @@ class DSDView:
     def _delete_not_included_fields(self):
         for field in self.excluded_fields.keys():
             table, field = field.split("\\")
-            self.dsd.delete_field(table, field)
+            for version in self.dsd.list_table_versions(table):
+                self.dsd.delete_field(table, field,version)
 
     def _apply_include_tables_with_instruction(self, parameters):
         tables = self.dsd.list_tables_with_instructions([parameters[0]])
