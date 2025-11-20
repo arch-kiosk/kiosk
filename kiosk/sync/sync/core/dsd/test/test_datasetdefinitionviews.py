@@ -287,3 +287,28 @@ class TestDataSetDefinition(KioskPyTestHelper):
                                              })
         assert "unit" in view.dsd._dsd_data.get([])
         assert view.dsd.list_fields("unit") == ["legacy_unit_id", "arch_context"]
+
+    def test__try(self):
+        dsd = DataSetDefinition()
+        dsd.register_loader("yml", DSDYamlLoader)
+        dsd.append_file(r"c:\notebook_source\kiosk\server\kiosk\kiosk\config\dsd\default_dsd3.yml")
+        self.dsd_workstation_view = DSDView(dsd)
+        self.dsd_workstation_view.apply_view_instructions({"config":
+                                                               {"format_ver": 3},
+                                                           "tables": [
+                                                               "include_tables_with_instruction('replfield_uuid')",
+                                                               "include_tables_with_flag('filemaker_recording')",
+                                                               "exclude_tables_with_flag('no_filemaker_recording')",
+                                                               "exclude_field('images', 'filename')",
+                                                               "exclude_field('images', 'md5_hash')",
+                                                               "exclude_field('images', 'image_attributes')",
+                                                               "exclude_fields_with_instruction('no_sync')"
+                                                           ]})
+        assert self.dsd_workstation_view.dsd
+        assert 'export_filename' in self.dsd_workstation_view.dsd.get_table_definition("images")
+        assert 'filename' not in self.dsd_workstation_view.dsd.get_table_definition("images")
+        assert 'md5_hash' not in self.dsd_workstation_view.dsd.get_table_definition("images")
+
+        assert 'export_filename' in self.dsd_workstation_view.dsd.get_table_definition("images", version=4)
+        assert 'filename' not in self.dsd_workstation_view.dsd.get_table_definition("images", version=4)
+        assert 'md5_hash' not in self.dsd_workstation_view.dsd.get_table_definition("images", version=4)
