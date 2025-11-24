@@ -756,15 +756,16 @@ class FileMakerWorkstation(RecordingWorkstation):
             sql = sql_select + sql_from + sql_where
             cur = KioskSQLDb.execute_return_cursor(sql)
 
-            logging.info((f"\nFileMakerWorkstation._transfer_file_identifier_cache: "
+            logging.info((f"FileMakerWorkstation._transfer_file_identifier_cache: "
                           f"About to copy {str(cur.rowcount)} lines from {kiosk_table} to filemaker"))
 
             report_progress(self.interruptable_callback_progress, 85, None,
-                            "transfering file identifier cache ...")
+                            "transferring file identifier cache ...")
 
             table_structure = {
                 "identifier": ("varchar", False),
                 "uid_image": ("uuid", False),
+                "image_text": ("varchar", False),
                 "recording_context": ("varchar", False),
                 "uid_recording_context": ("uuid", False)
             }
