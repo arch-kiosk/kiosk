@@ -96,6 +96,16 @@ class KioskWorkstation:
     def recording_group(self) -> str:
         return ""
 
+    def get_default_file_picking_group(self, plugin_cfg):
+        """
+        returns the default file picking group for this dock OR None
+        :param plugin_cfg: the plugin config (so not a general cfg. Only the keys for this type of dock)
+        :return:
+        """
+        return kioskstdlib.try_get_dict_entry(plugin_cfg,
+                                       "default_file_picking_group", None, True)
+
+
     @classmethod
     def workstation_id_exists(cls, workstation_id):
         return KioskSQLDb.get_record_count("repl_workstation", "id", "\"id\"=%s", [workstation_id]) > 0

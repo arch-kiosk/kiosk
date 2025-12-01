@@ -84,9 +84,67 @@ class KioskFilePickingRule:
 
 
 class KioskFilePickingRules:
+
     def __init__(self, workstation_type: str, recording_group: str = "default"):
         self.workstation_type = workstation_type
         self.recording_group = recording_group
+
+    def copy_from_group(self, from_file_picking_group, commit=True)->bool:
+        try:
+            if self.has_rules():
+                logging.debug(f"{self.__class__.__name__}.copy_from_group: "
+                              f"recording group {self.recording_group} already had file picking rules")
+                return True
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.copy_from_group: {repr(e)}")
+            return False
+
+        sql = f"""
+            insert into repl_file_picking_rules (
+                workstation_type, recording_group, "order", rule_type, operator, "value",
+                resolution, disable_changes, misc, modified_by)
+            select workstation_type, %s, "order", rule_type, operator, "value",
+                resolution, disable_changes, misc, %s
+                from repl_file_picking_rules where {KioskSQLDb.sql_safe_ident('workstation_type')} ilike %s
+                  and {KioskSQLDb.sql_safe_ident('recording_group')} = %s
+        """
+        sp = KioskSQLDb.begin_savepoint()
+        try:
+            c_rules = KioskSQLDb.execute(sql, parameters=[self.recording_group, "sys",
+                                                self.workstation_type,
+                                                from_file_picking_group])
+            logging.info(f"Recording group {self.recording_group} got {c_rules} file picking rules "
+                         f"from recording group {from_file_picking_group}")
+            KioskSQLDb.commit_savepoint(sp)
+            if commit:
+                KioskSQLDb.commit()
+
+        except BaseException as e:
+            KioskSQLDb.rollback_savepoint(sp)
+            logging.error(f"{self.__class__.__name__}.copy_from_group: Error copying groups from "
+                          f"{from_file_picking_group} to {self.recording_group}:{repr(e)}")
+
+        return True
+
+
+    def has_rules(self) -> bool:
+        """
+        Checks if the recording group already has file picking rules.
+        :return: boolean
+        :raises all kinds of Exceptions
+        """
+        if not self.workstation_type:
+            raise FilePickingRuleError("No workstation_type available in KioskFilePickingRules.has_rules.")
+
+        sql = "select " + f""" uid
+              from {KioskSQLDb.sql_safe_ident('repl_file_picking_rules')}
+              where {KioskSQLDb.sql_safe_ident('workstation_type')} ilike %s
+              and {KioskSQLDb.sql_safe_ident('recording_group')} = %s"""
+
+        if KioskSQLDb.get_first_record_from_sql(sql=sql, params=[self.workstation_type, self.recording_group]):
+            return True
+
+        return False
 
     def get_rules(self) -> List[KioskFilePickingRule]:
         """

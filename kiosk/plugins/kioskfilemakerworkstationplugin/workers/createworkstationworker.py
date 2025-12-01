@@ -1,5 +1,10 @@
 import logging
+
+from filepicking.kioskfilepicking import KioskFilePicking
+from filepicking.kioskfilepickingrules import KioskFilePickingRules
+from kioskconfig import KioskConfig
 from mcpinterface.mcpjob import MCPJobStatus
+from sync_config import SyncConfig
 from synchronization import Synchronization
 from plugins.syncmanagerplugin.workstationmanagerworker import WorkstationManagerWorker
 from plugins.kioskfilemakerworkstationplugin.kioskfilemakerworkstation import KioskFileMakerWorkstation
@@ -15,12 +20,18 @@ class CreateWorkstationWorker(WorkstationManagerWorker):
 
             sync = Synchronization()
             ws = KioskFileMakerWorkstation(workstation_id=ws_id, sync=sync)
+            plugin_cfg = self.cfg.kiosk["kioskfilemakerworkstationplugin"]
             try:
                 ws.create_workstation(ws_name=ws_name,
                                       recording_group=recording_group,
                                       user_time_zone_index=user_time_zone_index,
                                       options=options,
                                       grant_access_to=grant_access_to)
+                default_file_picking_group = ws.get_default_file_picking_group(plugin_cfg)
+                if default_file_picking_group:
+                    rules = KioskFilePickingRules(ws.sync_ws.get_workstation_type(), recording_group)
+                    if not rules.copy_from_group(default_file_picking_group, commit=True):
+                        raise Exception("Error copying default file picking rules")
                 rc = "ok"
             except BaseException as e:
                 logging.error(f"{self.__class__.__name__}.worker: {repr(e)}")
