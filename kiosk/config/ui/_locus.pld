@@ -75,12 +75,14 @@ locus.sheet:
       - elevation_opening_ct
       - elevation_opening_se
       - elevation_opening_sw
+      - opening_elevations
       - line_4
       - elevation_closing_nw
       - elevation_closing_ne
       - elevation_closing_ct
       - elevation_closing_se
       - elevation_closing_sw
+      - closing_elevations
       - interpretation
       - line_5
       - created

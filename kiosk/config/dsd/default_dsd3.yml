@@ -597,6 +597,42 @@ coordinate_categories:
 
 locus:
   structure:
+    10:
+      uid_unit: [datatype(UUID), join("unit")]
+      type: [datatype(VARCHAR), label('#(/$/glossary/locus:1) type'), "lookup('locus_types', 'id')"]
+      opening_elevations: [datatype(VARCHAR), "label(opening elevations)"]
+      closing_elevations: [datatype(VARCHAR), "label(closing elevations)"]
+      description: [datatype(VARCHAR), record_description(), label('description')]
+      date_defined: [datatype(DATE), label("opening date"),excavation_date()]
+      date_closed: [datatype(DATE), label("closing date")]
+      interpretation: [datatype(VARCHAR)]
+      colour: [datatype(VARCHAR)]
+      excavated_with: [datatype(VARCHAR)]
+      formation_process: [datatype(VARCHAR), fts(D), label('formation process')]
+      elevation_opening_nw: [datatype(FLOAT)]
+      elevation_opening_ne: [datatype(FLOAT)]
+      elevation_opening_se: [datatype(FLOAT)]
+      elevation_opening_sw: [datatype(FLOAT)]
+      elevation_opening_ct: [datatype(FLOAT)]
+      elevation_closing_nw: [datatype(FLOAT)]
+      elevation_closing_ne: [datatype(FLOAT)]
+      elevation_closing_se: [datatype(FLOAT)]
+      elevation_closing_sw: [datatype(FLOAT)]
+      elevation_closing_ct: [datatype(FLOAT)]
+      datum_point_elevation: [datatype(FLOAT)]
+      width: [datatype(FLOAT)]
+      length: [datatype(FLOAT)]
+      depth: [datatype(FLOAT)]
+      volume: [datatype(FLOAT)]
+      id: [datatype(NUMBER), local_id("arch_context")]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier(), skip_index_on("hidden"), label("#(/$/glossary/locus:1)")]
+      alternate_id: [datatype(VARCHAR), identifier("additional"), skip_index_on("hidden")]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
+      recorded_by: [datatype(VARCHAR), default(null)]
     9:
       uid_unit: [datatype(UUID), join("unit")]
       type: [datatype(VARCHAR), label('#(/$/glossary/locus:1) type'), "lookup('locus_types', 'id')"]
@@ -633,7 +669,6 @@ locus:
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
       recorded_by: [datatype(VARCHAR), default(null)]
-
     8:
       uid_unit: [datatype(UUID), join("unit")]
       type: [datatype(VARCHAR), label('locus type')]
@@ -836,6 +871,10 @@ locus:
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
   migration:
+    10:
+      upgrade:
+        - rename("opening elevations", "opening_elevations")
+        - rename("closing elevations", "closing_elevations")
     9:
       upgrade:
         - add("alternate_id")
@@ -859,36 +898,36 @@ locus:
         - alter("elevation_closing_ne")
         - alter("elevation_closing_sw")
         - alter("elevation_closing_se")
-    6:
-      upgrade:
-        - add("elevation_opening_ct")
-        - add("elevation_closing_ct")
-        - add("width")
-        - add("length")
-        - add("depth")
-        - add("volume")
-    5:
-      upgrade:
-        - add("elevation_opening_nw")
-        - add("elevation_opening_ne")
-        - add("elevation_opening_sw")
-        - add("elevation_opening_se")
-        - add("elevation_closing_nw")
-        - add("elevation_closing_ne")
-        - add("elevation_closing_sw")
-        - add("elevation_closing_se")
-    4:
-      upgrade:
-        - alter("recorded_by")
-        - alter("modified_by")
-    3:
-      upgrade:
-        - add("recorded_by")
-    2:
-      upgrade:
-        - add("formation_process")
-        - add("arch_domain")
-        - add("arch_context")
+#    6:
+#      upgrade:
+#        - add("elevation_opening_ct")
+#        - add("elevation_closing_ct")
+#        - add("width")
+#        - add("length")
+#        - add("depth")
+#        - add("volume")
+#    5:
+#      upgrade:
+#        - add("elevation_opening_nw")
+#        - add("elevation_opening_ne")
+#        - add("elevation_opening_sw")
+#        - add("elevation_opening_se")
+#        - add("elevation_closing_nw")
+#        - add("elevation_closing_ne")
+#        - add("elevation_closing_sw")
+#        - add("elevation_closing_se")
+#    4:
+#      upgrade:
+#        - alter("recorded_by")
+#        - alter("modified_by")
+#    3:
+#      upgrade:
+#        - add("recorded_by")
+#    2:
+#      upgrade:
+#        - add("formation_process")
+#        - add("arch_domain")
+#        - add("arch_context")
 locus_architecture:
   structure:
     3:
