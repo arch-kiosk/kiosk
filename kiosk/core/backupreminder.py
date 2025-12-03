@@ -1,4 +1,5 @@
 import datetime
+import time
 import logging
 import os.path
 from typing import Union
@@ -55,14 +56,23 @@ class BackupReminder:
         :param cfg:
         :param new_datetime: optional. If not set now is going to be used.
         """
-        reminder_file = cls.get_reminder_filename(cfg)
-        set_datetime = new_datetime if new_datetime else datetime.datetime.now()
-        with open(reminder_file, "w") as f:
-            if unknown_backup:
-                f.write("unknown")
-            else:
-                f.write(set_datetime.isoformat())
-        cls.set_backup_reminder(cfg, new_datetime=set_datetime)
+        try:
+            reminder_file = cls.get_reminder_filename(cfg)
+            set_datetime = new_datetime if new_datetime else datetime.datetime.now()
+            with open(reminder_file, "w") as f:
+                if unknown_backup:
+                    logging.debug(f"{cls.__name__}.set_backup_datetime: creating {reminder_file} at {set_datetime} "
+                                  f"with unknown backup time")
+                    f.write("unknown")
+                else:
+                    logging.debug(f"{cls.__name__}.set_backup_datetime: creating {reminder_file} at {set_datetime} "
+                                  f"with backup time {set_datetime.isoformat()}")
+                    f.write(set_datetime.isoformat())
+            # desperate attempt to address #3254:
+            time.sleep(.5)
+            cls.set_backup_reminder(cfg, new_datetime=set_datetime)
+        except BaseException as e:
+            logging.debug(f"{cls.__name__}.set_backup_datetime: Exception {repr(e)}")
 
     @classmethod
     def get_backup_datetime(cls, cfg=None) -> Union[datetime.datetime, None]:
@@ -89,8 +99,10 @@ class BackupReminder:
         reminder_file = cls.get_reminder_filename(cfg)
         set_datetime = new_datetime if new_datetime else datetime.datetime.now()
         if os.path.exists(reminder_file):
+            logging.debug(f"{cls.__name__}.set_backup_reminder: setting existing {reminder_file} at {set_datetime}")
             os.utime(reminder_file, (set_datetime.timestamp(), set_datetime.timestamp()))
         else:
+            logging.debug(f"{cls.__name__}.set_backup_reminder: creating {reminder_file} at {set_datetime}")
             cls.set_backup_datetime(cfg, unknown_backup=True)
 
     @classmethod
