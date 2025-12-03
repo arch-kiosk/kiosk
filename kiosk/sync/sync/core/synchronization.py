@@ -484,6 +484,7 @@ class Synchronization(PluginLoader):
                 KioskSQLDb.commit()
                 logging.info("full text search index refreshed.")
             except Exception as e:
+                logging.debug(f"{self.__class__.__name__}.synchronization: {repr(e)}")
                 logging.warning(
                     f"{self.__class__.__name__}.synchronization: " +
                     (f"After synchronization itself succeeded, it was not possible " if successful_run else

@@ -67,7 +67,7 @@ class FTSView:
         :return: boolean
         """
         try:
-            KioskSQLDb.execute("REFRESH MATERIALIZED VIEW kiosk_fts_view;")
+            KioskSQLDb.execute("SET statement_timeout='240s';REFRESH MATERIALIZED VIEW kiosk_fts_view;")
             return True
         except BaseException as e:
             if throw:
