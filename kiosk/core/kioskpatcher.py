@@ -39,8 +39,6 @@ class KioskPatcher:
                               f"Trying to carry on")
         if not self.kiosk_version:
             logging.error("Can't find out what version this Kiosk is. That might become a problem later ...")
-        else:
-            logging.info(f"Patching Kiosk of version {self.kiosk_version}...")
 
         self.id = ""
         self.transfer_dir = transfer_dir
@@ -59,6 +57,8 @@ class KioskPatcher:
     def read_patch_file(self, patch_file=None) -> Tuple[bool, str]:
         try:
             if not patch_file:
+                if not os.path.isfile(self.patch_path_and_filename):
+                    return False, "No patch file present"
                 patch_file = yamlconfigreader.YAMLConfigReader(self.patch_path_and_filename).read_file(
                     self.patch_path_and_filename)
             version = float(str(patch_file['header']['version']))
@@ -200,6 +200,10 @@ class KioskPatcher:
                Set this explicitly to False to suppress these messages. If None, apply_patch takes an educated guess.
         :return: tuple of bool result and if false an error message
         """
+        if self.kiosk_version:
+            logging.info(f"Patching Kiosk of version {self.kiosk_version}...")
+        else:
+            logging.info(f"Patching Kiosk of unknown version.")
         self._assert_patch_file()
         logging.info(f"{self.__class__.__name__}.apply_patch starts")
         script = kioskstdlib.try_get_dict_entry(self.patch_file['patch'], 'start_script', '')
