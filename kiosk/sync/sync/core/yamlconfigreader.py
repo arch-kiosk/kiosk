@@ -18,13 +18,13 @@ class YAMLConfigReader:
             with open(file_path_and_name, "r", encoding='utf8') as ymlfile:
                 yaml_content = ymlfile.read()
         except BaseException as e:
-            logging.error(f"Exception in YAMLConfigReader when reading file {file_path_and_name}: repr(e)")
+            logging.error(f"Exception in YAMLConfigReader when reading file {file_path_and_name}: {repr(e)}")
             raise e
 
         try:
             cfg = yaml.load(yaml_content, Loader=yaml.FullLoader)
-        except yaml.YAMLError as e:
-            logging.error(f"Exception in YAMLConfigReader when parsing {file_path_and_name}: repr(e)")
+        except (yaml.YAMLError, yaml.MarkedYAMLError) as e:
+            logging.error(f"Exception in YAMLConfigReader when parsing {file_path_and_name}: {repr(e)}")
             try:
                 logging.error(e.problem_mark)
             except:
