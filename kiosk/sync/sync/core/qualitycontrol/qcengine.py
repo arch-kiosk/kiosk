@@ -53,13 +53,14 @@ class QCEngine:
                     param_value = self._get_message_param_from_variable(param)
                 elif param.startswith("##"):
                     param_value = "?"
-                    logging.warning(f"attempt to use a configuration value {param} by flag {flag_id}")
+                    logging.info(f"Attempt to use a configuration value {param} by flag {flag_id}. "
+                                    f"This flag only works in the recording app.")
                 else:
                     param_value = data_context[param]
             except BaseException as e:
                 logging.warning(f"{self.__class__.__name__}.flag: Error when raising flag {flag_id}: {repr(e)}")
                 param_value = ""
-            message = message.replace("{" + f"{c}" + "}", param_value, 1)
+            message = message.replace("{" + f"{c}" + "}", param_value if param_value else "?", 1)
 
         msg = QualityControlMessage()
         msg.message = message
