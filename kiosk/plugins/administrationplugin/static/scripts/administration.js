@@ -719,12 +719,18 @@ function startToServerTransfer(event = null) {
         event.preventDefault();
     }
     setModalDialogTitle("transfer in progress ...");
+    const dropAreaDivVisible = $("#drop-area-div").is(":visible")
+    if (dropAreaDivVisible) {
+        kioskModalErrorToast(`<div>Please upload the online server's catalog file first.</div>`);
+        return
+    }
+    $("#drop-area-div").hide()
     kioskSendAjaxForm($("#bt-ok"),
         $("#dialog-ajax-part"),
         "/administration/transfer",
         (jq_form, state_data) => {
-            $("#drop-area-div").hide();
             setModalDialogTitle("transfer");
+            $("#drop-area-div").hide();
 
             if (!kioskElementHasErrors()) {
                 let job_uid = getJobIDFromHtml();
@@ -767,8 +773,14 @@ transfer has started. Please look at the process list and the logs.</div>`);
 transfer has started. Please look at the process list and the logs.</div>`);
                 }
             } else {
-                kioskDisableButton($("#bt-ok"), true);
+                kioskDisableButton($("#bt-ok"), false);
                 kioskDisableButton($("#bt-cancel"), false);
+                $("#drop-area-div").hide();
+                // if (dropAreaDivVisible) {
+                //     $("#drop-area-div").show();
+                //     initCatalogUploadZone()
+                // }
+
             }
         },
         (xhr, status, errorThrown, state_data) => {

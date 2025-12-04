@@ -533,7 +533,7 @@ def upload_catalog():
         try:
             cfg = kioskglobals.get_config()
             if not kiosklib.is_local_server(cfg):
-                raise HTTPException('This feature is only available on local servers.')
+                raise UserError('This feature is only available on local servers.')
 
             temp_dir = cfg.get_temp_dir()
             if 'file' in request.files:

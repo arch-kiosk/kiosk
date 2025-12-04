@@ -21,7 +21,7 @@
     <form id="transfer-form" onsubmit="starttransferOrRestore">
 
       {{ transfer_form.csrf_token }}
-      <input id="catalog_file" name="catalog_file" type="hidden" value=""></input>
+      <input id="catalog_file" name="catalog_file" type="hidden" value="{{ transfer_form.catalog_file.data }}"></input>
 
       <div>{{ transfer_form.transfer_dir(class="kiosk-dialog-textfield",
                       placeholder="local path where the transfer will be stored",
@@ -100,7 +100,7 @@
             }
             else {
               $.magnificPopup.close()
-              kioskErrorToast(`The upload failed (${data.message}). Please try again.`)
+              kioskErrorToast(`The server rejected the uploaded file (${data.message}). Please try again.`)
             }
           },
           onUploadError: function (id, xhr, status, errorThrown) {
