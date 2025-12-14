@@ -2089,6 +2089,14 @@ class FileMakerWorkstation(RecordingWorkstation):
                 # time zone relevance: does the modified manipulation still work? (yup)
                 #  it should, shouldn't it? The fork time in the Kiosk database IS utc (I looked that up)
                 #  and modified is expected to be utc, too.
+                if dsd_table_name == "constants":
+                    recs = KioskSQLDb.get_records(
+                        f'select ' + f' * from {dest_table_name} where "repl_tag"=0',
+                        [self.get_fork_time()])
+                    for r in recs:
+                        logging.info(f"{self.__class__.__name__}._import_table_from_filemaker: "
+                                      f"deleting constants record {r}")
+
                 sql = f'update ' + f' {dest_table_name} set "repl_deleted"=true,' \
                                    f'"modified"=%s + (interval \'2 seconds\') where "repl_tag"=0'
                 cur.execute(sql, [self.get_fork_time()])
