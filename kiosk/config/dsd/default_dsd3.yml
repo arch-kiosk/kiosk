@@ -34,7 +34,7 @@ collected_material:
     8:
       uid_locus: [datatype(UUID), join("locus")]
       external_id: [datatype(VARCHAR), identifier("additional")]
-      uid_lot: [datatype(UUID), "lookup(lot,uid)", "label(lot)"]
+      uid_lot: [datatype(UUID), "lookup(lot,uid)", "label(#(/$/glossary/lot:1))"]
       type: [datatype(VARCHAR), label("material")]
       material_specified: [datatype(VARCHAR), label('material specified')]
       cm_type: [datatype(VARCHAR), label("type"), "lookup('collected_material_types', 'id')"]
@@ -1250,7 +1250,7 @@ lot:
   structure:
     2:
       uid_locus: [datatype(UUID), join("locus")]
-      id: [datatype(NUMBER)]
+      id: [datatype(NUMBER), label(#(/$/glossary/lot:1))]
       purpose: [datatype(VARCHAR)]
       date: [datatype(TIMESTAMP)]
       opening_elevations: [datatype(VARCHAR)]
@@ -1530,7 +1530,7 @@ survey_unit:
   structure:
     2:
       uid_unit: [datatype(UUID), join("unit")]
-      start_datetime: [datatype(TIMESTAMP)]
+      start_datetime: [datatype(TIMESTAMP), label('start date and time')]
       team_members: [datatype(VARCHAR)]
       bearing: [datatype(NUMBER)]
       visibility: [datatype(NUMBER)]

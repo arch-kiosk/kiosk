@@ -31,7 +31,7 @@ compilations:
             text: '#(unit/term_for_locus) relations'
             position: 1
           locus_lot.list:
-            text: 'lots'
+            text: '#(/$/glossary/lot:2)'
             position: 2
           locus_cm.list:
             text: '#(/$/glossary/collected_material:2)'
@@ -39,6 +39,9 @@ compilations:
           locus_files.list:
             text: '#(unit/term_for_locus) photos and files'
             position: 4
+          locus_tags.list:
+            text: '#(unit/term_for_locus) tags'
+            position: 5
 
 locus.sheet:
   record_type: locus
@@ -272,6 +275,37 @@ locus_relations.list:
         resolution: small
         fit_content: contain
 
+locus_tags.list:
+  record_type: tagging
+  view_type: list  # (can be list, sheet or file_list or harris_matrix)
+  max_height: 20em
+  fields_selection: dsd
+  layout_settings:
+    type: list
+    orchestration_strategy: table  # (the default for the sheet scenario)
+    order_records_by: [ ">tag" ]
+    allow_ordering_by: [ "tag" ]
+    order: [ tag, description]
+#  ui_elements:
+#    from_locus:
+#      element_type:
+#        text: "#(unit/term_for_locus)"
+#        name: "TextField"
+#        value: "#(locus/arch_context)"
+#    uid_locus_2_related:
+#      element_type:
+#        is_identifier: True
+#        links_to: "locus"
+#    uid_sketch:
+#      layout:
+#        min_width: max
+#        min_height: max
+#      element_type:
+#        name: "File"
+#        file_description: none
+#        resolution: small
+#        fit_content: contain
+
 locus_lot.list:
   record_type: lot
   view_type: list
@@ -284,9 +318,6 @@ locus_lot.list:
     allow_ordering_by: ["id", "date"]
     order: [id, date, opening_elevations, closing_elevations, purpose]
   ui_elements:
-    id:
-      element_type:
-        text: "lot"
     purpose:
       layout:
         min_width: 50%

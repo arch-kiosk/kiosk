@@ -8,8 +8,8 @@ variables:
   input_a_site: [ "dsd(site, id)"]
 queries:
   'collected_material_lot_per_site':
-    name: 'List all materials (includes lots))'
-    description: 'Lists all materials found at a site. This includes lot numbers. You can filter by material type (bulk, small find...) and material (stone, metal etc.).'
+    name: '#:List all materials (includes #(/$/glossary/lot:2)))'
+    description: '#:Lists all materials found at a site. This includes #(/$/glossary/lot:1) numbers. You can filter by material type (bulk, small find...) and material (stone, metal etc.).'
     type: 'SQL'
     output_type: 'list'
     query: "  
@@ -49,7 +49,7 @@ queries:
     column_information:
       trench: DSD('unit','arch_context')
       op: DSD('locus','arch_context')
-      lot_id: ["DSD('lot','id')","label('lot')"]
+      lot_id: ["DSD('lot','id')"]
       cm_id: DSD('collected_material','arch_context')
       cm_type: DSD('collected_material','cm_type')
       material: DSD('collected_material','type')
