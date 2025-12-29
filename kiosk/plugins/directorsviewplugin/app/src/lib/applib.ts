@@ -75,6 +75,12 @@ export function getLabels(constants: Array<Constant>): { [key: string]: string }
 
     return result
 }
+export function getConstant(constants: Array<Constant>, key: string, defaultValue=""): string {
+    for (const constant of constants) {
+        if (constant.key === key) return constant.value
+    }
+    return defaultValue
+}
 
 export function decodeFileMakerKeyValueList(valueList: string): { [key: string]: string } {
     let result: {[key:string]: string} = {}
@@ -90,26 +96,36 @@ export function getStandardTerm(constants: Array<Constant>, standard_term: strin
                                 plural: Boolean = false, default_value: string = ""): string {
     let result: string = ""
     let plurals: { [key: string]: string } = {}
+    let glossary_key = ""
+    if (standard_term.startsWith("glossary/")) {
+        glossary_key = standard_term.substring(9)
+    }
 
     for (let i = 0; i < constants.length; i++) {
         let constant = constants[i]
         try {
-            if (constant["path"] === "constants/labels" && constant.key === standard_term) {
-                result = constant.value
-                if (!plural) {
-                    return result
+            if (glossary_key) {
+                if (constant["path"] === "glossary" && constant.key===glossary_key) {
+                    return plural?constant.value[1]:constant.value[0]
                 }
-            }
+            } else {
+                if (constant["path"] === "constants/labels" && constant.key === standard_term) {
+                    result = constant.value
+                    if (!plural) {
+                        return result
+                    }
+                }
 
-            if (plural && constant["path"] === "constants/labels" && constant.key === "plurals") {
-                plurals = decodeFileMakerKeyValueList(constant.value)
+                if (plural && constant["path"] === "constants/labels" && constant.key === "plurals") {
+                    plurals = decodeFileMakerKeyValueList(constant.value)
+                }
+                if (result &&  Object.keys(plurals).length > 0) break
+
             }
-            if (result &&  Object.keys(plurals).length > 0) break
         } catch (e) {
             console.log(e)
             console.log(constant)
         }
-
     }
     try {
         if (result && plurals) {
@@ -171,48 +187,52 @@ export function getAllWidgets(state: State): Array<WidgetDescriptor> {
     try {
         if (state.constants?.length > 0) {
             AVAILABLE_WIDGETS.forEach(w => {
-                let wd: WidgetDescriptor = { id: w, displayName: "", active: true, order: -1 }
-                switch (w) {
-                    case "unit-info-widget":
-                        wd.displayName = `${getStandardTerm(state.constants,
-                            "standard_term_for_unit", false, "unit")} information`;
-                        wd.order = 0;
-                        break;
-                    case "narrative-widget":
-                        wd.displayName = `${getStandardTerm(state.constants,
-                            "standard_term_for_unit", false, "unit")} narratives`;
-                        wd.order = 1;
-                        break;
-                    case "file-widget":
-                        wd.displayName = `images and files`;
-                        wd.order = 2;
-                        break;
-                    case "locus-widget":
-                        wd.displayName = `${getStandardTerm(state.constants,
-                            "standard_term_for_loci", true, "loci")}`;
-                        wd.order = 3;
-                        break;
-                    case "cm-widget":
-                        wd.displayName = `${getStandardTerm(state.constants,
-                            "standard_term_for_cm", true, "collected materials")}`;
-                        wd.order = 4;
-                        break;
-                    case "feature-widget":
-                        wd.displayName = `${getStandardTerm(state.constants,
-                            "standard_term_for_feature_unit", true, "features")}`;
-                        wd.order = 5;
-                        break;
-                    case "deletion-info-widget":
-                        wd.displayName = `deletions`;
-                        wd.order = 6;
-                        break;
-                    case "archival-entity-widget":
-                        wd.displayName = `archival entities`;
-                        wd.order = 7;
-                        break;
-                }
-                if (wd.order !== -1) {
-                    allWidgets.push(wd)
+                try {
+                    let wd: WidgetDescriptor = { id: w, displayName: "", active: true, order: -1 }
+                    switch (w) {
+                        case "unit-info-widget":
+                            wd.displayName = `${getStandardTerm(state.constants,
+                                "standard_term_for_unit", false, "unit")} information`;
+                            wd.order = 0;
+                            break;
+                        case "narrative-widget":
+                            wd.displayName = `${getStandardTerm(state.constants,
+                                "standard_term_for_unit", false, "unit")} narratives`;
+                            wd.order = 1;
+                            break;
+                        case "file-widget":
+                            wd.displayName = `images and files`;
+                            wd.order = 2;
+                            break;
+                        case "locus-widget":
+                            wd.displayName = `${getStandardTerm(state.constants,
+                                "standard_term_for_loci", true, "loci")}`;
+                            wd.order = 3;
+                            break;
+                        case "cm-widget":
+                            wd.displayName = `${getStandardTerm(state.constants,
+                                "standard_term_for_cm", true, "collected materials")}`;
+                            wd.order = 4;
+                            break;
+                        case "feature-widget":
+                            wd.displayName = `${getStandardTerm(state.constants,
+                                "standard_term_for_feature_unit", true, "features")}`;
+                            wd.order = 5;
+                            break;
+                        case "deletion-info-widget":
+                            wd.displayName = `deletions`;
+                            wd.order = 6;
+                            break;
+                        case "archival-entity-widget":
+                            wd.displayName = `archival entities`;
+                            wd.order = 7;
+                            break;
+                    }
+                    if (wd.order !== -1) {
+                        allWidgets.push(wd)
+                    }
+                } catch (e) {
+                    console.error(`Error with widget ${w}. Trying next one.`, e)
                 }
             })
             allWidgets.sort((w1, w2) => w1.order - w2.order)

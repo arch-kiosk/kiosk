@@ -43,6 +43,9 @@ class CMWidget extends KioskStoreAppComponent {
     selected_sort: string = "identifier"
     term_for_cm: string = "collected material"
     plural_for_cm: string = "collected materials"
+    term_for_lot: string = "lot"
+    term_for_lots: string = "lots"
+
     cm_types: {[key: string]: string} = {}
 
     sort_by: { [key: string]: Array<string> }= {
@@ -306,6 +309,10 @@ class CMWidget extends KioskStoreAppComponent {
                 "standard_term_for_cm", false, this.term_for_cm)
             this.plural_for_cm = getStandardTerm(state.constants,
                 "standard_term_for_cm", true, this.term_for_cm)
+            this.term_for_lot = getStandardTerm(state.constants,
+                "glossary/lot", false, this.term_for_lot)
+            this.term_for_lots = getStandardTerm(state.constants,
+                "glossary/lot", true, this.term_for_lot)
             console.log("standard term for cm is", this.term_for_cm, this.plural_for_cm)
             for (let i = 0; i < state.constants.length; i++) {
                 let constant = state.constants[i]
@@ -377,7 +384,7 @@ class CMWidget extends KioskStoreAppComponent {
                     <div class="list-header">creation</div>
                     <div class="list-header">description?</div>
                     <div class="list-header">type</div>
-                    <div class="list-header">lot?</div>
+                    <div class="list-header">${this.term_for_lot}?</div>
                     <div class="list-header">photos</div>
                     ${this.selected_member ? undefined : html`<div class="list-header">by</div>`}
                     ${this.cm.map((el: CMRecord) =>

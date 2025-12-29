@@ -1,4 +1,4 @@
-import { html, LitElement, unsafeCSS } from "lit";
+import { html, LitElement, unsafeCSS, nothing } from "lit";
 import {customElement} from 'lit/decorators.js'
 
 import { createPopper } from '@popperjs/core';
@@ -7,7 +7,7 @@ import {State} from "../store/reducer";
 import {StoreContextSelector, StoreDateSelector, StoreTeamSelector} from '../store/actions';
 import { FetchException} from "@arch-kiosk/kiosktsapplib"
 import {
-    fromSqlDate,
+    fromSqlDate, getConstant,
     getSqlDate, getStandardTerm,
     handleCommonFetchErrors,
 } from "../lib/applib";
@@ -47,7 +47,10 @@ class LocusWidget extends KioskStoreAppComponent {
     selected_sort: string = "identifier"
     term_for_locus: string = "locus"
     term_for_loci: string = "loci"
+    term_for_lot: string = "lot"
+    term_for_lots: string = "lots"
     poppers: Map<string, any> = null
+    useLots: boolean = false;
 
     sort_by: { [key: string]: Array<string> }= {
         "identifier": ["identifier", "modified"],
@@ -217,30 +220,30 @@ class LocusWidget extends KioskStoreAppComponent {
             const locusId = r.primary_identifier
             let locus: LocusRecord
 
-            if (r.record_type != "unit") {
+            if (r.record_type != "unit" && r.type !== "hidden") {
                 if (locusId in this.loci)
                     locus = this.loci[locusId]
                 else {
-                    locus = new LocusRecord()
-                    this.loci[locusId] = locus
-                    this.lociList.push(locus)
-                    locus.photoCount = 0
-                    locus.lotCount = 0
-                    locus.type = "?"
-                    locus.hasDescription = false
-                    locus.hasInterpretation = false
-                    locus.relationsCount = 0
-                    locus.record_type = ""
-                    locus.modified = 0
-                    locus.locus_creation = "?"
-                    locus.max_severity = ""
-                    locus.qc_messages = []
+                        locus = new LocusRecord()
+                        this.loci[locusId] = locus
+                        this.lociList.push(locus)
+                        locus.photoCount = 0
+                        locus.lotCount = 0
+                        locus.type = "?"
+                        locus.hasDescription = false
+                        locus.hasInterpretation = false
+                        locus.relationsCount = 0
+                        locus.record_type = ""
+                        locus.modified = 0
+                        locus.locus_creation = "?"
+                        locus.max_severity = ""
+                        locus.qc_messages = []
                 }
                 // console.log(r)
                 locus.identifier = r.primary_identifier
                 locus.unitId = r.identifier
                 locus.record_type = r.record_type
-                if (r.modified > locus.modified) {
+                if (!locus.modified || (r.modified && r.modified > locus.modified)) {
                     locus.modified = r.modified;
                     locus.modified_by = r.modified_by;
                 }
@@ -342,6 +345,11 @@ class LocusWidget extends KioskStoreAppComponent {
                 "standard_term_for_loci", false, this.term_for_locus)
             this.term_for_loci = getStandardTerm(state.constants,
                 "standard_term_for_loci", true, this.term_for_loci)
+            this.term_for_lot = getStandardTerm(state.constants,
+                "glossary/lot", false, this.term_for_lot)
+            this.term_for_lots = getStandardTerm(state.constants,
+                "glossary/lot", true, this.term_for_lot)
+            this.useLots = getConstant(state.constants, "use_lots") === "yup"
         }
     }
 
@@ -414,6 +422,10 @@ class LocusWidget extends KioskStoreAppComponent {
 
     protected render_widget() {
         // console.log("rendering loci")
+        let cColumns = 7
+        if (!this.selected_member) cColumns ++
+        if (this.useLots) cColumns ++
+        const columnStyle = `grid-template-columns: repeat(${cColumns}, auto)`
         if (!this.selected_date) {
             return html`please select a date`
         }
@@ -427,10 +439,10 @@ class LocusWidget extends KioskStoreAppComponent {
                     </div>`
             } else {
                 return html`
-                <div class="locus-list ${this.selected_member ? undefined: 'locus-list-with-member'}">
+                <div class="locus-list" style="${columnStyle}">
                     <div class="list-header">identifier</div>
                     <div class="list-header">type</div>
-                    <div class="list-header">lots</div>
+                   ${this.useLots?html`<div class="list-header">${this.term_for_lots}</div>`:nothing}
                     <div class="list-header">creation</div>
                     <div class="list-header">description?</div>
                     <div class="list-header tighter">interpre-tation?</div>
@@ -453,7 +465,7 @@ class LocusWidget extends KioskStoreAppComponent {
                                 `:undefined} 
                         </div>
                         <div>${locus.type}</div>
-                        <div class="center-col">${locus.lotCount}</div>
+                        ${this.useLots?html`<div class="center-col">${locus.lotCount}</div>`:nothing}
                         <div>${locus.locus_creation}</div>
                         <div class="center-col">${locus.hasDescription
                                 ?html`                                
