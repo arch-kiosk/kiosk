@@ -8,6 +8,8 @@ element_type:
 # dsd('collected_material','description') && view_type:sheet && view-ui
 # dsd('small_find','description') && view_type:sheet && view-ui
 # dsd('collected_material','research_notes') && view_type:sheet && view-ui
+# dsd('collected_material','period') && view_type:sheet && view-ui
+# dsd('small_find','period') && view_type:sheet && view-ui
 layout:
   min_width: max
 element_type:
