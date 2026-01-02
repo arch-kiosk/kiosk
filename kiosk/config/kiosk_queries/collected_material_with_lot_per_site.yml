@@ -8,7 +8,7 @@ variables:
   input_a_site: [ "dsd(site, id)"]
 queries:
   'collected_material_lot_per_site':
-    name: '#:List all materials (includes #(/$/glossary/lot:2)))'
+    name: '#:List all materials (includes #(/$/glossary/lot:2))'
     description: '#:Lists all materials found at a site. This includes #(/$/glossary/lot:1) numbers. You can filter by material type (bulk, small find...) and material (stone, metal etc.).'
     type: 'SQL'
     output_type: 'list'
