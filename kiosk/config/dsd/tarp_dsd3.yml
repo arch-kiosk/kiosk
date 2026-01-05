@@ -1,0 +1,5 @@
+config:
+  format_version: 3
+  imports:
+    - default_dsd3.yml
+    - wc_pottery_dsd3.yml
