@@ -15,6 +15,7 @@ from kioskquery.kioskquerystoremodel import KioskQueryStoreModel
 import kioskstdlib
 import datetime
 
+from kiosksqldb import KioskSQLDb
 from sync_config import SyncConfig
 
 
@@ -32,6 +33,10 @@ def install_default_kiosk_queries(config: SyncConfig):
         def_project_path = str(os.path.join(def_base_path, project_id))
         if os.path.isdir(def_project_path):
             KioskQueryStore.add_or_update_from_path(def_project_path, "*.yml")
+
+def clear_all_kiosk_queries(commit=True):
+    # noinspection SqlWithoutWhere
+    KioskSQLDb.execute("delete from kiosk_queries", commit=commit)
 
 class KioskQueryStore:
 
