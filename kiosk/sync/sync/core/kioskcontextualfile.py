@@ -303,7 +303,7 @@ class KioskContextualFile(KioskLogicalFile):
             uid_hash = self._get_uid_from_hash(md5_hash=md5_hash)
             logging.debug(f"{self.__class__.__name__}.upload : _get_uid_from_hash returned {uid_hash}, {md5_hash}")
             if uid_hash:
-                if omit_by_hashes and uid_hash in omit_by_hashes:
+                if omit_by_hashes and md5_hash in omit_by_hashes:
                     self._last_error = "omitted by hash"
                     logging.info(f"{self.__class__.__name__}.upload: "
                                   f"file candidate {src_path_and_filename} won't be imported because its"
