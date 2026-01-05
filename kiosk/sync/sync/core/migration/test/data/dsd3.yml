@@ -129,7 +129,7 @@ locus:
       uid_unit: [datatype(UUID)]
       id: [datatype(NUMBER)]
       type: [datatype(VARCHAR)]
-      opening elevations: [datatype(VARCHAR)]
+      opening_elevations: [datatype(VARCHAR)]
       closing elevations: [datatype(VARCHAR)]
       description: [datatype(VARCHAR)]
       date_defined: [datatype(DATE)]
