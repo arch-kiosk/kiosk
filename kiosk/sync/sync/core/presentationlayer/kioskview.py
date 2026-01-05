@@ -24,6 +24,7 @@ class KioskView:
         self.record_type = ""
         self.identifier_field = ""
         self.identifier = ""
+        self.identifier_record = {}
         self._cfg = cfg
         self._pld = None
         self._pld_loader_class = pld_loader_class
@@ -112,6 +113,19 @@ class KioskView:
             raise KeyError(f"{self.__class__.__name__}.render: "
                            f"No compilation for record type {self.record_type}")
         else:
+            # todo this is totally hard coded! It needs to be replaced by a general mechanism to select
+            # the correct view for a record type
+            if self.record_type == "unit":
+                unit_type = kioskstdlib.try_get_dict_entry(self.identifier_record, "type", "excavation")
+                for c in compilations:
+                    if "unit_type" in c:
+                        comp_unit_type = kioskstdlib.try_get_dict_entry(c, "unit_type", "excavation")
+                    else:
+                        raise KeyError(f"Compilation '{c['name']}' has no unit_type. It needs one")
+                    if comp_unit_type == unit_type:
+                        return c
+                raise Exception(f"None of the view compilations for record_type unit matches the unit type {unit_type}")
+
             raise KeyError(f"{self.__class__.__name__}.render: "
                            f"More than one compilation for record type {self.record_type}")
 
