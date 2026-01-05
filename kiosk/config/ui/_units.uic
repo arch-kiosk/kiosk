@@ -15,18 +15,21 @@ element_type:
     key: "arch_context"
 
 # dsd('unit','excavator_full_name') && view-ui
-element_type:
-  visible: "."
-
 # dsd('unit','name') && view-ui
 # dsd('unit','legacy_unit_id') && view-ui
 # dsd('unit','purpose') && view-ui
+# dsd('unit','coordinates') && view-ui && view_type:sheet
 element_type:
   visible: "."
 
 # dsd('unit','purpose') && view-ui && view_type:sheet
+# dsd('unit','coordinates') && view-ui && view_type:sheet
 layout:
   min_width: max
+element_type:
+  multiline: true
+
+# dsd('survey_unit','conditions') && view-ui && view_type:sheet
 element_type:
   multiline: true
 

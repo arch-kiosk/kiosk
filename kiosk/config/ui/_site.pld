@@ -81,6 +81,7 @@ site_notes.list:
     note:
       layout:
         min_width: 70%
+        max_height: max
 
 #site_note_photos.list:
 #  record_type: site_note_photo
