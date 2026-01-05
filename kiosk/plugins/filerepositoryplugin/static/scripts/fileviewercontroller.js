@@ -83,6 +83,7 @@ class FileViewerController {
     useArchive = false  // if true, the file viewer will try to get the file from the current archive
     defaultFullScreenRes = "master"
     resolutions = {}  // object with label = key (yup!)
+    loading = false
 
     opened = () => {}
     beforeOpen = () => {}
@@ -121,7 +122,7 @@ class FileViewerController {
         const resolutionLabel = this.lightBoxElement?.currentResolution??""
         let resolutionId = "master"
         this.lastErrorOnOpen = undefined
-
+        if (this.loading) return false
         try {
             if (resolutionLabel !== "") {
                 let entry = Object.entries(this.resolutions).find((v) => v[0] === resolutionLabel)
@@ -151,6 +152,9 @@ class FileViewerController {
                         resolution: resolutionId
                     })).url;
                 if (url) {
+                    this.loading = true
+                    console.log("loading");
+
                     if (loadData)
                         this._loadData(uuid)
                     this.url = url
@@ -311,6 +315,8 @@ class FileViewerController {
     }
 
     onBeforeOpen(e) {
+        console.log("not loading");
+        this.loading = false
         this.beforeOpen(e.detail)
     }
 
@@ -341,6 +347,7 @@ class FileViewerController {
     }
 
     onClosed(e) {
+        this.loading = false
         const uuid = this.files[this.currentIndex]?.uuid
         activateImage(uuid)
         document.getElementById("broken-image").style.display = "none"
