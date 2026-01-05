@@ -413,10 +413,11 @@ def housekeeping(cfg_file: str):
 
 def install_default_queries(cfg_file: str):
     try:
-        from kioskquery.kioskquerystore import install_default_kiosk_queries
+        from kioskquery.kioskquerystore import install_default_kiosk_queries, clear_all_kiosk_queries
         from sync_config import SyncConfig
 
         config = SyncConfig.get_config({"config_file": cfg_file})
+        clear_all_kiosk_queries()
         install_default_kiosk_queries(config)
         print("Installed default kiosk queries.", flush=True)
     except BaseException as e:

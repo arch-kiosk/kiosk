@@ -34,7 +34,7 @@ from dsd.dsd3singleton import Dsd3Singleton
 from generalstore.generalstorekeys import JOB_SUFFIX_REFRESH_FID_CACHE, JOB_SUFFIX_REFRESH_CACHE_FILE
 from kioskconfig import KioskConfig
 from kioskpatcher import KioskPatcher
-from kioskquery.kioskquerystore import install_default_kiosk_queries
+from kioskquery.kioskquerystore import install_default_kiosk_queries, clear_all_kiosk_queries
 from kioskrestore import KioskRestore
 from kioskresult import KioskResult
 from kiosksqldb import KioskSQLDb
@@ -1504,6 +1504,7 @@ def reload_all_kiosk_queries():
     print("\n*************** administration/reload_all_kiosk_queries")
 
     try:
+        clear_all_kiosk_queries()
         install_default_kiosk_queries(kioskglobals.get_config())
         result["result"] = "ok"
         result["message"] = "Kiosk Queries have been successfully reloaded."
