@@ -57,6 +57,7 @@ class ApiConstants(Resource):
         self.add_labels(constants)
         self.add_collected_material_type_names(constants)
         self.add_glossary(constants)
+        self.add_extras(constants)
 
         return ApiResultConstant(many=True).dump(constants), 200
 
@@ -91,6 +92,17 @@ class ApiConstants(Resource):
         while r:
             constant = ApiResultConstant()
             constant.path = "constants/labels"
+            constant.key = r["id"]
+            constant.value = kioskstdlib.null_val(r["value"], "")
+            constants.append(constant)
+            r = cur.fetchone()
+
+    def add_extras(self, constants):
+        cur = KioskSQLDb.execute_return_cursor("select id, value from constants where id in (%s)", ["use_lots"])
+        r = cur.fetchone()
+        while r:
+            constant = ApiResultConstant()
+            constant.path = "constants/settings"
             constant.key = r["id"]
             constant.value = kioskstdlib.null_val(r["value"], "")
             constants.append(constant)
