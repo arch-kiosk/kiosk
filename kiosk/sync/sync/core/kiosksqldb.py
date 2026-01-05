@@ -360,12 +360,13 @@ class KioskSQLDb(SqlSafeIdentMixin):
                 return None
 
     @classmethod
-    def execute(cls, sql, parameters=None, commit=False) -> Union[int, None]:
+    def execute(cls, sql, parameters=None, commit=False, debug=False) -> Union[int, None]:
         """
         executes an sql statement and returns the number of affected rows.
         :param sql: the sql statement
         :param parameters: list with parameters (matching the %s occurrences in the statement)
         :param commit: if true the sql statement will be commited but in case of error NOT rolled back!
+        :param debug: during development time. Set this to log the actual sql statement
         :return: number of affected rows
         :raises exceptions: throws exceptions in case of an error
         """
@@ -375,6 +376,9 @@ class KioskSQLDb(SqlSafeIdentMixin):
             raise Exception("Cannot get a cursor. Database not properly initiated.")
         try:
             cur.execute(sql, parameters)
+            if debug:
+                logging.debug(f"{cls.__name__}.execute: sql was {cur.query}.")
+
             rc = cur.rowcount
             if commit:
                 cls.commit()
@@ -768,6 +772,13 @@ class KioskSQLDb(SqlSafeIdentMixin):
 
     @classmethod
     def get_first_record_from_sql(cls, sql: str, params: Union[list, dict] = []) -> dict:
+        """
+        returns the first record from the sql statement
+        :param sql:
+        :param params:
+        :return: the record (a dict or whatever psycopg2 returns)
+        :raises: All kinds of Exceptions
+        """
         rc = None
         try:
             cur = cls.get_dict_cursor()
