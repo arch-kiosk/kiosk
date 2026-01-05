@@ -33,7 +33,7 @@ class DateSelector extends KioskStoreAppComponent {
         // @ts-ignore
         if (import.meta.env.DEV) {
             // this.selected_date = new Date(2020,6, 8)
-            // this.selected_date = new Date(2025, 8, 10);
+            this.selected_date = new Date(2020, 6, 13);
         }
         this._init();
     }

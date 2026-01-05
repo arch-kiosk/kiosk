@@ -267,7 +267,7 @@ class NarrativeWidget extends KioskStoreAppComponent {
         return html`
                     <div class="narrative-widget">
                         <div class="headline">
-                            <p>${filteredCount} ${this.record_count?' of ' + this.record_count:undefined} Narrative(s)</p>
+                            <p>${filteredCount} ${this.record_count?' of ' + this.record_count:undefined} narrative(s)</p>
                         </div>
                         <div class="controls">
                             <div class="controls-left">

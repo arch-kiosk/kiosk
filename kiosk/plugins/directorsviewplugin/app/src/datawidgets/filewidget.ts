@@ -420,7 +420,7 @@ class FileWidget extends KioskStoreAppComponent {
                         <div class="headline">
                             <p>${filteredCount > this.page_size 
                                     ? html`${this.page_size} of ${filteredCount}` 
-                                    : html`${filteredCount}`} Files</p>
+                                    : html`${filteredCount}`} files</p>
                         </div>
                         <div class="controls">
                             <div class="controls-left">

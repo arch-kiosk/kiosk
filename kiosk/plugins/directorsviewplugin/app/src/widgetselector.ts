@@ -9,6 +9,7 @@ import { setSelector, StoreWidgetSelector } from "./store/actions";
 import { KioskStoreAppComponent } from "../kioskapplib/kioskStoreAppComponent";
 import { AVAILABLE_WIDGETS, getRecordTypeNames, getAllWidgets, WidgetDescriptor } from "./lib/applib";
 import { ListBox } from "@vaadin/vaadin-list-box";
+import Cookies from "js-cookie"
 
 //Whenever a new widget gets invented, the version for the cookie needs to go up.
 const COOKIE_KIOSKDVDEFAULTWIDGETSELECTION = "kioskDVDefaultWidgetSelectionV2"
@@ -66,8 +67,20 @@ class WidgetSelector extends KioskStoreAppComponent {
     }
 
     async getDefaultSelection() {
-        const cookie = await cookieStore.get(COOKIE_KIOSKDVDEFAULTWIDGETSELECTION)
-        return cookie?JSON.parse(cookie.value):AVAILABLE_WIDGETS.slice()
+        let cookie = null
+        try {
+            cookie = await cookieStore.get(COOKIE_KIOSKDVDEFAULTWIDGETSELECTION)
+            cookie = cookie.value
+        } catch(e) {
+            try {
+                console.warn("cookieStore not available: ", e)
+                cookie = Cookies.get(COOKIE_KIOSKDVDEFAULTWIDGETSELECTION)
+            } catch {
+                console.error("Cookies not available: ", e)
+                cookie = null
+            }
+        }
+        return cookie?JSON.parse(cookie):AVAILABLE_WIDGETS.slice()
     }
 
     closeSelector() {
@@ -90,9 +103,18 @@ class WidgetSelector extends KioskStoreAppComponent {
             expires: Date.now() + 30 * 24 * 60 * 60 * 1000, //30 days
             path: "/",
         };
-        cookieStore.set(cookie).catch(() => {
-            console.error("Error setting the widget selection as a cookie");
-        });
+        if (typeof cookieStore !== "undefined") {
+            cookieStore.set(cookie).catch((e) => {
+                console.error(`Error setting the widget selection as a cookie: ${e}`);
+            });
+        } else {
+            try {
+                console.warn(`CookieStore not available`);
+                Cookies.set(cookie.name, cookie.value, {expires: cookie.expires, path: cookie.path})
+            } catch(e) {
+                console.error(`Error setting widget selection cookie: ${e}.`)
+            }
+        }
     }
 
     getWidgetSelection() {

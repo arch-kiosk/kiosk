@@ -386,7 +386,8 @@ class FeatureWidget extends KioskStoreAppComponent {
                         ${this.selected_member ? undefined : html`<div class="list-header">by</div>`}
                         ${this.features.map((el: FeatureRecord) =>
                                 html`
-                                    <div class="list-identifier" context=${el.identifier} @click=${this.gotoIdentifier}>${el.identifier}</div>
+<!--                                    <div class="list-identifier" context=${el.identifier} @click=${this.gotoIdentifier}>${el.identifier}</div>-->
+                                    <div>${el.identifier}</div>
                                     <div>${el.type}</div>
                                     <div>${el.feature_creation}</div>
                                     <div class="center-col">${el.photoCount}</div>
