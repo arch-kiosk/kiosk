@@ -316,3 +316,10 @@ Link	Europe/Kyiv		Europe/Kiev
 Link	Asia/Nicosia		Europe/Nicosia
 Link	Pacific/Guadalcanal	Pacific/Ponape	#= Pacific/Pohnpei
 Link	Pacific/Port_Moresby	Pacific/Truk	#= Pacific/Chuuk
+
+# Kiosk manually added
+
+# Link	TARGET			LINK-NAME	#= TARGET1
+Link	Asia/Baghdad	Asia/Baghdad
+
+
