@@ -1,0 +1,53 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+  category: "ceramics"
+variables:
+  unit_id: ["dsd('unit', 'arch_context')", input_default(null)]
+queries:
+  'ceramics_crosstab_per_locus_and_unit':
+    name: '#:What count and weight per pottery category has been found in any #(/$/glossary/locus:1) of a #(/$/glossary/unit:1)?'
+    description: '#:Shows a crosstab with rims, walls etc. as columns, one row for each functional category and count and weight as values. '
+    type: 'SQL'
+    output_type: 'list'
+    query: "
+SELECT
+    unit.arch_context unit_id,
+    locus.arch_context locus_id,
+    su.category_1 category,
+       SUM(CASE WHEN su.category_2 = 'bases' THEN su.\"count\" ELSE 0 END)   AS bases_count,
+       SUM(CASE WHEN su.category_2 = 'bases' THEN su.weight ELSE 0 END)    AS bases_weight,
+       SUM(CASE WHEN su.category_2 = 'handles' THEN su.\"count\" ELSE 0 END) AS handles_count,
+       SUM(CASE WHEN su.category_2 = 'handles' THEN su.weight ELSE 0 END)  AS handles_weight,
+       SUM(CASE WHEN su.category_2 = 'lids' THEN su.\"count\" ELSE 0 END)    AS lids_count,
+       SUM(CASE WHEN su.category_2 = 'lids' THEN su.weight ELSE 0 END)     AS lids_weight,
+       SUM(CASE WHEN su.category_2 = 'rims' THEN su.\"count\" ELSE 0 END)    AS rims_count,
+       SUM(CASE WHEN su.category_2 = 'rims' THEN su.weight ELSE 0 END)     AS rims_weight,
+       SUM(CASE WHEN su.category_2 = 'walls' THEN su.\"count\" ELSE 0 END)   AS walls_count,
+       SUM(CASE WHEN su.category_2 = 'walls' THEN su.weight ELSE 0 END)    AS walls_weight
+FROM su_ceramics_preprocessing_entry su
+         inner join collected_material cm on su.cm_uid = cm.uid
+         inner join locus on cm.uid_locus = locus.uid
+         inner join unit on unit.uid = locus.uid_unit
+         where coalesce({{#unit_id}}, '') = '' or unit.arch_context = coalesce({{#unit_id}}, '')
+GROUP BY unit.arch_context,
+    locus.arch_context,
+    su.category_1
+order by locus.arch_context, category_1;
+"
+    column_information:
+      locus_id: DSD('locus','arch_context')
+      unit_id: DSD('unit','arch_context')
+      category: DSD('su_ceramics_preprocessing_entry','category_1')
+      weight: DSD('su_ceramics_preprocessing_entry','weight')
+      quantity: DSD('su_ceramics_preprocessing_entry','count')
+      bases_count: label("bases c")
+      bases_weight: label("bases w")
+      handles_count: label("handles c")
+      handles_weight: label("handles w")
+      lids_count: label("lids c")
+      lids_weight: label("lids w")
+      walls_count: label("walls c")
+      walls_weight: label("walls w")
+
