@@ -3,7 +3,7 @@ import local_css from "./styles/component-queryselector.sass?inline";
 import { html, nothing, TemplateResult, unsafeCSS } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 import { handleCommonFetchErrors, handleErrorInApp } from "./lib/applib";
-import { Constant, ApiResultKioskQueryDescription } from "./lib/apitypes";
+import { Constant, ApiResultKioskQueryDescription, ApiResultKioskQuery } from "./lib/apitypes";
 import { FetchException } from "@arch-kiosk/kiosktsapplib"
 import { KioskAppComponent } from "@arch-kiosk/kiosktsapplib"
 import { KioskQueryFactory } from "./kioskqueryfactory";
@@ -15,6 +15,9 @@ import { DictionaryAccessor } from "./lib/dictionaryAccessor";
 import { InterpreterFactory } from "./lib/interpreterfactory";
 import { InterpreterManager } from "@arch-kiosk/kiosktsapplib"
 import { MSG_ERROR } from "./lib/appmessaging";
+import Cookies from "js-cookie"
+
+const COOKIE_KIOSKQNVQUERYFAVOURITES = "kioskQnVQueryFavourites"
 
 @customElement("kiosk-query-selector")
 export class KioskQuerySelector extends KioskAppComponent {
@@ -45,7 +48,7 @@ export class KioskQuerySelector extends KioskAppComponent {
     private constants?: Constant[]
 
     firstUpdated(_changedProperties: any) {
-        console.log("KioskQuerySelector first updated", _changedProperties);
+        // console.log("KioskQuerySelector first updated", _changedProperties);
         super.firstUpdated(_changedProperties);
     }
 
@@ -63,13 +66,13 @@ export class KioskQuerySelector extends KioskAppComponent {
             const accessor = new DictionaryAccessor("dictionary", this.dataContext, this.constants)
             accessor.assignEntries(this.constants)
             this.dataContext.registerAccessor(accessor)
-            console.log("KioskQuerySelector applied constants: ", this.constants)
+            // console.log("KioskQuerySelector applied constants: ", this.constants)
             this._interpreter = InterpreterFactory(this.dataContext)
         }
     }
 
     loadQueries() {
-        console.log(`loading queries`);
+        // console.log(`loading queries`);
         this.loadingMessage = "loading queries ...";
         this.showLocalProgress = true;
         const urlSearchParams = new URLSearchParams();
@@ -112,27 +115,34 @@ export class KioskQuerySelector extends KioskAppComponent {
     }
 
     initQueries() {
+        // console.log(this.kioskQueries)
         for (const query of this.kioskQueries) {
-                query.name = this._interpreter.interpret(query.name,undefined,"/")
+            query.name = this._interpreter.interpret(query.name,undefined,"/")
+            query.category = this._interpreter.interpret(query.category,undefined,"/")
         }
+        this.applyFavourites()
+        this.sortQueries()
+    }
+
+    sortQueries() {
         this.kioskQueries.sort(function (a: ApiResultKioskQueryDescription, b: ApiResultKioskQueryDescription) {
             let rc = 0
-            rc = (Object.prototype.hasOwnProperty.call(a, "category") &&
-                Object.prototype.hasOwnProperty.call(b, "category")) ? (a.category??"").localeCompare(b.category??"") : 0;
+            const a_cat = (a.category??"") === "favourites"?" ":a.category
+            const b_cat = (b.category??"") === "favourites"?" ":b.category
+            rc = (a_cat && b_cat) ? a_cat.localeCompare(b_cat) : 0;
             if (!rc) {
                 rc = (a.order_priority??"").localeCompare(b.order_priority??"");
                 if (!rc) {
                     rc = (a.name??"").localeCompare(b.name??"")
                 }
             } else {
-                if (a.category === "-") rc = 1
-                if (b.category === "-") rc = -1
+                if (a_cat === "-") rc = 1
+                if (b_cat === "-") rc = -1
             }
 
             return rc
         })
     }
-
     showQueries(kioskQueries: ApiResultKioskQueryDescription[]) {
         if (this.constants)
             this.assignConstants()
@@ -168,17 +178,76 @@ export class KioskQuerySelector extends KioskAppComponent {
         this.tryClose(kioskQuery);
     }
 
+    toggleFavourite(q: ApiResultKioskQueryDescription) {
+        let cookie = Cookies.get(COOKIE_KIOSKQNVQUERYFAVOURITES)
+        let currentFavourites = cookie?JSON.parse(cookie):{}
+        if (q.id in currentFavourites)
+            delete currentFavourites[q.id]
+        else
+            currentFavourites[q.id] = q.category
+        const newCookie = {
+            name: COOKIE_KIOSKQNVQUERYFAVOURITES,
+            value: JSON.stringify(currentFavourites),
+            expires: Date.now() + 360 * 24 * 60 * 60 * 1000, //360 days
+            path: "/",
+        };
+        Cookies.set(newCookie.name, newCookie.value, {expires: newCookie.expires, path: newCookie.path})
+
+    }
+
+    applyFavourites() {
+        let cookie = Cookies.get(COOKIE_KIOSKQNVQUERYFAVOURITES)
+        let currentFavourites = cookie?JSON.parse(cookie):{}
+        const favIds = Object.keys(currentFavourites)
+        this.kioskQueries.forEach(q => {
+            if (q.id !== "fulltextquery") {
+                if (favIds.includes(q.id)) {
+                    if (q.category !== "favourites") {
+                        q.original_category = q.category
+                        q.category = "favourites"
+                    }
+                } else {
+                    if (q.category === "favourites") {
+                        q.category = q.original_category
+                    }
+                }
+            }
+        })
+    }
+
+    bookmarkQuery(e: PointerEvent) {
+        if (!(e.currentTarget instanceof HTMLDivElement)) {
+            return;
+        }
+        const element = <HTMLDivElement>e.currentTarget.parentElement;
+        const kioskQuery = this.kioskQueries.find((q) => q.id === element.id);
+        this.toggleFavourite(kioskQuery)
+        this.applyFavourites()
+        this.sortQueries()
+        this.requestUpdate()
+        e.stopPropagation()
+    }
+
     protected renderQueryItem(query: ApiResultKioskQueryDescription, index: number) {
         let newCategory = ""
+        let unchecked= html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+            <path d="M192 64C156.7 64 128 92.7 128 128L128 544C128 555.5 134.2 566.2 144.2 571.8C154.2 577.4 166.5 577.3 176.4 571.4L320 485.3L463.5 571.4C473.4 577.3 485.7 577.5 495.7 571.8C505.7 566.1 512 555.5 512 544L512 128C512 92.7 483.3 64 448 64L192 64z"/>
+            </svg>`
+        let checked= html`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+            <path d="M128 128C128 92.7 156.7 64 192 64L448 64C483.3 64 512 92.7 512 128L512 545.1C512 570.7 483.5 585.9 462.2 571.7L320 476.8L177.8 571.7C156.5 585.9 128 570.6 128 545.1L128 128zM192 112C183.2 112 176 119.2 176 128L176 515.2L293.4 437C309.5 426.3 330.5 426.3 346.6 437L464 515.2L464 128C464 119.2 456.8 112 448 112L192 112z"/>
+        </svg>`
+
         if (index > 0 && this.kioskQueries[index-1].category !== query.category) {
-            newCategory = query.category === "-"? "more queries": query.category
+            newCategory = query.category === "-" ? "more queries": query.category
         } else if (index == 0) {
-            newCategory = "most wanted"
+            newCategory = "favourites"
         }
         return html`
-            ${newCategory ? html`<div class="kiosk-query-category">${newCategory}</div>` : nothing}
+            ${newCategory ? html`<div class="kiosk-query-category">${newCategory==='favourites'?'most wanted':newCategory}</div>` : nothing}
             <div id="${query.id}" class="kiosk-query" @click="${this.selectQuery}">
-                <i class="fas">${KioskQueryFactory.getTypeIcon(query.type)}</i>
+                <div class="kiosk-query-bookmark-div" @click="${this.bookmarkQuery}"><i class="fas">${KioskQueryFactory.getTypeIcon(query.type)}</i>
+                    ${query.id === 'fulltextquery'?nothing:(query.category === "favourites"?unchecked:checked)}
+                </div>
                 <div class="kiosk-query-text">
                     <div>${query.name}</div>
                     <div>${this._interpreter.interpret(query.description,undefined,"/")}</div>
@@ -193,6 +262,14 @@ export class KioskQuerySelector extends KioskAppComponent {
 
     apiRender(): TemplateResult {
         return html`
+            <svg style="display:none">
+                <symbol id="favourite-unchecked" viewBox="0 0 512 512"><!--!Font Awesome Free v7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+                    <path d="M128 128C128 92.7 156.7 64 192 64L448 64C483.3 64 512 92.7 512 128L512 545.1C512 570.7 483.5 585.9 462.2 571.7L320 476.8L177.8 571.7C156.5 585.9 128 570.6 128 545.1L128 128zM192 112C183.2 112 176 119.2 176 128L176 515.2L293.4 437C309.5 426.3 330.5 426.3 346.6 437L464 515.2L464 128C464 119.2 456.8 112 448 112L192 112z"/>
+                </symbol>
+                <symbol id="favourite-checked" viewBox="0 0 512 512"><!--!Font Awesome Free v7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+                    <path d="M192 64C156.7 64 128 92.7 128 128L128 544C128 555.5 134.2 566.2 144.2 571.8C154.2 577.4 166.5 577.3 176.4 571.4L320 485.3L463.5 571.4C473.4 577.3 485.7 577.5 495.7 571.8C505.7 566.1 512 555.5 512 544L512 128C512 92.7 483.3 64 448 64L192 64z"/>
+                </symbol>
+            </svg>
             <div class="query-selector-overlay" @click=${this.overlayClicked}></div>
             <div class="query-selector">
                 ${this.showLocalProgress || !this.constants

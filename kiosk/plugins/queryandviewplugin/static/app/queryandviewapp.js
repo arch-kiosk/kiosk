@@ -134428,13 +134428,14 @@ let Vi = class extends Ga {
   }
   initQueries() {
     for (const u of this.kioskQueries)
-      u.name = this._interpreter.interpret(u.name, void 0, "/");
+      u.name = this._interpreter.interpret(u.name, void 0, "/"), u.category = this._interpreter.interpret(u.category, void 0, "/");
     this.applyFavourites(), this.sortQueries();
   }
   sortQueries() {
     this.kioskQueries.sort(function(u, o) {
       let l = 0;
-      return l = Object.prototype.hasOwnProperty.call(u, "category") && Object.prototype.hasOwnProperty.call(o, "category") ? (u.category ?? "").localeCompare(o.category ?? "") : 0, l ? (u.category === "-" && (l = 1), o.category === "-" && (l = -1)) : (l = (u.order_priority ?? "").localeCompare(o.order_priority ?? ""), l || (l = (u.name ?? "").localeCompare(o.name ?? ""))), l;
+      const _ = (u.category ?? "") === "favourites" ? " " : u.category, h = (o.category ?? "") === "favourites" ? " " : o.category;
+      return l = _ && h ? _.localeCompare(h) : 0, l ? (_ === "-" && (l = 1), h === "-" && (l = -1)) : (l = (u.order_priority ?? "").localeCompare(o.order_priority ?? ""), l || (l = (u.name ?? "").localeCompare(o.name ?? ""))), l;
     });
   }
   showQueries(u) {
