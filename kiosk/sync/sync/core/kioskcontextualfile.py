@@ -330,6 +330,7 @@ class KioskContextualFile(KioskLogicalFile):
                     return None
         else:
             logging.warning(f"KioskContextualFile.upload: md5 hash could not be created for {src_path_and_filename}")
+            # todo: And then we just move on and import a duplicate nonetheless?
 
         ext = kioskstdlib.get_file_extension(src_path_and_filename)
 

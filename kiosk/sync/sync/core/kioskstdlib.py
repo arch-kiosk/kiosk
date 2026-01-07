@@ -563,9 +563,10 @@ def get_file_hash(filepath_and_name):
             for chunk in iter(lambda: f.read(4096), b""):
                 hash_md5.update(chunk)
         return hash_md5.hexdigest()
-    except:
-        pass
-    return ("")
+    except BaseException as e:
+        logging.info(f"kioskstdlib.get_file_hash: File Hash could not be "
+                     f"created for file {filepath_and_name}: {repr(e)}")
+    return ""
 
 
 def check_uuid(uuid_to_test, version=4, accept_filemaker_too=False):
