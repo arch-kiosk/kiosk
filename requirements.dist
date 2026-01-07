@@ -56,5 +56,6 @@ PyJWT
 pdfrw2
 netifaces
 flake8
+lupa
 yappi==del
 webapp-core==del
