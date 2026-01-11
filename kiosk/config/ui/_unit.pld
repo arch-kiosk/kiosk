@@ -4,7 +4,7 @@ config:
 compilations:
   unit_compilation:
     name: unit view
-    unit_type: excavation
+    use_this_only_if: 'unit.type:find("^" .. "ex") and unit.method:find("locus")'
     record_type: unit
     groups:
       group_1:

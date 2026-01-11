@@ -1,12 +1,14 @@
 import copy
 import logging
 import os
+from typing import List
 
 import kioskstdlib
 from dsd.dsd3 import DataSetDefinition
 from dsd.dsd3singleton import Dsd3Singleton
 from dsd.dsdview import DSDView
 from dsd.dsdyamlloader import DSDYamlLoader
+from dsl.kioskdsllupa import KioskDSLLua, LazyResolverContinue, LazyResolverStop, KioskDSLLuaResolver
 from kioskglossary import KioskGlossary
 from presentationlayer.pldloader import PLDLoader
 from presentationlayer.viewpartlist import ViewPartList
@@ -31,6 +33,28 @@ class KioskView:
         self._master_dsd: DataSetDefinition = Dsd3Singleton.get_dsd3()
         self._uic_tree = uic_tree
         self._glossary = KioskGlossary(cfg)
+        self.dsl = KioskDSLLua()
+        self.dsl.on_get = self.DSLResolver()
+
+    class DSLResolver(KioskDSLLuaResolver):
+        def __init__(self):
+            self.data = {}
+        def append(self, key, data):
+            self.data[key] = data
+
+        def resolve(self, path_elements: List):
+            if path_elements:
+                if path_elements[0] in self.data.keys():
+                    if type(self.data[path_elements[0]]) == dict:
+                        if len(path_elements) == 2:
+                            if path_elements[1] in self.data[path_elements[0]]:
+                                return self.data[path_elements[0]][path_elements[1]]
+                        else:
+                            raise LazyResolverContinue
+                    else:
+                        return self.data[path_elements[0]]
+            raise LazyResolverStop
+
 
     def _validate(self):
         if not self.pld_name:
@@ -107,27 +131,37 @@ class KioskView:
 
     def get_compilation(self):
         compilations = self._pld.get_compilations_by_record_type(self.record_type)
+        if self.identifier_record:
+            self.dsl.on_get.append(self.record_type, dict(self.identifier_record))
         if len(compilations) == 1:
             return compilations[0]
         if len(compilations) == 0:
             raise KeyError(f"{self.__class__.__name__}.render: "
                            f"No compilation for record type {self.record_type}")
         else:
-            # todo this is totally hard coded! It needs to be replaced by a general mechanism to select
-            # the correct view for a record type
-            if self.record_type == "unit":
-                unit_type = kioskstdlib.try_get_dict_entry(self.identifier_record, "type", "excavation")
-                for c in compilations:
-                    if "unit_type" in c:
-                        comp_unit_type = kioskstdlib.try_get_dict_entry(c, "unit_type", "excavation")
-                    else:
-                        raise KeyError(f"Compilation '{c['name']}' has no unit_type. It needs one")
-                    if comp_unit_type == unit_type:
-                        return c
-                raise Exception(f"None of the view compilations for record_type unit matches the unit type {unit_type}")
+            for c in compilations:
+                condition = ""
+                if "use_this_only_if" in c:
+                    condition = c["use_this_only_if"]
+                else:
+                    # this is just for compatibility with the pre-LUA era
+                    if self.record_type == "unit":
+                        condition = f'unit.type == "{kioskstdlib.try_get_dict_entry(c, "unit_type", "excavation")}"'
 
-            raise KeyError(f"{self.__class__.__name__}.render: "
-                           f"More than one compilation for record type {self.record_type}")
+                if condition:
+                    result = self.dsl.eval(condition)
+                    logging.debug(f"{self.__class__.__name__}.get_compilation: "
+                                  f"condition '{condition}' evaluated to {result}")
+                    if result:
+                        return c
+                else:
+                    logging.warning(f"{self.__class__.__name__}.get_compilation: compilation "
+                                    f"{kioskstdlib.try_get_dict_entry(c, 'name', '?')} "
+                                    f"for record type {self.record_type} will never be selected "
+                                    f"because it has no condition")
+            raise Exception(f"None of the view compilations for record_type {self.record_type} "
+                            f"feels responsible for this record.")
+
 
     def _get_view_part_class(self, view_type):
         if view_type == "sheet":
