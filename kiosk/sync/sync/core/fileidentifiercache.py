@@ -22,7 +22,8 @@ class FileIdentifierCache:
         type_repository.register_type(TYPE_FILE_IDENTIFIER_CACHE, context_type, context_type)
 
     @classmethod
-    def build_fic_indexes(cls, sync_type_repository: TypeRepository, dsd: DataSetDefinition) -> bool:
+    def build_fic_indexes(cls, sync_type_repository: TypeRepository, dsd: DataSetDefinition,
+                          failures: Union[List, None]=None) -> bool:
         rc = True
         fic_indexes = sync_type_repository.list_types(TYPE_FILE_IDENTIFIER_CACHE)
         for fic_index in fic_indexes:
@@ -35,6 +36,12 @@ class FileIdentifierCache:
                     logging.info(f"{cls.__class__.__name__}.build_fic_indexes: building {context_type} done")
                 else:
                     logging.info(f"{cls.__class__.__name__}.build_fic_indexes: building {context_type} failed.")
+                    try:
+                        if failures is not None:
+                            failures.append(fic_index)
+                    except BaseException as e:
+                        logging.error(f"{cls.__name__}.build_fic_index: "
+                                      f"Error reporting failed index building attempt: {repr(e)}")
                     rc = False
             except BaseException as e:
                 logging.error(f"{cls.__name__}.build_fic_indexes: Error building fic {fic_index}, "

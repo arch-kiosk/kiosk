@@ -1,4 +1,5 @@
 import copy
+import logging
 
 from contextmanagement.identifiercache import IdentifierCache
 from kiosksqldb import KioskSQLDb
@@ -21,6 +22,7 @@ class MemoryIdentifierCache(IdentifierCache):
     def rebuild_cache(self) -> int:
         self._identifier_cache.clear()
         cur = KioskSQLDb.get_dict_cursor()
+        sp = KioskSQLDb.begin_savepoint()
         try:
             for idx_identifier in range(0, len(self._identifiers)):
                 select_sql = self._get_sql(self._identifiers[idx_identifier], idx_identifier)
@@ -33,9 +35,13 @@ class MemoryIdentifierCache(IdentifierCache):
                     else:
                         self._identifier_cache[r["identifier"]] = [(r["uid"], idx_identifier)]
                     r = cur.fetchone()
-
+            KioskSQLDb.commit_savepoint(sp)
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.rebuild_cache: {repr(e)}")
+            KioskSQLDb.rollback_savepoint(sp)
         finally:
-            cur.close()
+            if cur:
+                cur.close()
         return len(self._identifier_cache)
 
     def has_identifier(self, identifier: str) -> bool:
