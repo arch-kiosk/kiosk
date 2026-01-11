@@ -29,12 +29,12 @@ class FileIdentifierCache:
             context_type = "unknown"
             try:
                 context_type = sync_type_repository.get_type(TYPE_FILE_IDENTIFIER_CACHE, fic_index)
-                logging.debug(f"{cls.__class__.__name__}.build_fic_type_indexes: building {context_type}")
+                logging.debug(f"{cls.__class__.__name__}.build_fic_indexes: building {context_type}")
                 fic = FileIdentifierCache(dsd, context_type=context_type)
                 if fic.build_file_identifier_cache_from_contexts():
-                    logging.info(f"{cls.__class__.__name__}.build_fic_type_indexes: building {context_type} done")
+                    logging.info(f"{cls.__class__.__name__}.build_fic_indexes: building {context_type} done")
                 else:
-                    logging.info(f"{cls.__class__.__name__}.build_fic_type_indexes: building {context_type} failed.")
+                    logging.info(f"{cls.__class__.__name__}.build_fic_indexes: building {context_type} failed.")
                     rc = False
             except BaseException as e:
                 logging.error(f"{cls.__name__}.build_fic_indexes: Error building fic {fic_index}, "
@@ -51,13 +51,20 @@ class FileIdentifierCache:
             self.dsd = dsd
 
     def build_file_identifier_cache_from_contexts(self, commit=False) -> bool:
-        sql_source = self._get_sql_source()
-        if sql_source:
-            sql_source.build_cache(commit=commit)
-            # if commit:
-            #     KioskSQLDb.commit()
-            logging.debug(f"{self.__class__.__name__}.migrate: cache {self.cache_name} successfully rebuilt. ")
-            return True
+        sp = KioskSQLDb.begin_savepoint()
+        try:
+            sql_source = self._get_sql_source()
+            if sql_source:
+                sql_source.build_cache(commit=commit)
+                # if commit:
+                #     KioskSQLDb.commit()
+                KioskSQLDb.commit_savepoint(sp)
+                logging.debug(f"{self.__class__.__name__}.migrate: cache {self.cache_name} successfully rebuilt. ")
+                return True
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.build_file_identifier_cache_from_contexts: {repr(e)}. "
+                          f"Rolling back to savepoint.")
+            KioskSQLDb.rollback_savepoint(sp)
         return False
 
     def _get_sql_source(self) -> Union[SqlSourceCached, None]:
