@@ -251,8 +251,9 @@ class KioskAppFactory(AppFactory):
         try:
             kioskglobals.identifier_cache = MemoryIdentifierCache(kioskglobals.master_view.dsd)
         except BaseException as e:
-            logging.error(f"{cls.__name__}._before_app_creation: Exception when initializing identifier_cache: {repr(e)}")
-            raise Exception("Error in _before_app_creation when initializing identifier cache")
+            logging.error(
+                f"{cls.__name__}._before_app_creation: Exception when initializing identifier_cache: {repr(e)}")
+            # raise Exception("Error in _before_app_creation when initializing identifier cache")
         try:
             kioskglobals.init_counter = kioskglobals.get_system_wide_init_counter()
             logging.info(
@@ -942,10 +943,13 @@ class KioskAppFactory(AppFactory):
 
     @classmethod
     def init_fid_caches(cls):
+        failures = []
         try:
             # The file - identifier cache can be built after migration
             sync = Synchronization()
-            if not FileIdentifierCache.build_fic_indexes(sync.type_repository, kioskglobals.master_view.dsd):
+            if not FileIdentifierCache.build_fic_indexes(sync.type_repository,
+                                                         kioskglobals.master_view.dsd,
+                                                         failures=failures):
                 raise Exception("Some file identifier cache in build_fic_indexes failed.")
             # fic = FileIdentifierCache(kioskglobals.master_view.dsd)
             # fic.build_file_identifier_cache_from_contexts(commit=True)
@@ -954,8 +958,9 @@ class KioskAppFactory(AppFactory):
                           f"{repr(e)}")
             dispatch_system_message(headline="Rebuilding of at least one file identifier cache went wrong.",
                                     message_id=SYS_MSG_ID_REBUILD_FIC_FAILED,
-                                    body="""Kiosk might fail applying the right files to a context. This 
-                                    needs the attention of an administrator. """,
+                                    body=f"""Kiosk might fail applying the right files to a context. This 
+                                    needs the attention of an administrator. 
+                                    The failed indexes are: {",".join(failures)}.""",
                                     sender=f"{cls.__name__}.migrate")
 
     @classmethod
