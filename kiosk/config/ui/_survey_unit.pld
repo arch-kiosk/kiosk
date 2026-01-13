@@ -4,7 +4,7 @@ config:
 compilations:
   survey_unit_compilation:
     name: survey unit view
-    unit_type: pedestrian survey
+    use_this_only_if: 'unit.type:find("^" .. "pedestrian")'
     record_type: unit
     groups:
       group_1:

@@ -4,7 +4,7 @@ config:
 compilations:
   feature_unit_compilation:
     name: feature unit view
-    unit_type: feature
+    use_this_only_if: 'unit.type:find("^" .. "feature")'
     record_type: unit
     groups:
       group_1:
