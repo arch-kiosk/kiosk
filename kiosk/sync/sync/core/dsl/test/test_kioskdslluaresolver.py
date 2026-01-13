@@ -69,4 +69,4 @@ class TestKioskDSLLuaResolver(KioskPyTestHelper):
         ('unit.calc(12)', ['unit', 'calc(12)']),
     ])
     def test_split_lua_dot_notation(self, input_str, expected):
-        assert KioskDSLLuaResolver.split_lua_dot_notation(input_str) == expected
+        assert KioskDSLLuaResolver._split_lua_dot_notation(input_str) == expected

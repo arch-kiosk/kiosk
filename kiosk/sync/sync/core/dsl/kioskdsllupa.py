@@ -19,7 +19,7 @@ class LazyResolverStop(Exception):
 
 class KioskDSLLuaResolver:
     @staticmethod
-    def split_lua_dot_notation(s: str):
+    def _split_lua_dot_notation(s: str):
         parts = []
         current = []
         stack = []
@@ -68,7 +68,7 @@ class KioskDSLLuaResolver:
         raise NotImplementedError
 
     def __call__(self, path):
-        path_elements = self.split_lua_dot_notation(path)
+        path_elements = self._split_lua_dot_notation(path)
         try:
             return self.resolve(path_elements)
         except LazyResolverContinue as e:
@@ -85,7 +85,7 @@ class KioskDSLLuaResolver:
 
     def execute(self, path, *args):
         try:
-            path_elements = self.split_lua_dot_notation(path)
+            path_elements = self._split_lua_dot_notation(path)
             return self.call_function(path_elements, args)
         except LazyResolverContinue as e:
             raise e
@@ -117,7 +117,6 @@ class KioskDSLLua(KioskDSL):
         def resolve(self, key):
             if not "_path" in self.__dict__ and "dsl" in self.__dict__:
                 raise AttributeError
-            print("_path is", self._path)
             self._path.append(key)
             try:
                 return self.dsl.on_get(".".join(self._path))
@@ -141,7 +140,6 @@ class KioskDSLLua(KioskDSL):
         #     print(f"__len__ called for [{self._path}]")
 
         def __getattr__(self, name):
-            print("__getattr__ called with ", name)
             if name.startswith("_"):
                 if name.startswith("__getitem"):
                     raise AttributeError()
@@ -149,7 +147,6 @@ class KioskDSLLua(KioskDSL):
             if name in self._cache:
                 return self._cache[name]
             if name in self.__dict__:
-                print("__getattr__ found ", name)
                 return self.name
             self._cache[name] = self.resolve(name)
             return self._cache[name]
