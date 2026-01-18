@@ -30,10 +30,8 @@ class KioskPhysicalFile:
         (format-id, format display name, [supported input extensions], output-extension) 
         file extensions must be lower case, file formats uppercase
         all formats, input and output formats must be listed here.
-        if a format is not supported as an output format, 
-        it has None as the fourth tuple attribute
-        if a format is not supported as an input format, it has an empty list
-        for supported input extensions
+        if a format is not supported as an output format it has None as the fourth tuple attribute
+        if a format is not supported as an input format it has an empty list for supported input extensions
     """
     supported_file_formats = []
 

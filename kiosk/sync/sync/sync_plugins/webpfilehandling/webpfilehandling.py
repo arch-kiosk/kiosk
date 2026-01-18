@@ -29,6 +29,7 @@ class KioskPhysicalWebPFile(KioskPhysicalImageFile):
                               ("BMP", "Bitmap Image File", ["bmp"], "bmp"),
                               ("NEF", "Nikkon Electronic Format", ["nef"], None),
                               ("CR2", "Canon Raw File Format", ["cr2"], None),
+                              ("DNG", "Adobe Digital Negatives", ["dng"], None),
                               ("PSD", "Photoshop Document", ["psd"], "psd")
                              ]
 
