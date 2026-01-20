@@ -25,3 +25,6 @@
 [submodule "kiosk/custom/anc"]
 	path = kiosk/custom/anc
 	url = https://github.com/arch-kiosk/anc.git
+[submodule "kiosk/plugins/fsviewerplugin"]
+	path = kiosk/plugins/fsviewerplugin
+	url = https://github.com/arch-kiosk/fsviewerplugin.git

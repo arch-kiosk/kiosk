@@ -1,7 +1,7 @@
 # import time
 import logging
 import os
-from typing import Union
+from typing import Union, List
 
 import kioskstdlib
 import datetime
@@ -205,7 +205,7 @@ class FileRepository:
     def get_file_field_tables(self):
         return self.dsd.list_file_fields()
 
-    def get_files_with_tags(self, tags: [], operator: str) -> [str]:
+    def get_files_with_tags(self, tags: List[str], operator: str) -> List[str]:
         """
         returns a list of files, represented by their uids, that have or don't have any of the given tags
 
