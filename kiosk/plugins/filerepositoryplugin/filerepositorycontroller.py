@@ -3,6 +3,7 @@ import logging
 import os
 from http import HTTPStatus
 from pprint import pprint
+import re
 
 import flask
 from flask import make_response, Blueprint, abort, request, render_template, jsonify, \
@@ -359,6 +360,15 @@ def file_repository_show():
                 session.pop("fr_files_count")
 
     tag_list = m_file_repository.get_tags()
+
+    def alphanum_key(s):
+        # Split the string into a list of strings and numbers
+        return
+
+    tag_list = sorted(
+        tag_list,
+        key=lambda s: [int(c) if c.isdigit() else c for c in re.split('([0-9]+)', s)])
+
     sorting_options = m_file_repository.get_sorting_options()
     # image_field_tables = ModelFileRepository.get_aliased_recording_contexts(
     #     m_file_repository.file_repos.get_file_field_tables().keys())

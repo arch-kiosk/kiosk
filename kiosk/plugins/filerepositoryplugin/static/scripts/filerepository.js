@@ -1266,7 +1266,11 @@ function selectTag(sideFilterOpen, scrollIntoView = true) {
 
 function selectSideFilterTag(evt) {
     if (evt.target.classList.contains("tag-entry")) {
-        setTagField(evt.target.dataset.value);
+        if (evt.target.classList.contains("selected")) {
+            setTagField("", false)
+        } else {
+            setTagField(evt.target.dataset.value);
+        }
         selectTag(true, false);
     }
 }
