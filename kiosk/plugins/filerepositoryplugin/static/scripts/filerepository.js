@@ -95,14 +95,17 @@ function setFileRepositoryEventHandlers() {
     input = document.getElementById("frf-context");
     input?.addEventListener("awesomplete-selectcomplete", fetchImageCount);
 
-    document.getElementById("fr-bt-archive")?.addEventListener("click", function () {
-        openArchivePopup('/filerepository/show_archive_popup')
+    document.getElementById("fr-bt-archive")?.addEventListener("click", function() {
+        openArchivePopup("/filerepository/show_archive_popup");
     });
 
-    document.getElementById("fr-leave-archive")?.addEventListener("click", function () {
-        leaveArchive()
-    })
-
+    document.getElementById("fr-leave-archive")?.addEventListener("click", function() {
+        leaveArchive();
+    });
+    document.getElementById("fr-bt-side-filter")?.addEventListener("click", toggleSideFilter);
+    document.getElementById("side-filter-tags")?.addEventListener("click", selectSideFilterTag);
+    document.getElementById("filter-tag-field")?.addEventListener("input", filterTagFieldChanged);
+    document.getElementById("fr-bt-side-filter").style.opacity = "1";
 }
 
 function initPageList() {
@@ -136,7 +139,7 @@ function onPageClick(evt) {
 
 
 function refreshContext() {
-    const el = document.getElementById("frf-no-context")
+    const el = document.getElementById("frf-no-context");
     if (el.disabled) return;
     if ($(el).is(":checked")) {
         $("#frf-context").prop("disabled", true);
@@ -187,7 +190,7 @@ function getMaxImagesPerPage() {
 
 
 function getFileCount() {
-    console.log("getFileCount entered")
+    console.log("getFileCount entered");
     frfEnableSubmitMode(false);
     $("#file-count").text("calculating...");
     if (!lockFileCount) {
@@ -210,19 +213,19 @@ function getFileCount() {
                     $("#frf-from-date").removeClass("input-error");
                     $("#frf-to-date").removeClass("input-error");
                     $("#context-identifier-filter").removeClass("input-error");
-                    const elFileCount = $("#file-count")
-                    const filteredSiteId = elFileCount[0].dataset?.filteredSite??""
+                    const elFileCount = $("#file-count");
+                    const filteredSiteId = elFileCount[0].dataset?.filteredSite ?? "";
                     if (isNaN(json.result)) {
                         if (json.result.startsWith("The identifier")) {
                             $("#context-identifier-filter").addClass("input-error");
-                            $("#file-count").text((filteredSiteId?`Site ${filteredSiteId}: `:"") + json.result);
+                            $("#file-count").text((filteredSiteId ? `Site ${filteredSiteId}: ` : "") + json.result);
                         } else if (json.result.indexOf("valid date or year") > -1) {
                             if (json.result.indexOf("'from'") > -1) {
                                 $("#frf-from-date").addClass("input-error");
                             } else {
                                 $("#frf-to-date").addClass("input-error");
                             }
-                            elFileCount.text((filteredSiteId?`Site ${filteredSiteId}: `:"") + json.result);
+                            elFileCount.text((filteredSiteId ? `Site ${filteredSiteId}: ` : "") + json.result);
                         } else {
                             kioskErrorToast(json.result);
                         }
@@ -234,15 +237,15 @@ function getFileCount() {
                             if (json.result) {
                                 frfEnableSubmitMode(true);
                                 if (json.result > 1)
-                                    elFileCount.text(json.result.toString() + ` files found${filteredSiteId?" in site " + filteredSiteId:""}. Click to fetch 'em.`);
+                                    elFileCount.text(json.result.toString() + ` files found${filteredSiteId ? " in site " + filteredSiteId : ""}. Click to fetch 'em.`);
                                 else
-                                    elFileCount.text(`One file found${filteredSiteId?" in site " + filteredSiteId:""}. Click to fetch it.`);
+                                    elFileCount.text(`One file found${filteredSiteId ? " in site " + filteredSiteId : ""}. Click to fetch it.`);
                             } else {
-                                elFileCount.text(json.result.toString() + ` files found${filteredSiteId?" in site " + filteredSiteId:""}. Please be more specific.`);
+                                elFileCount.text(json.result.toString() + ` files found${filteredSiteId ? " in site " + filteredSiteId : ""}. Please be more specific.`);
                                 frfEnableSubmitMode(false);
                             }
                         } else {
-                            elFileCount.text(`No files match your criteria${filteredSiteId?" in site " + filteredSiteId:""}.`);
+                            elFileCount.text(`No files match your criteria${filteredSiteId ? " in site " + filteredSiteId : ""}.`);
                         }
                     }
                 });
@@ -261,7 +264,7 @@ function file_repos_load_by_tag(tag) {
 
 function updateFileRepositoryImage(uuid) {
     //todo: Why does this have its own CSRF Token? I thought that is added automatically when using ajax?
-    const apiURL = "/filerepository/fetch_tile/" + uuid + "/force_reload=1"
+    const apiURL = "/filerepository/fetch_tile/" + uuid + "/force_reload=1";
     $.ajax({
         url: apiURL,
         type: "POST",
@@ -334,12 +337,13 @@ function showFileChecked(element) {
 function refreshMarkers() {
     const numOr0 = (v) => {
         try {
-            return parseInt(v)
-        } catch{}
-        return 0
-    }
+            return parseInt(v);
+        } catch {
+        }
+        return 0;
+    };
 
-    document.filesOnPage = []
+    document.filesOnPage = [];
     $("#fr-image-list-wrapper").children().each((index, element) => {
         let clicker = $(element).find(".fr-identifier-and-check").first();
         clicker.off("click");
@@ -348,8 +352,8 @@ function refreshMarkers() {
             uuid: element.id,
             width: numOr0(element.dataset.width),
             height: numOr0(element.dataset.height),
-            fileType: element.dataset?.fileType?element.dataset?.fileType:""
-        })
+            fileType: element.dataset?.fileType ? element.dataset?.fileType : "",
+        });
         showFileChecked(element);
     });
 }
@@ -526,7 +530,7 @@ function getMarkedFiles(fileCallback = null) {
             if (sessionStorage.getItem(key) === "true") {
                 let uid = key.substring(11);
                 if (fileCallback)
-                    fileCallback(uid)
+                    fileCallback(uid);
                 else
                     files.push(uid);
             }
@@ -631,7 +635,7 @@ function initEFPartial(time_zones) {
     efInitUploader();
     efInitAddContext();
     efInitDropContext();
-    efInitFormFields()
+    efInitFormFields();
 }
 
 function efInitUploader() {
@@ -662,16 +666,16 @@ function efInitUploader() {
             // // $("#image-container").fadeIn("fast");
             // $(".modal-upload").hide();
             showhidemenu("#upload-area", "#upload-area-contents");
-            showHideLightbox(true)
-            showRainbowProgress(true)
+            showHideLightbox(true);
+            showRainbowProgress(true);
             setEFUploadFileProgress(id, 0);
         },
         onUploadSuccess: function(id, data) {
-            showHideLightbox(false)
-            showRainbowProgress(false)
+            showHideLightbox(false);
+            showRainbowProgress(false);
             if (data.result === "ok") {
-                document.fileViewerController.reloadFile({width: data.width, height: data.height})
-                let uuid = efGetCurrentImageUID()
+                document.fileViewerController.reloadFile({ width: data.width, height: data.height });
+                let uuid = efGetCurrentImageUID();
                 updateFileRepositoryImage(uuid);
                 // installImageOnLoadHandler();
                 setEFUploadFileProgress(101, data.result);
@@ -680,8 +684,8 @@ function efInitUploader() {
             }
         },
         onUploadError: function(id, xhr, status, errorThrown) {
-            showRainbowProgress(false)
-            showHideLightbox(false)
+            showRainbowProgress(false);
+            showHideLightbox(false);
             onEFUploadError(errorThrown);
         },
         onFallbackMode: function(message) {
@@ -691,18 +695,18 @@ function efInitUploader() {
 }
 
 function showRainbowProgress(show) {
-    const el = document.querySelector(".rainbow-loading")
-    if (el) el.style.display = show ? "unset" : "none"
+    const el = document.querySelector(".rainbow-loading");
+    if (el) el.style.display = show ? "unset" : "none";
 }
 
-function showHideLightbox(hide=null) {
-    const el = document.fileViewerController?.lightBoxElement
+function showHideLightbox(hide = null) {
+    const el = document.fileViewerController?.lightBoxElement;
     if (el) {
-        el.showHideUI(hide)
+        el.showHideUI(hide);
     }
-    const elData = document.getElementById("ef-dialog")
-    hide = hide === null ? !(elData.style.visibility === "hidden") : hide
-    elData.style.visibility = hide ? "hidden" : "unset"
+    const elData = document.getElementById("ef-dialog");
+    hide = hide === null ? !(elData.style.visibility === "hidden") : hide;
+    elData.style.visibility = hide ? "hidden" : "unset";
 }
 
 function efInitAddContext() {
@@ -719,13 +723,13 @@ function efInitDropContext() {
 }
 
 function efInitFormFields() {
-    const partial = document.getElementById("fr-data-partial")
+    const partial = document.getElementById("fr-data-partial");
     for (const e of partial.getElementsByTagName("input")) {
         if (e.id !== "ef-upload-input")
-            e.addEventListener("input", efMarkRecordDirty)
+            e.addEventListener("input", efMarkRecordDirty);
     }
     for (const e of partial.getElementsByTagName("textarea")) {
-        e.addEventListener("input", efMarkRecordDirty)
+        e.addEventListener("input", efMarkRecordDirty);
     }
 }
 
@@ -740,7 +744,7 @@ function efAddNewContext() {
     editField.attr("id", field_id);
     btDropThis.on("click", efDropThisNewContext.bind(newContext));
     editField.focus();
-    efMarkRecordDirty()
+    efMarkRecordDirty();
 }
 
 function efDropThisNewContext(evt) {
@@ -756,7 +760,7 @@ function efDropContext(evt) {
     let parent = this.parent();
     let undoButton = parent.find(".ef-undo-drop-context");
     if (undoButton) {
-        efMarkRecordDirty()
+        efMarkRecordDirty();
         undoButton.show();
         undoButton.on("click", efRestoreDroppedContext.bind(undoButton));
         parent.addClass("drop-context-marker");
@@ -777,8 +781,8 @@ function efRestoreDroppedContext(evt) {
 }
 
 function onEFDialogCancel() {
-    const fileViewerController = document.fileViewerController
-    fileViewerController?.reloadData()
+    const fileViewerController = document.fileViewerController;
+    fileViewerController?.reloadData();
 }
 
 function installImageOnLoadHandler() {
@@ -835,14 +839,14 @@ function onEFUploadError(errorThrown) {
 }
 
 function efMarkRecordDirty(dirty = true) {
-    const elRecordButtons = document.getElementById("ef-record-buttons")
+    const elRecordButtons = document.getElementById("ef-record-buttons");
     try {
         if (dirty)
-            elRecordButtons.classList.add("ef-record-dirty")
+            elRecordButtons.classList.add("ef-record-dirty");
         else
-            elRecordButtons.classList.remove("ef-record-dirty")
+            elRecordButtons.classList.remove("ef-record-dirty");
     } catch (e) {
-        console.log(e)
+        console.log(e);
     }
 }
 
@@ -884,11 +888,11 @@ function onEFDialogOk() {
             } else {
                 let uuid = $("#uid").text();
                 updateFileRepositoryImage(uuid);
-                efMarkRecordDirty(false)
+                efMarkRecordDirty(false);
                 setTimeout(() => {
-                    const fileViewerController = document.fileViewerController
-                    fileViewerController?.reloadData()
-                },10)
+                    const fileViewerController = document.fileViewerController;
+                    fileViewerController?.reloadData();
+                }, 10);
             }
         },
     );
@@ -916,31 +920,31 @@ function EFDeleteFile(uuid, forceIt) {
             }
         },
     })
-    .done(function(data) {
-        console.log("delete response", data)
-        if (data.result !== "ok") {
-            if (data.hasOwnProperty("ask_for_force") && !forceIt) {
-                kioskYesNoToast(data.result,
-                    () => {
-                        EFDeleteFile(uuid, true);
-                    }, () => {
-                    }, {}, ".kiosk-modal-dialog-toasts");
+        .done(function(data) {
+            console.log("delete response", data);
+            if (data.result !== "ok") {
+                if (data.hasOwnProperty("ask_for_force") && !forceIt) {
+                    kioskYesNoToast(data.result,
+                        () => {
+                            EFDeleteFile(uuid, true);
+                        }, () => {
+                        }, {}, ".kiosk-modal-dialog-toasts");
+                } else {
+                    kioskModalErrorToast(data.result);
+                }
             } else {
-                kioskModalErrorToast(data.result);
+                $("#" + uuid).remove();
+                const fileViewerController = document.fileViewerController;
+                if (!fileViewerController.invalidateCurrent()) {
+                    document.getElementsByTagName("kiosk-lightbox")[0].doClose();
+                }
             }
-        } else {
-            $("#" + uuid).remove();
-            const fileViewerController = document.fileViewerController
-            if (!fileViewerController.invalidateCurrent()) {
-                document.getElementsByTagName("kiosk-lightbox")[0].doClose()
-            }
-        }
-    })
-    .fail(function(xhr, status, errorThrown) {
-        console.log(errorThrown);
-        kioskErrorToast(`An error occurred: ${errorThrown}`)
-        // $("#frf").submit();
-    });
+        })
+        .fail(function(xhr, status, errorThrown) {
+            console.log(errorThrown);
+            kioskErrorToast(`An error occurred: ${errorThrown}`);
+            // $("#frf").submit();
+        });
 }
 
 function start_download_spinner() {
@@ -956,15 +960,15 @@ function stop_download_spinner() {
 function onEFDownloadImage(event) {
     closeMenu("#download-menu-contents", $("#download-menu"));
     let uuid = $("#uid").text();
-    let openInTab = false
+    let openInTab = false;
 
     let target = event.currentTarget;
     if (target.classList.contains("ef-tab-download")) {
-        target = target.previousElementSibling.previousElementSibling
-        openInTab = true
+        target = target.previousElementSibling.previousElementSibling;
+        openInTab = true;
     }
     if (!target.dataset.hasOwnProperty("representationId") && target.id !== "download-raw") {
-        target = target.previousElementSibling
+        target = target.previousElementSibling;
     }
     if (target.id === "download-raw") {
         console.log("downloading raw file");
@@ -975,7 +979,7 @@ function onEFDownloadImage(event) {
     }
 
     if (openInTab) {
-        fvOpenInNewTab(uuid, "original")
+        fvOpenInNewTab(uuid, "original");
     } else {
         start_download_spinner();
         $(".download-msg").remove();
@@ -1020,11 +1024,11 @@ function onEFDownloadImage(event) {
 
 function activateImage(uuid) {
     $(".fr-image-clicked").removeClass("fr-image-clicked");
-    const img = document.getElementById(uuid)
+    const img = document.getElementById(uuid);
     if (img) {
-        img.scrollIntoView()
-        img.focus()
-        img.classList.add("fr-image-clicked")
+        img.scrollIntoView();
+        img.focus();
+        img.classList.add("fr-image-clicked");
     }
 }
 
@@ -1144,14 +1148,14 @@ function openArchivePopup(route) {
                 changeToolButtonState("fr-bt-archive", 1);
             },
         },
-    })
+    });
 }
 
 function fetchIdentifiers() {
-    let site_filter = getCookie("site_filter")
-    let urlSearchParams = undefined
-    let element = document.getElementById("frf-context")
-    if (element.disabled) return
+    let site_filter = getCookie("site_filter");
+    let urlSearchParams = undefined;
+    let element = document.getElementById("frf-context");
+    if (element.disabled) return;
     if (site_filter && site_filter !== "-") {
         urlSearchParams = new URLSearchParams();
         urlSearchParams.append("site_filter", site_filter);
@@ -1161,17 +1165,17 @@ function fetchIdentifiers() {
             return globalFetchFromApi(globalGetApiUrl(""),
                 token,
                 "contexts",
-                {  },
+                {},
                 undefined,
                 urlSearchParams,
                 "");
         })
         .then((result) => {
             if (!fetchIdentifiers.awesomeplete) {
-            let element = document.getElementById("frf-context");
+                let element = document.getElementById("frf-context");
                 fetchIdentifiers.awesomeplete = new Awesomplete(element, { list: result.identifiers });
             } else {
-                fetchIdentifiers.awesomeplete.list = result.identifiers
+                fetchIdentifiers.awesomeplete.list = result.identifiers;
             }
         });
 }
@@ -1186,17 +1190,17 @@ function fr_limitToSite() {
             callbacks: {
                 updateStatus: function(data) {
                     if (data.status === "error") {
-                        kioskErrorToast("It was not possible to start this operation due to an error. Sorry for that.")
+                        kioskErrorToast("It was not possible to start this operation due to an error. Sorry for that.");
                     }
                     console.log("updateStatus", data);
-                }
+                },
             },
             //  focus: "create-workstation-id",
             removalDelay: 200,
-            mainClass: "mfp-with-anim"
+            mainClass: "mfp-with-anim",
         });
-    } catch(e){
-        console.log("exception", e)
+    } catch (e) {
+        console.log("exception", e);
     }
 
 
@@ -1211,10 +1215,10 @@ function fr_switchToArchive() {
         callbacks: {
             updateStatus: function(data) {
                 if (data.status === "error") {
-                    kioskErrorToast("It was not possible to start this operation. You might be lacking privileges to view an archive or you might have been logged out.")
+                    kioskErrorToast("It was not possible to start this operation. You might be lacking privileges to view an archive or you might have been logged out.");
                 }
                 console.log("updateStatus", data);
-            }
+            },
         },
         //  focus: "create-workstation-id",
         removalDelay: 200,
@@ -1223,69 +1227,148 @@ function fr_switchToArchive() {
     });
 }
 
+function toggleSideFilter(ev) {
+    el = ev.currentTarget;
+    const newState = !el.classList.contains("side-filter-open");
+    el.classList.toggle("side-filter-open");
+    sideFilter = document.getElementById("side-filter");
+    sideFilter.classList.toggle("hidden");
+    const sideFilterAlternativeElements = document.querySelectorAll("[data-side-filter-alternative]");
+    for (const el of sideFilterAlternativeElements) {
+        el.style.display = el.style.display === "none" ? "flex" : "none";
+    }
+    selectTag(newState);
+}
+
+function setTagField(tag) {
+    const tagField = document.getElementById("frf-tags");
+    tagField.value = tag ? tag : null;
+    fetchImageCount();
+}
+
+function selectTag(sideFilterOpen, scrollIntoView = true) {
+    if (sideFilterOpen) {
+        let selectedTag;
+        const tagList = document.getElementById("side-filter-tags");
+        const currentTag = document.getElementById("frf-tags").value.trim().toLocaleLowerCase();
+        for (const tag of tagList.children) {
+            if (currentTag && tag.dataset.value.trim().toLocaleLowerCase() === currentTag) {
+                tag.classList.add("selected");
+                if (scrollIntoView) tag.scrollIntoView();
+                selectedTag = tag.dataset.value;
+            } else {
+                tag.classList.remove("selected");
+            }
+        }
+        if (!selectedTag) setTagField("");
+    }
+}
+
+function selectSideFilterTag(evt) {
+    if (evt.target.classList.contains("tag-entry")) {
+        setTagField(evt.target.dataset.value);
+        selectTag(true, false);
+    }
+}
+
+function filterTagFieldChanged(evt) {
+    const el = evt.currentTarget;
+    filterSideFilterTags(el.value);
+}
+
+function filterSideFilterTags(filterText) {
+    const filters = filterText.split("&").map(f => f.trim()).filter(f => f);
+
+    const includedTerms = new Set();
+    const excludedTerms = new Set();
+
+    // Process filters once, outside the tag loop
+    filters.forEach(filter => {
+        if (filter.startsWith("-")) {
+            excludedTerms.add(filter.replace(/^-/, "").toLowerCase());
+        } else {
+            includedTerms.add(filter.toLowerCase());
+        }
+    });
+
+    // If a term is both included and excluded, remove it from excluded
+    includedTerms.forEach(term => excludedTerms.delete(term));
+
+    const tagEntries = document.querySelectorAll("#side-filter-tags .tag-entry");
+
+    tagEntries.forEach(entry => {
+        const entryValue = entry.getAttribute("data-value").toLowerCase();
+        const matchesAnyIncluded = includedTerms.size === 0 || [...includedTerms].some(term => entryValue.includes(term));
+        const matchesAnyExcluded = [...excludedTerms].some(term => entryValue.includes(term));
+        entry.style.display = (entry.classList.contains("selected") || (matchesAnyIncluded && !matchesAnyExcluded)) ? "" : "none";
+    });
+}
+
 function leaveArchive() {
     $("#fr-leave-archive").prop("disabled", true);
     kioskSendAjaxCommand("POST", null,
-                    "/filerepository/noarchive",
-                    {},
-                    (data) => {
-                        clearAllFileMarkers()
-                        if (data.success) {
-                            setTimeout(() => {
-                                $("#frf").submit();
-                            },50)
-                        }
-                    },
-                    (err_code, json) => {
-                        $("#fr-leave-archive").prop("disabled", false);
-                        if ("result" in json) {
-                            kioskErrorToast(json.result);
-                        } else {
-                            kioskErrorToast(`An Error occurred in when calling leaveArchive: ${err_code}`);
-                        }
+        "/filerepository/noarchive",
+        {},
+        (data) => {
+            clearAllFileMarkers();
+            if (data.success) {
+                setTimeout(() => {
+                    $("#frf").submit();
+                }, 50);
+            }
+        },
+        (err_code, json) => {
+            $("#fr-leave-archive").prop("disabled", false);
+            if ("result" in json) {
+                kioskErrorToast(json.result);
+            } else {
+                kioskErrorToast(`An Error occurred in when calling leaveArchive: ${err_code}`);
+            }
 
-                    });
+        });
 }
+
 function frInitFileViewer(apiContext) {
     let lb = document.getElementsByTagName("kiosk-lightbox")[0];
-    document.fileViewerController = new FileViewerController(apiContext, lb, true)
-    console.log("FileViewerController initialized")
+    document.fileViewerController = new FileViewerController(apiContext, lb, true);
+    console.log("FileViewerController initialized");
 }
 
 function onEditImage(evt) {
     if (document.hasOwnProperty("fileViewerController")) {
         let img = $(evt.currentTarget);
         let clickedUuid = img.attr("uid");
-        const fwc = document.fileViewerController
-        const elOpenInNewTab= document.getElementById("open-image-in-new-tab")
-        const elOpenInNewTabText= document.getElementById("open-in-new-tab-text")
+        const fwc = document.fileViewerController;
+        const elOpenInNewTab = document.getElementById("open-image-in-new-tab");
+        const elOpenInNewTabText = document.getElementById("open-in-new-tab-text");
         fwc.opened = (e) => {
-            showRainbowProgress(false)
-            elOpenInNewTab.style.display = "none"
+            showRainbowProgress(false);
+            elOpenInNewTab.style.display = "none";
             if (e?.result) {
-                document.getElementById("broken-image").style.display = "none"
+                document.getElementById("broken-image").style.display = "none";
                 // here comes a hack: The issue here is that this can only be reliably
                 // done once both the image and the data have arrived. Let's hope it does that within a second.
-                setTimeout(function () {
-                    elOpenInNewTab.style.display = elOpenInNewTabText.innerText === '' ? 'none' : 'block'
-                }, 1000)
+                setTimeout(function() {
+                    elOpenInNewTab.style.display = elOpenInNewTabText.innerText === "" ? "none" : "block";
+                }, 1000);
             } else {
-                document.getElementById("broken-image").style.display = "grid"
+                document.getElementById("broken-image").style.display = "grid";
             }
-        }
+        };
         fwc.beforeOpen = () => {
-            elOpenInNewTab.style.display = "none"
-            document.getElementById("broken-image").style.display = "none"
-            showRainbowProgress(true)
-        }
+            elOpenInNewTab.style.display = "none";
+            document.getElementById("broken-image").style.display = "none";
+            showRainbowProgress(true);
+        };
         if (fwc) {
-            fwc.clear()
-            document.filesOnPage.forEach(f => fwc.addFile(f))
+            fwc.clear();
+            document.filesOnPage.forEach(f => fwc.addFile(f));
             // fwc.addFile({ uuid: clickedUuid })
-            fwc.showFiles(clickedUuid, true)
-            return
+            fwc.showFiles(clickedUuid, true);
+            return;
         }
     }
-    kioskErrorToast("Currently the viewer is not present. Please try refreshing the page. (Err: There is no FileViewerController present)")
+    kioskErrorToast("Currently the viewer is not present. Please try refreshing the page. (Err: There is no FileViewerController present)");
 }
+
 //# sourceURL=filerepository.js
