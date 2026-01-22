@@ -102,3 +102,8 @@ overflowing.svg (kiosk)
 
 morph.svg (filemaker): Icon for changing the collected material type
 Vectors and icons by <a href="https://github.com/lusaxweb/iconsax?ref=svgrepo.com" target="_blank">Iconsax</a> in MIT License via <a href="https://www.svgrepo.com/" target="_blank">SVG Repo</a>
+
+Sidebar Right SVC Vector (embedded in file repos toolbar) https://www.svgrepo.com/svg/437225/sidebar-right 
+COLLECTION: Framework7 Line Icons
+LICENSE: MIT License
+AUTHOR: framework7io

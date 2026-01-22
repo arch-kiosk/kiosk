@@ -77,7 +77,23 @@ input:disabled
 
       input
         width: 100%
+  #fr-bt-side-filter
+    display: flex
+    place-items: center
+    margin-left: auto
+    border-left: 2px solid var(--col-bg-2-button)
+    opacity: 0.4
 
+    svg
+      margin: 0 10px
+      fill: var(--col-primary-bg-2)
+    svg:hover
+      fill: var(--col-accent-bg-2)
+    svg:active
+      fill: var(--col-accent-bg-2)
+      transform: translate(2px,2px)
+  .side-filter-open
+    background-color: color-mix(in srgb, var(--col-bg-2), white 25%)
 //button
 //  width: 8rem
 //  height: 50px
@@ -85,8 +101,12 @@ input:disabled
 //  justify-self: center
 
 #fr-filter
+  display: flex
+  flex-direction: row
+  align-items: stretch
   background-color: $col-bg-2
-  padding: 0.5em 0.5em 0em 0.5em
+  padding: 0 0 0 0.5em
+  border-bottom: 1px solid var(--col-bg-2-button)
   //width: 100%
   flex-grow: 1
 
@@ -99,6 +119,7 @@ input:disabled
   justify-content: space-between
   flex-wrap: wrap
   align-items: center
+  padding-top: .5em
 
 .file-count-div
   width: 100%
@@ -430,3 +451,68 @@ input:disabled
       background-color: var(--col-bg-att-darker)
     &:active
       background-color: var(--col-bg-ack)
+
+#lower-container
+  display: flex
+  flex-direction: row
+  flex-grow: 1
+  position: relative
+  align-items: flex-start
+#main-content-area
+  display: flex
+  flex-direction: column
+  flex-grow: 1
+  overflow-y: auto
+#side-filter
+  display: flex
+  flex-direction: column
+  width: 250px
+  flex: 0 0 250px
+  flex-shrink: 0
+  height: auto
+  position: sticky
+  top: 1em
+
+  background: var(--col-bg-3)
+  border: 3px solid var(--col-primary-bg-body)
+  border-radius: 7px 0 0 7px
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease
+  overflow: hidden
+  white-space: nowrap
+
+  &.hidden
+    flex-basis: 0
+    padding: 0
+    width: 0
+    opacity: 0
+    border: none
+
+  .tag-filter-header
+    padding: 0px 1em 0 1em
+    margin: 1em 0 .5em 0
+    width: 100%
+    background-color: var(--col-bg-3-darker)
+    color: var(--col-primary-bg-3)
+    font-weight: bold
+  .tag-list
+    scroll-behavior: auto
+    max-height: 20em
+    overflow-x: hidden
+    overflow-y: auto
+    overscroll-behavior-y: contain
+    //scroll-snap-type: y mandatory
+    margin-bottom: 1em
+  .tag-entry
+    margin: .25em 1em 0 1em
+    overflow-x: hidden
+    &:hover
+      background-color: var(--col-bg-3-darker)
+    //scroll-snap-align: start
+    //scroll-snap-stop: always
+    &.selected
+      background-color: var(--col-bg-ack)
+
+  #filter-tag-field
+    margin: 0 1em .5em 1em
+    width: auto
+
