@@ -269,6 +269,7 @@ textarea {
 
 input:not([type=radio], [type=checkbox]), select, textarea {
   width: 100%;
+  border-bottom: 2px solid rgba(0, 0, 0, 0);
 }
 input:not([type=radio], [type=checkbox]):focus, select:focus, textarea:focus {
   margin-bottom: 0px;
