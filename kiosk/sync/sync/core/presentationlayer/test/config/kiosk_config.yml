@@ -73,3 +73,7 @@ kiosk:
 
   kioskexportworkstationplugin:
     active: true
+glossary:
+  "locus": ["SU", "SUs"]
+  "collected_material": ["bag","bags"]
+  "lot": [ "PT", "PTs" ]

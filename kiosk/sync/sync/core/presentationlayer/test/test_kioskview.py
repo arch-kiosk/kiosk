@@ -3,6 +3,7 @@ from io import StringIO, TextIOBase
 
 import pytest
 
+from kioskconstants import KioskProjectConstants
 from presentationlayer.kioskview import KioskView
 from presentationlayer.pldloader import PLDLoader
 from presentationlayer.presentationlayerdefinition import PresentationLayerDefinition, PLDException
@@ -57,3 +58,13 @@ class TestKioskView(KioskPyTestHelper):
         assert result["locus.sheet"]["layout_settings"]["ui_elements"]["arch_context"]["element_type"][
                    "text"] == "context"
         assert result == {}
+
+    def test_kioskresolver(self, config, dsd):
+        resolver = KioskView.DSLResolver()
+        resolver.append("__kiosk", {"config": config["config"]})
+        resolver.append("__kiosk", KioskProjectConstants(
+            add_method=KioskProjectConstants.add_method_dict).add_glossary(config))
+        assert "config" in resolver.data["__kiosk"]
+        assert "glossary" in resolver.data["__kiosk"]
+        assert resolver.resolve(["__kiosk", "config", "project_id"]) == "arch1900"
+        assert resolver.resolve(["__kiosk", "glossary", "locus"]) == ["SU", "SUs"]

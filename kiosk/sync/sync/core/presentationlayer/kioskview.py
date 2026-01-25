@@ -4,11 +4,13 @@ import os
 from typing import List
 
 import kioskstdlib
+from dicttools import dict_merge
 from dsd.dsd3 import DataSetDefinition
 from dsd.dsd3singleton import Dsd3Singleton
 from dsd.dsdview import DSDView
 from dsd.dsdyamlloader import DSDYamlLoader
 from dsl.kioskdsllupa import KioskDSLLua, LazyResolverContinue, LazyResolverStop, KioskDSLLuaResolver
+from kioskconstants import KioskProjectConstants
 from kioskglossary import KioskGlossary
 from presentationlayer.pldloader import PLDLoader
 from presentationlayer.viewpartlist import ViewPartList
@@ -35,16 +37,48 @@ class KioskView:
         self._glossary = KioskGlossary(cfg)
         self.dsl = KioskDSLLua()
         self.dsl.on_get = self.DSLResolver()
+        self.dsl.on_get.append("__kiosk", {"config": cfg})
+        self.dsl.on_get.append("__kiosk", KioskProjectConstants(
+            add_method=KioskProjectConstants.add_method_dict).get_all_constants(cfg))
 
     class DSLResolver(KioskDSLLuaResolver):
         def __init__(self):
             self.data = {}
+
         def append(self, key, data):
-            self.data[key] = data
+            if key in self.data:
+                dict_merge(self.data[key], data)
+            else:
+                self.data[key] = data
+
+        def resolve_kiosk_path(self, path_elements):
+            print(f"resolving {path_elements}")
+            if len(path_elements) > 2:
+                kiosk_path = path_elements[1:]
+                section = kiosk_path[0]
+                if section in self.data["__kiosk"]:
+                    try:
+                        v = kioskstdlib.get_nested_dict_value_by_path(self.data, path_elements)
+                    except BaseException as e:
+                        logging.error(f"{self.__class__.__name__}.resolve_kiosk_path: "
+                                      f"Exception in KioskView when resolving {'.'.join(path_elements)}: {repr(e)}")
+                        raise LazyResolverStop
+                    if v is None:
+                        raise LazyResolverContinue
+                    else:
+                        return v
+                else:
+                    logging.error(f"{self.__class__.__name__}.resolve_kiosk_path: "
+                                  f"Unknown section in KioskView when resolving {'.'.join(path_elements)}")
+                    raise LazyResolverStop
+            else:
+                raise LazyResolverContinue
 
         def resolve(self, path_elements: List):
             if path_elements:
                 if path_elements[0] in self.data.keys():
+                    if path_elements[0] == "__kiosk":
+                        return self.resolve_kiosk_path(path_elements)
                     if type(self.data[path_elements[0]]) == dict:
                         if len(path_elements) == 2:
                             if path_elements[1] in self.data[path_elements[0]]:
@@ -54,7 +88,6 @@ class KioskView:
                     else:
                         return self.data[path_elements[0]]
             raise LazyResolverStop
-
 
     def _validate(self):
         if not self.pld_name:
@@ -130,11 +163,12 @@ class KioskView:
         return self._pld.get_part(part_id)
 
     def get_compilation(self):
+        default_view = ""
         compilations = self._pld.get_compilations_by_record_type(self.record_type)
         if self.identifier_record:
             self.dsl.on_get.append(self.record_type, dict(self.identifier_record))
-        if len(compilations) == 1:
-            return compilations[0]
+        # if len(compilations) == 1:
+        #     return compilations[0]
         if len(compilations) == 0:
             raise KeyError(f"{self.__class__.__name__}.render: "
                            f"No compilation for record type {self.record_type}")
@@ -155,13 +189,16 @@ class KioskView:
                     if result:
                         return c
                 else:
-                    logging.warning(f"{self.__class__.__name__}.get_compilation: compilation "
-                                    f"{kioskstdlib.try_get_dict_entry(c, 'name', '?')} "
-                                    f"for record type {self.record_type} will never be selected "
-                                    f"because it has no condition")
+                    default_view = c
+                # else:
+                #     logging.warning(f"{self.__class__.__name__}.get_compilation: compilation "
+                #                     f"{kioskstdlib.try_get_dict_entry(c, 'name', '?')} "
+                #                     f"for record type {self.record_type} will never be selected "
+                #                     f"because it has no condition")
+            if default_view:
+                return default_view
             raise Exception(f"None of the view compilations for record_type {self.record_type} "
                             f"feels responsible for this record.")
-
 
     def _get_view_part_class(self, view_type):
         if view_type == "sheet":
