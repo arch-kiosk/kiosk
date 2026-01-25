@@ -1782,3 +1782,27 @@ def substract_leading_list(main_list, filter_list):
             break
         start_element = index + 1  # Update to exclude the matched element
     return main_list[start_element:]
+
+
+def get_nested_dict_value_by_path(constants_dict, path_segments):
+    # Split the key into individual segments
+
+    current_val = constants_dict
+
+    for segment in path_segments:
+        # 1. Check if the current level is actually a dict
+        if not isinstance(current_val, dict):
+            raise KeyError(f"Path interrupted: '{segment}' is not reachable because the parent is not a dictionary.")
+
+        # 2. Check if the segment exists in the current dict
+        if segment not in current_val:
+            raise KeyError(f"Key segment '{segment}' not found in the dictionary hierarchy.")
+
+        # Move one level deeper
+        current_val = current_val[segment]
+
+    # 3. Validation: If the final result is still a dict, it's 'not finite' per your requirements
+    if isinstance(current_val, dict):
+        return None
+
+    return current_val

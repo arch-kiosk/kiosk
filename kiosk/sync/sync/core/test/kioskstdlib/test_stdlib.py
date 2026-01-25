@@ -116,11 +116,11 @@ class TestStandardLibrary(KioskPyTestHelper):
         filename128 = 'a' * 128 + ".ltz"
         assert kioskstdlib.get_valid_filename(filename128) == 'a' * 124 + ".ltz"
 
-    def test_get_unique_filename(self):
+    def test_get_unique_filename(self, shared_datadir):
         assert kioskstdlib.get_unique_filename("c:\\")[0:3] == "c:\\"
         assert kioskstdlib.get_unique_filename("c:\\", filename="somefile.txt") == "c:\\somefile.txt"
-        assert kioskstdlib.get_unique_filename("c:\\temp", file_extension="txt")[-4:] == ".txt"
-        assert kioskstdlib.get_unique_filename("c:\\temp", file_extension=".txt")[-4:] == ".txt"
+        assert kioskstdlib.get_unique_filename(shared_datadir, file_extension="txt")[-4:] == ".txt"
+        assert kioskstdlib.get_unique_filename(shared_datadir, file_extension=".txt")[-4:] == ".txt"
 
     def test_remove_kiosk_subtree(self, config, monkeypatch):
         _remove_dir: str = ""
@@ -199,7 +199,8 @@ class TestStandardLibrary(KioskPyTestHelper):
         assert files == ['imageB.png', 'imageA.png', 'imageD.png', 'imageC.png']
 
         files = kioskstdlib.find_files(find_data_dir, file_pattern="*.*", include_path=True, order_by_time=True)
-        assert files == [os.path.join(find_data_dir, f) for f in ['imageB.png', 'imageA.png', 'imageD.png', 'imageC.png']]
+        assert files == [os.path.join(find_data_dir, f) for f in
+                         ['imageB.png', 'imageA.png', 'imageD.png', 'imageC.png']]
 
     def test_force_positive_int_from_string(self):
         assert kioskstdlib.force_positive_int_from_string("") == -1
@@ -217,7 +218,38 @@ class TestStandardLibrary(KioskPyTestHelper):
         assert rc == 1
         rc = start_python_subprocess(script, "2")
         assert rc == 2
-        rc = start_python_subprocess("./test_script.py", "2",str(os.path.join(shared_datadir, "start_python_subprocess")))
+        rc = start_python_subprocess("./test_script.py", "2",
+                                     str(os.path.join(shared_datadir, "start_python_subprocess")))
         assert rc == 2
         with pytest.raises(Exception):
-            rc = start_python_subprocess("./test_script.py", "2",str(os.path.join(shared_datadir)))
+            rc = start_python_subprocess("./test_script.py", "2", str(os.path.join(shared_datadir)))
+
+    def test_get_nested_dict_value_by_path(self):
+        import pytest
+        import kioskstdlib
+
+        data = {
+            "app": {
+                "settings": {
+                    "timeout": 30,
+                    "retry_count": 3
+                },
+                "name": "MyApp"
+            },
+            "version": "1.0.0"
+        }
+
+        # 1. Success cases (using lists of segments)
+        assert kioskstdlib.get_nested_dict_value_by_path(data, ["app", "settings", "timeout"]) == 30
+        assert kioskstdlib.get_nested_dict_value_by_path(data, ["version"]) == "1.0.0"
+
+        # 2. Non-Finite Path (returns None)
+        assert kioskstdlib.get_nested_dict_value_by_path(data, ["app", "settings"]) is None
+
+        # 3. Missing Key (raises KeyError)
+        with pytest.raises(KeyError, match="not found"):
+            kioskstdlib.get_nested_dict_value_by_path(data, ["app", "database"])
+
+        # 4. Path Interrupted (raises KeyError)
+        with pytest.raises(KeyError, match="not reachable"):
+            kioskstdlib.get_nested_dict_value_by_path(data, ["version", "patch"])
