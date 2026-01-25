@@ -4,7 +4,7 @@ config:
 compilations:
   cm_compilation:
     name: collected material view
-    use_this_only_if: '__kiosk.constants.settings.ceramic_module == "pottery_processing"'
+#    use_this_only_if: '__kiosk.constants.settings.ceramic_module == "pottery_processing"'
     record_type: collected_material
     groups:
       group_1:
