@@ -633,3 +633,7 @@ class SyncConfig(Config):
     @custom_path.setter
     def custom_path(self, value):
         self.config["custom_path"] = value
+
+    @property
+    def config_dict(self):
+        return self._config

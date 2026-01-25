@@ -37,7 +37,7 @@ class KioskView:
         self._glossary = KioskGlossary(cfg)
         self.dsl = KioskDSLLua()
         self.dsl.on_get = self.DSLResolver()
-        self.dsl.on_get.append("__kiosk", {"config": cfg})
+        self.dsl.on_get.append("__kiosk", {"config": cfg.config_dict})
         self.dsl.on_get.append("__kiosk", KioskProjectConstants(
             add_method=KioskProjectConstants.add_method_dict).get_all_constants(cfg))
 
