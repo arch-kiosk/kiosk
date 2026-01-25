@@ -4,6 +4,7 @@ import flask
 from flask_restful import Resource
 
 import kioskconstants
+import kioskglobals
 from kioskglobals import httpauth
 
 
@@ -42,7 +43,7 @@ class ApiConstants(Resource):
         # get main
         # ******************************************
         try:
-            constants = kioskconstants.KioskProjectConstants().get_all_constants()
+            constants = kioskconstants.KioskProjectConstants().get_all_constants(kioskglobals.get_config())
             return kioskconstants.ApiResultConstant(many=True).dump(constants), 200
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.post: Exception when dumping result: {repr(e)}")
