@@ -52,7 +52,7 @@ class KioskView:
                 self.data[key] = data
 
         def resolve_kiosk_path(self, path_elements):
-            print(f"resolving {path_elements}")
+            # print(f"resolving {path_elements}")
             if len(path_elements) > 2:
                 kiosk_path = path_elements[1:]
                 section = kiosk_path[0]
