@@ -5,6 +5,10 @@ version: 1
 element_type:
   is_identifier:  true
 
+# dsd('pottery','arch_context')
+element_type:
+  is_identifier:  false
+
 # dsd('collected_material','description') && view_type:sheet && view-ui
 # dsd('small_find','description') && view_type:sheet && view-ui
 # dsd('collected_material','research_notes') && view_type:sheet && view-ui

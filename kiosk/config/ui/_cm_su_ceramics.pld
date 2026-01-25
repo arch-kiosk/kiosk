@@ -2,9 +2,9 @@ config:
   format_version: 1
 
 compilations:
-  cm_compilation:
+  cm_compilation_su_ceramics:
     name: collected material view
-    use_this_only_if: '__kiosk.constants.settings.ceramic_module == "pottery_processing"'
+    use_this_only_if: '__kiosk.constants.settings.ceramic_module == "su_ceramics_processing"'
     record_type: collected_material
     groups:
       group_1:
@@ -22,8 +22,8 @@ compilations:
           cm_files.list:
             text: 'photos and files'
             position: 1
-          wc_pottery.list:
-            text: 'pottery'
+          su_ceramics.list:
+            text: 'fragments'
             position: 2
 
 cm.sheet:
@@ -191,8 +191,8 @@ cm_files.list:
     order_records_by: [">modified"]
     allow_ordering_by: ["modified", "modified_by"]
     order: [uid_photo, modified, modified_by]
-wc_pottery.list:
-  record_type: pottery
+su_ceramics.list:
+  record_type: su_ceramics
   view_type: list
   max_height: auto
   fields_selection: dsd
@@ -201,5 +201,5 @@ wc_pottery.list:
     orchestration_strategy: table
     order_records_by: ["arch_context"]
     allow_ordering_by: ["arch_context", "modified", "modified_by"]
-    order: [arch_context, fabric, warecode, type, vessel_type, modified, modified_by]
+    order: [arch_context, func_cat, func_sub_cat, form_and_comparisons, finish_and_decoration, modified, modified_by]
 
