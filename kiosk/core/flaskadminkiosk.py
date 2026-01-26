@@ -67,11 +67,15 @@ class UserModelView(KioskModelView):
         'pwd_hash': EmptyStringField,
         'repl_user_id': UpperCaseField
     }
-    column_exclude_list = ["pwd_hash"]
-    form_excluded_columns = ["pwd_hash"]
+    column_exclude_list = ["pwd_hash", "force_tz_index", "must_change_pwd"]
+    form_excluded_columns = ["pwd_hash", "must_change_pwd", "force_tz_index"]
+    column_labels = {
+        'user_id': "Kiosk User Id",
+        'repl_user_id': 'User Id in Recording App',
+    }
     form_args = {
         'user_id': {
-            'label': 'short user id',
+            'label': 'Kiosk user id',
             'validators': [InputRequired()],
             'description': 'Usually a three digit user id, no special characters, no spaces'
 
@@ -86,7 +90,7 @@ class UserModelView(KioskModelView):
             'description': 'Check if you want the user to change the password on next login.'
         },
         'repl_user_id': {
-            'label': 'user id in recording database',
+            'label': 'user id in recording app',
             'validators': [InputRequired()],
             'description': 'The user id recorded when user modifies recording records. '
                            'If in doubt, repeat the short user id'

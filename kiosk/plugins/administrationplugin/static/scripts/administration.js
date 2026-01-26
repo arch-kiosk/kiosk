@@ -50,12 +50,12 @@ function triggerDownloadTransferCatalog(endpoint) {
                 null,
                 (json) => {
                     if (json && "result" in json && json.result === "ok") {
-                        waitForTransferCatalog(json["job"], json["message"], route)
+                        waitForTransferCatalog(json["job"], json["message"], route);
                     } else {
                         if (json && "result" in json) {
-                            kioskErrorToast(`The server reported an error: ${json.result}`)
+                            kioskErrorToast(`The server reported an error: ${json.result}`);
                         } else {
-                            kioskErrorToast(`The server terminated the operation with an unspecific error.`)
+                            kioskErrorToast(`The server terminated the operation with an unspecific error.`);
                         }
                     }
                 },
@@ -72,42 +72,49 @@ function triggerDownloadTransferCatalog(endpoint) {
 
 function waitForTransferCatalog(job_uid, message, route) {
     console.log(`waitForTransferCatalog called with ${job_uid} and message: ${message}`);
-    waitForTransferCatalog.job = undefined
+    waitForTransferCatalog.job = undefined;
 
-    const contentWrapper = document.getElementById("content-wrapper")
+    const contentWrapper = document.getElementById("content-wrapper");
     const node = document.createElement("div");
     node.id = "transfer-catalog-waiting";
     node.classList.add("kiosk-waiting-for-transfer-catalog");
-    const innerNode = document.createElement("div")
-    innerNode.innerText = message
-    node.appendChild(innerNode)
-    const progressNode = document.createElement("div")
-    progressNode.innerHTML = "<div class=\"bounce1\"></div><div class=\"bounce2\"></div><div class=\"bounce3\"></div>"
-    progressNode.classList.add("spinner")
-    node.appendChild(progressNode)
-    contentWrapper.insertBefore(node, contentWrapper.firstChild)
+    const innerNode = document.createElement("div");
+    innerNode.innerText = message;
+    node.appendChild(innerNode);
+    const progressNode = document.createElement("div");
+    progressNode.innerHTML = "<div class=\"bounce1\"></div><div class=\"bounce2\"></div><div class=\"bounce3\"></div>";
+    progressNode.classList.add("spinner");
+    node.appendChild(progressNode);
+    contentWrapper.insertBefore(node, contentWrapper.firstChild);
     const job = new KioskJob($(contentWrapper.firstChild));
     if (job) {
         job.onSuccess = (result) => {
             // $("#transfer-catalog-waiting").remove()
-            waitForTransferCatalog.job = undefined
+            waitForTransferCatalog.job = undefined;
             if (result.success) {
                 kioskYesNoToast(result.message, () => {
-                    const fileRoute = `${route}/download`
+                    const fileRoute = `${route}/download`;
                     window.location.assign(fileRoute);
-                    kioskSuccessToast('Please check your download folder. It should contain the catalog file.');
-                }, () => {})
+                    kioskSuccessToast("Please check your download folder. It should contain the catalog file.");
+                }, () => {
+                });
             } else {
                 kioskErrorToast(`The Operation failed: ${result.message}`);
             }
         };
         job.onStopProgress = () => {
-            try {$("#transfer-catalog-waiting").remove()}catch{}
+            try {
+                $("#transfer-catalog-waiting").remove();
+            } catch {
+            }
             // try {$(".spinner").remove()}catch{}
         };
         job.onError = (err_msg) => {
-            waitForTransferCatalog.job = undefined
-            try {$("#transfer-catalog-waiting").remove()}catch{}
+            waitForTransferCatalog.job = undefined;
+            try {
+                $("#transfer-catalog-waiting").remove();
+            } catch {
+            }
             kioskErrorToast(`waitForTransferCatalog failed due to an error: ` + err_msg);
         };
         job.onInitProgress = () => {
@@ -117,16 +124,18 @@ function waitForTransferCatalog(job_uid, message, route) {
         };
         job.onProgress = (progress, message, topic) => {
             if (progress >= 100) {
-                try {$(".spinner").remove()}catch{}
+                try {
+                    $(".spinner").remove();
+                } catch {
+                }
             }
         };
         waitForTransferCatalog.job = job;
-        waitForTransferCatalog.job.connect(job_uid)
+        waitForTransferCatalog.job.connect(job_uid);
     } else {
-        kioskModalErrorToast(`<div>Sorry, some error made it impossible to start a job to wait for the transfer catalog.`)
+        kioskModalErrorToast(`<div>Sorry, some error made it impossible to start a job to wait for the transfer catalog.`);
     }
 }
-
 
 
 function init_bt_backup() {
@@ -517,6 +526,26 @@ function initAdministration() {
 
 }
 
+function copyNewPassword(el) {
+    if (el instanceof HTMLSpanElement) {
+        const text = el.innerText;
+        const passwordMatch = text.match(/(\S+)\.\s*$/);
+        if (passwordMatch) {
+            const password = passwordMatch[1];
+
+            // 3. Copy to clipboard
+            navigator.clipboard.writeText(password).then(() => {
+                kioskDeleteAllToasts()
+                const btn =document.getElementById("replace-me")
+                btn.outerHTML = "<span>on clipboard</span>"
+
+            }).catch(err => {
+                alert("Failed to copy! the password to the clipboard. You better select and copy it yourself. ");
+            });
+        }
+    }
+}
+
 function resetPassword() {
     let btn = $(this);
     let uid = btn.attr("uid");
@@ -525,11 +554,18 @@ function resetPassword() {
         "/administration/resetpassword",
         { "uid": uid },
         (json) => {
-            kioskSuccessToast(json.message,
+            kioskSuccessToast(`<span style="user-select:text;-moz-user-select: text" onclick="copyNewPassword(this)">${json.message}
+                                    <button class = "kiosk-btn-32">
+                                        <i class="mdi mdi-clipboard"></i>
+                                    </button>
+                                </span>`,
                 {
                     timeout: 0,
                 });
-            btn.replaceWith("<i class='mdi mdi-check' style='justify-self: center'></i>");
+            const newElement = document.createElement("span")
+            newElement.id = "replace-me"
+            newElement.innerText = "reset"
+            btn.replaceWith(newElement)
         },
         (err_code, json) => {
             if (json) {
@@ -555,7 +591,7 @@ function startBackupOrRestore(event = null) {
     if (event) {
         event.preventDefault();
     }
-    stopFetchingSystemMessages()
+    stopFetchingSystemMessages();
     kioskSendAjaxForm($("#bt-ok"),
         $("#dialog-ajax-part"),
         isBackup ? "/administration/backup" : "/administration/restore",
@@ -719,12 +755,12 @@ function startToServerTransfer(event = null) {
         event.preventDefault();
     }
     setModalDialogTitle("transfer in progress ...");
-    const dropAreaDivVisible = $("#drop-area-div").is(":visible")
+    const dropAreaDivVisible = $("#drop-area-div").is(":visible");
     if (dropAreaDivVisible) {
         kioskModalErrorToast(`<div>Please upload the online server's catalog file first.</div>`);
-        return
+        return;
     }
-    $("#drop-area-div").hide()
+    $("#drop-area-div").hide();
     kioskSendAjaxForm($("#bt-ok"),
         $("#dialog-ajax-part"),
         "/administration/transfer",

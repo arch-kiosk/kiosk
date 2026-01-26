@@ -188,7 +188,9 @@
                             <div>
                                 <button id="btn-reset-{{ u.uid }}" class="kiosk-btn-32 btn-reset-password"
                                         uid="{{ u.uid }}">
-                                    <i class="mdi mdi-account-convert"></i></button>
+                                    <i class="mdi mdi-account-convert" style="margin-right: 5px"></i><span>reset</span>
+                                </button>
+
                                 {% if u.must_change_pwd %}
                                     <i class='mdi mdi-check'></i>
                                 {% endif %}
