@@ -271,7 +271,7 @@ Another 175 tickets later and with the return of the archaeological projects fro
 here is the final Kiosk 2025 version for everyone. While most work went again into improving stability,
 convenience and supporting some special requests for field projects, there are a few noteworthy improvements:
 
-#### recording app
+#### Recording App
 - ❄️ Option to set team members to "inactive" so that you keep your team member selectors clean without deleting former members
 - ❄️ The warecode pottery interface got a thorough do-over. 
   - ❄️ Warecodes can be selected now in a popup window, 
