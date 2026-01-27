@@ -263,3 +263,32 @@ And these are the noteworthy improvements in Kiosk and the Recording App:
 #### **📍 Landing Page**
 Kiosk can now display a custom landing page after login (instead of the hub or file repository).
 The landing page supports large images, plans, text, and links to jump directly into the file repository or specific units in "Query and View."
+
+### 📣 Release Notes for Kiosk 1.7.35 📣
+✏️ As always: The release notes are best viewed on GitHub https://github.com/arch-kiosk/arch-kiosk-office/issues/1434
+
+Another 175 tickets later and with the return of the archaeological projects from their Winter Seasons,
+here is the final Kiosk 2025 version for everyone. While most work went again into improving stability,
+convenience and supporting some special requests for field projects, there are a few noteworthy improvements:
+
+#### recording app
+- ❄️ Option to set team members to "inactive" so that you keep your team member selectors clean without deleting former members
+- ❄️ The warecode pottery interface got a thorough do-over. 
+  - ❄️ Warecodes can be selected now in a popup window, 
+  - ❄️ The columns of the warecode interface can be customized and 
+  - ❄️ Warecode sherds can have a proper identifier according to your project's needs   
+- ❄️ You can now check several period entries when dating material and objects
+- ❄️ Clearing the value in a selection box got easier as now almost all selection boxes have a "-" that empties the field
+
+### Kiosk
+- ❄️ SVGs are now natively supported by the new deep-zoom file viewer
+- ❄️ The file viewer is available everywhere: Director's view, Query & View and the file repository
+- ❄️ In the file repository a new tag selector makes it much easier to work with a larger set of image tags
+  - ❄️ You can filter the tags themselves by listing them in the filter box separated by comma
+  - ❄️ You can remove a bunch of tags from the selector by prefixing the tag with a minus.
+- ❄️ When importing a file the original file name is kept for later reference.
+- ❄️ In query and view you can bookmark your favourite queries so that you don't have to find them time and again in the growing mess of queries
+- ❄️ Multi-season projects know that preparing docks gets longish and not only because of images. Some performance gains could be achieved with the new version. But it is a major topic for the 2026 summer projects - promised!
+
+🎥 Many of the improvements of the 2025 versions are quickly demonstrated in our "New in 2025" tutorial 
+that you can find here: https://sites.brown.edu/kiosk/videos/
