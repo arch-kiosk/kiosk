@@ -1,0 +1,17 @@
+#
+# Template EXT file to configure the certificate creation. This must be renameed to "v3.ext" before you can run
+# generate-cert.ps1
+#
+
+[EXT]
+authorityKeyIdentifier=keyid,issuer
+basicConstraints=CA:FALSE
+keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+subjectAltName = @alt_names
+
+#
+# This must be configured per project
+#
+[alt_names]
+DNS.1 = kiosk.lan
+IP.1 = 192.168.8.1
