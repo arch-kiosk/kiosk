@@ -6,9 +6,7 @@
 
     <style>
         body {
-            opacity: 0;
-            visibility: hidden;
-            /*transition: opacity 0.8s ease-in-out, visibility 0.8s;*/
+            display: None;
         }
     </style>
 
@@ -138,8 +136,8 @@
 {{ published_routes |safe }}
 <script type="text/javascript">
     setTimeout(() => {
-        document.getElementsByTagName("body")[0].style.opacity = 1;
-    }, 1000);
+        document.getElementsByTagName("body")[0].style.display = "block";
+    }, 500);
     var csrf_token = "{{ csrf_token() }}";
 
     $.ajaxSetup({

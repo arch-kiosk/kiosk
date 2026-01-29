@@ -1149,9 +1149,10 @@ def custom_css():
     else:
         original_css = ""
 
-    extra_css = """\nbody {
-        opacity: 1;
-        visibility: visible;}
+    extra_css = """\n
+    body {
+        display: block;
+        }
     """
     final_css = original_css + extra_css
 
