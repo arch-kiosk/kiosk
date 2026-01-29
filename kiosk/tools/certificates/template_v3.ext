@@ -1,17 +1,59 @@
 #
-# Template EXT file to configure the certificate creation. This must be renameed to "v3.ext" before you can run
-# generate-cert.ps1
+# Template EXT file to configure both the root ca creation and the certificate creation.
+# This must be renamed to "v3.ext" before you can run generate-cert.ps1
 #
 
-[EXT]
-authorityKeyIdentifier=keyid,issuer
-basicConstraints=CA:FALSE
-keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
-subjectAltName = @alt_names
+[ req ]
+# This tells OpenSSL to look at the 'DN_SECTION' variable we set in PowerShell
+distinguished_name = $ENV::DN_SECTION
+prompt             = no
 
+
+# --- Configure this for your root-ca ---
+[ ca_dn ]
+# Key,Full Name,Description,Example
+# required:
+# CN,Common Name,"The primary label for the CA. This is what shows up in your ""Trusted Root"" list.",Kiosk Local Root CA
+# C,Country,A 2-letter ISO country code.,"US, DE, CA"
+# optional:
+# O,Organization,The company or entity name.,Kiosk Development Group
+# OU,Organizational Unit, Engineering Department
+# ST,State / Province, RI
+# L,Locality,The city or town.,Providence
+
+C  = US
+CN = Kiosk Local Root CA
+
+# --- Add this for the Server identity ---
+[ server_dn ]
+# required:
+# C            = US
+# CN           = kiosk.lan (for legacy reasons this should match your DNS.1 under [ alt_names ]
 #
-# This must be configured per project
-#
-[alt_names]
+# optional:
+# ST           = Rhode Island
+# L            = Providence
+# O            = Kiosk Development Group
+# OU           = Engineering Department
+# emailAddress = kiosk-team@brown.edu
+
+C  = US
+CN = kiosk.lan
+
+[ v3_ca ]
+basicConstraints = critical, CA:TRUE
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+subjectKeyIdentifier = hash
+
+[ v3_server ]
+authorityKeyIdentifier = keyid,issuer
+basicConstraints       = CA:FALSE
+keyUsage               = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+subjectAltName         = @alt_names
+
+# List the DNS and IP addresses that this certificate is certifying here:
+# The examples here are what we use by default when we use an Opal router.
+[ alt_names ]
 DNS.1 = kiosk.lan
+DNS.2 = kiosk.local
 IP.1 = 192.168.8.1
