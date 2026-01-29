@@ -3,7 +3,16 @@
 <head>
     <meta name="robots" content="noindex">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}?v=1"/>
+
+    <style>
+        body {
+            opacity: 0;
+            visibility: hidden;
+            /*transition: opacity 0.8s ease-in-out, visibility 0.8s;*/
+        }
+    </style>
+
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='styles.css') }}?v=1" />
 
 
     <link rel="apple-touch-icon" sizes="180x180"
@@ -21,9 +30,15 @@
     {% endblock %}
     <script src="{{ url_for('static', filename='scripts/thirdparty/jquery-3.7.1.min.js') }}"></script>
     <script src="{{ url_for('static', filename='scripts/urap_lib.js') }}"></script>
-    <script src="{{ url_for('static', filename='scripts/kioskjslib.exports.js') }}?v={{ "kiosk_version"|jinja_fake_version }}" type="module"></script>
-    <script src="{{ url_for('static', filename='scripts/kioskapiutils.js') }}?v={{ "kiosk_version"|jinja_fake_version }}" type="module"></script>
-    <script src="{{ url_for('static', filename='scripts/kioskuicomponents.js') }}?v={{ "kiosk_version"|jinja_fake_version }}" type="module"></script>
+    <script
+        src="{{ url_for('static', filename='scripts/kioskjslib.exports.js') }}?v={{ "kiosk_version"|jinja_fake_version }}"
+        type="module"></script>
+    <script
+        src="{{ url_for('static', filename='scripts/kioskapiutils.js') }}?v={{ "kiosk_version"|jinja_fake_version }}"
+        type="module"></script>
+    <script
+        src="{{ url_for('static', filename='scripts/kioskuicomponents.js') }}?v={{ "kiosk_version"|jinja_fake_version }}"
+        type="module"></script>
     <script>
         //this is a Polymer hack to address "DOMException: Failed to execute 'define' on 'CustomElementRegistry'" "
         //It makes sure that the custom element 'dom-module' does not get registered again.
@@ -32,13 +47,13 @@
         const _customElementsDefine = window.customElements.define;
         window.customElements.define;
         window.customElements.define = (name, cl, conf) => {
-                if (name !== "dom-module" || !customElements.get(name)) {
-                    if (customElements.get(name)) {
-                        console.error(`Attempt to register custom Element again prevented by Kiosk: ${name}`)
-                    } else {
-                        _customElementsDefine.call(window.customElements, name, cl, conf);
-                    }
+            if (name !== "dom-module" || !customElements.get(name)) {
+                if (customElements.get(name)) {
+                    console.error(`Attempt to register custom Element again prevented by Kiosk: ${name}`);
+                } else {
+                    _customElementsDefine.call(window.customElements, name, cl, conf);
                 }
+            }
         };
     </script>
     <!--<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro:600,700|Roboto|Ceviche+One|Cutive+Mono|Dosis|Noto+Sans|Ubuntu"
@@ -114,24 +129,29 @@
     </div>
 </div>
 
-<script src="{{ url_for('static', filename='scripts/kiosk_main.js') }}?v={{ "kiosk_version"|jinja_fake_version }}"></script>
+<script
+    src="{{ url_for('static', filename='scripts/kiosk_main.js') }}?v={{ "kiosk_version"|jinja_fake_version }}"></script>
 
 
 {{ global_sync_scripts |safe }}
 {{ global_async_scripts |safe }}
 {{ published_routes |safe }}
 <script type="text/javascript">
+    setTimeout(() => {
+        document.getElementsByTagName("body")[0].style.opacity = 1;
+    }, 1000);
     var csrf_token = "{{ csrf_token() }}";
 
     $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
+        beforeSend: function(xhr, settings) {
             if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
                 xhr.setRequestHeader("X-CSRFToken", csrf_token);
             }
-        }
+        },
     });
 </script>
 <!-- the custom css must always win, so it comes last! -->
-<link rel=stylesheet type=text/css href="{{ url_for('custom_file', filename="css/" + project_id + '.css') }}?v={{ "kiosk_version"|jinja_fake_version }}"/>
+<link rel=stylesheet type=text/css
+      href="{{ url_for('custom_css') }}?v={{ "kiosk_version"|jinja_fake_version }}" />
 </body>
 </html>

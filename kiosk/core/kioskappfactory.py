@@ -82,7 +82,7 @@ werkzeug.cached_property = werkzeug.utils.cached_property
 
 from appfactory import AppFactory
 from flask import redirect, url_for, request, jsonify, abort, render_template, g, Blueprint, cli
-from flask.helpers import send_from_directory
+from flask.helpers import send_from_directory, make_response
 from flask_admin import Admin
 from flaskapppluginmanager import FlaskAppPluginManager
 from pluggableflaskapp import PluggableFlaskApp, current_app
@@ -109,14 +109,15 @@ from kiosksqldb import KioskSQLDb
 from fileidentifiercache import FileIdentifierCache
 
 from api import register_api as register_kiosk_apis
+import mimetypes
 
 
 class NotModified(HTTPException):
     code = 304
     description = '<p>The requested resource has not been modified.</p>'
 
-def create_app(root_path, config_id):
 
+def create_app(root_path, config_id):
     # This should not be necessary and has never been except one day on meritaten.
     # perhaps one day I find out why.
     static_folder = os.path.join(root_path, "static")
@@ -618,6 +619,15 @@ class KioskAppFactory(AppFactory):
         # resp.headers.add('Access-Control-Allow-Origin', '*')
         # resp.headers.add('Access-Control-Allow-Headers', 'Content-Type, X-Token')
         # resp.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
+        if request.path.endswith('.svg'):
+            # 1. Fix the 'NS_BINDING_ABORTED' by defining the type
+            resp.headers['Content-Type'] = 'image/svg+xml'
+            resp.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+
+        if 'Cache-Control' not in resp.headers:
+            # 1 year in seconds = 31536000
+            resp.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+
         if kioskglobals.get_development_option("print_raw_requests") == "true":
             resp_data = cls.save_response(resp)
             pprint(resp_data)
@@ -662,6 +672,7 @@ class KioskAppFactory(AppFactory):
         app.add_url_rule('/refresh', "refresh_config", refresh_config)
         app.add_url_rule('/<path:filename>', "rootfile", root_file)
         app.add_url_rule('/custom_file/<path:filename>', "custom_file", custom_file)
+        app.add_url_rule('/custom_css', "custom_css", custom_css)
         app.add_url_rule('/urap_progress', "urap_progress", get_progress, methods=['POST'])
         app.add_url_rule('/kiosk_progress', "kiosk_progress", get_progress, methods=['POST'])
         # app.add_url_rule('/job_progress', "job_progress", job_progress, methods=['POST'])
@@ -1110,6 +1121,7 @@ def custom_file(filename):
     folder to the browser.
     """
 
+    cache_timeout = None
     custom_static_path = os.path.join(kioskglobals.cfg.get_custom_kiosk_modules_path(),
                                       f"{kioskglobals.cfg.get_project_id()}")
     if current_app.config["SEND_FILE_MAX_AGE_DEFAULT"]:
@@ -1118,10 +1130,42 @@ def custom_file(filename):
                 datetime.timedelta(current_app.config["SEND_FILE_MAX_AGE_DEFAULT"]))
         else:
             logging.error(f"kioskappfactory.custom_file: SEND_FILE_MAX_AGE_DEFAULT not an int")
-    else:
-        cache_timeout = None
     return send_from_directory(custom_static_path, filename,
                                max_age=cache_timeout)
+
+
+def custom_css():
+    """Function used to send the custom .css.
+    """
+    cfg = kioskglobals.get_config()
+    custom_static_path = cfg.custom_path
+    filename = "css/" + cfg.get_project_id() + '.css'
+    print(custom_static_path, filename)
+    cache_timeout = None
+    file_path_and_name = os.path.join(custom_static_path, filename)
+    if kioskstdlib.file_exists(file_path_and_name):
+        with open(file_path_and_name, 'r') as f:
+            original_css = f.read()
+    else:
+        original_css = ""
+
+    extra_css = """\nbody {
+        opacity: 1;
+        visibility: visible;}
+    """
+    final_css = original_css + extra_css
+
+    response = make_response(final_css)
+    response.headers['Content-Type'] = 'text/css'
+    if current_app.config["SEND_FILE_MAX_AGE_DEFAULT"]:
+        if isinstance(current_app.config["SEND_FILE_MAX_AGE_DEFAULT"], int):
+            cache_timeout = datetime.timedelta.total_seconds(
+                datetime.timedelta(current_app.config["SEND_FILE_MAX_AGE_DEFAULT"]))
+        else:
+            logging.error(f"kioskappfactory.custom_file: SEND_FILE_MAX_AGE_DEFAULT not an int")
+    response.cache_control.max_age = cache_timeout
+    response.cache_control.public = True
+    return response
 
 
 def root_file(filename):
@@ -1342,4 +1386,3 @@ def handle_emergency_error(e):
                                global_constants=global_constants), 500
     except Exception as e2:
         return kioskstdlib.get_absolute_emergency_html(e.description, repr(e2))
-
