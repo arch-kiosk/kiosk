@@ -330,6 +330,16 @@ class SyncConfig(Config):
             if self._log_warnings:
                 logging.warning(f"No custom sync module path defined. Defaulting to {self.custom_sync_modules}")
 
+        if "cert_path" in self.config:
+            self.config["cert_path"] = self.resolve_symbols(self.config["cert_path"])
+        else:
+            self.config["cert_path"] = os.path.join(self.base_path, "cert")
+
+        if "root_ca_file" in self.config:
+            self.config["root_ca_file"] = self.resolve_symbols(self.config["root_ca_file"])
+        else:
+            self.config["root_ca_file"] = os.path.join(self.config["cert_path"],"kioskca.crt")
+
         if "use_double_commit" in self.config:
             self.use_double_commit = bool(self.config["use_double_commit"])
         else:
@@ -626,13 +636,11 @@ class SyncConfig(Config):
 
     @property
     def cert_path(self):
-        return self.config["cert_path"] if "cert_path" in self.config else os.path.join(self.base_path, "cert")
+        return self.config["cert_path"]
 
     @property
     def root_ca_file(self):
-        return self.config["root_ca_file"] if "root_ca_file" in self.config else os.path.join(self.base_path,
-                                                                                                      "cert",
-                                                                                                      "kioskca.crt")
+        return self.config["root_ca_file"]
 
     @property
     def custom_path(self):
