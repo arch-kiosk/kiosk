@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+    <meta name="robots" content="noindex">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel=stylesheet type=text/css href="{{ url_for('static', filename='publickioskstyles.css') }}?v=1"/>
+
+
+    <link rel="apple-touch-icon" sizes="180x180"
+          href="{{ url_for('static', filename='assets/images/favicon/apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32"
+          href="{{ url_for('static', filename='assets/images/favicon/favicon-32x32.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/images/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/static/assets/images/favicon/site.webmanifest">
+    <link rel="shortcut icon" href="/static/assets/images/favicon/favicon.ico">
+    <meta name="msapplication-TileColor" content="#2b5797">
+    <meta name="msapplication-config" content="/static/assets/images/favicon/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+    {% block links %}
+    {% endblock %}
+</head>
+{#{% block title %}#}
+{#  <div id="subtitle-shadow">Kiosk</div>#}
+{#  <div id="subtitle">Login</div>#}
+{#{% endblock %}#}
+<div id="pk-header">
+    <div id="logo">
+        <div id="img" class="full-height"></div>
+    </div>
+</div>
+{% block body %}
+{% endblock %}
+</html>
+

@@ -1,0 +1,36 @@
+{% extends "publickioskbasics.html" %}
+
+{% block body %}
+    <body>
+    <div id="pk-main-title">
+        <h1>Welcome!</h1>
+    </div>
+    <div class="pk-content">
+        <div class="pk-content-inner">
+            <div class="pk-instruction-text">
+                You navigated to a local Kiosk using "http". That means, you are accessing it via what is presumed to be
+                an
+                insecure line for browsers and operating system. That makes browsers suspicious even in a local network
+                and
+                as a result Kiosk can be awkward to use and even limited in its functionality. <br />
+            </div>
+            <div class="pk-instruction-text">
+                To access Kiosk properly you need to call it via a secure line, and that only works
+                if you have installed a "Certificate Authority" (CA) in the depth of your operating system once per device.
+                If you have not done so, yet, please go to the setup page and follow the instructions:
+                 <a href="{{ url_for("setup") }}">Setup Certificate Authority</a>.<br/>
+            </div>
+            <div class="pk-instruction-text">
+                If you have already installed the CA properly, you can continue to the secure
+                <a href="{{ https_link }}">{{ https_link }}</a>
+                (<i class="fas fa-lightbulb"></i><span>Bookmark that page in your browser so that you don't have to type the awkward "https" all the time.</span>).
+            </div>
+        </div>
+    </div>
+    </body>
+{% endblock %}
+<script>
+
+</script>
+//# sourceURL=public_kiosk_index.js
+

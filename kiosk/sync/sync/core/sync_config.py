@@ -342,8 +342,6 @@ class SyncConfig(Config):
             #     logging.warning("No sql script to build the file-identifier cache given!")
             self.file_identifier_cache_sql = ""
 
-
-
         return not fatal_error
 
     def get_configfile(self):
@@ -625,6 +623,16 @@ class SyncConfig(Config):
             return kioskstdlib.try_get_dict_entry(self.config, "fic_types", None)
         except BaseException as e:
             return None
+
+    @property
+    def cert_path(self):
+        return self.config["cert_path"] if "cert_path" in self.config else os.path.join(self.base_path, "cert")
+
+    @property
+    def root_ca_file(self):
+        return self.config["root_ca_file"] if "root_ca_file" in self.config else os.path.join(self.base_path,
+                                                                                                      "cert",
+                                                                                                      "kioskca.crt")
 
     @property
     def custom_path(self):

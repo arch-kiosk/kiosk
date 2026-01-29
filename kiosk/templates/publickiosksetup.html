@@ -1,0 +1,206 @@
+{% extends "publickioskbasics.html" %}
+
+{% block body %}
+    <div id="pk-main-title">
+        <h1>Install the Kiosk Certificate Authority</h1>
+    </div>
+    <div class="pk-content">
+        <div class="pk-content-inner">
+            <h2>What is this Kiosk CA?</h2>
+            <div class="pk-instruction-text">
+                The Kiosk CA certifies that the local Kiosk Server is who it pretends to be. For it to be effective
+                it needs to be installed into your operating system or / and Browser. Don't worry this is only
+                necessary once per device and then again in about 10 years. <br />
+            </div>
+            <h2>How to install the Kiosk CA</h2>
+            <div class="pk-instruction-text">
+                How you install the Kiosk CA depends on the operating system and browser you are using.
+                However, you must open this page here with each device on which you want to install the CA.
+                <br/>On each device follow the instructions depending on operating system:
+                <div id="sections" style="margin-top:.5rem">
+                    <div class="os-section">
+                        <details>
+                            <ol>
+                                <li>Download the Kiosk CA by clicking here: <a href="{{ url_for('kioskca') }}">
+                                    <i class="fas fa-lock"></i>Kiosk CA</a></li>
+                                <li>Open the file "kioskca.crt" in your downloads (ctrl+J opens your downloads)</li>
+                                <li>Depending on your browser you will get a couple of warnings that it is an
+                                    executable file (well, it isn't really), you might be ask again if you really
+                                    want to open the file. Confirm all if it until you get to this screen:<br>
+                                    <span style="display:block;text-align:center;margin-top:1rem">
+                                        <img style="height: 300px" src="static/assets/images/publickiosk/win-1.png">
+                                    </span>
+                                </li>
+                                <li>Hit "Install Certificate" and in the next step choose "local machine" if you can
+                                    (you will be asked to permit RunDll32 to make changes to your computer).</li>
+                                <li>After that you find yourself here: <br>
+                                    <span style="display:block;text-align:center;margin-top:1rem">
+                                        <img style="height: 300px" src="static/assets/images/publickiosk/win-2.png">
+                                    </span>
+                                    <span>Choose "Place all certificates in the following store" and hit the
+                                        browse button.</span>
+                                </li>
+                                <li>Select "Trusted Root Certificate Authorities" from the list like so:<br>
+                                    <span style="display:block;text-align:center;margin-top:1rem">
+                                        <img src="static/assets/images/publickiosk/win-3.png">
+                                    </span>
+                                    Hit Ok. And then Next.
+                                </li>
+                                <li>You get a summary page that should look like this:<br>
+                                    <span style="display:block;text-align:center;margin-top:1rem">
+                                        <img style="height: 350px" src="static/assets/images/publickiosk/win-4.png">
+                                    </span>
+                                    Hit "Finish" and you should get a little "The import was successful" as a reward.<br>
+                                </li>
+                                <li>You can close the open certificate and everything else left over from the process.
+                                    Now you can go to the secure Kiosk under
+                                    <a href="{{ https_link }}">
+                                        <i class="fas fa-lock"></i>{{ https_link }}</a>
+
+                                </li>
+                                <li>You should get to the Kiosk login page and up in the address-bar find a little
+                                    <img style="height:25px;vertical-align:middle" src="static/assets/images/publickiosk/win-lock.png"> left of the address. Success!</li>
+
+                            </ol>
+                            <summary><span class="os-section-header">Windows</span></summary>
+                        </details>
+                    </div>
+                    <div class="os-section">
+                        <details>
+                            <summary><span class="os-section-header">iOS</span></summary>
+                            <ol>
+                                <li>Download the Kiosk CA by clicking here: <a href="{{ url_for('kioskca') }}">
+                                    <i class="fas fa-lock"></i>Kiosk CA</a></li>
+                                <li>
+                                 Open the file: Tap on the file. You will see a notification saying: "Profile Downloaded — Review the profile in Settings app if you want to install it."
+                                </li>
+                                <li>
+                                 Go to Settings: Open the Settings app.
+                                </li>
+                                <li>
+                                 Tap "Profile Downloaded": This usually appears near the top of the main Settings menu. (If you don't see it, go to General > VPN & Device Management).
+                                </li>
+                                <li>
+                                 Install: Tap Install in the top right corner, enter your passcode, and confirm by tapping Install again.
+                                </li>
+                            </ol>
+                            <div style="margin: 1em 0">At this point the certificate is known to the device,
+                                but iOS does not trust it for website encryption yet. To achieve this a few more steps are necessary:</div>
+                            <ol>
+                                <li>Open Settings.</li>
+                                <li>Go to General.</li>
+                                <li>Tap About (At the very top).</li>
+                                <li>Scroll to the bottom and tap Certificate Trust Settings.</li>
+                                <li>Under "Enable full trust for root certificates," find your CA (e.g., MyKioskRootCA).</li>
+                                <li>Toggle the switch ON and tap Continue to confirm.</li>
+                                <li>You can go back to the browser and navigate to
+                                    <a href="{{ https_link }}">
+                                        <i class="fas fa-lock"></i>{{ https_link }}</a>
+                                    without any warnings. Success!
+                                </li>
+                            </ol>
+                        </details>
+                    </div>
+                    <div class="os-section">
+                        <details>
+                            <summary><span class="os-section-header">macOS</span></summary>
+                            <ol>
+                                <li>Download the Kiosk CA by clicking here: <a href="{{ url_for('kioskca') }}">
+                                    <i class="fas fa-lock"></i>Kiosk CA</a></li>
+                                <li>
+                                 Open your Downloads folder in Finder.
+                                </li>
+                                <li>
+                                 Double-click on the downloaded file.
+                                </li>
+                                <li>
+                                 macOS will automatically open the KeyChain Access app.
+                                </li>
+                                <li>
+                                 You'll be asked where you want to add the certificate.
+                                </li>
+                                <li>
+                                 Crucial: Change the dropdown menu from "login" to "System"
+                                </li>
+                                <li>
+                                 Click Add and enter your MacPassword to authorize the change.
+                                </li>
+                            </ol>
+                            <div style="margin: 1em 0">At this point the certificate is known to the device,
+                                but macOS does not trust it for website encryption yet. To achieve this a few more steps are necessary:</div>
+                            <ol>
+                                <li>In the Keychain Access window, make sure System is selected in the left sidebar and Certificates is selected at the top.</li>
+                                <li>Find your certificate (e.g., MyKioskRootCA) in the list. It will likely have a red X icon.</li>
+                                <li>Double-click it to open the info window.</li>
+                                <li>Click the Trust arrow to expand that section.</li>
+                                <li>Set "When using this certificate" to Always Trust.</li>
+                                <li>Close the certificate info window (the red dot in the top-left).</li>
+                                <li>A final popup will ask for your password to "modify the System Trust Settings. Authorize and click Update Settings</li>
+                                <li>You can go back to the browser and navigate to
+                                    <a href="{{ https_link }}">
+                                        <i class="fas fa-lock"></i>{{ https_link }}</a>
+                                    without any warnings. Success!
+                                </li>
+                            </ol>
+                        </details>
+                    </div>
+                    <div class="os-section">
+                        <details>
+                            <summary><span class="os-section-header">Android</span></summary>
+                            <ol>
+                                <li>Download the Kiosk CA by clicking here: <a href="{{ url_for('kioskca') }}">
+                                    <i class="fas fa-lock"></i>Kiosk CA</a></li>
+                                <li>
+                                 Open Settings.
+                                </li>
+                                <li>
+                                 Go to Security & Privacy (on some devices it’s "Security" or "Biometrics and Security").
+                                </li>
+                                <li>
+                                 Tap More Security Settings (at the bottom).
+                                </li>
+                                <li>
+                                 IF you have "Encryption & Credentials", tap it. <br>
+                                 Alternatively you might have a section "Credential storage" with an option "Install from device storage". Tap that one.
+                                </li>
+                                <li>
+                                 Select "CA Certificate". Now Android will try to scare you away from that option. Install anyway!
+                                </li>
+                                <li>
+                                 Locate the file you downloaded in your Downloads folder and confirm the installation.
+                                </li>
+                                <li>You can go back to the browser (Chrome!) and navigate to
+                                    <a href="{{ https_link }}">
+                                        <i class="fas fa-lock"></i>{{ https_link }}</a>
+                                    without any warnings. Success!
+                                </li>
+                            </ol>
+                                <div style="margin: 1em 0">if you use FireFox on Android, you must first install the CA Certificate as described above.
+                                Then you start FireFox and get ready for something really weird:</div>
+                            <ol>
+                                <li>Tap the three dots (⋮) and go to Settings.</li>
+                                <li>Scroll down until you find "About Firefox". Tap it.</li>
+                                <li>Now comes the weirdness: Tap the FireFox Logo 5 times in a row. This unlocks the "secret settings" </li>
+                                <li>Go back to the main Settings page</li>
+                                <li>A new menu item called "Secret Settings" is available. Tap it.</li>
+                                <li>Find the toggle for Use third party CA certificates and turn it ON.</li>
+                                <li>Leave the settings and now your can navigate to
+                                    <a href="{{ https_link }}">
+                                        <i class="fas fa-lock"></i>{{ https_link }}</a>
+                                    without any problems. Success! (But you might have to do that part
+                                    after the next FireFox update again)
+                                </li>
+
+
+                            </ol>
+                        </details>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}
+<script>
+
+</script>
+//# sourceURL=public_kiosk_index.js
+

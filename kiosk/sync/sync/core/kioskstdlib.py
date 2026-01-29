@@ -59,6 +59,7 @@ format_translations = {"jpg": ("JPEG", "jpg"),
                        "raw": ("tiff", "tif"),
                        }
 
+
 def get_first_matching_file(filespath, identifier, prefix="", postfix="", wildcard="*"):
     """
     Finds the first file in a path that matches prefix+identifier+postfix+".*".
@@ -102,7 +103,7 @@ def find_files(filepath, file_pattern, exclude_file="", include_path=True, order
             file_ages = {}
             for f in files:
                 file_ages[f] = get_file_date_since_epoch(f if include_path else os.path.join(filepath, f),
-                                                                     use_most_recent_date=False)
+                                                         use_most_recent_date=False)
 
             files.sort(key=lambda x: file_ages[x], reverse=order_desc)
 
@@ -590,8 +591,6 @@ def check_uuid(uuid_to_test, version=4, accept_filemaker_too=False):
         return False
 
 
-
-
 def get_regex_group_or_default(rgx, grp_name, default):
     d = rgx.groupdict()
     if grp_name in d:
@@ -836,8 +835,6 @@ def load_custom_module(config, module_name, subsystem="SYNC", method="PREFIX", f
     else:
         logging.error(f"load_custom_module: Unknown parameter subsystem={subsystem}")
     return None
-
-
 
 
 def get_relative_path(filemaker_path, p):
@@ -1265,10 +1262,11 @@ def set_file_date_and_time(path_and_filename: str, dt: datetime.datetime):
     :return: None
     """
     if os.name == 'nt':
-        set_file_datetimes_win(path_and_filename, [dt,dt,dt])
+        set_file_datetimes_win(path_and_filename, [dt, dt, dt])
     else:
         dt_epoch = dt.timestamp()
         os.utime(path_and_filename, (dt_epoch, dt_epoch))
+
 
 def is_windows() -> bool:
     """
@@ -1284,12 +1282,14 @@ def is_windows() -> bool:
     import platform
     return platform.system() == 'Windows'
 
-def get_file_datetimes( filePath ):
-    return ( os.path.getctime( filePath ),
-         os.path.getmtime( filePath ),
-         os.path.getatime( filePath ) )
 
-def set_file_datetimes_win(path_and_filename: str, datetimes: List[datetime.datetime])->bool:
+def get_file_datetimes(filePath):
+    return (os.path.getctime(filePath),
+            os.path.getmtime(filePath),
+            os.path.getatime(filePath))
+
+
+def set_file_datetimes_win(path_and_filename: str, datetimes: List[datetime.datetime]) -> bool:
     """
     Sets the creation, modification, and access times for a given file on Windows
     systems. This function accepts datetime objects and converts them to the
@@ -1308,18 +1308,18 @@ def set_file_datetimes_win(path_and_filename: str, datetimes: List[datetime.date
     :return: boolean
     """
 
-    try :
+    try:
         if os.name == 'nt':
             ctime = datetimes[0]
             mtime = datetimes[1]
             atime = datetimes[2]
             # handle datetime.datetime parameters
-            if isinstance( ctime, datetime.datetime ) :
-                ctime = time.mktime( ctime.timetuple() )
-            if isinstance( mtime, datetime.datetime ) :
-                mtime = time.mktime( mtime.timetuple() )
-            if isinstance( atime, datetime.datetime ) :
-                atime = time.mktime( atime.timetuple() )
+            if isinstance(ctime, datetime.datetime):
+                ctime = time.mktime(ctime.timetuple())
+            if isinstance(mtime, datetime.datetime):
+                mtime = time.mktime(mtime.timetuple())
+            if isinstance(atime, datetime.datetime):
+                atime = time.mktime(atime.timetuple())
             # # adjust for day light savings
             # now = time.localtime()
             # ctime += 3600 * (now.tm_isdst - time.localtime(ctime).tm_isdst)
@@ -1331,7 +1331,7 @@ def set_file_datetimes_win(path_and_filename: str, datetimes: List[datetime.date
                 win32con.FILE_SHARE_READ | win32con.FILE_SHARE_WRITE | win32con.FILE_SHARE_DELETE,
                 None, win32con.OPEN_EXISTING,
                 win32con.FILE_ATTRIBUTE_NORMAL, None)
-            win32file.SetFileTime( winfile, Time(ctime), Time(atime), Time(mtime) )
+            win32file.SetFileTime(winfile, Time(ctime), Time(atime), Time(mtime))
             winfile.close()
             return True
         else:
@@ -1340,6 +1340,7 @@ def set_file_datetimes_win(path_and_filename: str, datetimes: List[datetime.date
     except BaseException as e:
         logging.error(f"kioskstdlib.set_file_datetimes_win: {repr(e)}")
     return False
+
 
 def remove_kiosk_subtree(dir_to_remove: str, base_path: str = "", delay=0) -> None:
     """
@@ -1726,6 +1727,7 @@ def load_python_module(source, module_name):
 
     return module
 
+
 def get_kiosk_version_from_file(kiosk_version_file_path):
     """
         retrieves the Kiosk version from the file "kiosk.version" in the root directory of Kiosk.
@@ -1733,6 +1735,7 @@ def get_kiosk_version_from_file(kiosk_version_file_path):
         todo: Not implemented, yet.
     """
     raise NotImplementedError
+
 
 def start_python_subprocess(python_script, parameters, working_directory=None):
     """
@@ -1774,6 +1777,7 @@ def start_python_subprocess(python_script, parameters, working_directory=None):
                   f"Error running {cmdline_str}: {repr(e)}."
         raise Exception(err_msg)
 
+
 def substract_leading_list(main_list, filter_list):
     start_element = 0
     for index, el in enumerate(filter_list):
@@ -1806,3 +1810,49 @@ def get_nested_dict_value_by_path(constants_dict, path_segments):
         return None
 
     return current_val
+
+
+def get_absolute_emergency_html(err_description="Unknown Error", err_2=""):
+    err_2_if_exists = f"""<h2>the reason why even the emergency mode failed to display:</h2>
+                           <p>{err_2}</p>""" if err_2 else ""
+
+    return f"""
+                <html>
+                    <head>
+                          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                          <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/images/favicon/favicon-16x16.png">
+                          <link rel="manifest" href="/static/assets/images/favicon/site.webmanifest">
+                          <link rel="shortcut icon" href="/static/assets/images/favicon/favicon.ico">
+                          <meta name="msapplication-TileColor" content="#2b5797">
+                          <meta name="msapplication-config" content="/static/assets/images/favicon/browserconfig.xml">
+                          <meta name="theme-color" content="#ffffff">
+                          <style>
+                            body {{
+                                background: darkblue;
+                                font-family: monospace;
+                                color: yellow;
+                                margin: 0px;
+                                border: 0px;
+                                padding: 0px;
+                                box-sizing: border-box;
+                                width: 100%;
+                                height: 100%;
+                            }}
+                            h1 {{font-size: 36px; text-align: center}}
+                            h2 {{margin-top: 2em; font-size: 28px; text-align: center}}
+                            p {{font-family: sans-serif; font-size: 22px; color: white; text-align: center}}
+                            .message {{margin: 0 auto 0 auto; position: absolute; top: 50%;
+                            transform: translateY(-50%);width: 100%; box-sizing: border-box}}  
+                          </style>
+                    </head>
+                    <body>
+                        <div class="message">
+                           <h1>Right now, kiosk can't do anything. <br/>Not even show an error message properly.</h1>
+                           <h2>The original error message was:</h2>
+                           <p>{err_description}</p>
+                           {err_2_if_exists}
+                           <h2>Please consult your administrator right away.</h2>
+                        </div>
+                    </body>
+                </html>
+                """

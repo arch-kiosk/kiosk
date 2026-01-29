@@ -2,6 +2,8 @@ apispec
 apispec-flask-restful
 blinker
 blessed
+cheroot
+cryptography
 Flask
 Werkzeug
 Flask-Admin

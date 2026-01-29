@@ -81,7 +81,7 @@ werkzeug.cached_property = werkzeug.utils.cached_property
 # ##########
 
 from appfactory import AppFactory
-from flask import redirect, url_for, request, jsonify, abort, render_template, g, Blueprint
+from flask import redirect, url_for, request, jsonify, abort, render_template, g, Blueprint, cli
 from flask.helpers import send_from_directory
 from flask_admin import Admin
 from flaskapppluginmanager import FlaskAppPluginManager
@@ -114,6 +114,14 @@ from api import register_api as register_kiosk_apis
 class NotModified(HTTPException):
     code = 304
     description = '<p>The requested resource has not been modified.</p>'
+
+def create_app(root_path, config_id):
+
+    # This should not be necessary and has never been except one day on meritaten.
+    # perhaps one day I find out why.
+    static_folder = os.path.join(root_path, "static")
+    kiosk_app = KioskAppFactory.create_app(r"{0}\config\kiosk_config.yml".format(root_path), root_path=root_path)
+    return kiosk_app
 
 
 class KioskAppFactory(AppFactory):
@@ -289,6 +297,14 @@ class KioskAppFactory(AppFactory):
         app.config.from_object(cls.FlaskConfigObject(cls.cfg["Flask"]))
         app.register_event_manager(EventManager())
         app.register_plugin_manager(plugin_manager)
+
+        def fix_cache_for_cheroot(filename):
+            if filename.endswith(('.css', '.js', '.png', '.jpg', '.woff2')):
+                return 31536000  # 1 year
+            return 0  # Don't cache HTML or other files
+
+        app.get_send_file_max_age = fix_cache_for_cheroot
+
         if hasattr(app, "before_first_request_funcs"):
             # Flask < 2.3.0
             app.before_first_request_funcs.append(cls._before_first_request)
@@ -1325,48 +1341,5 @@ def handle_emergency_error(e):
                                project_id=project_id,
                                global_constants=global_constants), 500
     except Exception as e2:
-        return f"""
-            <html>
-                <head>
-                      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                      <link rel="apple-touch-icon" sizes="180x180"
-                            href="{{ url_for('static', filename='assets/images/favicon/apple-touch-icon.png') }}">
-                      <link rel="icon" type="image/png" sizes="32x32"
-                            href="{{ url_for('static', filename='assets/images/favicon/favicon-32x32.png') }}">
-                      <link rel="icon" type="image/png" sizes="16x16" href="/static/assets/images/favicon/favicon-16x16.png">
-                      <link rel="manifest" href="/static/assets/images/favicon/site.webmanifest">
-                      <link rel="shortcut icon" href="/static/assets/images/favicon/favicon.ico">
-                      <meta name="msapplication-TileColor" content="#2b5797">
-                      <meta name="msapplication-config" content="/static/assets/images/favicon/browserconfig.xml">
-                      <meta name="theme-color" content="#ffffff">
-                      <style>
-                        body {{
-                            background: darkblue;
-                            font-family: monospace;
-                            color: yellow;
-                            margin: 0px;
-                            border: 0px;
-                            padding: 0px;
-                            box-sizing: border-box;
-                            width: 100%;
-                            height: 100%;
-                        }}
-                        h1 {{font-size: 36px; text-align: center}}
-                        h2 {{margin-top: 2em; font-size: 28px; text-align: center}}
-                        p {{font-family: sans-serif; font-size: 22px; color: white; text-align: center}}
-                        .message {{margin: 0 auto 0 auto; position: absolute; top: 50%;
-                        transform: translateY(-50%);width: 100%; box-sizing: border-box}}  
-                      </style>
-                </head>
-                <body>
-                    <div class="message">
-                       <h1>Right now, kiosk can't do anything. <br/>Not even show an error message properly.</h1>
-                       <h2>The original error message was:</h2>
-                       <p>{e.description}</p>
-                       <h2>the reason why even the emergency mode failed to display:</h2>
-                       <p>{repr(e2)}</p>
-                       <h2>Please consult your administrator right away.</h2>
-                    </div>
-                </body>
-            </html>
-            """
+        return kioskstdlib.get_absolute_emergency_html(e.description, repr(e2))
+
