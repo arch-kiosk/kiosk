@@ -2,83 +2,76 @@ import os
 import argparse
 import sys
 import logging
-from sync.core.packdirectory import pack_directory
+from packdirectory import pack_directory
+
+# These rules are enforced regardless of what is in the local .packignore files.
+# Adding trailing slashes to directories triggers the high-speed pruning logic.
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Pack a directory into a ZIP while respecting .packignore rules."
+        description="Pack a directory into a ZIP while respecting .packignore and mandatory rules."
     )
 
-    # 1. Required: Source Directory
-    parser.add_argument(
-        "source",
-        help="The root directory to pack (where .packignore lives)"
-    )
+    parser.add_argument("source", help="The root directory to pack")
+    parser.add_argument("output", help="The path for the resulting ZIP file")
 
-    # 2. Required: Output Path
-    parser.add_argument(
-        "output",
-        help="The path for the resulting ZIP file (e.g., backup.zip)"
-    )
-
-    # 3. Optional: Selective Packing
     parser.add_argument(
         "--only",
         action="append",
-        help="Limit packing to specific subdirectories (can be used multiple times)"
+        help="Limit packing to specific subdirectories (relative to current shell or absolute)"
     )
 
-    # 4. Optional: Empty Directory Toggle
     parser.add_argument(
         "--include-empty",
         action="store_true",
-        help="Include directories that are empty or contain only ignored files"
+        help="Include empty directories in the ZIP"
     )
 
-    # 5. Optional: Verbosity
     parser.add_argument(
         "-v", "--verbose",
         action="store_true",
-        help="Show ignored files and debug information"
+        help="Show debug logs (useful for seeing why files were ignored)"
     )
 
     args = parser.parse_args()
 
-    # Configure Logging
+    # Logging setup
     log_level = logging.DEBUG if args.verbose else logging.INFO
     logging.basicConfig(level=log_level, format="%(levelname)s: %(message)s")
 
-    # --- Path Normalization ---
-    # Convert everything to absolute paths so the FileCollector logic is rock solid
+    # Path Normalization
     abs_source = os.path.abspath(args.source)
     abs_output = os.path.abspath(args.output)
 
     abs_limits = None
     if args.only:
-        # If user provides a relative path like "data/sub",
-        # we join it with the CURRENT working directory first
         abs_limits = [os.path.abspath(d) for d in args.only]
 
     if not os.path.isdir(abs_source):
         print(f"Error: Source directory '{abs_source}' does not exist.")
         sys.exit(1)
 
-    # --- Execution ---
-    print(f"Scanning: {abs_source}")
+    print(f"--- Starting Pack Operation ---")
+    print(f"Source: {abs_source}")
+    print(f"Output: {abs_output}")
+
     if abs_limits:
-        print(f"Limiting to: {', '.join(args.only)}")
+        # Just for display, show them as relative to the source
+        rel_display = [os.path.relpath(d, abs_source) for d in abs_limits]
+        print(f"Targeting specific subdirs: {', '.join(rel_display)}")
 
     try:
+        # We pass our MANDATORY_RULES as the base_rules
         count = pack_directory(
             source_dir=abs_source,
             output_zip=abs_output,
             limit_to_dirs=abs_limits,
             include_empty=args.include_empty
         )
-        print(f"Successfully packed {count} items into '{abs_output}'.")
+        print(f"Done! Packed {count} items.")
     except Exception as e:
-        print(f"An error occurred during packing: {e}")
+        print(f"CRITICAL ERROR: {e}")
         sys.exit(1)
 
 

@@ -9,9 +9,40 @@ import logging
 # Setup logging - change level to logging.DEBUG to see ignored files
 logger = logging.getLogger("PackDirectory")
 
+MANDATORY_RULES = [
+    'node_modules/',
+    '.git/',
+    '.gitignore',
+    '.DS_Store',
+    '.*cache*',
+    'Thumbs.db',
+    '__pycache__/',
+    '*.pyc',
+    '.venv/',
+    '.env.local',
+    '.env.development.local',
+    '.env.test.local',
+    '.env.production.local',
+    'venv/',
+    '.cache/',         # Parcel/Babel/NPM cache
+    '.parcel-cache/',  # Specific to Parcel bundler
+    'tsbuildinfo',     # TypeScript incremental compilation info
+    '*.tsbuildinfo',   # Glob for the same
+    # Source Maps
+    '*.css.map',  # Specific to CSS
+    '*.js.map',  # Specific to JS
+    # IDE / Editor Folders
+    '.vscode/',  # VS Code settings
+    '.idea/',  # JetBrains / IntelliJ settings
+    '*.swp',  # Vim temporary swap files
+    '*.swo',
+]
+
 
 class FileCollector:
     def __init__(self, source_dir, base_ignore_rules=None, ignore_filename=".packignore"):
+        if base_ignore_rules is None:
+            base_ignore_rules = MANDATORY_RULES
         self.source_dir = os.path.abspath(source_dir)
         self.base_rules = base_ignore_rules or []
         self.ignore_filename = ignore_filename
@@ -48,26 +79,35 @@ class FileCollector:
         return pathspec.PathSpec.from_lines('gitwildmatch', global_rules)
 
     def collect_files(self, limit_to_dirs=None, include_empty_directories=False):
-        """Walks the tree (or specific subtrees) and filters via the global spec."""
+        """
+        Walks the tree (or specific subtrees) and filters via the global spec.
+
+        :param limit_to_dirs: List of specific subdirectories to pack.
+        :param include_empty_directories: If True, adds folders that contain no
+                                          valid files as 'folder/' entries.
+        :return: A sorted list of relative POSIX-style paths.
+        """
         spec = self._build_global_spec()
         files_to_pack = []
 
-        # Determine where to start the walk
+        # 1. Define where to start the walk
         targets = [self.source_dir] if not limit_to_dirs else limit_to_dirs
 
         for target in targets:
             abs_target = os.path.abspath(target)
 
-            # Security: Don't walk outside the source_dir
+            # Security: Prevent walking paths outside the source_dir
             if os.path.commonpath([self.source_dir, abs_target]) != self.source_dir:
                 logger.warning(f"Skipping target outside source_dir: {target}")
                 continue
 
             for root, dirs, files in os.walk(abs_target, topdown=True):
+                # Normalize the current root path relative to source_dir
                 rel_root = os.path.relpath(root, self.source_dir).replace(os.sep, '/')
 
-                # 1. Prune ignored directories immediately (dirs[:] mutation)
-                # Use trailing slash to force directory matching in pathspec
+                # 2. Prune directories (Performance Optimization)
+                # If a rule like 'node_modules/' matches, we skip the entire subtree.
+                # Note: 'result/*' will NOT match 'result/', allowing us to enter.
                 dirs[:] = [
                     d for d in dirs
                     if not spec.match_file((f"{rel_root}/{d}" if rel_root != "." else d) + '/')
@@ -75,29 +115,33 @@ class FileCollector:
 
                 valid_files_in_dir = []
                 for f in files:
+                    # Always skip the ignore file itself
                     if f == self.ignore_filename:
                         continue
 
                     rel_file = f if rel_root == "." else f"{rel_root}/{f}"
 
                     try:
+                        # Check if file is ignored by mandatory rules or .packignore
                         if not spec.match_file(rel_file):
                             valid_files_in_dir.append(rel_file)
                         else:
-                            logger.debug(f"Ignored: {rel_file}")
+                            logger.debug(f"Ignored file: {rel_file}")
                     except Exception as e:
                         logger.error(f"Error checking {rel_file}: {e}")
 
                 files_to_pack.extend(valid_files_in_dir)
 
-                # 2. Handle empty directories
+                # 3. Handle Empty Directory Shells
+                # If include_empty_directories is True, we check if this folder
+                # ended up with no sub-dirs and no valid files.
                 if include_empty_directories and rel_root != ".":
                     if not dirs and not valid_files_in_dir:
+                        # Add trailing slash to signify it's a directory
                         files_to_pack.append(rel_root + '/')
 
-        # set() handles overlapping paths if limit_to_dirs has redundancy
+        # Use set() to remove duplicates if limit_to_dirs contains overlapping paths
         return sorted(list(set(files_to_pack)))
-
 
 def pack_directory(source_dir, output_zip, limit_to_dirs=None, base_rules=None, include_empty=False):
     """Orchestrates collection and zip creation."""
