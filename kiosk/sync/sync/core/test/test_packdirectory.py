@@ -232,3 +232,97 @@ class TestPackDirectory(KioskPyTestHelper):
         results = collector.collect_files(limit_to_dirs=[source, source])
 
         assert results == ["file.txt"]  # set() should have collapsed them
+
+    def test_mandatory_rules_applied_by_default(self, tmp_path):
+        """
+        Verify that even with NO base_rules passed and NO .packignore file,
+        the hard-coded MANDATORY_RULES are still enforced.
+        """
+        source = os.path.join(str(tmp_path), "mandatory_test")
+        os.makedirs(source)
+
+        # 1. Create a "good" file
+        with open(os.path.join(source, "app.js"), "w") as f:
+            f.write("console.log('hello');")
+
+        # 2. Create files/folders that SHOULD be caught by MANDATORY_RULES
+        # Testing a file rule (*.js.map)
+        with open(os.path.join(source, "app.js.map"), "w") as f:
+            f.write("{}")
+
+        # Testing a directory rule (node_modules/)
+        node_dir = os.path.join(source, "node_modules")
+        os.makedirs(node_dir)
+        with open(os.path.join(node_dir, "package.json"), "w") as f:
+            f.write("{}")
+
+        # Testing a hidden IDE folder (.vscode/)
+        vscode_dir = os.path.join(source, ".vscode")
+        os.makedirs(vscode_dir)
+        with open(os.path.join(vscode_dir, "settings.json"), "w") as f:
+            f.write("{}")
+
+        # Initialize collector WITHOUT passing any base_rules
+        collector = FileCollector(source)
+        results = collector.collect_files()
+
+        # Assertions
+        assert "app.js" in results
+        assert "app.js.map" not in results  # Should be caught by *.js.map
+        assert "node_modules/package.json" not in results  # Should be pruned
+        assert ".vscode/settings.json" not in results  # Should be pruned
+
+    def test_mandatory_rules_combined_with_local_ignore(self, tmp_path):
+        """
+        Verify that mandatory rules and .packignore rules work together.
+        """
+        source = os.path.join(str(tmp_path), "combined_test")
+        os.makedirs(source)
+
+        # Mandatory file
+        with open(os.path.join(source, "debug.log"), "w") as f: f.write("log")
+        # Local ignore file
+        with open(os.path.join(source, ".packignore"), "w") as f:
+            f.write("*.log")
+
+        # Mandatory rule file
+        with open(os.path.join(source, "exclude.pyc"), "w") as f: f.write("binary")
+
+        collector = FileCollector(source)
+        results = collector.collect_files()
+
+        assert "debug.log" not in results  # Caught by .packignore
+        assert "exclude.pyc" not in results  # Caught by MANDATORY_RULES
+
+
+    def test_result_folder_shell_preserved(self, tmp_path):
+        """
+        Test the 'result/*' pattern:
+        - Contents of 'result' should be ignored.
+        - The 'result/' directory itself should be included as an empty entry.
+        """
+        source = os.path.join(str(tmp_path), "shell_test")
+        os.makedirs(source)
+
+        # 1. Setup the folder and a 'trash' file
+        result_path = os.path.join(source, "result")
+        os.makedirs(result_path)
+        with open(os.path.join(result_path, "temporary_output.log"), "w") as f:
+            f.write("I should not be in the zip")
+
+        # 2. Define the rule in .packignore
+        # result/* matches all files inside, but not the directory 'result' itself
+        with open(os.path.join(source, ".packignore"), "w") as f:
+            f.write("result/*\n")
+
+        collector = FileCollector(source)
+
+        # 3. Collect with include_empty_directories=True
+        results = collector.collect_files(include_empty_directories=True)
+
+        # Verification
+        assert "result/" in results, "The folder shell should be present"
+        assert "result/temporary_output.log" not in results, "The folder contents should be ignored"
+
+        # Double check that we don't have duplicates like 'result' and 'result/'
+        assert len([r for r in results if r.startswith("result")]) == 1
