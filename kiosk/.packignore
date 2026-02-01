@@ -4,6 +4,7 @@ callgrind*.*
 /designtool/
 /config/history
 /temp/
+/custom/
 reporting/
 scratches/
 static/static/
@@ -29,3 +30,8 @@ backup.reminder
 *.dsn
 *.crt
 *.key
+*.pstat
+reset.yml
+pytest.ini
+test/
+pwastresstestplugin/
