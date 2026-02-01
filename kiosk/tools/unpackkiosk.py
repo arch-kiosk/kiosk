@@ -7,18 +7,19 @@ from typing import List
 
 from kioskrequirements import KioskRequirements
 
-params = {"-fr": "fr", "--unpack_file_repository": "fr",
-          "-fro": "fro", "--override_file_repository": "fro",
-          "-w": "w", "--unpack_workstations": "w",
-          "-ft": "ft", "--unpack_filemaker_template": "ft",
+params = {
+    # "-fr": "fr", "--unpack_file_repository": "fr",
+    #       "-fro": "fro", "--override_file_repository": "fro",
+    #       "-w": "w", "--unpack_workstations": "w",
+    #       "-ft": "ft", "--unpack_filemaker_template": "ft",
           "-c": "c", "--code": "c",
-          "-nc": "nc", "--no_custom_directories": "nc",
+          # "-nc": "nc", "--no_custom_directories": "nc",
           "-dev": "dev",
           "-p": "p",
           "-db": "db", "--database": "db",
           "-o": "o", "--override": "o",
           "--no_config": "noc",
-          "-ru": "ru",
+          # "-ru": "ru",
           "--restore_users": "ru",
           "-dbuser": "dbuser",
           "-dbpwd": "dbpwd",
@@ -55,7 +56,6 @@ params = {"-fr": "fr", "--unpack_file_repository": "fr",
           "-dcw": "dcw"
           }
 
-
 def usage():
     print("""
     Usage of unpackkiosk.py:
@@ -71,14 +71,7 @@ def usage():
         -c / --code: unpacks the code for kiosk and kiosk-sync and installs our custom libraries.
         -ncu/ --no_clear_up: skips deleting old files first. Only useful together with very special patches that
                              use zip files with only a few files in them. 
-        -nc / --no_custom_directories: don't unpack custom directories
-        -fr / --unpack_file_repository: unpacks the contents of the file repository zip to the actual file repository
-                it will only add files and not override existing ones.
-        -fro  --override_file_repository: unpacks the contents of the file repository zip to the actual file repository
-                this will override existing files. -fro wins over -fr if both are given
         
-        -w / --unpack_workstations: Unpacks the workstation zip file to the filemaker folder
-        -ft / --unpack_filemaker_template: Unpacks the filemaker template file
         -p: installs pip and the requirements and libraries with pip
         -nh / --no_housekeeping: suppresses housekeeping at the end of unpackkiosk
         --project_id: Only for new installations and in that case required: The central id for the project. 
@@ -91,8 +84,6 @@ def usage():
         -dbport=database port: This sets a different port for postgres to use in the config.yml
         -pgdb=database name: sets a postgres master database (which is used as a fallback) other than the default 'postgres'.    
         -nomg/--no_migration: suppresses the database migration at the end of unpackkiosk 
-        -ru/ --restore_users: restores users and privileges from the backup. Usually the users and privileges
-                              are NOT restored. Only in connection with -db! 
         -nt/ --no_thumbnails: obsolete. Use nh instead if you want to skip housekeeping (which includes refreshing thumbnails) 
         -cfc[=force]/ --clear_file_cache[=force]: sets all the file cache entries to "renew". The "refresh file cache" tool does the work.
                                   use =force to actually invalidate the file cache entries and remove the files  
@@ -536,6 +527,7 @@ def renew_workstations(cfg_file: str):
 
 
 def get_current_kiosk_version(kiosk_dir):
+    # not implemented, yet.
     if kioskstdlib.file_exists(os.path.join(kiosk_dir, "kiosk.version")):
         try:
             return kioskstdlib.get_kiosk_version_from_file(os.path.join(kiosk_dir, "kiosk.version"))
@@ -567,9 +559,7 @@ if __name__ == '__main__':
     if src_dir and not path.isdir(src_dir):
         logging.error(f"{src_dir} does not seem to point to a valid folder.")
         usage()
-    if not path.isfile(os.path.join(src_dir, "kiosk.zip")) \
-            and not path.isfile(os.path.join(src_dir, "filemaker.zip")) \
-            and not path.isfile(os.path.join(src_dir, "dbbackup.dmp")):
+    if not path.isfile(os.path.join(src_dir, "kiosk.zip")):
         logging.error(f"{src_dir} does not seem to point to a folder with kiosk zip files.")
         usage()
 
@@ -738,14 +728,16 @@ if __name__ == '__main__':
         if "patch" not in options:
             if "db" in options:
                 if this_is_an_update:
-                    if "pgdb" in options:
-                        KioskRestore.postgres_master_db = options["pgdb"]
-                        print(f"default Postgres database is set to {KioskRestore.postgres_master_db}")
-                    restore_users = "ru" in options
-                    restore_workstations = "w" in options
-                    KioskRestore.restore_db(cfg_file, src_dir,
-                                            restore_users=KioskRestore.RESTORE_USERS_ALL,
-                                            restore_workstations=restore_workstations)
+                    print(f"WARNING: db parameter meaningless for an update as parameters pgdb/ru/w are not supported anymore")
+                    print(f"NOT crucial, so I just skip this step.")
+                    # if "pgdb" in options:
+                    #     KioskRestore.postgres_master_db = options["pgdb"]
+                    #     print(f"default Postgres database is set to {KioskRestore.postgres_master_db}")
+                    # restore_users = "ru" in options
+                    # restore_workstations = "w" in options
+                    # KioskRestore.restore_db(cfg_file, src_dir,
+                    #                         restore_users=KioskRestore.RESTORE_USERS_ALL,
+                    #                         restore_workstations=restore_workstations)
                 else:
                     if not KioskRestore.create_db_if_missing(cfg_file):
                         print(f"create_db_if_missing returned False. Database was not created.")
@@ -810,12 +802,6 @@ if __name__ == '__main__':
         else:
             if clear_file_cache(cfg_file, force=True if options["clear_file_cache"] == "force" else False):
                 print("file cache successfully cleared", flush=True)
-
-        # obsolete
-        # if ("fro" in options or "fr" in options) and "nt" not in options:
-        #     KioskRestore.refresh_thumbnails(cfg_file)
-        # else:
-        #     print("Skipped creation of thumbnails")
 
         if "renew" in options:
             renew_workstations(cfg_file)
