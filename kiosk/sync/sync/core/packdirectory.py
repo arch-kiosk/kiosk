@@ -2,6 +2,8 @@
 # In a few years I guess all I will do is tell them what I want and I just copy and paste.
 
 import os
+from typing import Callable, Optional, List
+
 import pathspec
 import zipfile
 import logging
@@ -36,16 +38,23 @@ MANDATORY_RULES = [
     '.idea/',  # JetBrains / IntelliJ settings
     '*.swp',  # Vim temporary swap files
     '*.swo',
+    "qrcoderecognitiontests/",
+    "kiosk_secure.yml",
+    "kiosk_config.yml",
+    "kiosk_local_config.yml",
+    "secure.js"
 ]
 
 
 class FileCollector:
-    def __init__(self, source_dir, base_ignore_rules=None, ignore_filename=".packignore"):
+    def __init__(self, source_dir: str, base_ignore_rules: Optional[List[str]] = None,
+                 ignore_filename: str = ".packignore", on_log: Optional[Callable[[str], None]] = None):
         if base_ignore_rules is None:
             base_ignore_rules = MANDATORY_RULES
         self.source_dir = os.path.abspath(source_dir)
-        self.base_rules = base_ignore_rules or []
+        self.base_rules = base_ignore_rules
         self.ignore_filename = ignore_filename
+        self.on_log = on_log
 
     def _build_global_spec(self):
         """Collects all rules and anchors them correctly to the source_dir."""
@@ -78,36 +87,35 @@ class FileCollector:
 
         return pathspec.PathSpec.from_lines('gitwildmatch', global_rules)
 
-    def collect_files(self, limit_to_dirs=None, include_empty_directories=False):
-        """
-        Walks the tree (or specific subtrees) and filters via the global spec.
-
-        :param limit_to_dirs: List of specific subdirectories to pack.
-        :param include_empty_directories: If True, adds folders that contain no
-                                          valid files as 'folder/' entries.
-        :return: A sorted list of relative POSIX-style paths.
-        """
+    def collect_files(self, limit_to_dirs: Optional[List[str]] = None, include_empty_directories: bool = False):
+        """Walks the tree (or specific subtrees/files) and filters via the global spec."""
         spec = self._build_global_spec()
         files_to_pack = []
-
-        # 1. Define where to start the walk
         targets = [self.source_dir] if not limit_to_dirs else limit_to_dirs
 
         for target in targets:
             abs_target = os.path.abspath(target)
 
-            # Security: Prevent walking paths outside the source_dir
+            # --- CALLBACK: Notify for every target being collected ---
+            if self.on_log:
+                self.on_log(f"collecting {abs_target}...")
+
             if os.path.commonpath([self.source_dir, abs_target]) != self.source_dir:
-                logger.warning(f"Skipping target outside source_dir: {target}")
+                logging.warning(f"Skipping target outside source_dir: {target}")
+                continue
+
+            if os.path.isfile(abs_target):
+                rel_file = os.path.relpath(abs_target, self.source_dir).replace(os.sep, '/')
+                is_ignored = spec.match_file(rel_file)
+                if not is_ignored and os.path.basename(abs_target) != self.ignore_filename:
+                    files_to_pack.append(rel_file)
+                else:
+                    logging.debug(f"Target file ignored by rules: {rel_file}")
                 continue
 
             for root, dirs, files in os.walk(abs_target, topdown=True):
-                # Normalize the current root path relative to source_dir
                 rel_root = os.path.relpath(root, self.source_dir).replace(os.sep, '/')
 
-                # 2. Prune directories (Performance Optimization)
-                # If a rule like 'node_modules/' matches, we skip the entire subtree.
-                # Note: 'result/*' will NOT match 'result/', allowing us to enter.
                 dirs[:] = [
                     d for d in dirs
                     if not spec.match_file((f"{rel_root}/{d}" if rel_root != "." else d) + '/')
@@ -115,61 +123,71 @@ class FileCollector:
 
                 valid_files_in_dir = []
                 for f in files:
-                    # Always skip the ignore file itself
                     if f == self.ignore_filename:
                         continue
-
                     rel_file = f if rel_root == "." else f"{rel_root}/{f}"
-
                     try:
-                        # Check if file is ignored by mandatory rules or .packignore
                         if not spec.match_file(rel_file):
                             valid_files_in_dir.append(rel_file)
-                        else:
-                            logger.debug(f"Ignored file: {rel_file}")
-                    except Exception as e:
-                        logger.error(f"Error checking {rel_file}: {e}")
+                    except Exception:
+                        continue
 
                 files_to_pack.extend(valid_files_in_dir)
 
-                # 3. Handle Empty Directory Shells
-                # If include_empty_directories is True, we check if this folder
-                # ended up with no sub-dirs and no valid files.
                 if include_empty_directories and rel_root != ".":
                     if not dirs and not valid_files_in_dir:
-                        # Add trailing slash to signify it's a directory
                         files_to_pack.append(rel_root + '/')
 
-        # Use set() to remove duplicates if limit_to_dirs contains overlapping paths
         return sorted(list(set(files_to_pack)))
 
-def pack_directory(source_dir, output_zip, limit_to_dirs=None, base_rules=None, include_empty=False):
-    """Orchestrates collection and zip creation."""
+
+def pack_directory(source_dir: str, output_zip: str, limit_to_dirs: Optional[List[str]] = None,
+                   base_rules: Optional[List[str]] = None, include_empty: bool = False,
+                   on_log: Optional[Callable[[str], None]] = None):
+    """
+    Orchestrates collection and compression.
+    If limit_to_dirs is used, logging is restricted to those specific base targets.
+    """
     source_path = os.path.abspath(source_dir)
     output_path = os.path.abspath(output_zip)
 
-    collector = FileCollector(source_path, base_ignore_rules=base_rules)
+    collector = FileCollector(source_path, base_ignore_rules=base_rules, on_log=on_log)
     file_list = collector.collect_files(
         limit_to_dirs=limit_to_dirs,
         include_empty_directories=include_empty
     )
 
-    # Ensure output directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    # Convert limit_to_dirs to absolute paths for comparison if they exist
+    abs_limits = [os.path.abspath(p) for p in limit_to_dirs] if limit_to_dirs else []
+    logged_targets = set()
 
     with zipfile.ZipFile(output_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
         for rel in file_list:
-            # Reconstruct local path for reading
             full_path = os.path.join(source_path, rel.replace('/', os.sep))
 
+            # --- CALLBACK LOGIC ---
+            if on_log:
+                if abs_limits:
+                    # If using limit_to, find which target this file belongs to
+                    for target in abs_limits:
+                        if full_path.startswith(target) and target not in logged_targets:
+                            on_log(f"packing {target}...")
+                            logged_targets.add(target)
+                else:
+                    # Standard behavior: log every new directory
+                    current_dir = os.path.dirname(full_path)
+                    if current_dir != last_logged_dir:
+                        on_log(f"packing {current_dir}...")
+                        last_logged_dir = current_dir
+
             try:
-                # Defensive check: is it actually a directory?
                 if rel.endswith('/') or os.path.isdir(full_path):
-                    # Add directory entry to ZIP
                     zinfo = zipfile.ZipInfo(rel if rel.endswith('/') else rel + '/')
                     zipf.writestr(zinfo, '')
                 else:
-                    zipf.write(full_path, rel)
+                    zipf.write(str(full_path), rel)
             except (PermissionError, OSError) as e:
                 logger.error(f"Failed to pack {full_path}: {e}")
 

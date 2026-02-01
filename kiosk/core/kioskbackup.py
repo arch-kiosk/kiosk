@@ -12,6 +12,7 @@ import kioskstdlib
 from datetime import datetime
 import synchronization
 import workstation
+from sync.core.packdirectory import pack_directory
 
 
 # noinspection PyBroadException
@@ -60,10 +61,10 @@ class KioskBackup:
         r"sync\sync\mcpcore",
     ]
 
-    KIOSK_CONFIG_ONLY_FILES = [
-        r"config",
-        r"sync\sync\config",
-    ]
+    # KIOSK_CONFIG_ONLY_FILES = [
+    #     r"config",
+    #     r"sync\sync\config",
+    # ]
 
     # these are the files that are needed in the unpackkiosk directory!
     TOOLS_FILES = [
@@ -89,6 +90,7 @@ class KioskBackup:
         [r"sync\sync\core", "kioskdatetimelib.py"],
         [r"sync\sync\core", "kioskrequirements.py"],
         [r"sync\sync\core", "kioskpiexif.py"],
+        [r"sync\sync\core", "packdirectory.py"],
     ]
 
     EXCLUDE_PIP_PACKAGES = [
@@ -176,6 +178,14 @@ class KioskBackup:
 
     @classmethod
     def pack_kiosk(cls, config: KioskConfig, dst_dir, options=None):
+        path_dict = cls._assert_paths(config)
+        kiosk_dir = path_dict["kiosk"]
+        kiosk_zip = path.join(dst_dir, "kiosk.zip")
+        cls._remove_old_zip_files([(kiosk_zip,)])
+        kiosk_files = [os.path.join(kiosk_dir, f) for f in cls.KIOSK_FILES]
+        pack_directory(kiosk_dir, kiosk_zip,limit_to_dirs=kiosk_files,include_empty=True, on_log=cls._print_if_console)
+
+    def old_pack_kiosk(cls, config: KioskConfig, dst_dir, options=None):
         """
 
         :param config: Kioskconfig instance
@@ -198,19 +208,15 @@ class KioskBackup:
             zips.append([path.join(dst_dir, "kiosk.zip"),
                          cls.KIOSK_FILES,
                          kiosk_dir,
-                         ["-xr!qrcoderecognitiontests", "-xr!node_modules", "-xr!.env.development.local",
+                         [
+                          "-xr!qrcoderecognitiontests",
+                          "-xr!node_modules",
+                          "-xr!.env.development.local",
                           "-xr!kiosk_secure.yml",
                           "-xr!kiosk_config.yml",
                           "-xr!kiosk_local_config.yml",
-                          "-xr!secure.js", "-xr!*.fmp12"]])
-            # Not doing that anymore. Custom modules have to be transferred separately.
-            # zips.append([path.join(dst_dir, "kiosk.zip"),
-            #              [
-            #                  kioskstdlib.get_relative_path(kiosk_dir, config.custom_sync_modules),
-            #                  kioskstdlib.get_relative_path(kiosk_dir, config.get_custom_kiosk_modules_path()),
-            #              ],
-            #              kiosk_dir,
-            #              None])
+                          "-xr!secure.js",
+                          "-xr!*.fmp12"]])
         else:
             zips.append([path.join(dst_dir, "kiosk.zip"),
                          cls.KIOSK_CONFIG_ONLY_FILES,
@@ -219,26 +225,6 @@ class KioskBackup:
                           "-xr!kiosk_config.yml",
                           "-xr!kiosk_local_config.yml",
                           '-xr!kiosk_secure.yml']])
-
-        if "w" in options:
-            cls._add_workstation_files(config, dst_dir, zips)
-
-        if "fr" in options:
-            from_date = None
-            if "fd" in options:
-                from_date = options["fd"]
-
-            cls._add_filerepository_files(config, dst_dir, zips, from_date)
-
-        if "ft" in options:
-            template_file = config.filemaker_template
-            if not path.isfile(template_file):
-                cls._abort_with_error(-1, "Option -ft: template file {template_file} does not exist")
-
-            zips.append([path.join(dst_dir, "filemaker.zip"),
-                         [template_file],
-                         kiosk_dir,
-                         None])
 
         cls._remove_old_zip_files(zips)
 

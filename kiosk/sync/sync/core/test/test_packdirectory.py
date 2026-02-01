@@ -326,3 +326,22 @@ class TestPackDirectory(KioskPyTestHelper):
 
         # Double check that we don't have duplicates like 'result' and 'result/'
         assert len([r for r in results if r.startswith("result")]) == 1
+
+    def test_single_file_inclusion_with_rules(self, tmp_path):
+        source = os.path.join(str(tmp_path), "single_file_test")
+        os.makedirs(source)
+
+        valid_file = os.path.join(source, "allowed.txt")
+        # Use .js.map because it is explicitly in your MANDATORY_RULES
+        ignored_file = os.path.join(source, "secret.js.map")
+
+        with open(valid_file, "w") as f: f.write("ok")
+        with open(ignored_file, "w") as f: f.write("hide me")
+
+        collector = FileCollector(source)
+
+        # Pass both as explicit targets
+        results = collector.collect_files(limit_to_dirs=[valid_file, ignored_file])
+
+        assert "allowed.txt" in results
+        assert "secret.js.map" not in results, "Mandatory .js.map rule should have blocked this."
