@@ -21,6 +21,7 @@ jedi
 matplotlib
 nose
 olefile
+pathspec
 parse
 passlib
 piexif
