@@ -78,14 +78,19 @@ class KioskRequirements:
 
     @classmethod
     def pip_freeze(self, requirements_txt_tmp: str):
-        # cmd = f"pip list --format=\"freeze\""
-        cmd = f"pip freeze"
+        # sys.executable points to the python.exe inside your Venv
+        # -m pip runs the pip module installed in that specific environment
+        cmd = [sys.executable, "-m", "pip", "freeze"]
 
         if os.path.isfile(requirements_txt_tmp):
             os.remove(requirements_txt_tmp)
 
-        with open(requirements_txt_tmp, "w") as f:
-            rc = subprocess.run(cmd, stdout=f)
+        try:
+            with open(requirements_txt_tmp, "w") as f:
+                # Using a list for cmd is safer and avoids shell=True issues
+                rc = subprocess.run(cmd, stdout=f, check=True)
+        except subprocess.CalledProcessError as e:
+            raise Exception(f"KioskRequirements.pip_freeze: Error running pip freeze: {e}")
 
     @classmethod
     def freeze(cls, dist_file: str, requirements_txt: str, options: dict) -> bool:

@@ -14,22 +14,22 @@
 #  test_patch: true
 
 config:
-  base_path: #kiosk base path
-  transfer_dir: #kiosk transfer directory
+  transfer_dir: ''  #kiosk transfer directory
   no_console: true
-  odbc_ini_dsn: #FileMaker odbc entry (e.g. kiosk_odbc)
-#  server_type: 'local'
-#  log_level: 'DEBUG'
+  odbc_ini_dsn: 'kiosk_odbc'  #FileMaker odbc entry (e.g. kiosk_odbc)
+  server_type: 'local'
+  log_level: 'INFO' # Can be 'DEBUG' for more details
 #  database_port: 5432 #only if different from default 5432
 
 
 kiosk:
+  base_path: ''  # the Kiosk base path. Must be the same as the base_path in the kiosk_config
   security_token_timeout_seconds: 3600
+  terminal_accent_color_ansi: '[30;41;1m'
+  local_import_paths: []  # e.g. [ 'z:\file_import', 'z:\backup' ]
 #  reset_file: '%base_path%\reset.yml' # reset file for online server
 #  subnet: '192.168.1' #subnet of local server
-  terminal_accent_color_ansi: '[30;41;1m'
 #  backup_reminder_days: 0
-#  local_import_paths: [ 'z:\file_import', 'z:\backup' ]
 #  suppress_messages:
 #    sys_msg_id_mcp_not_up: true
 #  administrationplugin:

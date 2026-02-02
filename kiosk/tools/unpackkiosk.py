@@ -95,7 +95,7 @@ def usage():
         -rm: restart machine at the end of unpackkiosk - if it was successful.
         --exclude_mcp: Does not unpack the MCPCore in order not to crash into a running MCP
         --update_custom_modules: explicitly update custom modules if -c is not set
-        --skip_installation: Skips updating files and stuff and only does the aftermath
+        --skip_installation: Exotic. Skips updating files and stuff and only does the aftermath.
         --renew_workstations: renews all workstations that are in a state < in_the_field
         -dcw / --dont_check_workstations: Skips the check if workstations are in the field. 
         --patch: a short cut for patching core code files only. Does not temper with configuration, python or the db.
@@ -567,6 +567,7 @@ if __name__ == '__main__':
 
     kiosk_dir = sys.argv[2]
     cfg_file = path.join(kiosk_dir, r'config\kiosk_config.yml')
+    local_cfg_file = path.join(kiosk_dir, r'config\kiosk_local_config.yml')
     secure_file = path.join(kiosk_dir, r'config\kiosk_secure.yml')
 
     for i in range(3, len(sys.argv)):
@@ -635,6 +636,9 @@ if __name__ == '__main__':
             if not path.isfile(cfg_file):
                 logging.error(f"Configuration file {cfg_file} does not seem to exist.")
                 usage()
+            if not path.isfile(local_cfg_file):
+                logging.error(f"Configuration file {local_cfg_file} does not seem to exist.")
+                usage()
             if not KioskRestore.add_base_path_if_necessary(kiosk_dir, cfg_file):
                 logging.error(f"It was not possible to add the base_path to the config file {cfg_file}")
                 usage()
@@ -700,7 +704,7 @@ if __name__ == '__main__':
                     print(f"skipped configuration files.", end="\n")
 
                 if "dbuser" in options or "dbpwd" in options or "dbname" in options or "dbport" in options:
-                    KioskRestore.set_new_database_credentials(cfg_file, secure_file, options)
+                    KioskRestore.set_new_database_credentials(local_cfg_file, secure_file, options)
 
             this_is_an_update = True
         else:
@@ -744,6 +748,8 @@ if __name__ == '__main__':
                         sys.exit(1)
                     else:
                         print(f"database ready.")
+    else:
+        print("--skip_installation was set: Not unpacking anything.")
 
     # this does not work:
 

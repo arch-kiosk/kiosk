@@ -1,3 +1,4 @@
+import fnmatch
 import shutil
 import hashlib
 import uuid
@@ -8,7 +9,7 @@ import os
 import logging
 import subprocess
 
-import yaml
+from ruamel.yaml import YAML
 
 import psycopg2
 import psycopg2.extras
@@ -16,6 +17,7 @@ import psycopg2.extras
 import kioskstdlib
 from kioskconfig import KioskConfig
 from os import path
+import zipfile
 
 KIOSK_FILES = [
     r"api",
@@ -103,6 +105,7 @@ class KioskRestore:
                                   "extended_progress": msg
                                   })
 
+    # obsolete
     @classmethod
     def zip_add_files(cls, working_directory, files, dst_file, zip_options: str):
         if zip_options:
@@ -131,7 +134,7 @@ class KioskRestore:
         return True
 
     @classmethod
-    def zip_extract_files(cls, working_directory, src_file, files, zip_options: str = "", fail_on_error=True):
+    def extract_files_with_7za(cls, working_directory, src_file, files, zip_options: str = "", fail_on_error=True):
         # f"-w{working_directory}",
 
         if zip_options:
@@ -163,6 +166,53 @@ class KioskRestore:
                 cls._abort_with_error(-1, f"7zip returned an error: {rc.returncode}")
             else:
                 print(f"WARNING: 7zip returned an error: {rc.returncode}. Skipped because this is a patch.")
+
+        return True
+
+    @classmethod
+    def zip_extract_files(cls, working_directory, src_file, files=None, zip_options: str = "", fail_on_error=True):
+        src_path = os.path.join(working_directory, src_file) if not os.path.isabs(src_file) else src_file
+
+        try:
+            with zipfile.ZipFile(src_path, 'r') as zip_ref:
+                all_zip_names = zip_ref.namelist()
+                members_to_extract = []
+
+                if files:
+                    patterns = [files] if isinstance(files, str) else files
+
+                    for pattern in patterns:
+                        # 1. Normalize to ZIP-style forward slashes
+                        p = pattern.replace('\\', '/').rstrip('/')
+
+                        # 2. Logic: Extract if it matches the pattern (wildcards)
+                        # OR if it lives inside the folder specified by the pattern
+                        for name in all_zip_names:
+                            # Direct match or wildcard match (e.g., config/*.yml)
+                            if fnmatch.fnmatch(name, p):
+                                members_to_extract.append(name)
+                            # Directory match: does the file live inside 'p'?
+                            elif name.startswith(p + '/'):
+                                members_to_extract.append(name)
+
+                    # Remove duplicates
+                    members_to_extract = list(dict.fromkeys(members_to_extract))
+
+                    if not members_to_extract and fail_on_error:
+                        raise KeyError(f"No files or directories matched: {patterns}")
+
+                if cls.dev_mode:
+                    print(f"Extracting {len(members_to_extract) if members_to_extract else 'all'} items...")
+
+                zip_ref.extractall(path=working_directory, members=members_to_extract or None)
+
+        except (zipfile.BadZipFile, FileNotFoundError, PermissionError, KeyError) as e:
+            error_msg = f"Exception in zip_extract_files: {repr(e)}"
+            if fail_on_error:
+                cls._abort_with_error(-1, error_msg)
+            else:
+                print(f"WARNING: {error_msg}")
+                return False
 
         return True
 
@@ -337,166 +387,167 @@ class KioskRestore:
         """
         Makes sure that there is a base_path in the central Kiosk config.
         This only does anything if the config file and the base path exist.
-        :param base_path:
-        :param kiosk_config_file:
-        :return: boolean, throws no exceptions
         """
+        # Initialize the Round-Trip YAML handler
+        ryaml = YAML(typ='rt')
+        ryaml.preserve_quotes = True  # Keep existing quotes where possible
+        ryaml.default_flow_style = False  # Keep the block format (one key per line)
+
         try:
             if os.path.isfile(kiosk_config_file) and os.path.isdir(base_path):
                 with open(kiosk_config_file, "r", encoding='utf8') as ymlfile:
-                    cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
-                    if not cfg:
-                        cfg = {}
-                    if "config" not in cfg:
-                        cfg["config"] = {}
-                    cfg["config"]["base_path"] = str(base_path)
+                    cfg = ryaml.load(ymlfile)
 
-                    with open(kiosk_config_file, "w") as ymlfile:
-                        yaml.dump(cfg, ymlfile, default_flow_style=False, default_style="'")
-                    return True
+                # If the file was empty, cfg will be None
+                if cfg is None:
+                    cfg = {}
+
+                # Navigate/Create the nested structure
+                if "config" not in cfg:
+                    cfg["config"] = {}
+
+                # Update the base_path
+                cfg["config"]["base_path"] = base_path
+
+                # Write back—ruamel will only change the line we touched
+                with open(kiosk_config_file, "w", encoding='utf8') as ymlfile:
+                    ryaml.dump(cfg, ymlfile)
+                return True
             else:
                 return False
-        except BaseException as e:
-            print(repr(e))
+
+        except Exception as e:
+            # Using repr(e) as per your original logic
+            print(f"Error in add_base_path_if_necessary: {repr(e)}")
             return False
 
     @classmethod
     def create_kiosk(cls, src_dir, kiosk_dir, kiosk_configfile, options):
-
         if "project_id" not in options:
-            cls._abort_with_error(-1, f"For a new Kiosk you must state the -project_id parameter!")
+            cls._abort_with_error(-1, "For a new Kiosk you must state the -project_id parameter!")
+
+        # Initialize ruamel.yaml object
+        # typ='rt' enables Round-Trip (preserves comments/order)
+        ryaml = YAML(typ='rt')
+        ryaml.preserve_quotes = True
+        ryaml.default_flow_style = False
 
         try:
-
             kiosk_zip = path.join(src_dir, "kiosk.zip")
             secure_file = os.path.join(kiosk_dir, "config", "kiosk_secure.yml")
+            local_config = os.path.join(kiosk_dir, "config", "kiosk_local_config.yml")
 
             print("creating kiosk...", end=" ", flush=True)
-            os.makedirs(kiosk_dir)
+            os.makedirs(kiosk_dir, exist_ok=True)
             config_dir = path.join(kiosk_dir, 'config')
-            os.mkdir(config_dir)
+            if not os.path.exists(config_dir):
+                os.mkdir(config_dir)
 
-            cls.zip_extract_files(kiosk_dir, kiosk_zip, 'config/*.yml', )
-            try:
-                os.remove(kiosk_configfile)
-            except:
-                pass
+            cls.zip_extract_files(kiosk_dir, kiosk_zip, 'config/*.yml')
+
+            for f in [kiosk_configfile, local_config]:
+                try:
+                    os.remove(f)
+                except:
+                    pass
+
+            ### write kiosk_config
             template_config = os.path.join(config_dir, 'kiosk_config_template.yml')
             if os.path.exists(template_config):
                 shutil.copy(template_config, kiosk_configfile)
             else:
-                print("\nWarning: There was no template configuration 'kiosk_config_template.yml' to use.\n")
+                template_config = ""
+                print("\nWarning: No kiosk_config_template found. Creating new file.\n")
                 with open(kiosk_configfile, "w", encoding='utf8') as ymlfile:
-                    ymlfile.write(f"""
-# Kiosk Project Configuration\n""")
+                    ymlfile.write("# Kiosk Project Configuration\n")
 
             with open(kiosk_configfile, "r", encoding='utf8') as ymlfile:
-                cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
+                cfg = ryaml.load(ymlfile)
 
             print(f"Initializing basic config for project {options['project_id']}... ", end=" ", flush=True)
-            if not cfg:
-                cfg = {}
+            if cfg is None: cfg = {}
+
             if "import_configurations" not in cfg:
-                cfg["import_configurations"] = ["kiosk_default_config.yml",
-                                                "kiosk_local_config.yml",
+                cfg["import_configurations"] = ["kiosk_default_config.yml", "kiosk_local_config.yml",
                                                 "kiosk_secure.yml"]
+
             if "config" not in cfg:
                 cfg["config"] = {}
 
-            if "project_id" not in cfg["config"]:
-                cfg["config"] = {"project_id": options["project_id"]}
-            else:
-                cfg["config"]["project_id"] = options["project_id"]
-
-            # starting with 1.7.25 the base_path must be registered in the kiosk_config itself.
+            # Set values (ruamel keeps track of where these keys go)
+            cfg["config"]["project_id"] = options["project_id"]
             cfg["config"]["base_path"] = kiosk_dir
 
-            with open(kiosk_configfile, "w") as ymlfile:
-                yaml.dump(cfg, ymlfile, default_flow_style=False, default_style="'")
+            with open(kiosk_configfile, "w", encoding='utf8') as ymlfile:
+                ryaml.dump(cfg, ymlfile)
             print("ok", flush=True)
 
-            cls.zip_extract_files(kiosk_dir, kiosk_zip, 'config/dsd', )
-            cls.set_new_database_credentials(kiosk_configfile, secure_file, options)
+            cls.zip_extract_files(kiosk_dir, kiosk_zip, 'config/dsd')
 
-            with open(kiosk_configfile, "r", encoding='utf8') as ymlfile:
-                cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
-
-            os.mkdir(path.join(kiosk_dir, r"log"))
-            os.mkdir(path.join(kiosk_dir, r"sync"))
+            log_dir = path.join(kiosk_dir, "log")
             sync_dir = path.join(kiosk_dir, r"sync\sync")
-            os.mkdir(sync_dir)
-            os.mkdir(path.join(sync_dir, r"log"))
-            sync_config_dir = path.join(sync_dir, r"config")
-            os.mkdir(sync_config_dir)
-            file_repository_dir = path.join(sync_dir, r"file_repository")
-            os.mkdir(file_repository_dir)
-            filemaker_dir = path.join(sync_dir, r"filemaker")
-            os.mkdir(filemaker_dir)
-            os.mkdir(path.join(filemaker_dir, "to_work_station"))
-            os.mkdir(path.join(filemaker_dir, "from_work_station"))
+            for d in [log_dir, path.join(kiosk_dir, "sync"), sync_dir,
+                      path.join(sync_dir, "log"), path.join(sync_dir, "config"),
+                      path.join(sync_dir, "file_repository"), path.join(sync_dir, "filemaker"),
+                      path.join(sync_dir, r"filemaker\to_work_station"),
+                      path.join(sync_dir, r"filemaker\from_work_station")]:
+                os.makedirs(d, exist_ok=True)
 
-            cfg["import_configurations"] = ["kiosk_default_config.yml", "kiosk_secure.yml"]
-            cfg["config"]["sync"] = sync_dir
-            cfg["server_type"] = cls.get_server_type()
-            # cfg["config"]["base_path"] = kiosk_dir
-            # cfg["config"]["file_repository"] = r"%sync%\file_repository"
-            # cfg["config"]["file_handling_definition"] = path.join(config_dir, r"file_handling.yml")
-            # cfg["config"]["dataset_definition"] = r"%sync%\config\dsd\dsd3.yml"
-            # cfg["config"]["filemaker_export_dir"] = r"%sync%\filemaker\to_work_station"
-            # cfg["config"]["filemaker_import_dir"] = r"%sync%\filemaker\from_work_station"
-            cfg["kiosk"] = {}
-            cfg["kiosk"]["local_import_paths"] = []
-            cfg["kiosk"]["base_path"] = kiosk_dir
+            ### write local config
+
+            local_config_template = os.path.join(config_dir, 'kiosk_local_config_template.yml')
+            if os.path.exists(local_config_template):
+                shutil.copy(local_config_template, local_config)
+            else:
+                local_config_template = ""
+                print("\nWarning: No template for local config found. Creating new file.\n")
+                with open(local_config, "w", encoding='utf8') as ymlfile:
+                    ymlfile.write("# Kiosk Local Configuration\n")
+
+            with open(local_config, "r", encoding='utf8') as ymlfile:
+                cfg = ryaml.load(ymlfile)
+
+            if "config" not in cfg:
+                cfg["config"] = {}
+
+            cfg["config"]["server_type"] = cls.get_server_type()
+            cfg["config"]["transfer_dir"] = src_dir
             if "pgdb" in options:
                 cfg["config"]["database_name"] = options["pgdb"]
 
-            with open(kiosk_configfile, "w") as ymlfile:
-                yaml.dump(cfg, ymlfile, default_flow_style=False)
+            if "kiosk" not in cfg: cfg["kiosk"] = {}
+            cfg["kiosk"]["base_path"] = kiosk_dir
 
-            cls.zip_extract_files(kiosk_dir, kiosk_zip, 'sync/sync/config/*', )
-            sync_config_file = path.join(sync_config_dir, 'sync_config.yml')
+            with open(local_config, "w", encoding='utf8') as ymlfile:
+                ryaml.dump(cfg, ymlfile)
+
+            template_secure_config = os.path.join(config_dir, 'kiosk_secure_template.yml')
+            if os.path.exists(template_secure_config):
+                shutil.copy(template_secure_config, secure_file)
+            cls.set_new_database_credentials(local_config, secure_file, options)
+
+            ### write /sync/config/sync_config,yml (for what it's worth)
+
+            cls.zip_extract_files(kiosk_dir, kiosk_zip, 'sync/sync/config/*')
+            sync_config_file = path.join(sync_dir, 'config', 'sync_config.yml')
+
             with open(sync_config_file, "r", encoding='utf8') as ymlfile:
-                cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
+                sync_cfg = ryaml.load(ymlfile)
 
-            cfg["import_configurations"] = [kiosk_configfile]
-            cfg["config"]["redirect_to"] = kiosk_configfile
-            cfg["config"]["logfile"] = path.join(sync_dir, r"log\sync.log")
-            cfg["config"]["transfer_dir"] = src_dir
+            sync_cfg["import_configurations"] = [kiosk_configfile]
+            sync_cfg["config"]["redirect_to"] = kiosk_configfile
+            sync_cfg["config"]["logfile"] = path.join(sync_dir, r"log\sync.log")
 
-            try:
-                cfg["development"] = {}
-            except:
-                pass
+            if "development" not in sync_cfg:
+                sync_cfg["development"] = {}
 
-            try:
-                if "playgroundplugin" in cfg["kiosk"]:
-                    cfg["kiosk"]["playgroundplugin"] = {"active": False}
-            except BaseException as e:
-                pass
+            with open(sync_config_file, "w", encoding='utf8') as ymlfile:
+                ryaml.dump(sync_cfg, ymlfile)
 
-            with open(sync_config_file, "w") as ymlfile:
-                yaml.dump(cfg, ymlfile, default_flow_style=False)
-
-            kiosk_parent_dir = kioskstdlib.get_parent_dir(kiosk_dir)
-            app_folder = os.path.basename(os.path.normpath(kiosk_dir))
-            cls.write_start_ps1(app_folder, kiosk_dir, kiosk_parent_dir, options, src_dir)
-            # cls.write_start_mcp_ps1(app_folder, kiosk_dir, kiosk_parent_dir, options)
-
-            with open(path.join(sync_dir, "start_console.ps1"), "w") as f:
-                f.write(f'$env:PYTHONPATH="{kiosk_dir};{path.join(kiosk_dir, "core")};{path.join(kiosk_dir, "sync")};')
-                f.write(f'{path.join(kiosk_dir, "sync", "sync")};')
-                f.write(f'{path.join(kiosk_dir, "sync", "sync", "plugins")};')
-                f.write(f'{path.join(kiosk_dir, "sync", "sync", "core")}"\n')
-                f.write('python console.py')
-
-            cls.zip_extract_files(kiosk_dir, kiosk_zip, "config/dsd", "-aoa")
-            cls.zip_extract_files(kiosk_dir, kiosk_zip, "config/ui", "-aoa")
-            cls.zip_extract_files(kiosk_dir, kiosk_zip, 'config/kiosk_ui_classes.uic', "-aoa")
-            cls.zip_extract_files(kiosk_dir, kiosk_zip, "config/kiosk_queries", "-aoa")
             print("ok", flush=True)
 
-        except IOError as e:
-            print("Error")
+        except (IOError, Exception) as e:
+            print(f"Error: {e}")
             cls._abort_with_error(-1, f"Exception in create_kiosk: {repr(e)}")
 
     @classmethod
@@ -540,63 +591,70 @@ class KioskRestore:
             f.write(f'cd "{kioskstdlib.get_parent_dir(kiosk_dir)}"')
             f.write('flask run --host 0.0.0.0')
 
-    # @classmethod
-    # def write_start_mcp_ps1(cls, app_folder, kiosk_dir, kiosk_parent_dir, options):
-    #     with open(path.join(kiosk_parent_dir, "start_mcp.ps1"), "w") as f:
-    #         f.write(f'''$env:FLASK_APP = "{app_folder}"\n
-    # # uncomment the following line for debugging purposes, but never on live online systems!\n
-    # # $env:FLASK_DEBUG = 1\n
-    # # use "development" if you want autostart when sources are change.\n
-    # $env:FLASK_ENVIRONMENT="production"\n''')
-    #         f.write(f'$env:PYTHONPATH="{kiosk_dir};{path.join(kiosk_dir, "core")};'
-    #                 f'{path.join(kiosk_dir, "core", "sqlalchemy_models")};'
-    #                 f'{path.join(kiosk_dir, "sync")};')
-    #         f.write(f'{path.join(kiosk_dir, "sync", "sync")};{path.join(kiosk_dir, "sync", "sync", "core")};"')
-    #         f.write('\n')
-    #         if "no_redis" not in options and "sudo_password" in options:
-    #             f.write(f"""bash -c "echo {options["sudo_password"]} | sudo -S /etc/init.d/redis_6379 start"\n""")
-    #         f.write(fr'cd {path.join(kiosk_dir, "sync", "sync", "mcpcore")}')
-    #         f.write(fr'python ./mcpterminal.py {path.join(kiosk_dir, "config", "kiosk_config.yml")}')
-
     @classmethod
-    def set_new_database_credentials(cls, kiosk_configfile, kiosk_secure_file, options):
+    def set_new_database_credentials(cls, kiosk_local_config, kiosk_secure_file, options):
+        ryaml = YAML(typ='rt')
+        ryaml.preserve_quotes = True
+        ryaml.default_flow_style = False
+
         try:
             print("setting new database credentials ... ", end=" ", flush=True)
 
-            try:
-                with open(kiosk_secure_file, "r", encoding='utf8') as ymlfile:
-                    cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
-            except:
-                cfg = None
+            cfg_secure = None
+            if os.path.exists(kiosk_secure_file):
+                try:
+                    with open(kiosk_secure_file, "r", encoding='utf8') as ymlfile:
+                        cfg_secure = ryaml.load(ymlfile)
+                except Exception:
+                    cfg_secure = None
 
-            if not cfg:
-                cfg = {"config": {}}
+            if cfg_secure is None:
+                cfg_secure = {"config": {}}
+
+            # Ensure the 'config' key exists even if the file was partially empty
+            if "config" not in cfg_secure:
+                cfg_secure["config"] = {}
+
             if "dbuser" in options:
-                cfg["config"]["database_usr_name"] = options["dbuser"]
+                cfg_secure["config"]["database_usr_name"] = options["dbuser"]
             if "dbpwd" in options:
-                cfg["config"]["database_usr_pwd"] = options["dbpwd"]
+                cfg_secure["config"]["database_usr_pwd"] = options["dbpwd"]
 
-            with open(kiosk_secure_file, "w") as ymlfile:
-                yaml.dump(cfg, ymlfile, default_flow_style=False)
+            if "kiosk" not in cfg_secure:
+                cfg_secure["kiosk"] = {}
+
+            cfg_secure["kiosk"]["SECRET_KEY"] = str(uuid.uuid4())
+
+            with open(kiosk_secure_file, "w", encoding='utf8') as ymlfile:
+                ryaml.dump(cfg_secure, ymlfile)
 
             print("ok", flush=True)
 
+            # --- Handle kiosk_local_config file (Name/Port) ---
             if "dbname" in options or "dbport" in options:
+                with open(kiosk_local_config, "r", encoding='utf8') as ymlfile:
+                    cfg_main = ryaml.load(ymlfile)
 
-                with open(kiosk_configfile, "r", encoding='utf8') as ymlfile:
-                    cfg = yaml.load(ymlfile, Loader=yaml.FullLoader)
+                if cfg_main is None:
+                    cfg_main = {"config": {}}
+                if "config" not in cfg_main:
+                    cfg_main["config"] = {}
+
                 if "dbname" in options:
                     print("setting new database name ... ", end=" ", flush=True)
-                    cfg["config"]["database_name"] = options["dbname"]
+                    cfg_main["config"]["database_name"] = options["dbname"]
+
                 if "dbport" in options:
                     print("setting new database port ... ", end=" ", flush=True)
-                    cfg["config"]["database_port"] = options["dbport"]
-                with open(kiosk_configfile, "w") as ymlfile:
-                    yaml.dump(cfg, ymlfile, default_flow_style=False)
+                    cfg_main["config"]["database_port"] = options["dbport"]
+
+
+                with open(kiosk_local_config, "w", encoding='utf8') as ymlfile:
+                    ryaml.dump(cfg_main, ymlfile)
 
                 print("ok", flush=True)
 
-        except BaseException as e:
+        except Exception as e:
             print("Error")
             cls._abort_with_error(-1, f"Exception in set_new_database_credentials: {repr(e)}")
 
