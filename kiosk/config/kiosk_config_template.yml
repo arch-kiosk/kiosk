@@ -17,3 +17,6 @@ kiosk:
     project_logo_top: ''
     project_name: ''  # your project name
     project_short: ''  # repeat the project_id here
+
+glossary:
+  "locus": ["locus", "loci"]  # add your own glossary entries like this
