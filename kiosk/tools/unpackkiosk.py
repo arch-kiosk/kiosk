@@ -467,6 +467,7 @@ def create_default_directories():
     dirs = [
         os.path.join(kiosk_dir, "reporting"),
         os.path.join(kiosk_dir, "custom"),
+        os.path.join(kiosk_dir, "cert"),
         os.path.join(kiosk_dir, "temp"),
         os.path.join(kiosk_dir, "sync", "sync", "custom"),
             ]
