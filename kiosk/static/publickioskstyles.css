@@ -9050,9 +9050,9 @@ readers do not read off random characters that represent icons */
   /* ##########################################
   * images
   * ######################################### */
-  --header-logo-img: url("assets/images/kiosk_logo.svg");
-  --current-user-svg: url("assets/images/login.svg");
-  --user-password-svg: url("assets/images/password.svg");
+  --header-logo-img: url("assets/images/kiosk_logo.svg?immutable=true");
+  --current-user-svg: url("assets/images/login.svg?immutable=true");
+  --user-password-svg: url("assets/images/password.svg?immutable=true");
 }
 
 .col-bg-body-lighter {

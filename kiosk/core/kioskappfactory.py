@@ -616,21 +616,19 @@ class KioskAppFactory(AppFactory):
 
     @classmethod
     def kiosk_after_request(cls, resp):
-        # resp.headers.add('Access-Control-Allow-Origin', '*')
-        # resp.headers.add('Access-Control-Allow-Headers', 'Content-Type, X-Token')
-        # resp.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
-        if request.path.endswith('.svg'):
-            # 1. Fix the 'NS_BINDING_ABORTED' by defining the type
-            resp.headers['Content-Type'] = 'image/svg+xml'
-            resp.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
-
-        if 'Cache-Control' not in resp.headers:
-            # 1 year in seconds = 31536000
-            resp.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
-
-        if kioskglobals.get_development_option("print_raw_requests") == "true":
-            resp_data = cls.save_response(resp)
-            pprint(resp_data)
+        try:
+            if request.path.endswith('.svg'):
+                resp.headers['Content-Type'] = 'image/svg+xml'
+                if 'Cache-Control' not in resp.headers or "no-cache" in resp.headers["Cache-Control"]:
+                    # Cache aggressively for only 1 hour, and NO 'immutable'
+                    # This keeps it in memory for the session but allows updates later
+                    if request.args.get('immutable') == 'true':
+                        resp.headers['Cache-Control'] = 'public, max-age=3600, immutable'
+            if kioskglobals.get_development_option("print_raw_requests") == "true":
+                resp_data = cls.save_response(resp)
+                pprint(resp_data)
+        except BaseException as e:
+            logging.error(f"{cls.__name__}.kiosk_after_request: {repr(e)}")
         return resp
 
     @classmethod
