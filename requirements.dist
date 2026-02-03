@@ -35,6 +35,7 @@ pyzbar
 rawpy
 rope
 redis
+ruamel.yaml
 svgutils
 Wand
 opencv-contrib-python

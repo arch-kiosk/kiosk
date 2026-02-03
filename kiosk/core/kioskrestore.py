@@ -28,6 +28,8 @@ KIOSK_FILES = [
     r"tools",
     r"sqlalchemy_models",
     r"__init__.py",
+    r"run_kiosk.py",
+    r"apply-kiosk-acl.ps1",
     r"this_is_the_kiosk_root.md",
     r"sync\sync\console.py",
     r"sync\sync\custom\default_filecontexts.py",
@@ -175,36 +177,33 @@ class KioskRestore:
 
         try:
             with zipfile.ZipFile(src_path, 'r') as zip_ref:
+                if not files:
+                    # Fast path: extract everything
+                    zip_ref.extractall(path=working_directory)
+                    return True
+
+                # Normalize patterns once
+                patterns = [files] if isinstance(files, str) else files
+                normalized_patterns = [p.replace('\\', '/').rstrip('/') for p in patterns]
+
                 all_zip_names = zip_ref.namelist()
                 members_to_extract = []
 
-                if files:
-                    patterns = [files] if isinstance(files, str) else files
+                # Single pass through the ZIP table of contents
+                for name in all_zip_names:
+                    for p in normalized_patterns:
+                        # Match exact file/wildcard OR check if name is inside the folder p
+                        if fnmatch.fnmatch(name, p) or name.startswith(p + '/'):
+                            members_to_extract.append(name)
+                            break  # Match found for this file, move to next file
 
-                    for pattern in patterns:
-                        # 1. Normalize to ZIP-style forward slashes
-                        p = pattern.replace('\\', '/').rstrip('/')
-
-                        # 2. Logic: Extract if it matches the pattern (wildcards)
-                        # OR if it lives inside the folder specified by the pattern
-                        for name in all_zip_names:
-                            # Direct match or wildcard match (e.g., config/*.yml)
-                            if fnmatch.fnmatch(name, p):
-                                members_to_extract.append(name)
-                            # Directory match: does the file live inside 'p'?
-                            elif name.startswith(p + '/'):
-                                members_to_extract.append(name)
-
-                    # Remove duplicates
-                    members_to_extract = list(dict.fromkeys(members_to_extract))
-
-                    if not members_to_extract and fail_on_error:
-                        raise KeyError(f"No files or directories matched: {patterns}")
+                if not members_to_extract and fail_on_error:
+                    raise KeyError(f"No files or directories matched: {patterns}")
 
                 if cls.dev_mode:
-                    print(f"Extracting {len(members_to_extract) if members_to_extract else 'all'} items...")
+                    print(f"Extracting {len(members_to_extract)} matched items...")
 
-                zip_ref.extractall(path=working_directory, members=members_to_extract or None)
+                zip_ref.extractall(path=working_directory, members=members_to_extract)
 
         except (zipfile.BadZipFile, FileNotFoundError, PermissionError, KeyError) as e:
             error_msg = f"Exception in zip_extract_files: {repr(e)}"
@@ -372,16 +371,6 @@ class KioskRestore:
             print(f"Unzipping {src_file} to {working_directory}")
             cls.zip_extract_files(working_directory, src_file, None, zip_options)
 
-    @staticmethod
-    def get_server_type():
-        local_server = ""
-        while local_server not in ("y", "n"):
-            if local_server != "":
-                print("\nPlease answer with y for yes or n for no! \n")
-            local_server = input("Is this a local server? (y/n)")
-
-        return "local" if local_server == "y" else "online"
-
     @classmethod
     def add_base_path_if_necessary(cls, base_path, kiosk_config_file):
         """
@@ -395,7 +384,7 @@ class KioskRestore:
 
         try:
             if os.path.isfile(kiosk_config_file) and os.path.isdir(base_path):
-                with open(kiosk_config_file, "r", encoding='utf8') as ymlfile:
+                with open(kiosk_config_file, "r", encoding='utf-8') as ymlfile:
                     cfg = ryaml.load(ymlfile)
 
                 # If the file was empty, cfg will be None
@@ -410,7 +399,7 @@ class KioskRestore:
                 cfg["config"]["base_path"] = base_path
 
                 # Write back—ruamel will only change the line we touched
-                with open(kiosk_config_file, "w", encoding='utf8') as ymlfile:
+                with open(kiosk_config_file, "w", encoding='utf-8') as ymlfile:
                     ryaml.dump(cfg, ymlfile)
                 return True
             else:
@@ -426,6 +415,7 @@ class KioskRestore:
         if "project_id" not in options:
             cls._abort_with_error(-1, "For a new Kiosk you must state the -project_id parameter!")
 
+        server_type = options["server_type"] if "server_type" in options else "online"
         # Initialize ruamel.yaml object
         # typ='rt' enables Round-Trip (preserves comments/order)
         ryaml = YAML(typ='rt')
@@ -510,7 +500,7 @@ class KioskRestore:
             if "config" not in cfg:
                 cfg["config"] = {}
 
-            cfg["config"]["server_type"] = cls.get_server_type()
+            cfg["config"]["server_type"] = server_type
             cfg["config"]["transfer_dir"] = src_dir
             if "pgdb" in options:
                 cfg["config"]["database_name"] = options["pgdb"]
@@ -549,47 +539,6 @@ class KioskRestore:
         except (IOError, Exception) as e:
             print(f"Error: {e}")
             cls._abort_with_error(-1, f"Exception in create_kiosk: {repr(e)}")
-
-    @classmethod
-    def write_start_ps1(cls, app_folder, kiosk_dir, kiosk_parent_dir, options, transfer_dir):
-        with open(path.join(kiosk_parent_dir, "start.ps1"), "w") as f:
-            f.write(r'''
-                $env:HostIP = (
-                    Get-NetIPConfiguration |
-                    Where-Object {
-                        $_.IPv4DefaultGateway -ne $null -and
-                        $_.NetAdapter.Status -ne "Disconnected"
-                    }
-                ).IPv4Address.IPAddress
-                # [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
-                # $oReturn=[System.Windows.Forms.Messagebox]::Show("The kiosk server runs on http://" + $env:HostIP + ":5000")
-                '**********************************************************'
-                'Kiosk Server is running as http://' + $env:HostIP + ':5000'
-                '**********************************************************'
-            ''')
-            f.write(f'''$env:FLASK_APP = "{app_folder}"\n
-    # uncomment the following line for debugging purposes, but never on live online systems!\n
-    # $env:FLASK_DEBUG = 1\n
-    # use "development" if you want autostart when sources are change.\n
-    $env:FLASK_ENVIRONMENT="production"\n''')
-            f.write(f'$env:PYTHONPATH="{kiosk_dir};{path.join(kiosk_dir, "core")};'
-                    f'{path.join(kiosk_dir, "core", "sqlalchemy_models")};'
-                    f'{path.join(kiosk_dir, "sync")};')
-            f.write(f'{path.join(kiosk_dir, "sync", "sync")};{path.join(kiosk_dir, "sync", "sync", "core")};"')
-            f.write('\n')
-            if "no_redis" not in options and "sudo_password" in options:
-                f.write(f"""bash -c "echo {options["sudo_password"]} | sudo -S /etc/init.d/redis_6379 start"\n""")
-                f.write(f"Start-Sleep -Seconds 2")
-            f.write(f"{transfer_dir[0]}:")
-            f.write(f'cd "{os.path.join(transfer_dir, "unpackkiosk")}"')
-            f.write(fr'python ".\kioskpatcher-cli.py" --kiosk-dir="{kiosk_dir}" --transfer-dir="{transfer_dir}"')
-            f.write(f'cd "{os.path.join(kiosk_dir, "sync", "sync", "mcpcore")}"')
-            f.write(
-                f'start-process python -ArgumentList "./mcpterminal.py '
-                f'{os.path.join(kiosk_dir, "config", "kiosk_config.yml")} -Verb runAs -WindowStyle Minimized &')
-            f.write(f"Start-Sleep -Seconds 5")
-            f.write(f'cd "{kioskstdlib.get_parent_dir(kiosk_dir)}"')
-            f.write('flask run --host 0.0.0.0')
 
     @classmethod
     def set_new_database_credentials(cls, kiosk_local_config, kiosk_secure_file, options):
@@ -647,7 +596,6 @@ class KioskRestore:
                 if "dbport" in options:
                     print("setting new database port ... ", end=" ", flush=True)
                     cfg_main["config"]["database_port"] = options["dbport"]
-
 
                 with open(kiosk_local_config, "w", encoding='utf8') as ymlfile:
                     ryaml.dump(cfg_main, ymlfile)

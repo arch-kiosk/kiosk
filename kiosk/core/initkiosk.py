@@ -62,6 +62,9 @@ def basic_initialization(config_file):
             print("Flask in mode TESTING \n")
     except:
         pass
+    if "global_constants" not in kioskglobals.cfg["kiosk"]:
+        kioskglobals.cfg["kiosk"]["global_constants"] = {}
+
     kioskglobals.cfg["kiosk"]["global_constants"]["kiosk_version"] = kioskglobals.kiosk_version
     kioskglobals.cfg["kiosk"]["global_constants"]["kiosk_nickname"] = kioskglobals.kiosk_version_name
     try:

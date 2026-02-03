@@ -9,3 +9,11 @@ config:
   # The project_id and the base_path must be in the kiosk_config file! Some tools rely on that convention!
   project_id: ''  # the Kiosk project ID. It must be unique and must never change!
   base_path: ''  # the root directory for Kiosk on this machine
+
+kiosk:
+  global_constants:
+    project_logo_bottom: ' '
+    project_logo_main: ''  # your project name
+    project_logo_top: ''
+    project_name: ''  # your project name
+    project_short: ''  # repeat the project_id here

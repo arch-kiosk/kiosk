@@ -1,4 +1,5 @@
 import logging
+import logging
 import os
 import subprocess
 import sys
@@ -225,7 +226,7 @@ def check_imagemagick():
 
 def check_ghostscript():
     from wand.image import Image
-    with open("test.pdf", "w") as f:
+    with open("test.pdf", "w", encoding='utf-8') as f:
         f.write("just a test file, please delete!")
 
     try:
@@ -547,6 +548,96 @@ def get_current_kiosk_version(kiosk_dir):
     spec.loader.exec_module(updatever)
     return updatever.kiosk_version
 
+def get_server_type():
+    local_server = ""
+    virtual_machine = ""
+    while local_server not in ("y", "n"):
+        if local_server != "":
+            print("\nPlease answer with y for yes or n for no! \n")
+        local_server = input("Is this a local server? (y/n)")
+    if local_server == "y":
+        while virtual_machine not in ("y", "n"):
+            if virtual_machine != "":
+                print("\nPlease answer with y for yes or n for no! \n")
+            virtual_machine = input("Is this a virtual machine setup? (y/n)")
+        return "local", ("virtual" if virtual_machine == "y" else "")
+    else:
+        return "online", ""
+
+def write_start_scripts(app_folder, kiosk_dir, options, transfer_dir):
+    kiosk_parent_dir = kioskstdlib.get_parent_dir(kiosk_dir)
+    with open(path.join(kiosk_parent_dir, "kioskpaths.ps1"), "w", encoding='utf-8') as f:
+        f.write(f'$env:PYTHONPATH="{kiosk_dir};{path.join(kiosk_dir, "core")};'
+                f'{path.join(kiosk_dir, "core", "sqlalchemy_models")};'
+                f'{path.join(kiosk_dir, "sync")};')
+        f.write(f'{path.join(kiosk_dir, "sync", "sync")};{path.join(kiosk_dir, "sync", "sync", "core")};"')
+        f.write('\n')
+    with open(path.join(kiosk_parent_dir, "start.ps1"), "w", encoding='utf-8') as f:
+            f.write(r"""
+
+$env:HostIP = (
+    Get-NetIPConfiguration | Where-Object {
+        $_.IPv4DefaultGateway -ne $null -and 
+        $_.IPv4Address.IPAddress -like "192.168.*"
+    } | Select-Object -ExpandProperty IPv4Address | Select-Object -ExpandProperty IPAddress -First 1
+)
+
+'**********************************************************'
+'Kiosk Server is running as http(s)://' + $env:HostIP
+'**********************************************************'
+            """)
+
+            if "machine_type" in options and options["machine_type"] == "virtual":
+                f.write(fr'net use y: \\vboxsvr\shared  # Kiosk VM drive with file repository')
+                f.write('\n')
+                f.write(fr'net use z: \\vboxsvr\backup  # Kiosk backup drive with backup folder')
+                f.write('\n')
+                f.write(fr'net stop wuauserv  # stop windows update server')
+                f.write('\n')
+                f.write(fr'net stop bits  # stop windows transfer service')
+                f.write('\n')
+                f.write(fr'net stop wauserv  # stop windows update medic service')
+                f.write('\n')
+
+            f.write(f"""$env:FLASK_APP = "{app_folder}"\n
+# uncomment the following line for debugging purposes, but never on live online systems
+# $env:FLASK_DEBUG = 1
+$env:FLASK_ENVIRONMENT="production"\n""")
+            f.write(f'$env:PYTHONPATH="{kiosk_dir};{path.join(kiosk_dir, "core")};'
+                    f'{path.join(kiosk_dir, "core", "sqlalchemy_models")};'
+                    f'{path.join(kiosk_dir, "sync")};')
+            f.write(f'{path.join(kiosk_dir, "sync", "sync")};{path.join(kiosk_dir, "sync", "sync", "core")};"')
+            f.write('\n')
+
+            if "machine_type" in options and options["machine_type"] == "virtual":
+                if "sudo_password" in options:
+                    f.write(fr"""bash -c "echo {options["sudo_password"]} | sudo -S /etc/init.d/redis_6379 start" """)
+                else:
+                    f.write(fr"""bash -c "echo **add-sudo-password** | sudo -S /etc/init.d/redis_6379 start" """)
+                f.write('\n')
+                f.write(fr"Start-Sleep -Seconds 2")
+                f.write('\n')
+
+            f.write(fr"{transfer_dir[0]}:")
+            f.write('\n')
+            f.write(fr'cd "{os.path.join(transfer_dir, "unpackkiosk")}"')
+            f.write('\n')
+            f.write(fr'python ".\kioskpatcher-cli.py" --kiosk-dir="{kiosk_dir}" --transfer-dir="{transfer_dir}"')
+            f.write('\n')
+            f.write(fr"{kiosk_dir[0]}:")
+            f.write('\n')
+            f.write(fr'cd "{os.path.join(kiosk_dir, "sync", "sync", "mcpcore")}"')
+            f.write('\n')
+            f.write(
+                r'start-process python -ArgumentList "./mcpterminal.py '
+                fr'{os.path.join(kiosk_dir, "config", "kiosk_config.yml")}" -Verb runAs -WindowStyle Minimized &')
+            f.write('\n')
+            f.write(r"Start-Sleep -Seconds 5")
+            f.write('\n')
+            f.write(fr'cd "{kiosk_dir}"')
+            f.write('\n')
+            f.write(fr'python .\run_kiosk.py')
+            f.write('\n')
 
 if __name__ == '__main__':
     options = {}
@@ -715,7 +806,11 @@ if __name__ == '__main__':
         if not ("dbuser" in options and "dbpwd" and "dbname" in options):
             logging.error("creating a new kiosk needs dbuser, dbpwd and dbname parameters!")
             usage()
+        server_type = get_server_type()
+        options["server_type"] = server_type[0]
+        options["machine_type"] = server_type[1]
         KioskRestore.create_kiosk(src_dir, kiosk_dir, cfg_file, options)
+        write_start_scripts(app_folder="kiosk", kiosk_dir=kiosk_dir, options=options, transfer_dir=src_dir)
         options.update({"create_kiosk": None})
 
     ### From now on this is using KioskConfig:

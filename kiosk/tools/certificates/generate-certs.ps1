@@ -1,8 +1,10 @@
-# 1. Setup - Find OpenSSL
+# 1. Setup - Variables & OpenSSL Path
+$caName = "kioskca"  # Change this to rename your CA files (e.g., "CompanyRoot")
 $openssl = "openssl"
+
 if (!(Get-Command openssl -ErrorAction SilentlyContinue)) {
     $gitPath = "C:\Program Files\Git\usr\bin\openssl.exe"
-    if (Test-Path $gitPath) { $openssl = $gitPath } 
+    if (Test-Path $gitPath) { $openssl = $gitPath }
     else { Write-Error "OpenSSL not found. Please install Git for Windows."; return }
 }
 
@@ -23,59 +25,55 @@ if (!(Test-Path $browserDir)) { New-Item -ItemType Directory -Path $browserDir }
 
 Write-Host "`n--- Kiosk Certificate Manager (Stable Config Mode) ---" -ForegroundColor Cyan
 
-# 4. Handle Root CA (Check if it exists first!)
-if (Test-Path "$baseDir\ca.key") {
-    Write-Host "[!] Existing Root CA found. Using saved ca.key." -ForegroundColor Gray
+# 4. Handle Root CA
+$caKey = "$baseDir\$caName.key"
+$caCrt = "$browserDir\$caName.crt"
+$caDer = "$browserDir\$caName.der"
+$caSrl = "$baseDir\$caName.srl"
+
+if (Test-Path $caKey) {
+    Write-Host "[!] Existing Root CA found. Using saved $caName.key." -ForegroundColor Gray
 } else {
-    Write-Host "[+] Generating NEW 10-Year Root CA..." -ForegroundColor Yellow
-    $env:DN_SECTION = "ca_dn"  # Tells OpenSSL to use [ca_dn] in v3.ext
-    & $openssl genrsa -out "$baseDir\ca.key" 4096
-    & $openssl req -x509 -new -nodes -key "$baseDir\ca.key" -sha256 -days 3650 -out "$browserDir\ca.crt" `
+    Write-Host "[+] Generating NEW 10-Year Root CA ($caName)..." -ForegroundColor Yellow
+    $env:DN_SECTION = "ca_dn"
+    & $openssl genrsa -out $caKey 4096
+    & $openssl req -x509 -new -nodes -key $caKey -sha256 -days 3650 -out $caCrt `
         -config v3.ext -extensions v3_ca
 
-    # Create the DER version for Android compatibility
     Write-Host "[+] Creating Android-compatible (DER) Root CA..." -ForegroundColor Green
-    & $openssl x509 -in "$browserDir\ca.crt" -outform DER -out "$browserDir\ca.der"
+    & $openssl x509 -in $caCrt -outform DER -out $caDer
 }
 
 # 5. Generate fresh Server Identity (CSR)
 Write-Host "[+] Creating fresh Server Certificate (730 days)..." -ForegroundColor Yellow
-$env:DN_SECTION = "server_dn" # Tells OpenSSL to use [server_dn] in v3.ext
+$env:DN_SECTION = "server_dn"
 & $openssl req -nodes -newkey rsa:2048 -keyout "$serverDir\server.key" -out "$baseDir\server.csr" `
     -config v3.ext
 
 # 6. Sign the Server Certificate with the Root CA
 Write-Host "[+] Signing Server Certificate with SANs..." -ForegroundColor Yellow
-& $openssl x509 -req -in "$baseDir\server.csr" -CA "$browserDir\ca.crt" -CAkey "$baseDir\ca.key" `
-    -CAserial "$baseDir\ca.srl" -CAcreateserial `
+& $openssl x509 -req -in "$baseDir\server.csr" -CA $caCrt -CAkey $caKey `
+    -CAserial $caSrl -CAcreateserial `
     -out "$serverDir\server.crt" -days 730 -sha256 -extfile v3.ext -extensions v3_server
 
 # 7. Final Sanity Check & Cleanup
 Write-Host "`n--- Verification Details ---" -ForegroundColor Cyan
 if (Test-Path "$serverDir\server.crt") {
-    # Extract Subject
     $subj = & $openssl x509 -in "$serverDir\server.crt" -noout -subject
     Write-Host "Subject:  $subj" -ForegroundColor Gray
 
-    # Extract Expiry
     $expiry = & $openssl x509 -in "$serverDir\server.crt" -noout -enddate
     Write-Host "Expiry:   $expiry" -ForegroundColor Gray
 
-    # Extract SANs (DNS and IP entries)
     $sans = & $openssl x509 -in "$serverDir\server.crt" -noout -ext subjectAltName
     if ($sans) {
         Write-Host "Alt Names: $($sans.Replace('subjectAltName=', '').Trim())" -ForegroundColor Green
-    } else {
-        Write-Warning "No Subject Alternative Names (SANs) found!"
     }
 
-    # Cleanup temp CSR
     Remove-Item "$baseDir\server.csr"
 } else {
     Write-Error "CRITICAL: Server certificate was not generated."
 }
 
-# Reset the environment variable
 $env:DN_SECTION = ""
-
-Write-Host "`nDONE. Ready for deployment." -ForegroundColor Cyan
+Write-Host "`nDONE. Files generated with prefix: $caName" -ForegroundColor Cyan
