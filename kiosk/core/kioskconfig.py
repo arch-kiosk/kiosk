@@ -74,13 +74,3 @@ class KioskConfig(SyncConfig):
         else:
             return 60 * 60 * 2  # default is 2 hours
 
-    def get_agnostic_mode(self) -> bool:
-        """
-        checks if this kiosk's file repository must run in agnostic mode
-        :return:
-        """
-        try:
-            return kioskstdlib.to_bool(kioskstdlib.try_get_dict_entry(self.kiosk["filerepositoryplugin"],
-                                                                      "agnostic_mode", False))
-        except BaseException as e:
-            return False
