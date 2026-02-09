@@ -118,11 +118,11 @@ class FileViewerController {
         this.url = ""
     }
 
-    _loadImage(fileIndex, loadData=true) {
+    _loadImage(fileIndex, loadData=true, reload=false) {
         const resolutionLabel = this.lightBoxElement?.currentResolution??""
         let resolutionId = "master"
         this.lastErrorOnOpen = undefined
-        if (this.loading) return false
+        if (this.loading) return true
         try {
             if (resolutionLabel !== "") {
                 let entry = Object.entries(this.resolutions).find((v) => v[0] === resolutionLabel)
@@ -152,8 +152,11 @@ class FileViewerController {
                         resolution: resolutionId
                     })).url;
                 if (url) {
-                    this.loading = true
-                    console.log("loading");
+                    this.loading = !reload
+                    // this is a hack. What actually needs to happen is that
+                    // the Ligtbox throws an beforeOpen event or something else even if
+                    // the image was already loaded.
+                    if (this.loading) console.log("loading");
 
                     if (loadData)
                         this._loadData(uuid)
@@ -229,7 +232,7 @@ class FileViewerController {
     }
 
     reloadData() {
-        this._loadImage(this.currentIndex)
+        this._loadImage(this.currentIndex, reload=true)
     }
 
     reloadFile(newDimensions = null) {
