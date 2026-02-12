@@ -5,6 +5,7 @@ import logging
 import os
 import io
 import pstats
+from logging import info
 from typing import Tuple
 
 from werkzeug import datastructures
@@ -589,6 +590,10 @@ class RecordingWorkstation(Dock):
         """
         ok = True
         uid_file = ""
+        cfg = SyncConfig.get_config()
+        analyze_files = cfg.recordingworkstation["analyze_files"] if (hasattr(cfg, "recordingworkstation") and
+                "analyze_files" in cfg.recordingworkstation) else []
+
         try:
             c_records = 0
             # what the heck is that? That must be an old check from times when there was trouble around here.
@@ -597,7 +602,7 @@ class RecordingWorkstation(Dock):
             ws_files_table = KioskSQLDb.sql_safe_namespaced_table(namespace=self._db_namespace,
                                                                   db_table=f"{self._id}_{FILES_TABLE_NAME}")
 
-            file_repos = FileRepository(SyncConfig.get_config(),
+            file_repos = FileRepository(cfg,
                                         self._sync.events,
                                         self._sync.type_repository,
                                         self._sync)
@@ -607,6 +612,7 @@ class RecordingWorkstation(Dock):
 
             master_dsd = Dsd3Singleton.get_dsd3()
             file_picking_rules = self._fork_get_file_picking(file_repos, master_dsd)
+            file_picking_rules.analyze = True
             #  We want to prepare only those files that are referenced by a record that has been
             #  actually exported to the device. files_table is querying the workstation-specific files table
             #  and not the master database's.
@@ -631,7 +637,8 @@ class RecordingWorkstation(Dock):
 
                 ok = self._prepare_file_for_export_v2(file_repos,
                                                       uid_file,
-                                                      fh_set, file_picking_rules)
+                                                      fh_set, file_picking_rules,
+                                                      analyze = uid_file in analyze_files)
                 if ok:
                     r = cur.fetchone()
                 else:
@@ -677,7 +684,8 @@ class RecordingWorkstation(Dock):
                                     file_repos: FileRepository,
                                     uid_file,
                                     fh_set: FileHandlingSet,
-                                    file_picking: KioskFilePicking) -> bool:
+                                    file_picking: KioskFilePicking,
+                                    analyze=False) -> bool:
         """ prepares a single file representation that will represent the file in the workstation.
             meant to be called only by _prepare_files_table_for_file_export_v2.
 
@@ -685,6 +693,7 @@ class RecordingWorkstation(Dock):
         :param uid_file:  the uid if the file
         :param fh_set: a FileHandlingSet instance
         :param file_picking: a properly initialized KioskFilePicking instance
+        :param analyze: write a more detailed explanation why the file was chosen or not to the log
 
         :return: True/False, should not throw exceptions
         """
@@ -692,6 +701,9 @@ class RecordingWorkstation(Dock):
             cfg = SyncConfig.get_config()
             f, src_file = self._get_file_and_filename(cfg, file_repos, uid_file)
             if src_file == "dummy":
+                if analyze:
+                    logging.error(f"{self.__class__.__name__}._prepare_file_for_export_v2: "
+                                  f"file {uid_file} not included because it does not exist.")
                 file_type = "broken"
             else:
                 file_type = kioskstdlib.get_file_extension(src_file)
@@ -704,7 +716,8 @@ class RecordingWorkstation(Dock):
                                                                         fh_set,
                                                                         file_picking,
                                                                         src_file,
-                                                                        uid_file)
+                                                                        uid_file,
+                                                                        analyze=analyze)
             # logging.debug(f"{self.__class__.__name__}._prepare_file_for_export_v2: "
             #               f"file handling results for file {uid_file}: {file_handling_results}")
         except BaseException as e:
@@ -750,7 +763,7 @@ class RecordingWorkstation(Dock):
             logging.error(f"{self.__class__.__name__}._prepare_file_for_export_v2(2): {repr(e)}")
         return False
 
-    def _compute_file_handling_results(self, f, fh_set, file_picking, src_file, uid_file) -> dict:
+    def _compute_file_handling_results(self, f, fh_set, file_picking, src_file, uid_file, analyze=False) -> dict:
         """
         subroutine of _prepare_file_for_export_v2: figures out how to actually handle the file.
         This does most of the work.
@@ -777,6 +790,10 @@ class RecordingWorkstation(Dock):
             else:
                 dimensions = self._get_file_dimensions(f, src_file)
                 fp_rule = file_picking.get_file_picking_rule(uid_file)
+                if fp_rule and analyze:
+                    logging.info(f"{self.__class__.__name__}._compute_file_handling_results: "
+                                  f"file {uid_file} got file picking rule {fp_rule.as_str()}")
+
                 if not fp_rule:
                     raise Exception(f"No file picking rule for file {uid_file}. Don't know how to handle this file.")
 
@@ -784,6 +801,11 @@ class RecordingWorkstation(Dock):
                                                    resolution=fp_rule.resolution)
                 if fh_rule:
                     representation = KioskRepresentationType.from_file_handling_rule(fh_rule)
+                    if analyze:
+                        logging.info(f"{self.__class__.__name__}._compute_file_handling_results: "
+                                     f"file {uid_file} got file picking rule {fp_rule} with "
+                                     f"resolution {fp_rule.resolution}")
+
                 else:
                     raise Exception(f"No file handling rule for file {uid_file} and resolution {fp_rule.resolution}")
 

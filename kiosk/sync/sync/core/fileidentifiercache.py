@@ -183,6 +183,13 @@ class FileIdentifierCache:
 
         return list(files)
 
+    # todo: needs a file count
+    # def filecount(self):
+    #     query = ContextDirectSqlQuery(self._get_sql_source())
+    #     params = {"sql": "distinct data from {base} where data not in (select distinct data from {base} "
+    #                      f"where record_type={DatabaseDriver.quote_value('VARCHAR', record_type)})"}
+    #     query.define_from_dict(params)
+
     def get_distinct_contexts(self):
         query = ContextDirectSqlQuery(self._get_sql_source())
         params = {"sql": "distinct identifier, id_uuid from {base}"}

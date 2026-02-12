@@ -48,6 +48,15 @@ class KioskFilePickingRule:
         """
         return self.__dict__
 
+    def as_str(self):
+        return (f"workstation_type: {self.workstation_type}, "
+                f"recording_group: {self.recording_group},"
+                f"order: {self.order},"
+                f"rule_type: {self.rule_type},"
+                f"operator: {self.operator},"
+                f"value: {self.value},"
+                f"resolution: {self.resolution}")
+
     def set_by_dict(self, values: dict):
         """
         sets the rule's attributes from the given dict

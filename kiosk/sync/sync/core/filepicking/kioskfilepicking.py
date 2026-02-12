@@ -24,6 +24,7 @@ class KioskFilePicking:
         self._workstation_type = workstation_type
         self._recording_group = recording_group
         self._dsd = dsd
+        self.analyze = False
         self._fid = file_identifier_cache
         self._identifiers = MemoryIdentifierCache(self._dsd)
         self._rules = KioskFilePickingRules(workstation_type=self._workstation_type,
@@ -149,6 +150,9 @@ class KioskFilePicking:
         else:
             raise FilePickingRuleError(f"operator {operator} unknown in file picking rule context")
 
+        if self.analyze:
+            logging.info(f"{self.__class__.__name__}._rule_record_type: {len(files)} files addressed "
+                         f"by record type {record_type} (rule {rule.as_str()})")
         for c in files:
             self._files[c] = rule
 
@@ -281,10 +285,10 @@ class KioskFilePicking:
         if not self._rules_processed:
             self.process_rules()
 
-        rule = self._all_rule
-        other_rule = kioskstdlib.try_get_dict_entry(self._files, file_uid, None)
-        if other_rule:
-            rule = other_rule
+        rule = kioskstdlib.try_get_dict_entry(self._files, file_uid, None) or self._all_rule
+        # other_rule =
+        # if other_rule:
+        #     rule = other_rule
 
         # just to make extra sure:
         if rule.resolution == "dummy":

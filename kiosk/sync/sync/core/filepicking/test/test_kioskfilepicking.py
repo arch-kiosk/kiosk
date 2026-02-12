@@ -24,6 +24,7 @@ rules_set_tag_complementary = os.path.join(test_path, r"sql", "rule_set_1_tag_co
 records_sql = os.path.join(test_path, r"sql", "records_kiosk_context.sql")
 more_records_sql = os.path.join(test_path, r"sql", "more_records.sql")
 records_for_xin_test = os.path.join(test_path, r"sql", "records_kiosk_context_xin_test.sql")
+archival_records_sql = os.path.join(test_path, r"sql", "records_archival_entities.sql")
 
 
 # noinspection DuplicatedCode
@@ -532,3 +533,61 @@ class TestContextKioskFilePicking(KioskPyTestHelper):
         assert rule.rule_type == "all"
         assert rule.resolution == "dummy"  # it is dummy because on level 1 the "ALL" rule is completely ignored,
         # so the default kicks in
+
+    def test_archival_records(self, cfg, urapdb, dsd, records):
+        KioskSQLDb.run_sql_script(archival_records_sql)
+
+        fid = FileIdentifierCache(dsd)
+        files = fid.get_files_with_context()
+        files.sort()
+
+        expected = [('1b8d066b-e3ba-48c5-a41b-e6293e0bc1f4', 'all', 'dummy'),
+                    ('2e1a0b2b-cc10-4e78-9951-b5f65b2ff48c', 'all', 'dummy'),
+                    ('bc660833-50ed-4ea8-bd71-aad498f06b20', 'all', 'dummy'),
+                    ('e6716d6b-f8b2-4c75-99f9-370aa856c5c9', 'all', 'dummy'),
+                    ('a7296e02-4989-468b-ac42-457af8f96859', 'all', 'dummy'),
+                    ('bf608871-b594-4ac5-9b01-09ed4f90f891', 'all', 'dummy'),
+                    ]
+        for case in expected:
+            assert case[0] in files
+        KioskSQLDb.execute('''
+                           truncate table public.repl_file_picking_rules;
+                           ''')
+        fpr = KioskFilePicking("FileMakerWorkstation", fid, dsd)
+        fpr.on_get_files_with_tags = lambda x, y: []
+
+        for case in expected:
+            rule = fpr.get_file_picking_rule(case[0])
+            assert rule.rule_type == case[1], f" {case[0]} failed"
+            assert rule.resolution == case[2], f" {case[0]} failed"
+
+        KioskSQLDb.execute("""                           INSERT INTO public.repl_file_picking_rules (workstation_type,
+                                                                                                     recording_group,
+                                                                                                     "order",
+                                                                                                     rule_type,
+                                                                                                     operator, value,
+                                                                                                     resolution,
+                                                                                                     disable_changes,
+                                                                                                     misc, uid, created,
+                                                                                                     modified,
+                                                                                                     modified_by)
+                                                         VALUES ('FileMakerWorkstation', 'default', 0, 'record_type', '=',
+                                                                 'archival_entity_file', 'high', false, null,
+                                                                 'c2ad70a6-1e08-44ed-9f2c-bccb8be30fbd',
+                                                                 '2021-02-18 17:41:31.281323',
+                                                                 '2021-02-18 17:41:31.281323', 'sys');
+                           """)
+        expected = [('1b8d066b-e3ba-48c5-a41b-e6293e0bc1f4', 'record_type', 'high'),
+                    ('2e1a0b2b-cc10-4e78-9951-b5f65b2ff48c', 'record_type', 'high'),
+                    ('bc660833-50ed-4ea8-bd71-aad498f06b20', 'record_type', 'high'),
+                    ('e6716d6b-f8b2-4c75-99f9-370aa856c5c9', 'record_type', 'high'),
+                    ('a7296e02-4989-468b-ac42-457af8f96859', 'record_type', 'high'),
+                    ('bf608871-b594-4ac5-9b01-09ed4f90f891', 'record_type', 'high'),
+                    ]
+        fpr = KioskFilePicking("FileMakerWorkstation", fid, dsd)
+        fpr.on_get_files_with_tags = lambda x, y: []
+
+        for case in expected:
+            rule = fpr.get_file_picking_rule(case[0])
+            assert rule.rule_type == case[1], f" {case[0]} failed"
+            assert rule.resolution == case[2], f" {case[0]} failed"
