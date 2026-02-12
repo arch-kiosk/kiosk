@@ -289,7 +289,6 @@ file_import:
         get_description_from_exif: True
         priority: 25
 
-
 kiosk:
   security_token_timeout_seconds: 3600
   reset_file: '%base_path%\reset.yml'

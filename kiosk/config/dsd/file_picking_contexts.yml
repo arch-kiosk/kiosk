@@ -64,3 +64,8 @@ config:
           coordinate_photo: {}
           coordinate_categories:
             join: inner("category", "category")
+    fp_archival_entity_file:
+      type: file_picking
+      scope:
+        archival_entity:
+          archival_entity_file: {}

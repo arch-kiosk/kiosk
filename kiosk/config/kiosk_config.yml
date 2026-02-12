@@ -2,7 +2,7 @@ import_configurations:
   - kiosk_default_config.yml
   - kiosk_local_config.yml
   - kiosk_secure.yml
-  - '%custom_path%\anc_kiosk_config.yml'
+#  - '%custom_path%\anc_kiosk_config.yml'
 #  - kiosk_u2ers.yml
 
 
@@ -11,3 +11,8 @@ config:
   #  project_id: 'u2ers'
   base_path: 'C:\notebook_source\kiosk\server\kiosk\kiosk'
   project_id: "test"
+
+recordingworkstation:
+  analyze_files:
+    - 8fed0e46-71f2-4382-b7f6-a8c7f47bb977
+    - 5e48fcb5-d488-4c31-abff-f46e38ce423d

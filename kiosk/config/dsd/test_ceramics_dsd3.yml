@@ -6,12 +6,12 @@ config:
         scope:
           collected_material:
             collected_material_photo: {}
-            su_ceramics:
+            pottery:
               pottery_images: {}
-      su_ceramics_images:
+      pottery_images:
         type: file_search
         scope:
-          su_ceramics:
+          pottery:
             pottery_images: {}
 #su_ceramics:
 #  structure:
@@ -66,29 +66,6 @@ config:
 #        - alter("count")
 #        - alter("weight")
 #
-
-pottery_images:
-  structure:
-    2:
-      uid_pottery: [datatype(UUID), join("su_ceramics")]
-      description: [datatype(VARCHAR), describes_file(uid_image)]
-      uid_image: [datatype(UUID), uid_file(), file_location_for("su_ceramics")]
-      uid: [datatype(UUID), replfield_uuid()]
-      created: [datatype(TIMESTAMP), replfield_created()]
-      modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
-    1:
-      uid_pottery: [datatype(UUID), join("su_ceramics")]
-      description: [datatype(VARCHAR), describes_file(uid_image)]
-      uid_image: [datatype(UUID), uid_file(), file_location_for("su_ceramics")]
-      uid: [datatype(UUID), replfield_uuid()]
-      created: [datatype(TIMESTAMP), replfield_created()]
-      modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
-  migration:
-    2:
-      upgrade:
-        - alter("modified_by")
 
 pottery:
   structure:
@@ -174,3 +151,25 @@ pottery:
         - add("arch_domain")
         - add("arch_context")
 
+pottery_images:
+  structure:
+    2:
+      uid_pottery: [datatype(UUID), join("pottery")]
+      description: [datatype(VARCHAR), describes_file(uid_image)]
+      uid_image: [datatype(UUID), uid_file(), file_location_for("pottery")]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
+    1:
+      uid_pottery: [datatype(UUID), join("pottery")]
+      description: [datatype(VARCHAR), describes_file(uid_image)]
+      uid_image: [datatype(UUID), uid_file(), file_location_for("pottery")]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+  migration:
+    2:
+      upgrade:
+        - alter("modified_by")
