@@ -65,8 +65,11 @@ class Config(logginglib.LoggingFeature):
         pass
 
     def __getattr__(self, item):
-        if "_config" in self.__dict__:
-            return self[item]
+        try:
+            if "_config" in self.__dict__:
+                return self[item]
+        except KeyError:
+            raise AttributeError(f"'{type(self).__name__}' object has no attribute '{item}'")
 
     @property
     def import_mode(self):
