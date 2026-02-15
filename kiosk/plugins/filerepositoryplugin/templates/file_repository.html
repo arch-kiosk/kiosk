@@ -185,19 +185,20 @@
             {% endif %}
             <kiosk-context-selector style="position:fixed" id="select-link-context"></kiosk-context-selector>
         </div>
+        <div class="fr-page-list">
+            {% if page_count > 1 %}
+                {% for page in pages %}
+                    <div
+                        class="fr-page-list-page{% if page == current_page %} fr-page-list-current-page{% endif %}">
+                        {{ page }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
     </div>
     <div id="lower-container">
         <div id="main-content-area">
-            <div class="fr-page-list">
-                {% if page_count > 1 %}
-                    {% for page in pages %}
-                        <div
-                            class="fr-page-list-page{% if page == current_page %} fr-page-list-current-page{% endif %}">
-                            {{ page }}
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            </div>
             <div id="fr-wrapper">
                 <div id="imagelist-outer-wrapper" class="imagelist-background">
                     {% if image_list %}

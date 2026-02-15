@@ -637,6 +637,10 @@ input:disabled {
   opacity: 0.7;
 }
 
+.content {
+  container-type: size;
+}
+
 #fr-wrapper {
   width: 100%;
   background-color: var(--col-bg-body);
@@ -648,7 +652,15 @@ input:disabled {
 }
 
 #fr-sidebar {
+  position: static;
+  top: 0;
+  z-index: 1;
   background-color: var(--col-bg-body);
+}
+@container (height > 700px) {
+  #fr-sidebar {
+    position: sticky;
+  }
 }
 @media only screen and (max-width : 500px) {
   #fr-sidebar {

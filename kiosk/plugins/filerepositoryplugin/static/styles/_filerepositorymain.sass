@@ -1,6 +1,9 @@
 input:disabled
   opacity: 0.7
 
+.content
+  container-type: size
+
 #fr-wrapper
   width: 100%
   background-color: $col-bg-body
@@ -10,12 +13,14 @@ input:disabled
   flex-wrap: nowrap
   flex-grow: 1
 
-
 #fr-sidebar
-  //display: flex
-  //flex-direction: row
-  //flex-wrap: wrap
+  position: static
+  top: 0
+  z-index: 1
   background-color: $col-bg-body
+
+  @container (height > 700px)
+    position: sticky
 
   @media #{$screen-max-500}
     position: relative
@@ -94,6 +99,8 @@ input:disabled
       transform: translate(2px,2px)
   .side-filter-open
     background-color: color-mix(in srgb, var(--col-bg-2), white 25%)
+
+
 //button
 //  width: 8rem
 //  height: 50px
