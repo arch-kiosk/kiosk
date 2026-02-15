@@ -58,20 +58,26 @@ class FileIdentifierCache:
             self.dsd = dsd
 
     def build_file_identifier_cache_from_contexts(self, commit=False) -> bool:
-        sp = KioskSQLDb.begin_savepoint()
+        sp = None if commit else KioskSQLDb.begin_savepoint()
         try:
             sql_source = self._get_sql_source()
             if sql_source:
                 sql_source.build_cache(commit=commit)
-                # if commit:
-                #     KioskSQLDb.commit()
-                KioskSQLDb.commit_savepoint(sp)
+                if sp and not commit:
+                    KioskSQLDb.commit_savepoint(sp)
                 logging.debug(f"{self.__class__.__name__}.migrate: cache {self.cache_name} successfully rebuilt. ")
                 return True
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.build_file_identifier_cache_from_contexts: {repr(e)}. "
                           f"Rolling back to savepoint.")
-            KioskSQLDb.rollback_savepoint(sp)
+            if commit:
+                try:
+                    KioskSQLDb.rollback()
+                except BaseException as e:
+                    logging.error(f"{self.__class__.__name__}.build_file_identifier_cache_from_context: "
+                                  f"Exception during rollback {repr(e)}")
+            else:
+                KioskSQLDb.rollback_savepoint(sp)
         return False
 
     def _get_sql_source(self) -> Union[SqlSourceCached, None]:

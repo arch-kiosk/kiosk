@@ -26,6 +26,7 @@ from migration.migration import Migration
 from migration.postgresdbmigration import PostgresDbMigration
 from statemachine import StateTransition
 from sync_config import SyncConfig
+from pprint import pformat
 
 # todo: take it from the dsd
 FILES_TABLE_NAME = "images"
@@ -723,18 +724,25 @@ class RecordingWorkstation(Dock):
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}._prepare_file_for_export_v2(1): {repr(e)}")
             return False
-
         try:
             if file_handling_results["representation"] or file_handling_results["resolution"] != "dummy":
                 cache_file = f.get(file_handling_results["representation"], True)
                 if cache_file:
                     if "max_file_size_kbytes" in file_handling_results:
                         max_file_size = int(file_handling_results["max_file_size_kbytes"]) * 1024
-                        if max_file_size and kioskstdlib.get_file_size(cache_file) > max_file_size:
-                            cache_file = "dummy"
-                            file_handling_results["location"] = "internal"
-                            file_handling_results["resolution"] = "dummy"
-                            file_handling_results["disable"] = True
+                        if max_file_size:
+                            f_size = kioskstdlib.get_file_size(cache_file)
+                            if f_size > max_file_size:
+                                if analyze:
+                                    logging.info(f"{self.__class__.__name__}._prepare_file_for_export_v2: "
+                                                  f"file {uid_file} not included because "
+                                                  f"its cache file size of {f_size} "
+                                                 f"exceeds the maximum of {max_file_size}.")
+
+                                cache_file = "dummy"
+                                file_handling_results["location"] = "internal"
+                                file_handling_results["resolution"] = "dummy"
+                                file_handling_results["disable"] = True
                 else:
                     cache_file = "dummy"
                     logging.warning(f"{self.__class__.__name__}._prepare_file_for_export_v2: "
@@ -749,6 +757,10 @@ class RecordingWorkstation(Dock):
                     # logging.debug(f"using "
                     #               f"{'raw' if not file_handling_results['representation'] else file_handling_results['representation'].unique_name}"
                     #               f" representation {cache_file}")
+                if analyze:
+                    logging.info(f"{self.__class__.__name__}._prepare_file_for_export_v2: "
+                                 f"registering image transfer for file {uid_file} with "
+                                 f"file handling results {pformat(file_handling_results)}.")
                 ok = self._register_fm_image_transfer_file(uid_file, cache_file,
                                                            file_handling_results["location"],
                                                            file_handling_results["resolution"],
@@ -803,8 +815,7 @@ class RecordingWorkstation(Dock):
                     representation = KioskRepresentationType.from_file_handling_rule(fh_rule)
                     if analyze:
                         logging.info(f"{self.__class__.__name__}._compute_file_handling_results: "
-                                     f"file {uid_file} got file picking rule {fp_rule} with "
-                                     f"resolution {fp_rule.resolution}")
+                                     f"file {uid_file} got file handling rule {pformat(fh_rule)}.")
 
                 else:
                     raise Exception(f"No file handling rule for file {uid_file} and resolution {fp_rule.resolution}")
