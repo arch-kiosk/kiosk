@@ -12,7 +12,7 @@ file_handling:
           representation: none
       NEF_TIF:
         filter:
-          extensions: NEF, TIF, TIFF, RAW, CR2, DNG
+          extensions: NEF, TIF, TIFF, RAW, CR2, DNG, WEBP, HEI, HEIC
         storage:
           location: internal
           representation: 1024x768
@@ -30,7 +30,7 @@ file_handling:
           representation: none
       NEF_TIF:
         filter:
-          extensions: NEF, TIF, TIFF, RAW, CR2, DNG
+          extensions: NEF, TIF, TIFF, RAW, CR2, DNG, WEBP, HEI, HEIC
         storage:
           location: internal
           representation: RAW2400x2500
