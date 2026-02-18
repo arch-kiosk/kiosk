@@ -1248,6 +1248,18 @@ locus_types:
         - add("ask_formation_process")
 lot:
   structure:
+    3:
+      uid_locus: [datatype(UUID), join("locus")]
+      id: [datatype(NUMBER), label(#(/$/glossary/lot:1))]
+      purpose: [datatype(VARCHAR)]
+      date: [datatype(TIMESTAMP)]
+      opening_elevations: [datatype(VARCHAR)]
+      closing_elevations: [datatype(VARCHAR)]
+      bucket_sift_ratio: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     2:
       uid_locus: [datatype(UUID), join("locus")]
       id: [datatype(NUMBER), label(#(/$/glossary/lot:1))]
@@ -1271,6 +1283,9 @@ lot:
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
   migration:
+    3:
+      upgrade:
+        - add("bucket_sift_ratio")
     2:
       upgrade:
         - alter("modified_by")
