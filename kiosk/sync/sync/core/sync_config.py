@@ -675,3 +675,13 @@ class SyncConfig(Config):
                                                                       "keep_fm_open", False))
         except BaseException as e:
             return False
+
+    def get_sync_dir(self):
+        """
+        returns the path to the sync subsystem
+        :return:
+        """
+        if "sync" in self.config:
+            return self.resolve_symbols(self.config["sync"])
+        else:
+            return os.path.join(self.base_path, "sync", "sync")
