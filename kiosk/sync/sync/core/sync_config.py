@@ -664,3 +664,14 @@ class SyncConfig(Config):
                                                                       "agnostic_mode", False))
         except BaseException as e:
             return False
+
+    def keep_mcp_open(self)->bool:
+        """
+        checks if Kiosk (or rather MCP) is supposed to keep FileMaker open across FM jobs
+        :return:
+        """
+        try:
+            return kioskstdlib.to_bool(kioskstdlib.try_get_dict_entry(self.kiosk["kioskfilemakerworkstationplugin"],
+                                                                      "keep_fm_open", False))
+        except BaseException as e:
+            return False
