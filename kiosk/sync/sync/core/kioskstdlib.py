@@ -4,6 +4,7 @@ import time
 import importlib
 import stat
 import threading
+import psutil
 import re
 
 import math
@@ -1856,3 +1857,32 @@ def get_absolute_emergency_html(err_description="Unknown Error", err_2=""):
                     </body>
                 </html>
                 """
+
+
+def ensure_processes_gone(target_names):
+    """
+    Ensures that all processes with the given names are terminated.
+    If a process doesn't exist, it does nothing.
+    Written by AI
+    """
+    for proc in psutil.process_iter(['name']):
+        try:
+            if proc.info['name'] in target_names:
+                logging.debug(f"kioskstdlib.ensure_processes_gone: Found {proc.info['name']}, terminating...")
+
+                # 1. Polite request
+                proc.terminate()
+
+                # 2. Wait a brief moment to see if it listens
+                gone, alive = psutil.wait_procs([proc], timeout=3)
+
+                # 3. If it's still alive after 3 seconds, use the hammer
+                for p in alive:
+                    logging.debug(f"kioskstdlib.ensure_processes_gone: Found {proc.info['name']}, "
+                                  f"terminating with a hammer ...")
+                    p.kill()
+
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+        except BaseException as e:
+            logging.error(f"kioskstdlib.ensure_processes_gone: Exception when terminating process {repr(e)}")
