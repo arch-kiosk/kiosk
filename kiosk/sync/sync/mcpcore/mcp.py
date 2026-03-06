@@ -1,7 +1,12 @@
 # Master Control Program - job scheduler for Kiosk
-import kioskdatetimelib
+from typing import Union
 
-MCP_VERSION = "0.5"
+import kioskdatetimelib
+import kioskstdlib
+from plugins.syncmanagerplugin.kioskworkstationjobs import JOB_META_TAG_KEEP_FM
+from sync_config import SyncConfig
+
+MCP_VERSION = "0.6"
 
 import inspect
 import logging
@@ -21,6 +26,7 @@ from mcpinterface.mcpconstants import MCPJobStatus, KEY_MCP_PULSE, MCP_PULSE_TIM
 from mcpinterface.mcpqueue import MCPQueue
 from mcpinterface.mcpjob import MCPJob
 from mcpcore.mcpworker import mcp_worker
+from filemakerrecording.filemakercontrol import FileMakerControl
 
 
 class MCPCancelledError(Exception):
@@ -28,11 +34,21 @@ class MCPCancelledError(Exception):
 
 
 class MCP:
-    def __init__(self, gs: GeneralStore):
+    def __init__(self, gs: GeneralStore, config: SyncConfig):
         self.gs = gs
         self.queue = OrderedDict()
         self.mcp_pulse_timeout = MCP_PULSE_TIMEOUT
         self.in_debug_mode = False
+        self.mcp_cfg = config
+        self.fm_instance: Union[FileMakerControl, None] = None
+        self.fm_user = config.filemaker_db_usr_name
+        self.fm_pwd = config.filemaker_db_usr_pwd
+        fm_dummy_db = os.path.join(config.get_sync_dir(), "mcpcore", "mcp_dummy.fmp12")
+        if os.path.exists(fm_dummy_db):
+            self.fm_dummy_db = fm_dummy_db
+        else:
+            logging.error(f"{self.__class__.__name__}.__init__: FM dummy db {fm_dummy_db} not found.")
+        self.kill_filemaker_processes()
 
     def _load_queue(self):
         """
@@ -129,7 +145,7 @@ class MCP:
         Idling means they are in status >= JOB_DONE and their ts_modified date has not been updated
         within seconds_to_idle.
 
-        Can be used in a garbage collection thread for it creates is own internal queue unless queue is given.
+        Can be used in a garbage collection thread for it creates its own internal queue unless queue is given.
         If a queue is given only ONE process will be terminated / cancelled / removed per call!
         This makes sure that MCP is not blocked for too long.
 
@@ -305,6 +321,21 @@ class MCP:
                 except ValueError as e:
                     logging.error(repr(e))
                     return 0
+
+                try:
+                    if job.meta_data and JOB_META_TAG_KEEP_FM in job.meta_data:
+                        self.provide_filemaker_instance()
+                    else:
+                        self.end_filemaker_instance_if_any()
+                except BaseException as e:
+                    logging.error(f"{self.__class__.__name__}.start_job: MCP error on providing or "
+                                  f"ending an fm instance: {repr(e)}")
+                    job.publish_result({"success": False,
+                                             "message": f"Master Control could not interact with FileMaker: {repr(e)}"})
+                    job.set_status_to(MCPJobStatus.JOB_STATUS_ABORTED)
+                    return 0
+
+                return 1
                 if self.in_debug_mode:
                     try:
                         return self.debug_process(job.job_id, job.kiosk_base_path, job.config_file, test_mode=test_mode)
@@ -340,3 +371,44 @@ class MCP:
 
     def loop(self):
         pass
+
+    def provide_filemaker_instance(self):
+        """
+        makes sure that a FileMaker instance is available after this call
+        :return:
+        """
+
+        if not self.fm_dummy_db:
+            raise Exception("dummy db cannot be found in MCP directory")
+        self.fm_instance = FileMakerControl.get_instance()
+        self.fm_instance.no_gc = True
+        try:
+            fm_doc = self.fm_instance.simple_open_fm_db(fm_pathandfilename=self.fm_dummy_db,
+                                                        userid=self.fm_user, userpwd=self.fm_pwd)
+            if not fm_doc:
+                raise Exception("simple_open_fm_db failed - cannot provide a FileMaker instance")
+            else:
+                time.sleep(1)
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.provide_filemaker_instance: {repr(e)}")
+            self.end_filemaker_instance_if_any()
+            raise e
+
+    def end_filemaker_instance_if_any(self):
+        """
+        closes a potentially open FileMaker instance
+        :return:
+        """
+        try:
+            if self.fm_instance and hasattr(self.fm_instance,"fmapp") and self.fm_instance.fmapp:
+                self.fm_instance.close_fm()
+
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.end_filemaker_instance_if_any: {repr(e)}")
+        self.fm_instance = None
+
+    def kill_filemaker_processes(self):
+        kioskstdlib.ensure_processes_gone(["FileMaker Pro.exe", "fmxdbc_listener.exe"])
+
+    def stop(self):
+        self.end_filemaker_instance_if_any()

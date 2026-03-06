@@ -2,6 +2,7 @@ import contextlib
 import inspect
 import logging
 import os
+import pprint
 import sys
 import time
 import datetime
@@ -196,6 +197,7 @@ class MCPTerminalView(MCPView):
                     lines = [f"{job.project_id}-Job {job.job_id}: {MCPJobStatus.STATUS_TO_STR[job.status]}",
                              f"created: {job.get_job_info_attribute('ts_created')}",
                              f"worker: {job.get_worker()[1]}{'(BG)' if job.background_job else ''}: {result}",
+                             f"meta: {pprint.pformat(job.meta_data)}",
                              f"{progress}"]
                     max_width = self.get_max_width(lines)
                     max_width = term.width if max_width + 3 > term.width else max_width + 3
@@ -307,6 +309,8 @@ class MCPLoop:
         i = 0
         while not self.cancel:
 
+            if self.mcp_view:
+                self.mcp_view.async_refresh_screen(self.mcp.queue)
             job = self.mcp.next_job()
             try:
                 if job:
@@ -328,6 +332,7 @@ class MCPLoop:
                 self.mcp_view.async_refresh_screen(self.mcp.queue)
             time.sleep(1)
             i += 1
+        self.mcp.stop()
 
 
 def init_logging(cfg):
@@ -362,7 +367,7 @@ def create_new_file_log(root_path, cfg, logger: logging.Logger):
 
         log_file = datetime.datetime.strftime(datetime.datetime.now(), log_pattern)
         ch = logging.FileHandler(filename=log_file)
-        ch.setLevel(logging.INFO)
+        ch.setLevel(cfg.log_level)
 
         formatter = logging.Formatter(
             '>[%(process)d/%(thread)d: %(module)s.%(levelname)s at %(asctime)s]: %(message)s')
@@ -441,7 +446,7 @@ if __name__ == '__main__':
         logging.error(f"ERROR in MCP Terminal, main: Attempt to start MCP twice.")
         exit(0)
 
-    mcp_instance = MCP(gs)
+    mcp_instance = MCP(gs, sync_config)
     mcp_instance.in_debug_mode = in_debug_mode
     mcp_instance.publish_version()
     mcp_view = MCPTerminalView(gs)

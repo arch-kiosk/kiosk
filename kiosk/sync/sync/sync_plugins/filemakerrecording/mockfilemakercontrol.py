@@ -33,6 +33,7 @@ class MockWorkstation(Dock):
 
 class FileMakerControlMock(FileMakerControl):
     def __init__(self):
+        super().__init__()
         self.cnxn = None
         self.fmapp = None
         self.fm_doc = None

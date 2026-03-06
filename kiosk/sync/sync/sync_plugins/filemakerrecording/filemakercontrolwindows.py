@@ -39,10 +39,12 @@ class FileMakerControlWindows(FileMakerControl):
         self.opened_filename = ""
         self.odbc_ini_dsn = ""
         self.template_version = ""
+        super().__init__()
 
     def __del__(self):
         try:
-            self._quit_fm_db()
+            if not self.no_gc:
+                self._quit_fm_db()
         except WindowsError as e:
             pass
         except BaseException as e:
@@ -91,7 +93,8 @@ class FileMakerControlWindows(FileMakerControl):
             return ""
 
     def _start_fm_db_with_com(self, fm_pathandfilename, userid, userpwd):
-        """ starts a filemaker database using com. \n
+        """ starts a NEW filemaker database using com.
+        This might start a new FM instance even if there is already an existing one.\n
         returns either the com document object of the filemaker Model or
         None, if something went wrong. In the latter case the filemaker Model will also be
         closed again to prevent succeeding errors. """
@@ -109,6 +112,72 @@ class FileMakerControlWindows(FileMakerControl):
             if doc is not None:
                 logging.debug("%s has been opened." % doc.FullName)
             return (doc)
+        except Exception as e:
+            logging.error("Exception opening fm-database:" + repr(e))
+            try:
+                self._quit_fm_db()
+            except:
+                pass
+        return None
+
+    def get_or_start_fm_instance(self, dont_start=False):
+        # import locally because on IIS it throws an exception.
+        import win32com.client
+        try:
+            if not self.fmapp:
+                pythoncom.CoInitialize()
+
+            # Try to get the existing running instance
+            self.fmapp = win32com.client.GetActiveObject("FileMaker.Application")
+            logging.debug("Attached to an existing FileMaker instance.")
+            time.sleep(.5)
+        except Exception as e:
+            # If not running, start a new one
+            if dont_start:
+                logging.debug(f"{self.__class__.__name__}.get_or_start_fm_instance: No running FM Instance: {repr(e)}")
+                self.fmapp = None
+            else:
+                self.fmapp = win32com.client.Dispatch("FMPRO.Application")
+                logging.debug("Started a new FileMaker instance.")
+        return self.fmapp
+
+    def _get_open_doc(self, target_path):
+        """Checks if the document is already open in the FM instance."""
+        if self.fmapp is None:
+            return None
+
+        import os
+        target_norm = os.path.normpath(target_path).lower()
+
+        for doc in self.fmapp.Documents:
+            # FullName usually returns the OS path
+            if os.path.normpath(doc.FullName).lower() == target_norm:
+                logging.debug(f"Found already open document: {doc.FullName}")
+                return doc
+        return None
+
+    def _connect_or_start_fm_db_with_com(self, fm_pathandfilename, userid, userpwd):
+        """ connects to an existing FM database using com.
+        Only if there is no active FM instance this will start FM,
+
+        returns either the com document object of the filemaker Model or
+        None, if something went wrong.
+
+        In the latter case the filemaker Model will also be
+        closed again to prevent succeeding errors. """
+        try:
+            self.get_or_start_fm_instance()
+            self.fmapp.Visible = 1
+            doc = self._get_open_doc(fm_pathandfilename)
+            if not doc:
+                fmdocs = self.fmapp.Documents
+                logging.debug("Trying to open " + fm_pathandfilename)
+                doc = fmdocs.Open(fm_pathandfilename, userpwd, userid)
+                if doc is not None:
+                    logging.debug("%s has been opened." % doc.FullName)
+
+            self.fm_doc = doc
+            return self.fm_doc
         except Exception as e:
             logging.error("Exception opening fm-database:" + repr(e))
             try:
@@ -202,6 +271,9 @@ class FileMakerControlWindows(FileMakerControl):
         except BaseException as e:
             logging.error(repr(e))
         self.opened_filename = ""
+
+    def close_fm(self):
+        self._quit_fm_db()
 
     def start_fm_database(self, workstation, pathandfilename="export", codepage_encoding="Latin1",
                           use_odbc_ini_dsn=False):
@@ -1067,7 +1139,6 @@ class FileMakerControlWindows(FileMakerControl):
             # fm_cur.execute(f"delete from \"{files_table}\" "
             #                f"where \"uid\" not in (select \"uid\" from \"{files_load_table}\")")
 
-
             sql = f"""update \"{files_table}\" set ref_uid='obsolete'
                            where \"uid\" in (
                               select \"{files_table}\".\"uid\" from \"{files_table}\" 
@@ -1158,8 +1229,9 @@ class FileMakerControlWindows(FileMakerControl):
             logging.info(f"last sql was {sql}")
 
         return False
+
     def _sync_files_load_and_files(self, columns_to_copy, files_table, fm_cur,
-                                       callback_progress=None):
+                                   callback_progress=None):
         """
         synchronizes the files_load table and the files table.
         Why not just copy the files_load table onto the files_table? Was that too slow?
@@ -1177,17 +1249,16 @@ class FileMakerControlWindows(FileMakerControl):
 
             # first delete all records in the file table that are not in the _load table
 
-
             self.cnxn.commit()
 
             rc = self._start_fm_script_and_wait("prepare_image_transfer", 60)
             if rc == "1":
                 prep_result = self.get_constant("image_transfer_prep")
                 logging.info(f"{self.__class__.__name__}._sync_files_load_and_files: "
-                              f"The FM Script prepare_image_transfer requests {prep_result} updated image records.")
+                             f"The FM Script prepare_image_transfer requests {prep_result} updated image records.")
             else:
                 logging.info(f"{self.__class__.__name__}._sync_files_load_and_files: "
-                              f"prepare_image_transfer did not work, so I truncate the internal files table")
+                             f"prepare_image_transfer did not work, so I truncate the internal files table")
                 report_progress(callback_progress, 51, None, "truncating internal files table ...")
                 sql = f"""
                      truncate table \"{files_table}\"
@@ -1196,9 +1267,6 @@ class FileMakerControlWindows(FileMakerControl):
                 self.cnxn.commit()
                 logging.debug(f"{self.__class__.__name__}._sync_files_load_and_files: "
                               f"truncation internal files table finished")
-
-
-
 
             report_progress(callback_progress, 53, None, f"adding image records ...")
             logging.debug(f"{self.__class__.__name__}._sync_files_load_and_files: "
@@ -1709,3 +1777,16 @@ class FileMakerControlWindows(FileMakerControl):
         fm_sql_truncate = "TRUNCATE TABLE " + table_name
         fm_cur.execute(fm_sql_truncate)
         self.cnxn.commit()
+
+    def simple_open_fm_db(self, fm_pathandfilename, userid, userpwd) -> object:
+        """
+        This is a special way of opening a FM database usually only used by MCP:
+        - It starts a new FM Instance and opens the database.
+        - IF there is already an existinc FM instance it will be used.
+        - IF the database is already open, the open db will be used.
+        :param fm_pathandfilename: full path and filename of the database
+        :param userid: optional user id
+        :param userpwd: optional user password
+        :returns either None or an open filemaker document object
+        """
+        return self._connect_or_start_fm_db_with_com(fm_pathandfilename, userid, userpwd)

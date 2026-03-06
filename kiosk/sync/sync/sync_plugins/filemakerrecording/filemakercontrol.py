@@ -17,6 +17,8 @@ class FileMakerControl:
     #     """
     #     logging.error("direct call to base class FileMakerControl.create_new_export_file")
     #     return False
+    def __init__(self):
+        self.no_gc = False
 
     def start_fm_database(self, workstation, *argv):
         logging.error("direct call to base class FileMakerControl.start_fm_database")
@@ -155,5 +157,24 @@ class FileMakerControl:
         :param latest_record_data: a Tuple (see _check_is_table_already_up_to_date)
         :param current_tz: required. a KioskTimeZoneInstance object
         :return: bool
+        """
+        raise NotImplementedError
+
+    def close_fm(self):
+        """
+        closes all connections and the FM instance etc.
+        """
+        raise NotImplementedError
+
+    def simple_open_fm_db(self, fm_pathandfilename, userid, userpwd) -> object:
+        """
+        This is a special way of opening a FM database usually only used by MCP:
+        - It starts a new FM Instance and opens the database.
+        - IF there is already an existinc FM instance it will be used.
+        - IF the database is already open, the open db will be used.
+        :param fm_pathandfilename: full path and filename of the database
+        :param userid: user id
+        :param userpwd: user password
+        :returns either None or an open filemaker document object
         """
         raise NotImplementedError
