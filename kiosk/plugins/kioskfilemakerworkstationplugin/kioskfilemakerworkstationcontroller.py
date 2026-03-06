@@ -36,7 +36,8 @@ from plugins.kioskfilemakerworkstationplugin.forms.kioskfilemakerworkstationform
 from plugins.kioskfilemakerworkstationplugin.forms.selectrecordinggroupform import SelectRecordingGroupForm
 from plugins.syncmanagerplugin.kiosksyncmanager import KioskSyncManager
 from plugins.syncmanagerplugin.kioskworkstationjobs import MCP_SUFFIX_WORKSTATION, JOB_META_TAG_WORKSTATION, \
-    JOB_META_TAG_DELETED, KioskWorkstationJobs
+    JOB_META_TAG_DELETED, KioskWorkstationJobs, JOB_META_TAG_KEEP_FM
+from sync_config import SyncConfig
 from synchronization import Synchronization
 
 _plugin_name_ = "kioskfilemakerworkstationplugin"
@@ -116,6 +117,7 @@ def check_ajax():
         logging.error(f"kioskfilemakerworkstationcontroller.workstation_actions: "
                       f"attempt to access endpoint other than by ajax")
 
+
 @kioskfilemakerworkstation.route('create_kiosk_workstation', methods=['GET', 'POST'])
 @full_login_required
 @requires(IsAuthorized(CREATE_WORKSTATION))
@@ -192,7 +194,7 @@ def workstation_actions(ws_id: str):
     print(f"# actions for {ws_id}")
     cfg = kioskglobals.cfg.get_plugin_config(_plugin_name_)
     max_file_size = kioskstdlib.try_get_dict_entry(cfg,
-                                                   "max_file_size",0, True)
+                                                   "max_file_size", 0, True)
     try:
         check_ajax()
 
@@ -207,9 +209,9 @@ def workstation_actions(ws_id: str):
             abort(HTTPStatus.BAD_REQUEST, "Attempt to load a workstation that does not exist")
 
         if (not workstation.disabled and
-            not workstation.sync_ws.has_option('PERMANENT_DOWNLOAD') and
-            workstation.is_option_available("download",
-                                      current_plugin_controller=get_plugin_for_controller(_plugin_name_))):
+                not workstation.sync_ws.has_option('PERMANENT_DOWNLOAD') and
+                workstation.is_option_available("download",
+                                                current_plugin_controller=get_plugin_for_controller(_plugin_name_))):
             download_file_size_status = workstation.check_download_size(cfg)
         else:
             download_file_size_status = None
@@ -708,6 +710,7 @@ def prepare_all():
                                               "of their recording group.")
         else:
             recording_group = kioskstdlib.try_get_dict_entry(request.json, 'recording_group', 'all')
+            cfg: SyncConfig = kioskglobals.cfg
             sync = Synchronization()
             sync_manager = KioskSyncManager(kioskglobals.type_repository, sync)
             workstations = sync_manager.list_workstations("KioskFileMakerWorkstation")
@@ -729,10 +732,13 @@ def prepare_all():
 
                 if action:
                     worker_settings = get_worker_setting(action)
-                    ws_result = mcp_workstation_action(worker_settings[0],
-                                                       worker_settings[1], ws.id,
-                                                       privilege=worker_settings[2],
-                                                       system_lock=worker_settings[3])
+                    ws_result = mcp_workstation_action(
+                        worker_settings[0],
+                        worker_settings[1], ws.id,
+                        privilege=worker_settings[2],
+                        system_lock=worker_settings[3],
+                        meta_data=[JOB_META_TAG_KEEP_FM] if cfg.keep_mcp_open() else None)
+
                     if not ws_result.success:
                         if result.message == "":
                             result.message = "<ul>"
