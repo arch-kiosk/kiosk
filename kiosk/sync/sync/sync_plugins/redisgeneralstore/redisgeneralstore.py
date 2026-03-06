@@ -154,6 +154,21 @@ class RedisGeneralStore(GeneralStore):
         else:
             raise TypeError(f"{value} is not a string.")
 
+    def put_string_if_not_exists(self, key, value: str, expiration_ms:int=0) -> bool:
+        """
+        sets a key only if it does not exist
+        :param key: key must be a string
+        :param value: value must be a string
+        :param expiration_ms: optional milliseconds until the key will be gc'ed
+        :return: True if the value was set, false if the key already exists
+        """
+        key = self.gs_id + key
+        if isinstance(value, str):
+            self._connect()
+            return bool(self.redis.set(key, value, nx=True,ex=expiration_ms if expiration_ms else None))
+        else:
+            raise TypeError(f"{value} is not a string.")
+
     def get_string(self, key):
         self._connect()
         key = self.gs_id + key
