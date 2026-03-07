@@ -1,4 +1,5 @@
 # Master Control Program - job scheduler for Kiosk
+import threading
 from typing import Union
 
 import kioskdatetimelib
@@ -22,7 +23,7 @@ from importlib import import_module, invalidate_caches
 import psutil
 
 from generalstore.generalstore import GeneralStore
-from mcpinterface.mcpconstants import MCPJobStatus, KEY_MCP_PULSE, MCP_PULSE_TIMEOUT, KEY_MCP_VER
+from mcpinterface.mcpconstants import MCPJobStatus, KEY_MCP_PULSE, MCP_PULSE_TIMEOUT, KEY_MCP_VER, KEY_MCP_START_FM
 from mcpinterface.mcpqueue import MCPQueue
 from mcpinterface.mcpjob import MCPJob
 from mcpcore.mcpworker import mcp_worker
@@ -326,7 +327,7 @@ class MCP:
                     if job.meta_data and JOB_META_TAG_KEEP_FM in job.meta_data:
                         self.provide_filemaker_instance()
                     else:
-                        self.end_filemaker_instance_if_any()
+                        self.end_filemaker_instance_if_any(await_current_fm_start=True)
                 except BaseException as e:
                     logging.error(f"{self.__class__.__name__}.start_job: MCP error on providing or "
                                   f"ending an fm instance: {repr(e)}")
@@ -335,7 +336,6 @@ class MCP:
                     job.set_status_to(MCPJobStatus.JOB_STATUS_ABORTED)
                     return 0
 
-                return 1
                 if self.in_debug_mode:
                     try:
                         return self.debug_process(job.job_id, job.kiosk_base_path, job.config_file, test_mode=test_mode)
@@ -372,36 +372,62 @@ class MCP:
     def loop(self):
         pass
 
-    def provide_filemaker_instance(self):
+    def _async_provide_filemaker_instance(self):
         """
         makes sure that a FileMaker instance is available after this call
+        This runs in a Thread and is responsible for handling the redis lock
         :return:
         """
-
-        if not self.fm_dummy_db:
-            raise Exception("dummy db cannot be found in MCP directory")
-        self.fm_instance = FileMakerControl.get_instance()
-        self.fm_instance.no_gc = True
         try:
             fm_doc = self.fm_instance.simple_open_fm_db(fm_pathandfilename=self.fm_dummy_db,
                                                         userid=self.fm_user, userpwd=self.fm_pwd)
             if not fm_doc:
                 raise Exception("simple_open_fm_db failed - cannot provide a FileMaker instance")
-            else:
-                time.sleep(1)
+            time.sleep(1)
+            self.gs.delete_key(KEY_MCP_START_FM)
         except BaseException as e:
-            logging.error(f"{self.__class__.__name__}.provide_filemaker_instance: {repr(e)}")
-            self.end_filemaker_instance_if_any()
-            raise e
+            logging.error(f"{self.__class__.__name__}._async_provide_filemaker_instance: {repr(e)}")
+            self.end_filemaker_instance_if_any(await_current_fm_start=False)
+            self.gs.delete_key(KEY_MCP_START_FM)
 
-    def end_filemaker_instance_if_any(self):
+    def provide_filemaker_instance(self):
+        if not self.fm_dummy_db:
+            raise Exception("dummy db cannot be found in MCP directory")
+        self.fm_instance = FileMakerControl.get_instance()
+        self.fm_instance.no_gc = True
+        if self.gs.put_string_if_not_exists(KEY_MCP_START_FM, "INITIALIZING", expiration_ms=300000):
+            logging.debug(f"{self.__class__.__name__}.provide_filemaker_instance: FileMaker needs to be started.")
+            try:
+                threading.Thread(target=self._async_provide_filemaker_instance, daemon=True).start()
+            except BaseException as e:
+                logging.error(f"{self.__class__.__name__}.provide_filemaker_instance: Exception when starting Thread:"
+                              f" {repr(e)}")
+                self.gs.delete_key(KEY_MCP_START_FM)
+        else:
+            logging.debug(f"{self.__class__.__name__}.provide_filemaker_instance: FileMaker already starting, "
+                          f"nothing to do")
+
+    def end_filemaker_instance_if_any(self, await_current_fm_start):
         """
+
         closes a potentially open FileMaker instance
+        :param await_current_fm_start: set to True if you want to wait until an ongoing FM start is finished
+        before you close anything
         :return:
         """
         try:
+            if await_current_fm_start:
+                while not self.gs.put_string_if_not_exists(KEY_MCP_START_FM, "INITIALIZING", expiration_ms=300000):
+                    logging.debug(f"{self.__class__.__name__}.end_filemaker_instance_if_any: "
+                                  f"Waiting for current FM start to finish")
+                    time.sleep(1)
+
             if self.fm_instance and hasattr(self.fm_instance,"fmapp") and self.fm_instance.fmapp:
                 self.fm_instance.close_fm()
+                time.sleep(1)
+
+            if await_current_fm_start:
+                self.gs.delete_key(KEY_MCP_START_FM)
 
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.end_filemaker_instance_if_any: {repr(e)}")
@@ -411,4 +437,4 @@ class MCP:
         kioskstdlib.ensure_processes_gone(["FileMaker Pro.exe", "fmxdbc_listener.exe"])
 
     def stop(self):
-        self.end_filemaker_instance_if_any()
+        self.end_filemaker_instance_if_any(await_current_fm_start=True)
