@@ -7,7 +7,7 @@ import kioskstdlib
 from plugins.syncmanagerplugin.kioskworkstationjobs import JOB_META_TAG_KEEP_FM
 from sync_config import SyncConfig
 
-MCP_VERSION = "0.6"
+MCP_VERSION = "0.6.1"
 
 import inspect
 import logging
@@ -27,7 +27,7 @@ from mcpinterface.mcpconstants import MCPJobStatus, KEY_MCP_PULSE, MCP_PULSE_TIM
 from mcpinterface.mcpqueue import MCPQueue
 from mcpinterface.mcpjob import MCPJob
 from mcpcore.mcpworker import mcp_worker
-from filemakerrecording.filemakercontrol import FileMakerControl
+from sync_plugins.filemakerrecording.filemakercontrol import FileMakerControl
 
 
 class MCPCancelledError(Exception):

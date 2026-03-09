@@ -386,6 +386,7 @@ def create_new_file_log(root_path, cfg, logger: logging.Logger):
         logger.addHandler(ch)
 
         print("--------------- Starting new log %s ------------ \n" % log_file)
+        logging.info(f"--------------- Starting new log {log_file} with level {cfg.log_level} ------------ \n")
         logging.info("--------------- Starting new log %s ------------ \n" % log_file)
     else:
         logging.info("Can't create new log file")

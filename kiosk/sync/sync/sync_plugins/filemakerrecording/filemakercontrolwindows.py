@@ -158,12 +158,19 @@ class FileMakerControlWindows(FileMakerControl):
         except Exception as e:
             # If not running, try Dispatch even if that might start a new one
             self.fmapp = None
-            logging.debug(f"{self.__class__.__name__}.get_or_start_fm_instance: No running FM Instance: {repr(e)}")
-            self.fmapp = win32com.client.Dispatch("FMPRO.Application")
-            logging.debug("Started a new FileMaker instance.")
-            time.sleep(.5)
-            # self._connected_fmapp = False
+            if "CoInitialize" in repr(e):
+                logging.debug(f"{self.__class__.__name__}.get_or_start_fm_instance: A new CoInitialize was needed")
+                pythoncom.CoInitialize()
 
+            logging.debug(f"{self.__class__.__name__}.get_or_start_fm_instance: No running FM Instance: {repr(e)}")
+            try:
+                self.fmapp = win32com.client.Dispatch("FMPRO.Application")
+                logging.debug(f"{self.__class__.__name__}.get_or_start_fm_instance: Started a new FileMaker instance.")
+                time.sleep(.5)
+                # self._connected_fmapp = False
+            except BaseException as e:
+                logging.error(f"{self.__class__.__name__}.get_or_start_fm_instance: Dispatch threw exception {repr(e)}")
+                self.fmapp = None
         return self.fmapp
 
     def _get_open_doc(self, target_path):

@@ -129,7 +129,7 @@ class FileMakerControl:
 
     @classmethod
     def get_instance(cls):
-        from filemakerrecording.filemakercontrolwindows import FileMakerControlWindows
+        from sync_plugins.filemakerrecording.filemakercontrolwindows import FileMakerControlWindows
         """returns a cross-plattform instance of a FileMakerControl object that meets the interface of this class.
 
         .. danger::
