@@ -41,13 +41,14 @@ class KioskFileMakerWorkstation(KioskWorkstation):
         MANAGE_SERVER_PRIVILEGE: "manage server",
     }
 
+
     download_upload_status_texts = {"-1": "no file transfer, yet", "1": "uploaded",
                                     "2": "downloaded"}
 
     # noinspection PyMissingConstructor
     def __init__(self, workstation_id: str, sync: Synchronization = None):
         super().__init__(workstation_id=workstation_id, sync=sync)
-        self._sync_ws: None or FileMakerWorkstation = None
+        self._sync_ws: Union[None, FileMakerWorkstation] = None
         self._download_upload_status_text: str = ""
         self._allow_upload: bool = False
         self._allow_download: bool = False

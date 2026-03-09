@@ -165,7 +165,7 @@ class RedisGeneralStore(GeneralStore):
         key = self.gs_id + key
         if isinstance(value, str):
             self._connect()
-            return bool(self.redis.set(key, value, nx=True,ex=expiration_ms if expiration_ms else None))
+            return bool(self.redis.set(key, value, nx=True,px=expiration_ms if expiration_ms else None))
         else:
             raise TypeError(f"{value} is not a string.")
 

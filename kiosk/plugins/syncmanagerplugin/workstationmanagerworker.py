@@ -1,8 +1,9 @@
 import pprint
+import time
 
 from dsd.dsd3singleton import Dsd3Singleton
-from dsd.dsdyamlloader import DSDYamlLoader
 from kioskuser import KioskUser
+from mcpinterface.mcpconstants import KEY_MCP_START_FM
 from plugins.kioskfilemakerworkstationplugin import KioskFileMakerWorkstation
 from sync_config import SyncConfig
 from mcpinterface.mcpjob import MCPJob, MCPJobStatus
@@ -97,4 +98,27 @@ class WorkstationManagerWorker:
         except KeyError as e:
             self.gs.put_int(gs_key_kiosk_init_counter, 1)
             return 1
+
+    def wait_for_fm_startup(self):
+        """
+        This waits if there is an ongoing FileMaker start indicated in the general store.
+        This fails after 3 minutes.
+        :return: False if there is an ongoing FM start but it does not seem to finish.
+                 True if the calling operation can proceed.
+        """
+        secs = 0
+        try:
+            while secs <= 180 and self.gs.get_string(KEY_MCP_START_FM):
+                time.sleep(1)
+                secs += 1
+            if secs > 180:
+                return False
+        except KeyError:
+            pass
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.wait_for_fm_startup: Unexpected Exception {repr(e)}. "
+                          f"Continuing as if there is no current FileMaker Start going on.")
+        return True
+
+
 

@@ -62,6 +62,16 @@ class GeneralStore:
     def put_string(self, key, value):
         raise NotImplementedError
 
+    def put_string_if_not_exists(self, key, value: str, expiration_ms:int=0) -> bool:
+        """
+        sets a key only if it does not exist
+        :param key: key must be a string
+        :param value: value must be a string
+        :param expiration_ms: optional milliseconds until the key will be gc'ed
+        :return: True if the value was set, false if the key already exists
+        """
+        raise NotImplementedError
+
     def get_string(self, key):
         """
         sets a key in the general store

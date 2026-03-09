@@ -4,7 +4,7 @@ MCP_JOB_LOG = "joblog"
 KEY_MCP_PULSE = "pulse_mcp"
 KEY_MCP_VER = "mcp_ver"
 MCP_PULSE_TIMEOUT = 10
-
+KEY_MCP_START_FM = "MCP_START_FM"
 
 class MCPNotRunningError(Exception):
     pass

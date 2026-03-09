@@ -4,11 +4,10 @@ import logging
 import ntpath
 import time
 import winreg
-from datetime import tzinfo
 from os import path
 # import yappi
 from timeit import default_timer as timer
-from typing import List
+from typing import List, Any, Union, LiteralString, Callable
 
 import pyodbc
 import pythoncom
@@ -16,8 +15,8 @@ import pythoncom
 import kioskdatetimelib
 import kioskstdlib
 from dsd.dsd3 import DataSetDefinition, KEY_TABLE_FLAG_EXPORT_DONT_TRUNCATE
-from sync_config import SyncConfig
 from kioskstdlib import report_progress
+from sync_config import SyncConfig
 from tz.kiosktimezoneinstance import KioskTimeZoneInstance
 from .filemakercontrol import FileMakerControl
 
@@ -35,10 +34,13 @@ class FileMakerControlWindows(FileMakerControl):
     def __init__(self):
         self.cnxn = None
         self.fmapp = None
+        # self._connected_fmapp = False  # indicates if the fmapp points to a FM Instance that was already there.
+
         self.fm_doc = None
         self.opened_filename = ""
         self.odbc_ini_dsn = ""
         self.template_version = ""
+        self._wait_for_fm_startup_callback: Union[Callable[[],bool], None] = None
         super().__init__()
 
     def __del__(self):
@@ -49,6 +51,14 @@ class FileMakerControlWindows(FileMakerControl):
             pass
         except BaseException as e:
             pass
+
+    @property
+    def wait_for_fm_startup_callback(self):
+        return self._wait_for_fm_startup_callback
+
+    @wait_for_fm_startup_callback.setter
+    def wait_for_fm_startup_callback(self, value):
+        self._wait_for_fm_startup_callback=value
 
     def _init_export_fm_filename(self, workstation):
         """ returns the path and filemaker-Model filename in a workstation's export folder if the file
@@ -93,7 +103,7 @@ class FileMakerControlWindows(FileMakerControl):
             return ""
 
     def _start_fm_db_with_com(self, fm_pathandfilename, userid, userpwd):
-        """ starts a NEW filemaker database using com.
+        """ starts a NEW filemaker instance and opens the database using com.
         This might start a new FM instance even if there is already an existing one.\n
         returns either the com document object of the filemaker Model or
         None, if something went wrong. In the latter case the filemaker Model will also be
@@ -105,6 +115,7 @@ class FileMakerControlWindows(FileMakerControl):
                 # noinspection PyUnresolvedReferences
                 pythoncom.CoInitialize()
                 self.fmapp = win32com.client.Dispatch("FMPRO.Application")
+                # self._connected_fmapp = False
             self.fmapp.Visible = 1
             fmdocs = self.fmapp.Documents
             logging.debug("Trying to open " + fm_pathandfilename)
@@ -120,7 +131,12 @@ class FileMakerControlWindows(FileMakerControl):
                 pass
         return None
 
-    def get_or_start_fm_instance(self, dont_start=False):
+    def get_or_start_fm_instance(self):
+        """
+        tries to connect ot an existing FM instance first. If that does not work, tries to use Dispatch to
+        connect or start a new instance. Because connecting to an existing FileMaker Object with GetObject is
+        not reliable, Dispatch is necessary, and it might happen that FM gets started.
+        """
         # import locally because on IIS it throws an exception.
         import win32com.client
         try:
@@ -128,17 +144,26 @@ class FileMakerControlWindows(FileMakerControl):
                 pythoncom.CoInitialize()
 
             # Try to get the existing running instance
-            self.fmapp = win32com.client.GetActiveObject("FileMaker.Application")
+            if self.fmapp:
+                try:
+                    self.fmapp.visible=0
+                    self.fmapp.visible=1
+                    time.sleep(.5)
+                except BaseException as e:
+                    pass
+            self.fmapp = win32com.client.GetActiveObject("FMPRO.Application")
             logging.debug("Attached to an existing FileMaker instance.")
+            # self._connected_fmapp = True
             time.sleep(.5)
         except Exception as e:
-            # If not running, start a new one
-            if dont_start:
-                logging.debug(f"{self.__class__.__name__}.get_or_start_fm_instance: No running FM Instance: {repr(e)}")
-                self.fmapp = None
-            else:
-                self.fmapp = win32com.client.Dispatch("FMPRO.Application")
-                logging.debug("Started a new FileMaker instance.")
+            # If not running, try Dispatch even if that might start a new one
+            self.fmapp = None
+            logging.debug(f"{self.__class__.__name__}.get_or_start_fm_instance: No running FM Instance: {repr(e)}")
+            self.fmapp = win32com.client.Dispatch("FMPRO.Application")
+            logging.debug("Started a new FileMaker instance.")
+            time.sleep(.5)
+            # self._connected_fmapp = False
+
         return self.fmapp
 
     def _get_open_doc(self, target_path):
@@ -156,7 +181,8 @@ class FileMakerControlWindows(FileMakerControl):
                 return doc
         return None
 
-    def _connect_or_start_fm_db_with_com(self, fm_pathandfilename, userid, userpwd):
+    def _connect_or_start_fm_db_with_com(self, fm_pathandfilename, userid, userpwd,
+                                         connect_open_db=True):
         """ connects to an existing FM database using com.
         Only if there is no active FM instance this will start FM,
 
@@ -164,17 +190,26 @@ class FileMakerControlWindows(FileMakerControl):
         None, if something went wrong.
 
         In the latter case the filemaker Model will also be
-        closed again to prevent succeeding errors. """
+        closed again to prevent succeeding errors.
+
+        :param connect_open_db: Set to False if you DON'T want
+                                    to connect to the database if it is already open in FM.
+        """
         try:
             self.get_or_start_fm_instance()
+            if self.fmapp is None:
+                raise Exception(f"Cannot start FileMaker or connect to existing FM Application")
             self.fmapp.Visible = 1
             doc = self._get_open_doc(fm_pathandfilename)
-            if not doc:
+            if doc:
+                if not connect_open_db:
+                    raise f"Database {fm_pathandfilename} is already open. That's not good  -> cancel."
+            else:
                 fmdocs = self.fmapp.Documents
                 logging.debug("Trying to open " + fm_pathandfilename)
                 doc = fmdocs.Open(fm_pathandfilename, userpwd, userid)
                 if doc is not None:
-                    logging.debug("%s has been opened." % doc.FullName)
+                    logging.info("%s has been opened." % doc.FullName)
 
             self.fm_doc = doc
             return self.fm_doc
@@ -261,11 +296,23 @@ class FileMakerControlWindows(FileMakerControl):
             logging.error(repr(e))
         try:
             if self.fmapp is not None:
+                # Originally I thought it would be better to only quit FM Instances by the process that started them
+                # BUT since the whole COM-GetObject thing does not work reliably with FM it is moot. And strangely
+                # quitting the instance does not quit FM if some other process started it.
+                #
+                # if not self._connected_fmapp:
+                #     logging.debug("_quit_fm_db: Trying to quit fm")
+                #     self.fmapp.quit()
+                #     logging.debug("_quit_fm_db: Setting fmapp to None")
+                # else:
+                #     logging.debug("_quit_fm_db: not quitting FM as fmapp was merely connected to an existing instance.")
+
                 logging.debug("_quit_fm_db: Trying to quit fm")
                 self.fmapp.quit()
-                logging.debug("_quit_fm_db: Settung fmapp to None")
+                logging.debug("_quit_fm_db: Setting fmapp to None")
                 self.fmapp = None
                 logging.debug("_quit_fm_db: Did it")
+
         except WindowsError as e:
             logging.error(repr(e))
         except BaseException as e:
@@ -275,8 +322,35 @@ class FileMakerControlWindows(FileMakerControl):
     def close_fm(self):
         self._quit_fm_db()
 
+    def get_fm_database_filename(self, pathandfilename: str, workstation) -> Union[str, LiteralString, bytes]:
+        if pathandfilename == "export":
+            logging.error("Call to FileMakerControlWindows with 'export' is not supported anymore.")
+            raise DeprecationWarning("Call to FileMakerControlWindows with 'export' is not supported anymore.")
+        elif pathandfilename == "import":
+            filename = self._init_import_fm_filename(workstation)
+            if not filename:
+                logging.error("workstation's filemaker-file in the import folder could not be located.")
+                filename = None
+        else:
+            filename = pathandfilename
+
+        if not path.isfile(filename):
+            logging.error("The filemaker-file %s does not exist." % filename)
+            filename = None
+        return filename
+
+    def wait_for_fm_startup(self):
+        """
+        method is using a callback to wait for a starting FileMaker instance. If the callback is not set, this simply
+        continues.
+        returns: True if fm is ready or there was no callback, False if the callback returned False
+        """
+        if self._wait_for_fm_startup_callback:
+            return self._wait_for_fm_startup_callback()
+        return True
+
     def start_fm_database(self, workstation, pathandfilename="export", codepage_encoding="Latin1",
-                          use_odbc_ini_dsn=False):
+                          use_odbc_ini_dsn=False, connect_to_fm=False):
         """ starts a workstation's filemaker database, opens an odbc connection to it,
             and checks whether the database meets the necessary specifications. \n
             returns the odbc connection or None in case of an error. Makes sure that the
@@ -287,12 +361,20 @@ class FileMakerControlWindows(FileMakerControl):
             import folder will be used.  \n
             Otherwise the given path and filename will be used.
 
-            todo: refactor. It is too long and too ugly. And why this mess with "export" and import and all? Hmpf.
+            This here is waiting until a potential FileMaker start in the background has finished IF the
+                object property wait_for_fm_startup_callback has a callback. This is independent of the
+                parameter connect_to_fm!
+
+            :param connect_to_fm: if set to True the method tries to connect to an existing FileMaker instance
+                                    instead of starting a new one. MCP is responsible for providing and handling
+                                    the FM instance. If False (the default) the "traditional" method of opening a
+                                    new FM instance is used. That will fail if there is already an FM instance open!
+
         """
 
         self.template_version = ""
-        usrname = SyncConfig.get_config().filemaker_db_usr_name
-        usrpwd = SyncConfig.get_config().filemaker_db_usr_pwd
+        usr_name = SyncConfig.get_config().filemaker_db_usr_name
+        usr_pwd = SyncConfig.get_config().filemaker_db_usr_pwd
         s = SyncConfig.get_config().filemaker_encoding
         if s:
             self.ENCODING = s
@@ -315,33 +397,98 @@ class FileMakerControlWindows(FileMakerControl):
             except:
                 pass
 
-        if pathandfilename == "export":
-            logging.error("Call to FileMakerControlWindows with 'export' is not supported anymore.")
-            raise DeprecationWarning("Call to FileMakerControlWindows with 'export' is not supported anymore.")
-            # filename = self._init_export_fm_filename(workstation)
-            # if not (filename):
-            #     logging.error("workstation's filemaker-file in the export folder could not be located.")
-            #     return (None)
-        elif pathandfilename == "import":
-            filename = self._init_import_fm_filename(workstation)
-            if not filename:
-                logging.error("workstation's filemaker-file in the import folder could not be located.")
-                return None
-        else:
-            filename = pathandfilename
-
-        if not path.isfile(filename):
-            logging.error("The filemaker-file %s does not exist." % filename)
+        filename = self.get_fm_database_filename(pathandfilename, workstation)
+        if not filename:
             return None
 
         databasename = str(ntpath.split(filename)[1].split(".", 2)[0])
         odbc_connect_str = 'Driver=FileMaker ODBC;Server=localhost;' + \
-                           'Database=' + databasename + ';UID=' + usrname
+                           'Database=' + databasename + ';UID=' + usr_name
+        odbc_connect_str = self.get_odbc_connect_str(databasename,
+                                                     odbc_connect_str,
+                                                     use_odbc_ini_dsn,
+                                                     usr_name,
+                                                     usr_pwd)
+        if not odbc_connect_str:
+            return None
+
+        if not self.wait_for_fm_startup():
+            return None
+
+        if connect_to_fm:
+            logging.debug(f"{self.__class__.__name__}.start_fm_database: Trying to connect to existing FM Instance...")
+            self.fm_doc = self._connect_or_start_fm_db_with_com(filename, usr_name, usr_pwd,
+                                                                connect_open_db=False)
+        else:
+            if not self.check_open_fm_via_odbc(odbc_connect_str):
+                return None
+            logging.debug(f"{self.__class__.__name__}.start_fm_database: Trying to start NEW FM Instance...")
+            self.fm_doc = self._start_fm_db_with_com(filename, usr_name, usr_pwd)
+
+        if self.fm_doc is None:
+            return None
+        else:
+            try:
+                logging.debug("Connecting " + databasename + " using " + odbc_connect_str)
+                self.cnxn = pyodbc.connect(odbc_connect_str)
+                self.cnxn.setdecoding(pyodbc.SQL_CHAR, encoding=self.ENCODING)
+                self.cnxn.setdecoding(pyodbc.SQL_WCHAR, encoding=self.ENCODING)
+            except Exception as e:
+                logging.error("Error opening odbc connection to database " + databasename + ": " + repr(e))
+
+        if self.cnxn is not None:
+            try:
+                cursor = self.cnxn.cursor()
+                cursor.execute("select \"value\" from constants where id='template_version'")
+                self.template_version = cursor.fetchval()
+                logging.debug("template version is " + self.template_version)
+                cursor.close()
+                self.opened_filename = filename
+                return self.cnxn
+            except Exception as e:
+                logging.error("Error reading template_version: " + repr(e))
+
+        self._quit_fm_db()
+        return None
+
+    def check_open_fm_via_odbc(self, odbc_connect_str: str | Any):
+        check = True
+        try:
+            self.cnxn = pyodbc.connect(odbc_connect_str)
+            if self.cnxn is not None:
+                logging.error("Attempt to use start_fm_database when there is still a connection open. "
+                              "Please close FileMaker first!")
+                try:
+                    self.cnxn.close()
+                except:
+                    pass
+                self.cnxn = None
+                check = False
+        except BaseException as e:
+            err_str = repr(e)
+            if "Unable to open file (802)" in err_str:
+                logging.error("Attempt to use start_fm_database when there is "
+                              "still a connection to a different database open. "
+                              "Please close FileMaker first!")
+                try:
+                    self.cnxn.close()
+                except:
+                    pass
+                self.cnxn = None
+                check = False
+
+            logging.debug(f"{self.__class__.__name__}.start_fm_database: Expected Exception {err_str} "
+                          f"when testing for open FM instance")
+            pass
+        return check
+
+    def get_odbc_connect_str(self, databasename: str, odbc_connect_str: str | LiteralString | None | Any,
+                             use_odbc_ini_dsn: bool, usr_name, usr_pwd) -> str | Any:
         if not use_odbc_ini_dsn:
             odbc_connect_str = 'Driver=FileMaker ODBC;Server=localhost;' + \
-                               'Database=' + databasename + ';UID=' + usrname
-            if usrpwd != "":
-                odbc_connect_str = odbc_connect_str + ';pwd=' + usrpwd
+                               'Database=' + databasename + ';UID=' + usr_name
+            if usr_pwd != "":
+                odbc_connect_str = odbc_connect_str + ';pwd=' + usr_pwd
         else:
             try:
                 if self.ENCODING.lower() == "utf-8":
@@ -356,72 +503,20 @@ class FileMakerControlWindows(FileMakerControl):
                     "AutoDetectEncoding": auto_detect_encoding,
                     "MultiByteEncoding": odbc_encoding
                 }):
-                    odbc_connect_str = 'dsn=' + self.odbc_ini_dsn + ';UID=' + usrname
-                    if usrpwd != "":
-                        odbc_connect_str = odbc_connect_str + ';pwd=' + usrpwd
+                    odbc_connect_str = 'dsn=' + self.odbc_ini_dsn + ';UID=' + usr_name
+                    if usr_pwd != "":
+                        odbc_connect_str = odbc_connect_str + ';pwd=' + usr_pwd
                     logging.debug(f"Using dsn method to open filemaker with encoding {odbc_encoding}.")
                 else:
                     logging.error("start_fm_database: set_odbc_ini_dsn failed.")
-                    return None
+                    odbc_connect_str = None
             except BaseException as e:
                 logging.error(f"{self.__class__.__name__}.start_fm_database: Exception when "
                               f"setting odbc ini dsn: {repr(e)}")
                 logging.info(f"{self.__class__.__name__}.start_fm_database: Connection string was "
                              f"{odbc_connect_str}")
-                return None
-
-        try:
-            self.cnxn = pyodbc.connect(odbc_connect_str)
-            if self.cnxn is not None:
-                logging.error("Attempt to use start_fm_database when there is still a connection open. "
-                              "Please close FileMaker first!")
-                try:
-                    self.cnxn.close()
-                except:
-                    pass
-                self.cnxn = None
-                return None
-        except BaseException as e:
-            err_str = repr(e)
-            if "Unable to open file (802)" in err_str:
-                logging.error("Attempt to use start_fm_database when there is "
-                              "still a connection to a different database open. "
-                              "Please close FileMaker first!")
-                try:
-                    self.cnxn.close()
-                except:
-                    pass
-                self.cnxn = None
-                return None
-
-            logging.debug(f"{self.__class__.__name__}.start_fm_database: Expected Exception {err_str} "
-                          f"when testing for open FM instance")
-            pass
-
-        self.fm_doc = self._start_fm_db_with_com(filename, usrname, usrpwd)
-        if self.fm_doc is not None:
-            try:
-                logging.debug("Connecting " + databasename + " using " + odbc_connect_str)
-                self.cnxn = pyodbc.connect(odbc_connect_str)
-                self.cnxn.setdecoding(pyodbc.SQL_CHAR, encoding=self.ENCODING)
-                self.cnxn.setdecoding(pyodbc.SQL_WCHAR, encoding=self.ENCODING)
-            except Exception as e:
-                logging.error("Error opening odbc connection to database " + databasename + ": " + repr(e))
-
-        if self.fm_doc is not None and self.cnxn is not None:
-            try:
-                cursor = self.cnxn.cursor()
-                cursor.execute("select \"value\" from constants where id='template_version'")
-                self.template_version = cursor.fetchval()
-                logging.debug("template version is " + self.template_version)
-                cursor.close()
-                self.opened_filename = filename
-                return self.cnxn
-            except Exception as e:
-                logging.error("Error reading template_version: " + repr(e))
-
-        self._quit_fm_db()
-        return None
+                odbc_connect_str = None
+        return odbc_connect_str
 
     def get_current_time_stamp_in_user_tz(self) -> datetime:
         """
@@ -1780,9 +1875,9 @@ class FileMakerControlWindows(FileMakerControl):
 
     def simple_open_fm_db(self, fm_pathandfilename, userid, userpwd) -> object:
         """
-        This is a special way of opening a FM database usually only used by MCP:
+        This is a special way of opening a FM database, usually only used by MCP:
         - It starts a new FM Instance and opens the database.
-        - IF there is already an existinc FM instance it will be used.
+        - IF there is already an existing FM instance it should be used.
         - IF the database is already open, the open db will be used.
         :param fm_pathandfilename: full path and filename of the database
         :param userid: optional user id

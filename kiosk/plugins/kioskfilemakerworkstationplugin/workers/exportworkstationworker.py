@@ -8,7 +8,8 @@ from mcpinterface.mcpjob import MCPJobStatus
 from synchronization import Synchronization
 from plugins.syncmanagerplugin.workstationmanagerworker import WorkstationManagerWorker
 from plugins.kioskfilemakerworkstationplugin import KioskFileMakerWorkstation
-from tz.kiosktimezoneinstance import KioskTimeZoneInstance
+from plugins.syncmanagerplugin.kioskworkstationjobs import JOB_META_TAG_KEEP_FM
+
 
 
 class ExportWorkstationWorker(WorkstationManagerWorker):
@@ -82,6 +83,11 @@ class ExportWorkstationWorker(WorkstationManagerWorker):
                 sync = Synchronization()
                 ws = self.init_dock(ws_id, sync, kioskglobals.kiosk_time_zones)
                 if ws:
+                    ws.sync_ws.wait_for_fm_startup_callback = self.wait_for_fm_startup
+
+                    if self.job.meta_data and JOB_META_TAG_KEEP_FM in self.job.meta_data:
+                        ws.sync_ws.filemaker_mode = ws.sync_ws.FM_MODE_CONNECT
+
                     rc = ws.sync_ws.transition("EXPORT_TO_FILEMAKER", param_callback_progress=self.report_progress,
                     before_transition=ws.reset_download_upload_status)
                     status = self.job.fetch_status()

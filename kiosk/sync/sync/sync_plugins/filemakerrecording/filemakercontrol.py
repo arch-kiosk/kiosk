@@ -166,15 +166,23 @@ class FileMakerControl:
         """
         raise NotImplementedError
 
+    def get_or_start_fm_instance(self):
+        """
+        tries to connect ot an existing FM instance first. If that does not work, tries to use Dispatch to
+        connect or start a new instance. Because connecting to an existing FileMaker Object with GetObject is
+        not reliable, Dispatch is necessary and it might happen that FM is being started.
+        """
+        raise NotImplementedError
+
     def simple_open_fm_db(self, fm_pathandfilename, userid, userpwd) -> object:
         """
-        This is a special way of opening a FM database usually only used by MCP:
+        This is a special way of opening a FM database, usually only used by MCP:
         - It starts a new FM Instance and opens the database.
-        - IF there is already an existinc FM instance it will be used.
+        - IF there is already an existing FM instance it should be used.
         - IF the database is already open, the open db will be used.
         :param fm_pathandfilename: full path and filename of the database
-        :param userid: user id
-        :param userpwd: user password
+        :param userid: optional user id
+        :param userpwd: optional user password
         :returns either None or an open filemaker document object
         """
         raise NotImplementedError

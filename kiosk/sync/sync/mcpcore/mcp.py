@@ -297,6 +297,7 @@ class MCP:
         return next_job
 
     def start_job(self, job: MCPJob, test_mode=0):
+        logging.debug(f"{self.__class__.__name__}.start_job: Starting job {job.project_id}-{job.job_id}")
         gs_queue = MCPQueue(self.gs)
         lock = gs_queue.lock()
         try:
@@ -379,23 +380,26 @@ class MCP:
         :return:
         """
         try:
+            logging.debug(f"{self.__class__.__name__}._async_provide_filemaker_instance: "
+                          f"Starting FileMaker asynchronously ...")
             fm_doc = self.fm_instance.simple_open_fm_db(fm_pathandfilename=self.fm_dummy_db,
                                                         userid=self.fm_user, userpwd=self.fm_pwd)
             if not fm_doc:
                 raise Exception("simple_open_fm_db failed - cannot provide a FileMaker instance")
+            logging.debug(f"{self.__class__.__name__}._async_provide_filemaker_instance: "
+                          f"Starting FileMaker asynchronously - Done")
             time.sleep(1)
             self.gs.delete_key(KEY_MCP_START_FM)
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}._async_provide_filemaker_instance: {repr(e)}")
             self.end_filemaker_instance_if_any(await_current_fm_start=False)
-            self.gs.delete_key(KEY_MCP_START_FM)
 
     def provide_filemaker_instance(self):
         if not self.fm_dummy_db:
             raise Exception("dummy db cannot be found in MCP directory")
         self.fm_instance = FileMakerControl.get_instance()
         self.fm_instance.no_gc = True
-        if self.gs.put_string_if_not_exists(KEY_MCP_START_FM, "INITIALIZING", expiration_ms=300000):
+        if self.gs.put_string_if_not_exists(KEY_MCP_START_FM, "INITIALIZING", expiration_ms=60*3*1000):
             logging.debug(f"{self.__class__.__name__}.provide_filemaker_instance: FileMaker needs to be started.")
             try:
                 threading.Thread(target=self._async_provide_filemaker_instance, daemon=True).start()
@@ -410,21 +414,51 @@ class MCP:
     def end_filemaker_instance_if_any(self, await_current_fm_start):
         """
 
-        closes a potentially open FileMaker instance
+        closes a potentially open FileMaker instance.
+        This will also delete the KEY_MCP_START_FM flag from the general store
         :param await_current_fm_start: set to True if you want to wait until an ongoing FM start is finished
         before you close anything
+
         :return:
         """
+        max_sec = 60 * 3
+        sec = 0
         try:
             if await_current_fm_start:
-                while not self.gs.put_string_if_not_exists(KEY_MCP_START_FM, "INITIALIZING", expiration_ms=300000):
+                while not self.gs.put_string_if_not_exists(KEY_MCP_START_FM, "STOPPING", expiration_ms=max_sec*1000):
+                    sec += 1
                     logging.debug(f"{self.__class__.__name__}.end_filemaker_instance_if_any: "
                                   f"Waiting for current FM start to finish")
                     time.sleep(1)
+                    if sec > max_sec:
+                        raise Exception("Timeout when waiting for a FileMaker start.")
 
-            if self.fm_instance and hasattr(self.fm_instance,"fmapp") and self.fm_instance.fmapp:
+            if self.fm_instance and hasattr(self.fm_instance, "fmapp") and self.fm_instance.fmapp:
+                logging.debug(f"{self.__class__.__name__}.end_filemaker_instance_if_any: "
+                              f"Trying to close existing FM instance...")
+                try:
+                    self.fm_instance.fmapp.visible=0
+                except BaseException as e:
+                    logging.debug(f"{self.__class__.__name__}.end_filemaker_instance_if_any: "
+                                  f"FileMaker instance invalid: {repr(e)}. No idea if FM is actually open or not. "
+                                  f"Trying something else ...")
+                    if self.fm_instance.get_or_start_fm_instance() is None:
+                        logging.debug(f"{self.__class__.__name__}.end_filemaker_instance_if_any: "
+                                      f"FileMaker instance cannot be found and is presumed dead. "
+                                      f"Let's do it the hard way ...")
+                        self.fm_instance = None
+                        self.kill_filemaker_processes()
+                        logging.info(f"{self.__class__.__name__}.end_filemaker_instance_if_any: "
+                                      f"FileMaker instance killed the hard way.")
+                        time.sleep(.5)
+                        self.gs.delete_key(KEY_MCP_START_FM)
+                        return
+
+                self.fm_instance.fmapp.visible = 1
                 self.fm_instance.close_fm()
-                time.sleep(1)
+                logging.info(f"{self.__class__.__name__}.end_filemaker_instance_if_any: "
+                              f"Trying to close existing FM instance... Worked!")
+                time.sleep(.5)
 
             if await_current_fm_start:
                 self.gs.delete_key(KEY_MCP_START_FM)
@@ -435,6 +469,7 @@ class MCP:
 
     def kill_filemaker_processes(self):
         kioskstdlib.ensure_processes_gone(["FileMaker Pro.exe", "fmxdbc_listener.exe"])
+        self.gs.delete_key(KEY_MCP_START_FM)
 
     def stop(self):
         self.end_filemaker_instance_if_any(await_current_fm_start=True)

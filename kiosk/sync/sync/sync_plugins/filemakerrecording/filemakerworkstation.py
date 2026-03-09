@@ -11,7 +11,7 @@ from shutil import copyfile
 import time
 from os import path
 import io
-from typing import Tuple, Optional, List
+from typing import Tuple, Optional, List, Union, Callable
 from zoneinfo import ZoneInfo
 
 import kioskdatetimelib
@@ -53,6 +53,9 @@ class FileMakerWorkstation(RecordingWorkstation):
     IMPORT_ERROR_FM_PREPARE = 'FM_PREPARE'
     IMPORT_ERROR_FM_IMPORT_RECORD = 'FM_IMPORT_RECORD'
 
+    FM_MODE_CONNECT = 1
+    FM_MODE_START = 0
+
     debug_fork_time = None
     debug_dont_check_open_state = False
 
@@ -62,11 +65,13 @@ class FileMakerWorkstation(RecordingWorkstation):
         self.repldata_records = {}
         self.ws_fork_sync_time = None
         self._download_upload_status: int = self.NOT_SET
-        self._download_upload_ts: datetime.datetime or None = None
+        self._download_upload_ts: Union[datetime.datetime or None] = None
         self._disabled = False
         self._options = ''
         self.x_state_info = {}
         self.fix_import_errors = False
+        self._fm_mode = FileMakerWorkstation.FM_MODE_START
+        self._wait_for_fm_startup_callback: Union[Callable[[],bool], None] = None
         super().__init__(workstation_id, description, sync=sync, *args, **kwargs)
 
     @classmethod
@@ -79,6 +84,37 @@ class FileMakerWorkstation(RecordingWorkstation):
         cls.STATE_NAME.update(
             {2: cls.IN_THE_FIELD,
              })
+
+    @property
+    def filemaker_mode(self):
+        return self._fm_mode
+
+    @filemaker_mode.setter
+    def filemaker_mode(self, mode):
+        if mode in [self.FM_MODE_CONNECT, self.FM_MODE_START]:
+            self._fm_mode = mode
+        else:
+            raise ValueError()
+
+    @property
+    def wait_for_fm_startup_callback(self):
+        """
+        An optional callback that waits for an ongoing FileMaker start.
+        If this is not set operations won't be able to wait for a potentially already happening FileMaker start.
+        The Callback must return a boolean value indicating if the calling operation can proceed (so there is no
+        current filemaker start in progress.
+        """
+        return self._wait_for_fm_startup_callback
+
+    @wait_for_fm_startup_callback.setter
+    def wait_for_fm_startup_callback(self, value):
+        """
+        An optional callback that waits for an ongoing FileMaker start.
+        If this is not set operations won't be able to wait for a potentially already happening FileMaker start.
+        The Callback must return a boolean value indicating if the calling operation can proceed (so there is no
+        current filemaker start in progress.
+        """
+        self._wait_for_fm_startup_callback=value
 
     def _register_no_transfer_necessary(self, tablename):
         """
@@ -543,8 +579,19 @@ class FileMakerWorkstation(RecordingWorkstation):
             logging.debug(f"{self.__class__.__name__}.export: Using template {template_file}")
 
             fm = FileMakerControl.get_instance()
-            if fm.start_fm_database(self, pathandfilename=template_file, use_odbc_ini_dsn=True) is None:
-                raise Exception("Error when starting FileMaker database.")
+            fm.wait_for_fm_startup_callback = self._wait_for_fm_startup_callback
+
+            if self._fm_mode == self.FM_MODE_START:
+                logging.info(f"{self.__class__.__name__}.export: Starting NEW Filemaker instance...")
+                if fm.start_fm_database(self, pathandfilename=template_file, use_odbc_ini_dsn=True) is None:
+                    raise Exception("Error when starting FileMaker with database.")
+            else:
+                logging.info(f"{self.__class__.__name__}.export: Connecting to EXISTING Filemaker instance...")
+                if fm.start_fm_database(self,
+                                        pathandfilename=template_file,
+                                        use_odbc_ini_dsn=True,
+                                        connect_to_fm=True) is None:
+                    raise Exception("Error when connecting to FileMaker and starting database.")
 
             report_progress(self.interruptable_callback_progress, 5, None, "Checking database consistency ...")
             try:
@@ -2095,7 +2142,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                         [self.get_fork_time()])
                     for r in recs:
                         logging.info(f"{self.__class__.__name__}._import_table_from_filemaker: "
-                                      f"deleting constants record {r}")
+                                     f"deleting constants record {r}")
 
                 sql = f'update ' + f' {dest_table_name} set "repl_deleted"=true,' \
                                    f'"modified"=%s + (interval \'2 seconds\') where "repl_tag"=0'

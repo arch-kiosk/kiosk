@@ -6,6 +6,7 @@ import kioskglobals
 from kioskresult import KioskResult
 from mcpinterface.mcpjob import MCPJobStatus
 from plugins.kioskfilemakerworkstationplugin import KioskFileMakerWorkstation
+from plugins.syncmanagerplugin.kioskworkstationjobs import JOB_META_TAG_KEEP_FM
 from plugins.syncmanagerplugin.workstationmanagerworker import WorkstationManagerWorker
 from synchronization import Synchronization
 
@@ -111,11 +112,10 @@ class ForkNExportWorkstationWorker(WorkstationManagerWorker):
                 # self.report_export_progress({"progress": 0, "message": "export to filemaker"})
                 if ws:
                     name = ws.description
-                    # try:
-                    #     user = self.get_kiosk_user()
-                    # except BaseException as e:
-                    #     raise Exception(f" When initializing user {repr(e)}")
+                    ws.sync_ws.wait_for_fm_startup_callback = self.wait_for_fm_startup
 
+                    if self.job.meta_data and JOB_META_TAG_KEEP_FM in self.job.meta_data:
+                        ws.sync_ws.filemaker_mode = ws.sync_ws.FM_MODE_CONNECT
 
                     rc = ws.sync_ws.transition("FORK", param_callback_progress=self.report_fork_progress,
                                                before_transition=ws.reset_download_upload_status)

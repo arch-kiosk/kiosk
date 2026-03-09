@@ -47,9 +47,10 @@ class MCPView:
 
 
 class MCPTerminalView(MCPView):
-    def __init__(self, general_store):
+    def __init__(self, general_store, mcp: MCP):
         super(MCPTerminalView, self).__init__(general_store)
         self.term = Terminal()
+        self.mcp = mcp
         self.term.stream.write(self.term.hide_cursor)
         self.term.stream.flush()
         self.term.stream.write(self.term.enter_fullscreen)
@@ -59,6 +60,7 @@ class MCPTerminalView(MCPView):
         self.bg_red = (191, 44, 44)
         self.bg_grey = (140, 140, 140)
         self.keys = {"quit": "[Q] to Quit",
+                     "select": "[\u2190],[\u2191],[\u2192],[\u2193] select job",
                      "select": "[\u2190],[\u2191],[\u2192],[\u2193] select job",
                      "wakeup": "Any key to wake up."}
         self.active_menu_items = []
@@ -251,6 +253,9 @@ class MCPTerminalView(MCPView):
             if key == "q":
                 self.toggle_menu("quit")
                 return {"id": "quit"}
+            elif key == "d":
+                self.toggle_menu("debug")
+                return {"id": "debug"}
             elif key.is_sequence:
                 if key.code in [self.term.KEY_DOWN,
                                 self.term.KEY_UP,
@@ -286,6 +291,10 @@ class MCPTerminalView(MCPView):
                     if command:
                         if command["id"] == "quit":
                             break
+                        if command["id"] == "debug":
+                            self.mcp.in_debug_mode = not self.mcp.in_debug_mode
+                            self.in_debug_mode = self.mcp.in_debug_mode
+                            self.toggle_menu("debug")
                         if command["id"] == "select":
                             self.select(command)
 
@@ -294,7 +303,7 @@ class MCPTerminalView(MCPView):
                         mcp_view.update_screen()
 
                 except BaseException as e:
-                    logging.error(f"{self.__class__.__name__}. : {repr(e)}")
+                    logging.error(f"{self.__class__.__name__}.loop: {repr(e)}")
                     raise e
 
 
@@ -303,6 +312,8 @@ class MCPLoop:
         self.mcp = mcp
         self.mcp_view: MCPView = mcp_view
         self.mcp_view.in_debug_mode = mcp.in_debug_mode
+        if hasattr(self.mcp_view, "keys"):
+            self.mcp_view.keys["debug"] = "[D] toggle debug mode"
         self.cancel = False
 
     def loop(self):
@@ -449,7 +460,7 @@ if __name__ == '__main__':
     mcp_instance = MCP(gs, sync_config)
     mcp_instance.in_debug_mode = in_debug_mode
     mcp_instance.publish_version()
-    mcp_view = MCPTerminalView(gs)
+    mcp_view = MCPTerminalView(gs, mcp_instance)
     mcp_loop = MCPLoop(mcp_instance, mcp_view)
     try:
         mcp_thread = Thread(target=mcp_loop.loop)
