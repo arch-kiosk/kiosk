@@ -7,7 +7,7 @@ import kioskstdlib
 from plugins.syncmanagerplugin.kioskworkstationjobs import JOB_META_TAG_KEEP_FM
 from sync_config import SyncConfig
 
-MCP_VERSION = "0.6.1"
+MCP_VERSION = "0.6.2"
 
 import inspect
 import logging
