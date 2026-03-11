@@ -1,6 +1,7 @@
 # time zone relevant
 import datetime
 import logging
+import pprint
 from typing import Tuple, Union
 
 import flake8
@@ -8,6 +9,7 @@ import flake8
 from http import HTTPStatus
 
 import flask_login
+import nanoid
 from flask import Blueprint, current_app, request, render_template, redirect, url_for, abort, make_response, \
     send_file
 from flask_allows import requires, exempt_from_requirements
@@ -230,7 +232,8 @@ def workstation_actions(ws_id: str):
 
 
 def mcp_workstation_action(worker_module, worker_class, ws_id, privilege="",
-                           system_lock=True, meta_data=None, additional_job_data=None) -> KioskResult:
+                           system_lock=True, meta_data=None, additional_job_data=None,
+                           bulk_id="") -> KioskResult:
     if meta_data is None:
         meta_data = []
     job_type_name = ".".join([worker_module, worker_class])
@@ -252,6 +255,10 @@ def mcp_workstation_action(worker_module, worker_class, ws_id, privilege="",
         job.job_data = {"workstation_id": ws_id}
         if additional_job_data:
             job.job_data = job.job_data | additional_job_data
+        if bulk_id:
+            job.job_data = job.job_data | {"bulk_id": bulk_id}
+        logging.debug(f"kioskfilemakerworkstationcontroller.mcp_workstation_action: job data is "
+                      f"{pprint.pformat(job.job_data)}")
         job.user_data = current_user.to_dict()
         job.meta_data = [*meta_data, JOB_META_TAG_WORKSTATION]
         job.queue()
@@ -715,6 +722,8 @@ def prepare_all():
             sync_manager = KioskSyncManager(kioskglobals.type_repository, sync)
             workstations = sync_manager.list_workstations("KioskFileMakerWorkstation")
             result = KioskResult(success=False, message="")
+            bulk_id = nanoid.generate()
+            logging.debug(f"kioskfilemakerworkstationcontroller.prepare_all : using bulk_id {bulk_id}")
             for ws in workstations.values():
                 ws: KioskFileMakerWorkstation
                 action = ""
@@ -737,7 +746,9 @@ def prepare_all():
                         worker_settings[1], ws.id,
                         privilege=worker_settings[2],
                         system_lock=worker_settings[3],
-                        meta_data=[JOB_META_TAG_KEEP_FM] if cfg.keep_mcp_open() else None)
+                        meta_data=[JOB_META_TAG_KEEP_FM] if cfg.keep_mcp_open() else None,
+                        bulk_id=bulk_id
+                    )
 
                     if not ws_result.success:
                         if result.message == "":

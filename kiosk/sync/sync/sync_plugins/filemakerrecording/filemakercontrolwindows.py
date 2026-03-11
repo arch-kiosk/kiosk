@@ -1463,7 +1463,7 @@ class FileMakerControlWindows(FileMakerControl):
             if v:
                 return v[0]
         except Exception as e:
-            logging.debug("DB-Error in UrapFileMakerControlWindows.get_constants: " + repr(e))
+            logging.debug("DB-Error in FileMakerControlWindows.get_constants: " + repr(e))
         return None
 
     def select_table_data(self, dsd: DataSetDefinition, tablename, version=0, import_filter=""):
@@ -1892,3 +1892,11 @@ class FileMakerControlWindows(FileMakerControl):
         :returns either None or an open filemaker document object
         """
         return self._connect_or_start_fm_db_with_com(fm_pathandfilename, userid, userpwd)
+
+
+    def get_bulk_id(self):
+        """
+        returns the bulk-id registered in the FileMaker database. If there is none, this returns an empty string.
+        """
+        bulk_id =  self.get_constant("bulk_id")
+        return bulk_id if bulk_id else ""

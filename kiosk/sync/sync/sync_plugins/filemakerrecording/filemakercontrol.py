@@ -186,3 +186,9 @@ class FileMakerControl:
         :returns either None or an open filemaker document object
         """
         raise NotImplementedError
+
+    def get_bulk_id(self):
+        """
+        returns the bulk-id registered in the FileMaker database
+        """
+        raise NotImplementedError

@@ -72,6 +72,7 @@ class FileMakerWorkstation(RecordingWorkstation):
         self.fix_import_errors = False
         self._fm_mode = FileMakerWorkstation.FM_MODE_START
         self._wait_for_fm_startup_callback: Union[Callable[[],bool], None] = None
+        self.bulk_id = ""
         super().__init__(workstation_id, description, sync=sync, *args, **kwargs)
 
     @classmethod
@@ -556,6 +557,7 @@ class FileMakerWorkstation(RecordingWorkstation):
         """
         rc = False
         template_file = ""
+        skip_data_transfer = False
 
         try:
             if not self.current_tz:
@@ -601,93 +603,105 @@ class FileMakerWorkstation(RecordingWorkstation):
                 raise Exception(f"filemaker database check failed ({repr(e)}) ")
 
             if fm.set_constant("TRANSACTION_STATE", "CORRUPT"):
-                images_with_recent_modified_date = 0
-                try:
-                    images_with_recent_modified_date = fm.count_images_modified_recently()
-                except Exception:
-                    pass
+                if self.bulk_id and fm.get_bulk_id() == self.bulk_id:
+                    # this is using the same bulk_id as the one that is already registered in the fm database
+                    # so we skip the whole data transfer and only individualize the dock
+                    logging.info(
+                        f"{self.__class__.__name__}.export: using the same bulk id '{self.bulk_id}' as the FM datbase: "
+                        f"Skipping data transfer")
+                    skip_data_transfer = True
+                    rc = True
+                else:
+                    images_with_recent_modified_date = 0
+                    try:
+                        images_with_recent_modified_date = fm.count_images_modified_recently()
+                    except Exception:
+                        pass
 
-                logging.debug(f"{self.__class__.__name__}.export: "
-                              f"{images_with_recent_modified_date} image records have a "
-                              f"all too recent modification timestamp in the filemaker db at the beginning of export")
+                    logging.debug(f"{self.__class__.__name__}.export: "
+                                  f"{images_with_recent_modified_date} image records have a "
+                                  f"all too recent modification timestamp in the filemaker db at the beginning of export")
 
-                # time zone relevance
-                # this was originally set in terms of what was then the user time zone. So this is not UTC!
-                # it is only being used to determine whether or not the file identifier cache needs to be updated
-                self.ws_fork_sync_time = fm.get_ts_constant("fork_sync_time")
+                    # time zone relevance
+                    # this was originally set in terms of what was then the user time zone. So this is not UTC!
+                    # it is only being used to determine whether or not the file identifier cache needs to be updated
+                    self.ws_fork_sync_time = fm.get_ts_constant("fork_sync_time")
 
-                report_progress(self.interruptable_callback_progress, 20, None, "Transferring data to FileMaker...")
-                if self._transfer_tables_to_filemaker(fm, self.interruptable_callback_progress,
-                                                      current_tz=self.current_tz):
-                    report_progress(self.interruptable_callback_progress, 50, None,
-                                    "Preparing images transfer to FileMaker...")
-                    if self._sync_file_tables_in_filemaker(fm, current_tz=self.current_tz,
-                                                           callback_progress=self.interruptable_callback_progress):
-                        # raise InterruptedError()
-                        report_progress(self.interruptable_callback_progress, 55, None,
-                                        "Transferring images to FileMaker...")
-                        if self._import_images_into_filemaker(fm,
-                                                              callback_progress=self.interruptable_callback_progress):
-                            rc = self._transfer_file_identifier_cache(fm, current_tz=self.current_tz)
-                            if not rc:
-                                logging.error("FileMakerWorkstation.export: _transfer_file_identifier_cache failed.")
-                            else:
-                                rc = self._set_workstation_constants(fm)
+                    report_progress(self.interruptable_callback_progress, 20, None, "Transferring data to FileMaker...")
+                    if self._transfer_tables_to_filemaker(fm, self.interruptable_callback_progress,
+                                                          current_tz=self.current_tz):
+                        report_progress(self.interruptable_callback_progress, 50, None,
+                                        "Preparing images transfer to FileMaker...")
+                        if self._sync_file_tables_in_filemaker(fm, current_tz=self.current_tz,
+                                                               callback_progress=self.interruptable_callback_progress):
+                            # raise InterruptedError()
+                            report_progress(self.interruptable_callback_progress, 55, None,
+                                            "Transferring images to FileMaker...")
+                            if self._import_images_into_filemaker(fm,
+                                                                  callback_progress=self.interruptable_callback_progress):
+                                rc = self._transfer_file_identifier_cache(fm, current_tz=self.current_tz)
                                 if not rc:
-                                    logging.error(
-                                        "FileMakerWorkstation.export: _set_workstation_constants failed.")
+                                    logging.error("FileMakerWorkstation.export: _transfer_file_identifier_cache failed.")
 
-                            if rc:
-                                report_progress(self.interruptable_callback_progress, 90, None,
-                                                "Individualizing workstation ...")
-                                if self._finish_and_check_import(fm):
-                                    report_progress(self.interruptable_callback_progress, 94, None,
-                                                    "finalizing ...")
-                                    try:
-                                        images_with_recent_modified_date_after = fm.count_images_modified_recently()
-                                        diff = int(
-                                            images_with_recent_modified_date_after - images_with_recent_modified_date)
-                                        if diff >= 1:
-                                            logging.warning(f"{self.__class__.__name__}.export: {diff} image records "
-                                                            f"have a very recent modification time. This is usually not "
-                                                            f"a disaster but it is strange and you should report it before "
-                                                            f"you continue if you have time to wait.")
-                                        logging.debug(f"{self.__class__.__name__}.export: "
-                                                      f"{images_with_recent_modified_date_after} image records have a "
-                                                      f"recent modification timestamp in the filemaker db after the export")
-                                    except BaseException as e:
-                                        logging.warning(f"{self.__class__.__name__}.export : when checking "
-                                                        f"images with too recent modification dates "
-                                                        f"an error occured:{repr(e)}. This is not critical "
-                                                        f"but might hint at an underlying issue.")
-
-                                    rc = fm._apply_config_patches()
-
-                                    if rc:
-                                        if rc and fm.set_constant("TRANSACTION_STATE", "OK"):
-                                            # this constant will be checked when importing a file. If it is still "false" there,
-                                            # the file won't be reimported.
-                                            fm.set_constant("has_been_opened", "false")
-                                            report_progress(self.interruptable_callback_progress, 95, None,
-                                                            "Closing filemaker ...")
-                                            rc = True
-                                        else:
-                                            rc = False
-                                            logging.error("FileMakerWorkstation.export: Error setting constant "
-                                                          "TRANSACTION_STATE failed")
-                                    else:
-                                        logging.error("FileMakerWorkstation.export: Error in apply_config_patches "
-                                                      "TRANSACTION_STATE failed")
-                                else:
-                                    rc = False
-                                    logging.error("FileMakerWorkstation.export: _finish_and_check_import failed.")
-
+                            else:
+                                logging.error(
+                                    "FileMakerWorkstation.export: fm.process_images_transfer_table failed.")
                         else:
                             logging.error(
-                                "FileMakerWorkstation.export: fm.process_images_transfer_table failed.")
-                    else:
+                                "FileMakerWorkstation.export: fm._sync_file_tables_in_filemaker failed.")
+
+                if rc:
+                    report_progress(self.interruptable_callback_progress, 90, None,
+                                    "Individualizing workstation ...")
+                    rc = self._set_workstation_constants(fm)
+                    if not rc:
                         logging.error(
-                            "FileMakerWorkstation.export: fm._sync_file_tables_in_filemaker failed.")
+                            "FileMakerWorkstation.export: _set_workstation_constants failed.")
+                    else:
+                        if self._finish_and_check_import(fm):
+                            report_progress(self.interruptable_callback_progress, 94, None,
+                                            "finalizing ...")
+                            if not skip_data_transfer:
+                                try:
+                                    images_with_recent_modified_date_after = fm.count_images_modified_recently()
+                                    diff = int(
+                                        images_with_recent_modified_date_after - images_with_recent_modified_date)
+                                    if diff >= 1:
+                                        logging.warning(f"{self.__class__.__name__}.export: {diff} image records "
+                                                        f"have a very recent modification time. This is usually not "
+                                                        f"a disaster but it is strange and you should report it before "
+                                                        f"you continue if you have time to wait.")
+                                    logging.debug(f"{self.__class__.__name__}.export: "
+                                                  f"{images_with_recent_modified_date_after} image records have a "
+                                                  f"recent modification timestamp in the filemaker db after the export")
+                                except BaseException as e:
+                                    logging.warning(f"{self.__class__.__name__}.export : when checking "
+                                                    f"images with too recent modification dates "
+                                                    f"an error occured:{repr(e)}. This is not critical "
+                                                    f"but might hint at an underlying issue.")
+
+                            rc = fm._apply_config_patches()
+
+                            if rc:
+                                if rc and fm.set_constant("TRANSACTION_STATE", "OK"):
+                                    # this constant will be checked when importing a file. If it is still "false" there,
+                                    # the file won't be reimported.
+                                    fm.set_constant("has_been_opened", "false")
+
+                                    fm.set_constant("bulk_id", self.bulk_id)
+                                    report_progress(self.interruptable_callback_progress, 95, None,
+                                                    "Closing filemaker ...")
+                                    rc = True
+                                else:
+                                    rc = False
+                                    logging.error("FileMakerWorkstation.export: Error setting constant "
+                                                  "TRANSACTION_STATE failed")
+                            else:
+                                logging.error("FileMakerWorkstation.export: Error in apply_config_patches "
+                                              "TRANSACTION_STATE failed")
+                        else:
+                            rc = False
+                            logging.error("FileMakerWorkstation.export: _finish_and_check_import failed.")
             else:
                 logging.error(
                     "FileMakerWorkstation.export: setting constant TRANSACTION_STATE to CORRUPT failed")

@@ -98,7 +98,7 @@ class ForkNExportWorkstationWorker(WorkstationManagerWorker):
         return True
 
     def worker(self):
-        def fork_n_export():
+        def fork_n_export(bulk_id: str):
             try:
                 logging.debug("ForkNExport Worker starts")
                 name = "?"
@@ -116,6 +116,7 @@ class ForkNExportWorkstationWorker(WorkstationManagerWorker):
 
                     if self.job.meta_data and JOB_META_TAG_KEEP_FM in self.job.meta_data:
                         ws.sync_ws.filemaker_mode = ws.sync_ws.FM_MODE_CONNECT
+                    ws.sync_ws.bulk_id = bulk_id if bulk_id else ""
 
                     rc = ws.sync_ws.transition("FORK", param_callback_progress=self.report_fork_progress,
                                                before_transition=ws.reset_download_upload_status)
@@ -156,8 +157,9 @@ class ForkNExportWorkstationWorker(WorkstationManagerWorker):
             if self.job.fetch_status() == MCPJobStatus.JOB_STATUS_RUNNING:
                 # self.job.publish_progress(0, "processing request...")
                 ws_id = self.job.job_data["workstation_id"]
-                logging.debug(f"Preparing workstation {ws_id}")
-                result = fork_n_export()
+                bulk_id = self.job.job_data.get("bulk_id", "")
+                logging.debug(f"Preparing workstation {ws_id}{' running in bulk ' + bulk_id if bulk_id else ''}")
+                result = fork_n_export(bulk_id)
                 self.job.publish_result(result.get_dict())
                 if result.success:
                     logging.info(f"job {self.job.job_id}: successful")
