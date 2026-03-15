@@ -560,3 +560,35 @@ class TestDsdGraph(KioskPyTestHelper):
         print(graph._graph)
 
         assert graph.get_joined_tables("locus", limit_to_quantifier_1=True) == ["unit"]
+
+    def test_get_dependent_tables(self, dsd):
+        graph = DsdGraph(dsd)
+        graph.add_table("unit")
+        graph.add_table("dayplan")
+        graph.add_join(Join(root_table="unit", related_table="dayplan"))
+
+        graph.add_table("locus")
+        graph.add_join(Join(root_table="unit", related_table="locus"))
+
+        graph.add_table("locus_photo")
+        graph.add_join(Join(root_table="locus", related_table="locus_photo"))
+
+        graph.add_table("collected_material")
+        graph.add_join(Join(root_table="locus", related_table="collected_material"))
+
+        graph.add_table("collected_material_photo")
+        graph.add_join(Join(root_table="collected_material", related_table="collected_material_photo"))
+
+        graph.add_table("locus_relations")
+        graph.add_join(Join(root_table="locus", related_table="locus_relations"))
+
+        # tagging is added with quantifier "n", so that join does not count as a joined table for get_joined_tables
+        graph.add_table("tagging")
+        graph.add_join(Join(root_table="tagging", related_table="locus", quantifier="n"))
+        graph.add_table("site")
+        graph.add_join(Join(root_table="site", related_table="unit"))
+        assert len(graph._graph.vs) == 9
+        assert len(graph._graph.es) == 8
+
+        assert graph.get_dependent_tables("unit") == ["dayplan", "locus"]
+        assert graph.get_dependent_tables("locus") == ["locus_photo", "collected_material", "locus_relations"]
