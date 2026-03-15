@@ -325,6 +325,16 @@ class DsdGraph:
         else:
             return [p["name"] for p in vertex.predecessors()]
 
+    def get_dependent_tables(self, table):
+        """
+        returns the name of the tables that have a backward join to the given table
+        """
+        vertex = self._graph.vs.find(table)
+        result = []
+        for p in vertex.successors():
+            result.append(p["name"])
+        return result
+
     def get_paths_to_table(self, table_name: str, start_table="") -> list:
         """
         returns a list with all paths that lead to a table
