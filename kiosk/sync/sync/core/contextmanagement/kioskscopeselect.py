@@ -46,12 +46,12 @@ class KioskScopeSelect:
     def has_no_scope(self):
         return self._graph.is_empty() if self._graph else True
 
-    def read_from_dsd(self):
+    def read_from_dsd(self, context_name):
         """
         reads the context from the dsd.
         :returns: Noting. Throws exceptions if things go wrong
         """
-        context_data = self._dsd.get_context(self.name)
+        context_data = self._dsd.get_context(context_name)
         self.from_dict(context_data)
 
     def _auto_context(self, origin: str = "") -> None:
