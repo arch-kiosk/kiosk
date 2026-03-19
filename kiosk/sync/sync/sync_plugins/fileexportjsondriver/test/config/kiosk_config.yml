@@ -10,7 +10,6 @@ import_configurations:
 
 config:
   project_id: 'arch1900'
-  dataset_definition: '%base_path%\config\dsd\urap_dsd3.yml'
   logfile: '%base_path%\log\urap_#a_#d#m#y-#H#M.log'
   filemaker_template: '%sync%\filemaker\urap2021_template.fmp12'
   expected_filemaker_template_version: '10.5'
@@ -20,6 +19,17 @@ config:
   database_name: urap_test
   database_timeout_sec: 5
   file_repository: '%sync%\file_repository'
+
+fileexportworkstation:
+  plugins: ["fileexportjsondriver"]
+  file_export_dsd_view: '%base_path%\config\dsd\file_export_view.yml'
+  FileExportTargetZip:
+    export_directory: '%base_path%\export'
+    export_filename: 'kiosk.zip'
+    compression_method: LZMA
+
+FileExportJSONDocDriver:
+  file_export_dsd_view: '%base_path%\config\dsd\file_export_view_jsondoc.yml'
 
 file_repository:
   cache: '%file_repository%\cache'
@@ -36,13 +46,6 @@ file_repository:
     site: 'site map'
     pottery_images: 'pottery'
     tags: 'context tags'
-
-fileexportworkstation:
-  plugins: ["fileexportcsvdriver", "fileexportexceldriver", "fileexportjsondriver"]
-  file_export_dsd_view: '%base_path%\config\dsd\file_export_view.yml'
-
-fileexportcsvdriver:
-  delimiter: ';'
 
 kiosk:
   SECRET_KEY: fd82303c-6852-48c1-8165-9e60d4b25b94

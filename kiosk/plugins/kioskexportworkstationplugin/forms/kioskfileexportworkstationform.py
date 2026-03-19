@@ -1,3 +1,5 @@
+import pprint
+
 from flask_wtf import FlaskForm
 
 from wtforms.fields import HiddenField
@@ -62,5 +64,4 @@ class KioskFileExportWorkstationForm(FlaskForm, KioskGeneralFormErrors):
         export_formats.sort()
         self.export_format.choices = list(export_formats)
 
-        filename_renderings.sort()
-        self.filename_rendering.choices = list(filename_renderings)
+
