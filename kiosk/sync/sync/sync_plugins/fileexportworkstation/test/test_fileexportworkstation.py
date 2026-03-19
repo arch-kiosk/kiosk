@@ -1,6 +1,7 @@
 import datetime
 import logging
 from pprint import pprint
+from typing import cast
 
 import pytest
 import os
@@ -8,6 +9,7 @@ import os
 from dsd.dsd3singleton import Dsd3Singleton
 from fileexportworkstation import FileExportWorkstation
 from fileexportworkstation.fileexport import FileExport
+from fileexportworkstation.tablebasedfileexportdriver import TableBasedFileExportDriver
 from qualitycontrol.qualitycontrol import QualityControl, QualityControlMessage
 from test.testhelpers import KioskPyTestHelper
 from sync_plugins.simpleqcengine.pluginsimpleqcengine import SimpleQCEngine, QCError
@@ -56,10 +58,10 @@ class TestFileExportWorkstation(KioskPyTestHelper):
         file_export = FileExport(config, sync.events, sync.type_repository, sync)
         assert file_export
 
-        driver = file_export.get_drivers()["FileExportCSVDriver"]
+        driver = cast(TableBasedFileExportDriver, file_export.get_drivers()["FileExportCSVDriver"])
         target = file_export.get_file_export_targets()["FileExportTargetZip"]
 
-        file_export_tables = list(file_export.get_export_tables())
+        file_export_tables = list(driver.get_export_tables())
         assert "unit" in file_export_tables
         assert "repl_workstations" not in file_export_tables
         assert "repl_file_picking_rules" not in file_export_tables

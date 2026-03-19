@@ -91,7 +91,7 @@ class DsdGraph:
 
         return result
 
-    def _browse_table_scope(self, table: str, exclude_tables: list = None) -> dict:
+    def _browse_table_scope(self, table: str, exclude_tables: list = None, add_files_table_references=False) -> dict:
         """
         creates an automatic scope dict starting with the table of origin
         :param table: the table of origin
@@ -111,6 +111,11 @@ class DsdGraph:
                         if join.related_table not in exclude_tables:
                             new_scope = __browse_table_scope(join.related_table, level + 1, origin_join_type=join.type)
                             scope[join.related_table] = new_scope
+            if add_files_table_references:
+                fields = self._dsd.list_fields_with_instruction(_table, "uid_file")
+                for f in fields:
+                    join = Join(_table,self._dsd.files_table,root_field=f, related_field="uid")
+                    scope[join.related_table] = {"join": join.get_scope_definition_join()}
             return scope
 
         if exclude_tables is None:
@@ -164,7 +169,7 @@ class DsdGraph:
         else:
             raise DsdGraphError(f"Parsing error of scope instruction {command}: {instruction.get_error()}")
 
-    def auto_scope(self, tables=None, exclude_tables: list = None) -> None:
+    def auto_scope(self, tables=None, exclude_tables: list = None, add_files_table_references=False) -> None:
         """
         creates an automatic scope either starting with a given table or
         with all root tables having an identifier in the dsd.
@@ -183,7 +188,9 @@ class DsdGraph:
         self._get_dsd_joins()
         scope = {}
         for t in tables:
-            scope[t] = self._browse_table_scope(t, exclude_tables=exclude_tables)
+            scope[t] = self._browse_table_scope(t,
+                                                exclude_tables=exclude_tables,
+                                                add_files_table_references=add_files_table_references)
 
         self.add_tables(scope)
 
@@ -324,6 +331,16 @@ class DsdGraph:
             return result
         else:
             return [p["name"] for p in vertex.predecessors()]
+
+    def get_dependent_tables(self, table):
+        """
+        returns the name of the tables that have a backward join to the given table
+        """
+        vertex = self._graph.vs.find(table)
+        result = []
+        for p in vertex.successors():
+            result.append(p["name"])
+        return result
 
     def get_paths_to_table(self, table_name: str, start_table="") -> list:
         """

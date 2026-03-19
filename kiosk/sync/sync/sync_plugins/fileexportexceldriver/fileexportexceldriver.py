@@ -1,46 +1,43 @@
 import json
 import logging
 import os
+import datetime
+import traceback
 
 from openpyxl import Workbook
 
 import kioskstdlib
 from dsd.dsd3 import DataSetDefinition
-from sync_plugins.fileexportworkstation.fileexportdriver import FileExportDriver
+from sync_plugins.fileexportworkstation.tablebasedfileexportdriver import TableBasedFileExportDriver
 from synchronization import Synchronization
 from synchronizationplugin import SynchronizationPlugin
 
 
-class FileExportExcelDriver(FileExportDriver):
+class FileExportExcelDriver(TableBasedFileExportDriver):
 
-    def __init__(self, config):
+    def __init__(self, config, file_repository):
         self._working_dir = os.path.join(config.get_temp_dir(), self.__class__.__name__.lower())
         self._workbook = None
         self._worksheet = None
         self._dsd = None
         self._columns = []
-        super().__init__(config)
+        super().__init__(config, file_repository)
 
     def _load_driver(self):
         self._name = "XLSX"
 
-        # if "fileexportexceldriver" in self._config.config:
-        #     self.delimiter = kioskstdlib.try_get_dict_entry(self._config.config["fileexportcsvdriver"], "delimiter", self.delimiter)
-        #     self.quote = kioskstdlib.try_get_dict_entry(self._config.config["fileexportcsvdriver"], "quote", self.quote)
-        #     self.quote_mode = kioskstdlib.try_get_dict_entry(self._config.config["fileexportcsvdriver"], "quote_mode",
-        #                                                     self.quote_mode)
 
         self._description = f"Excel XLSX file format: Excel 2010 and higher"
 
-    def start_export(self, target) -> None:
+    def start_export(self, target) -> bool:
         """
         prepares the export
         :param target: a valid FileExportTarget
         :raises: Exceptions of all sorts
         """
-        super().start_export(target)
         kioskstdlib.remove_kiosk_subtree(dir_to_remove=self._working_dir, base_path=self._config.base_path, delay=.2)
         os.mkdir(self._working_dir)
+        return super().start_export(target)
 
     def end_export(self, success: bool):
         pass
@@ -59,6 +56,17 @@ class FileExportExcelDriver(FileExportDriver):
         for i in range(0, len(row)):
             if isinstance(row[i], dict):
                 row[i] = json.dumps(row[i])
+            if isinstance(row[i], datetime.datetime):
+                try:
+                    if row[i].tzinfo:
+                        utc_ts = row[i].astimezone(datetime.timezone.utc)
+                        row[i] = utc_ts.replace(tzinfo=None)
+                except BaseException as e:
+                    logging.warning(f"{self.__class__.__name__}.export_record: Exception when tossing time zone of '{row[i]}': "
+                                  f"{repr(e)}")
+                    trace = traceback.format_exc()
+                    logging.debug(f"{self.__class__.__name__}.export_record: {trace}")
+                    row[i] = None
 
         row.extend(extra_values)
         self._worksheet.append(row)

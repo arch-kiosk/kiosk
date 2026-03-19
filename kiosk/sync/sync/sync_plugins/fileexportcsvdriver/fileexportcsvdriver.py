@@ -1,18 +1,16 @@
+import csv
 import logging
 import os
-import csv
-import datetime
-import shutil
 
 import kioskstdlib
 from dsd.dsd3 import DataSetDefinition
-from sync_plugins.fileexportworkstation.fileexportdriver import FileExportDriver
+from sync_plugins.fileexportworkstation.tablebasedfileexportdriver import TableBasedFileExportDriver
 from synchronization import Synchronization
 from synchronizationplugin import SynchronizationPlugin
 
 
-class FileExportCSVDriver(FileExportDriver):
-    def __init__(self, config):
+class FileExportCSVDriver(TableBasedFileExportDriver):
+    def __init__(self, config, file_repository):
         self._working_dir = os.path.join(config.get_temp_dir(), "fileexportcsvdriver")
         self._file = None
         self._csv_writer = None
@@ -21,29 +19,29 @@ class FileExportCSVDriver(FileExportDriver):
         self.delimiter = ","
         self.quote = '"'
         self.quote_mode = 'minimal'
-        super().__init__(config)
+        super().__init__(config, file_repository)
 
     def _load_driver(self):
         self._name = "CSV"
 
-        if "fileexportcsvdriver" in self._config.config:
-            self.delimiter = kioskstdlib.try_get_dict_entry(self._config.config["fileexportcsvdriver"], "delimiter",
+        if self._config.has_key("fileexportcsvdriver"):
+            self.delimiter = kioskstdlib.try_get_dict_entry(self._config["fileexportcsvdriver"], "delimiter",
                                                             self.delimiter)
-            self.quote = kioskstdlib.try_get_dict_entry(self._config.config["fileexportcsvdriver"], "quote", self.quote)
-            self.quote_mode = kioskstdlib.try_get_dict_entry(self._config.config["fileexportcsvdriver"], "quote_mode",
+            self.quote = kioskstdlib.try_get_dict_entry(self._config["fileexportcsvdriver"], "quote", self.quote)
+            self.quote_mode = kioskstdlib.try_get_dict_entry(self._config["fileexportcsvdriver"], "quote_mode",
                                                              self.quote_mode)
 
         self._description = f"UTF-8 encoded values separated by '{self.delimiter}'"
 
-    def start_export(self, target) -> None:
+    def start_export(self, target) -> bool:
         """
         prepares the export
         :param target: a valid FileExportTarget
         :raises: Exceptions of all sorts
         """
-        super().start_export(target)
         kioskstdlib.remove_kiosk_subtree(dir_to_remove=self._working_dir, base_path=self._config.base_path, delay=.2)
         os.mkdir(self._working_dir)
+        return super().start_export(target)
 
     def end_export(self, success: bool):
         pass
@@ -62,6 +60,7 @@ class FileExportCSVDriver(FileExportDriver):
         elif self.quote_mode.lower() == "none":
             quoting = csv.QUOTE_NONE
 
+        # noinspection PyTypeChecker
         self._csv_writer = csv.writer(self._file, delimiter=self.delimiter, quotechar=self.quote, quoting=quoting,
                                       lineterminator="\n")
         if extra_columns:

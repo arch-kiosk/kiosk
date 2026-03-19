@@ -66,6 +66,8 @@ class Join:
     def get_group_by(self):
         return f" group by {KioskSQLDb.sql_safe_ident(self.root_table)}.{KioskSQLDb.sql_safe_ident(self.root_field)} "
 
+    def get_scope_definition_join(self):
+        return f'{self.type}("{self.root_field}", "{self.related_field}")'
 
 class DataSetDefinition:
     """ DataSetDefinition encapsulates the access to the DataSetDefinition file.
@@ -931,7 +933,7 @@ class DataSetDefinition:
 
         return ""
 
-    def list_fields_with_instruction(self, table: str, instruction: str) -> []:
+    def list_fields_with_instruction(self, table: str, instruction: str) -> List:
         """
         list all fields of a table that have a certain instruction
         :param table:
@@ -965,6 +967,7 @@ class DataSetDefinition:
 
     def get_file_field_reference(self, table, field, version=0):
         """ returns the field name given by the attribute "FILE_FOR()" of the given field
+            As we only have files in the one file table, this is not a very useful method anymore.
         """
 
         if self.is_table_dropped(table_name=table, version=version):

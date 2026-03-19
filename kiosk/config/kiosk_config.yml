@@ -10,9 +10,4 @@ config:
   # The project_id must be in the kiosk_config file! Some tools rely on that convention!
   #  project_id: 'u2ers'
   base_path: 'C:\notebook_source\kiosk\server\kiosk\kiosk'
-  project_id: "test"
-
-#recordingworkstation:
-#  analyze_files:
-#    - 8fed0e46-71f2-4382-b7f6-a8c7f47bb977
-#    - 5e48fcb5-d488-4c31-abff-f46e38ce423d
+  project_id: "pvd"

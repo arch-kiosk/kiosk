@@ -161,7 +161,7 @@ file_repository:
       "TIFF": "JPEG"
 
 fileexportworkstation:
-  plugins: [ "fileexportcsvdriver","fileexportexceldriver" ]
+  plugins: [ "fileexportcsvdriver","fileexportexceldriver", "fileexportjsondriver" ]
   file_export_dsd_view: '%base_path%\config\dsd\file_export_view.yml'
   max_export_repo_mbytes: 500
   FileExportTargetZip:

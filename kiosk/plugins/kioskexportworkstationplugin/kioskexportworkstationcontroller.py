@@ -1,20 +1,16 @@
-import datetime
 import logging
 from http import HTTPStatus
-from pprint import pprint
+from typing import List
 
-from flask import Blueprint, request, render_template, session, redirect, url_for, abort
+from flask import Blueprint, request, render_template, redirect, url_for, abort
 from flask_allows import requires
 from flask_login import current_user
 from werkzeug.exceptions import HTTPException
 
-from authorization import full_login_required, IsAuthorized, INSTALL_PLUGIN
+import kioskglobals
+from authorization import full_login_required, IsAuthorized
 from authorization import get_local_authorization_strings, EDIT_WORKSTATION_PRIVILEGE, \
     SYNCHRONIZE, PREPARE_WORKSTATIONS, DOWNLOAD_WORKSTATION, UPLOAD_WORKSTATION, CREATE_WORKSTATION
-import kioskstdlib
-
-import kioskglobals
-
 from core.kioskcontrollerplugin import get_plugin_for_controller
 from fileexportworkstation import FileExportWorkstation
 from fileexportworkstation.fileexport import FileExport
@@ -74,9 +70,13 @@ def create_kiosk_workstation():
     recording_groups = KioskExportWorkstation.get_recording_groups()
     sync = Synchronization()
     file_export = FileExport(kioskglobals.get_config(), sync.events, sync.type_repository, sync)
+    drivers = file_export.get_drivers()
     export_formats = [(driver.driver_id, f"{driver.name} ({driver.description})") for driver in
-                      file_export.get_drivers().values()]
-    filename_renderings = [("uid", "use unique id as filename"), ("descriptive", "render descriptive filenames")]
+                      drivers.values()]
+    filename_renderings = {}
+    for driver in drivers.values():
+        filename_renderings[driver.driver_id] = driver.get_filename_renderings()
+
     new_ws_form = KioskFileExportWorkstationForm("new",
                                                  export_formats=export_formats,
                                                  filename_renderings=filename_renderings)
@@ -98,14 +98,16 @@ def create_kiosk_workstation():
         except:
             pass
 
+    # noinspection PyUnresolvedReferences
     return render_template('kioskfileexportworkstation.html',
                            new_ws_form=new_ws_form,
                            mode="new",
                            general_errors=general_errors,
-                           recording_groups=recording_groups)
+                           recording_groups=recording_groups,
+                           filename_renderings=filename_renderings)
 
 
-def create_file_export_workstation(form: KioskFileExportWorkstationForm, general_errors: [str]) -> str:
+def create_file_export_workstation(form: KioskFileExportWorkstationForm, general_errors: List[str]) -> str:
     """
     starts the job to create the workstation and returns the job-id in case the start succeeded.
     :param form:
@@ -122,7 +124,6 @@ def create_file_export_workstation(form: KioskFileExportWorkstationForm, general
             return result
 
         try:
-            export_format = form.export_format.data
             sync = Synchronization()
             file_export = FileExport(kioskglobals.get_config(), sync.events, sync.type_repository, sync)
 
@@ -191,6 +192,7 @@ def workstation_actions(ws_id: str):
             abort(HTTPStatus.BAD_REQUEST, "Attempt to load a workstation that does not exist")
 
         options = workstation.get_options()
+        # noinspection PyUnresolvedReferences
         return render_template('kioskexportworkstationactions.html', ws=workstation, options=options)
 
     except HTTPException as e:
@@ -306,12 +308,33 @@ def kew_edit(ws_id):
         recording_groups = KioskExportWorkstation.get_recording_groups()
         sync = Synchronization()
         file_export = FileExport(kioskglobals.get_config(), sync.events, sync.type_repository, sync)
+        drivers = file_export.get_drivers()
         export_formats = [(driver.driver_id, f"{driver.name} ({driver.description})") for driver in
-                          file_export.get_drivers().values()]
-        filename_renderings = [("uid", "use unique id as filename"), ("descriptive", "render descriptive filenames")]
+                          drivers.values()]
+        filename_renderings = {}
+        for driver in drivers.values():
+            filename_renderings[driver.driver_id] = driver.get_filename_renderings()
+
         kfe_form = KioskFileExportWorkstationForm("edit",
                                                   export_formats=export_formats,
                                                   filename_renderings=filename_renderings)
+
+        if request.method == "GET":
+            sync_ws: FileExportWorkstation = ws.sync_ws
+            kfe_form.recording_group.data = sync_ws.recording_group
+            kfe_form.workstation_id.data = sync_ws.get_id()
+            kfe_form.description.data = sync_ws.description
+            kfe_form.include_files.data = sync_ws.include_files
+            kfe_form.export_format.data = sync_ws.export_file_format
+            kfe_form.filename_rendering.data = sync_ws.filename_rendering if sync_ws.filename_rendering else ""
+
+        driver_id = kfe_form.export_format.data
+        if driver_id:
+            renderings = filename_renderings[driver_id]
+            renderings.sort()
+            kfe_form.filename_rendering.choices = list(renderings)
+        else:
+            kfe_form.filename_rendering.choices = []
 
         general_errors = []
 
@@ -336,20 +359,15 @@ def kew_edit(ws_id):
                     return redirect(url_for("syncmanager.sync_manager_show"))
                 else:
                     general_errors.append("It was not possible to save your changes. Please try again.")
-        else:
-            sync_ws: FileExportWorkstation = ws.sync_ws
-            kfe_form.recording_group.data = sync_ws.recording_group
-            kfe_form.workstation_id.data = sync_ws.get_id()
-            kfe_form.description.data = sync_ws.description
-            kfe_form.include_files.data = sync_ws.include_files
-            kfe_form.export_format.data = sync_ws.export_file_format
-            kfe_form.filename_rendering.data = sync_ws.filename_rendering if sync_ws.filename_rendering else ""
 
+        # noinspection PyUnresolvedReferences
         return render_template('kioskfileexportworkstation.html',
                                new_ws_form=kfe_form,
                                mode="edit",
                                general_errors=general_errors,
-                               recording_groups=recording_groups)
+                               recording_groups=recording_groups,
+                               filename_renderings=filename_renderings
+                               )
 
     except UserError as e:
         logging.error(f"kioskexportworkstationcontroller.kew_edit: {repr(e)}")
@@ -360,4 +378,4 @@ def kew_edit(ws_id):
         raise e
     except Exception as e:
         logging.error(f"kioskexportworkstationcontroller.kew_edit: {repr(e)}")
-        abort(HTTPStatus.INTERNAL_SERVER_ERROR)
+        abort(HTTPStatus.INTERNAL_SERVER_ERROR, repr(e))
