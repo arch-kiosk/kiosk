@@ -298,6 +298,7 @@ class TestDsdGraph(KioskPyTestHelper):
                     {
                         "pottery": {}
                     },
+                "locus_photo": {},
                 "locus_relations": {}
             }
         }
@@ -308,6 +309,7 @@ class TestDsdGraph(KioskPyTestHelper):
                     {
                         "pottery": {}
                     },
+                "locus_photo": {},
                 "locus_relations": {}
             }
         }
@@ -321,6 +323,7 @@ class TestDsdGraph(KioskPyTestHelper):
                 {
                     "pottery": {}
                 },
+            "locus_photo": {},
             "locus_relations": {}
         }
         scope = graph._browse_table_scope("pottery")
@@ -333,6 +336,7 @@ class TestDsdGraph(KioskPyTestHelper):
         assert scope == {
             "locus": {
                 "collected_material": {},
+                "locus_photo": {},
                 "locus_relations": {}
             }
         }
@@ -592,3 +596,40 @@ class TestDsdGraph(KioskPyTestHelper):
 
         assert graph.get_dependent_tables("unit") == ["dayplan", "locus"]
         assert graph.get_dependent_tables("locus") == ["locus_photo", "collected_material", "locus_relations"]
+
+    def test__browse_table_scope_with_images(self, dsd):
+        graph = DsdGraph(dsd)
+        scope = graph._browse_table_scope("unit")
+        assert scope == {
+            "locus": {
+                "collected_material":
+                    {
+                        "pottery": {}
+                    },
+                "locus_photo": {},
+                "locus_relations": {}
+            }
+        }
+        scope = graph._browse_table_scope("unit", add_files_table_references=True)
+        assert scope == {
+            'locus':
+                {
+                    'collected_material': {
+                        'pottery': {
+                            'images': {'join': 'inner("uid_sketch", '
+                                               '"uid")'}
+                        }
+                    },
+                    'locus_photo': {
+                        'images': {
+                            'join': 'inner("uid_image", "uid")'
+                        }
+                    },
+                    'locus_relations': {
+                        'images': {
+                            'join': 'inner("uid_sketch", '
+                                    '"uid")'
+                        }
+                    }
+                }
+        }

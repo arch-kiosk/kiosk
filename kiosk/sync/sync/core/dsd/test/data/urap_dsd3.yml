@@ -291,7 +291,7 @@ locus_othertype:
 locus_photo:
   structure:
     1:
-      uid_locus: [datatype(UUID)]
+      uid_locus: [datatype(UUID), join("locus")]
       description: [datatype(VARCHAR), describes_file(uid_image)]
       uid_image: [datatype(UUID), uid_file(), file_location_for('locus')]
       uid: [datatype(UUID), replfield_uuid()]
