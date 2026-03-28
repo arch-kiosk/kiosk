@@ -31,6 +31,43 @@ migration_flags:
 
 collected_material:
   structure:
+    9:
+      uid_locus: [datatype(UUID), join("locus")]
+      external_id: [datatype(VARCHAR), identifier("additional")]
+      alt_id: [datatype(NUMBER), local_id("external_id")]
+      alt_domain: [datatype(VARCHAR), id_domain("external_id")]
+      uid_lot: [datatype(UUID), "lookup(lot,uid)", "label(#(/$/glossary/lot:1))"]
+      type: [datatype(VARCHAR), label("material")]
+      material_specified: [datatype(VARCHAR), label('material specified')]
+      cm_type: [datatype(VARCHAR), label("type"), "lookup('collected_material_types', 'id')"]
+      description: [datatype(VARCHAR), record_description()]
+      isobject: [datatype(NUMBER)]
+      date: [datatype(TIMESTAMP), excavation_date()]
+      storage: [datatype(VARCHAR)]
+      pottery_remarks: [datatype(VARCHAR)]
+      number_of_bags: [datatype(int)]
+      coord_x: [datatype(FLOAT)]
+      coord_y: [datatype(FLOAT)]
+      coord_z: [datatype(FLOAT)]
+      status_done: [datatype(VARCHAR)]
+      status_todo: [datatype(VARCHAR)]
+      dearregistrar: [datatype(VARCHAR), label("dear registrar")]
+      weight: [datatype(DECIMAL), default(0)]
+      volume: [datatype(DECIMAL), default(0)]
+      period: [datatype(VARCHAR)]
+      quantity: [datatype(DECIMAL), default(0)]
+      is_grave_good: [datatype(NUMBER)]
+      collection_method: [datatype(VARCHAR)]
+      analysis_method: [datatype(VARCHAR)]
+      period_uncertain: [datatype(NUMBER)]
+      research_notes: [datatype(VARCHAR)]
+      id: [datatype(NUMBER), local_id("arch_context")]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier(), "label(#(/$/constants/labels/label_bulk_number))"]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
     8:
       uid_locus: [datatype(UUID), join("locus")]
       external_id: [datatype(VARCHAR), identifier("additional")]
@@ -159,104 +196,12 @@ collected_material:
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
-    4:
-      uid_locus: [datatype(UUID), join("locus")]
-      external_id: [datatype(VARCHAR), identifier("additional")]
-      uid_lot: [datatype(UUID)]
-      type: [datatype(VARCHAR)]
-      cm_type: [datatype(VARCHAR)]
-      description: [datatype(VARCHAR), record_description()]
-      isobject: [datatype(NUMBER)]
-      date: [datatype(TIMESTAMP)]
-      storage: [datatype(VARCHAR)]
-      pottery_remarks: [datatype(VARCHAR)]
-      status_done: [datatype(VARCHAR)]
-      status_todo: [datatype(VARCHAR)]
-      dearregistrar: [datatype(VARCHAR)]
-      weight: [datatype(DECIMAL)]
-      period: [datatype(VARCHAR)]
-      quantity: [datatype(DECIMAL)]
-      is_grave_good: [datatype(NUMBER)]
-      collection_method: [datatype(VARCHAR)]
-      id: [datatype(NUMBER), local_id("arch_context")]
-      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
-      arch_context: [datatype(VARCHAR), identifier()]
-      uid: [datatype(UUID), replfield_uuid()]
-      created: [datatype(TIMESTAMP), replfield_created()]
-      modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
-    3:
-      uid_locus: [datatype(UUID), join("locus")]
-      external_id: [datatype(VARCHAR), identifier("additional")]
-      uid_lot: [datatype(UUID)]
-      type: [datatype(VARCHAR)]
-      description: [datatype(VARCHAR), record_description()]
-      isobject: [datatype(NUMBER)]
-      date: [datatype(TIMESTAMP)]
-      storage: [datatype(VARCHAR)]
-      pottery_remarks: [datatype(VARCHAR)]
-      status_done: [datatype(VARCHAR)]
-      status_todo: [datatype(VARCHAR)]
-      dearregistrar: [datatype(VARCHAR)]
-      weight: [datatype(DECIMAL)]
-      period: [datatype(VARCHAR)]
-      quantity: [datatype(DECIMAL)]
-      is_grave_good: [datatype(NUMBER)]
-      collection_method: [datatype(VARCHAR)]
-      id: [datatype(NUMBER), local_id("arch_context")]
-      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
-      arch_context: [datatype(VARCHAR), identifier()]
-      uid: [datatype(UUID), replfield_uuid()]
-      created: [datatype(TIMESTAMP), replfield_created()]
-      modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
-    2:
-      uid_locus: [datatype(UUID), join("locus")]
-      external_id: [datatype(VARCHAR), identifier("additional")]
-      uid_lot: [datatype(UUID)]
-      type: [datatype(VARCHAR)]
-      description: [datatype(VARCHAR), record_description()]
-      isobject: [datatype(NUMBER)]
-      date: [datatype(TIMESTAMP)]
-      storage: [datatype(VARCHAR)]
-      pottery_remarks: [datatype(VARCHAR)]
-      status_done: [datatype(VARCHAR)]
-      status_todo: [datatype(VARCHAR)]
-      dearregistrar: [datatype(VARCHAR)]
-      weight: [datatype(DECIMAL)]
-      period: [datatype(VARCHAR)]
-      quantity: [datatype(DECIMAL)]
-      is_grave_good: [datatype(NUMBER)]
-      collection_method: [datatype(VARCHAR)]
-      id: [datatype(NUMBER), local_id("arch_context")]
-      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
-      arch_context: [datatype(VARCHAR), identifier()]
-      uid: [datatype(UUID), replfield_uuid()]
-      created: [datatype(TIMESTAMP), replfield_created()]
-      modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
-    1:
-      uid_locus: [datatype(UUID)]
-      id: [datatype(NUMBER)]
-      external_id: [datatype(VARCHAR)]
-      uid_lot: [datatype(UUID)]
-      type: [datatype(VARCHAR)]
-      description: [datatype(VARCHAR)]
-      isobject: [datatype(NUMBER)]
-      date: [datatype(TIMESTAMP)]
-      storage: [datatype(VARCHAR)]
-      pottery_remarks: [datatype(VARCHAR)]
-      status_done: [datatype(VARCHAR)]
-      status_todo: [datatype(VARCHAR)]
-      dearregistrar: [datatype(VARCHAR)]
-      weight: [datatype(DECIMAL)]
-      period: [datatype(VARCHAR)]
-      quantity: [datatype(DECIMAL)]
-      uid: [datatype(UUID), replfield_uuid()]
-      created: [datatype(TIMESTAMP), replfield_created()]
-      modified: [datatype(TIMESTAMP), replfield_modified()]
-      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+
   migration:
+    9:
+      upgrade:
+        - add("alt_id")
+        - add("alt_domain")
     8:
       upgrade:
         - add("research_notes")
@@ -270,24 +215,7 @@ collected_material:
         - add("coord_x")
         - add("coord_y")
         - add("coord_z")
-    5:
-      upgrade:
-        - add("analysis_method")
-        - add("volume")
-        - alter("weight")
-        - alter("quantity")
-    4:
-      upgrade:
-        - add("cm_type")
-    3:
-      upgrade:
-        - alter("modified_by")
-    2:
-      upgrade:
-        - add("is_grave_good")
-        - add("collection_method")
-        - add("arch_domain")
-        - add("arch_context")
+
 collected_material_photo:
   structure:
     2:
