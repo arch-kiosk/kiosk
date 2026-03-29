@@ -396,6 +396,10 @@ class ModelFileRepository:
         self.plugin_controller = get_plugin_for_controller(plugin_name) if plugin_name else None
         self.sorting_option = self.SORTING_OPTIONS[0]
         self.agnostic_mode = kioskglobals.cfg.get_agnostic_mode()
+        # todo: This is shitty as it addresses a particular project
+        #   this needs a project-agnostic refactoring
+        if conf.get_project_id() == "anc" and  "ANC: date then import filename" not in self.SORTING_OPTIONS:
+            self.SORTING_OPTIONS.append("ANC: date then import filename")
 
     def set_filter_values(self, options):
         if "filter_values" not in self.filter_options:
@@ -576,6 +580,9 @@ class ModelFileRepository:
             return "order by \"file_datetime\" desc, \"created\" desc, \"identifiers\""
         elif self.sorting_option == self.SORTING_OPTIONS[4]:
             return "order by \"modified\" desc, \"created\" desc, \"identifiers\""
+        elif ("ANC: date then import filename" in self.SORTING_OPTIONS and
+              self.sorting_option == "ANC: date then import filename"):
+            return "order by \"file_datetime\", \"import_filename\""
         else:
             logging.error(f"{self.__class__.__name__}._get_order: unknown sorting order "
                           f"'{self.sorting_option}' selected.")

@@ -1,14 +1,8 @@
 import logging
 import os
-import zlib
-import lzma
-import bz2
-import zipfile
 from zipfile import ZipFile
 import kioskstdlib
-from .fileexportlib import FileExportError
 from .fileexporttarget import FileExportTarget
-from sync_config import SyncConfig
 
 
 class FileExportTargetZip(FileExportTarget):
@@ -86,6 +80,8 @@ class FileExportTargetZip(FileExportTarget):
                     progress = c_files * 100 / len(self._files)
                     self._interruptable_callback_progress(progress=progress, message=f"compressing {dest_filename}.")
                     f_zip.write(filename=source_path_and_filename, arcname=dest_filename)
+            logging.info(
+                f"{self.__class__.__name__}.store: Zip File successfully created.")
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.store: {repr(e)}")
             raise e
