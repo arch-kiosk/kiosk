@@ -279,6 +279,17 @@ class TestDataSetDefinition(KioskPyTestHelper):
         assert len(field["default"]) == 1
         assert field["default"][0] == "sys"
 
+    def test_add_field_instruction(self, dsd_images_and_units_and_test):
+        dsd: DataSetDefinition = dsd_images_and_units_and_test
+        assert dsd.append_file(dsd3_dropped_table_file)
+
+        instructions = dsd.get_unparsed_field_instructions("test", "uid")
+        assert instructions == ['datatype("UUID")', 'REPLFIELD_UUID()']
+
+        dsd.add_field_instruction("test", "uid", "hide()")
+        instructions = dsd.get_unparsed_field_instructions("test", "uid")
+        assert instructions == ['datatype("UUID")', 'REPLFIELD_UUID()', 'hide()']
+
     def test_get_fields_with_instruction_and_parameters(self, dsd_images_and_units_and_test):
         dsd: DataSetDefinition = dsd_images_and_units_and_test
         assert dsd.append_file(dsd3_dropped_table_file)

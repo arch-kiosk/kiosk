@@ -67,44 +67,48 @@ def init_controller():
 @full_login_required
 @requires(IsAuthorized(CREATE_WORKSTATION))
 def create_kiosk_workstation():
-    recording_groups = KioskExportWorkstation.get_recording_groups()
-    sync = Synchronization()
-    file_export = FileExport(kioskglobals.get_config(), sync.events, sync.type_repository, sync)
-    drivers = file_export.get_drivers()
-    export_formats = [(driver.driver_id, f"{driver.name} ({driver.description})") for driver in
-                      drivers.values()]
-    filename_renderings = {}
-    for driver in drivers.values():
-        filename_renderings[driver.driver_id] = driver.get_filename_renderings()
+    try:
+        recording_groups = KioskExportWorkstation.get_recording_groups()
+        sync = Synchronization()
+        file_export = FileExport(kioskglobals.get_config(), sync.events, sync.type_repository, sync)
+        drivers = file_export.get_drivers()
+        export_formats = [(driver.driver_id, f"{driver.name} ({driver.description})") for driver in
+                          drivers.values()]
+        filename_renderings = {}
+        for driver in drivers.values():
+            filename_renderings[driver.driver_id] = driver.get_filename_renderings()
 
-    new_ws_form = KioskFileExportWorkstationForm("new",
-                                                 export_formats=export_formats,
-                                                 filename_renderings=filename_renderings)
-    general_errors = []
+        new_ws_form = KioskFileExportWorkstationForm("new",
+                                                     export_formats=export_formats,
+                                                     filename_renderings=filename_renderings)
+        general_errors = []
 
-    if request.method == "POST":
-        general_errors += kiosk_validate(new_ws_form)
-        if not general_errors:
-            # give some positive feedback!
-            if create_file_export_workstation(new_ws_form, general_errors):
-                return redirect(url_for("syncmanager.sync_manager_show"))
-            else:
-                general_errors += ["The file export workstation could not be created for unknown reasons."]
-    else:
-        try:
-            if kioskglobals.get_config().default_recording_group:
-                new_ws_form.recording_group.data = kioskglobals.get_config().default_recording_group
+        if request.method == "POST":
+            general_errors += kiosk_validate(new_ws_form)
+            if not general_errors:
+                # give some positive feedback!
+                if create_file_export_workstation(new_ws_form, general_errors):
+                    return redirect(url_for("syncmanager.sync_manager_show"))
+                else:
+                    general_errors += ["The file export workstation could not be created for unknown reasons."]
+        else:
+            try:
+                if kioskglobals.get_config().default_recording_group:
+                    new_ws_form.recording_group.data = kioskglobals.get_config().default_recording_group
 
-        except:
-            pass
+            except:
+                pass
 
-    # noinspection PyUnresolvedReferences
-    return render_template('kioskfileexportworkstation.html',
-                           new_ws_form=new_ws_form,
-                           mode="new",
-                           general_errors=general_errors,
-                           recording_groups=recording_groups,
-                           filename_renderings=filename_renderings)
+        # noinspection PyUnresolvedReferences
+        return render_template('kioskfileexportworkstation.html',
+                               new_ws_form=new_ws_form,
+                               mode="new",
+                               general_errors=general_errors,
+                               recording_groups=recording_groups,
+                               filename_renderings=filename_renderings)
+    except Exception as e:
+        logging.error(f"kioskexportworkstationcontroller.create_kiosk_workstation: {repr(e)}")
+        abort(HTTPStatus.INTERNAL_SERVER_ERROR, f"kioskexportworkstationcontroller.create_kiosk_workstation: {repr(e)}")
 
 
 def create_file_export_workstation(form: KioskFileExportWorkstationForm, general_errors: List[str]) -> str:

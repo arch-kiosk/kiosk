@@ -683,6 +683,12 @@ class DataSetDefinition:
             except:
                 pass
 
+    def _del_field_instructions_in_cache(self, table, fieldname, version):
+        try:
+            self._cache[table][version].pop(fieldname)
+        except:
+            pass
+
     def get_field_instructions(self, table, fieldname, version=0, patterns: List[str] = None) -> dict:
         """ returns a dictionary with all the instructions and their parameters for a field
         :param table: the table
@@ -718,6 +724,14 @@ class DataSetDefinition:
         if version == 0 and not patterns:
             self._set_field_instructions_in_cache(table, fieldname, result, _version)
         return result
+
+    def add_field_instruction(self, table, fieldname, instruction: str,version=None):
+        _version = version if version else self.get_current_version(table)
+        instructions = self._dsd_data.get([table, KEY_TABLE_STRUCTURE, _version, fieldname])
+        if isinstance(instructions, list):
+            instructions.append(instruction)
+        self._dsd_data.set([table, KEY_TABLE_STRUCTURE, _version, fieldname], instructions)
+        self._del_field_instructions_in_cache(table, fieldname, _version)
 
     def get_fields_with_instructions(self, table, required_instructions: List = None, version=0) -> dict:
         """ returns a dictionary with all the fields and
