@@ -44,34 +44,46 @@ class DSDView:
         self.include_tables = []
         parser = SimpleFunctionParser()
         for instruction in instructions["tables"]:
-            parser.parse(instruction)
-            if parser.ok:
-                if parser.instruction == "include":
-                    self._apply_include(parser.parameters)
-                elif parser.instruction == "include_tables_with_instruction":
-                    self._apply_include_tables_with_instruction(parser.parameters)
-                elif parser.instruction == "include_tables_with_flag":
-                    self._apply_include_tables_with_flag(parser.parameters)
-                elif parser.instruction == "exclude_tables_with_flag":
-                    self._apply_exclude_tables_with_flag(parser.parameters)
-                elif parser.instruction == "exclude":
-                    self._apply_exclude(parser.parameters)
-                elif parser.instruction == "exclude_all_fields_from_table":
-                    self._apply_exclude_all_fields_from_table(parser.parameters)
-                elif parser.instruction == "include_field" or parser.instruction == "include_fields":
-                    self._apply_ex_or_include_fields(parser.parameters, exclude=False)
-                elif parser.instruction == "include_fields_with_instruction":
-                    self._apply_ex_or_include_fields_with_instruction(parser.parameters, exclude=False)
-                elif parser.instruction == "exclude_field" or parser.instruction == "exclude_fields":
-                    self._apply_ex_or_include_fields(parser.parameters, exclude=True)
-                elif parser.instruction == "exclude_fields_with_instruction":
-                    self._apply_ex_or_include_fields_with_instruction(parser.parameters, exclude=True)
+            try:
+                parser.parse(instruction)
+                if parser.ok:
+                    if parser.instruction == "include":
+                        self._apply_include(parser.parameters)
+                    elif parser.instruction == "include_tables_with_instruction":
+                        self._apply_include_tables_with_instruction(parser.parameters)
+                    elif parser.instruction == "include_tables_with_flag":
+                        self._apply_include_tables_with_flag(parser.parameters)
+                    elif parser.instruction == "exclude_tables_with_flag":
+                        self._apply_exclude_tables_with_flag(parser.parameters)
+                    elif parser.instruction == "exclude":
+                        self._apply_exclude(parser.parameters)
+                    elif parser.instruction == "exclude_all_fields_from_table":
+                        self._apply_exclude_all_fields_from_table(parser.parameters)
+                    elif parser.instruction == "include_field" or parser.instruction == "include_fields":
+                        self._apply_ex_or_include_fields(parser.parameters, exclude=False)
+                    elif parser.instruction == "include_fields_with_instruction":
+                        self._apply_ex_or_include_fields_with_instruction(parser.parameters, exclude=False)
+                    elif parser.instruction == "exclude_field" or parser.instruction == "exclude_fields":
+                        self._apply_ex_or_include_fields(parser.parameters, exclude=True)
+                    elif parser.instruction == "exclude_field_from_all_tables" or \
+                            parser.instruction == "exclude_fields_from_all_tables":
+                        self._apply_ex_or_include_fields_from_all_tables(parser.parameters, exclude=True)
+                    elif parser.instruction == "include_field_from_all_tables" or \
+                             parser.instruction == "include_fields_from_all_tables":
+                        self._apply_ex_or_include_fields_from_all_tables(parser.parameters, exclude=False)
+                    elif parser.instruction == "exclude_fields_with_instruction":
+                        self._apply_ex_or_include_fields_with_instruction(parser.parameters, exclude=True)
+                    else:
+                        raise DSDUnknownInstruction(
+                            f"DSDView.apply_view_instruction: instruction {parser.instruction} unknown.")
                 else:
-                    raise DSDUnknownInstruction(
-                        f"DSDView.apply_view_instruction: instruction {parser.instruction} unknown.")
-            else:
-                raise DSDInstructionSyntaxError(
-                    f"DSDView.apply_view_instruction: syntax error in instruction {instruction}.")
+                    raise DSDInstructionSyntaxError(
+                        f"DSDView.apply_view_instruction: syntax error in instruction {instruction}.")
+            except BaseException as e:
+                logging.error(f"{self.__class__.__name__}.apply_view_instructions: "
+                              f"Error applying {instruction}: {repr(e)}")
+                raise Exception(f"{self.__class__.__name__}.apply_view_instructions: "
+                                f"Error applying {instruction}: {repr(e)}")
 
         self._delete_not_included_tables()
         self._delete_not_included_fields()
@@ -102,7 +114,13 @@ class DSDView:
         for field in self.excluded_fields.keys():
             table, field = field.split("\\")
             for version in self.dsd.list_table_versions(table):
-                self.dsd.delete_field(table, field,version)
+                datatype = self.dsd.get_field_datatype(table, field, version)
+                logging.debug(f"{self.__class__.__name__}. : {field}:{datatype}")
+                if self.dsd.get_field_datatype(table, field, version) == "uuid":
+                    logging.debug(f"{self.__class__.__name__}._delete_not_included_fields: hiding field {table}.{field}")
+                    self.dsd.add_field_instruction(table, field, "hide()", version=version)
+                else:
+                    self.dsd.delete_field(table, field, version)
 
     def _apply_include_tables_with_instruction(self, parameters):
         tables = self.dsd.list_tables_with_instructions([parameters[0]])
@@ -124,11 +142,13 @@ class DSDView:
 
     def _exclude_field(self, table, field):
         self.excluded_fields[f"{table}\\{field}"] = True
+        logging.debug(f"excluding field {table}\\{field}")
 
     def _include_field(self, table, field):
         self.excluded_fields.pop(f"{table}\\{field}")
 
     def _apply_ex_or_include_fields(self, parameters: list, exclude=True):
+
         table = parameters.pop(0)
         for field in parameters:
             if exclude:
@@ -141,6 +161,17 @@ class DSDView:
         fields = self.dsd.list_fields(table)
         for field in fields:
             self._exclude_field(table, field)
+
+    def _apply_ex_or_include_fields_from_all_tables(self, parameters, exclude=True):
+        tables = self.dsd.list_tables()
+
+        for table in tables:
+            for param in parameters:
+                if param in self.dsd.list_fields(table):
+                    if exclude:
+                        self._exclude_field(table, param)
+                    else:
+                        self._include_field(table, param)
 
     def _apply_ex_or_include_fields_with_instruction(self, parameters, exclude=True):
         if len(parameters) == 1:

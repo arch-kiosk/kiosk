@@ -2,6 +2,7 @@ import logging
 import pprint
 import typing
 
+from dsd.dsd3 import DataSetDefinition
 from dsd.dsdgraph import DsdGraph
 
 
@@ -24,10 +25,12 @@ class SQL2EmbeddedJSON:
 
         # 1. Get standard columns for this table
         cols = self._dsd.list_fields(table_name)
+        hidden = self._dsd.get_fields_with_instruction(table_name, "hide")
         json_fields = []
 
         for col in cols:
-            json_fields.append(f"'{col}', t_{table_name}.{col}")
+            if col not in hidden:
+                json_fields.append(f"'{col}', t_{table_name}.{col}")
 
         # 2. Check for child relationships in the DDL
         children = self._dsd_graph.get_dependent_tables(table_name)
