@@ -106,7 +106,8 @@ if __name__ == '__main__':
     parser.add_argument(
         "--no_https_server",
         action="store_true",
-        help="Disable the HTTPS server means: Only run the public http server"
+        help="Disable the HTTPS server means: Only run the public http server for the certificates. "
+             "This is not running Kiosk via http!"
     )
 
     args = parser.parse_args()
