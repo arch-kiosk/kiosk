@@ -264,31 +264,49 @@ And these are the noteworthy improvements in Kiosk and the Recording App:
 Kiosk can now display a custom landing page after login (instead of the hub or file repository).
 The landing page supports large images, plans, text, and links to jump directly into the file repository or specific units in "Query and View."
 
-### 📣 Release Notes for Kiosk 1.7.35 📣
+### 📣 Release Notes for Kiosk 1.7.43 📣
 ✏️ As always: The release notes are best viewed on GitHub https://github.com/arch-kiosk/arch-kiosk-office/issues/1434
 
-Another 175 tickets later and with the return of the archaeological projects from their Winter Seasons,
-here is the final Kiosk 2025 version for everyone. While most work went again into improving stability,
-convenience and supporting some special requests for field projects, there are a few noteworthy improvements:
+🚀 The most recent improvement is about performance: Preparing many docks wasn't fun anymore, 
+particularly for projects with many season's worth of data. Two rather radical steps make bulk preparation considerably faster:
+
+- 🚀 Kiosk now keeps FileMaker open during bulk preparation. This even benefits projects with less data because the 
+     FileMaker start took a disproportionate amount of time.
+     
+- 🚀 Kiosk only prepares the first dock and "clones" the rest. As long as docks are in the same recording group (and time zone) 
+only the first one goes through the long preparation. The others are copied and get a quick do-over. 
+
+Note that you have to use "prepare all workstations" and select a recording group (or all of them) to benefit from these changes.    
+🚨 Because this is pretty crazy under the hood there is an emergency switch to turn it off if you encounter trouble in the field. Just let us know.
+
+The other 175 tickets are improvements that were introduced in the last months of 2025 and most of them have already been 
+in the field with archaeological projects that ran in Winter. Most work went again into improving stability,
+convenience and supporting some special requests for field projects. Here are the noteworthy improvements:    
+
+🎥 Many of the improvements of the 2025 versions are briefly demonstrated in our "New in 2025" tutorial 
+that you can find here: https://sites.brown.edu/kiosk/videos/    
 
 #### Recording App
-- ❄️ Option to set team members to "inactive" so that you keep your team member selectors clean without deleting former members
-- ❄️ The warecode pottery interface got a thorough do-over. 
-  - ❄️ Warecodes can be selected now in a popup window, 
-  - ❄️ The columns of the warecode interface can be customized and 
-  - ❄️ Warecode sherds can have a proper identifier according to your project's needs   
-- ❄️ You can now check several period entries when dating material and objects
-- ❄️ Clearing the value in a selection box got easier as now almost all selection boxes have a "-" that empties the field
+- 🌼 Option to set team members to "inactive" so that you keep your team member selectors clean without deleting former members
+- 🌼 The warecode pottery interface got a thorough do-over. 
+  - Warecodes can be selected now in a popup window, 
+  - The columns of the warecode interface can be customized and 
+  - Warecode sherds can have a proper identifier according to your project's needs   
+- 🌼 You can now check several period entries when dating material and objects
+- 🌼 Clearing the value in a selection box got easier as now almost all selection boxes have a "-" that empties the field
+- 🌼 New field: bucket sift ratio
+- 🌼 the alterative number for collected materials can optionally be set automatically by an identification method. 
+  Ask us if you have plans with the alternative number. 
 
-### Kiosk
-- ❄️ SVGs are now natively supported by the new deep-zoom file viewer
-- ❄️ The file viewer is available everywhere: Director's view, Query & View and the file repository
-- ❄️ In the file repository a new tag selector makes it much easier to work with a larger set of image tags
-  - ❄️ You can filter the tags themselves by listing them in the filter box separated by comma
-  - ❄️ You can remove a bunch of tags from the selector by prefixing the tag with a minus.
-- ❄️ When importing a file the original file name is kept for later reference.
-- ❄️ In query and view you can bookmark your favourite queries so that you don't have to find them time and again in the growing mess of queries
-- ❄️ Multi-season projects know that preparing docks gets longish and not only because of images. Some performance gains could be achieved with the new version. But it is a major topic for the 2026 summer projects - promised!
 
-🎥 Many of the improvements of the 2025 versions are quickly demonstrated in our "New in 2025" tutorial 
-that you can find here: https://sites.brown.edu/kiosk/videos/
+#### Kiosk
+- 🌼 SVGs are now natively supported by the new deep-zoom file viewer
+- 🌼 The file viewer is available everywhere: Director's view, Query & View and the file repository
+- 🌼 In the file repository a new tag selector makes it much easier to work with a larger set of image tags
+  - You can filter the tags themselves by listing them in the filter box separated by comma
+  - You can remove a bunch of tags from the selector by prefixing the tag with a minus.
+- 🌼 When importing a file the original file name is kept for later reference.
+- 🌼 support of new image format: .dng (Adobe raw file format). But please be mindful about file size when you import raw images.
+- 🌼 In query and view you can bookmark your favourite queries so that you don't have to find them time and again in the growing mess of queries
+- 🌼 Importing a workstation has gotten faster. We're hoping to achieve more before the summer seasons. 
+- 🌼 The file export can now export JSON in two different flavors: As tables with records and as a nested JSON Doc structure.   
