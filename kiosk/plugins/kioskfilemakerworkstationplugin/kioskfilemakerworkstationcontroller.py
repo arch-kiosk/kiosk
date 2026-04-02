@@ -236,6 +236,7 @@ def mcp_workstation_action(worker_module, worker_class, ws_id, privilege="",
                            bulk_id="") -> KioskResult:
     if meta_data is None:
         meta_data = []
+    cfg = kioskglobals.cfg.get_plugin_config(_plugin_name_)
     job_type_name = ".".join([worker_module, worker_class])
     if privilege:
         authorized_to = get_local_authorization_strings(LOCAL_PRIVILEGES)
@@ -253,6 +254,10 @@ def mcp_workstation_action(worker_module, worker_class, ws_id, privilege="",
         job.set_worker(worker_module, worker_class)
         job.system_lock = system_lock
         job.job_data = {"workstation_id": ws_id}
+        job_timeout = kioskstdlib.try_get_dict_entry(cfg,
+                                                       "kiosk_job_timeout_sec", 0, True)
+        if job_timeout:
+            job.seconds_till_timeout = int(job_timeout)
         if additional_job_data:
             job.job_data = job.job_data | additional_job_data
         if bulk_id:
