@@ -54,7 +54,9 @@ params = {
           "--skip_installation": "skip_installation",
           "--renew_workstations": "renew",
           "--dont_check_workstations": "dcw",
-          "-dcw": "dcw"
+          "-dcw": "dcw",
+          "-wss": "wss",
+          "--write_start_scripts": "wss"
           }
 
 def usage():
@@ -99,6 +101,7 @@ def usage():
         --skip_installation: Exotic. Skips updating files and stuff and only does the aftermath.
         --renew_workstations: renews all workstations that are in a state < in_the_field
         -dcw / --dont_check_workstations: Skips the check if workstations are in the field. 
+        -wss / --write_start_scripts: write the start.ps1 and kioskpaths.ps1 even during an update (not necessary for fresh installations)
         --patch: a short cut for patching core code files only. Does not temper with configuration, python or the db.
                 Just unpacks the core code files. Implies -c, -o, --no_custom_directories, --no_config, 
                 --no_redis, --no_migration, --no_thumbnails, --dont_check_workstations
@@ -799,6 +802,12 @@ if __name__ == '__main__':
                     KioskRestore.set_new_database_credentials(local_cfg_file, secure_file, options)
 
             this_is_an_update = True
+            if "wss" in options:
+                server_type = get_server_type()
+                options["server_type"] = server_type[0]
+                options["machine_type"] = server_type[1]
+                write_start_scripts(app_folder="kiosk", kiosk_dir=kiosk_dir, options=options, transfer_dir=src_dir)
+
         else:
             logging.error(f"kiosk directory {kiosk_dir} exist but override parameter not set.")
             usage()
