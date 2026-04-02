@@ -2,6 +2,7 @@ import logging
 import os
 import logging
 import datetime
+import pprint
 import time
 
 import kioskdatetimelib
@@ -68,31 +69,32 @@ class Progress:
 
 
 class MCPJobInfo:
-    job_id: str = ""
-    status: int = 0
-    base_path: str = ""
-    config_file: str = ""
-    project_id: str = ""
-    module_name: str = ""
-    class_name: str = ""
-    kiosk_base_path: str = ""
-    system_lock: bool = False
-    ts_created: datetime.datetime = None
-    ts_modified: datetime.datetime = None
-    ns_created: int = 0
-    ns_modified: int = 0
-    auto_renew: bool = True
-    capture_log: bool = True
-    seconds_till_timeout: int = 120
-    seconds_to_idle: int = 600
-    os_pid: int = 0
-    background_job: bool = False
+    def __init__(self):
+        self.job_id: str = ""
+        self.status: int = 0
+        self.base_path: str = ""
+        self.config_file: str = ""
+        self.project_id: str = ""
+        self.module_name: str = ""
+        self.class_name: str = ""
+        self.kiosk_base_path: str = ""
+        self.system_lock: bool = False
+        self.ts_created: datetime.datetime = None
+        self.ts_modified: datetime.datetime = None
+        self.ns_created: int = 0
+        self.ns_modified: int = 0
+        self.auto_renew: bool = True
+        self.capture_log: bool = True
+        self.seconds_till_timeout: int = 180
+        self.seconds_to_idle: int = 600
+        self.os_pid: int = 0
+        self.background_job: bool = False
 
     def as_dict(self):
         result_dict = dict()
         for attr, value in self.__dict__.items():
             if attr in ["ts_modified", "ts_created"]:
-                result_dict[attr] = kioskstdlib.ts_to_str(value)
+                result_dict[attr] = kioskstdlib.ts_to_str(value) if value else None
             else:
                 if attr != "as_dict":
                     result_dict[attr] = value
@@ -626,7 +628,7 @@ class MCPJob:
         data["meta_data"] = self._payload.meta_data
         data["progress"] = self._progress
         data["result"] = self._result
-
+        logging.debug(f"{self.__class__.__name__}.queue: Queuing job {self.job_id}: {pprint.pformat(data)}")
         if self._queue.push(self.job_id, data):
             self._job_info.status = status
         else:

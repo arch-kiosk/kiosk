@@ -3,7 +3,7 @@ import time
 import pytest
 import os
 
-from mcpinterface.mcpjob import MCPJob, MCPJobStatusError, MCPJobStatus, Progress
+from mcpinterface.mcpjob import MCPJob, MCPJobStatusError, MCPJobStatus, Progress, MCPJobInfo
 from sync_plugins.redisgeneralstore.redisgeneralstore import RedisGeneralStore
 from sync_config import SyncConfig
 from test.testhelpers import KioskPyTestHelper
@@ -284,3 +284,11 @@ class TestMCPJob(KioskPyTestHelper):
         assert job2.get_log_lines() == ["line 1", "line 2", "line 3", "line 4"]
 
         assert job2.job_id[-2:] == suffix
+
+    def test_mcp_job_info(self, gs):
+        info = MCPJobInfo()
+        assert info.seconds_till_timeout == 180
+        info_dict = info.as_dict()
+        assert info_dict["seconds_till_timeout"] == 180
+
+
