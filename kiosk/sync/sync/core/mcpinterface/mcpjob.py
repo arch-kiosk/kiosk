@@ -348,6 +348,10 @@ class MCPJob:
         self._job_info.base_path = self._config.base_path
         self._job_info.config_file = self._config.configfile
         self._job_info.project_id = self._config.get_project_id()
+
+        if "default_kiosk_job_timeout_sec" in self._config.kiosk:
+            self._job_info.seconds_till_timeout = self._config.kiosk["default_kiosk_job_timeout_sec"]
+
         self._job_info.ts_created = kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True)
         # todo time zone simplified: this is not great.
         #   It is a system specific ticker that would not compare with a second system!
