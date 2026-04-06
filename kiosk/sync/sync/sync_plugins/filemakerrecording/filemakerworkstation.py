@@ -1523,6 +1523,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                                 "Database ok, importing data ...")
                 prepare_rc = self._prepare_import_from_filemaker(fm,
                                                                  callback_progress=self.interruptable_callback_progress)
+                raise Exception("Aborting")
                 if not prepare_rc:
                     if self.fix_import_errors:
                         logging.warning(f"{self.__class__.__name__}._import_from_filemaker: "
