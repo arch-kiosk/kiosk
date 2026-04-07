@@ -1640,6 +1640,7 @@ tickets:
   meta:
     flags: [no_file_export]
   structure:
+    3: dropped
     2:
       account: [datatype(VARCHAR)]
       nr: [datatype(NUMBER)]
@@ -1667,6 +1668,9 @@ tickets:
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
   migration:
+    3:
+      upgrade:
+        - drop(*)
     2:
       upgrade:
         - alter("modified_by")
@@ -1890,6 +1894,7 @@ unit_shop:
   meta:
     flags: [no_file_export]
   structure:
+    3: dropped
     2:
       team_member: [datatype(VARCHAR), not_null()]
       unit_id: [datatype(VARCHAR), not_null()]
@@ -1905,6 +1910,9 @@ unit_shop:
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
   migration:
+    3:
+      upgrade:
+        - drop(*)
     2:
       upgrade:
         - alter("modified_by")
