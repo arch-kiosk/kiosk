@@ -1,8 +1,10 @@
 # todo time zone simpliciation
 import cProfile
 import datetime
+import json
 import logging
 import os
+import pprint
 import pstats
 import shutil
 import zoneinfo
@@ -73,6 +75,7 @@ class FileMakerWorkstation(RecordingWorkstation):
         self._fm_mode = FileMakerWorkstation.FM_MODE_START
         self._wait_for_fm_startup_callback: Union[Callable[[],bool], None] = None
         self.bulk_id = ""
+        self.modified_tables = {}
         super().__init__(workstation_id, description, sync=sync, *args, **kwargs)
 
     @classmethod
@@ -925,6 +928,7 @@ class FileMakerWorkstation(RecordingWorkstation):
         KioskSQLDb.truncate_table(table=fm_repldata_transfer, namespace=self._db_namespace)
 
         tables = dsd.list_tables()
+        fm.set_constant("sync_tables", "\r".join(tables))
         files_table = dsd.files_table.lower()
         c_tables = len(tables) + 2
         c = 0
@@ -1523,7 +1527,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                                 "Database ok, importing data ...")
                 prepare_rc = self._prepare_import_from_filemaker(fm,
                                                                  callback_progress=self.interruptable_callback_progress)
-                raise Exception("Aborting")
+
                 if not prepare_rc:
                     if self.fix_import_errors:
                         logging.warning(f"{self.__class__.__name__}._import_from_filemaker: "
@@ -1546,6 +1550,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                     logging.info(f"{self.__class__.__name__}._import_from_filemaker: "
                                  f"import will run with user time zone {ws_time_zone.user_tz_iana_name} "
                                  f"and recording time zone {ws_time_zone.user_tz_iana_name}.")
+                    self._compare_table_hashes(fm)
                     if self._import_tables_from_filemaker(fm, ws_time_zone):
                         if self._import_containerfiles_from_filemaker(fm,
                                                                       callback_progress=
@@ -1571,6 +1576,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                             rc = self.save()
                             if not rc:
                                 raise Exception("Saving dock state failed.")
+
             else:
                 logging.error(f"FileMakerWorkstation._import_from_filemaker: "
                               f"Time zone check for dock failed")
@@ -1826,6 +1832,45 @@ class FileMakerWorkstation(RecordingWorkstation):
 
         return ok
 
+    def _compare_table_hashes(self, fm) -> None:
+        """
+        reads the initial_table_hashes and the table_hashes if those keys are available
+        and creates a modified_tables dict with
+        each table in it and a true or false as value, depending on whether or not the table was modified.
+        if something goes wrong or the hashes don't exist in FileMaker the modified_tables dict will be empty. Later on
+        a table only gets skipped if it is IN the modified_tables dict and set explicitly to False.
+        :param fm: The FileMakerControl instance
+        :return: None
+        :raises: Only Exceptions that ought to abort the calling process.
+
+        """
+        self.modified_tables = {}
+        try:
+            table_hashes_str = fm.get_constant("table_hashes")
+            if table_hashes_str:
+                table_hashes = json.loads(table_hashes_str)
+
+                initial_table_hashes_str = fm.get_constant("initial_table_hashes")
+                initial_table_hashes:dict = json.loads(initial_table_hashes_str)
+                logging.debug(f"{self.__class__.__name__}._compare_table_hashes: "
+                              f"initial_table_hashes: {pprint.pformat(initial_table_hashes)}")
+                logging.debug(f"{self.__class__.__name__}._compare_table_hashes: "
+                              f"table_hashes: {pprint.pformat(table_hashes)}")
+
+                for inital_table, initial_hash in initial_table_hashes.items():
+                    modified = True
+                    try:
+                        modified = table_hashes[inital_table] != initial_hash
+                    except Exception as e:
+                        logging.debug(f"{self.__class__.__name__}._compare_table_hashes: Error comparing hashes {repr(e)}")
+                    self.modified_tables[inital_table] = modified
+
+                logging.debug(f"{self.__class__.__name__}._compare_table_hashes: {pprint.pformat(self.modified_tables)}")
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}._compare_table_hashes: "
+                          f"Outer Exception when comparing hashes, resetting modified_tables: {repr(e)}")
+            self.modified_tables = {}
+
     def _import_tables_from_filemaker(self, fm, ws_time_zones: KioskTimeZoneInstance):
         """ imports a workstation's filemaker data back into the shadow tables
             in the master-Model. Requests an open FileMakerControl object.
@@ -1851,15 +1896,15 @@ class FileMakerWorkstation(RecordingWorkstation):
             return False
 
         try:
-            ws_namespace = ""
             tables = self._get_import_tables(dsd)
+            logging.debug(f"{self.__class__.__name__}._import_tables_from_filemaker: {pprint.pformat(tables)}")
+
             ws_namespace = self._db_namespace
             cur = KioskSQLDb.get_dict_cursor()
             if cur is None:
                 logging.error(("FileMakerWorkstation._import_tables_from_filemaker: "
                                "KioskSQLDb.get_cursor() failed"))
                 return False
-            # tables = dsd.list_tables()
             ok = True
             c_table = 0
 
@@ -1869,10 +1914,18 @@ class FileMakerWorkstation(RecordingWorkstation):
                                 "_import_tables_from_filemaker", f"importing {table}")
                 dsd_table = tables[table][0]
                 dsd_version = tables[table][1]
-                ok = self._import_table_from_filemaker(cur, fm, dsd, dsd_table, dsd_version=dsd_version,
-                                                       namespace=ws_namespace, tz=ws_time_zones)
-                if not ok:
-                    break
+                if dsd_table not in self.modified_tables or bool(self.modified_tables[dsd_table]):
+                    if dsd.is_table_dropped(dsd_table):
+                        logging.debug(f"{self.__class__.__name__}._import_tables_from_filemaker: skipped {dsd_table} "
+                                      f"because it got dropped in the DSD.")
+                    else:
+                        ok = self._import_table_from_filemaker(cur, fm, dsd, dsd_table, dsd_version=dsd_version,
+                                                               namespace=ws_namespace, tz=ws_time_zones)
+                        if not ok:
+                            break
+                else:
+                    logging.debug(f"{self.__class__.__name__}._import_tables_from_filemaker: skipped {dsd_table} "
+                                  f"because it was not modified.")
 
             cur.close()
             if ok:

@@ -1417,7 +1417,8 @@ class FileMakerControlWindows(FileMakerControl):
             if not fm_cur.fetchone():
                 logging.debug("inserting " + key + " = " + value + " into " + dest_field)
                 fm_cur.execute("insert " +
-                               "into \"constants\" (\"id\", \"" + dest_field + "\",\"sync\") values(?, ?, ?)",
+                               "into \"constants\" (\"id\", \"" + dest_field + "\",\"sync\", \"category\") "
+                                                                               "values(?, ?, ?, 'system')",
                                [key, value, sync])
             else:
                 logging.debug("updating " + key + " = " + value + " in " + dest_field)
