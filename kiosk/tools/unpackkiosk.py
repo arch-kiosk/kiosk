@@ -56,7 +56,9 @@ params = {
           "--dont_check_workstations": "dcw",
           "-dcw": "dcw",
           "-wss": "wss",
-          "--write_start_scripts": "wss"
+          "--write_start_scripts": "wss",
+          "-w": "wheels",
+          "--use_wheels": "wheels"
           }
 
 def usage():
@@ -195,8 +197,11 @@ def pip_install_requirements(src_dir, options):
         logging.error(f"Error when installing python packages: Requirements file {requirements_file} missing.")
         sys.exit(1)
     try:
-        print("running pip and installing python packages ...", end="", flush=True)
-        if KioskRequirements.install(requirements_file, {options}):
+        print("running pip and installing python packages ...", flush=True)
+        if "test_drive" in options:
+            KioskRequirements.dry_run = True
+
+        if KioskRequirements.install(requirements_file, use_wheels="wheels" in options):
             print("ok", flush=True)
         else:
             print("failed")

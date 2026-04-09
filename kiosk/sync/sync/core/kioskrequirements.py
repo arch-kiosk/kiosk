@@ -76,6 +76,7 @@ def get_filename(filename):
 
 class KioskRequirements:
     in_console = False
+    dry_run = False
 
     @classmethod
     def pip_freeze(cls, requirements_txt_tmp: str):
@@ -244,10 +245,12 @@ class KioskRequirements:
         try:
             if cls.in_console:
                 print("running pip and uninstalling python packages ... ", flush=True)
-            rc = subprocess.run(f"pip uninstall -r {requirements_del_txt} -y", stdout=subprocess.PIPE)
+            rc = subprocess.run(
+                f"python -m pip uninstall -r {requirements_del_txt} -y",
+                stdout=subprocess.PIPE)
 
             if rc.returncode != 0:
-                logging.warning(f"\n{cls.__name__}._remove_packages: pip uninstall -r failed: {str(rc)}.")
+                logging.warning(f"\n{cls.__name__}._remove_packages: python -m pip uninstall -r failed: {str(rc)}.")
 
             if cls.in_console:
                 print("Done \n", flush=True)
@@ -264,14 +267,15 @@ class KioskRequirements:
             if cls.in_console:
                 print("running pip and installing python packages ... ", flush=True)
             library_path = os.path.join(os.path.dirname(requirements_txt), 'libraries')
-            rc = subprocess.run(f"pip install -r {requirements_txt} --no-cache-dir", cwd=library_path,
+            cmd = f"python -m pip install {'--dry-run ' if cls.dry_run else ''}-r {requirements_txt} --no-cache-dir"
+            rc = subprocess.run(cmd, cwd=library_path,
                                 stdout=subprocess.PIPE)
             if rc.returncode == 0:
                 if cls.in_console:
                     print("Done\n", flush=True)
                 return True
 
-            logging.error(f"\n{cls.__name__}._install_packages: pip install -r failed: {str(rc)}")
+            logging.error(f"\n{cls.__name__}._install_packages: {cmd} failed: {str(rc)}")
 
         except OSError as e:
             logging.error(f"\n{cls.__name__}._install_packages: {repr(e)}")
@@ -287,17 +291,17 @@ class KioskRequirements:
                           f"does not exist. Stopping.")
             return False
 
-        temp_requirements_txt = requirements_txt.replace("requirements.txt", "_tmp_requirements.txt")
+        temp_requirements_txt = requirements_txt.replace("requirements", "tmp_requirements")
         try:
             cls._rewrite_file_requirements(requirements_txt, temp_requirements_txt)
             cwd = os.path.dirname(requirements_txt)
+            cmd = f"python -m pip install {'--dry-run ' if cls.dry_run else ''}--no-index --no-cache-dir --find-links={wheel_dir} -r {temp_requirements_txt}"
             rc = subprocess.run(
-                f"pip install --no-index --no-cache-dir --find-links={wheel_dir} -r {temp_requirements_txt}",
+                cmd,
                 cwd=cwd,
                 stdout=subprocess.PIPE)
             if rc.returncode == 0:
                 if cls.in_console:
-                    print("Done\n", flush=True)
                 return True
         except BaseException as e:
             logging.error(f"_install_packages_with_wheels: {repr(e)}")

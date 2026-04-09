@@ -71,7 +71,7 @@ def _harvest_wheels(requirements_txt):
     try:
         print("running pip and harvesting python packages ... ", flush=True)
         library_path = os.path.join(os.path.dirname(requirements_txt), 'libraries')
-        cmd = rf"pip wheel --find-links=. -r  {requirements_txt} --only-binary=:all: --wheel-dir=..\wheels "
+        cmd = rf"python -m pip wheel --find-links=. -r  {requirements_txt} --only-binary=:all: --wheel-dir=..\wheels "
         rc = subprocess.run(cmd,
                             cwd=library_path,
                             stdout=subprocess.PIPE)
@@ -161,6 +161,6 @@ if __name__ == '__main__':
     tz_dir = os.path.join(kiosk_dir, "tools", "tz")
     kiosk_tz = KioskTimeZones(os.path.join(tz_dir, "backward"))
     kiosk_tz.generate_kiosk_time_zone_dist(os.path.join(tz_dir, "kiosk_tz.json"))
-    # KioskBackup.pack_kiosk(cfg, dst_dir, options)
+    KioskBackup.pack_kiosk(cfg, dst_dir, options)
 
     print(f"Done: Kiosk packed in {dst_dir}")
