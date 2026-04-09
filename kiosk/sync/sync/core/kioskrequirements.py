@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import subprocess
 import sys
 from pprint import pprint
@@ -77,7 +78,7 @@ class KioskRequirements:
     in_console = False
 
     @classmethod
-    def pip_freeze(self, requirements_txt_tmp: str):
+    def pip_freeze(cls, requirements_txt_tmp: str):
         # sys.executable points to the python.exe inside your Venv
         # -m pip runs the pip module installed in that specific environment
         cmd = [sys.executable, "-m", "pip", "freeze"]
@@ -133,7 +134,7 @@ class KioskRequirements:
                     parts = line.split("@")
                     parts[0] = parts[0].strip()
                     parts[1] = parts[1].strip()
-                    parts[1] = parts[1].split("#")[0] # eliminates the hash if there is one
+                    parts[1] = parts[1].split("#")[0]  # eliminates the hash if there is one
                 else:
                     sep = ""
                     for _ in ["==", ">=", "<="]:
@@ -155,6 +156,11 @@ class KioskRequirements:
     def compile_dist_requirements(cls, pip_requirements, dist_requirements, requirements_txt) -> bool:
         class RequirementException(Exception):
             pass
+
+        def modify_operator(op: str, version: str):
+            if op != "==" or len(version.split(".")) == 1:
+                return op
+            return "~="
 
         def _check_pip_requirement(req: str):
             if req in pip_requirements:
@@ -192,11 +198,13 @@ class KioskRequirements:
                             # f.write(f"{requirement} @ file:{package}\n")
                             f.write(f"{package}\n")
                         else:
-                            f.write(f"{requirement}{command[1]}{command[0]}\n")
+                            operator = modify_operator(command[1], command[0])
+                            f.write(f"{requirement}{operator}{command[0]}\n")
                     elif command[0].strip().lower() == "del":
                         dels.append(f"{requirement}\n")
                     else:
-                        f.write(f"{requirement}{command[1]}{command[0]}\n")
+                        operator = modify_operator(command[1], command[0])
+                        f.write(f"{requirement}{operator}{command[0]}\n")
 
                 except RequirementException as e:
                     logging.error(f"{cls.__name__}.compile_dist_requirements: {e}")
@@ -211,17 +219,22 @@ class KioskRequirements:
         return errors == 0
 
     @classmethod
-    def install(cls, requirements_txt, options):
-        if not cls._check_venv(options):
+    def install(cls, requirements_txt, check_venv=False, use_wheels=False, remove_packages=True):
+        if not os.path.isfile(requirements_txt):
+            logging.error(f"{cls.__name__}._install_packages: File {requirements_txt} not found.")
+            return False
+
+        if not cls._check_venv(check_venv):
             return False
 
         requirements_del_txt = get_filename_without_extension(
             requirements_txt) + ".del." + get_file_extension(requirements_txt)
         requirements_del_txt = os.path.join(os.path.dirname(requirements_txt), requirements_del_txt)
-        if os.path.exists(requirements_del_txt) and "nd" not in options:
+        if os.path.exists(requirements_del_txt) and remove_packages:
             if not cls._remove_packages(requirements_del_txt):
                 return False
-        return cls._install_packages(requirements_txt)
+        return cls._install_packages_with_wheels(requirements_txt) if use_wheels else cls._install_packages(
+            requirements_txt)
 
     @classmethod
     def _remove_packages(cls, requirements_del_txt):
@@ -247,18 +260,12 @@ class KioskRequirements:
 
     @classmethod
     def _install_packages(cls, requirements_txt):
-        if not os.path.isfile(requirements_txt):
-            logging.error(f"{cls.__name__}._install_packages: File {requirements_txt} not found.")
-            return False
         try:
             if cls.in_console:
                 print("running pip and installing python packages ... ", flush=True)
             library_path = os.path.join(os.path.dirname(requirements_txt), 'libraries')
-            # cwd = os.getcwd()
-            # os.chdir(library_path)
             rc = subprocess.run(f"pip install -r {requirements_txt} --no-cache-dir", cwd=library_path,
                                 stdout=subprocess.PIPE)
-            # os.chdir(cwd)
             if rc.returncode == 0:
                 if cls.in_console:
                     print("Done\n", flush=True)
@@ -268,3 +275,74 @@ class KioskRequirements:
 
         except OSError as e:
             logging.error(f"\n{cls.__name__}._install_packages: {repr(e)}")
+
+    @classmethod
+    def _install_packages_with_wheels(cls, requirements_txt: str) -> bool:
+        if cls.in_console:
+            print("running pip and installing wheels ... ", flush=True)
+
+        wheel_dir = os.path.join(os.path.dirname(requirements_txt), 'wheels')
+        if not os.path.exists(wheel_dir):
+            logging.error(f"\n{cls.__name__}._install_packages_with_wheels: wheel-directory {wheel_dir} "
+                          f"does not exist. Stopping.")
+            return False
+
+        temp_requirements_txt = requirements_txt.replace("requirements.txt", "_tmp_requirements.txt")
+        try:
+            cls._rewrite_file_requirements(requirements_txt, temp_requirements_txt)
+            cwd = os.path.dirname(requirements_txt)
+            rc = subprocess.run(
+                f"pip install --no-index --no-cache-dir --find-links={wheel_dir} -r {temp_requirements_txt}",
+                cwd=cwd,
+                stdout=subprocess.PIPE)
+            if rc.returncode == 0:
+                if cls.in_console:
+                    print("Done\n", flush=True)
+                return True
+        except BaseException as e:
+            logging.error(f"_install_packages_with_wheels: {repr(e)}")
+        finally:
+            if temp_requirements_txt:
+                if os.path.isfile(temp_requirements_txt):
+                    os.remove(temp_requirements_txt)
+        return False
+
+    @classmethod
+    def _rewrite_file_requirements(cls, src_path_and_filename, dst_path_and_filename):
+        """
+        _AI_: Gemini
+
+        Reads a requirements file and converts filename-style entries
+        (e.g., 'package-1.2.3.tar.gz') into standard 'package==1.2.3' format.
+
+        Example Usage:
+        _rewrite_file_requirements('requirements.txt', 'requirements.deploy.txt')
+
+        """
+        # Pattern explanation:
+        # ^(.+?)          -> Group 1: Match package name (non-greedy)
+        # -               -> The separator between name and version
+        # (\d[\d\.]+)     -> Group 2: Match version (starts with digit, then digits/dots)
+        # \.(?:tar\.gz|whl|zip)$ -> Match the extension and end of line
+        file_pattern = re.compile(r'^(.+?)-(\d[\d\.]+)\.(?:tar\.gz|whl|zip)$')
+
+        with open(src_path_and_filename, 'r') as src, open(dst_path_and_filename, 'w') as dst:
+            for line in src:
+                clean_line = line.strip()
+
+                # Skip empty lines or comments
+                if not clean_line or clean_line.startswith('#'):
+                    dst.write(line)
+                    continue
+
+                # Extract just the filename if a path was provided (e.g., ./pkgs/flask-allows-0.7.2.tar.gz)
+                filename = os.path.basename(clean_line)
+                match = file_pattern.match(filename)
+
+                if match:
+                    package_name, version = match.groups()
+                    # Convert to standard requirement format
+                    dst.write(f"{package_name}=={version}\n")
+                else:
+                    # It's already a standard requirement or something else, keep as is
+                    dst.write(line if line.endswith('\n') else line + '\n')

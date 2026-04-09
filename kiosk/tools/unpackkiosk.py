@@ -76,6 +76,7 @@ def usage():
                              use zip files with only a few files in them. 
         
         -p: installs pip and the requirements and libraries with pip
+            -w/--use_wheels: use pip with local wheels (wheels folder expected!)
         -nh / --no_housekeeping: suppresses housekeeping at the end of unpackkiosk
         --project_id: Only for new installations and in that case required: The central id for the project. 
         -db / --database: if in update mode: restores the database from the dbbackup.dmp. 
@@ -188,14 +189,14 @@ def pip_basics():
         sys.exit(1)
 
 
-def pip_install_requirements(src_dir):
+def pip_install_requirements(src_dir, options):
     requirements_file = path.join(src_dir, "requirements.kiosk.txt")
     if not path.isfile(requirements_file):
         logging.error(f"Error when installing python packages: Requirements file {requirements_file} missing.")
         sys.exit(1)
     try:
         print("running pip and installing python packages ...", end="", flush=True)
-        if KioskRequirements.install(requirements_file, {"nv": True}):
+        if KioskRequirements.install(requirements_file, {options}):
             print("ok", flush=True)
         else:
             print("failed")
@@ -683,7 +684,7 @@ if __name__ == '__main__':
         pip_basics()
 
     if "p" in options:
-        pip_install_requirements(src_dir)
+        pip_install_requirements(src_dir, options)
 
     import kioskstdlib
 

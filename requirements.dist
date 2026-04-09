@@ -58,7 +58,7 @@ tzlocal
 charset-normalizer
 PyJWT
 pdfrw2
-netifaces
+netifaces2
 flake8
 lupa
 yappi==del
