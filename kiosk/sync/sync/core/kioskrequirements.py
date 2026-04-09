@@ -302,7 +302,7 @@ class KioskRequirements:
                 stdout=subprocess.PIPE)
             if rc.returncode == 0:
                 if cls.in_console:
-                return True
+                    return True
         except BaseException as e:
             logging.error(f"_install_packages_with_wheels: {repr(e)}")
         finally:
