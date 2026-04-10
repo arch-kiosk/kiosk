@@ -52,13 +52,9 @@ alter table {{tags}}
     alter column uid set default gen_random_uuid();
 alter table {{tagging}}
     alter column uid set default gen_random_uuid();
-alter table {{tickets}}
-    alter column uid set default gen_random_uuid();
 alter table {{unit}}
     alter column uid set default gen_random_uuid();
 alter table {{unit_narrative}}
-    alter column uid set default gen_random_uuid();
-alter table {{unit_shop}}
     alter column uid set default gen_random_uuid();
 alter table {{unit_unit_relation}}
     alter column uid set default gen_random_uuid();
