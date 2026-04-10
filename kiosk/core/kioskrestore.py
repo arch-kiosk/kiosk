@@ -348,7 +348,7 @@ class KioskRestore:
         try:
             subprocess.run("7za.exe", stdout=subprocess.PIPE)
         except FileNotFoundError:
-            cls._abort_with_error(-1, "This tool needs an installed version of the 7zip command line tool 7za.exe.")
+            logging.warning(f"Some parts of Kiosk need the 7zip command line tool 7za.exe installed. I can't find it.")
 
     @classmethod
     def _unzip_unzip_set(cls, path_dict, src_file, to_unzip, working_directory, zip_options, options=None):
