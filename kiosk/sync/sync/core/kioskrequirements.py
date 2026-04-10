@@ -225,7 +225,7 @@ class KioskRequirements:
             logging.error(f"{cls.__name__}._install_packages: File {requirements_txt} not found.")
             return False
 
-        if not cls._check_venv(check_venv):
+        if not cls._check_venv({} if check_venv else {"nv": None}):
             return False
 
         requirements_del_txt = get_filename_without_extension(
@@ -246,7 +246,7 @@ class KioskRequirements:
             if cls.in_console:
                 print("running pip and uninstalling python packages ... ", flush=True)
             rc = subprocess.run(
-                f"python -m pip uninstall -r {requirements_del_txt} -y",
+                f"python -m pip uninstall --retries 0 --disable-pip-version-check -r {requirements_del_txt} -y",
                 stdout=subprocess.PIPE)
 
             if rc.returncode != 0:
@@ -267,7 +267,7 @@ class KioskRequirements:
             if cls.in_console:
                 print("running pip and installing python packages ... ", flush=True)
             library_path = os.path.join(os.path.dirname(requirements_txt), 'libraries')
-            cmd = f"python -m pip install {'--dry-run ' if cls.dry_run else ''}-r {requirements_txt} --no-cache-dir"
+            cmd = f"python -m pip install --retries 0 --disable-pip-version-check {'--dry-run ' if cls.dry_run else ''}-r {requirements_txt} --no-cache-dir"
             rc = subprocess.run(cmd, cwd=library_path,
                                 stdout=subprocess.PIPE)
             if rc.returncode == 0:
@@ -295,14 +295,18 @@ class KioskRequirements:
         try:
             cls._rewrite_file_requirements(requirements_txt, temp_requirements_txt)
             cwd = os.path.dirname(requirements_txt)
-            cmd = f"python -m pip install {'--dry-run ' if cls.dry_run else ''}--no-index --no-cache-dir --find-links={wheel_dir} -r {temp_requirements_txt}"
+            cmd = f"python -m pip install --retries 0 --disable-pip-version-check {'--dry-run ' if cls.dry_run else ''}--no-index --no-cache-dir --find-links={wheel_dir} -r {temp_requirements_txt}"
             rc = subprocess.run(
                 cmd,
                 cwd=cwd,
                 stdout=subprocess.PIPE)
             if rc.returncode == 0:
                 if cls.in_console:
-                    return True
+                    print("Done\n", flush=True)
+                return True
+            else:
+                raise Exception(f"pip returned: {rc.returncode}")
+
         except BaseException as e:
             logging.error(f"_install_packages_with_wheels: {repr(e)}")
         finally:
