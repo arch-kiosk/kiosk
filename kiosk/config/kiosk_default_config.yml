@@ -79,6 +79,8 @@ config:
   file_repository: '%sync%\file_repository'
   default_kiosk_queries: '%base_path%\config\kiosk_queries'
   database_timeout_sec: 5
+  root_ca_file: '%base_path%\cert\kioskca.crt'
+  cert_path: '%base_path%\cert'
 
 file_repository:
   cache: '%file_repository%\cache'
