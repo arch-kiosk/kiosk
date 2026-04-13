@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 import sys
 import logging
@@ -17,12 +18,13 @@ params = {
     #       "-w": "w", "--pack_workstations": "w",
     #       "-ft": "ft", "--pack_filemaker_template": "ft",
     #       "-c": "c", "--code": "c",
-          # "-p": "p", "--pip_freeze": "p",
-          # "-db": "db", "--database": "db",
-          # "-full": "full", "--full": "full"
+    # "-p": "p", "--pip_freeze": "p",
+    # "-db": "db", "--database": "db",
+    # "-full": "full", "--full": "full"
     "-w": "wheels",
-    "--use_wheels": "wheels"
-          }
+    "--use_wheels": "wheels",
+    "--certs": "certs"
+}
 
 
 # **********************************************
@@ -44,7 +46,7 @@ def interpret_param(known_param, param):
                 rc = {new_option: from_date}
     elif new_option == "full":
         rc = {
-              "c": None
+            "c": None
         }
     else:
 
@@ -61,8 +63,10 @@ def usage():
         
       parameters:
         -w / --use_wheels: download packages and create wheels for unpackkiosk to use  
+        --certs: include the certificates from tools/certificates/result  
     """)
     sys.exit(0)
+
 
 def _harvest_wheels(requirements_txt):
     if not os.path.isfile(requirements_txt):
@@ -84,6 +88,7 @@ def _harvest_wheels(requirements_txt):
     except OSError as e:
         logging.error(f"\n_install_packages: {repr(e)}")
 
+
 def upgrade_pip():
     print("upgrading pip ...", end="", flush=True)
     rc = subprocess.run(f"python -m pip install --upgrade pip", stdout=subprocess.PIPE)
@@ -91,9 +96,23 @@ def upgrade_pip():
         logging.error(f"harvest_wheels: python -m pip install --upgrade pip returned {rc}")
         sys.exit(1)
 
-def harvest_wheels(requirements_file:str):
+
+def harvest_wheels(requirements_file: str):
+    print(f"Harvesting wheels: ", flush=True)
     upgrade_pip()
     _harvest_wheels(requirements_file)
+    print(f"Harvesting wheels finished.", flush=True)
+
+
+def copy_certs(kiosk_dir, dst_dir):
+
+    cert_dir = os.path.join(kiosk_dir, "tools", "certificates", "result")
+    print(f"copying certificates from {cert_dir} ... ", end="", flush=True)
+    dst_cert_dir = os.path.join(dst_dir, "cert")
+    shutil.copytree(os.path.join(cert_dir, "for_browsers"), dst_cert_dir, dirs_exist_ok=True)
+    shutil.copytree(os.path.join(cert_dir, "for_server"), dst_cert_dir, dirs_exist_ok=True)
+    print(f"ok", flush=True)
+
 
 if __name__ == '__main__':
     options = {}
@@ -157,7 +176,8 @@ if __name__ == '__main__':
 
     if "wheels" in options:
         harvest_wheels(requirements_txt)
-
+    if "certs" in options:
+        copy_certs(kiosk_dir, dst_dir)
     tz_dir = os.path.join(kiosk_dir, "tools", "tz")
     kiosk_tz = KioskTimeZones(os.path.join(tz_dir, "backward"))
     kiosk_tz.generate_kiosk_time_zone_dist(os.path.join(tz_dir, "kiosk_tz.json"))

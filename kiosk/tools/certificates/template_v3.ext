@@ -52,8 +52,10 @@ keyUsage               = digitalSignature, nonRepudiation, keyEncipherment, data
 subjectAltName         = @alt_names
 
 # List the DNS and IP addresses that this certificate is certifying here:
-# The examples here are what we use by default when we use an Opal router.
+# The examples here are what we use by default when we pre-configure the router.
 [ alt_names ]
 DNS.1 = kiosk.lan
 DNS.2 = kiosk.local
+DNS.3 = localhost
 IP.1 = 192.168.8.1
+IP.2 = 127.0.0.1

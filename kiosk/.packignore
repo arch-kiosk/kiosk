@@ -16,6 +16,8 @@ urap_repl/
 backup.reminder
 .run/
 /config/kiosk_local_config.yml
+/config/kiosk_config.yml
+/config/kiosk_secure.yml
 *.scss
 *.sass
 *.less

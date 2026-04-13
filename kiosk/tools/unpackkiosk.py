@@ -1,6 +1,7 @@
 import logging
 import logging
 import os
+import shutil
 import subprocess
 import sys
 from os import path
@@ -13,53 +14,56 @@ params = {
     #       "-fro": "fro", "--override_file_repository": "fro",
     #       "-w": "w", "--unpack_workstations": "w",
     #       "-ft": "ft", "--unpack_filemaker_template": "ft",
-          "-c": "c", "--code": "c",
-          # "-nc": "nc", "--no_custom_directories": "nc",
-          "-dev": "dev",
-          "-p": "p",
-          "-db": "db", "--database": "db",
-          "-o": "o", "--override": "o",
-          "--no_config": "noc",
-          # "-ru": "ru",
-          "--restore_users": "ru",
-          "-dbuser": "dbuser",
-          "-dbpwd": "dbpwd",
-          "-dbname": "dbname",
-          "-dbport": "dbport",
-          "-pgdb": "pgdb",
-          # "-nt": "nt",
-          "-nomg": "nomg", "--no_migration": "nomg",
-          # "-no_thumbnails": "nt",
-          "-no_admin": "no_admin",
-          "--no_admin": "no_admin",
-          "-na": "no_admin",
-          "--no_redis": "no_redis",
-          "-nr": "no_redis",
-          "--sudo_password": "sudo_password",
-          "-sp": "sudo_password",
-          "--patch": "patch",
-          "--no_housekeeping": "nh",
-          "-nh": "nh",
-          "--no_timezones": "ntz",
-          "--guided": "guided",
-          "--test_drive": "test_drive",
-          "-rm": "rm",
-          "--update_custom_modules": "ucm",
-          "--exclude_mcp": "exclude_mcp",
-          "-ncu": "no_clear_up",
-          "--no_clear_up": "no_clear_up",
-          "-cfc": "clear_file_cache",
-          "--clear_file_cache": "clear_file_cache",
-          "--project_id": "project_id",
-          "--skip_installation": "skip_installation",
-          "--renew_workstations": "renew",
-          "--dont_check_workstations": "dcw",
-          "-dcw": "dcw",
-          "-wss": "wss",
-          "--write_start_scripts": "wss",
-          "-w": "wheels",
-          "--use_wheels": "wheels"
-          }
+    "-c": "c", "--code": "c",
+    # "-nc": "nc", "--no_custom_directories": "nc",
+    "-dev": "dev",
+    "-p": "p",
+    "-db": "db", "--database": "db",
+    "-o": "o", "--override": "o",
+    "--no_config": "noc",
+    # "-ru": "ru",
+    "--restore_users": "ru",
+    "-dbuser": "dbuser",
+    "-dbpwd": "dbpwd",
+    "-dbname": "dbname",
+    "-dbport": "dbport",
+    "-pgdb": "pgdb",
+    # "-nt": "nt",
+    "-nomg": "nomg", "--no_migration": "nomg",
+    # "-no_thumbnails": "nt",
+    "-no_admin": "no_admin",
+    "--no_admin": "no_admin",
+    "-na": "no_admin",
+    "--no_redis": "no_redis",
+    "-nr": "no_redis",
+    "--sudo_password": "sudo_password",
+    "-sp": "sudo_password",
+    "--patch": "patch",
+    "--no_housekeeping": "nh",
+    "-nh": "nh",
+    "--no_timezones": "ntz",
+    "--guided": "guided",
+    "--test_drive": "test_drive",
+    "-rm": "rm",
+    "--update_custom_modules": "ucm",
+    "--exclude_mcp": "exclude_mcp",
+    "-ncu": "no_clear_up",
+    "--no_clear_up": "no_clear_up",
+    "-cfc": "clear_file_cache",
+    "--clear_file_cache": "clear_file_cache",
+    "--project_id": "project_id",
+    "--skip_installation": "skip_installation",
+    "--renew_workstations": "renew",
+    "--dont_check_workstations": "dcw",
+    "-dcw": "dcw",
+    "-wss": "wss",
+    "--write_start_scripts": "wss",
+    "-w": "wheels",
+    "--use_wheels": "wheels",
+    "--legacy_redis": "legacy_redis",
+    "--certs": "certs"
+}
+
 
 def usage():
     print("""
@@ -102,9 +106,11 @@ def usage():
         --exclude_mcp: Does not unpack the MCPCore in order not to crash into a running MCP
         --update_custom_modules: explicitly update custom modules if -c is not set
         --skip_installation: Exotic. Skips updating files and stuff and only does the aftermath.
+        --legacy_redis: add the parts to the start script that start redis based on WSL2
         --renew_workstations: renews all workstations that are in a state < in_the_field
         -dcw / --dont_check_workstations: Skips the check if workstations are in the field. 
         -wss / --write_start_scripts: write the start.ps1 and kioskpaths.ps1 even during an update (not necessary for fresh installations)
+        --certs: Installs certificates even during an update
         --patch: a short cut for patching core code files only. Does not temper with configuration, python or the db.
                 Just unpacks the core code files. Implies -c, -o, --no_custom_directories, --no_config, 
                 --no_redis, --no_migration, --no_thumbnails, --dont_check_workstations
@@ -173,22 +179,33 @@ def in_virtual_env():
         pass
     return not (sys.prefix == sys.base_prefix)
 
+def check_internet_access() -> bool:
+    import urllib.request
+    try:
+        urllib.request.urlopen("http://www.google.com", timeout=3)
+        return True
+    except urllib.error.URLError:
+        return False
+
 
 def pip_basics():
     """
         upgrades pip to the latest version
     """
-    if not in_virtual_env():
-        logging.warning("Option p used outside of a virtual environment!")
-    try:
-        print("upgrading pip ...", end="", flush=True)
-        rc = subprocess.run(f"python -m pip install --upgrade pip", stdout=subprocess.PIPE)
-        if rc.returncode != 0:
-            logging.error(f"pip_basics: python -m pip install --upgrade pip returned {rc}")
+    if check_internet_access():
+        if not in_virtual_env():
+            logging.warning("Option p used outside of a virtual environment!")
+        try:
+            print("upgrading pip ...", end="", flush=True)
+            rc = subprocess.run(f"python -m pip install --upgrade pip --retries 0", stdout=subprocess.PIPE)
+            if rc.returncode != 0:
+                logging.error(f"pip_basics: python -m pip install --upgrade pip --retries 0 returned {rc}")
+                sys.exit(1)
+        except BaseException as e:
+            logging.error(f"pip_basics : {repr(e)}")
             sys.exit(1)
-    except BaseException as e:
-        logging.error(f"pip_basics : {repr(e)}")
-        sys.exit(1)
+    else:
+        logging.warning("Skipping pip upgrade as there is no internet connection.")
 
 
 def pip_install_requirements(src_dir, options):
@@ -472,6 +489,7 @@ def delete_old_directories():
         except BaseException as e:
             pass
 
+
 def create_default_directories():
     dirs = [
         os.path.join(kiosk_dir, "reporting"),
@@ -479,7 +497,7 @@ def create_default_directories():
         os.path.join(kiosk_dir, "cert"),
         os.path.join(kiosk_dir, "temp"),
         os.path.join(kiosk_dir, "sync", "sync", "custom"),
-            ]
+    ]
     for d in dirs:
         try:
             if not os.path.exists(d):
@@ -487,6 +505,7 @@ def create_default_directories():
             print(f"created {d}")
         except BaseException as e:
             pass
+
 
 def renew_workstations(cfg_file: str):
     """
@@ -558,6 +577,7 @@ def get_current_kiosk_version(kiosk_dir):
     spec.loader.exec_module(updatever)
     return updatever.kiosk_version
 
+
 def get_server_type():
     local_server = ""
     virtual_machine = ""
@@ -574,6 +594,7 @@ def get_server_type():
     else:
         return "online", ""
 
+
 def write_start_scripts(app_folder, kiosk_dir, options, transfer_dir):
     kiosk_parent_dir = kioskstdlib.get_parent_dir(kiosk_dir)
     with open(path.join(kiosk_parent_dir, "kioskpaths.ps1"), "w", encoding='utf-8') as f:
@@ -582,20 +603,21 @@ def write_start_scripts(app_folder, kiosk_dir, options, transfer_dir):
                 f'{path.join(kiosk_dir, "sync")};')
         f.write(f'{path.join(kiosk_dir, "sync", "sync")};{path.join(kiosk_dir, "sync", "sync", "core")};"')
         f.write('\n')
-    with open(path.join(kiosk_parent_dir, "start.ps1"), "w", encoding='utf-8') as f:
+    for script in ["start.ps1", "start_http.ps1"]:
+        with open(path.join(kiosk_parent_dir, script), "w", encoding='utf-8') as f:
             f.write(r"""
-
-$env:HostIP = (
-    Get-NetIPConfiguration | Where-Object {
-        $_.IPv4DefaultGateway -ne $null -and 
-        $_.IPv4Address.IPAddress -like "192.168.*"
-    } | Select-Object -ExpandProperty IPv4Address | Select-Object -ExpandProperty IPAddress -First 1
-)
-
-'**********************************************************'
-'Kiosk Server is running as http(s)://' + $env:HostIP
-'**********************************************************'
-            """)
+    
+    $env:HostIP = (
+        Get-NetIPConfiguration | Where-Object {
+            $_.IPv4DefaultGateway -ne $null -and 
+            $_.IPv4Address.IPAddress -like "192.168.*"
+        } | Select-Object -ExpandProperty IPv4Address | Select-Object -ExpandProperty IPAddress -First 1
+    )
+    
+    '**********************************************************'
+    'Kiosk Server is running as http(s)://' + $env:HostIP
+    '**********************************************************'
+                """)
 
             if "machine_type" in options and options["machine_type"] == "virtual":
                 f.write(fr'net use y: \\vboxsvr\shared  # Kiosk VM drive with file repository')
@@ -610,16 +632,16 @@ $env:HostIP = (
                 f.write('\n')
 
             f.write(f"""$env:FLASK_APP = "{app_folder}"\n
-# uncomment the following line for debugging purposes, but never on live online systems
-# $env:FLASK_DEBUG = 1
-$env:FLASK_ENVIRONMENT="production"\n""")
+    # uncomment the following line for debugging purposes, but never on live online systems
+    # $env:FLASK_DEBUG = 1
+    $env:FLASK_ENVIRONMENT="production"\n""")
             f.write(f'$env:PYTHONPATH="{kiosk_dir};{path.join(kiosk_dir, "core")};'
                     f'{path.join(kiosk_dir, "core", "sqlalchemy_models")};'
                     f'{path.join(kiosk_dir, "sync")};')
             f.write(f'{path.join(kiosk_dir, "sync", "sync")};{path.join(kiosk_dir, "sync", "sync", "core")};"')
             f.write('\n')
 
-            if "machine_type" in options and options["machine_type"] == "virtual":
+            if "machine_type" in options and options["machine_type"] == "virtual" and "legacy_redis" in options:
                 if "sudo_password" in options:
                     f.write(fr"""bash -c "echo {options["sudo_password"]} | sudo -S /etc/init.d/redis_6379 start" """)
                 else:
@@ -644,10 +666,32 @@ $env:FLASK_ENVIRONMENT="production"\n""")
             f.write('\n')
             f.write(r"Start-Sleep -Seconds 5")
             f.write('\n')
-            f.write(fr'cd "{kiosk_dir}"')
-            f.write('\n')
-            f.write(fr'python .\run_kiosk.py')
-            f.write('\n')
+            if script == "start.ps1":
+                f.write(fr'cd "{kiosk_dir}"')
+                f.write('\n')
+                f.write(fr'python .\run_kiosk.py')
+                f.write('\n')
+            else:
+                f.write(fr'cd "{kiosk_parent_dir}"')
+                f.write('\n')
+                f.write(fr'flask run --host 0.0.0.0 --port 80')
+                f.write('\n')
+
+def copy_certificates(kiosk_dir, only_if_exist=True):
+    src_cert_dir = os.path.join(src_dir, "cert")
+    dst_dir = os.path.join(kiosk_dir, "cert")
+
+    if not os.path.exists(src_cert_dir):
+        if only_if_exist:
+            return
+        else:
+            logging.error(f"{src_cert_dir} does not seem to point to a folder with certificate files. "
+                          f"Certificates cannot be not copied.")
+            usage()
+
+    print(f"copying certificates from {src_cert_dir} to {dst_dir} ... ", end="", flush=True)
+    shutil.copytree(src_cert_dir, dst_dir, dirs_exist_ok=True)
+    print(f"ok", flush=True)
 
 if __name__ == '__main__':
     options = {}
@@ -813,6 +857,8 @@ if __name__ == '__main__':
                 options["server_type"] = server_type[0]
                 options["machine_type"] = server_type[1]
                 write_start_scripts(app_folder="kiosk", kiosk_dir=kiosk_dir, options=options, transfer_dir=src_dir)
+            if "certs" in options:
+                copy_certificates(kiosk_dir, only_if_exist=True)
 
         else:
             logging.error(f"kiosk directory {kiosk_dir} exist but override parameter not set.")
@@ -827,6 +873,7 @@ if __name__ == '__main__':
         options["machine_type"] = server_type[1]
         KioskRestore.create_kiosk(src_dir, kiosk_dir, cfg_file, options)
         write_start_scripts(app_folder="kiosk", kiosk_dir=kiosk_dir, options=options, transfer_dir=src_dir)
+        copy_certificates(kiosk_dir, only_if_exist="certs" in options)
         options.update({"create_kiosk": None})
 
     ### From now on this is using KioskConfig:
@@ -843,7 +890,8 @@ if __name__ == '__main__':
         if "patch" not in options:
             if "db" in options:
                 if this_is_an_update:
-                    print(f"WARNING: db parameter meaningless for an update as parameters pgdb/ru/w are not supported anymore")
+                    print(
+                        f"WARNING: db parameter meaningless for an update as parameters pgdb/ru/w are not supported anymore")
                     print(f"NOT crucial, so I just skip this step.")
                     # if "pgdb" in options:
                     #     KioskRestore.postgres_master_db = options["pgdb"]
