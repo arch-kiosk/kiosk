@@ -5,6 +5,7 @@ import re
 from typing import Callable, List, Iterator, Tuple, Union
 
 import kioskstdlib
+from dsl.kioskdsllupa import KioskDSLLua, LazyResolverContinue, LazyResolverStop, KioskDSLLuaResolver
 from filerepository import FileRepository
 from kiosksqldb import KioskSQLDb
 from simplefunctionparser import SimpleFunctionParser
@@ -69,6 +70,7 @@ class ReportingMapper:
             "lookup": self._instruction_lookup,
             "render_filename": self._instruction_render_filename,
         }
+        self._dsl = KioskDSLLua()
 
     def _check_mapping_dict(self):
         if not ("header" in self._mapping_dict and
@@ -139,13 +141,41 @@ class ReportingMapper:
         return self._key_values[value_name]
 
     def _render_list(self, list_name):
+
+        class FilterResolver(KioskDSLLuaResolver):
+            def __init__(self, columns):
+                self.row_values = {}
+                self.context_values = {}
+                self.columns = columns
+
+            def resolve(self, path_elements: List):
+                if len(path_elements) == 1 and path_elements[0] == "_context":
+                    raise LazyResolverContinue
+                if len(path_elements) == 2 and path_elements[0] == "_context":
+                    if path_elements[1] in self.context_values.keys():
+                        return self.context_values[path_elements[1]]
+                elif len(path_elements) == 1:
+                    if path_elements[0] in self.columns:
+                        return self.row_values[path_elements[0]]
+                raise LazyResolverStop
+
         if not self._on_load_list:
             logging.info(f"{self.__class__.__name__}._render_list: no handler to load list {list_name}.")
             return
 
         list_def = self._mapping_dict["lists"][list_name]
         columns: list = list_def["columns"]
-        rows = self._on_load_list(list_name, columns)
+
+        filter_columns = []
+        if "filter" in list_def:
+            filter_exp = list_def["filter"].replace("#", "_context.")
+            if "filter_columns" in list_def:
+                filter_columns = list_def["filter_columns"]
+        else:
+            filter_exp = None
+
+        all_columns = columns + [col for col in filter_columns if col not in columns]
+        rows = self._on_load_list(list_name, all_columns)
         if "column_divider" in list_def:
             new_col = list_def["column_divider"]
         else:
@@ -159,6 +189,13 @@ class ReportingMapper:
             row_prefix = list_def["row_prefix"]
         else:
             row_prefix = ''
+
+
+        context_values = self._key_values
+        filter_resolver = FilterResolver(all_columns)
+        filter_resolver.context_values = context_values
+        filter_resolver.row_values = {}
+        self._dsl.on_get = filter_resolver
 
         render_filename = -1
         render_filename_method = "descriptive"
@@ -181,6 +218,12 @@ class ReportingMapper:
         skipped_rows = 0
         skip_row = False
         for r in rows:
+            if filter_exp:
+                for index, c in enumerate(all_columns):
+                    filter_resolver.row_values[c] = r[c]
+                if not self._dsl.eval(filter_exp):
+                    continue
+
             found_rows += 1
             if result and not skip_row:
                 result += new_line
