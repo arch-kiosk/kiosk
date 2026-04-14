@@ -21,6 +21,8 @@ class MiPgDataType(MigrationFieldInstruction):
         dtype = parameters[0].upper()
         if dtype not in cls._postgres_datatype_conversions:
             return ""
+        if dtype == "SERIAL":
+            return f"INT GENERATED ALWAYS AS IDENTITY"
 
         dtype = cls._postgres_datatype_conversions[dtype]
         if len(parameters) == 2:
@@ -30,15 +32,17 @@ class MiPgDataType(MigrationFieldInstruction):
 
     @classmethod
     def execute_during_creation(cls, field_name, parameters):
-        result = cls._get_sql_datatype(parameters)
-        if not result:
+        datatype = cls._get_sql_datatype(parameters)
+        if not datatype:
             raise DSDDataTypeError(f"MiPgDataType.execute_during_creation:"
                                    f"Unknown datatype {parameters[0]} for field {field_name}.")
         else:
-            return result
+            if "GENERATED ALWAYS" in datatype:
+                return [datatype, "UNIQUE"]
+        return datatype
 
     @classmethod
-    def execute_during_migration(cls, field_name, old_parameters: [], new_parameters: []):
+    def execute_during_migration(cls, field_name, old_parameters: list, new_parameters: list):
         datatype = cls._get_sql_datatype(new_parameters)
         if not datatype:
             raise DSDDataTypeError(f"MiPgDataType.execute_during_migration:"
@@ -49,12 +53,18 @@ class MiPgDataType(MigrationFieldInstruction):
         #                            f"Data type timestamp cannot be used in an alter migration. (field: {field_name})")
 
         # potential security risk, I know. But how to get the bloody psycopg sanitizing in here, I do not know.
+        if "GENERATED ALWAYS" in datatype:
+            raise DSDDataTypeError(f"MiPgDataType.execute_during_migration:"
+                                   f"field {field_name} cannot migrate its datatype to datatype {new_parameters[0]}."
+                                   f"That datatype can only be used for new columns.")
+
         using = ""
         if datatype == "UUID":
             using = f" using {field_name}::uuid"
         # todo #: This does not work if the default value has to be turned to INTEGER as well!
         if datatype == "INTEGER":
             using = f" using {field_name}::INTEGER"
+
         return [f"ALTER \"{field_name}\" TYPE {datatype}{using}"]
 
 

@@ -332,7 +332,7 @@ class DatabaseMigration:
         """
         return self._field_instruction_set[instruction].execute_drop(field_name, old_params)
 
-    def _process_create_instruction(self, instruction: str, field_name: str, instructions: {}, required: bool = False):
+    def _process_create_instruction(self, instruction: str, field_name: str, instructions: dict, required: bool = False):
         """
             Forwards the call to a specific migration instruction to the registered class for that instruction. 
             Checks if the instruction is a known instruction and if it is in the requested instructions at all. 
@@ -398,7 +398,7 @@ class DatabaseMigration:
         """
         raise NotImplementedError
 
-    def _append_field_attribute(self, attributes, append_to: []):
+    def _append_field_attribute(self, attributes, append_to: list):
         """appends an attribute to the current list of field attributes only if it isn't already in there."""
 
         if not attributes:

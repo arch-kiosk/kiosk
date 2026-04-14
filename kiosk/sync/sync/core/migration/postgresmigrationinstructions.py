@@ -11,7 +11,7 @@ class AddMigrationInstruction(MigrationInstruction):
         registry["add"] = cls
 
     @classmethod
-    def create_sql_instructions(cls, table_migration: _TableMigration, parameters: []):
+    def create_sql_instructions(cls, table_migration: _TableMigration, parameters: list):
         # table_migration: postgrestablemigration._PostgresTableMigration
         migration: postgresdbmigration.PostgresDbMigration = table_migration.migration
         table_name = migration.sql_safe_namespaced_table(namespace=table_migration.namespace,
@@ -41,7 +41,7 @@ class AlterMigrationInstruction(MigrationInstruction):
         registry["alter"] = cls
 
     @classmethod
-    def create_sql_instructions(cls, table_migration: _TableMigration, parameters: []):
+    def create_sql_instructions(cls, table_migration: _TableMigration, parameters: list):
         migration: postgresdbmigration.PostgresDbMigration = table_migration.migration
 
         table_name = migration.sql_safe_namespaced_table(namespace=table_migration.namespace,

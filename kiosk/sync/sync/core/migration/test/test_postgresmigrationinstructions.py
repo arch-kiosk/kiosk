@@ -601,3 +601,90 @@ class TestRenameMigrationInstruction(KioskPyTestHelper):
                                                                          parameters=["name1", "name2"])
         assert result == ["ALTER TABLE \"test_schema\".\"name1\" RENAME TO \"name2\""]
         assert tablemigration.new_db_table_name == "name2"
+
+    def test_get_sql_instructions_add_serial_field(self, pg_migration):
+        pgm: PostgresDbMigration = pg_migration
+        pgm.dsd.append({"config": {
+            "format_version": 3},
+            "test": {
+                "structure": {
+                    2: {
+                        "name": ["datatype('TEXT')", "default('name')", "not_null()", "unique()"],
+                        "id": ["datatype('SERIAL')"],
+                        "uid": ["datatype('UUID')", "replfield_uuid()"],
+                        "created": ["datatype('DATETIME')", "replfield_created()"],
+                    },
+                    1: {
+                        "name": ["datatype('TEXT')"],
+                        "uid": ["datatype('UUID')", "replfield_uuid()"],
+                        "created": ["datatype('DATETIME')", "replfield_created()"],
+                    }
+                }
+            }
+        })
+
+        tablemigration = _PostgresTableMigration(migration=pgm, dsd_table="test", from_version=1, to_version=2,
+                                                 namespace="test_schema")
+
+        result = AddMigrationInstruction.create_sql_instructions(table_migration=tablemigration,
+                                                                 parameters=["id"])
+        assert result == [
+            "ALTER TABLE \"test_schema\".\"test\" ADD COLUMN \"id\" INT GENERATED ALWAYS AS IDENTITY UNIQUE"]
+
+    def test_get_sql_instructions_double_unique_add_serial_field(self, pg_migration):
+        pgm: PostgresDbMigration = pg_migration
+        pgm.dsd.append({"config": {
+            "format_version": 3},
+            "test": {
+                "structure": {
+                    2: {
+                        "name": ["datatype('TEXT')", "default('name')", "not_null()", "unique()"],
+                        "id": ["datatype('SERIAL')", "unique()"],
+                        "uid": ["datatype('UUID')", "replfield_uuid()"],
+                        "created": ["datatype('DATETIME')", "replfield_created()"],
+                    },
+                    1: {
+                        "name": ["datatype('TEXT')"],
+                        "uid": ["datatype('UUID')", "replfield_uuid()"],
+                        "created": ["datatype('DATETIME')", "replfield_created()"],
+                    }
+                }
+            }
+        })
+
+        tablemigration = _PostgresTableMigration(migration=pgm, dsd_table="test", from_version=1, to_version=2,
+                                                 namespace="test_schema")
+
+        result = AddMigrationInstruction.create_sql_instructions(table_migration=tablemigration,
+                                                                 parameters=["id"])
+        assert result == [
+            "ALTER TABLE \"test_schema\".\"test\" ADD COLUMN \"id\" INT GENERATED ALWAYS AS IDENTITY UNIQUE"]
+
+    def test_get_sql_instructions_modify_serial_field(self, pg_migration):
+        pgm: PostgresDbMigration = pg_migration
+        pgm.dsd.append({"config": {
+            "format_version": 3},
+            "test": {
+                "structure": {
+                    2: {
+                        "name": ["datatype('TEXT')"],
+                        "id": ["datatype('SERIAL')"],
+                        "uid": ["datatype('UUID')", "replfield_uuid()"],
+                        "created": ["datatype('DATETIME')", "replfield_created()"],
+                    },
+                    1: {
+                        "name": ["datatype('TEXT')"],
+                        "id": ["datatype('INT')"],
+                        "uid": ["datatype('UUID')", "replfield_uuid()"],
+                        "created": ["datatype('DATETIME')", "replfield_created()"],
+                    }
+                }
+            }
+        })
+
+        tablemigration = _PostgresTableMigration(migration=pgm, dsd_table="test", from_version=1, to_version=2,
+                                                 namespace="test_schema")
+
+        with pytest.raises(DSDDataTypeError):
+            result = AlterMigrationInstruction.create_sql_instructions(table_migration=tablemigration,
+                                                                       parameters=["id"])

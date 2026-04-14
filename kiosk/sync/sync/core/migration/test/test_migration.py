@@ -383,7 +383,7 @@ class TestMigration(KioskPyTestHelper):
                                    ('modified_by', 'character varying', 'YES', None),
                                    ('modified_ww', 'timestamp without time zone', 'YES', None),
                                    ('modified_tz', 'integer', 'YES', None),
-                                   ('opening_elevations', 'character varying', 'YES', None),
+                                   ('opening elevations', 'character varying', 'YES', None),
                                    ('purpose', 'character varying', 'YES', None),
                                    ('repl_deleted', 'boolean', 'YES', 'false'),
                                    ('repl_tag', 'integer', 'YES', None),

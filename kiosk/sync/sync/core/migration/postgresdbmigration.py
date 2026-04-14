@@ -158,12 +158,13 @@ class PostgresDbMigration(DatabaseMigration):
 
         return result
 
-    def process_create_instructions(self, field_name: str, instructions: {}, field_attributes: []):
+    def process_create_instructions(self, field_name: str, instructions: dict, field_attributes: list):
         field_attributes.clear()
 
         self._append_field_attribute(
             self._process_create_instruction("datatype", field_name, instructions, required=True),
             append_to=field_attributes)
+
         for instruction in ["primary", "not_null", "unique", "default", "uuid_key", "replfield_uuid",
                             "replfield_created"]:
             self._append_field_attribute(self._process_create_instruction(instruction, field_name, instructions),
