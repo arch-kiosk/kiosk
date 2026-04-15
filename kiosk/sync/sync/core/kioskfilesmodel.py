@@ -24,6 +24,7 @@ class KioskFilesModel(Table):
                ("tags",),
                ("image_attributes",),
                ("filename",),
+               ("serial_file_id",),
                ]
 
     # noinspection PyMissingConstructor
@@ -60,6 +61,7 @@ class KioskFilesModel(Table):
         self.tags = ""
         self.image_attributes = {}
         self.filename = ""
+        self.serial_file_id = None
         self._table_name = table_name if table_name else "images"
         self._init_instance(**kwargs)
 

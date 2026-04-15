@@ -58,6 +58,13 @@ class KioskLogicalFile:
 
         return self._file_record
 
+    @property
+    def serial_file_id(self):
+        r = self._record_exists()
+        if r:
+            return self._file_record.serial_file_id
+        return None
+
     def _record_exists(self):
         if not self._file_record:
             self._get_file_record()

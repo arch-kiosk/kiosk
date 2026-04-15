@@ -245,7 +245,7 @@ class KioskContextualFile(KioskLogicalFile):
                keep_image_data=False,
                push_contexts=False,
                log_duplicate_errors=True,
-               omit_by_hashes: Union[List, None]=None
+               omit_by_hashes: Union[List, None] = None
                ) -> Union[str, None]:
         """
         uploads a file from outside of the file repository
@@ -306,8 +306,8 @@ class KioskContextualFile(KioskLogicalFile):
                 if omit_by_hashes and md5_hash in omit_by_hashes:
                     self._last_error = "omitted by hash"
                     logging.info(f"{self.__class__.__name__}.upload: "
-                                  f"file candidate {src_path_and_filename} won't be imported because its"
-                                  f"md5 hash is supposed to be omitted: {md5_hash}.")
+                                 f"file candidate {src_path_and_filename} won't be imported because its"
+                                 f"md5 hash is supposed to be omitted: {md5_hash}.")
                     return None
 
                 if uid_hash != self._uid:
@@ -997,6 +997,17 @@ class KioskContextualFile(KioskLogicalFile):
             return default_location[0], default_location[1], record_type, identifier_uuid[0]
         else:
             return tuple()
+
+    def get_filename_from_serial_id(self, file_extension=None):
+        """
+        get a filename based on the serial file id.
+        :param file_extension: if set, the filename will have this file extension instead of the default extension
+        :return: a filename with extension
+        """
+        if not file_extension:
+            file_extension = kioskstdlib.get_file_extension(self._get_path_and_filename())
+
+        return kioskstdlib.get_valid_filename(f"{self.serial_file_id}.{file_extension}")
 
     def get_descriptive_filename(self, file_extension=None):
         """
