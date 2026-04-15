@@ -43,18 +43,6 @@ config:
       preconditions:
         site_notes: 2
 
-    dayplan_switch_to_unit_uid:
-#     This migration script runs as soon as the table dayplan is up to version 2
-      migration: "sql\\dayplan_switch_to_unit_uid.sql"
-      preconditions:
-        dayplan: 2
-
-    unit_narrative_switch_to_unit_uid:
-#     This migration script runs as soon as the table unit_narrative is up to version 2
-      migration: "sql\\unit_narrative_switch_to_unit_uid.sql"
-      preconditions:
-        unit_narrative: 2
-
     default_gen_uuid:
 #     This migration script runs if the table identification_methods is up to version 1 and the flag is not set.
 #     It runs only after all tables are migrated.

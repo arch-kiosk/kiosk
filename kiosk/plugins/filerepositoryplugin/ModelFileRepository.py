@@ -494,6 +494,9 @@ class ModelFileRepository:
                     where_part = f"""{files_table_name}.filename ilike %s"""
                     ext = description[4:]
                     param = kioskstdlib.escape_backslashs('%' + ext)
+                elif description.startswith("id:"):
+                    where_part = f"""{files_table_name}.serial_file_id = %s"""
+                    param = description[3:]
                 else:
                     if self.agnostic_mode:
                         where_part = f"""

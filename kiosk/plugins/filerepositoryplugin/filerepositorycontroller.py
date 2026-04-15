@@ -147,7 +147,7 @@ def fetch_repository_file(file_uuid, resolution):
     #     logging.error("32ef2cf5-6b77-483c-b85c-f88c3de0ef6b suppressed")
     #     abort(404)
     try:
-        print(f"trying to fetch {file_uuid}")
+        # print(f"trying to fetch {file_uuid}")
         if not kioskstdlib.check_uuid(file_uuid, accept_filemaker_too=True):
             abort(400)
 
@@ -525,6 +525,7 @@ def filerepository_editpartial(uuid, use_archive):
         modified_ww = img.get_value("modified_ww")
         modified_ww = kioskstdlib.latin_date(modified_ww) if modified_ww else modified_utc
         created_latin = kioskstdlib.latin_date(img.get_value("created"))
+        serial_file_id = img.get_value("serial_file_id")
 
         authorized_to = get_local_authorization_strings(LOCAL_FILE_REPOSITORY_PRIVILEGES)
         read_only = request.args.get('read_only') or ("fr_selected_archive" in session)
@@ -563,6 +564,7 @@ def filerepository_editpartial(uuid, use_archive):
                                modified_utc=modified_utc if \
                                    kioskglobals.get_development_option("test_time_zone_support") else None,
                                modified_ww=modified_ww,
+                               serial_file_id=serial_file_id
                                )
 
 

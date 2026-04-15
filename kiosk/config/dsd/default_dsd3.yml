@@ -399,7 +399,7 @@ images:
       md5_hash: [datatype(VARCHAR), no_sync(), no_file_export()]
       original_md5: [datatype(VARCHAR), no_file_export()]
       tags: [datatype(VARCHAR)]
-      serial_file_id: [datatype(SERIAL)]
+      serial_file_id: [datatype(SERIAL),no_sync()]
       uid: [datatype(UUID), replfield_uuid(), file_for(img_proxy)]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]

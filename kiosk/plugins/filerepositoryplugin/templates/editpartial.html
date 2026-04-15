@@ -172,7 +172,7 @@
                 </div>
                 <div id="ef-file-info" data-file-type="{{ file_extension }}" data-file-size="{{ file_size }}"
                     {% if resolution_open_in_new_tab %} data-open-in-new-tab="{{ resolution_open_in_new_tab }}"{% endif %}>
-                    <div>uuid: <span id="uid">{{ img.get_value('uid') }}</span></div>
+                    <div>file id: <span id="serial_file_id">{{ serial_file_id }}</span> / uuid: <span id="uid">{{ img.get_value('uid') }}</span></div>
 
                     {% if img.get_arch_identifier() %}
                         <div>identifiers: <span id="uid">{{ img.get_arch_identifier() }}</span></div>
