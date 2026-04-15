@@ -201,8 +201,16 @@ class FileExportWorkstation(RecordingWorkstation):
             logging.info(f"{self.__class__.__name__}.export: total size of files is {size} MBytes")
 
             file_export.register_file_resolver(self._resolve_file_request)
+            logging.debug(f"{self.__class__.__name__}.export: "
+                          f"filename rendering is set to {self.filename_rendering}")
             if self.filename_rendering == "descriptive":
+                logging.debug(f"{self.__class__.__name__}.export: "
+                              f"Using descriptive filename resolver _resolve_filename")
                 file_export.register_filename_resolver(self._resolve_filename)
+            elif self.filename_rendering == "serial_id":
+                logging.debug(f"{self.__class__.__name__}.export: "
+                              f"Using serial id filename resolver _resolve_filename_by_serial_id")
+                file_export.register_filename_resolver(self._resolve_filename_by_serial_id)
 
         file_export.include_files = self.include_files
 
@@ -263,4 +271,19 @@ class FileExportWorkstation(RecordingWorkstation):
             filename = ""
 
         logging.debug(f"{self.__class__.__name__}._resolve_filename: {uid} gets filename {filename}")
+        return kioskstdlib.get_filename_without_extension(filename)
+
+    def _resolve_filename_by_serial_id(self, uid: str, file_repos: FileRepository) -> str:
+        """
+        returns the filename on the basis of the serial_file_id
+        :param uid:
+        :return: the filename without file extension or "" if the default filename should be used.
+        """
+        try:
+            ctx_file = file_repos.get_contextual_file(uid)
+            filename = ctx_file.get_filename_from_serial_id()
+        except BaseException as e:
+            filename = ""
+
+        logging.debug(f"{self.__class__.__name__}._resolve_filename_by_serial_id: {uid} gets filename {filename}")
         return kioskstdlib.get_filename_without_extension(filename)

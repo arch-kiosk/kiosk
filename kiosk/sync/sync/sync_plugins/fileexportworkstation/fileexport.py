@@ -41,7 +41,7 @@ class FileExport:
 
     def register_file_resolver(self, func: Callable[[str, FileRepository], str]):
         """
-        registers a function or method that returns the path and filename of a file to export as respresentative
+        registers a function or method that returns the path and filename of a file to export as representative
         of the file in the file repository registered under the given uid.
         :param func: a method that gets the parameter "uid"
                      and returns either the absolute path to the file to use

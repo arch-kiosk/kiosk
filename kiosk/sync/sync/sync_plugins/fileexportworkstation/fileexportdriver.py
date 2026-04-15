@@ -39,7 +39,8 @@ class FileExportDriver:
             logging.info(f"No file_export_dsd_view configured for file export driver {driver_name}")
         if not dsd_view_file:
             if self._config.has_key("fileexportworkstation"):
-                dsd_view_file = kioskstdlib.try_get_dict_entry(self._config["fileexportworkstation"], "file_export_dsd_view", "")
+                dsd_view_file = kioskstdlib.try_get_dict_entry(self._config["fileexportworkstation"],
+                                                               "file_export_dsd_view", "")
             else:
                 logging.debug(f"{self.__class__.__name__}.__init__: No file_export_dsd_view "
                               f"configured for 'fileexportworkstation'")
@@ -132,7 +133,6 @@ class FileExportDriver:
             return FileRepository.get_repository_filename_in_sub_dir(self._file_repository.repository_path,
                                                                      uid_filename=default_file_name)
 
-
     def _get_dest_file_name(self, uid_file: str, filename: str) -> str:
         if self._filename_resolver:
             if not self._file_repository:
@@ -144,7 +144,9 @@ class FileExportDriver:
         return filename
 
     def get_filename_renderings(self):
-        return [("uid", "use unique id as filename"), ("descriptive", "render descriptive filenames")]
+        return [("uid", "use unique id as filename"),
+                ("descriptive", "render descriptive filenames"),
+                ("serial_id", "render filenames using the serial file id")]
 
     def start_export(self, target: FileExportTarget) -> bool:
         self._target = target
