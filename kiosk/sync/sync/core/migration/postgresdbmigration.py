@@ -1,5 +1,4 @@
 # todo time zone simpliciation (done)
-import logging
 import sys
 import os
 import datetime
@@ -158,20 +157,23 @@ class PostgresDbMigration(DatabaseMigration):
 
         return result
 
-    def process_create_instructions(self, field_name: str, instructions: dict, field_attributes: list):
+    def process_create_instructions(self, field_name: str, instructions: dict, field_attributes: list,
+                                    master_db: bool=True):
         field_attributes.clear()
 
         self._append_field_attribute(
-            self._process_create_instruction("datatype", field_name, instructions, required=True),
+            self._process_create_instruction("datatype", field_name, instructions, required=True, master_db=master_db),
             append_to=field_attributes)
 
         for instruction in ["primary", "not_null", "unique", "default", "uuid_key", "replfield_uuid",
                             "replfield_created"]:
-            self._append_field_attribute(self._process_create_instruction(instruction, field_name, instructions),
+            self._append_field_attribute(self._process_create_instruction(instruction, field_name, instructions,
+                                                                          master_db=master_db),
                                          append_to=field_attributes)
 
-    def process_migrate_instructions(self, field_name: str, old_instructions: {}, new_instructions: {},
-                                     alter_lines: []):
+    def process_migrate_instructions(self, field_name: str, old_instructions: dict, new_instructions: dict,
+                                     alter_lines: list,
+                                    master_db: bool=True):
         alter_lines.clear()
 
         for instruction in self._field_instruction_set.keys():
@@ -181,16 +183,18 @@ class PostgresDbMigration(DatabaseMigration):
                 else:
                     old_params = []
                 new_params = new_instructions[instruction]
-                result_lines = self._process_migrate_instruction(instruction, field_name, old_params, new_params)
+                result_lines = self._process_migrate_instruction(instruction, field_name, old_params, new_params,
+                                                                 master_db=master_db)
                 alter_lines.extend(result_lines)
 
-    def process_drop_instructions(self, field_name: str, dropped_instructions: {}, alter_lines: []):
+    def process_drop_instructions(self, field_name: str, dropped_instructions: dict, alter_lines: list,
+                                    master_db: bool=True):
         alter_lines.clear()
 
         for instruction in self._field_instruction_set.keys():
             if instruction in dropped_instructions.keys():
                 params = dropped_instructions[instruction]
-                result_lines = self._process_drop_instruction(instruction, field_name, params)
+                result_lines = self._process_drop_instruction(instruction, field_name, params, master_db=master_db)
                 alter_lines.extend(result_lines)
 
     def _adapter_create_schema(self, namespace: str):
@@ -393,6 +397,7 @@ class PostgresDbMigration(DatabaseMigration):
         :param namespace: the namespace if needed.
         :returns: list of names or an empty list in case of an error
         """
+        cur = None
         try:
             cur = self._get_dict_cursor()
             cur.execute(f"select * from {self.sql_safe_namespaced_table(namespace, table_name)} limit 0")
@@ -400,10 +405,10 @@ class PostgresDbMigration(DatabaseMigration):
             return cols
         finally:
             try:
-                cur.close()
+                if cur:
+                    cur.close()
             except:
                 pass
-        return []
 
     def _adapter_get_tables_and_versions(self, only_prefix, namespace):
         """ returns the instantiated tables, their dsd names and version.
@@ -508,7 +513,7 @@ class PostgresDbMigration(DatabaseMigration):
 
         return sql_script
 
-    def _move_table_to_namespace(self, db_table: str, old_namespace: "", new_namespace: ""):
+    def _move_table_to_namespace(self, db_table: str, old_namespace="", new_namespace=""):
         src_table = self.sql_safe_namespaced_table(old_namespace, db_table)
 
         sql = f"alter table {src_table} SET SCHEMA {self.sql_safe_ident(new_namespace)}"
@@ -532,7 +537,7 @@ class PostgresDbMigration(DatabaseMigration):
             r = cur.fetchone()
             if r:
                 value = r["value"]
-        except BaseException as e:
+        except BaseException:
             pass
         finally:
             cur.close()

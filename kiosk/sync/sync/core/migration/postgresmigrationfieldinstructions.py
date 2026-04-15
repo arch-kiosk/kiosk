@@ -1,4 +1,4 @@
-# todo time zone simpliciation (done)
+# todo time zone simplification (done)
 import logging
 
 from migration.migrationfieldinstruction import MigrationFieldInstruction
@@ -13,7 +13,7 @@ class MiPgDataType(MigrationFieldInstruction):
     _postgres_datatype_conversions = DATATYPE_CONVERSIONS
 
     @classmethod
-    def register(cls, migration_set: {}):
+    def register(cls, migration_set: dict):
         migration_set["datatype"] = cls
 
     @classmethod
@@ -31,18 +31,21 @@ class MiPgDataType(MigrationFieldInstruction):
             return f"{dtype}"
 
     @classmethod
-    def execute_during_creation(cls, field_name, parameters):
+    def execute_during_creation(cls, field_name, parameters, master_db=True, **kwargs):
         datatype = cls._get_sql_datatype(parameters)
         if not datatype:
             raise DSDDataTypeError(f"MiPgDataType.execute_during_creation:"
                                    f"Unknown datatype {parameters[0]} for field {field_name}.")
         else:
             if "GENERATED ALWAYS" in datatype:
-                return [datatype, "UNIQUE"]
+                if master_db:
+                    return [datatype, "UNIQUE"]
+                else:
+                    return ["INT", "NOT NULL", "UNIQUE"]
         return datatype
 
     @classmethod
-    def execute_during_migration(cls, field_name, old_parameters: list, new_parameters: list):
+    def execute_during_migration(cls, field_name, old_parameters: list, new_parameters: list, **kwargs):
         datatype = cls._get_sql_datatype(new_parameters)
         if not datatype:
             raise DSDDataTypeError(f"MiPgDataType.execute_during_migration:"
@@ -73,15 +76,15 @@ class MiPgDataType(MigrationFieldInstruction):
 # ****************************************************
 class MiPgUnique(MigrationFieldInstruction):
     @classmethod
-    def register(cls, migration_set: {}):
+    def register(cls, migration_set: dict):
         migration_set["unique"] = cls
 
     @classmethod
-    def execute_during_creation(cls, field_name, parameters):
+    def execute_during_creation(cls, field_name, parameters, **kwargs):
         return f"UNIQUE"
 
     @classmethod
-    def execute_during_migration(cls, field_name, old_parameters: [], new_parameters: []):
+    def execute_during_migration(cls, field_name, old_parameters: list, new_parameters: list, **kwargs):
         return [f"ADD CONSTRAINT {field_name}_unique UNIQUE({field_name})"]
 
 
@@ -90,19 +93,19 @@ class MiPgUnique(MigrationFieldInstruction):
 # ****************************************************
 class MiPgNotNull(MigrationFieldInstruction):
     @classmethod
-    def register(cls, migration_set: {}):
+    def register(cls, migration_set: dict):
         migration_set["not_null"] = cls
 
     @classmethod
-    def execute_during_creation(cls, field_name, parameters):
+    def execute_during_creation(cls, field_name, parameters, **kwargs):
         return f"NOT NULL"
 
     @classmethod
-    def execute_during_migration(cls, field_name, old_parameters: [], new_parameters: []):
+    def execute_during_migration(cls, field_name, old_parameters: list, new_parameters: list, **kwargs):
         return [f"ALTER \"{field_name}\" SET NOT NULL"]
 
     @classmethod
-    def execute_drop(cls, field_name, old_parameters: []):
+    def execute_drop(cls, field_name, old_parameters: list, **kwargs):
         return [f"ALTER \"{field_name}\" DROP NOT NULL"]
 
 
@@ -111,11 +114,11 @@ class MiPgNotNull(MigrationFieldInstruction):
 # ****************************************************
 class MiPgPrimary(MigrationFieldInstruction):
     @classmethod
-    def register(cls, migration_set: {}):
+    def register(cls, migration_set: dict):
         migration_set["primary"] = cls
 
     @classmethod
-    def execute_during_creation(cls, field_name, parameters):
+    def execute_during_creation(cls, field_name, parameters, **kwargs):
         return f"PRIMARY KEY"
 
 
@@ -124,7 +127,7 @@ class MiPgPrimary(MigrationFieldInstruction):
 # ****************************************************
 class MiPgDefault(MigrationFieldInstruction):
     @classmethod
-    def register(cls, migration_set: {}):
+    def register(cls, migration_set: dict):
         migration_set["default"] = cls
 
     @classmethod
@@ -142,18 +145,18 @@ class MiPgDefault(MigrationFieldInstruction):
         return default_value
 
     @classmethod
-    def execute_during_creation(cls, field_name, parameters):
+    def execute_during_creation(cls, field_name, parameters, **kwargs):
         default_value = cls._check_default_value(field_name, parameters[0])
 
         return f"DEFAULT {default_value}"
 
     @classmethod
-    def execute_during_migration(cls, field_name, old_parameters: [], new_parameters: []):
+    def execute_during_migration(cls, field_name, old_parameters: list, new_parameters: list, **kwargs):
         default_value = cls._check_default_value(field_name, new_parameters[0])
         return [f"ALTER \"{field_name}\" SET DEFAULT {default_value}"]
 
     @classmethod
-    def execute_drop(cls, field_name, old_parameters: []):
+    def execute_drop(cls, field_name, old_parameters: list, **kwargs):
         return [f"ALTER \"{field_name}\" DROP DEFAULT"]
 
 
@@ -162,11 +165,11 @@ class MiPgDefault(MigrationFieldInstruction):
 # ****************************************************
 class MiPgUuidKey(MigrationFieldInstruction):
     @classmethod
-    def register(cls, migration_set: {}):
+    def register(cls, migration_set: dict):
         migration_set["uuid_key"] = cls
 
     @classmethod
-    def execute_during_creation(cls, field_name, parameters):
+    def execute_during_creation(cls, field_name, parameters, **kwargs):
         return [MiPgUnique.execute_during_creation(field_name, parameters),
                 MiPgPrimary.execute_during_creation(field_name, parameters),
                 MiPgNotNull.execute_during_creation(field_name, parameters),
@@ -179,11 +182,11 @@ class MiPgUuidKey(MigrationFieldInstruction):
 # ****************************************************
 class MiPgReplfieldCreated(MigrationFieldInstruction):
     @classmethod
-    def register(cls, migration_set: {}):
+    def register(cls, migration_set: dict):
         migration_set["replfield_created"] = cls
 
     @classmethod
-    def execute_during_creation(cls, field_name, parameters):
+    def execute_during_creation(cls, field_name, parameters, **kwargs):
         return [
             MiPgNotNull.execute_during_creation(field_name, parameters),
         ]
@@ -194,11 +197,11 @@ class MiPgReplfieldCreated(MigrationFieldInstruction):
 # ****************************************************
 class MiPgReplfieldUuid(MigrationFieldInstruction):
     @classmethod
-    def register(cls, migration_set: {}):
+    def register(cls, migration_set: dict):
         migration_set["replfield_uuid"] = cls
 
     @classmethod
-    def execute_during_creation(cls, field_name, parameters):
+    def execute_during_creation(cls, field_name, parameters, **kwargs):
         return [
             MiPgUnique.execute_during_creation(field_name, parameters),
             MiPgPrimary.execute_during_creation(field_name, parameters),

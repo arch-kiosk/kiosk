@@ -23,7 +23,8 @@ class AddMigrationInstruction(MigrationInstruction):
                                                                             fieldname=field_name,
                                                                             version=table_migration.to_version)
         field_attributes = []
-        migration.process_create_instructions(field_name, instructions, field_attributes)
+        migration.process_create_instructions(field_name, instructions, field_attributes,
+                                              master_db = not bool(table_migration.namespace))
 
         sql += f"ADD COLUMN {migration.sql_safe_ident(field_name)} "
         sql += " ".join(field_attributes)

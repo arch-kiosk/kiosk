@@ -23,7 +23,7 @@ class DatabaseMigration:
         self.affected_tables = 0
 
     @classmethod
-    def _adapter_get_table_migration_class(cls):
+    def _adapter_get_table_migration_class(cls) -> type:
         raise NotImplementedError
 
     def _adapter_register_field_instruction_set(self):
@@ -143,7 +143,7 @@ class DatabaseMigration:
         :return dict with the tablename as key and a Tuple (dsd-table, version) as value
         """
         if not self._adapter_table_exists(self.migration_catalog_name):
-            return []
+            return {}
 
         return self._adapter_get_tables_and_versions(only_prefix, namespace)
 
@@ -305,7 +305,8 @@ class DatabaseMigration:
         """
         raise NotImplementedError
 
-    def _process_migrate_instruction(self, instruction: str, field_name: str, old_params: [], new_params: []):
+    def _process_migrate_instruction(self, instruction: str, field_name: str, old_params: list, new_params: list,
+                                     master_db: bool=True):
         """
             simply forwards the call to a specific migration instruction to the registered class for the instruction. 
             Unlike _process_create_instruction this does not check if the instruction is a registered instruction.
@@ -317,9 +318,10 @@ class DatabaseMigration:
             :returns: a list of lines that alter the table (in postgres e.G. for an ALTER TABLE statement)
 
         """
-        return self._field_instruction_set[instruction].execute_during_migration(field_name, old_params, new_params)
+        return self._field_instruction_set[instruction].execute_during_migration(field_name, old_params, new_params,
+                                                                                 master_db=master_db)
 
-    def _process_drop_instruction(self, instruction: str, field_name: str, old_params):
+    def _process_drop_instruction(self, instruction: str, field_name: str, old_params, master_db: bool=True):
         """
             simply forwards the call to a specific migration instruction to the registered class for the instruction. 
             Unlike _process_create_instruction this does not check if the instruction is a registered instruction.
@@ -330,9 +332,10 @@ class DatabaseMigration:
             :returns: a list of lines that alter the table (in postgres e.G. for an ALTER TABLE statement)
 
         """
-        return self._field_instruction_set[instruction].execute_drop(field_name, old_params)
+        return self._field_instruction_set[instruction].execute_drop(field_name, old_params, master_db=master_db)
 
-    def _process_create_instruction(self, instruction: str, field_name: str, instructions: dict, required: bool = False):
+    def _process_create_instruction(self, instruction: str, field_name: str, instructions: dict, required: bool = False,
+                                    master_db: bool=True):
         """
             Forwards the call to a specific migration instruction to the registered class for that instruction. 
             Checks if the instruction is a known instruction and if it is in the requested instructions at all. 
@@ -350,7 +353,8 @@ class DatabaseMigration:
         if instruction in instructions:
             if instruction in self._field_instruction_set:
                 return self._field_instruction_set[instruction].execute_during_creation(field_name,
-                                                                                        instructions[instruction])
+                                                                                        instructions[instruction],
+                                                                                        master_db=master_db)
             else:
                 raise InstructionRequiredError(f"PostgresDbMigraton._process_create_instruction: "
                                                f"{instruction} not supported by migration adapter")
@@ -600,6 +604,8 @@ class DatabaseMigration:
             logging.debug(f"{self.__class__.__name__}.reverse_engineer_table: "
                           f"Table {prefixed_db_table} comes as versions {versions}.")
         match = False
+        version = 0
+        field = "?"
         for version in versions:
             dsd_fields = dsd.list_fields(dsd_table, version)
             table_fields = self._adapter_get_database_table_field_names(prefixed_db_table, namespace=namespace)
