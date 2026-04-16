@@ -123,6 +123,30 @@ class TestKioskContextualFile(KioskPyTestHelper):
         assert file.uid
         assert kioskstdlib.check_uuid(file.uid)
 
+    def test_serial_file_id(self, db_files_initialized, shared_datadir):
+        sync = Synchronization()
+        file_repos = FileRepository(SyncConfig.get_config())
+        assert sync
+        assert file_repos
+        cache_manager = KioskFileCache(os.path.join(shared_datadir, "cache"),
+                                       representation_repository=sync.type_repository)
+
+        # check new file
+        file = KioskContextualFile(None, cache_manager=cache_manager,
+                                   file_repository=file_repos, type_repository=sync.type_repository)
+        assert file
+        assert file.uid
+        assert kioskstdlib.check_uuid(file.uid)
+        assert file.serial_file_id is None
+
+        path_and_filename = os.path.join(shared_datadir, "1EBC7166-050D-45C7-A492-16D81E108A7B.jpg")
+        uid = kioskstdlib.get_uuid_from_filename(path_and_filename)
+        file = KioskContextualFile(uid, cache_manager, file_repos, sync.type_repository)
+        assert file
+        assert file.uid
+        assert kioskstdlib.check_uuid(file.uid)
+        assert file.serial_file_id is not None
+
     def test_tags(self, db_files_initialized, shared_datadir):
         sync = Synchronization()
         file_repos = FileRepository(SyncConfig.get_config())

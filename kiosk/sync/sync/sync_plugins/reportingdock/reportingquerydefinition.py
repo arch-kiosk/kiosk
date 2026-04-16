@@ -6,7 +6,7 @@ from copy import copy, deepcopy
 
 
 class ReportingQueryDefinition:
-    CURRENT_DEF_VERSION = "1.1"
+    CURRENT_DEF_VERSION = "1.2"
 
     def __init__(self, definition: dict):
         self.variable_definitions = {}

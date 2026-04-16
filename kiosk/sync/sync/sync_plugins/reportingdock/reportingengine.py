@@ -336,6 +336,8 @@ class ReportingEngine:
                     result = ctx.get_descriptive_filename()
                 elif render_method == "filename":
                     result = ctx.export_filename
+                elif render_method == "id":
+                    result = ctx.get_filename_from_serial_id()
                 else:
                     logging.warning(f"{self.__class__.__name__}._on_render_filename: "
                                     f"filename rendering method {render_method} unknown.")
