@@ -24,7 +24,7 @@ class KioskFilesModel(Table):
                ("tags",),
                ("image_attributes",),
                ("filename",),
-               ("serial_file_id",),
+               ("serial_file_id", ",".join([Table.ATTRIBUTE_DONT_UPDATE])),
                ]
 
     # noinspection PyMissingConstructor
