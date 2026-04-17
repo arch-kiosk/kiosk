@@ -12,8 +12,8 @@ from authorization import full_login_required, IsAuthorized
 from authorization import get_local_authorization_strings, EDIT_WORKSTATION_PRIVILEGE, \
     SYNCHRONIZE, PREPARE_WORKSTATIONS, DOWNLOAD_WORKSTATION, UPLOAD_WORKSTATION, CREATE_WORKSTATION
 from core.kioskcontrollerplugin import get_plugin_for_controller
-from fileexportworkstation import FileExportWorkstation
-from fileexportworkstation.fileexport import FileExport
+from sync_plugins.fileexportworkstation import FileExportWorkstation
+from sync_plugins.fileexportworkstation.fileexport import FileExport
 from kioskfilemanagerbridge import KioskFileManagerBridge
 from kioskresult import KioskResult
 from kioskwtforms import kiosk_validate

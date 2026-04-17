@@ -1,34 +1,135 @@
-import datetime
-import logging
-import os
-import sys
-from importlib import import_module, invalidate_caches
-
-import kioskstdlib
-from kiosklogger import KioskLogger
-from mcpinterface.mcpconstants import MCPJobStatus
-
-
-def create_new_file_log(log_file, log_level=logging.INFO):
-    logging.basicConfig(format='>[%(process)d/%(thread)d: %(module)s.%(levelname)s at %(asctime)s]: %(message)s',
-                        level=logging.ERROR)
-    logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
-    logger.handlers = []
-
-    log_file = log_file.replace("#", "%")
-    log_file = datetime.datetime.strftime(datetime.datetime.now(), log_file)
-    ch = logging.FileHandler(filename=log_file, delay=True)
-    ch.setLevel(log_level)
-
-    formatter = logging.Formatter(
-        '>[%(process)d/%(thread)d: %(module)s.%(levelname)s at %(asctime)s]: %(message)s')
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-
-
 # noinspection PyUnboundLocalVariable
-def mcp_worker(job_id, kiosk_base_path, config_file, test_mode):
+def mcp_worker(job_id, kiosk_base_path, config_file, test_mode, mcp_kiosk_path):
+    import datetime
+    import logging
+    from importlib import import_module, invalidate_caches
+
+    # noinspection PyShadowingNames
+    def create_new_file_log(log_file, log_level=logging.INFO):
+        logging.basicConfig(format='>[%(process)d/%(thread)d: %(module)s.%(levelname)s at %(asctime)s]: %(message)s',
+                            level=logging.ERROR)
+        logger = logging.getLogger()
+        logger.setLevel(logging.DEBUG)
+        logger.handlers = []
+
+        log_file = log_file.replace("#", "%")
+        log_file = datetime.datetime.strftime(datetime.datetime.now(), log_file)
+        ch = logging.FileHandler(filename=log_file, delay=True)
+        ch.setLevel(log_level)
+
+        formatter = logging.Formatter(
+            '>[%(process)d/%(thread)d: %(module)s.%(levelname)s at %(asctime)s]: %(message)s')
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+
+    # noinspection PyShadowingNames
+    def init_config(config_file, job_id, kiosk_base_path):
+        from sync_config import SyncConfig
+        import kioskstdlib
+        cfg = SyncConfig.get_config({'config_file': config_file,
+                                     'base_path': kiosk_base_path}, log_warnings=False)
+        # return
+        if not cfg:
+            raise Exception(f"  PID({os.getpid()}): Configuration file {config_file} cannot be loaded.")
+        log_file = cfg.get_logfile()
+        log_level = cfg.get_log_level()
+        if log_file:
+            log_path = kioskstdlib.get_file_path(log_file)
+            log_file = f"MCP_{os.getpid()}_" + kioskstdlib.get_filename(log_file)
+            log_file = os.path.join(log_path, log_file)
+            create_new_file_log(log_file, log_level)
+        logging.info(sys.path)
+        logging.info(f"  PID({os.getpid()}): worker starting job {job_id}")
+        logging.info(f"  PID({os.getpid()}): in {kiosk_base_path}")
+        logging.info(f"  PID({os.getpid()}): using config {config_file}")
+        logging.info(f"  PID({os.getpid()}): worker loads kiosk now:")
+        logging.info(f"  PID({os.getpid()}): config project id is {cfg.get_project_id()}.")
+        return cfg
+
+    # noinspection PyShadowingNames
+    def install_log_handler(job):
+        if job.capture_log:
+            logging.debug(f"Kiosk Logger installed for job {job.job_id}.")
+            kiosk_logger = KioskLogger(log_level=logging.INFO)
+            kiosk_logger.install_log_handler()
+            return kiosk_logger
+        else:
+            return None
+
+    # noinspection PyShadowingNames
+    def import_and_start_worker(cfg, class_name, gs, job, module_name):
+        kiosk_logger = None
+        globals()["kiosk_mcp_worker"] = True
+        assert "kiosk_mcp_worker" in globals()
+        try:
+            module = import_module(module_name)
+            cls = getattr(module, class_name)
+            worker = cls(cfg, job, gs)
+        except BaseException as e:
+            raise e.__class__(f"When loading worker: {repr(e)}")
+        try:
+            if job.capture_log:
+                logging.debug(f"job log IS captured for job {job.job_id}")
+                kiosk_logger = install_log_handler(job)
+            worker.start()
+            if job.capture_log:
+                has_errors = kiosk_logger.has_new_errors(reset=False)
+                has_warnings = kiosk_logger.has_new_warnings(reset=False)
+                result = job.result
+                result["has_warnings"] = has_warnings
+                result["has_errors"] = has_errors
+                job.publish_result(result)
+            else:
+                logging.debug(f"job log IS NOT captured for job {job.job_id}")
+            if job.status < MCPJobStatus.JOB_STATUS_CANCELLING:
+                job.set_status_to(MCPJobStatus.JOB_STATUS_DONE)
+            else:
+                if job.status == MCPJobStatus.JOB_STATUS_CANCELLING:
+                    job.set_status_to(MCPJobStatus.JOB_STATUS_CANCELLED)
+        except BaseException as e:
+            try:
+                job.set_status_to(MCPJobStatus.JOB_STATUS_ABORTED)
+                job.publish_result({"success": False, "message": repr(e)})
+            except BaseException as _:
+                pass
+            raise e.__class__(f"Within worker code: {repr(e)}")
+        finally:
+            if kiosk_logger:
+                job.publish_log_lines(kiosk_logger.get_log())
+                uninstall_log_handler(kiosk_logger)
+            else:
+                logging.debug(f"NO KIOSK LOGGER INSTALLED for job {job.job_id}")
+
+    import sys
+    import os
+
+    def purge_parent_modules(parent_path):
+        """
+        Removes any modules from the cache that were loaded from the parent_path.
+        """
+        # Normalize path for reliable comparison
+        parent_path = os.path.abspath(parent_path).lower()
+
+        # We must convert to a list because we can't mutate a dict while iterating
+        modules_to_delete = []
+
+        for name, module in sys.modules.items():
+            # Get the file path of the module
+            file_path = getattr(module, '__file__', None)
+
+            if file_path:
+                abs_file_path = os.path.abspath(file_path).lower()
+                # Check if the module's file is inside the parent directory
+                if abs_file_path.startswith(parent_path):
+                    modules_to_delete.append(name)
+
+        for name in modules_to_delete:
+            del sys.modules[name]
+
+    ### ***************************************************************
+    ### MAIN FUNCTION BODY
+    ### ***************************************************************
+
     try:
         log_path = os.path.join(kiosk_base_path, "log")
         pid = os.getpid()
@@ -38,23 +139,39 @@ def mcp_worker(job_id, kiosk_base_path, config_file, test_mode):
         sync_path = os.path.join(kiosk_base_path, 'sync', 'sync')
         sync_core_path = os.path.join(sync_path, 'core')
 
-        sys.path.insert(0, kiosk_base_path)
-        sys.path.insert(1, sync_path)
-        sys.path.insert(2, sync_core_path)
-        sys.path.insert(3, os.path.join(kiosk_base_path, "core"))
-        sys.path.insert(4, os.path.join(kiosk_base_path, "core", "sqlalchemy_models"))
-        # sys.path.append(kiosk_base_path)
-        # sys.path.append(sync_path)
-        # sys.path.append(sync_core_path)
+        if mcp_kiosk_path != kiosk_base_path:
+            sys.path.insert(0, kiosk_base_path)
+            sys.path.insert(1, sync_path)
+            sys.path.insert(2, sync_core_path)
+            sys.path.insert(3, os.path.join(kiosk_base_path, "core"))
+            sys.path.insert(4, os.path.join(kiosk_base_path, "core", "sqlalchemy_models"))
+            sys.path.insert(5, os.path.join(sync_path, "sync_plugins"))
+
+            purge_parent_modules(mcp_kiosk_path)
+
+        import kioskstdlib
+        from kiosklogger import KioskLogger
+        from mcpinterface.mcpconstants import MCPJobStatus
 
         cfg = init_config(config_file, job_id, kiosk_base_path)
+
+        if mcp_kiosk_path != kiosk_base_path:
+            logging.info(f"mcpworker.mcp_worker: mcp is running in its own Kiosk: {mcp_kiosk_path}")
+            logging.info(f"mcpworker.mcp_worker: isolating process {pid} in {kiosk_base_path}")
+            sys.path.insert(5, os.path.join(sync_path, "sync_plugins"))
+            logging.warning(f"mcpworker.mcp_worker: hacky: "
+                            f"adding {os.path.join(sync_path, 'sync_plugins')} to sys.path. "
+                            f"This 'fixes' many wrong python imports which don't use sync_plugin.")
+        else:
+            logging.info(f"mcpworker.mcp_worker: MCP is running in the same kiosk as the process: {kiosk_base_path}")
+
         gs = load_general_store(cfg)
         init_system_message_list(gs, cfg)
         job = None
 
         from sync_config import SyncConfig
         from mcpinterface.mcpconstants import MCPJobStatus
-        from kiosksqldb import KioskSQLDb
+        import kiosksqldb
         from kiosksqldb import KioskSQLDb
         try:
             from testversion import TEST_VERSION
@@ -66,11 +183,19 @@ def mcp_worker(job_id, kiosk_base_path, config_file, test_mode):
         try:
             try:
                 logging.info(f"MCP: {job_id} encapsulated by {__file__}")
+                try:
+                    logging.info(f"MCP: {job_id} sync core is {kioskstdlib.get_file_path(kiosksqldb.__file__)}")
+                except BaseException as e:
+                    logging.error(f"mcpworker.mcp_worker: error getting sync core path: {repr(e)}")
+
                 logging.info(f"MCP: {job_id} runs within a kiosk environment with code-signature {test_version}.")
                 job = init_job(gs, job_id)
                 job.validate_job("mcp_worker:")
                 job.os_pid = os.getpid()
                 module_name, class_name = job.get_worker()
+                logging.info(f"MCP: \n")
+                logging.info(f"MCP: ########## {job_id} running {module_name}.{class_name} ############ ")
+                logging.info(f"MCP: \n")
                 invalidate_caches()
             except BaseException as e:
                 raise Exception(f"{repr(e)} - there will be no further log for this error.")
@@ -78,7 +203,7 @@ def mcp_worker(job_id, kiosk_base_path, config_file, test_mode):
             if not test_mode:
                 import_and_start_worker(cfg, class_name, gs, job, module_name)
         except BaseException as e:
-            logging.error(f"mcp_worker: Exception in job {job_id}: {repr(e)}")
+            logging.critical(f"mcp_worker: Exception in job {job_id}: {repr(e)}", exc_info=True)
             if job:
                 try:
                     job.publish_result({"success": False, "message": repr(e)})
@@ -110,88 +235,10 @@ def init_job(gs, job_id):
     return job
 
 
-def init_config(config_file, job_id, kiosk_base_path):
-    from sync_config import SyncConfig
-    import kioskstdlib
-    cfg = SyncConfig.get_config({'config_file': config_file,
-                                 'base_path': kiosk_base_path}, log_warnings=False)
-    # return
-    if not cfg:
-        raise Exception(f"  PID({os.getpid()}): Configuration file {config_file} cannot be loaded.")
-    log_file = cfg.get_logfile()
-    log_level = cfg.get_log_level()
-    if log_file:
-        log_path = kioskstdlib.get_file_path(log_file)
-        log_file = f"MCP_{os.getpid()}_" + kioskstdlib.get_filename(log_file)
-        log_file = os.path.join(log_path, log_file)
-        create_new_file_log(log_file, log_level)
-    logging.info(sys.path)
-    logging.info(f"  PID({os.getpid()}): worker starting job {job_id}")
-    logging.info(f"  PID({os.getpid()}): in {kiosk_base_path}")
-    logging.info(f"  PID({os.getpid()}): using config {config_file}")
-    logging.info(f"  PID({os.getpid()}): worker loads kiosk now:")
-    logging.info(f"  PID({os.getpid()}): config project id is {cfg.get_project_id()}.")
-    return cfg
-
-
 def uninstall_log_handler(kiosk_logger):
     if kiosk_logger:
         kiosk_logger.uninstall_log_handler()
     return None
-
-
-def install_log_handler(job):
-    if job.capture_log:
-        logging.debug(f"Kiosk Logger installed for job {job.job_id}.")
-        kiosk_logger = KioskLogger(log_level=logging.INFO)
-        kiosk_logger.install_log_handler()
-        return kiosk_logger
-    else:
-        return None
-
-
-def import_and_start_worker(cfg, class_name, gs, job, module_name):
-    kiosk_logger = None
-    globals()["kiosk_mcp_worker"] = True
-    assert "kiosk_mcp_worker" in globals()
-    try:
-        module = import_module(module_name)
-        cls = getattr(module, class_name)
-        worker = cls(cfg, job, gs)
-    except BaseException as e:
-        raise e.__class__(f"When loading worker: {repr(e)}")
-    try:
-        if job.capture_log:
-            logging.debug(f"job log IS captured for job {job.job_id}")
-            kiosk_logger = install_log_handler(job)
-        worker.start()
-        if job.capture_log:
-            has_errors = kiosk_logger.has_new_errors(reset=False)
-            has_warnings = kiosk_logger.has_new_warnings(reset=False)
-            result = job.result
-            result["has_warnings"] = has_warnings
-            result["has_errors"] = has_errors
-            job.publish_result(result)
-        else:
-            logging.debug(f"job log IS NOT captured for job {job.job_id}")
-        if job.status < MCPJobStatus.JOB_STATUS_CANCELLING:
-            job.set_status_to(MCPJobStatus.JOB_STATUS_DONE)
-        else:
-            if job.status == MCPJobStatus.JOB_STATUS_CANCELLING:
-                job.set_status_to(MCPJobStatus.JOB_STATUS_CANCELLED)
-    except BaseException as e:
-        try:
-            job.set_status_to(MCPJobStatus.JOB_STATUS_ABORTED)
-            job.publish_result({"success": False, "message": repr(e)})
-        except BaseException as _:
-            pass
-        raise e.__class__(f"Within worker code: {repr(e)}")
-    finally:
-        if kiosk_logger:
-            job.publish_log_lines(kiosk_logger.get_log())
-            uninstall_log_handler(kiosk_logger)
-        else:
-            logging.debug(f"NO KIOSK LOGGER INSTALLED for job {job.job_id}")
 
 
 def load_general_store(cfg):
@@ -207,15 +254,18 @@ def load_general_store(cfg):
 
 
 def init_system_message_list(gs, cfg):
+    import logging
+    import os
     try:
         from messaging.systemmessagestore import SystemMessageStore
         from messaging.systemmessagestorepostgres import SystemMessageStorePostgres
         from messaging.systemmessagelist import SystemMessageList
 
         from sync_config import SyncConfig
-        cfg = SyncConfig.get_config()
         if not cfg:
-            logging.debug(f"PID({os.getpid()}).store_system_message_list: no config.")
+            cfg = SyncConfig.get_config()
+            if not cfg:
+                logging.debug(f"PID({os.getpid()}).store_system_message_list: no config.")
 
         message_list = SystemMessageList(general_store=gs, project_id=cfg.get_project_id())
 

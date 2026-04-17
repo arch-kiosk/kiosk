@@ -7,7 +7,7 @@ import kioskstdlib
 from plugins.syncmanagerplugin.kioskworkstationjobs import JOB_META_TAG_KEEP_FM
 from sync_config import SyncConfig
 
-MCP_VERSION = "0.6.3"
+MCP_VERSION = "0.7"
 
 import logging
 import os
@@ -93,7 +93,7 @@ class MCP:
             key = KEY_MCP_PULSE
             try:
                 self.gs.inc_int(key, 1)
-            except KeyError as e:
+            except KeyError:
                 self.gs.put_int(key, 1)
 
             self.gs.set_timeout(key, self.mcp_pulse_timeout)
@@ -110,7 +110,7 @@ class MCP:
         :exception Can throw Exceptions!
         """
         try:
-            key = KEY_MCP_VER
+            # key = KEY_MCP_VER
             self.gs.put_string(KEY_MCP_VER, MCP_VERSION)
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.publish_version: {repr(e)}")
@@ -335,13 +335,16 @@ class MCP:
 
                 if self.in_debug_mode:
                     try:
-                        return self.debug_process(job.job_id, job.kiosk_base_path, job.config_file, test_mode=test_mode)
+                        return self.debug_process(job.job_id, job.kiosk_base_path, job.config_file,
+                                                  test_mode=test_mode,
+                                                  mcp_kiosk_path=self.mcp_cfg.base_path)
                     except BaseException as e:
                         logging.error(
                             f"{self.__class__.__name__}.start_job: Exception when debugging job: {repr(e)}")
                 else:
                     try:
-                        return self.start_process(job.job_id, job.kiosk_base_path, job.config_file, test_mode=test_mode)
+                        return self.start_process(job.job_id, job.kiosk_base_path, job.config_file, test_mode=test_mode,
+                                                  mcp_kiosk_path=self.mcp_cfg.base_path)
                     except BaseException as e:
                         logging.error(
                             f"{self.__class__.__name__}.start_job: Exception when starting process: {repr(e)}")
@@ -352,18 +355,19 @@ class MCP:
                 gs_queue.unlock(lock)
 
     @staticmethod
-    def start_process(job_id, kiosk_base_path, config_file, test_mode=0):
+    def start_process(job_id, kiosk_base_path, config_file, test_mode=0, mcp_kiosk_path=""):
         logging.debug(f"starting process under {kiosk_base_path} using {config_file}")
-        p = multiprocessing.Process(target=mcp_worker, args=(job_id, kiosk_base_path, config_file, test_mode))
+        p = multiprocessing.Process(target=mcp_worker, args=(job_id, kiosk_base_path, config_file, test_mode,
+                                                             mcp_kiosk_path))
         p.start()
         return p
 
     @staticmethod
-    def debug_process(job_id, kiosk_base_path, config_file, test_mode=0):
+    def debug_process(job_id, kiosk_base_path, config_file, test_mode=0, mcp_kiosk_path=""):
         logging.debug(f"debugging job under {kiosk_base_path} using {config_file}")
         # p = multiprocessing.Process(target=mcp_worker, args=(job_id, kiosk_base_path, config_file, test_mode))
         # p.start()
-        mcp_worker(job_id, kiosk_base_path, config_file, test_mode)
+        mcp_worker(job_id, kiosk_base_path, config_file, test_mode, mcp_kiosk_path=mcp_kiosk_path)
         return 0
 
     def loop(self):
@@ -419,7 +423,7 @@ class MCP:
                 if sec > max_sec:
                     logging.warning(f"{self.__class__.__name__}.end_filemaker_instance_if_any: "
                                     f"Timeout when waiting for a FileMaker start. Moving on...")
-        except BaseException as e:
+        except BaseException:
             logging.warning(f"{self.__class__.__name__}.end_filemaker_instance_if_any: "
                             f"Timeout when waiting for a FileMaker start. Moving on...")
 
