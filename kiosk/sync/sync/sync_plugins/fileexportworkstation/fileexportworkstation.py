@@ -283,6 +283,7 @@ class FileExportWorkstation(RecordingWorkstation):
             ctx_file = file_repos.get_contextual_file(uid)
             filename = ctx_file.get_filename_from_serial_id()
         except BaseException as e:
+            logging.debug(f"{self.__class__.__name__}._resolve_filename_by_serial_id: {repr(e)}")
             filename = ""
 
         logging.debug(f"{self.__class__.__name__}._resolve_filename_by_serial_id: {uid} gets filename {filename}")
