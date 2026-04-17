@@ -12,7 +12,7 @@ import kioskstdlib
 from datetime import datetime
 import synchronization
 import workstation
-from sync.core.packdirectory import pack_directory
+from packdirectory import pack_directory
 
 
 # noinspection PyBroadException

@@ -66,6 +66,7 @@ def mcp_worker(job_id, kiosk_base_path, config_file, test_mode, mcp_kiosk_path):
             cls = getattr(module, class_name)
             worker = cls(cfg, job, gs)
         except BaseException as e:
+            logging.critical(f"mcpworker.mcp_worker: Loading worker code failed: {repr(e)}", exc_info=True)
             raise e.__class__(f"When loading worker: {repr(e)}")
         try:
             if job.capture_log:
@@ -121,7 +122,8 @@ def mcp_worker(job_id, kiosk_base_path, config_file, test_mode, mcp_kiosk_path):
                 abs_file_path = os.path.abspath(file_path).lower()
                 # Check if the module's file is inside the parent directory
                 if abs_file_path.startswith(parent_path):
-                    modules_to_delete.append(name)
+                    if "mcpworker" not in name:
+                        modules_to_delete.append(name)
 
         for name in modules_to_delete:
             del sys.modules[name]
