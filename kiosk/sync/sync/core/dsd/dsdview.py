@@ -115,9 +115,9 @@ class DSDView:
             table, field = field.split("\\")
             for version in self.dsd.list_table_versions(table):
                 datatype = self.dsd.get_field_datatype(table, field, version)
-                logging.debug(f"{self.__class__.__name__}. : {field}:{datatype}")
+                # logging.debug(f"{self.__class__.__name__}._delete_not_included_fields : {field}:{datatype}")
                 if self.dsd.get_field_datatype(table, field, version) == "uuid":
-                    logging.debug(f"{self.__class__.__name__}._delete_not_included_fields: hiding field {table}.{field}")
+                    # logging.debug(f"{self.__class__.__name__}._delete_not_included_fields: hiding field {table}.{field}")
                     self.dsd.add_field_instruction(table, field, "hide()", version=version)
                 else:
                     self.dsd.delete_field(table, field, version)
@@ -142,7 +142,7 @@ class DSDView:
 
     def _exclude_field(self, table, field):
         self.excluded_fields[f"{table}\\{field}"] = True
-        logging.debug(f"excluding field {table}\\{field}")
+        # logging.debug(f"excluding field {table}\\{field}")
 
     def _include_field(self, table, field):
         self.excluded_fields.pop(f"{table}\\{field}")
@@ -184,8 +184,8 @@ class DSDView:
         for table in tables:
             fields = self.dsd.get_fields_with_instructions(table, [instruction])
             for field in fields:
-                logging.debug(f"{self.__class__.__name__}._apply_exclude_fields_with_instruction: "
-                              f"removing field {table}.{field}")
+                # logging.debug(f"{self.__class__.__name__}._apply_exclude_fields_with_instruction: "
+                #               f"removing field {table}.{field}")
                 if exclude:
                     self._exclude_field(table, field)
                 else:
