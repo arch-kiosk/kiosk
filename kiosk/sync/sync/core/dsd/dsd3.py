@@ -1240,7 +1240,7 @@ class DataSetDefinition:
             pass
         return None
 
-    def get_import_filter(self, table, databasetype="fm12"):
+    def get_import_filter(self, table, databasetype="fm12")->str:
         """
         returns a database engine specific import filter. Default is filemaker (fm12).
         :param databasetype: an identifier used in the dsd for a certain database engine. Currently we only support
