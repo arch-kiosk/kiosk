@@ -19,6 +19,7 @@ class FileMakerControl:
     #     return False
     def __init__(self):
         self.no_gc = False
+        self.template_version = ""
 
     def start_fm_database(self, workstation, *argv):
         logging.error("direct call to base class FileMakerControl.start_fm_database")
@@ -190,5 +191,15 @@ class FileMakerControl:
     def get_bulk_id(self):
         """
         returns the bulk-id registered in the FileMaker database
+        """
+        raise NotImplementedError
+
+    def execute(self, sql: str, params: list=None) -> None:
+        """
+        executes an sql statement
+        :param sql: the sql statement (with ? as wildcard for a parameter)
+        :param params: optional list of parameters
+        :return: nothing
+        :raises all kinds of exceptions.
         """
         raise NotImplementedError
