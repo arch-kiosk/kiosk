@@ -39,7 +39,6 @@ class FileMakerControlWindows(FileMakerControl):
         self.fm_doc = None
         self.opened_filename = ""
         self.odbc_ini_dsn = ""
-        self.template_version = ""
         self._wait_for_fm_startup_callback: Union[Callable[[],bool], None] = None
         super().__init__()
 
@@ -59,6 +58,33 @@ class FileMakerControlWindows(FileMakerControl):
     @wait_for_fm_startup_callback.setter
     def wait_for_fm_startup_callback(self, value):
         self._wait_for_fm_startup_callback=value
+
+    def execute(self, sql: str, params: list = None) -> int:
+        """
+        executes an sql statement
+        :param sql: the sql statement (with ? as wildcard for a parameter)
+        :param params: optional list of parameters
+        :return: the number of affected rows
+        :raises all kinds of exceptions.
+        """
+        if params is None:
+            params = []
+        if not self.cnxn or not self.fm_doc:
+            raise Exception("FileMaker not up or no database open.")
+        cur = self.cnxn.cursor()
+        try:
+            cur.execute(sql, params)
+            rowcount = cur.rowcount
+            cur.commit()
+            return rowcount
+        finally:
+            try:
+                if cur:
+                    cur.close()
+            except:
+                pass
+
+
 
     def _init_export_fm_filename(self, workstation):
         """ returns the path and filemaker-Model filename in a workstation's export folder if the file
@@ -704,7 +730,7 @@ class FileMakerControlWindows(FileMakerControl):
                               f"table {dest_tablename} gets updated.")
             else:
                 logging.debug(f"{self.__class__.__name__}.transfer_table_data_to_filemaker:"
-                              f"table {dest_tablename} always gets updated.")
+                              f"table {dest_tablename} gets updated (because it appears empty in the master db).")
 
             if truncate:
                 logging.debug(f"{self.__class__.__name__}.transfer_table_data_to_filemaker: "
