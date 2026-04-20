@@ -9,6 +9,7 @@ import pstats
 import shutil
 import zoneinfo
 from datetime import tzinfo
+from itertools import islice, chain
 from shutil import copyfile
 import time
 from os import path
@@ -73,9 +74,10 @@ class FileMakerWorkstation(RecordingWorkstation):
         self.x_state_info = {}
         self.fix_import_errors = False
         self._fm_mode = FileMakerWorkstation.FM_MODE_START
-        self._wait_for_fm_startup_callback: Union[Callable[[],bool], None] = None
+        self._wait_for_fm_startup_callback: Union[Callable[[], bool], None] = None
         self.bulk_id = ""
         self.modified_tables = {}
+        self.table_deletions = None
         super().__init__(workstation_id, description, sync=sync, *args, **kwargs)
 
     @classmethod
@@ -118,7 +120,7 @@ class FileMakerWorkstation(RecordingWorkstation):
         The Callback must return a boolean value indicating if the calling operation can proceed (so there is no
         current filemaker start in progress.
         """
-        self._wait_for_fm_startup_callback=value
+        self._wait_for_fm_startup_callback = value
 
     def _register_no_transfer_necessary(self, tablename):
         """
@@ -454,7 +456,7 @@ class FileMakerWorkstation(RecordingWorkstation):
         file_name = fm._init_export_fm_filename(self)
         if not file_name:
             self.get_and_init_files_dir("export")
-            file_name = fm._init_export_fm_filename(self, check_path_only=True)
+            file_name = fm._init_export_fm_filename(self)
 
         return file_name
 
@@ -503,30 +505,31 @@ class FileMakerWorkstation(RecordingWorkstation):
         if not path.isdir(dest_dir):
             if not init:
                 logging.error(
-                    "get_and_init_files_dir: " + dest_dir + ' does not seem to exist or is not a folder/directory.')
+                    "get_and_init_files_dir: " + str(
+                        dest_dir) + ' does not seem to exist or is not a folder/directory.')
                 return ""
             else:
                 try:
                     os.mkdir(dest_dir)
                 except Exception as e:
-                    logging.error("get_and_init_files_dir: cannot create directory " + dest_dir + ": " + repr(e))
+                    logging.error("get_and_init_files_dir: cannot create directory " + str(dest_dir) + ": " + repr(e))
                     return ""
 
-        dest_dir = path.join(dest_dir, "files")
+        dest_dir = path.join(str(dest_dir), "files")
         if path.isdir(dest_dir):
             return dest_dir
         else:
             try:
                 os.mkdir(dest_dir)
             except Exception as e:
-                logging.error("get_and_init_files_dir: cannot create directory " + dest_dir + ": " + repr(e))
+                logging.error("get_and_init_files_dir: cannot create directory " + str(dest_dir) + ": " + repr(e))
                 return ""
         if path.isdir(dest_dir):
             return dest_dir
         else:
             logging.error(
-                ("get_and_init_files_dir: " + dest_dir + ' does not seem to exist after creation '
-                                                         'or is not a folder/directory.'))
+                ("get_and_init_files_dir: " + str(dest_dir) + ' does not seem to exist after creation '
+                                                              'or is not a folder/directory.'))
             return ""
 
     # *******************************************************************
@@ -644,7 +647,8 @@ class FileMakerWorkstation(RecordingWorkstation):
                                                                   callback_progress=self.interruptable_callback_progress):
                                 rc = self._transfer_file_identifier_cache(fm, current_tz=self.current_tz)
                                 if not rc:
-                                    logging.error("FileMakerWorkstation.export: _transfer_file_identifier_cache failed.")
+                                    logging.error(
+                                        "FileMakerWorkstation.export: _transfer_file_identifier_cache failed.")
 
                             else:
                                 logging.error(
@@ -890,6 +894,20 @@ class FileMakerWorkstation(RecordingWorkstation):
                             "Sleeping a bit before starting FileMaker ...")
             time.sleep(seconds)
 
+    def _clear_table_from_initial_records(self,fm, table_name):
+        """
+        deletes all records from the internal fm_initial_records table that belong to a table
+        :param fm: FileMaker instance
+        :param table_name: the table name
+        """
+        try:
+            rowcount = fm.execute(f"{'delete'} from fm_initial_records where tablename=?",[table_name])
+            logging.debug(f"{self.__class__.__name__}._clear_table_from_initial_records: "
+                          f"{rowcount} rows for table {table_name} deleted from fm_initial_records.")
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}._clear_table_from_initial_records: {repr(e)}")
+            raise Exception("_clear_table_from_initial_records failed")
+
     def _transfer_tables_to_filemaker(self, fm: FileMakerControl, callback_progress=None, current_tz=None):
         """ exports the workstation's shadow tables from the master-Model
             to a filemaker database. Requests an open FileMakerControl object.
@@ -929,6 +947,7 @@ class FileMakerWorkstation(RecordingWorkstation):
 
         tables = dsd.list_tables()
         fm.set_constant("sync_tables", "\r".join(tables))
+
         files_table = dsd.files_table.lower()
         c_tables = len(tables) + 2
         c = 0
@@ -951,7 +970,13 @@ class FileMakerWorkstation(RecordingWorkstation):
 
                 report_progress(callback_progress, c * 100 / c_tables, "transfer_tables", f"transferring {table} ...")
 
-                if not self._table_didnt_need_transfer(table) or table.lower() == files_table:
+                if (not self._table_didnt_need_transfer(table)) or table.lower() == files_table:
+                    if kioskstdlib.force_positive_int_from_string(fm.template_version) > 22:
+                        self._clear_table_from_initial_records(fm, table)
+                    else:
+                        logging.debug(f"{self.__class__.__name__}._transfer_tables_to_filemaker: "
+                                      f"skipped deleting initial records for table {table} because of "
+                                      f"template version {fm.template_version}.")
                     if not self._gather_repldata(cur, dsd, table):
                         raise Exception(("FileMakerWorkstation._transfer_tables_to_filemaker: "
                                          "_gather_repldata returned False for table " + table))
@@ -1084,7 +1109,8 @@ class FileMakerWorkstation(RecordingWorkstation):
                       "uid": ("uuid", False),
                       "modified": ("timestamp", True),
                       "modified_tz": ("tz", False),
-                      "modified_by": ("varchar", False)}
+                      "modified_by": ("varchar", False)
+                      }
 
         sql_select = 'SELECT '
         comma = ""
@@ -1551,6 +1577,8 @@ class FileMakerWorkstation(RecordingWorkstation):
                                  f"import will run with user time zone {ws_time_zone.user_tz_iana_name} "
                                  f"and recording time zone {ws_time_zone.user_tz_iana_name}.")
                     self._compare_table_hashes(fm)
+                    if not self._get_table_deletions(fm):
+                        raise Exception("Error in self._get_table_deletions leads to a halt.")
                     if self._import_tables_from_filemaker(fm, ws_time_zone):
                         if self._import_containerfiles_from_filemaker(fm,
                                                                       callback_progress=
@@ -1851,7 +1879,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                 table_hashes = json.loads(table_hashes_str)
 
                 initial_table_hashes_str = fm.get_constant("initial_table_hashes")
-                initial_table_hashes:dict = json.loads(initial_table_hashes_str)
+                initial_table_hashes: dict = json.loads(initial_table_hashes_str)
                 logging.debug(f"{self.__class__.__name__}._compare_table_hashes: "
                               f"initial_table_hashes: {pprint.pformat(initial_table_hashes)}")
                 logging.debug(f"{self.__class__.__name__}._compare_table_hashes: "
@@ -1862,14 +1890,50 @@ class FileMakerWorkstation(RecordingWorkstation):
                     try:
                         modified = table_hashes[inital_table] != initial_hash
                     except Exception as e:
-                        logging.debug(f"{self.__class__.__name__}._compare_table_hashes: Error comparing hashes {repr(e)}")
+                        logging.debug(
+                            f"{self.__class__.__name__}._compare_table_hashes: Error comparing hashes {repr(e)}")
                     self.modified_tables[inital_table] = modified
 
-                logging.debug(f"{self.__class__.__name__}._compare_table_hashes: {pprint.pformat(self.modified_tables)}")
+                logging.debug(
+                    f"{self.__class__.__name__}._compare_table_hashes: {pprint.pformat(self.modified_tables)}")
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}._compare_table_hashes: "
                           f"Outer Exception when comparing hashes, resetting modified_tables: {repr(e)}")
             self.modified_tables = {}
+
+    def _get_table_deletions(self, fm) -> bool:
+        """
+        reads "dropped_records" from filemaker and adds all tables and their deleted uids
+        to the dict self.table_deletions.
+        :param fm: The FileMakerControl instance
+        :return: true on success otherwise stop!
+        :raises: Only Exceptions that ought to abort the calling process.
+
+        """
+        self.table_deletions = None
+        ok = False
+        try:
+            dropped_records = fm.get_constant("dropped_records")
+            err = False
+            if dropped_records is not None:
+                self.table_deletions = {}
+                table_deletions = json.loads(dropped_records)
+                for t,value in table_deletions.items():
+                    if isinstance(value, list):
+                        self.table_deletions[t] = value
+                    else:
+                        logging.warning(
+                            f"{self.__class__.__name__}._get_table_deletions: "
+                            f"invalid dropped_records entry for table {t}: {value}")
+                        err = True
+
+            ok = not err
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}._get_table_deletions: {repr(e)}")
+        if not isinstance(self.table_deletions, dict):
+            logging.info(f"{self.__class__.__name__}._get_table_deletions: no table deletion information in "
+                         f"fm database. It might be an older template.")
+        return ok
 
     def _import_tables_from_filemaker(self, fm, ws_time_zones: KioskTimeZoneInstance):
         """ imports a workstation's filemaker data back into the shadow tables
@@ -1889,7 +1953,17 @@ class FileMakerWorkstation(RecordingWorkstation):
             todo: refactor
         """
 
+        cur = None
         dsd = self._get_workstation_dsd()
+        cfg = SyncConfig.get_config()
+        use_legacy_table_transfer = bool(cfg.filemakerworkstation["use_legacy_table_transfer"]) if cfg.has_key(
+            "filemakerworkstation") else False
+        if self.table_deletions is None or not isinstance(self.table_deletions, dict):
+            use_legacy_table_transfer = True
+            logging.warning(f"{self.__class__.__name__}._import_tables_from_filemaker: "
+                            f"Using legacy import algorithm because no dropped_records information has been provided by "
+                            f"the FileMaker recording app.")
+
         if dsd is None:
             logging.error(("FileMakerWorkstation._import_tables_from_filemaker: "
                            "KioskSQLDb.get_dsd() failed"))
@@ -1907,6 +1981,9 @@ class FileMakerWorkstation(RecordingWorkstation):
                 return False
             ok = True
             c_table = 0
+            fork_time = fm.get_ts_constant("fork_time")
+            if not isinstance(fork_time, datetime.datetime):
+                raise Exception("can't read fork time from FileMaker db")
 
             for table in tables.keys():
                 c_table += 1
@@ -1919,13 +1996,18 @@ class FileMakerWorkstation(RecordingWorkstation):
                         logging.debug(f"{self.__class__.__name__}._import_tables_from_filemaker: skipped {dsd_table} "
                                       f"because it got dropped in the DSD.")
                     else:
-                        ok = self._import_table_from_filemaker(cur, fm, dsd, dsd_table, dsd_version=dsd_version,
-                                                               namespace=ws_namespace, tz=ws_time_zones)
+                        if use_legacy_table_transfer:
+                            ok = self._import_table_from_filemaker(cur, fm, dsd, dsd_table, dsd_version=dsd_version,
+                                                                   namespace=ws_namespace, tz=ws_time_zones)
+                        else:
+                            ok = self._import_table_from_filemaker_v3(cur, fm, dsd, dsd_table, dsd_version=dsd_version,
+                                                                      namespace=ws_namespace, tz=ws_time_zones,
+                                                                      fork_time=fork_time)
                         if not ok:
                             break
                 else:
-                    logging.debug(f"{self.__class__.__name__}._import_tables_from_filemaker: skipped {dsd_table} "
-                                  f"because it was not modified.")
+                    logging.info(f"{self.__class__.__name__}._import_tables_from_filemaker: {dsd_table} skipped "
+                                 f"because it was not modified.")
 
             cur.close()
             if ok:
@@ -1953,7 +2035,8 @@ class FileMakerWorkstation(RecordingWorkstation):
                 logging.error((f"FileMakerWorkstation._import_tables_from_filemaker: "
                                f"rollback (2) failed with {repr(e)}"))
 
-        cur.close()
+        if cur:
+            cur.close()
         return False
 
     def _get_import_tables(self, dsd: DataSetDefinition) -> dict:
@@ -2097,12 +2180,35 @@ class FileMakerWorkstation(RecordingWorkstation):
             value_list.append(value)
             return f"\"{f}\"", "%s"
 
+    def _after_fork_time(self, dsd: DataSetDefinition, dsd_table_name: str, fork_time: datetime.datetime) -> str:
+        """
+
+        :param dsd: the dsd to use
+        :param dsd_table_name: the table name in the dsd
+        :param fork_time: the fork_time in terms of user timezone
+        :return: empty string or a statement that can be used in a where clause
+        """
+
+        modified_field = dsd.get_modified_field(dsd_table_name)
+        return f"\"{modified_field}\" > TIMESTAMP '{fork_time.isoformat(sep=' ')}'"
+
     def _import_table_from_filemaker(self, cur, fm, dsd: DataSetDefinition, dsd_table_name, dsd_version=0,
                                      namespace="", tz: KioskTimeZoneInstance = None):
-        """ transfers the data from a single table of the filemaker-Model
-            back to the workstation's shadow table of the master-Model.
+        """
+            ******* OLD VERSION! ********
 
-            returns true or false, does not catch exceptions.
+                ! It stays in here for reference and as long as it can be reactivated by a configuration key.
+
+                This version has no optimizations. It always transfers all the data
+                from filemaker to Kiosk and then figures out what got deleted, added etc.
+
+
+                transfers the data from a single table of the filemaker-Model
+                back to the workstation's shadow table of the master-Model.
+
+                returns true or false, does not catch exceptions.
+
+            ******* OLD VERSION! ********
 
         .. Note::
 
@@ -2112,9 +2218,8 @@ class FileMakerWorkstation(RecordingWorkstation):
 
             LK: deleted records also get their modification timestamp set 2 seconds forward.
 
-            todo: This needs to check if all tz_index values can be found in kiosk_time_zones
-
         """
+
         assert tz, "obsolete all to _import_table_from_filemaker without time zone information"
         ok = False
         dest_table_name = KioskSQLDb.sql_safe_namespaced_table(namespace=namespace,
@@ -2223,6 +2328,352 @@ class FileMakerWorkstation(RecordingWorkstation):
             if self.fix_import_errors and delete_counter > 0:
                 logging.warning(f" {delete_counter} records in {dsd_table_name} would have been deleted, "
                                 f"but were not because of the import running in repair mode.")
+            else:
+                log_s = log_s + str(delete_counter) + " records deleted."
+            logging.info(log_s)
+        try:
+            fm_cur.close()
+        except Exception as e:
+            pass
+        return ok
+
+    # def _import_table_from_filemaker_v2(self, cur, fm, dsd: DataSetDefinition, dsd_table_name, dsd_version=0,
+    #                                     namespace="", tz: KioskTimeZoneInstance = None,
+    #                                     fork_time=None):
+    #     """ ***************
+    #             intermediary version. Can go if v3 works properly.
+    #         **************
+    #
+    #         transfers the data from a single table of the filemaker-Model
+    #         back to the workstation's shadow table of the master-Model.
+    #
+    #         returns true or false, does not catch exceptions.
+    #
+    #     .. Note::
+    #
+    #         Records that exist in the shadow table but not anymore
+    #         in the filemaker table are assumed to have been deleted. Consequently
+    #         they will be marked using the field repl_deleted in the shadow-table.
+    #
+    #         LK: deleted records also get their modification timestamp set 2 seconds forward.
+    #
+    #         todo: This needs to check if all tz_index values can be found in kiosk_time_zones
+    #
+    #     """
+    #     assert tz, "obsolete all to _import_table_from_filemaker without time zone information"
+    #     assert fork_time, "_import_table_from_filemaker needs a fork time in terms of user time zone"
+    #
+    #     ok = False
+    #     dest_table_name = KioskSQLDb.sql_safe_namespaced_table(namespace=namespace,
+    #                                                            db_table=self._id + "_" + dsd_table_name)
+    #
+    #     # if table_deletions is explicitly None
+    #     # then the FileMaker database did not create a proper dropped_records constant.
+    #     # In that case we must assume here that all tables had potential deletions
+    #     table_has_deletions = self.table_deletions is None or dsd_table_name in self.table_deletions
+    #     if table_has_deletions:
+    #         logging.debug(f"{self.__class__.__name__}._after_fork_time: Table {dsd_table_name} had records deleted."
+    #                       f" The whole table will be imported.")
+    #         sql = f'update {dest_table_name} set "repl_tag"=0'
+    #         cur.execute(sql)
+    #     else:
+    #         logging.debug(f"{self.__class__.__name__}._after_fork_time: Table {dsd_table_name} had no records deleted"
+    #                       f" so only records after {fork_time.isoformat()} will be imported.")
+    #
+    #     update_counter = 0
+    #     insert_counter = 0
+    #
+    #     where_clauses = [
+    #         # this is being used e.g. to suppress records from the "constant" table in FileMaker.
+    #         # Some of those constants are not supposed to be synchronized
+    #         dsd.get_import_filter(dsd_table_name, "fm12"),
+    #
+    #         # if a table had no records deleted only import records that were modified after the fork ts
+    #         None if table_has_deletions else self._after_fork_time(dsd, dsd_table_name, fork_time)
+    #     ]
+    #
+    #     import_filter = " and ".join([x for x in where_clauses if x])
+    #
+    #     # logging.debug(f"{self.__class__.__name__}._import_table_from_filemaker: import_filter is {import_filter}")
+    #     # delete_counter = 0
+    #     fm_cur = fm.select_table_data(dsd, dsd_table_name, version=dsd_version, import_filter=import_filter)
+    #     record_counter = -1
+    #     if not fm_cur:
+    #         logging.error(f"{self.__class__.__name__}._import_table_from_filemaker: "
+    #                       f"select_table_data failed for {dsd_table_name}")
+    #     else:
+    #         ok = True
+    #         fm_rec = fm_cur.fetchone()
+    #         record_counter = 0
+    #
+    #         while ok and fm_rec:
+    #             ok = False
+    #
+    #             uid = fm.getfieldvalue(fm_rec, "uid")
+    #             if uid:
+    #                 # why use this inside the loop? Couldn't the sql be constructed first and then
+    #                 # only the values being gathered inside the loop?
+    #                 sql_insert, insert_values, sql_update, update_values = self._import_table_get_sqls(dest_table_name,
+    #                                                                                                    dsd,
+    #                                                                                                    dsd_table_name,
+    #                                                                                                    dsd_version, fm,
+    #                                                                                                    fm_rec, tz, uid)
+    #                 try:
+    #                     cur.execute(sql_update, update_values)  # attempt to update an existing record
+    #                     # print(cur.query)
+    #                     if cur.rowcount != 0:
+    #                         ok = True
+    #                         update_counter += 1
+    #                     else:
+    #                         # Update had nothing to do, so the record must have been added since the last fork:
+    #                         cur.execute(sql_insert, insert_values)
+    #                         insert_counter += 1
+    #                         ok = True
+    #                 except Exception as e:
+    #                     logging.error(("FileMakerWorkstation._import_table_from_filemaker: "
+    #                                    '_import_table_from_filemaker: Update or insert caused an exception for record ' +
+    #                                    uid + ' in table ' + dsd_table_name + ': ' + repr(e)))
+    #                     logging.debug(f"FileMakerWorkstation._import_table_from_filemaker: sql was {cur.query}")
+    #             else:
+    #                 if self.fix_import_errors:
+    #                     logging.warning(("FileMakerWorkstation._import_table_from_filemaker: "
+    #                                      '_import_table_from_filemaker: Filemaker returned a record in table ' +
+    #                                      dsd_table_name + ' with an empty UID. The record gets skipped due to '
+    #                                                       'importing in repair mode.'))
+    #                     ok = True
+    #                 else:
+    #                     logging.error(("FileMakerWorkstation._import_table_from_filemaker: "
+    #                                    '_import_table_from_filemaker: Filemaker returned a record in table ' +
+    #                                    dsd_table_name + ' with an empty UID. '))
+    #                     self.x_state_info[self.XSTATE_IMPORT_ERROR] = self.IMPORT_ERROR_FM_IMPORT_RECORD
+    #                     ok = False
+    #             if ok:
+    #                 try:
+    #                     fm_rec = fm_cur.fetchone()
+    #                     record_counter += 1
+    #                 except Exception as e:
+    #                     logging.error("FileMakerWorkstation._import_table_from_filemaker: Exception " + repr(e))
+    #                     logging.error(
+    #                         "Exception data: table is " + dsd_table_name + ", uid is " + uid + ". It was record# " +
+    #                         str(record_counter))
+    #                     ok = False
+    #     if ok:
+    #         logging.debug(f"{self.__class__.__name__}._import_table_from_filemaker: "
+    #                       f"{record_counter} records imported from filemaker")
+    #
+    #         delete_counter = 0
+    #         if table_has_deletions:
+    #             if self.fix_import_errors:
+    #                 sql = f'select ' + f'count(*) c from {dest_table_name} where "repl_tag"=0'
+    #                 r = KioskSQLDb.get_first_record_from_sql(sql)
+    #                 if r:
+    #                     delete_counter = r["c"]
+    #             else:
+    #                 # time zone relevance: does the modified manipulation still work? (yup)
+    #                 #  it should, shouldn't it? The fork time in the Kiosk database IS utc (I looked that up)
+    #                 #  and modified is expected to be utc, too.
+    #                 if dsd_table_name == "constants":
+    #                     recs = KioskSQLDb.get_records(
+    #                         f'select ' + f' * from {dest_table_name} where "repl_tag"=0')
+    #                     if recs:
+    #                         for r in recs:
+    #                             try:
+    #                                 logging.info(f"{self.__class__.__name__}._import_table_from_filemaker: "
+    #                                              f"deleting constants record "
+    #                                              f"{''.join(islice(chain.from_iterable((c for c in r if isinstance(c, str))), 25))} ...")
+    #                             except BaseException:
+    #                                 logging.error(f"{self.__class__.__name__}._import_table_from_filemaker: "
+    #                                               f"error on {r}")
+    #
+    #                 sql = f'update ' + f' {dest_table_name} set "repl_deleted"=true,' \
+    #                                    f'"modified"=%s + (interval \'2 seconds\') where "repl_tag"=0'
+    #                 cur.execute(sql, [self.get_fork_time()])
+    #                 delete_counter = cur.rowcount
+    #
+    #         log_s = "_import_table_from_filemaker. Table " + dsd_table_name + ": " + str(
+    #             update_counter) + " records updated, "
+    #         log_s = log_s + str(insert_counter) + " records inserted, "
+    #         if self.fix_import_errors and delete_counter > 0:
+    #             logging.warning(f" {delete_counter} records in {dsd_table_name} would have been deleted, "
+    #                             f"but were not because of the import running in repair mode.")
+    #         else:
+    #             log_s = log_s + str(delete_counter) + " records deleted."
+    #         logging.info(log_s)
+    #     try:
+    #         fm_cur.close()
+    #     except Exception as e:
+    #         pass
+    #     return ok
+
+    def _import_table_from_filemaker_v3(self, cur, fm, dsd: DataSetDefinition, dsd_table_name, dsd_version=0,
+                                        namespace="", tz: KioskTimeZoneInstance = None,
+                                        fork_time=None):
+        """ transfers the data from a single table of the filemaker-Model
+            back to the workstation's shadow table of the master-Model.
+
+            returns true or false, does not catch exceptions.
+
+        .. Note::
+
+            this relies on a filemaker recording app that supports the constant "dropped_records".
+            If dropped_records does not have at least an empty json object {} this defaults to
+            the older _import_table_from_filemaker.
+
+            if dropped_records is there this deletes exactly the records from the shadow tables that are
+            reported to have been deleted by FileMaker.
+            Deleted records get their modification timestamp set 2 seconds forward.
+
+            It also only transfers records that have been added or modified after the fork time.
+
+            todo: This needs to check if all tz_index values can be found in kiosk_time_zones
+
+        """
+        assert tz, "obsolete all to _import_table_from_filemaker_v3 without time zone information"
+        assert fork_time, "_import_table_from_filemaker_v3 needs a fork time in terms of user time zone"
+        # if table_deletions is explicitly None the filemaker database did not provide it. In that case this
+        # method mustn't run.
+        assert isinstance(self.table_deletions, dict)
+        if not dsd_table_name in self.table_deletions.keys():
+            logging.error(f"{self.__class__.__name__}._import_table_from_filemaker_v3: Table {dsd_table_name} "
+                          f"is not listed in "
+                          f"dropped_records. It should at least be listed with an empty array.")
+            return False
+        table_deletions = self.table_deletions[dsd_table_name]
+        if not isinstance(table_deletions, list):
+            logging.error(
+                f"{self.__class__.__name__}._import_table_from_filemaker_v3: Table {dsd_table_name} is listed in "
+                f"dropped_records but not in the right way: {table_deletions}")
+            return False
+
+        ok = False
+        dest_table_name = KioskSQLDb.sql_safe_namespaced_table(namespace=namespace,
+                                                               db_table=self._id + "_" + dsd_table_name)
+        update_counter = 0
+        insert_counter = 0
+        delete_counter = 0
+
+        where_clauses = [
+            # this is being used e.g. to suppress records from the "constant" table in FileMaker.
+            # Some of those constants are not supposed to be synchronized
+            dsd.get_import_filter(dsd_table_name, "fm12"),
+            self._after_fork_time(dsd, dsd_table_name, fork_time)
+        ]
+
+        import_filter = " and ".join([x for x in where_clauses if x])
+
+        # logging.debug(f"{self.__class__.__name__}._import_table_from_filemaker_v3: import_filter is {import_filter}")
+        # delete_counter = 0
+        fm_cur = fm.select_table_data(dsd, dsd_table_name, version=dsd_version, import_filter=import_filter)
+        record_counter = -1
+
+        ###
+        ### update and add records
+        ###
+
+        if not fm_cur:
+            logging.error(f"{self.__class__.__name__}._import_table_from_filemaker_v3: "
+                          f"select_table_data failed for {dsd_table_name}")
+        else:
+            ok = True
+            fm_rec = fm_cur.fetchone()
+            record_counter = 0
+
+            while ok and fm_rec:
+                ok = False
+
+                uid = fm.getfieldvalue(fm_rec, "uid")
+                if uid:
+                    # why use this inside the loop? Couldn't the sql be constructed first and then
+                    # only the values being gathered inside the loop?
+                    sql_insert, insert_values, sql_update, update_values = self._import_table_get_sqls(dest_table_name,
+                                                                                                       dsd,
+                                                                                                       dsd_table_name,
+                                                                                                       dsd_version, fm,
+                                                                                                       fm_rec, tz, uid)
+                    try:
+                        cur.execute(sql_update, update_values)  # attempt to update an existing record
+                        # print(cur.query)
+                        if cur.rowcount != 0:
+                            ok = True
+                            update_counter += 1
+                        else:
+                            # Update had nothing to do, so the record must have been added since the last fork:
+                            cur.execute(sql_insert, insert_values)
+                            insert_counter += 1
+                            ok = True
+                    except Exception as e:
+                        logging.error(("FileMakerWorkstation._import_table_from_filemaker_v3: "
+                                       '_import_table_from_filemaker_v3: Update or insert caused an exception for record ' +
+                                       uid + ' in table ' + dsd_table_name + ': ' + repr(e)))
+                        logging.debug(f"FileMakerWorkstation._import_table_from_filemaker_v3: sql was {cur.query}")
+                else:
+                    if self.fix_import_errors:
+                        logging.warning(("FileMakerWorkstation._import_table_from_filemaker_v3: "
+                                         '_import_table_from_filemaker_v3: Filemaker returned a record in table ' +
+                                         dsd_table_name + ' with an empty UID. The record gets skipped due to '
+                                                          'importing in repair mode.'))
+                        ok = True
+                    else:
+                        logging.error(("FileMakerWorkstation._import_table_from_filemaker_v3: "
+                                       '_import_table_from_filemaker_v3: Filemaker returned a record in table ' +
+                                       dsd_table_name + ' with an empty UID. '))
+                        self.x_state_info[self.XSTATE_IMPORT_ERROR] = self.IMPORT_ERROR_FM_IMPORT_RECORD
+                        ok = False
+                if ok:
+                    try:
+                        fm_rec = fm_cur.fetchone()
+                        record_counter += 1
+                    except Exception as e:
+                        logging.error("FileMakerWorkstation._import_table_from_filemaker_v3: Exception " + repr(e))
+                        logging.error(
+                            "Exception data: table is " + dsd_table_name + ", uid is " + uid + ". It was record# " +
+                            str(record_counter))
+                        ok = False
+
+        ###
+        ### delete records
+        ###
+
+        if ok:
+            logging.debug(f"{self.__class__.__name__}._import_table_from_filemaker_v3: "
+                          f"{record_counter} records transferred from filemaker")
+
+            logging.debug(f"{self.__class__.__name__}._import_table_from_filemaker_v3: "
+                          f"deleting from table {dsd_table_name}: {pprint.pformat(table_deletions)}")
+            if table_deletions:
+                if self.fix_import_errors:
+                    delete_counter = len(table_deletions)
+                else:
+                    # time zone relevance: does the modified manipulation still work? (yup)
+                    #  it should, shouldn't it? The fork time in the Kiosk database IS utc (I looked that up)
+                    #  and modified is expected to be utc, too.
+                    if dsd_table_name == "constants":
+                        recs = KioskSQLDb.get_records(
+                            f'select ' + f' * from {dest_table_name} where uid::varchar = ANY(%s)', (table_deletions,))
+                        if recs:
+                            for r in recs:
+                                try:
+                                    sample = ''.join(
+                                        islice(chain.from_iterable((c for c in r if isinstance(c, str))), 25)
+                                    )
+                                    logging.info(f"{self.__class__.__name__}._import_table_from_filemaker_v3: "
+                                                 f"deleting constants record "
+                                                 f"{sample} ...")
+                                except BaseException:
+                                    logging.error(f"{self.__class__.__name__}._import_table_from_filemaker_v3: "
+                                                  f"error on {r}")
+
+                    sql = f'update ' + f' {dest_table_name} set "repl_deleted"=true,' \
+                                       f'"modified"=%s + (interval \'2 seconds\') where uid::varchar = ANY(%s)'
+                    cur.execute(sql, [self.get_fork_time(), table_deletions])
+                    delete_counter = cur.rowcount
+
+            log_s = "_import_table_from_filemaker_v3. Table " + dsd_table_name + ": " + str(
+                update_counter) + " records updated, "
+            log_s = log_s + str(insert_counter) + " records inserted, "
+            if self.fix_import_errors and delete_counter > 0:
+                logging.warning(f" {delete_counter} records in {dsd_table_name} would have been deleted, "
+                                f"but were not because the import is running in repair mode.")
             else:
                 log_s = log_s + str(delete_counter) + " records deleted."
             logging.info(log_s)
@@ -2433,7 +2884,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                               f"cannot create directory {dest_dir}: {repr(e)}")
                 return False
 
-        dest_file = os.path.join(dest_dir, SyncConfig.get_config().filemaker_db_filename)
+        dest_file = os.path.join(str(dest_dir), SyncConfig.get_config().filemaker_db_filename)
         if path.isfile(dest_file):
             try:
                 os.remove(dest_file)

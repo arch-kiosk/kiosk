@@ -59,7 +59,7 @@ config:
   filemaker_export_dir: '%sync%\filemaker\to_work_station'
   filemaker_import_dir: '%sync%\filemaker\from_work_station'
   filemaker_encoding: "UTF-8"
-  expected_filemaker_template_version: '22'
+  expected_filemaker_template_version: '23'
   filemaker_template: '%sync%\filemaker\%project_id%_recording_template.fmp12'
   filemaker_db_filename: '%project_id%_recording.fmp12'
 
@@ -161,6 +161,9 @@ file_repository:
     NEFTIF:
       "NEF": "JPEG"
       "TIFF": "JPEG"
+
+filemakerrecording:
+  use_legacy_table_transfer: False
 
 fileexportworkstation:
   plugins: [ "fileexportcsvdriver","fileexportexceldriver", "fileexportjsondriver" ]
