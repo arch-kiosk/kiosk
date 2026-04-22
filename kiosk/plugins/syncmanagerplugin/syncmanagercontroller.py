@@ -140,8 +140,10 @@ def workstation_log(ws_id):
                     msg = job.mcp_job.result["message"]
                     has_errors = True
             if not msg:
-                if "has_warnings" in job.mcp_job.result:
+                if "has_warnings" in job.mcp_job.result and job.mcp_job.result["has_warnings"]:
                     msg = "The last action was successful but returned warnings"
+                elif "show_details" in job.mcp_job.result and job.mcp_job.result["show_details"]:
+                    msg = "The last action was successful. These are the details:"
     return render_template('workstationlog.html', ws=ws, log=log, has_errors=has_errors, msg=msg)
 
 

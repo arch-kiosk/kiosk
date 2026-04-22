@@ -3,6 +3,7 @@ import logging
 import pprint
 
 import flask
+import flask_login
 from flask import url_for, request
 from flask_allows import requires
 from flask_login import current_user
@@ -178,8 +179,11 @@ class V1SyncManagerWorkstations(Resource):
         '''
         try:
             cfg = KioskConfig.get_config()
-
             sync_manager = KioskSyncManager(kioskglobals.type_repository)
+            if not current_user.is_authenticated:
+                httpauth_user = kioskglobals.httpauth.current_user()
+                if httpauth_user:
+                    flask_login.login_user(httpauth_user)
 
 
             result = self.gather_workstation_information(sync_manager)

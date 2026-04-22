@@ -2,10 +2,7 @@
 // import {developMode} from './lib/const.js'
 // @ts-ignore
 import tagStyle from './component-workstationlist.sass';
-//@ts-ignore
-import {FetchException} from "../../../../static/scripts/kioskapputils.js"
-//@ts-ignore
-import { KioskApp } from "../kioskapplib/kioskapp";
+import { FetchException, KioskAppComponent } from "@arch-kiosk/kiosktsapplib";
 // import {store} from "./store/store.ts";
 import {Workstation} from "./lib/workstation";
 
@@ -23,9 +20,7 @@ import {
 import "./workstationcard.ts"
 
 //@ts-ignore
-import {appGetKioskRoute as kioskAppGetKioskRoute, fetchSomething} from "../../../../static/scripts/kioskapputils.js"
-// @ts-ignore
-import {devGetKioskRoute} from "./lib/devapputils";
+// import {appGetKioskRoute as kioskAppGetKioskRoute, fetchSomething} from "../../../../static/scripts/kioskapputils.js"
 import { html, unsafeCSS } from "lit";
 import { customElement } from 'lit/decorators.js';
 
@@ -33,7 +28,7 @@ import { customElement } from 'lit/decorators.js';
 import local_css from "./component-workstationlist.sass?inline";
 
 @customElement('workstation-list')
-class WorkstationList extends KioskApp {
+export class WorkstationList extends KioskAppComponent {
     static styles = unsafeCSS(local_css);
     fetching: boolean = false
     fetch_error: string = ""
@@ -105,6 +100,7 @@ class WorkstationList extends KioskApp {
         data.forEach((r: any) => {
             let workstation = new Workstation()
             workstation.from_dict(r)
+            console.log(r)
             // if a workstation has no description it is either a workstation in the making or deleted
             if (workstation.description || workstation.job_status_code != JOB_STATUS_DONE) {
                 console.log(`pushing workstation ${workstation.workstation_id}`)

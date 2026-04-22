@@ -7,10 +7,9 @@ import { customElement } from "lit/decorators.js";
 import local_css from "./component-workstationcard.sass?inline";
 
 import {
-    fetchFromApi,
+    KioskAppComponent,
     FetchException,
-    // @ts-ignore
-} from "../../../../static/scripts/kioskapputils.js";
+} from "@arch-kiosk/kiosktsapplib";
 
 // @ts-ignore
 import tagStyle from "./component-workstationcard.sass";
@@ -28,11 +27,10 @@ import {
 import { Workstation } from "./lib/workstation";
 import { kioskErrorToast, kioskOpenModalDialog, kioskYesNoToast } from "./lib/types/externalglobalfunctions";
 import "./progress-ring/progress-ring";
-import { KioskApp } from "../kioskapplib/kioskapp";
 import { showMessage } from "./lib/appmessaging";
 
 @customElement("workstation-card")
-class WorkstationCard extends KioskApp {
+export class WorkstationCard extends KioskAppComponent {
     static styles = unsafeCSS(local_css);
 
     fetching: boolean = false;
@@ -44,6 +42,7 @@ class WorkstationCard extends KioskApp {
     jobMessage: string = "";
     jobError: string = "";
     jobHasWarnings: boolean = false;
+    jobAsksToShowLog: boolean = false;
     jobIsRunning: boolean = false;
     jobGotCanceled: boolean = false;
     constructor() {
@@ -134,7 +133,7 @@ class WorkstationCard extends KioskApp {
                         <span>[${this.workstation_id}]</span>
                     </div>
                 </div>
-                ${this.showJobInfo && (!this.jobHasWarnings || this.jobError)
+                ${(this.showJobInfo && (!this.jobHasWarnings  && !this.jobAsksToShowLog)) || this.jobError
                     ? html`
                           ${this.jobError
                               ? html` <div class="title-state error">${this.jobError}</div>`
@@ -154,11 +153,11 @@ class WorkstationCard extends KioskApp {
                                       ? html`<p>The last task was successful but returned warnings</p>`
                                       : html`${this.jobGotCanceled
                                             ? html`<p>
-                                                  <span class="job-cancelled-label">The last task got cancelled</span>
+                                                  <span class="job-cancelled-label">The last task got canceled</span>
                                               </p>`
                                             : undefined}`}
-                                  ${this.jobError ? html`<p>There is more information available.</p>` : undefined}
-                                  ${this.jobError || this.jobHasWarnings
+                                  ${this.jobError || this.jobAsksToShowLog? html`<p>There is more information available.</p>` : undefined}
+                                  ${this.jobError || this.jobHasWarnings || this.jobAsksToShowLog
                                       ? html` <button @click=${this.showLog} class="kiosk-btn job-info error">
                                             <i class="fas fa-bug"></i>
                                             <div>See details</div>
@@ -173,7 +172,7 @@ class WorkstationCard extends KioskApp {
                               </div>
                           </div>`
                         : undefined}
-                    ${this.showJobInfo && !this.jobError && !this.jobHasWarnings
+                    ${this.showJobInfo && !this.jobError && !this.jobHasWarnings && !this.jobAsksToShowLog
                         ? html` <div class="job-info">
                               <sl-progress-ring percentage="${this.percentage}" size="54" stroke-width="6">
                                   ${this.percentage > 0 ? html`${this.percentage}%` : undefined}
@@ -217,7 +216,8 @@ class WorkstationCard extends KioskApp {
                         this.percentage = 100;
                         this.jobMessage = "finished";
                         if (this.workstation_data.job_result.has_warnings) this.jobHasWarnings = true;
-                        this.showJobInfo = this.jobHasWarnings;
+                        this.jobAsksToShowLog = this.workstation_data.job_result.show_details ?? false
+                        this.showJobInfo = this.jobHasWarnings || this.jobAsksToShowLog;
                     } else {
                         this.percentage = job_progress.progress;
                         this.jobMessage = "click to see details";

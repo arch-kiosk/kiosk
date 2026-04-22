@@ -295,6 +295,12 @@
   display: none;
 }
 
+.wslog-emphasize {
+  background-color: var(--col-bg-ack-lighter);
+  color: var(--col-primary-bg-ack);
+  font-weight: bold;
+}
+
 .wslog-warning {
   background-color: var(--col-bg-att);
   color: var(--col-primary-bg-att);

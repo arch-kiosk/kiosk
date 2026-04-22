@@ -67,6 +67,9 @@
       let lines = $(".wslog-line")
       lines.each(function() {
         const text = $(this).text().trim();
+        if (text.includes('!!')) {
+            $(this).text(text.replace("!!", ""))
+        }
         console.log(text);
         if (/error/i.test(text))
           $(this).addClass("wslog-error")
@@ -74,7 +77,10 @@
           if (/warning/i.test(text))
             $(this).addClass("wslog-warning")
           else
-            $(this).addClass("wslog-info")
+              if (/[\u200b]|!!/.test(text))
+                $(this).addClass("wslog-emphasize")
+              else
+                  $(this).addClass("wslog-info")
 
 
       })
