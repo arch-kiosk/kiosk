@@ -7,9 +7,9 @@
         <!--suppress HtmlUnknownTarget -->
         <link rel="stylesheet" href="<%- VITE_KIOSK_BASE_URL %>static/styles.css" />
         <% if ( VITE_MODE == "DEVELOPMENT") { %>
-        <script src="http://localhost:5000/static/scripts/jquery.js"></script>
-        <script src="http://localhost:5000/static/scripts/thirdparty/jquery.magnific-popup.js"></script>
-        <script src="http://localhost:5000/static/scripts/thirdparty/izi-toast/iziToast.js"></script>
+        <script src="/src/assets/jquery.js"></script>
+        <script src="/src/assets/jquery.magnific-popup.js"></script>
+        <script src="/src/assets/iziToast.js"></script>
         <script src="http://localhost:5000/kioskfilemakerworkstation/static/scripts/kioskfilemakerworkstationactions.js"></script>
         <script src="/src/assets/devkiosktoast.js"></script>
         <script src="/src/assets/webappkioskenvironment.js"></script>
@@ -23,10 +23,10 @@
         </style>
     </head>
     <body>
-
         <syncmanager-app id="kiosk-app" showprogress="true"></syncmanager-app>
     </body>
     <script type="module" src="/src/app.ts"></script>
     <script type="module" src="/kioskdevstarter.ts"></script>
+    <!--suppress JSUnresolvedLibraryURL -->
     <script src="http://localhost:5000/static/scripts/kiosklastscript.js"></script>
 </html>

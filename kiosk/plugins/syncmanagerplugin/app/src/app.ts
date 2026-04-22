@@ -1,12 +1,11 @@
-import { KioskApp } from "../kioskapplib/kioskapp";
+import { FetchException, KioskApp } from "@arch-kiosk/kiosktsapplib";
 import { DateTime } from "luxon";
 import { html, unsafeCSS } from "lit";
 import {state} from 'lit/decorators.js'
 import "./workstationlist.ts"
 
-// import local_css from "/src/static/logviewerapp.sass?inline";
-// @ts-ignore
 import local_css from "./component-syncmanagerapp.sass?inline";
+import { handleCommonFetchErrors } from "./lib/applib";
 
 export class SyncManagerApp extends KioskApp {
     static styles = unsafeCSS(local_css);
@@ -32,6 +31,9 @@ export class SyncManagerApp extends KioskApp {
         if (_changedProperties.has("apiContext") ) {
             if (this.apiContext ) console.log("starting app");
         }
+    }
+    apiConnected() {
+        super.apiConnected();
     }
 
     protected reloadClicked(e: Event) {
@@ -73,7 +75,9 @@ export class SyncManagerApp extends KioskApp {
         }
         let toolbar = this.render_toolbar()
         let app = html`
-            <workstation-list id="workstation-list" .apiContext=${this.apiContext} @syncmanagerinfo="${this.syncManagerInfoReceived}"></workstation-list>`
+            <workstation-list id="workstation-list" .apiContext=${this.apiContext} 
+                              @syncmanagerinfo="${this.syncManagerInfoReceived}">
+            </workstation-list>`
         return html`${dev}${toolbar}${app}`
     }
 }

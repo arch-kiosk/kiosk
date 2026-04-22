@@ -22,7 +22,7 @@ let Xs = class {
     return this.cssText;
   }
 };
-const Ae = (r) => new Xs(typeof r == "string" ? r : r + "", void 0, Lr), en = (r, e) => {
+const De = (r) => new Xs(typeof r == "string" ? r : r + "", void 0, Lr), en = (r, e) => {
   if (Wt) r.adoptedStyleSheets = e.map((t) => t instanceof CSSStyleSheet ? t : t.styleSheet);
   else for (const t of e) {
     const s = document.createElement("style"), n = qe.litNonce;
@@ -31,7 +31,7 @@ const Ae = (r) => new Xs(typeof r == "string" ? r : r + "", void 0, Lr), en = (r
 }, Xt = Wt ? (r) => r : (r) => r instanceof CSSStyleSheet ? ((e) => {
   let t = "";
   for (const s of e.cssRules) t += s.cssText;
-  return Ae(t);
+  return De(t);
 })(r) : r;
 /**
  * @license
@@ -1120,7 +1120,7 @@ function In() {
   return $e || ($e = new Intl.DateTimeFormat().resolvedOptions().locale, $e);
 }
 let ur = {};
-function Dn(r) {
+function An(r) {
   let e = ur[r];
   if (!e) {
     const t = new Intl.Locale(r);
@@ -1128,7 +1128,7 @@ function Dn(r) {
   }
   return e;
 }
-function An(r) {
+function Dn(r) {
   const e = r.indexOf("-x-");
   e !== -1 && (r = r.substring(0, e));
   const t = r.indexOf("-u-");
@@ -1264,7 +1264,7 @@ class v {
     return v.create(e, t, s, n);
   }
   constructor(e, t, s, n, o) {
-    const [i, a, l] = An(e);
+    const [i, a, l] = Dn(e);
     this.locale = i, this.numberingSystem = t || a || null, this.outputCalendar = s || l || null, this.weekSettings = n, this.intl = Wn(this.locale, this.numberingSystem, this.outputCalendar), this.weekdaysCache = { format: {}, standalone: {} }, this.monthsCache = { format: {}, standalone: {} }, this.meridiemCache = null, this.eraCache = {}, this.specifiedLocale = o, this.fastNumbersCached = null;
   }
   get fastNumbers() {
@@ -1347,7 +1347,7 @@ class v {
     return this.locale === "en" || this.locale.toLowerCase() === "en-us" || new Intl.DateTimeFormat(this.intl).resolvedOptions().locale.startsWith("en-us");
   }
   getWeekSettings() {
-    return this.weekSettings ? this.weekSettings : ys() ? Dn(this.locale) : jn;
+    return this.weekSettings ? this.weekSettings : ys() ? An(this.locale) : jn;
   }
   getStartOfWeek() {
     return this.getWeekSettings().firstDay;
@@ -1597,7 +1597,7 @@ let le = {};
 function qn() {
   le = {};
 }
-function A({ numberingSystem: r }, e = "") {
+function D({ numberingSystem: r }, e = "") {
   const t = r || "latn";
   return le[t] || (le[t] = {}), le[t][e] || (le[t][e] = new RegExp(`${Rt[t]}${e}`)), le[t][e];
 }
@@ -1775,7 +1775,7 @@ function Ut(r, e) {
 function et(r, e = 4, t = 1) {
   const { year: s, month: n, day: o } = r, i = fs(s, n, o), a = Ut(Lt(s, n, o), t);
   let l = Math.floor((i - a + 14 - e) / 7), c;
-  return l < 1 ? (c = s - 1, l = De(c, e, t)) : l > De(s, e, t) ? (c = s + 1, l = 1) : c = s, { weekYear: c, weekNumber: l, weekday: a, ...ct(r) };
+  return l < 1 ? (c = s - 1, l = Ae(c, e, t)) : l > Ae(s, e, t) ? (c = s + 1, l = 1) : c = s, { weekYear: c, weekNumber: l, weekday: a, ...ct(r) };
 }
 function vr(r, e = 4, t = 1) {
   const { weekYear: s, weekNumber: n, weekday: o } = r, i = Ut(Lt(s, 1, e), t), a = de(s);
@@ -1806,23 +1806,23 @@ function xr(r, e) {
     return { minDaysInFirstWeek: 4, startOfWeek: 1 };
 }
 function Yn(r, e = 4, t = 1) {
-  const s = it(r.weekYear), n = D(
+  const s = it(r.weekYear), n = A(
     r.weekNumber,
     1,
-    De(r.weekYear, e, t)
-  ), o = D(r.weekday, 1, 7);
+    Ae(r.weekYear, e, t)
+  ), o = A(r.weekday, 1, 7);
   return s ? n ? o ? !1 : I("weekday", r.weekday) : I("week", r.weekNumber) : I("weekYear", r.weekYear);
 }
 function Gn(r) {
-  const e = it(r.year), t = D(r.ordinal, 1, de(r.year));
+  const e = it(r.year), t = A(r.ordinal, 1, de(r.year));
   return e ? t ? !1 : I("ordinal", r.ordinal) : I("year", r.year);
 }
 function ms(r) {
-  const e = it(r.year), t = D(r.month, 1, 12), s = D(r.day, 1, tt(r.year, r.month));
+  const e = it(r.year), t = A(r.month, 1, 12), s = A(r.day, 1, tt(r.year, r.month));
   return e ? t ? s ? !1 : I("day", r.day) : I("month", r.month) : I("year", r.year);
 }
 function bs(r) {
-  const { hour: e, minute: t, second: s, millisecond: n } = r, o = D(e, 0, 23) || e === 24 && t === 0 && s === 0 && n === 0, i = D(t, 0, 59), a = D(s, 0, 59), l = D(n, 0, 999);
+  const { hour: e, minute: t, second: s, millisecond: n } = r, o = A(e, 0, 23) || e === 24 && t === 0 && s === 0 && n === 0, i = A(t, 0, 59), a = A(s, 0, 59), l = A(n, 0, 999);
   return o ? i ? a ? l ? !1 : I("millisecond", n) : I("second", s) : I("minute", t) : I("hour", e);
 }
 function m(r) {
@@ -1875,7 +1875,7 @@ function Ct(r) {
     return null;
   if (typeof r != "object")
     throw new O("Week settings must be an object");
-  if (!D(r.firstDay, 1, 7) || !D(r.minimalDays, 1, 7) || !Array.isArray(r.weekend) || r.weekend.some((e) => !D(e, 1, 7)))
+  if (!A(r.firstDay, 1, 7) || !A(r.minimalDays, 1, 7) || !Array.isArray(r.weekend) || r.weekend.some((e) => !A(e, 1, 7)))
     throw new O("Invalid week settings");
   return {
     firstDay: r.firstDay,
@@ -1883,7 +1883,7 @@ function Ct(r) {
     weekend: Array.from(r.weekend)
   };
 }
-function D(r, e, t) {
+function A(r, e, t) {
   return it(r) && r >= e && r <= t;
 }
 function Xn(r, e) {
@@ -1937,7 +1937,7 @@ function at(r) {
 function Tr(r, e, t) {
   return -Ut(Lt(r, 1, e), t) + e - 1;
 }
-function De(r, e = 4, t = 1) {
+function Ae(r, e = 4, t = 1) {
   const s = Tr(r, e, t), n = Tr(r + 1, e, t);
   return (de(r) - s + n) / 7;
 }
@@ -2481,7 +2481,7 @@ function Io(r) {
   const [, e, t, s, n, o, i, a] = r;
   return [qt(e, a, t, s, n, o, i), N.utcInstance];
 }
-const Do = be(go, Ht), Ao = be(mo, Ht), Wo = be(bo, Ht), Fo = be(Ms), Ds = pe(
+const Ao = be(go, Ht), Do = be(mo, Ht), Wo = be(bo, Ht), Fo = be(Ms), As = pe(
   wo,
   ke,
   ze,
@@ -2504,8 +2504,8 @@ const Do = be(go, Ht), Ao = be(mo, Ht), Wo = be(bo, Ht), Fo = be(Ms), Ds = pe(
 function Lo(r) {
   return ye(
     r,
-    [Do, Ds],
-    [Ao, Vo],
+    [Ao, As],
+    [Do, Vo],
     [Wo, zo],
     [Fo, Ro]
   );
@@ -2536,11 +2536,11 @@ const qo = be(ko, vo), Yo = be(Is), Go = pe(
 function Jo(r) {
   return ye(
     r,
-    [qo, Ds],
+    [qo, As],
     [Yo, Go]
   );
 }
-const Or = "Invalid Duration", As = {
+const Or = "Invalid Duration", Ds = {
   weeks: {
     days: 7,
     hours: 7 * 24,
@@ -2585,7 +2585,7 @@ const Or = "Invalid Duration", As = {
     seconds: 30 * 24 * 60 * 60,
     milliseconds: 30 * 24 * 60 * 60 * 1e3
   },
-  ...As
+  ...Ds
 }, M = 146097 / 400, ne = 146097 / 4800, Ko = {
   years: {
     quarters: 4,
@@ -2614,7 +2614,7 @@ const Or = "Invalid Duration", As = {
     seconds: ne * 24 * 60 * 60,
     milliseconds: ne * 24 * 60 * 60 * 1e3
   },
-  ...As
+  ...Ds
 }, Q = [
   "years",
   "quarters",
@@ -3933,7 +3933,7 @@ function ii(r) {
   return r.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
 }
 function ai(r, e) {
-  const t = A(e), s = A(e, "{2}"), n = A(e, "{3}"), o = A(e, "{4}"), i = A(e, "{6}"), a = A(e, "{1,2}"), l = A(e, "{1,3}"), c = A(e, "{1,6}"), d = A(e, "{1,9}"), h = A(e, "{2,4}"), y = A(e, "{4,6}"), f = (z) => ({ regex: RegExp(ii(z.val)), deser: ([se]) => se, literal: !0 }), re = ((z) => {
+  const t = D(e), s = D(e, "{2}"), n = D(e, "{3}"), o = D(e, "{4}"), i = D(e, "{6}"), a = D(e, "{1,2}"), l = D(e, "{1,3}"), c = D(e, "{1,6}"), d = D(e, "{1,9}"), h = D(e, "{2,4}"), y = D(e, "{4,6}"), f = (z) => ({ regex: RegExp(ii(z.val)), deser: ([se]) => se, literal: !0 }), re = ((z) => {
     if (r.literal)
       return f(z);
     switch (z.val) {
@@ -4271,7 +4271,7 @@ function Ze(r, e) {
 function Ge(r, e, t) {
   return js(at(r), e, t);
 }
-function Dr(r, e) {
+function Ar(r, e) {
   const t = r.o, s = r.c.year + Math.trunc(e.years), n = r.c.month + Math.trunc(e.months) + Math.trunc(e.quarters) * 3, o = {
     ...r.c,
     year: s,
@@ -4316,7 +4316,7 @@ function xt(r, e) {
   let s = "";
   return t && r.c.year >= 0 && (s += "+"), s += T(r.c.year, t ? 6 : 4), e ? (s += "-", s += T(r.c.month), s += "-", s += T(r.c.day)) : (s += T(r.c.month), s += T(r.c.day)), s;
 }
-function Ar(r, e, t, s, n, o) {
+function Dr(r, e, t, s, n, o) {
   let i = T(r.c.hour);
   return e ? (i += ":", i += T(r.c.minute), (r.c.millisecond !== 0 || r.c.second !== 0 || !t) && (i += ":")) : i += T(r.c.minute), (r.c.millisecond !== 0 || r.c.second !== 0 || !t) && (i += T(r.c.second), (r.c.millisecond !== 0 || !s) && (i += ".", i += T(r.c.millisecond, 3))), n && (r.isOffsetFixed && r.offset === 0 && !o ? i += "Z" : r.o < 0 ? (i += "-", i += T(Math.trunc(-r.o / 60)), i += ":", i += T(Math.trunc(-r.o % 60))) : (i += "+", i += T(Math.trunc(r.o / 60)), i += ":", i += T(Math.trunc(r.o % 60)))), o && (i += "[" + r.zone.ianaName + "]"), i;
 }
@@ -5139,7 +5139,7 @@ class g {
    * @type {number}
    */
   get weeksInWeekYear() {
-    return this.isValid ? De(this.weekYear) : NaN;
+    return this.isValid ? Ae(this.weekYear) : NaN;
   }
   /**
    * Returns the number of weeks in this DateTime's local week year
@@ -5148,7 +5148,7 @@ class g {
    * @type {number}
    */
   get weeksInLocalWeekYear() {
-    return this.isValid ? De(
+    return this.isValid ? Ae(
       this.localWeekYear,
       this.loc.getMinDaysInFirstWeek(),
       this.loc.getStartOfWeek()
@@ -5276,7 +5276,7 @@ class g {
   plus(e) {
     if (!this.isValid) return this;
     const t = p.fromDurationLike(e);
-    return B(this, Dr(this, t));
+    return B(this, Ar(this, t));
   }
   /**
    * Subtract a period of time to this DateTime and return the resulting DateTime
@@ -5287,7 +5287,7 @@ class g {
   minus(e) {
     if (!this.isValid) return this;
     const t = p.fromDurationLike(e).negate();
-    return B(this, Dr(this, t));
+    return B(this, Ar(this, t));
   }
   /**
    * "Set" this DateTime to the beginning of a unit of time.
@@ -5427,7 +5427,7 @@ class g {
       return null;
     const i = e === "extended";
     let a = xt(this, i);
-    return a += "T", a += Ar(this, i, t, s, n, o), a;
+    return a += "T", a += Dr(this, i, t, s, n, o), a;
   }
   /**
    * Returns an ISO 8601-compliant string representation of this DateTime's date component
@@ -5471,7 +5471,7 @@ class g {
     extendedZone: o = !1,
     format: i = "extended"
   } = {}) {
-    return this.isValid ? (n ? "T" : "") + Ar(
+    return this.isValid ? (n ? "T" : "") + Dr(
       this,
       i === "extended",
       t,
@@ -6134,10 +6134,10 @@ function Ci(r) {
   window.location.href = r;
 }
 const Mi = '.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}p,div{padding:0;margin:0;border:0px;user-select:text;-webkit-user-select:text}select{user-select:none;-webkit-user-select:none}.fa,.fas{font-family:"Font Awesome 5 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-reload:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-bug:before{content:""}.fa-lightbulb:before{content:""}p,div{-webkit-user-select:none;user-select:none}.workstation-card{background:linear-gradient(to right bottom,var(--col-bg-1-darker),var(--col-bg-1-lighter));font-family:var(--standard-text-font);padding:.5em;border:2px solid var(--col-bg-1-darker);border-radius:5px;box-shadow:3px 3px 4px -2px var(--col-bg-1-darker);cursor:pointer}.workstation-card:hover,.workstation-cardfocus{background:var(--col-bg-1-lighter);border:2px solid var(--col-bg-btn);box-shadow:0 0 6px 1px var(--col-bg-btn)}.workstation-card:active{background:var(--col-bg-1-darker);border:2px solid var(--col-bg-body);box-shadow:0 0 6px 1px var(--col-bg-body)}.workstation-card.workstation-disabled{opacity:.75}.card-header{display:flex;flex-direction:row;align-items:center;padding:.25em;margin-bottom:.25em;background-color:var(--col-bg-1-darker)}.card-icon{font-size:32px;line-height:36px;color:var(--col-primary-bg-1);width:36px;height:36px}.title{margin-left:1em;font-weight:700;color:var(--col-primary-bg-1);display:flex;flex-direction:row;justify-content:space-between;width:100%;white-space:pre-wrap}.title span{display:block}.title span:nth-child(1){color:var(--col-accent-bg-1)}.title span:nth-child(2){padding-right:.5em}.title-state{background-color:var(--col-bg-ack);color:var(--col-primary-bg-ack);text-align:center;padding:.25em 0}.title-state.processing{background-color:var(--col-bg-att);color:var(--col-primary-bg-att)}.title-state.error{background-color:var(--col-bg-alert);color:var(--col-primary-bg-alert)}.kiosk-btn{border-radius:5px;border-style:solid;border-width:2px;background-color:var(--col-bg-btn);color:var(--col-primary-bg-btn);border-color:var(--col-bg-btn-darker);cursor:pointer;white-space:nowrap}.kiosk-btn:hover,.kiosk-btn:focus{outline:none;background-color:var(--col-bg-btn-lighter)}.kiosk-btn:active{margin-bottom:0;margin-top:2px;padding-left:2px;color:var(--col-primary-bg-btn);background-color:var(--col-bg-ack);border-color:var(--col-bg-ack-darker)}.kiosk-btn *{user-select:none;-moz-user-select:none;-webkit-user-select:none}.card-body{display:flex;flex-direction:row;margin-top:.5em}@media only screen and (max-width : 900px){.card-body{flex-direction:column}}.card-body .ws-info{display:flex;flex-direction:column;justify-content:center;height:100%}.card-body .ws-info>div{text-align:center}.card-body .job-info{display:flex;flex-direction:row;align-items:center;margin-left:.25em}@media only screen and (max-width : 900px){.card-body .job-info{margin-top:.25em;margin-left:0}}.card-body .job-info.error{font-size:1em}.card-body .job-info i{margin-right:.5em;margin-left:.2em;font-size:1.5em;color:var(--col-accent-bg-btn)}sl-progress-ring{min-width:48px;height:48px;align-self:center;margin-left:.5em;margin-right:.5em}.card-body>div{background-color:var(--col-bg-2);padding:.25em;min-height:3em;flex-basis:100%}.job-warnings{display:flex;flex-direction:row;align-items:center;justify-content:space-between;color:var(--col-accent-bg-2);text-align:left}.job-warnings p{width:100%;text-align:center}.job-warnings button{width:auto;padding-right:.5em}.spacer{width:100%;height:2px;background-color:var(--col-bg-1);margin:.5em 0}.job-cancelled-label{color:var(--col-error-bg-2)}', Ii = ":host{--track-color: var(--col-bg-2-lighter);--indicator-color: var(--col-accent-bg-2);--stroke-width: 6px;display:inline-flex}.progress-ring{display:inline-flex;align-items:center;justify-content:center;position:relative}.progress-ring__image{transform-origin:50% 50%}.progress-ring__track{stroke:var(--track-color)}.progress-ring__indicator{stroke:var(--indicator-color);transition:.35s stroke-dashoffset,.35s stroke}.progress-ring__label{display:flex;align-items:center;justify-content:center;position:absolute;top:0;left:0;width:100%;font-size:.9em;text-align:center;-webkit-user-select:none;user-select:none}.spinner{display:inline-block;width:100%;border-radius:50%;border:solid var(--stroke-width) var(--col-bg-2-lighter);border-top-color:var(--col-accent-bg-2);border-right-color:var(--col-accent-bg-2);animation:1s linear infinite spin}@keyframes spin{0%{transform:rotate(0)}to{transform:rotate(360deg)}}";
-var Di = Object.defineProperty, Ai = Object.getOwnPropertyDescriptor, te = (r, e, t, s) => {
-  for (var n = s > 1 ? void 0 : s ? Ai(e, t) : e, o = r.length - 1, i; o >= 0; o--)
+var Ai = Object.defineProperty, Di = Object.getOwnPropertyDescriptor, te = (r, e, t, s) => {
+  for (var n = s > 1 ? void 0 : s ? Di(e, t) : e, o = r.length - 1, i; o >= 0; o--)
     (i = r[o]) && (n = (s ? i(e, t, n) : i(n)) || n);
-  return s && n && Di(e, t, n), n;
+  return s && n && Ai(e, t, n), n;
 };
 let L = class extends ue {
   constructor() {
@@ -6187,7 +6187,7 @@ let L = class extends ue {
       `;
   }
 };
-L.styles = Ae(Ii);
+L.styles = De(Ii);
 te([
   Gt(".progress-ring")
 ], L.prototype, "ring", 2);
@@ -6214,9 +6214,9 @@ var Wi = Object.defineProperty, Fi = Object.getOwnPropertyDescriptor, Vi = (r, e
     (i = r[o]) && (n = (s ? i(e, t, n) : i(n)) || n);
   return s && n && Wi(e, t, n), n;
 };
-let Dt = class extends zt {
+let At = class extends zt {
   constructor() {
-    super(), this.fetching = !1, this.fetch_error = "", this.workstation_data = new Hs(), this.percentage = -1, this.showJobInfo = !1, this.jobMessage = "", this.jobError = "", this.jobHasWarnings = !1, this.jobIsRunning = !1, this.jobGotCanceled = !1, this._init();
+    super(), this.fetching = !1, this.fetch_error = "", this.workstation_data = new Hs(), this.percentage = -1, this.showJobInfo = !1, this.jobMessage = "", this.jobError = "", this.jobHasWarnings = !1, this.jobAsksToShowLog = !1, this.jobIsRunning = !1, this.jobGotCanceled = !1, this._init();
   }
   static get properties() {
     return {
@@ -6284,7 +6284,7 @@ let Dt = class extends zt {
                         <span>[${this.workstation_id}]</span>
                     </div>
                 </div>
-                ${this.showJobInfo && (!this.jobHasWarnings || this.jobError) ? b`
+                ${this.showJobInfo && (!this.jobHasWarnings || this.jobError || this.jobAsksToShowLog) ? b`
                           ${this.jobError ? b` <div class="title-state error">${this.jobError}</div>` : b` <div class="title-state processing">
                                     ${this.workstation_data.job_status_code == qs ? "pending..." : "processing..."}
                                 </div>`}
@@ -6294,10 +6294,10 @@ let Dt = class extends zt {
                     ${this.jobIsRunning ? void 0 : b` <div class="ws-info">
                               <div class="job-warnings">
                                   ${this.jobHasWarnings ? b`<p>The last task was successful but returned warnings</p>` : b`${this.jobGotCanceled ? b`<p>
-                                                  <span class="job-cancelled-label">The last task got cancelled</span>
+                                                  <span class="job-cancelled-label">The last task got canceled</span>
                                               </p>` : void 0}`}
-                                  ${this.jobError ? b`<p>There is more information available.</p>` : void 0}
-                                  ${this.jobError || this.jobHasWarnings ? b` <button @click=${this.showLog} class="kiosk-btn job-info error">
+                                  ${this.jobError || this.jobAsksToShowLog ? b`<p>There is more information available.</p>` : void 0}
+                                  ${this.jobError || this.jobHasWarnings || this.jobAsksToShowLog ? b` <button @click=${this.showLog} class="kiosk-btn job-info error">
                                             <i class="fas fa-bug"></i>
                                             <div>See details</div>
                                         </button>` : void 0}
@@ -6307,7 +6307,7 @@ let Dt = class extends zt {
                                   ${this.workstation_data.disabled ? b`This workstation is disabled. Please click to reactivate it.` : b`${this.workstation_data.state_description}`}
                               </div>
                           </div>`}
-                    ${this.showJobInfo && !this.jobError && !this.jobHasWarnings ? b` <div class="job-info">
+                    ${this.showJobInfo && !this.jobError && !this.jobHasWarnings && !this.jobAsksToShowLog ? b` <div class="job-info">
                               <sl-progress-ring percentage="${this.percentage}" size="54" stroke-width="6">
                                   ${this.percentage > 0 ? b`${this.percentage}%` : void 0}
                               </sl-progress-ring>
@@ -6319,7 +6319,7 @@ let Dt = class extends zt {
   }
   _calc_job_progress() {
     const r = this.workstation_data.job_progress;
-    this.jobError = "", this.jobHasWarnings = !1, this.jobGotCanceled = !1, "job_status_code" in this.workstation_data && this.workstation_data.job_status_code ? this.workstation_data.job_status_code < It ? (this.showJobInfo = !0, "progress" in r && r.progress ? (this.percentage = r.progress, this.jobMessage = r.message) : (this.percentage = -1, this.jobMessage = r.message), this.jobIsRunning = !0) : (this.jobIsRunning = !1, "success" in this.workstation_data.job_result ? this.workstation_data.job_result.success ? (this.percentage = 100, this.jobMessage = "finished", this.workstation_data.job_result.has_warnings && (this.jobHasWarnings = !0), this.showJobInfo = this.jobHasWarnings) : (this.percentage = r.progress, this.jobMessage = "click to see details", this.showJobInfo = !0, this.jobError = this.workstation_data.job_result.message) : this.workstation_data.job_status_code == Ni ? (this.percentage = 0, this.showJobInfo = !1, this.jobIsRunning = !1, this.jobGotCanceled = !0) : (this.percentage = r.progress, this.jobMessage = this.workstation_data.job_result.message)) : (this.percentage = 0, this.showJobInfo = !1, this.jobMessage = "", this.jobIsRunning = !1);
+    this.jobError = "", this.jobHasWarnings = !1, this.jobGotCanceled = !1, "job_status_code" in this.workstation_data && this.workstation_data.job_status_code ? this.workstation_data.job_status_code < It ? (this.showJobInfo = !0, "progress" in r && r.progress ? (this.percentage = r.progress, this.jobMessage = r.message) : (this.percentage = -1, this.jobMessage = r.message), this.jobIsRunning = !0) : (this.jobIsRunning = !1, "success" in this.workstation_data.job_result ? this.workstation_data.job_result.success ? (this.percentage = 100, this.jobMessage = "finished", this.workstation_data.job_result.has_warnings && (this.jobHasWarnings = !0), this.jobAsksToShowLog = this.workstation_data.job_result.show_details ?? !1, this.showJobInfo = this.jobHasWarnings || this.jobAsksToShowLog) : (this.percentage = r.progress, this.jobMessage = "click to see details", this.showJobInfo = !0, this.jobError = this.workstation_data.job_result.message) : this.workstation_data.job_status_code == Ni ? (this.percentage = 0, this.showJobInfo = !1, this.jobIsRunning = !1, this.jobGotCanceled = !0) : (this.percentage = r.progress, this.jobMessage = this.workstation_data.job_result.message)) : (this.percentage = 0, this.showJobInfo = !1, this.jobMessage = "", this.jobIsRunning = !1);
   }
   askCancelJob() {
     _i(
@@ -6363,17 +6363,17 @@ let Dt = class extends zt {
   //     // this._installSyncEvents();
   // }
 };
-Dt.styles = Ae(Mi);
-Dt = Vi([
+At.styles = De(Mi);
+At = Vi([
   Yt("workstation-card")
-], Dt);
+], At);
 const zi = '.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm,.recording-group-background{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}.fa,.fas{font-family:"Font Awesome 5 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-reload:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-bug:before{content:""}.fa-lightbulb:before{content:""}p,div{padding:0;margin:0;border:0px;user-select:text;-webkit-user-select:text}select{user-select:none;-webkit-user-select:none}.kiosk-btn{display:grid;place-content:center;border-radius:5px;border-style:solid;border-width:2px;background:var(--col-bg-btn);color:var(--col-primary-bg-btn);border-color:var(--col-bg-btn-darker);cursor:pointer;white-space:nowrap}.kiosk-btn:hover,.kiosk-btn:focus{outline:none;background-color:var(--col-bg-btn-lighter)}.kiosk-btn:active{margin-bottom:0;margin-top:2px;padding-left:2px;color:var(--col-primary-bg-btn);background-color:var(--col-bg-ack);border-color:var(--col-bg-ack-darker)}.kiosk-btn *{user-select:none;-moz-user-select:none;-webkit-user-select:none}.recording-group{display:block;flex-direction:column;margin:1em .5em 2em 0}.recording-group-header{width:20ch;border-top-right-radius:15px;background:linear-gradient(to right bottom,var(--col-bg-1-darker),var(--col-bg-1-lighter));background-color:#ffffffe6;background-blend-mode:color;padding:5px;font-weight:700}.recording-group-body{position:relative;display:grid;grid-template-columns:1fr 1fr;column-gap:1em;row-gap:1em;padding:1em}@media only screen and (max-width : 700px){.recording-group-body{grid-template-columns:1fr}}.recording-group-background{position:absolute;width:100%;height:100%;border-radius:15px;color:var(--col-bg-1);opacity:10%;z-index:-1}.one-recording-group{display:grid;grid-template-columns:1fr 1fr;column-gap:1em;row-gap:1em;padding:1em}@media only screen and (max-width : 700px){.one-recording-group{grid-template-columns:1fr}}.synchronization-running{height:80vh;width:100%;display:grid;place-items:center;position:fixed;background:var(--col-bg-body)}.synchronization-running .synchronization-reminder{padding:1.5em}.synchronization-reminder{background-color:var(--col-bg-att);border:1px solid var(--col-bg-att-darker);padding:.5em;margin:.5em 0;display:flex}.synchronization-reminder p{padding-left:1em}.synchronization-reminder i{font-size:1.2em}';
 var Ri = Object.defineProperty, Li = Object.getOwnPropertyDescriptor, Ui = (r, e, t, s) => {
   for (var n = s > 1 ? void 0 : s ? Li(e, t) : e, o = r.length - 1, i; o >= 0; o--)
     (i = r[o]) && (n = (s ? i(e, t, n) : i(n)) || n);
   return s && n && Ri(e, t, n), n;
 };
-let At = class extends zt {
+let Dt = class extends zt {
   constructor() {
     super(), this.fetching = !1, this.fetch_error = "", this.workstations = {}, this.timeoutId = null, this.fetchingStopped = !1, this.sync_status = -1, this.last_sync_date = "", this._init();
   }
@@ -6499,10 +6499,10 @@ let At = class extends zt {
   //     // this._installSyncEvents();
   // }
 };
-At.styles = Ae(zi);
-At = Ui([
+Dt.styles = De(zi);
+Dt = Ui([
   Yt("workstation-list")
-], At);
+], Dt);
 const ji = '.col-bg-body-lighter{background-color:var(--col-bg-body-lighter)}.col-bg-body{background-color:var(--col-bg-body)}.col-bg-body-darker{background-color:var(--col-bg-body-darker)}.col-bg-1-lighter{background-color:var(--col-bg-1-lighter)}.col-bg-1{background-color:var(--col-bg-1)}.col-bg-1-darker{background-color:var(--col-bg-1-darker)}.col-bg-1-input{background-color:var(--col-bg-1-input)}.col-primary-bg-1{background-color:var(--col-primary-bg-1)}.col-accent-bg-1{background-color:var(--col-accent-bg-1)}.col-success-bg-1{background-color:var(--col-success-bg-1)}.col-warning-bg-1{background-color:var(--col-warning-bg-1)}.col-error-bg-1{background-color:var(--col-error-bg-1)}.col-bg-2-lighter{background-color:var(--col-bg-2-lighter)}.col-bg-2{background-color:var(--col-bg-2)}.col-bg-2-darker{background-color:var(--col-bg-2-darker)}.col-bg-2-button{background-color:var(--col-bg-2-button)}.col-bg-2-input{background-color:var(--col-bg-2-input)}.col-primary-bg-2{background-color:var(--col-primary-bg-2)}.col-accent-bg-2{background-color:var(--col-accent-bg-2)}.col-success-bg-2{background-color:var(--col-success-bg-2)}.col-warning-bg-2{background-color:var(--col-warning-bg-2)}.col-error-bg-2{background-color:var(--col-error-bg-2)}.col-bg-3-lighter{background-color:var(--col-bg-3-lighter)}.col-bg-3{background-color:var(--col-bg-3)}.col-bg-3-darker{background-color:var(--col-bg-3-darker)}.col-bg-3-button{background-color:var(--col-bg-3-button)}.col-bg-3-input{background-color:var(--col-bg-3-input)}.col-primary-bg-3{background-color:var(--col-primary-bg-3)}.col-accent-bg-3{background-color:var(--col-accent-bg-3)}.col-success-bg-3{background-color:var(--col-success-bg-3)}.col-warning-bg-3{background-color:var(--col-warning-bg-3)}.col-error-bg-3{background-color:var(--col-error-bg-3)}.col-bg-ack-lighter{background-color:var(--col-bg-ack-lighter)}.col-bg-ack{background-color:var(--col-bg-ack)}.col-bg-ack-darker{background-color:var(--col-bg-ack-darker)}.col-primary-bg-ack{background-color:var(--col-primary-bg-ack)}.col-accent-bg-ack{background-color:var(--col-accent-bg-ack)}.col-bg-att-lighter{background-color:var(--col-bg-att-lighter)}.col-bg-att{background-color:var(--col-bg-att)}.col-bg-att-darker{background-color:var(--col-bg-att-darker)}.col-primary-bg-att{background-color:var(--col-primary-bg-att)}.col-accent-bg-att{background-color:var(--col-accent-bg-att)}.col-bg-alert-lighter{background-color:var(--col-bg-alert-lighter)}.col-bg-alert{background-color:var(--col-bg-alert)}.col-bg-alert-darker{background-color:var(--col-bg-alert-darker)}.col-primary-bg-alert{background-color:var(--col-primary-bg-alert)}.col-accent-bg-alert{background-color:var(--col-accent-bg-alert)}.col-bg-btn-lighter{background-color:var(--col-bg-btn-lighter)}.col-bg-btn{background-color:var(--col-bg-btn)}.col-bg-btn-darker{background-color:var(--col-bg-btn-darker)}.col-primary-bg-btn{background-color:var(--col-primary-bg-btn)}.col-accent-bg-btn{background-color:var(--col-accent-bg-btn)}.pattern-diagonal-stripes-sm{background:repeating-linear-gradient(45deg,transparent,transparent 10px,currentColor 10px,currentColor 20px)}.pattern-dots-lg{background-image:radial-gradient(currentColor 1.5px,transparent 1.5px);background-size:15px 15px}.pattern-dots-md{background-image:radial-gradient(currentColor 1px,transparent 1px);background-size:8px 8px}.pattern-dots-medium-dense{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:3px 3px}.pattern-dots-sm{background-image:radial-gradient(currentColor .5px,transparent .5px);background-size:5px 5px}.pattern-cross-dots-md,.imagelist-background{background-image:radial-gradient(currentColor .7px,transparent 1px),radial-gradient(currentColor .7px,transparent 1px);background-size:6.5px 6.5px;background-position:0 0,3.5px 3.5px}.imagelist-background{background-color:#fff9;background-blend-mode:overlay}p,div{padding:0;margin:0;border:0px;user-select:text;-webkit-user-select:text}select{user-select:none;-webkit-user-select:none}.fa,.fas{font-family:"Font Awesome 5 Free";font-weight:900;font-style:normal}.fa-trash:before{content:""}.fa-view-grid:before{content:""}.fa-reload:before{content:""}.fa-view-list:before{content:""}.fa-camera:before{content:""}.fa-view-image:before{content:""}.fa-check:before{content:""}.fa-bug:before{content:""}.fa-lightbulb:before{content:""}:host{display:block;width:100%}div,p{font-family:var(--standard-text-font)}.center-div{display:flex;flex-direction:column;align-items:center;background:var(--col-bg-body)}.wait-for-login{display:grid;place-items:center;height:100vh;background-color:var(--col-bg-body)}.wait-for-login p{font-family:var(--headline-text-font);font-size:var(--font-size-h2)}.logged-in-message{background-color:var(--col-bg-ack);color:var(--col-primary-bg-ack);display:grid;place-items:center;font-family:var(--standard-text-font)}.development{background-color:#8b0000;color:#fff;font-family:Courier New,sans-serif;font-size:18px;text-align:center}.toolbar{height:3em;background:var(--col-toolbar-bg, var(--col-bg-3));color:var(--col-text-toolbar-bg, var(--col-primary-bg-3));display:flex;flex-direction:row;padding:0 1em;justify-content:space-between}.toolbar-info{display:flex;flex-direction:column;justify-content:center;margin-right:1em}#toolbar-filters{flex-grow:1}#toolbar-buttons{background-color:var(--col-toolbar-bg-darker, var(--col-bg-3-darker));height:100%;display:flex;flex-direction:row;align-items:center;padding:0 1em}.toolbar-button{color:var(--col-primary-bg-3);height:28px}.toolbar-button i{font-size:28px;line-height:100%}.toolbar-button:hover{color:var(--col-accent-bg-3)}.toolbar-button:active{color:var(--col-bg-ack)}.toolbar-button.disabled{opacity:.3}';
 var Pi = Object.defineProperty, Zi = (r, e, t, s) => {
   for (var n = void 0, o = r.length - 1, i; o >= 0; o--)
@@ -6553,7 +6553,7 @@ const Jt = class Jt extends zt {
     return b`${e}${t}${s}`;
   }
 };
-Jt.styles = Ae(ji);
+Jt.styles = De(ji);
 let st = Jt;
 Zi([
   Ti()

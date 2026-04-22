@@ -1,10 +1,8 @@
-// noinspection JSUnusedGlobalSymbols
-
 import { defineConfig, searchForWorkspaceRoot, loadEnv } from "vite";
 import { createHtmlPlugin } from "vite-plugin-html";
-
 import copy from 'rollup-plugin-copy'
 
+// noinspection JSUnusedGlobalSymbols
 export default defineConfig(({ command, mode }) => {
     const env = loadEnv(mode, "env");
     return {
@@ -29,11 +27,20 @@ export default defineConfig(({ command, mode }) => {
             command == "build"
                 ? {
                     // No console.logs in the distribution
-                    drop: ["console", "debugger"],
+                    // drop: ["console", "debugger"],
                 }
                 : {},
+        resolve: {
+            alias: {
+                // Add alias to resolve the deep static paths
+                "@static": "../../../static",
+                "@styles": "../../../static/styles"
+            }
+        },
         build: {
             outDir: "../static/app",
+            emptyOutDir: true,
+            minify: true,
             lib: {
                 entry: "src/app.ts",
                 formats: ["es"],
@@ -41,6 +48,10 @@ export default defineConfig(({ command, mode }) => {
             // rollupOptions: {
             //     external: /^lit/,
             // },
+        },
+        rollupOptions: {
+            // "external": (id) => id.match(/kioskuicomponents/gmi)
+            "external": ["@arch-kiosk/kioskuicomponents"]
         },
         server: {
             fs: {
