@@ -60,6 +60,7 @@ format_translations = {"jpg": ("JPEG", "jpg"),
                        "raw": ("tiff", "tif"),
                        }
 
+LOG_EMPHASIZE = "\u200b"
 
 def get_first_matching_file(filespath, identifier, prefix="", postfix="", wildcard="*"):
     """
