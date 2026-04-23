@@ -1,7 +1,7 @@
 // @ts-ignore
 import local_css from "./styles/component-queryselector.sass?inline";
 import { html, nothing, TemplateResult, unsafeCSS } from "lit";
-import { customElement, property, state } from "lit/decorators.js";
+import { customElement, property, query, state } from "lit/decorators.js";
 import { handleCommonFetchErrors, handleErrorInApp } from "./lib/applib";
 import { Constant, ApiResultKioskQueryDescription, ApiResultKioskQuery } from "./lib/apitypes";
 import { FetchException } from "@arch-kiosk/kiosktsapplib"
@@ -17,7 +17,7 @@ import { InterpreterManager } from "@arch-kiosk/kiosktsapplib"
 import { MSG_ERROR } from "./lib/appmessaging";
 import Cookies from "js-cookie"
 
-const COOKIE_KIOSKQNVQUERYFAVOURITES = "kioskQnVQueryFavourites"
+export const COOKIE_KIOSKQNVQUERYFAVOURITES = "kioskQnVQueryFavourites"
 
 @customElement("kiosk-query-selector")
 export class KioskQuerySelector extends KioskAppComponent {
@@ -47,9 +47,22 @@ export class KioskQuerySelector extends KioskAppComponent {
     @state()
     private constants?: Constant[]
 
+    @query('#query-filter')
+    elQueryFilter !: HTMLInputElement;
+
+    async focusFilter() {
+        await this.updateComplete
+        console.log('queryFilter', this.elQueryFilter)
+        setTimeout(()=>{this.elQueryFilter.focus({ preventScroll: true})}, 1000)
+        // requestAnimationFrame(() => {
+        //     this.elQueryFilter.focus();
+        // });
+    }
+
     firstUpdated(_changedProperties: any) {
         // console.log("KioskQuerySelector first updated", _changedProperties);
         super.firstUpdated(_changedProperties);
+        this.focusFilter()
     }
 
     updated(_changedProperties: any) {
@@ -188,7 +201,7 @@ export class KioskQuerySelector extends KioskAppComponent {
         const newCookie = {
             name: COOKIE_KIOSKQNVQUERYFAVOURITES,
             value: JSON.stringify(currentFavourites),
-            expires: Date.now() + 360 * 24 * 60 * 60 * 1000, //360 days
+            expires: 360, // Date.now() + 360 * 24 * 60 * 60 * 1000, //360 days
             path: "/",
         };
         Cookies.set(newCookie.name, newCookie.value, {expires: newCookie.expires, path: newCookie.path})
@@ -283,8 +296,11 @@ export class KioskQuerySelector extends KioskAppComponent {
                               <h3>Choose your way to search and query</h3>
                           </div>
                       `}
-                <div class="query-filter"><label for="query-filter">filter queries by</label><input id="query-filter" name="query-filter" 
-                                                 @input=${this.queryFilterChanged} type="text"></div>
+                <div class="query-filter">
+                    <label for="query-filter">filter queries by</label>
+                    <input id="query-filter" autofocus name="query-filter" 
+                                                 @input=${this.queryFilterChanged} type="text">
+                </div>
                 <div id="kiosk-query-list">${this.kioskQueries
                     .filter(query => this.queryFilter === "" ||
                         query.type === "FullTextKioskQuery" ||

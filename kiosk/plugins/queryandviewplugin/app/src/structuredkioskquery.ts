@@ -429,6 +429,7 @@ export class StructuredKioskQuery extends KioskAppComponent {
                 return
             }
             this.overall_record_count = -1;
+            console.log('setting _inputData to', event.detail.newData)
             this._inputData = event.detail.newData;
             this.assignInputs()
             // this.fetchQueryResults()

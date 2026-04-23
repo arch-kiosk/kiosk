@@ -26,7 +26,8 @@ import { FetchException } from "@arch-kiosk/kiosktsapplib"
 import { identifierInfoContext } from "./identifierinfocontext";
 import { KioskTimeZones } from "@arch-kiosk/kiosktsapplib";
 import { timeZoneInfoContext } from "./timezoneinfocontext";
-import { KioskQuerySelector } from "./kioskqueryselector";
+import { COOKIE_KIOSKQNVQUERYFAVOURITES, KioskQuerySelector } from "./kioskqueryselector";
+import Cookies from "js-cookie";
 
 export class QueryAndViewApp extends KioskApp {
     static styles = unsafeCSS(local_css);
@@ -75,6 +76,12 @@ export class QueryAndViewApp extends KioskApp {
 
     firstUpdated(_changedProperties: any) {
         console.log("App first updated.");
+        try {
+            let cookie = Cookies.get(COOKIE_KIOSKQNVQUERYFAVOURITES)
+            if (cookie) {
+                Cookies.set(COOKIE_KIOSKQNVQUERYFAVOURITES, cookie, { expires: 360, path: "/" })
+            }
+        } catch {}
         super.firstUpdated(_changedProperties);
     }
 
@@ -368,6 +375,7 @@ export class QueryAndViewApp extends KioskApp {
     }
 
     renderQueryMode() {
+        if (!this.inSelectQueryMode) return nothing
         return html`
             <kiosk-query-selector
                 id="kiosk-query-selector"
