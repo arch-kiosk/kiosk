@@ -364,6 +364,8 @@ class KioskUser(UserMixin):
             if request:
                 if "kiosk_tz_index" in request.cookies:
                     self._active_tz_index = int(request.cookies.get("kiosk_tz_index"))
+                elif "x-kiosk-tz-index" in request.headers:
+                    self._active_tz_index = int(request.headers["x-kiosk-tz-index"])
             else:
                 raise Exception("get_active_tz_index called without a flask context")
 
