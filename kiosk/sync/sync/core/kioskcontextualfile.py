@@ -666,8 +666,10 @@ class KioskContextualFile(KioskLogicalFile):
         cur = KioskSQLDb.get_dict_cursor()
         last_identifier = ""
 
-        if self._contexts.count == 0:
-            return True
+        # This was added in 07.11.2025 with 92ed1296. It keeps the file repository from dropping contexts (#3659)
+        # I just wonder why it was added? The commit message does not reveal any reason, on the contrary.
+        # if self._contexts.count == 0:
+        #     return True
 
         try:
             idc = MemoryIdentifierCache(self._dsd)
