@@ -110,8 +110,9 @@ class FileContextUtils:
                 try:
                     r_result = re.match(r, current_dir)
                     if r_result:
-                        if kioskstdlib.get_regex_group_or_default(r_result, "guess", ""):
-                            guessed_date = kioskstdlib.guess_datetime(current_dir)
+                        guess = kioskstdlib.get_regex_group_or_default(r_result, "guess", "")
+                        if guess:
+                            guessed_date = kioskstdlib.guess_datetime(guess)
                             if guessed_date:
                                 return guessed_date.day, guessed_date.month, guessed_date.year
                         else:
