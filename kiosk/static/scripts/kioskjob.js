@@ -271,14 +271,16 @@ class KioskJob {
 
 
           let jqNewLine = jqLogLineTemplate.clone();
-          jqNewLine.text(logline);
+          jqNewLine.text(logline.replace("!!", ""));
           if (/error/i.test(logline))
             jqNewLine.addClass("kiosk-log-line-error")
           else if (/warning/i.test(logline))
             jqNewLine.addClass("kiosk-log-line-warning")
           else if (/\bnote\b/i.test(logline))
             jqNewLine.addClass("kiosk-log-line-warning")
-          else if (/success/i.test(logline) || /note/i.test(logline))
+          else if (/[\u200b]|!!/.test(logline) || /note/i.test(logline))
+            jqNewLine.addClass("kiosk-log-line-emphasize")
+          else if (/success/i.test(logline))
             jqNewLine.addClass("kiosk-log-line-success")
           else
             jqNewLine.addClass("kiosk-log-line-info")

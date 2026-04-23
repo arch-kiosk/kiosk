@@ -91,10 +91,11 @@ class KioskExportWorkstation(KioskWorkstation):
             if self.sync_ws.get_state() == FileExportWorkstation.READY_FOR_EXPORT:
                 self._state_text = "forked, waiting for file export"
             if self._sync_ws.get_fork_time():
+                active_tz_name = current_user.get_active_time_zone_name(iana=True)
                 self._state_description = "last export on " + \
                                           kioskstdlib.latin_date(kioskdatetimelib.utc_ts_to_timezone_ts(
                                               self._sync_ws.get_fork_time(),
-                                              current_user.get_active_time_zone_name(iana=True)))
+                                              active_tz_name))
 
     def load_workstation(self, current_tz = None):
         self._sync_ws = self.sync.get_workstation("FileExportWorkstation", self._id)
