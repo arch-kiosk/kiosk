@@ -68,7 +68,8 @@ class ImportWorkstationWorker(WorkstationManagerWorker):
                     else:
                         self.job.publish_progress(100, "Finished.")
                         if rc:
-                            result = KioskResult(True)
+                            result = KioskResult(True,
+                                             show_details=True)
                         else:
                             result = KioskResult(False, "An error occurred when importing from filemaker.")
                 else:

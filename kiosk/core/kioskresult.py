@@ -3,9 +3,10 @@ from copy import copy
 
 
 class KioskResult:
-    def __init__(self, success: bool = False, message: str = ""):
+    def __init__(self, success: bool = False, message: str = "", show_details=False):
         self.success = success
         self.message = message
+        self.show_details = show_details
         self._log = []
         self._data = {}
 
@@ -27,6 +28,7 @@ class KioskResult:
     def get_dict(self):
         return {"success": self.success,
                 "message": self.message,
+                "show_details": self.show_details,
                 "data": self._data,
                 "log": self._log}
 
