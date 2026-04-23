@@ -84,6 +84,15 @@ class FileMakerControl:
         logging.error("direct call to base class FileMakerControl.select_table_data")
         return None
 
+    def get_deleted_records(self, table_name: str) -> list[str]:
+        """
+        returns all uids from the fm_initial_records that cannot be found as a record in the matching table.
+
+        :param table_name: dsd name of the table
+        :return: list of uid strings
+        """
+        raise NotImplementedError
+
     def sync_internal_files_tables(self, files_table: str, columns_to_copy: [str],
                                        callback_progress=None):
         """

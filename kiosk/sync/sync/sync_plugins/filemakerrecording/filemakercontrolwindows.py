@@ -2,6 +2,7 @@
 import datetime
 import logging
 import ntpath
+import pprint
 import time
 import winreg
 from os import path
@@ -58,6 +59,40 @@ class FileMakerControlWindows(FileMakerControl):
     @wait_for_fm_startup_callback.setter
     def wait_for_fm_startup_callback(self, value):
         self._wait_for_fm_startup_callback=value
+
+    def get_deleted_records(self, table_name: str) -> list[str]:
+        """
+        returns all uids from the fm_initial_records that cannot be found as a record in the matching table.
+
+        :param table_name: dsd name of the table
+        :return: list of uid strings
+        """
+
+        deleted_uids = []
+        if not self.cnxn or not self.fm_doc:
+            raise Exception("FileMaker not up or no database open.")
+        sql = f"""
+            {'select'} fir.uid from fm_initial_records fir 
+               left outer join "{table_name}" t on fir.uid=t.uid  
+               where fir.tablename=? and t.uid is null
+               """.strip()
+        cur = self.cnxn.cursor()
+        try:
+
+            cur.execute(sql, [table_name])
+
+            r = cur.fetchone()
+            while r:
+                deleted_uids.append(r[0])
+                r = cur.fetchone()
+            return deleted_uids
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}._get_deleted_records_from_fm: {repr(e)}. sql was {sql}")
+        finally:
+            if cur:
+                cur.close()
+
+        return deleted_uids
 
     def execute(self, sql: str, params: list = None) -> int:
         """
@@ -1927,3 +1962,5 @@ class FileMakerControlWindows(FileMakerControl):
         """
         bulk_id =  self.get_constant("bulk_id")
         return bulk_id if bulk_id else ""
+
+
