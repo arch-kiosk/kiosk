@@ -1,7 +1,7 @@
 import copy
 import logging
 import re
-from typing import Tuple, List
+from typing import Tuple, List, Any
 
 from dsd.dsd3 import DataSetDefinition
 from kiosksqldb import KioskSQLDb
@@ -11,34 +11,67 @@ from .ModelFileRepository import ModelFileRepository
 from sync_config import SyncConfig
 
 FR_ARCHIVE_NAMESPACE = "FR_ARCHIVE"
+
+
 class FileRepositoryArchive:
 
     @classmethod
     def check_archive_name(cls, archive_name: str):
         if not (archive_name and re.match(r"^[a-z0-9 _]+$", archive_name)):
             return ""
-        archive_name = archive_name.replace(" ","_").lower()
+        archive_name = archive_name.replace(" ", "_").lower()
         return archive_name
 
     @classmethod
-    def get_archive_display_name(cls, archive_name:str):
-        archive_name = archive_name.replace("_"," ").lower()
+    def get_archive_display_name(cls, archive_name: str):
+        archive_name = archive_name.replace("_", " ").lower()
         return archive_name
 
     @classmethod
-    def list_archives(cls, dsd) -> List:
+    def list_archives(cls, dsd, table_names=False) -> List:
         """
         lists the file archives that exist in schema FR_ARCHIVE_NAMESPACE
+        Note this is giving you the display name of the archive by default. That is not suitable as a table name!
+        Use check_archive_name to get a table name or use the paramter table_names
         :param dsd: a DataSetDefinition object
+        :param table_names: set to True if you want suitable table names.
         :return: a list with the display name (!) of each archive
         :raises all kinds of exceptions are passed on
         """
         archive_tables = KioskSQLDb.list_tables(FR_ARCHIVE_NAMESPACE)
         files_table = "_" + dsd.files_table
-        archives = [cls.get_archive_display_name(x[0:x.rfind(files_table)]) for x in archive_tables]
+        if table_names:
+            archives = [cls.get_namespaced_archive_table_name(x) for x in archive_tables]
+        else:
+            archives = [cls.get_archive_display_name(x[0:x.rfind(files_table)]) for x in archive_tables]
         return archives
 
-    def __init__(self, dsd:DataSetDefinition, cfg: SyncConfig, archive_name: str):
+    @classmethod
+    def internal_migrate_datatable(cls, migration: Migration, dsd: DataSetDefinition, archive_name: str) -> tuple | Any:
+        rc = ()
+        try:
+            rc = migration.migrate_datatable(dsd.files_table, prefix=cls.check_archive_name(archive_name) + "_",
+                                             namespace=FR_ARCHIVE_NAMESPACE)
+            logging.debug(f"{cls.__name__}.internal_migrate_datatable: migration.migrate_datatable returned {rc}")
+        except BaseException as e:
+            logging.error(f"{cls.__name__}.internal_migrate_datatable: migration.migrate_datatable failed {repr(e)}")
+        return bool(rc)
+
+    @classmethod
+    def migrate_archive_tables(cls, migration, dsd ):
+        """
+        migrates all archive tables to the current structure of the dsd.
+
+        :param migration: A fullyinitialized migration instance
+        :param dsd: the current dsd instance
+        """
+        for archive_name in cls.list_archives(dsd):
+            if not cls.internal_migrate_datatable(migration, dsd, archive_name):
+                return False
+        return True
+
+
+    def __init__(self, dsd: DataSetDefinition, cfg: SyncConfig, archive_name: str):
         self._dsd = dsd
         self._cfg = cfg
         self._archive_name = self.check_archive_name(archive_name)
@@ -50,12 +83,14 @@ class FileRepositoryArchive:
 
     @property
     def archive_table_name(self):
-        return self.get_archive_table_name(self._archive_name,self._dsd.files_table)
+        return self.get_archive_table_name(self._archive_name, self._dsd.files_table)
 
     @classmethod
-    def get_namespaced_archive_table_name(cls, archive_name: str, files_table: str):
+    def get_namespaced_archive_table_name(cls, archive_name: str, files_table: str = ""):
         return KioskSQLDb.sql_safe_namespaced_table(FR_ARCHIVE_NAMESPACE,
-                                                    cls.get_archive_table_name(archive_name, files_table))
+                                                    cls.get_archive_table_name(
+                                                        cls.check_archive_name(archive_name),
+                                                        files_table) if files_table else archive_name)
 
     @classmethod
     def get_archive_table_name(cls, archive_name: str, files_table: str):
@@ -71,11 +106,11 @@ class FileRepositoryArchive:
         """
         self._selected_files = copy.copy(selected_files)
 
+
     def migrate_archive_table(self):
         migration = Migration(self._dsd, PostgresDbMigration(self._dsd, KioskSQLDb.get_con()),
                               self._cfg.get_project_id())
-        rc = migration.migrate_datatable(self._dsd.files_table, prefix=self._archive_name + "_", namespace=FR_ARCHIVE_NAMESPACE)
-        logging.debug(f"{self.__class__.__name__}.update_archive_table: migrate_datatable returned {rc}")
+        rc = self.internal_migrate_datatable(migration, self._dsd, self._archive_name)
         if not rc:
             raise Exception(f"migrate_archive_table failed because migrate_datatable failed.")
 
@@ -94,7 +129,7 @@ class FileRepositoryArchive:
         dest_table = KioskSQLDb.sql_safe_namespaced_table(to_ns, to_table)
         columns = self._dsd.list_fields(self._dsd.files_table)
         # columns = KioskSQLDb.get_table_columns(dest_table)
-        sql_select, sql_from, params =  self.query_images(files_table_name=source_table, columns=columns)
+        sql_select, sql_from, params = self.query_images(files_table_name=source_table, columns=columns)
         sql_selected_files_where, selected_files = self.get_where_selected_files()
         params.extend(selected_files)
         sp = KioskSQLDb.begin_savepoint()
@@ -147,5 +182,4 @@ class FileRepositoryArchive:
 
     def un_archive(self):
         self.migrate_archive_table()
-        return self.move_fr_records(FR_ARCHIVE_NAMESPACE, self.archive_table_name,"", self._dsd.files_table)
-
+        return self.move_fr_records(FR_ARCHIVE_NAMESPACE, self.archive_table_name, "", self._dsd.files_table)

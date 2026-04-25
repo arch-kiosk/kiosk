@@ -67,6 +67,9 @@ class Migration:
         :param namespace: tables are kept in a certain namespace
         :returns: True/False. Can throw Exception if an endless loop has to be aborted.
         """
+        # need to do that locally or risk circular dependencies:
+        from plugins.filerepositoryplugin.filerepositoryarchive import FileRepositoryArchive
+
         iteration = 1
         if not self.check_cross_table_migration_flags(prefix=prefix, namespace=namespace):
             logging.error(f"{self.__class__.__name__}.migrate_datatable: Cross table migration failed.")
@@ -80,7 +83,7 @@ class Migration:
         one_step_only = self.is_there_a_table_migration(tables, prefix, namespace)
         if not one_step_only:
             logging.debug(f"{self.__class__.__name__}.migrate_dataset: quick migration "
-                          f"because none of the tables needs to be upgraded from an existing version.")
+                          f"because none of the tables need to be upgraded from an existing version.")
         while True:
             continue_migration = False
             for table_name in tables:
@@ -93,6 +96,17 @@ class Migration:
                     if not rc:
                         return False
                     else:
+                        if table_name == self._dsd.files_table:
+                            # the files table is also being used for file repository archives, so those need
+                            # migration, too
+                            if not FileRepositoryArchive.migrate_archive_tables(self, self._dsd):
+                                logging.error(f"{self.__class__.__name__}.migrate_dataset: migrate_archive_tables "
+                                              f"failed after migrating the files table {table_name}.")
+                                return False
+                            else:
+                                logging.info(f"{self.__class__.__name__}.migrate_dataset: "
+                                              f"repository archive tables migrated, too.")
+
                         logging.debug(f"{self.__class__.__name__}.migrate_dataset: "
                                       f"{namespace}.{prefix}{table_name} at version {rc[0]} of {rc[1]}.")
                         if rc[0] < rc[1]:
