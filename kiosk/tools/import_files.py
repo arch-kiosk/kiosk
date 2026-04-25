@@ -6,13 +6,12 @@ from time import sleep
 
 import yaml
 
-import kioskstdlib
 from contextmanagement.memoryidentifiercache import MemoryIdentifierCache
 from filerepository import FileRepository
 from kioskconfig import KioskConfig
 from sync.core.fileimport import FileImport
 from synchronization import Synchronization
-from tools.kiosktoolslib import init_dsd
+from tools.kiosktoolslib import init_dsd, get_kiosk_base_path_from_test_path
 from tz.kiosktimezones import KioskTimeZones
 
 import_params = {"-import_params": "p",
@@ -85,44 +84,6 @@ def show_yaml_help():
     sys.exit(0)
 
 
-def get_kiosk_base_path_from_test_path(test_path) -> str:
-    """
-    tries to find the kiosk base path in the parent folder structure of the test_path
-    :param test_path: the path where a test_file is located
-    :return: the base path
-    """
-
-    base_path = ""
-    id_directories = ["core", "api"]
-    id_files = ["this_is_the_kiosk_root.md"]
-    current_path = test_path
-
-    if not (id_directories or id_files):
-        return ""
-
-    while (not base_path) and current_path and os.path.exists(current_path):
-        if len(current_path) == 3:
-            break
-        exists = True
-        for d in id_directories:
-            if not os.path.exists(os.path.join(current_path, d)):
-                exists = False
-                break
-        if exists:
-            for f in id_files:
-                if not os.path.isfile(os.path.join(current_path, f)):
-                    exists = False
-                    break
-        if exists:
-            base_path = current_path
-        else:
-            try:
-                current_path = kioskstdlib.get_parent_dir(current_path)
-            except BaseException:
-                current_path = ""
-                break
-
-    return base_path
 
 
 def init(config_file):
