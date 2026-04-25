@@ -6,6 +6,7 @@ from kioskconfig import KioskConfig
 import datetime
 import logging
 
+ROOT_FILE_NAME = "this_is_the_kiosk_root.md"
 
 def get_kiosk_base_path_from_test_path(test_path) -> str:
     """
@@ -16,7 +17,7 @@ def get_kiosk_base_path_from_test_path(test_path) -> str:
 
     base_path = ""
     id_directories = ["core", "api"]
-    id_files = ["this_is_the_kiosk_root.md"]
+    id_files = [ROOT_FILE_NAME]
     current_path = test_path
 
     if not (id_directories or id_files):
@@ -47,7 +48,7 @@ def get_kiosk_base_path_from_test_path(test_path) -> str:
     return base_path
 
 
-def init_tool(config_file, logfile_prefix="") -> bool:
+def init_tool(config_file, logfile_prefix="", log_level_console=logging.WARNING, log_level_file = logging.DEBUG) -> bool:
     KioskConfig.release_config()
     if not os.path.exists(config_file):
         logging.error(f"Kiosk configuration file {config_file} does not exist.")
@@ -57,8 +58,19 @@ def init_tool(config_file, logfile_prefix="") -> bool:
     # Initialize logging and settings
     logging.basicConfig(format='>[%(module)s.%(levelname)s at %(asctime)s]: %(message)s', level=logging.ERROR)
     logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
-    # logger.handlers = []
+
+    # CRITICAL: Set the Logger to the LOWEST level (DEBUG)
+    # so it allows all messages to pass through to the handlers.
+    logger.setLevel(min(log_level_console, log_level_file))
+
+    # 2. Configure the Console Handler
+    # We clear existing handlers to avoid duplicates if calling this twice
+    logger.handlers = []
+    console_h = logging.StreamHandler()
+    console_h.setLevel(log_level_console)  # e.g., WARNING
+    console_formatter = logging.Formatter('%(asctime)s: %(message)s', datefmt="%H:%M:%S")
+    console_h.setFormatter(console_formatter)
+    logger.addHandler(console_h)
 
     if cfg.get_logfile():
         log_pattern = cfg.get_logfile().replace("#", "%")
@@ -67,12 +79,13 @@ def init_tool(config_file, logfile_prefix="") -> bool:
             log_file_name = logfile_prefix + "_" + kioskstdlib.get_filename(log_file)
             log_file = os.path.join(kioskstdlib.get_file_path(log_file), log_file_name)
 
-        ch = logging.FileHandler(
-            filename=cfg.resolve_symbols(log_file))
-        ch.setLevel(logging.INFO)
-        formatter = logging.Formatter('>[%(module)s.%(levelname)s at %(asctime)s]: %(message)s')
-        ch.setFormatter(formatter)
-        logger.addHandler(ch)
+        print(f"Logging in {log_file}")
+
+        file_h = logging.FileHandler(filename=cfg.resolve_symbols(log_file))
+        file_h.setLevel(log_level_file)  # e.g., DEBUG
+        file_formatter = logging.Formatter('>[%(module)s.%(levelname)s at %(asctime)s]: %(message)s')
+        file_h.setFormatter(file_formatter)
+        logger.addHandler(file_h)
 
     return True
 
@@ -154,3 +167,16 @@ def init_dsd(cfg):
     except BaseException as e:
         logging.error(f"init_dsd: Exception when applying master view to dsd: {repr(e)}")
         raise e
+
+def is_kiosk_root(kiosk_path: str)->bool:
+    """
+    Checks if the path is a directory and that it has the root marker file.
+    :param kiosk_path: str
+    :return: bool
+    """
+    try:
+        if os.path.isdir(kiosk_path):
+            return os.path.isfile(os.path.join(kiosk_path, ROOT_FILE_NAME))
+    except BaseException as e:
+        pass
+    return False
