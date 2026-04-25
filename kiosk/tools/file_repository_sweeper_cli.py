@@ -11,7 +11,9 @@ import logging
 import os
 import sys
 
+from dsd.dsd3singleton import Dsd3Singleton
 from filerepositorysweeper import FileRepositorySweeper
+from kiosksqldb import KioskSQLDb
 from sync_config import SyncConfig
 from tools.housekeepingcli import get_kiosk_base_path_from_test_path
 from tools.kiosktoolslib import init_tool, is_kiosk_root
@@ -78,10 +80,13 @@ def main():
         exit(0)
 
     cfg = SyncConfig.get_config()
+    dsd = Dsd3Singleton.get_dsd3()
+    assert dsd.append_file(cfg.dsdfile)
 
     # Initialize and run the sweeper
     sweeper = FileRepositorySweeper(
         target_path=cfg.get_file_repository(),
+        dsd=dsd,
         cfg=cfg,
         force_delete=args.force_delete,
         test_run=args.test_run,
