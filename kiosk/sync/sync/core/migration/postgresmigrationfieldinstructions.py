@@ -38,10 +38,12 @@ class MiPgDataType(MigrationFieldInstruction):
                                    f"Unknown datatype {parameters[0]} for field {field_name}.")
         else:
             if "GENERATED ALWAYS" in datatype:
-                if master_db:
-                    return [datatype, "UNIQUE"]
-                else:
-                    return ["INT", "NOT NULL", "UNIQUE"]
+                logging.warning(f"{cls.__name__}.execute_during_creation: "
+                                f"datatype SERIAL should not being used anymore. Use an int and auto_number()")
+                # if master_db:
+                #     return [datatype, "UNIQUE"]
+                # else:
+                return ["INT"]
         return datatype
 
     @classmethod
