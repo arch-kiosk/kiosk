@@ -70,6 +70,11 @@ class KioskLogicalFile:
             self._get_file_record()
         return self._file_record
 
+    def is_in_database(self):
+        if not self._file_record:
+            self._get_file_record()
+        return not self._file_record is None
+
     def file_exists(self):
         filename = self._get_path_and_filename()
         return os.path.isfile(filename)

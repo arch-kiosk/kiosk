@@ -6,6 +6,8 @@ from typing import Union, List
 import kioskstdlib
 import datetime
 
+from kiosklogicalfile import KioskLogicalFile
+from kioskphysicalfile import KioskPhysicalFile
 from tz.kiosktimezones import KioskTimeZones
 
 from eventmanager import EventManager
@@ -635,3 +637,13 @@ class FileRepository:
         if r:
             return r["uid"]
 
+    @staticmethod
+    def file_exists(uuid_file: str) -> bool:
+        """
+        checks if a file exists in the database (This does not check if a file exists physically!)
+        :param uuid_file:
+        :return: boolean
+        :raises all kinds of excecptions
+        """
+        f = KioskLogicalFile(uuid_file)
+        return f.is_in_database()
