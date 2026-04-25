@@ -7,8 +7,11 @@ from os.path import basename
 from pathlib import Path
 
 import kioskstdlib
+from dsd.dsd3 import DataSetDefinition
+from dsd.dsd3singleton import Dsd3Singleton
 from filerepository import FileRepository
 from kiosksqldb import KioskSQLDb
+from plugins.filerepositoryplugin.filerepositoryarchive import FileRepositoryArchive, FR_ARCHIVE_NAMESPACE
 
 
 class FileRepositorySweeper:
@@ -38,7 +41,13 @@ class FileRepositorySweeper:
         history_path (str): Directory where files are moved if not deleted. hard coded to be file-repos + \history
     """
 
-    def __init__(self, target_path, cfg, force_delete=False, test_run=False, small_file_repositories=False):
+    def __init__(self,
+                 target_path,
+                 cfg,
+                 dsd: DataSetDefinition,
+                 force_delete=False,
+                 test_run=False,
+                 small_file_repositories=False):
         self.target_path = Path(target_path)
         self.force_delete = force_delete
         self.test_run = test_run
@@ -49,8 +58,13 @@ class FileRepositorySweeper:
         self.c_files = 0
         self.c_deleted = 0
         self.bytes_freed = 0
+        self.dsd = dsd
         self.file_uuids = []  # as a safety measure I also load all uuids in here from the file table directly
         self.small_file_repository = small_file_repositories
+        self.file_repos_archive_tables = FileRepositoryArchive.list_archives(self.dsd, table_names=True)
+        # self.file_repos_archive_tables = [FileRepositoryArchive.get_namespaced_archive_table_name(x,
+        #                                                                                           self.dsd.files_table) for x
+        #                                   in FileRepositoryArchive.list_archives(self.dsd, table_names=True)]
         if not test_run:
             os.makedirs(self.history_path, exist_ok=True)
 
@@ -66,10 +80,10 @@ class FileRepositorySweeper:
             while not ok:
                 if suffix > 10:
                     logging.error(f"{self.__class__.__name__}.move_file_to_dir: {dest_file_name} "
-                                  f"exists even after the {suffix-1} attempt. Something is up. Aborting.")
+                                  f"exists even after the {suffix - 1} attempt. Something is up. Aborting.")
                     raise Exception("Aborting")
                 dest_file_name = os.path.join(target_path, kioskstdlib.get_valid_filename(
-                    f"{self.run_prefix}_{basename(str(file_path))}{'_'+str(suffix) if suffix else ''}"))
+                    f"{self.run_prefix}_{basename(str(file_path))}{'_' + str(suffix) if suffix else ''}"))
                 if os.path.exists(dest_file_name):
                     suffix += 1
                 else:
@@ -114,9 +128,20 @@ class FileRepositorySweeper:
 
         try:
             # Use the standard format for the FileRepository object check
-            file_exists = self.file_repository.file_exists(standard_uuid_str)
-            if not file_exists:
-                file_exists = self.file_repository.file_exists(standard_uuid_str.upper())
+            file_exists = True  # safety catch: Just assuming it exists, so prove me wrong ...
+            for files_table in ([None] + self.file_repos_archive_tables):
+                try:
+                    file_exists = self.file_repository.file_exists(standard_uuid_str, files_table)
+                    if not file_exists:
+                        file_exists = self.file_repository.file_exists(standard_uuid_str.upper(), files_table)
+                    if file_exists:
+                        logging.debug(f"{self.__class__.__name__}.check_file: Found file {standard_uuid_str} in "
+                                      f"'{files_table}'")
+                        break
+                except BaseException as e:
+                    logging.error(f"{self.__class__.__name__}.check_file: Error checking file {standard_uuid_str} in "
+                                      f"'{files_table}': {repr(e)}")
+                    raise Exception("aborting")
 
             # Use the normalized format for the snapshot set check
             in_snapshot = normalized_file_uuid in self.file_uuids
@@ -157,13 +182,16 @@ class FileRepositorySweeper:
             logging.error(f"Error: {cache_dir} is not a valid directory.")
             return
 
-        self.file_uuids = self.load_file_uuids()
-        if (not self.file_uuids or len(self.file_uuids) < 100) and not self.small_file_repository:
-            logging.error(
-                f"Error: Only {len(self.file_uuids)} images in the file respository? "
-                f"Please set the small_file_repository parameter")
+        try:
+            self.file_uuids = self.load_file_uuids()
+            if (not self.file_uuids or len(self.file_uuids) < 100) and not self.small_file_repository:
+                logging.error(
+                    f"Error: Only {len(self.file_uuids)} images in the file respository? "
+                    f"Please set the small_file_repository parameter")
+                return
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.run: {repr(e)}")
             return
-
 
         print(f"**********************************")
         print(f"Kiosk File Repository Sweeper v1.0")
@@ -232,9 +260,26 @@ class FileRepositorySweeper:
         self.c_files += c
 
     def load_file_uuids(self):
+        if not self.dsd.files_table:
+            raise Exception("DSD not correctly loaded.")
+        raw_records = set()
+        archives = [None] + self.file_repos_archive_tables
         try:
-            raw_records = [x[0] for x in KioskSQLDb.get_records("select uid from images")]
-            return set(str(uuid.UUID(str(x))).replace('-', '') for x in raw_records)
+
+            for archive in archives:
+                try:
+                    if archive:
+                        files_table = archive
+                    else:
+                        files_table = self.dsd.files_table
+                    raw_records.update(set([str(uuid.UUID(str(x[0]))).replace('-', '') for x in
+                                            KioskSQLDb.get_records(f"select uid from {files_table}",
+                                                                   raise_exception=True)]))
+                except BaseException as e:
+                    logging.error(f"{self.__class__.__name__}.load_file_uuids: "
+                                  f"Error searching archive '{archive}': {repr(e)}")
+                    raise Exception("aborting")
+            return raw_records
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.load_file_uuids: {repr(e)}. Aborting.")
             raise Exception("aborting")
