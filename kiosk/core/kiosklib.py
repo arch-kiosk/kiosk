@@ -1,8 +1,8 @@
-import datetime
 from functools import wraps, update_wrapper
 from typing import Optional
 
 from flask import request, make_response
+from flask_login import current_user
 
 import kioskdatetimelib
 import kioskstdlib
