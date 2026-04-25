@@ -1,4 +1,4 @@
-from typing import Union, Callable, List, Any
+from typing import Union, Callable, List, Any, Literal
 import os
 
 import nanoid
@@ -1232,3 +1232,51 @@ class KioskSQLDb(SqlSafeIdentMixin):
     def list_tables(cls, schema_name: str = "public") -> List[str]:
         sql = f"""SELECT tablename FROM pg_catalog.pg_tables where schemaname='{schema_name}';"""
         return [r[0] for r in cls.get_records(sql)]
+
+    @classmethod
+    def backfill_serial_column(cls, table, field, lock_table=True) -> bool:
+        """
+        backfills a column with a number sequence. So every null value gest the next higher number.
+        :param table: the table
+        :param field: the field name
+        :param lock_table: set to False if it is okay to not lock the table for this.
+        :return: false: lock failed, true: success
+        :raises Exception if an error occurs (except for locking errors)
+        """
+        # Connect to your postgres DB
+        # conn = psycopg2.connect(**conn_params)
+        cur = cls.get_cursor()
+        sql_table = cls.sql_safe_ident(table)
+        sql_field = cls.sql_safe_ident(field)
+        if lock_table:
+            try:
+                cur.execute(f"SET LOCAL lock_timeout = '3s'; LOCK TABLE {sql_table} IN EXCLUSIVE MODE;")
+            except BaseException as e:
+                logging.warning(f"{cls.__name__}.backfill_serial_column: Can't lock table {sql_table}: {repr(e)}")
+                return False
+        sp = cls.begin_savepoint()
+        try:
+            # 2. Execute the atomic update
+            sql = f"""
+                  UPDATE {sql_table}
+                  SET {sql_field} = sub.calculated_value
+                  FROM (SELECT uid,
+                               (SELECT COALESCE(MAX({sql_field}), 0) FROM {sql_table}) +
+                               ROW_NUMBER() OVER (ORDER BY uid) AS calculated_value \
+                        FROM {sql_table} \
+                        WHERE {sql_field} IS NULL) AS sub
+                  WHERE {sql_table}.uid = sub.uid; \
+                  """
+            cur.execute(sql)
+            cls.commit_savepoint(sp)
+            logging.debug(f"{cls.__name__}.backfill_serial_column: updated sequence "
+                          f"for {sql_table}.{sql_field}: {cur.rowcount} rows updated")
+            return True
+            # 3. Commit the changes
+        except Exception as e:
+            logging.error(f"{cls.__name__}.backfill_serial_column: {repr(e)}")
+            cls.rollback_savepoint(sp)
+            raise e
+        finally:
+            if cur:
+                cur.close()

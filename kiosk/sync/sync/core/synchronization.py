@@ -10,6 +10,7 @@ import kioskrepllib
 from eventmanager import EventManager
 from fts.ftsview import FTSView
 from fts.kioskfulltextsearch import FTS
+from kioskdbsequence import KioskDBSequence
 from syncbasictypesetup import register_basic_types
 from typerepository import TypeRepository
 
@@ -42,6 +43,7 @@ sync_version = '0.9'
 #  Workstation = workstation.Workstation
 
 
+# noinspection SqlResolve
 class Synchronization(PluginLoader):
     @classmethod
     def _is_plugin_active(cls, plugin_name):
@@ -478,7 +480,16 @@ class Synchronization(PluginLoader):
                      f"Something went wrong ") +
                     f"in the aftermath when rebuilding the file-identifier-cache." +
                     f" {repr(e)}")
-
+            try:
+                c = KioskDBSequence(master_dsd).update_all_sequences()
+                logging.info(f"updated {c} sequence(s).")
+            except BaseException as e:
+                logging.warning(
+                    f"{self.__class__.__name__}.synchronization: " +
+                    (f"After synchronization itself succeeded, something went wrong " if successful_run else
+                     f"Something went wrong ") +
+                    f"in the aftermath when updating sequences." +
+                    f" {repr(e)}")
             try:
                 FTSView.refresh(throw=True)
                 KioskSQLDb.commit()
@@ -491,6 +502,8 @@ class Synchronization(PluginLoader):
                      f"It was not possible ") +
                     f"in the aftermath to refresh the full text search index. ")
                 KioskSQLDb.rollback()
+
+
 
             return successful_run
 
