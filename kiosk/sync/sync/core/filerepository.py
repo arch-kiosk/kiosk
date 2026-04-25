@@ -638,12 +638,14 @@ class FileRepository:
             return r["uid"]
 
     @staticmethod
-    def file_exists(uuid_file: str) -> bool:
+    def file_exists(uuid_file: str, files_table_name=None) -> bool:
         """
         checks if a file exists in the database (This does not check if a file exists physically!)
         :param uuid_file:
+        :param files_table_name: "images" if none. Otherwise state namespace and tablename
+                as expected by the database system.
         :return: boolean
         :raises all kinds of excecptions
         """
-        f = KioskLogicalFile(uuid_file)
+        f = KioskLogicalFile(uuid_file,files_table_name=files_table_name)
         return f.is_in_database()
