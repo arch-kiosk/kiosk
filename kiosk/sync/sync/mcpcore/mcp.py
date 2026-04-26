@@ -38,8 +38,8 @@ class MCP:
         self.in_debug_mode = False
         self.mcp_cfg = config
         self.fm_instance: Union[FileMakerControl, None] = None
-        self.fm_user = config.filemaker_db_usr_name
-        self.fm_pwd = config.filemaker_db_usr_pwd
+        self.fm_user = "mcp"  # config.filemaker_db_usr_name
+        self.fm_pwd = ""  # config.filemaker_db_usr_pwd
         fm_dummy_db = os.path.join(config.get_sync_dir(), "mcpcore", "mcp_dummy.fmp12")
         if os.path.exists(fm_dummy_db):
             self.fm_dummy_db = fm_dummy_db
