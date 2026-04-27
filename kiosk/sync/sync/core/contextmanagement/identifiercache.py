@@ -100,3 +100,4 @@ class IdentifierCache:
 
     def delete_identifier(self, identifier: str, recording_context: str = ""):
         raise NotImplementedError
+

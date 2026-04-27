@@ -7,6 +7,7 @@ from typing import List
 
 import kioskdatetimelib
 import kioskrepllib
+from contextmanagement.memoryidentifiercache import MemoryIdentifierCache
 from eventmanager import EventManager
 from fts.ftsview import FTSView
 from fts.kioskfulltextsearch import FTS
@@ -503,7 +504,7 @@ class Synchronization(PluginLoader):
                     f"in the aftermath to refresh the full text search index. ")
                 KioskSQLDb.rollback()
 
-
+            self.check_for_duplicate_identifiers(master_dsd)
 
             return successful_run
 
@@ -534,6 +535,21 @@ class Synchronization(PluginLoader):
             logging.error(f"{self.__class__.__name__}.synchronization: exception when rebuilding file-identifier-cache:"
                           f" {repr(e)}")
         return False
+
+    def check_for_duplicate_identifiers(self, dsd):
+        try:
+            config: SyncConfig = SyncConfig.get_config()
+            idenfifier_cache = MemoryIdentifierCache(dsd)
+            non_uniques = idenfifier_cache.list_non_unique_identifiers()
+            logging.debug(f"{self.__class__.__name__}.check_for_duplicate_identifiers: {non_uniques}")
+            for id_value, id_defs in non_uniques.items():
+                for id_def in id_defs:
+                    record_type, field_name = idenfifier_cache.get_identifier_field(id_def)
+                    record_type = config.get_recording_context_alias(record_type)
+                    logging.warning(f"identifier {id_value} is not unique in "
+                                    f"{record_type} / {field_name} ")
+        except BaseException as e:
+            logging.error(f"{self.__class__.__name__}.check_for_duplicate_identifiers: {repr(e)}")
 
     @staticmethod
     def _get_dsds():

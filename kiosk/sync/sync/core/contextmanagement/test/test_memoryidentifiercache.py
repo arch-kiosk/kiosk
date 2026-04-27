@@ -1,4 +1,5 @@
 import os
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -80,3 +81,67 @@ class TestMemoryIdentifierCache(KioskPyTestHelper):
         assert not id_cache.has_identifier('hidden-01')
         assert not id_cache.has_identifier('hidden-too')
 
+    @pytest.fixture
+    def mock_cache_manager(self, config):
+        # We patch 'rebuild_cache' so that when we instantiate the class,
+        # it doesn't actually try to connect to KioskSQLDb.
+        with patch.object(MemoryIdentifierCache, 'rebuild_cache', return_value=0):
+            # Pass whatever args your actual parent class needs,
+            # or leave empty if it handles *args/**kwargs gracefully.
+            dsd = Dsd3Singleton.get_dsd3()
+            instance = MemoryIdentifierCache(dsd)
+            return instance
+
+    def test_list_non_unique_identifiers(self, mock_cache_manager):
+        # Setup:
+        # UID is index 0, IDX is index 1
+        mock_cache_manager._identifier_cache = {
+            "ID_ALPHA": [
+                ("uid_1", 100),
+                ("uid_2", 200),
+                ("uid_3", 100)  # Duplicate IDX 100
+            ],
+            "ID_BETA": [
+                ("uid_4", 500),
+                ("uid_5", 500),
+                ("uid_6", 500)  # Triplicate IDX 500
+            ]
+        }
+
+        result = mock_cache_manager.list_non_unique_identifiers()
+
+        assert result["ID_ALPHA"] == {100}
+        assert result["ID_BETA"] == {500}
+        assert len(result) == 2
+
+    def test_list_non_unique_identifiers_with_mixed_uniques(self, mock_cache_manager):
+        # Setup: One duplicate, one completely unique
+        mock_cache_manager._identifier_cache = {
+            "ID_GAMMA": [("uid_7", 10), ("uid_8", 10), ("uid_9", 20)],  # 10 is dup, 20 is unique
+            "ID_DELTA": [("uid_10", 99)]  # Totally unique
+        }
+
+        result = mock_cache_manager.list_non_unique_identifiers()
+
+        assert result["ID_GAMMA"] == {10}
+        assert "ID_DELTA" not in result
+        assert len(result) == 1
+
+    def test_list_non_unique_identifiers_empty_cache(self, mock_cache_manager):
+        mock_cache_manager._identifier_cache = {}
+        result = mock_cache_manager.list_non_unique_identifiers()
+        assert result == {}
+
+    def test_list_non_unique_identifiers_multiple_distinct_duplicates(self, mock_cache_manager):
+        # Setup: One ID has two different index types that both duplicate
+        mock_cache_manager._identifier_cache = {
+            "ID_EPSILON": [
+                ("u1", 1), ("u2", 1),  # Pair 1
+                ("u3", 2), ("u4", 2),  # Pair 2
+                ("u5", 3)  # Unique
+            ]
+        }
+
+        result = mock_cache_manager.list_non_unique_identifiers()
+
+        assert result["ID_EPSILON"] == {1, 2}

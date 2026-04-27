@@ -1,5 +1,6 @@
 import copy
 import logging
+from collections import Counter
 
 from contextmanagement.identifiercache import IdentifierCache
 from kiosksqldb import KioskSQLDb
@@ -43,6 +44,16 @@ class MemoryIdentifierCache(IdentifierCache):
             if cur:
                 cur.close()
         return len(self._identifier_cache)
+
+    def get_identifier_field(self, id_def_index: int) -> tuple[str, str]:
+        """
+        returns the record type and the field for and identifier index
+        :param id_def_index: an integer
+        :return: (record_type, field name) or ("","")
+        """
+        if self._identifiers and len(self._identifier_cache) > id_def_index:
+            return self._identifiers[id_def_index][0], self._identifiers[id_def_index][1]
+        return "",""
 
     def has_identifier(self, identifier: str) -> bool:
         return identifier.upper() in self._identifier_cache
@@ -116,3 +127,21 @@ class MemoryIdentifierCache(IdentifierCache):
 
     def get_identifiers(self) -> [str]:
         return list(self._identifier_cache.keys())
+
+    def list_non_unique_identifiers(self) -> dict[str, set[int]]:
+        """
+        returns a dictionary with all identifiers that exist more than once.
+
+        :return: the identifiers are the keys and the values are the identifier-indexes with at least a duplication
+        """
+        non_unique_identifiers = {}
+
+        for id, id_instances in self._identifier_cache.items():
+            counts = Counter(identifier_index for _, identifier_index in id_instances)
+            duplicates = {id_instance[1] for id_instance in id_instances if counts[id_instance[1]] > 1}
+            if duplicates:
+                non_unique_identifiers[id] = duplicates
+
+        return non_unique_identifiers
+
+
