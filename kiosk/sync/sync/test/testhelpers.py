@@ -19,7 +19,7 @@ from kioskappfactory import KioskAppFactory
 from kioskconfig import KioskConfig
 from migration.migration import Migration
 from migration.postgresdbmigration import PostgresDbMigration
-from redisgeneralstore.redisgeneralstore import RedisGeneralStore
+from sync_plugins.redisgeneralstore.redisgeneralstore import RedisGeneralStore
 from sync_config import SyncConfig
 from kiosksqldb import KioskSQLDb
 
