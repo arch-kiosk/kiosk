@@ -63,14 +63,28 @@ class _TableMigration:
             instruction_parameters = instruction_definition[instruction]
             if instruction in self.migration_instruction_set:
                 migration_instruction_class = self.migration_instruction_set[instruction]
-                self.pre_migration_sqls.extend(
-                    migration_instruction_class.create_pre_migration_instructions(self, instruction_parameters))
+                try:
+                    self.pre_migration_sqls.extend(
+                        migration_instruction_class.create_pre_migration_instructions(self, instruction_parameters))
+                except BaseException as e:
+                    raise Exception(f"{migration_instruction_class.__name__}.create_pre_migration_instructions"
+                                    f" for table {self.dsd_table}"
+                                    f" raised error {repr(e)}")
 
-                self.migration_sqls.extend(
-                    migration_instruction_class.create_sql_instructions(self, instruction_parameters))
-
-                self.post_migration_sqls.extend(
-                    migration_instruction_class.create_post_migration_instructions(self, instruction_parameters))
+                try:
+                    self.migration_sqls.extend(
+                        migration_instruction_class.create_sql_instructions(self, instruction_parameters))
+                except BaseException as e:
+                    raise Exception(f"{migration_instruction_class.__name__}.create_sql_instructions for table "
+                                    f"{self.dsd_table}"
+                                    f" raised error {repr(e)}")
+                try:
+                    self.post_migration_sqls.extend(
+                        migration_instruction_class.create_post_migration_instructions(self, instruction_parameters))
+                except BaseException as e:
+                    raise Exception(f"{migration_instruction_class.__name__}.create_post_migration_instructions"
+                                    f" for table {self.dsd_table}"
+                                    f" raised error {repr(e)}")
 
             else:
                 raise DSDUnknownInstruction(f"Migration instruction {instruction}")

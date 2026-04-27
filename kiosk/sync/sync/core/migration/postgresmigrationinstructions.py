@@ -1,4 +1,6 @@
 # todo time zone simpliciation (done)
+import logging
+
 from migration import postgresdbmigration
 from migration.migrationinstruction import MigrationInstruction
 from migration.tablemigration import _TableMigration
@@ -19,12 +21,24 @@ class AddMigrationInstruction(MigrationInstruction):
         sql = f"ALTER TABLE {table_name} "
 
         field_name = parameters[0]
-        instructions = table_migration.migration.dsd.get_field_instructions(table=table_migration.dsd_table,
-                                                                            fieldname=field_name,
-                                                                            version=table_migration.to_version)
+        try:
+            instructions = table_migration.migration.dsd.get_field_instructions(
+                table=table_migration.dsd_table,
+                fieldname=field_name,
+                version=table_migration.to_version)
+
+        except DSDMissingFieldError as e:
+            logging.debug(f"{cls.__name__}.create_sql_instructions: Skipping missing field {field_name}")
+            if table_migration.migration.dsd.view_applied:
+                # we are in a dsd that was filtered by a view. So fields might be missing because
+                # the view filters them out. We skip those in migration.
+                return []
+            else:
+                raise e
+
         field_attributes = []
         migration.process_create_instructions(field_name, instructions, field_attributes,
-                                              master_db = not bool(table_migration.namespace))
+                                              master_db=not bool(table_migration.namespace))
 
         sql += f"ADD COLUMN {migration.sql_safe_ident(field_name)} "
         sql += " ".join(field_attributes)
@@ -51,10 +65,20 @@ class AlterMigrationInstruction(MigrationInstruction):
         sql = ""
         field_name = parameters[0]
 
-        new_field_instructions = table_migration.migration.dsd.get_field_instructions(
-            table=table_migration.dsd_table,
-            fieldname=field_name,
-            version=table_migration.to_version)
+        try:
+            new_field_instructions = table_migration.migration.dsd.get_field_instructions(
+                table=table_migration.dsd_table,
+                fieldname=field_name,
+                version=table_migration.to_version)
+            logging.debug(f"{table_migration.dsd_table}{field_name}{table_migration.to_version}: {new_field_instructions}")
+        except DSDMissingFieldError as e:
+            if table_migration.migration.dsd.view_applied:
+                logging.debug(f"{cls.__name__}.create_sql_instructions: Skipping missing field {field_name}")
+                # we are in a dsd that was filtered by a view. So fields might be missing because
+                # the view filters them out. We skip those in migration.
+                return []
+            else:
+                raise e
 
         try:
             old_field_instructions = table_migration.migration.dsd.get_field_instructions(
@@ -164,6 +188,14 @@ class DropMigrationInstruction(MigrationInstruction):
                 table=table_migration.dsd_table,
                 fieldname=field_name,
                 version=table_migration.from_version)
+        except DSDMissingFieldError as e:
+            logging.debug(f"{cls.__name__}.create_sql_instructions: Skipping missing field {field_name}")
+            if table_migration.migration.dsd.view_applied:
+                # we are in a dsd that was filtered by a view. So fields might be missing because
+                # the view filters them out. We skip those in migration.
+                return []
+            else:
+                raise e
         except KeyError:
             raise DSDInstructionValueError(
                 f"Cannot drop field {field_name} from version {table_migration.from_version}.")
@@ -175,8 +207,8 @@ class DropMigrationInstruction(MigrationInstruction):
         if table_migration.migration.dsd.translate_datatype(
                 old_field_instructions["datatype"][0]).lower() == "timestamp" and \
                 "replfield_modified" in old_field_instructions:
-                sql += f",DROP COLUMN {migration.sql_safe_ident(field_name + '_tz')}"
-                sql += f",DROP COLUMN {migration.sql_safe_ident(field_name + '_ww')}"
+            sql += f",DROP COLUMN {migration.sql_safe_ident(field_name + '_tz')}"
+            sql += f",DROP COLUMN {migration.sql_safe_ident(field_name + '_ww')}"
 
         return [sql]
 

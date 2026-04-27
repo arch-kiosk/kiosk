@@ -954,3 +954,10 @@ class TestDataSetDefinition(KioskPyTestHelper):
                                                       ]})
         ws_dsd = dsd_workstation_view.dsd
         assert ws_dsd.get_proxy_field_reference("test", "some_date_tz", test=True) == ""
+
+    def test_table_is_defined(self, cfg, dsd_images_and_units):
+        dsd: DataSetDefinition = dsd_images_and_units
+        assert dsd.table_is_defined("unit")
+        assert dsd.table_is_defined("unit", 1)
+        assert not dsd.table_is_defined("unit", 12)
+        assert not dsd.table_is_defined("unkown table")

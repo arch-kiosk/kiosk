@@ -2,7 +2,7 @@ import logging
 import os
 import re
 from copy import deepcopy, copy
-from typing import List
+from typing import List, Any
 
 import kioskstdlib
 from dicttools import dict_merge
@@ -135,9 +135,18 @@ class DataSetDefinition:
         self._glossary = None
         self._cache = {}
         self._dont_cache = False
+        self._view_applied = False
         # !!! If you make changes here !!!
         # don't forget that all attributes added here might have to be added in .clone() and .clone_refs()!
         # !!! If you make changes here !!!
+
+    @property
+    def view_applied(self) -> bool:
+        return self._view_applied
+
+    @view_applied.setter
+    def view_applied(self, value: bool):
+        self._view_applied = value
 
     def clone(self, dsd_class=None):
         ### clones a dsd with deepcopy. If the new dsd makes changes to data it will not change data in here.
@@ -465,16 +474,23 @@ class DataSetDefinition:
                 return True
         return False
 
-    def table_is_defined(self, table_name):
+    def table_is_defined(self, table_name, version=0):
         """
         checks if there is a table definition for the table in the dsd.
         It does not matter if the table is a system table or dropped!
         :param table_name: str
+        :param version: int optional version. If missing this checks if the table is registered in the DSD at all.
         :return: true or false
         """
-        return table_name in self._dsd_data.get_keys([])
+        if table_name in self._dsd_data.get_keys([]):
+            if version == 0:
+                return True
+            if version in self._dsd_data.get_keys([table_name,KEY_TABLE_STRUCTURE]):
+                return True
 
-    def list_tables(self, include_dropped_tables=False, include_system_tables=False, version=0):
+        return False
+
+    def list_tables(self, include_dropped_tables=False, include_system_tables=False, **kwargs):
         """ returns a list of the tables in the DataSetDefinition. Does not list dropped tables unless the parameter
          calls for it
          :param include_system_tables: includes tables that are flagged as system_table
@@ -664,6 +680,9 @@ class DataSetDefinition:
         instructions = self._dsd_data.get([table, KEY_TABLE_STRUCTURE, version, fieldname])
         return copy(instructions)
 
+    def purge_cache(self):
+        self._cache = {}
+
     def _get_field_instructions_from_cache(self, table, fieldname, version):
         try:
             t = self._cache[table][version]
@@ -709,9 +728,15 @@ class DataSetDefinition:
 
         result = {}
         parser = SimpleFunctionParser()
+
         _version = version if version else self.get_current_version(table)
         if self.is_table_dropped(table, _version):
             raise DSDTableDropped(f"{table}, version {_version} dropped.")
+
+        if not self.table_is_defined(table, _version):
+            raise KeyError(f"Table {table} V{_version} does not exist in {'DSD(View)'if self.view_applied else 'Master DSD'}")
+
+        self._check_field(_version, fieldname, table)
 
         for instruction in self._dsd_data.get([table, KEY_TABLE_STRUCTURE, _version, fieldname]):
             if not patterns or kioskstdlib.str_starts_with_element(instruction, patterns):
@@ -724,6 +749,13 @@ class DataSetDefinition:
         if version == 0 and not patterns:
             self._set_field_instructions_in_cache(table, fieldname, result, _version)
         return result
+
+    def _check_field(self, _version: int | Any, fieldname: str | Any, table: str | Any):
+        if not fieldname in self._dsd_data.get([table, KEY_TABLE_STRUCTURE, _version]):
+            logging.debug(f"Table {table} V{_version} does not have a field '{fieldname}' in "
+                           f"{'DSD(View)' if self.view_applied else 'Master DSD'}")
+            raise DSDMissingFieldError(f"Table {table} V{_version} does not have a field '{fieldname}' in "
+                           f"{'DSD(View)' if self.view_applied else 'Master DSD'}")
 
     def add_field_instruction(self, table, fieldname, instruction: str,version=None):
         _version = version if version else self.get_current_version(table)
@@ -751,6 +783,9 @@ class DataSetDefinition:
 
         if self.is_table_dropped(table, version):
             raise DSDTableDropped(f"{table}, version {version} dropped.")
+
+        if not self.table_is_defined(table, version):
+            raise KeyError(f"Table {table} V{version} does not exist in {'DSD(View)'if self.view_applied else 'Master DSD'}")
 
         # version = version if version else self.get_current_version(table)
         result = {}
@@ -1131,6 +1166,8 @@ class DataSetDefinition:
         direction = "upgrade" if upgrade else "downgrade"
         if not version:
             version = self.get_current_version(table)
+        if not self.table_is_defined(table, version):
+            raise KeyError(f"Table {table} V{version} does not exist in {'DSD(View)'if self.view_applied else 'Master DSD'}")
 
         for instruction in self._dsd_data.get([table, KEY_TABLE_MIGRATION, version, direction]):
             if find_instruction:

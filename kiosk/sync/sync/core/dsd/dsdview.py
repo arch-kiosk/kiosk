@@ -1,5 +1,6 @@
 import logging
 
+import kioskstdlib
 from dsd.dsd3 import DataSetDefinition, DSDInstructionSyntaxError, DSDUnknownInstruction
 from simplefunctionparser import SimpleFunctionParser
 
@@ -14,6 +15,7 @@ class DSDView:
         """
         assert "config" in dsd._dsd_data.get([])
         self.dsd = dsd.clone()
+        self.dsd.purge_cache()
         self.include_tables = []
         self.excluded_fields = {}
         self._conditions = {}
@@ -42,6 +44,7 @@ class DSDView:
         """
         self._read_conditions(instructions)
         self.include_tables = []
+        logging.debug(f"{self.__class__.__name__}.apply_view_instructions: Applying View Instructions: {instructions}")
         parser = SimpleFunctionParser()
         for instruction in instructions["tables"]:
             try:
@@ -87,6 +90,8 @@ class DSDView:
 
         self._delete_not_included_tables()
         self._delete_not_included_fields()
+        self.dsd.view_applied = True
+        self.dsd.purge_cache()
         return True
 
     def _read_conditions(self, instructions: dict):

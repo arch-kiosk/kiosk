@@ -9,6 +9,8 @@ class DSDWrongVersionError(DSDError):
 class DSDInstructionSyntaxError(DSDError):
     pass
 
+class DSDMissingFieldError(DSDError):
+    pass
 
 class DSDFileError(DSDError):
     pass
