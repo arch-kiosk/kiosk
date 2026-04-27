@@ -752,8 +752,6 @@ class DataSetDefinition:
 
     def _check_field(self, _version: int | Any, fieldname: str | Any, table: str | Any):
         if not fieldname in self._dsd_data.get([table, KEY_TABLE_STRUCTURE, _version]):
-            logging.debug(f"Table {table} V{_version} does not have a field '{fieldname}' in "
-                           f"{'DSD(View)' if self.view_applied else 'Master DSD'}")
             raise DSDMissingFieldError(f"Table {table} V{_version} does not have a field '{fieldname}' in "
                            f"{'DSD(View)' if self.view_applied else 'Master DSD'}")
 
