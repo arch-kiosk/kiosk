@@ -3,6 +3,7 @@ import datetime
 import logging
 import ntpath
 import pprint
+import textwrap
 import time
 import winreg
 from os import path
@@ -755,10 +756,12 @@ class FileMakerControlWindows(FileMakerControl):
 
         try:
             fm_cur = self.cnxn.cursor()
+            import_filter = dsd.get_import_filter(tablename, "fm12")
             if latest_record_data:
                 if self._is_table_already_up_to_date(dest_tablename, fm_cur, latest_record_data[0],
                                                      latest_record_data[1], latest_record_data[2],
-                                                     current_tz=current_tz):
+                                                     current_tz=current_tz,
+                                                     import_filter=import_filter):
                     fm_cur.close()
                     return 2
                 logging.debug(f"{self.__class__.__name__}.transfer_table_data_to_filemaker:"
@@ -1133,7 +1136,8 @@ class FileMakerControlWindows(FileMakerControl):
         return 0
 
     def _is_table_already_up_to_date(self, dest_tablename, fm_cur, modified_field_name,
-                                     max_modified, record_count, current_tz: KioskTimeZoneInstance = None):
+                                     max_modified, record_count, current_tz: KioskTimeZoneInstance = None,
+                                     import_filter=None):
         """
 
         This checks if the most recent value of the modified_field_name
@@ -1147,6 +1151,8 @@ class FileMakerControlWindows(FileMakerControl):
                 It is either in user time zone or a legacy time stamp
         :param record_count this is the value count(modified_field_name) needs to meet
         :param current_tz - required time zone info to be used for the FileMaker database
+        :param import_filter - limits the check to a subset of records.
+                The import filter must be a valid FileMaker where statement (without the where, though)
         :return: True if the dest table fulfills the requirements.
         """
         # todo: test
@@ -1156,8 +1162,14 @@ class FileMakerControlWindows(FileMakerControl):
 
         modified_field = modified_field_name
         if modified_field:
-            fm_cur = fm_cur.execute(f"select max(\"{modified_field}\") \"max_modified\", "
-                                    f"count(\"{modified_field}\") \"c\" from \"{dest_tablename}\"")
+            sql = (f"{'select'} max(\"{modified_field}\") \"max_modified\", "
+                   f"count(\"{modified_field}\") \"c\" from \"{dest_tablename}\"")
+            if import_filter:
+                logging.debug(f"{self.__class__.__name__}._is_table_already_up_to_date: using "
+                              f"fm12 import filter {import_filter}")
+                sql += f" where {import_filter}"
+
+            fm_cur = fm_cur.execute(sql)
             fm_record = fm_cur.fetchone()
             if not fm_record:
                 raise Exception("Can't read from FileMaker cursor")
@@ -1482,7 +1494,8 @@ class FileMakerControlWindows(FileMakerControl):
                                                                                "values(?, ?, ?, 'system')",
                                [key, value, sync])
             else:
-                logging.debug("updating " + key + " = " + value + " in " + dest_field)
+                logging.debug(textwrap.shorten("updating " + key + " = " + value + " in " + dest_field,
+                                               width=30, placeholder="..."))
                 fm_cur.execute("update" + " \"constants\" " +
                                "set \"" + dest_field + "\"=?, " +
                                "\"sync\"=? " +
