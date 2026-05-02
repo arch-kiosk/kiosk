@@ -50,8 +50,16 @@ class ImportWorkstationWorker(WorkstationManagerWorker):
 
     def worker(self):
         def import_from_fm(fix=False):
+            show_details = False
             try:
                 logging.debug("Import Worker starts")
+                try:
+                    plugin_cfg = self.cfg.kiosk["kioskfilemakerworkstationplugin"]
+                    show_details = bool(plugin_cfg["show_import_details"])
+                except BaseException as e:
+                    logging.debug(f"{self.__class__.__name__}.import_from_fm: Error reading plugin config: {repr(e)}")
+                    pass
+
                 self.init_dsd()
                 sync = Synchronization()
                 # ws = KioskFileMakerWorkstation(ws_id, sync=sync)
@@ -69,7 +77,7 @@ class ImportWorkstationWorker(WorkstationManagerWorker):
                         self.job.publish_progress(100, "Finished.")
                         if rc:
                             result = KioskResult(True,
-                                             show_details=True)
+                                             show_details=show_details)
                         else:
                             result = KioskResult(False, "An error occurred when importing from filemaker.")
                 else:
