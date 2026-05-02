@@ -373,6 +373,7 @@ kiosk:
     max_file_size: 786432000
     max_download_file_size: 524288000
     keep_fm_open: true
+    show_import_details: false
 
     menu:
       "prepare filemaker workstations": [ "+syncmanagerplugin" ]
