@@ -18,7 +18,7 @@ class ForkNExportWorkstationWorker(WorkstationManagerWorker):
     def check_workstation_size(self, workstation: KioskFileMakerWorkstation):
         try:
             try:
-                plugin_cfg = self.cfg["kiosk", "kioskfilemakerworkstationplugin"]
+                plugin_cfg = self.cfg.kiosk["kioskfilemakerworkstationplugin"]
             except BaseException as e:
                 return
 
@@ -26,11 +26,11 @@ class ForkNExportWorkstationWorker(WorkstationManagerWorker):
             if download_file_size_status:
                 if download_file_size_status[0] == -1:
                     logging.warning(f"The resulting file size for this dock exceeds the upload size of "
-                                    f"{download_file_size_status[1]/1024/1024} MB. This recording group needs "
+                                    f"{round(download_file_size_status[1]/1024/1024,2)} MB. This recording group needs "
                                     f"file picking rules urgently! It won't be possible to upload this dock again.")
                 if download_file_size_status[0] == -2:
                     logging.warning(f"The resulting file size for this dock exceeds the limit of "
-                                    f"{download_file_size_status[1]/1024/1024} MB. This recording group needs "
+                                    f"{round(download_file_size_status[1]/1024/1024,2)} MB. This recording group needs "
                                     f"file picking rules soon.")
 
         except BaseException as e:
@@ -138,6 +138,7 @@ class ForkNExportWorkstationWorker(WorkstationManagerWorker):
                         if status == MCPJobStatus.JOB_STATUS_CANCELLING:
                             result = KioskResult(False, "Exporting to FM has been cancelled by a user.")
                         else:
+                            self.check_workstation_size(ws)
                             self.job.publish_progress(100, "Finished.")
                             if rc:
                                 result = KioskResult(True)
