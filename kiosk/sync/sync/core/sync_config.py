@@ -607,7 +607,7 @@ class SyncConfig(Config):
             except BaseException as e:
                 logging.error(f"SyncConfig.get_create_transfer_dir: "
                               f"Error validating or creating transfer dir {transfer_dir}: {repr(e)}")
-                return ""
+        return ""
 
     def get_dsd_path(self):
         return kioskstdlib.get_file_path(self.dsdfile)
