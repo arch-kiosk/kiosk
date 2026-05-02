@@ -8,6 +8,7 @@ import zipfile
 from collections import namedtuple
 from http import HTTPStatus
 from os import path
+from typing import Any
 
 from flask import Blueprint, request, redirect, render_template, jsonify, \
     url_for, abort, make_response, send_file, __version__
@@ -79,7 +80,6 @@ SysInfo = namedtuple('SysInfo', ['kiosk_ver', 'kiosk_date', 'kiosk_name', 'dsd_f
                                  'flask_ver', "postgresql_ver"])
 
 
-
 class UserError(Exception):
     pass
 
@@ -91,6 +91,7 @@ def inject_current_plugin_controller():
 
 def get_plugin_config():
     return kioskglobals.cfg.get_plugin_config(_plugin_name_)
+
 
 #  **************************************************************
 #  ****    /administration/test route
@@ -219,7 +220,8 @@ def administration_show():
             dsd = Dsd3Singleton.get_dsd3()
             plugin_manager = current_app.plugin_manager
             plugins = [{"subsystem": "kiosk", "name": p.name, "type": type(p).__name__,
-                        "plugin_version": p.get_plugin_version() if hasattr(p, "get_plugin_version") else "-"} for k, p in
+                        "plugin_version": p.get_plugin_version() if hasattr(p, "get_plugin_version") else "-"} for k, p
+                       in
                        plugin_manager.plugins.items()]
             sync = Synchronization()
             try:
@@ -293,7 +295,7 @@ def administration_show():
                 redis_version = ""
                 logging.error(f"administrationcontroller.administration_show : {repr(e)}")
 
-            gs_id = kioskstdlib.try_get_dict_entry(conf.config,"gs_id","",True)
+            gs_id = kioskstdlib.try_get_dict_entry(conf.config, "gs_id", "", True)
 
             authorized_to = get_local_authorization_strings(LOCAL_ADMINISTRATION_PRIVILEGES)
             if kioskglobals.get_development_option("suppress_system_messages").lower() == 'true':
@@ -330,6 +332,7 @@ def administration_show():
                                    file_cache_refresh_running=file_cache_refresh_running,
                                    fid_cache_refresh_running=find_running_job(kioskglobals.general_store,
                                                                               JOB_SUFFIX_REFRESH_FID_CACHE),
+                                   transfer_dir=get_admin_transfer_dir(),
                                    gs_id=gs_id,
                                    patch_list=patch_list)
         except BaseException as e:
@@ -496,10 +499,8 @@ def transfer():
                 logging.error(f"administrationcontroller.transfer: {repr(e)}")
                 general_errors.append(repr(e))
     else:
-        cfg = get_plugin_config()
         try:
-            backup_directory = kioskglobals.cfg.resolve_symbols(cfg["defaults"]["backup_directory"])
-            transfer_directory = os.path.join(kioskstdlib.get_parent_dir(backup_directory), "transfer")
+            transfer_directory = get_admin_transfer_dir()
             transfer_form.transfer_dir.data = transfer_directory
         except (TypeError, KeyError) as e:
             logging.warning(f"administrationcontroller.transfer: defaults not configured: {repr(e)} ")
@@ -507,6 +508,21 @@ def transfer():
     return render_template('transferdialog.html',
                            config=kioskglobals.cfg, transfer_form=transfer_form,
                            general_errors=general_errors, job_uid=job_uid)
+
+
+def get_admin_transfer_dir() -> Any:
+    cfg = kioskglobals.cfg
+    backup_directory = cfg.resolve_symbols(get_plugin_config()["defaults"]["backup_directory"])
+    transfer_directory = os.path.join(kioskstdlib.get_parent_dir(backup_directory), "transfer")
+    try:
+        _transfer_directory = cfg.get_transfer_dir()[1]
+        if _transfer_directory:
+            transfer_directory = _transfer_directory
+    except BaseException as e:
+        logging.error(f"administrationcontroller.transfer: Can't read transfer directory from config: {repr(e)}")
+        logging.error(f"administrationcontroller.transfer: Sticking with the default {transfer_directory}")
+
+    return transfer_directory
 
 
 #  **************************************************************
@@ -742,8 +758,6 @@ def start_mcp_restore(backup_file: str, restore_file_repos: bool, restore_users:
     return errors, job
 
 
-
-
 def shutdown_local_server():
     func = request.environ.get('werkzeug.server.shutdown')
     if func is None:
@@ -869,6 +883,7 @@ def start_mcp_housekeeping(params):
 
     return errors, job_uid
 
+
 #  **************************************************************
 #  ****    /administration.download_transfer_catalog
 #  *****************************************************************/
@@ -925,6 +940,7 @@ def start_mcp_update_transfer_catalog():
 
     return errors, job_uid
 
+
 #  **************************************************************
 #  ****    /administration.download_transfer_catalog/download
 #  *****************************************************************/
@@ -962,6 +978,7 @@ def download_transfer_catalog_download():
     except BaseException as e:
         logging.error(f"administrationcontroller.download_transfer_catalog_download: {repr(e)}")
         abort(HTTPStatus.INTERNAL_SERVER_ERROR, description=repr(e))
+
 
 #  **************************************************************
 #  ****    /administration.processes_show
@@ -1382,6 +1399,7 @@ def after_synchronization():
 
     return jsonify(**result)
 
+
 #  **************************************************************
 #  ****    /administration/refresh_file_cache route
 #  *****************************************************************/
@@ -1416,6 +1434,7 @@ def refresh_file_cache():
 
     return jsonify(**result)
 
+
 def start_mcp_refresh_file_cache():
     #
     # main function
@@ -1438,8 +1457,10 @@ def start_mcp_refresh_file_cache():
 
     return errors, job_uid
 
+
 def is_file_cache_refresh_running():
     return find_running_job(kioskglobals.general_store, JOB_SUFFIX_REFRESH_CACHE_FILE)
+
 
 #  **************************************************************
 #  ****    /administration/refresh_file_identifier_cache route
@@ -1491,6 +1512,7 @@ def start_mcp_refresh_fid_cache():
         job_uid = ""
 
     return errors, job_uid
+
 
 #  **************************************************************
 #  ****    /administration/reload_all_kiosk_queries route
