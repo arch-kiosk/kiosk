@@ -654,6 +654,13 @@ class SyncConfig(Config):
     def config_dict(self):
         return self._config
 
+    @property
+    def server_is_read_only(self):
+        try:
+            return bool(self.config["server_is_read_only"])
+        except BaseException as e:
+            return False
+
     def get_agnostic_mode(self) -> bool:
         """
         checks if this kiosk's file repository must run in agnostic mode

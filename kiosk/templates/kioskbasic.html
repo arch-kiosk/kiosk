@@ -111,6 +111,16 @@
             </div>
         </div> <!-- header -->
         <div>
+            {% if server_is_read_only %}
+                <div class="system-message severity-error warning-server-is-read-only">
+                    <p class="message-headline">
+                      <i>☠️</i> <span>All changes will be lost. </span> <i>☠️</i>
+                    </p>
+                    <p class="message-body">
+                        This server is in read only mode. You can use it for reference but don't make any changes to the archaeological data. <span></span>
+                    </p>
+                </div>
+            {% endif %}
             {% block system_messages %}
                 {% include "_system_messages.html" %}
             {% endblock %}
