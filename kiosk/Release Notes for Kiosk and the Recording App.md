@@ -310,3 +310,30 @@ that you can find here: https://sites.brown.edu/kiosk/videos/
 - 🌼 In query and view you can bookmark your favourite queries so that you don't have to find them time and again in the growing mess of queries
 - 🌼 Importing a workstation has gotten faster. We're hoping to achieve more before the summer seasons. 
 - 🌼 The file export can now export JSON in two different flavors: As tables with records and as a nested JSON Doc structure.   
+
+### 📣 Release Notes for Kiosk 1.7.52 📣
+✏️ As always: The release notes are best viewed on GitHub https://github.com/arch-kiosk/arch-kiosk-office/issues/1434
+
+**This is the release for all projects using Kiosk in the field in Summer 2026**
+
+🔑 **Most important**: Kiosk is using a secure network connection (https) even when running on a local server. 🔑 
+- 🔑 We introduce this so that Chrome stops annoying you with security warnings. **To use this version of Kiosk you need to install a certificate on every device** that connects to Kiosk (only once in 10 years or so). Once you connect to your local Kiosk using the old way "http://kiosk" you will learn all about it and get instructions on what to do.  
+    
+     
+🎥 There is also a video tutorial that explains it for iPads: https://sites.brown.edu/kiosk/videos/. Look under "Most Recent Tutorials"
+
+
+- 🚀 Note again what was already anounced with 1.7.43: Bulk preparation is now considerably faster.   
+  Whenever you have more than one dock to prepare, use "PREPARE ALL WORKSTATIONS" and chose the port (recording group) with the docks you want to prepare in bulk.
+
+
+- 📍 Kiosk warns you in the synchronization log if for some reason your team created duplicate identifiers
+- 🚀 More performance gains, this time when importing a workstation: Only what has actually changed gets transferred. 
+- 🚀 Another 5 seconds performance gain when preparing a workstation: Configuration keys are now handled faster.
+- 📍 All photos (all files) now get an automatic serial number during synchronization. You find that number in the footer of the data panel of the image viewer. You can also search for that number in the file repository (search for it in the description field). 
+- 📍 Reporting got improvements under the hood and supports more variations in Excel. As a result you can now have photo log reports.
+- 📍 Your online server warns you now if your master database is offline in the field but can still be used for reference
+- 📍 The alternative identifier in collected materials can now be automatically assigned a number (ask us if you need this)
+
+📚 The documentation on https://sites.brown.edu/kiosk/docs/ has been reviewed and updated, mainly to reflect that you now connect to Kiosk via https and that you must install the certificate on all iPads and laptops. 
+

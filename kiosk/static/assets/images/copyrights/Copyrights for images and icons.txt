@@ -107,3 +107,15 @@ Sidebar Right SVC Vector (embedded in file repos toolbar) https://www.svgrepo.co
 COLLECTION: Framework7 Line Icons
 LICENSE: MIT License
 AUTHOR: framework7io
+
+--------------------
+microscope-pictogram-3-svgrepo-com (filemkaker):
+https://www.svgrepo.com/svg/478591/microscope-pictogram-3
+Microscope Pictogram 3 SVG Vector
+
+Free Download Microscope Pictogram 3 SVG vector file in monocolor and multicolor type for Sketch and Figma from Microscope Pictogram 3 Vectors svg vector collection. Microscope Pictogram 3 Vectors SVG vector illustration graphic art design format.
+
+    COLLECTION: Education Icooon Mono Vectors
+    LICENSE: PD License
+    AUTHOR: Icooon Mono
+--------------------
