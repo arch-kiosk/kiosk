@@ -2251,3 +2251,40 @@ todos:
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+
+modules:
+  structure:
+    1:
+      module_category: [datatype(VARCHAR)]
+      selectors: [datatype(VARCHAR)]
+      module_name: [datatype(VARCHAR)]
+      options: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+
+material_analysis_record:
+  structure:
+    1:
+      cm_uid: [datatype(UUID), join("collected_material")]
+      f1: [datatype(VARCHAR)]
+      f2: [datatype(VARCHAR)]
+      f3: [datatype(VARCHAR)]
+      f4: [datatype(VARCHAR)]
+      f5: [datatype(VARCHAR)]
+      f6: [datatype(VARCHAR)]
+      f7: [datatype(VARCHAR)]
+      f8: [datatype(VARCHAR)]
+      f9: [datatype(VARCHAR)]
+      f10: [datatype(VARCHAR)]
+      f11: [datatype(VARCHAR)]
+      f12: [datatype(VARCHAR)]
+      f13: [datatype(VARCHAR)]
+      f14: [datatype(VARCHAR)]
+      f15: [datatype(VARCHAR)]
+      f16: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
