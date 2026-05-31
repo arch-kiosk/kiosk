@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$/.." vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/custom/anc" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/custom/u2ers" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/plugins/fsviewerplugin" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/plugins/hmlabplugin" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/plugins/logviewerplugin" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/plugins/pointrepositoryplugin" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/plugins/pwastresstestplugin" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/sync/sync/sync_plugins/buap_ancdb_bridge" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/sync/sync/sync_plugins/rliim_kiosk_bridge" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/sync/sync/tools/qrcoderecognitiontests" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/sync/sync/tools/ustp_ceramics_import" vcs="Git" />
+  </component>
+</project>

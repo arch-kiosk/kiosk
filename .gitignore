@@ -23,8 +23,7 @@ old_*/
 **/log/
 **/.*cache/
 **/venv*/
-**/.idea/
-**/screenshots/
+
 **/venv_*/
 /urap_repl/
 /*.txt

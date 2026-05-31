@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="plugin scripts" pattern="file:*/static/app/*&amp;&amp;!file[kiosk]:*" />
+</component>
