@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="PYTHON_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/core" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/sync" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/sync/sync" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/sync/sync/core" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/static/assets" />
+      <excludeFolder url="file://$MODULE_DIR$/sync/sync/file_repository" />
+      <excludeFolder url="file://$MODULE_DIR$/sync/sync/filemaker" />
+      <excludeFolder url="file://$MODULE_DIR$/log" />
+      <excludeFolder url="file://$MODULE_DIR$/static/styles/fontawesome-free-6.4.0-web" />
+      <excludeFolder url="file://$MODULE_DIR$/sync/sync/.pytest_cache" />
+      <excludeFolder url="file://$MODULE_DIR$/sync/sync/core/test/urapsqldb/log" />
+      <excludeFolder url="file://$MODULE_DIR$/temp" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/syncmanagerplugin/app/kioskfilemakerworkstation/static" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/hmlabplugin/static/app" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/directorsviewplugin/static/app" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/queryandviewplugin/static/app" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/directorsviewplugin/app" />
+      <excludeFolder url="file://$MODULE_DIR$/plugins/queryandviewplugin/app" />
+      <excludeFolder url="file://$MODULE_DIR$/static/scripts/obsolete" />
+      <excludeFolder url="file://$MODULE_DIR$/static/scripts/thirdparty" />
+      <excludePattern pattern="/static/app/*" />
+    </content>
+    <orderEntry type="jdk" jdkName="Python 3.11 virtualenv at C:\notebook_source\kiosk\server\kiosk\venv_kiosk" jdkType="Python SDK" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+  <component name="PackageRequirementsSettings">
+    <option name="requirementsPath" value="" />
+  </component>
+  <component name="TemplatesService">
+    <option name="TEMPLATE_CONFIGURATION" value="Jinja2" />
+    <option name="TEMPLATE_FOLDERS">
+      <list>
+        <option value="$MODULE_DIR$/plugins/administrationplugin/templates" />
+        <option value="$MODULE_DIR$/templates" />
+      </list>
+    </option>
+  </component>
+  <component name="TestRunnerService">
+    <option name="PROJECT_TEST_RUNNER" value="py.test" />
+  </component>
+</module>

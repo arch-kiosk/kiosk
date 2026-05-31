@@ -58,6 +58,10 @@ backup.reminder
 !.idea/scopes/*.xml
 !.idea/codeStyles/
 !.idea/inspectionProfiles/
+!.idea/modules.xml
+
+# Un-ignore the main project structure file
+!*.iml
 
 plugins/**/.idea/
 sync/**/.idea/
