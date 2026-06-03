@@ -2,10 +2,15 @@ header:
   version: 1
 meta:
   query_type: StructuredKioskQuery
+variables:
+  a_unit: ["dsd('unit', 'arch_context')", "input_default(null)"]
+  b_from_date: [datatype(date), label("after"), "input_default(null)"]
+  c_to_date: [datatype(date), label("before"), "input_default(null)"]
+
 queries:
   'mafs_collected_material_lot':
-    name: 'MAFS: List all materials'
-    description: 'MAFS: Lists all materials found across all sites.'
+    name: 'MAFS: List materials'
+    description: 'MAFS: Lists materials found across all sites or per trench.'
     type: 'SQL'
     output_type: 'list'
     query: "  
@@ -25,6 +30,9 @@ queries:
          inner join {{locus}} l on u.uid = l.uid_unit
          inner join {{collected_material}} cm on l.uid = cm.uid_locus
          left outer join {{lot}} lot on cm.uid_lot = lot.uid
+      where
+        ({{#a_unit}} is null or u.arch_context={{#a_unit}}) and   
+        ({{#b_from_date}} is null or {{#c_to_date}} is null or coalesce(cm.date, cm.created) between {{#b_from_date}} and {{#c_to_date}}) 
       group by 
             u.arch_context,
             l.arch_context,
