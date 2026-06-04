@@ -593,11 +593,25 @@ class Dock:
         tables = workstation_dsd.list_tables()
         return tables
 
+    @classmethod
+    def delete_physical_files(cls, cfg: SyncConfig, dock_id:str, test_mode=False):
+        """
+        This is a classmethod! It deletes the physical files of a dock.
+        This is independent of the database records of the dock. Those might (and should) already be gone.
+
+        :param cfg: points to the Kiosk config
+        :param dock_id:  the id of the dock
+        :param test_mode: bool. Set to True and nothing will be deleted
+
+        :raises Exception if something goes wrong
+        """
+        raise NotImplementedError
+
     def delete(self, commit=False):
         """
             Deletes a workstation and all of its contents from the database.
             Does not commit the database changes by default unless commit is set to True.
-            Subclasses shoud not override this one but _on_delete_workstation instead.
+            Subclasses should not override this one but _on_delete_workstation instead.
 
             :param commit: if set to True the changes will be committed automatically.
                            !note!: That includes rolling back pending changes of the ongoing transaction!

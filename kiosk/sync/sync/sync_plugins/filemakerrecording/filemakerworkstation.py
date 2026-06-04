@@ -10,6 +10,7 @@ import shutil
 import zoneinfo
 from datetime import tzinfo
 from itertools import islice, chain
+from pathlib import Path
 from shutil import copyfile
 import time
 from os import path
@@ -68,7 +69,7 @@ class FileMakerWorkstation(RecordingWorkstation):
         self.repldata_records = {}
         self.ws_fork_sync_time = None
         self._download_upload_status: int = self.NOT_SET
-        self._download_upload_ts: Union[datetime.datetime or None] = None
+        self._download_upload_ts: Union[datetime.datetime,None] = None
         self._disabled = False
         self._options = ''
         self.x_state_info = {}
@@ -90,6 +91,19 @@ class FileMakerWorkstation(RecordingWorkstation):
         cls.STATE_NAME.update(
             {2: cls.IN_THE_FIELD,
              })
+
+    @classmethod
+    def get_workstation_ids_from_folders(cls, cfg: SyncConfig) -> set[str]:
+        subfolder_names = {f.name for f in Path(cfg.filemaker_import_dir).iterdir() if f.is_dir()}
+        subfolder_names.update({f.name for f in Path(cfg.filemaker_export_dir).iterdir() if f.is_dir()})
+        return subfolder_names
+
+    @classmethod
+    def list_deleted_workstations(cls, cfg: SyncConfig) -> list[str]:
+        db_workstations = cls.list_workstations()
+        folder_workstations = cls.get_workstation_ids_from_folders(cfg)
+        return [dock_id for dock_id in folder_workstations if dock_id not in db_workstations]
+
 
     @property
     def filemaker_mode(self):
@@ -435,6 +449,27 @@ class FileMakerWorkstation(RecordingWorkstation):
         # Not doing the following because e.g. updating the recording group does not mean the last download
         # has changed its date!
         # self.set_download_upload_status(self._download_upload_status,cur=cur)
+
+    @classmethod
+    def delete_physical_files(cls, cfg: SyncConfig, dock_id:str, test_mode=False):
+        try:
+            if dock_id.strip():
+                dock_id = dock_id.strip()
+                for fm_dir in [cfg.filemaker_import_dir, cfg.filemaker_export_dir]:
+                    if fm_dir:
+                        path_to_delete = os.path.join(fm_dir, dock_id)
+                        if os.path.isdir(path_to_delete):
+                            logging.info(f"{cls.__name__}.delete_physical_files: "
+                                         f"Removing physical remains of dock {dock_id} in path {path_to_delete}")
+                            if not test_mode:
+                                kioskstdlib.remove_files_in_directory(path_to_delete, remove_sub_dirs=True)
+                                os.rmdir(path_to_delete)
+            else:
+                raise Exception("dock id empty")
+        except BaseException as e:
+            logging.error(f"{cls.__name__}.delete_physical_files: "
+                         f"Removing physical remains of dock {dock_id} failed with Exception {repr(e)}")
+            raise Exception(f"Error removing physical remains of {dock_id}")
 
     def _on_delete_workstation(self, cur, migration):
         super()._on_delete_workstation(cur, migration)
