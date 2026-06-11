@@ -188,6 +188,21 @@ kiosk_queries:
   meta:
     flags: [no_fts]
   structure:
+    3:
+      id: [datatype(VARCHAR), unique(), not_null()]
+      category: [datatype(VARCHAR)]
+      show_only_if: [datatype(VARCHAR)]
+      order_priority: [datatype(VARCHAR)]
+      name: [datatype(VARCHAR), unique(), not_null()]
+      description: [datatype(VARCHAR)]
+      query_type: [datatype(VARCHAR)]
+      privilege_read: [datatype(VARCHAR)]
+      privilege_write: [datatype(VARCHAR)]
+      query: [datatype(json)]
+      created: [datatype(TIMESTAMP), not_null(), default("now()")]
+      modified: [datatype(TIMESTAMP), not_null(), default("now()")]
+      modified_by: [ datatype(VARCHAR), default("''") ]
+      uid: [datatype(UUID), uuid_key())]
     2:
       id: [datatype(VARCHAR), unique(), not_null()]
       category: [datatype(VARCHAR)]
@@ -215,6 +230,9 @@ kiosk_queries:
       modified_by: [ datatype(VARCHAR), default("''") ]
       uid: [datatype(UUID), uuid_key())]
   migration:
+    3:
+      upgrade:
+        - add(show_only_if)
     2:
       upgrade:
         - add(category)
