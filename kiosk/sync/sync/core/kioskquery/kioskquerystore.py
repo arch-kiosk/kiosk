@@ -1,12 +1,19 @@
 import logging
 import os
+from typing import List
 
 import yaml
 
 import kioskdatetimelib
+import kioskglobals
 import kioskstdlib
 from uuid import uuid4
 
+from dsd.dsd3singleton import Dsd3Singleton
+from dsl.kioskdsllupa import KioskDSLLua, KioskDSLLuaResolver, LazyResolverContinue, LazyResolverStop
+from dsl.resolvers.dslluakioskconfigresolver import DSLLuaKioskConfigResolver
+from dsl.resolvers.dslluakioskdsdresolver import DSLLuaKioskDSDResolver
+from dsl.resolvers.dslluametaresolver import DSLLuaMetaResolver
 from kioskquery.kioskquery import KioskQuery
 from kioskquery.kioskquerydefinition import KioskQueryDefinition
 from kioskquery.kioskqueryfactory import KioskQueryFactory
@@ -48,11 +55,12 @@ class KioskQueryStore:
         store_entry.id = query_definition.query_id
         store_entry.category = query_definition.category
         store_entry.order_priority = query_definition.order_priority
+        store_entry.show_only_if = query_definition.show_only_if
         store_entry.query_type = query.__class__.__name__
         if hasattr(query_definition, "category"):
             store_entry.category = query_definition.category
         if hasattr(query_definition, "order_priority"):
-            store_entry.category = query_definition.order_priority
+            store_entry.order_priority = query_definition.order_priority
 
         cls._update_definition(store_entry, query_definition)
         store_entry.add(commit=True)
@@ -64,6 +72,7 @@ class KioskQueryStore:
         store_entry.description = query_definition.query_description
         store_entry.category = query_definition.category
         store_entry.order_priority = query_definition.order_priority
+        store_entry.show_only_if = query_definition.show_only_if
         store_entry.query = query_definition.raw_query_definition
         store_entry.created = kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True)
         store_entry.modified = kioskdatetimelib.get_utc_now(no_tz_info=True, no_ms=True)
@@ -116,14 +125,40 @@ class KioskQueryStore:
             return None
 
     @classmethod
-    def list(cls):
+    def get_accessibility_dsl(cls):
+
+        dsl =  KioskDSLLua()
+
+        accessibility_resolver = DSLLuaMetaResolver([DSLLuaKioskConfigResolver(kioskglobals.cfg),
+                                                     DSLLuaKioskDSDResolver(Dsd3Singleton.get_dsd3())])
+        dsl.on_get = accessibility_resolver
+        return dsl
+
+
+    @classmethod
+    def check_accessibility(cls, dsl: KioskDSLLua, show_only_if: str) -> bool:
+        pass
+
+    @classmethod
+    def list(cls, only_accessible_queries=False):
         """
         lists available queries from the store
-        :return: list of tuple (id, type, name, description, r.category, r.order_priority)
+        :param only_accessible_queries: Set to True if you want this to check the show_only_if attribute of each query
+        :return: list of tuple (id, type, name, description, r.category, r.order_priority, r.show_only_if)
         """
         result = []
         store_entry = KioskQueryStoreModel()
+        dsl = None
         for r in store_entry.all():
-            result.append((r.id, r.query_type, r.name, r.description, r.category, r.order_priority))
+            if only_accessible_queries and r.show_only_if:
+                if not dsl:
+                    dsl = cls.get_accessibility_dsl()
+                if dsl:
+                    try:
+                        if not dsl.eval(r.show_only_if):
+                            continue
+                    except BaseException as e:
+                        logging.error(f"{cls.__name__}.list : {repr(e)}")
+            result.append((r.id, r.query_type, r.name, r.description, r.category, r.order_priority, r.show_only_if))
 
         return result

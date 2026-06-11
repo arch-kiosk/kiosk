@@ -34,6 +34,12 @@ class KioskQueryDefinition:
                     "meta" in raw_query_definition and "order_priority" in raw_query_definition["meta"]) else "Z"
 
     @property
+    def show_only_if(self):
+        raw_query_definition = self.raw_query_definition
+        return raw_query_definition["meta"]["show_only_if"] if (
+                    "meta" in raw_query_definition and "show_only_if" in raw_query_definition["meta"]) else ""
+
+    @property
     def charts(self):
         return None
 

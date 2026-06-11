@@ -20,6 +20,7 @@ class KioskQueryStoreModel(Table):
                ("modified_by", ),
                ("category", ),
                ("order_priority", ),
+               ("show_only_if", ),
                ("uid", ",".join([Table.ATTRIBUTE_KEY, Table.ATTRIBUTE_DONT_UPDATE, Table.ATTRIBUTE_DONT_INSERT])),
                ]
 
@@ -36,6 +37,7 @@ class KioskQueryStoreModel(Table):
         self.query_type = ""
         self.privilege_read = ""
         self.privilege_write = ""
+        self.show_only_if = ""
         self.query = None
         super().__init__(**kwargs)
 

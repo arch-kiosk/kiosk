@@ -30,7 +30,8 @@ class ApiResultKioskQueryError(Schema):
 
 class ApiResultKioskQueryDescription(Schema):
     class Meta:
-        fields = ("id", "type", "name", "description", "ui", "category", "order_priority", "charts", "show_rows")
+        fields = ("id", "type", "name", "description", "ui", "category", "order_priority", "charts", "show_rows",
+                  "show_only_if")
         ordered = True
 
     id: fields.Str()
@@ -42,6 +43,7 @@ class ApiResultKioskQueryDescription(Schema):
     order_priority: fields.Str()
     charts: fields.Dict()
     show_rows: fields.Bool()
+    show_only_if: fields.Str()
 
 
 class ApiKioskQueryPostParameter(Schema):
@@ -123,15 +125,16 @@ class ApiKioskQuery(Resource):
             uic_literals = request.args.getlist("uic_literal")
             print("uic_literals", uic_literals)
             api_queries = []
-            store_queries = KioskQueryStore.list()
+            store_queries = KioskQueryStore.list(only_accessible_queries=True)
             uic_tree = kioskglobals.get_uic_tree()
             for store_query in store_queries:
                 try:
                     store_query: tuple
                     api_query = ApiResultKioskQueryDescription()
                     (api_query.id, api_query.type, api_query.name, api_query.description,
-                     api_query.category, api_query.order_priority) = store_query
+                     api_query.category, api_query.order_priority, api_query.show_only_if) = store_query
                     kiosk_query = KioskQueryStore.get(api_query.id)
+
                     if not uic_tree:
                         raise KioskQueryException("Kiosk has no ui classes configured or "
                                                   "the class definitions have errors. Please consult the Kiosk log for"
