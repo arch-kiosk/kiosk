@@ -11,7 +11,5 @@
     <mapping directory="$PROJECT_DIR$/plugins/pwastresstestplugin" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/sync/sync/sync_plugins/buap_ancdb_bridge" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/sync/sync/sync_plugins/rliim_kiosk_bridge" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/sync/sync/tools/qrcoderecognitiontests" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/sync/sync/tools/ustp_ceramics_import" vcs="Git" />
   </component>
 </project>
