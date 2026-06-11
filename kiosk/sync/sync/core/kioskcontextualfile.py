@@ -693,7 +693,7 @@ class KioskContextualFile(KioskLogicalFile):
             return True
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.push_contexts: Exception when pushing {last_identifier}: "
-                          f"{repr(e)}")
+                          f"{repr(e)}.", exc_info=True)
             self._last_error = repr(e)
 
             try:

@@ -450,6 +450,8 @@ class KioskFileCache:
 
             if extension:
                 cache_filename = self._get_cache_filename(uid, representation_type, extension)
+                logging.debug(f"{self.__class__.__name__}.repair_cache_filename._rewrite: Rewriting {uid}: "
+                              f"{wrong_filename} -> {cache_filename} ")
                 entry = self._get_cache_entry(uid, representation_type)
                 entry.path_and_filename = cache_filename
                 entry.update(commit)

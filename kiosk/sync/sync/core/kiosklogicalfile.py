@@ -351,6 +351,8 @@ class KioskLogicalFile:
             return path_and_filename
 
         if create:
+            logging.debug(f"{self.__class__.__name__}.get_representation: "
+                          f"no representation {representation_type.unique_name} for file {self._uid}. Trying to create it...")
             savepoint = "get_representation"
             KioskSQLDb.begin_savepoint(savepoint)
             try:

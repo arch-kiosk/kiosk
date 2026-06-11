@@ -261,3 +261,9 @@ class TestDateTimeLib(KioskPyTestHelper):
         assert cur.query == b"insert into tmp1 values('2024-08-31T10:00:00 Europe/Berlin'::timestamptz)"
         assert KioskSQLDb.get_records("select * from tmp1") == [[datetime.datetime(2024, 8, 31, 8, 0,
                                                                                    tzinfo=datetime.timezone.utc)]]
+
+    def test_get_time_zone_offset_str_egypt(self):
+        tz_egypt = zoneinfo.ZoneInfo("Africa/Cairo")
+        egypt_ts = datetime.datetime.now(tz=tz_egypt)
+        print(egypt_ts)
+        assert kioskdatetimelib.get_time_zone_offset_str(egypt_ts, "Egypt") == "03:00:00"
