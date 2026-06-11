@@ -3,6 +3,7 @@ header:
 meta:
   query_type: StructuredKioskQuery
   category: "ceramics"
+  show_only_if: "DSD.exists('su_ceramics_preprocessing_entry')"
 #variables:
 #  unit_id: ["dsd('unit', 'arch_context')"]
 queries:
