@@ -2,6 +2,7 @@ header:
   version: 1
 meta:
   query_type: StructuredKioskQuery
+  category: 'team management'
 variables:
   involved: ["dsd(excavator, id)", "label(participant)", "input_default(null)"]
 queries:

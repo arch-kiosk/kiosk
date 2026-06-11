@@ -1,0 +1,20 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+  category: 'team management'
+#variables:
+#  involved: ["dsd(excavator, id)", "label(participant)", "input_default(null)"]
+queries:
+  'users_compared':
+    name: 'Users in Kiosk and FileMaker Recording App compared'
+    description: 'Shows you the users in Kiosk and those in the Recording App and connects those that match.'
+    type: 'SQL'
+    output_type: 'list'
+    query: '
+      select k.user_id "kiosk user id", k.user_name "kiosk user name", 
+                      r.id "recording user id", r.name "recording user name"
+      from kiosk_user k
+               full outer join excavator r on upper(k.user_id) = upper(r.id)
+      order by coalesce(k.user_id, r.id)
+    '
