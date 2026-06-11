@@ -253,3 +253,6 @@ class TestStandardLibrary(KioskPyTestHelper):
         # 4. Path Interrupted (raises KeyError)
         with pytest.raises(KeyError, match="not reachable"):
             kioskstdlib.get_nested_dict_value_by_path(data, ["version", "patch"])
+
+        with pytest.raises(TypeError, match="needs a List"):
+            kioskstdlib.get_nested_dict_value_by_path(data, "strings.are.not.allowed")

@@ -1792,6 +1792,8 @@ def substract_leading_list(main_list, filter_list):
 
 def get_nested_dict_value_by_path(constants_dict, path_segments):
     # Split the key into individual segments
+    if not isinstance(path_segments, (list, tuple)):
+        raise TypeError("get_nested_dict_value_by_path needs a List")
 
     current_val = constants_dict
 
