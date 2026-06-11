@@ -281,8 +281,8 @@ class Housekeeping:
             try:
                 ctx_file._repair_cache_filename()
             except BaseException as e:
-                logging.error(f"{self.__class__.__name__}.housekeeping_check_cache_files:"
-                              f" : Exception in _repair_cache_filename: {repr(e)}")
+                logging.error(f"{self.__class__.__name__}.housekeeping_check_cache_files: "
+                              f"Exception in _repair_cache_filename: {repr(e)}")
 
             try:
                 ctx_file.transform_cache_filename()
