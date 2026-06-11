@@ -86,7 +86,7 @@ class KioskDSLLuaResolver:
     def execute(self, path, *args):
         try:
             path_elements = self._split_lua_dot_notation(path)
-            return self.call_function(path_elements, args)
+            return self.call_function(path_elements, *args)
         except LazyResolverContinue as e:
             raise e
         except LazyResolverStop as e:
