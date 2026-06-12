@@ -2,12 +2,15 @@ header:
   version: 1
 meta:
   query_type: StructuredKioskQuery
+  category: "Archive"
 variables:
-  unit_id: ["dsd('unit', 'arch_context')"]
+  unit_id: ["dsd('unit', 'arch_context')", "input_default(null)"]
+  z_excavator: ["dsd('excavator', 'id')", "label('team member')", "input_default(null)"]
 queries:
   'archival_entity_per_OP':
-    name: '#: List all archival entities per #($/constants/labels/label_for_unit_on_start_page)'
-    description: '#: Lists all archival entities for a given #($/constants/labels/label_for_unit_on_start_page).'
+    name: '#: List all archival entities per #($/constants/labels/label_for_unit_on_start_page) and team member'
+    description: '#: Lists all archival entities. You can filter by #($/constants/labels/label_for_unit_on_start_page) 
+    and/or team member.'
     type: 'SQL'
     output_type: 'list'
     query: "  
@@ -17,7 +20,9 @@ queries:
       from archival_entity ae
           inner join archival_entity_units au on ae.uid = au.uid_archival_entity
           inner join unit on au.uid_unit = unit.uid
-      where unit.arch_context = {{#unit_id}}
+          left outer join involved_as ia on ae.uid = ia.related_record_uid
+      where ({{#unit_id}} is null or unit.arch_context = {{#unit_id}}) and 
+        ({{#z_excavator}} is null or ia.user_id={{#z_excavator}})
       order by ae.identifier
       "
 #    query: "
