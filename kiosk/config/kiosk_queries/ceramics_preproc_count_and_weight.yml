@@ -6,6 +6,8 @@ meta:
   show_only_if: "DSD.exists('su_ceramics_preprocessing_entry')"
 variables:
   locus_id: ["dsd('locus', 'arch_context')"]
+  m_from_date: [datatype(date), label("on or after (optional)"), "input_default(null)"]
+  n_to_date: [datatype(date), label("before (optional)"), "input_default(null)"]
 queries:
   'ceramics_type_and_weight_per_locus':
     name: '#:How much pottery has been found per #(/$/glossary/locus:1) in each ceramic category?'
@@ -20,7 +22,8 @@ queries:
        from {{locus}} locus
          inner join {{collected_material}} cm on locus.uid = cm.uid_locus
          inner join {{su_ceramics_preprocessing_entry}} su on cm.uid = su.cm_uid
-      where locus.arch_context = {{#locus_id}}
+      where locus.arch_context = {{#locus_id}} and 
+        ({{#m_from_date}} is null or {{#n_to_date}} is null or coalesce(cm.date, cm.created) between {{#m_from_date}} and {{#n_to_date}})
       group by locus.arch_context, su.category_1
       order by sum(su.weight) desc,sum(su.count) desc, su.category_1"
     charts:

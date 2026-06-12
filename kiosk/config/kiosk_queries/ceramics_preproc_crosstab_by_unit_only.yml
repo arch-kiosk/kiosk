@@ -5,7 +5,9 @@ meta:
   category: "ceramics"
   show_only_if: "DSD.exists('su_ceramics_preprocessing_entry')"
 variables:
-  unit_id: ["dsd('unit', 'arch_context')", input_default(null)]
+  a_unit_id: ["dsd('unit', 'arch_context')", input_default(null)]
+  m_from_date: [datatype(date), label("on or after (optional)"), "input_default(null)"]
+  n_to_date: [datatype(date), label("before (optional)"), "input_default(null)"]
 queries:
   'ceramics_crosstab_per_unit':
     name: '#:What count and weight per pottery category has been found per #(/$/glossary/unit:1)?'
@@ -30,7 +32,9 @@ FROM su_ceramics_preprocessing_entry su
          inner join collected_material cm on su.cm_uid = cm.uid
          inner join locus on cm.uid_locus = locus.uid
          inner join unit on unit.uid = locus.uid_unit
-         where coalesce({{#unit_id}}, '') = '' or unit.arch_context = coalesce({{#unit_id}}, '')
+         where coalesce({{#a_unit_id}}, '') = '' or unit.arch_context = coalesce({{#a_unit_id}}, '') and 
+          ({{#m_from_date}} is null or {{#n_to_date}} is null or 
+          coalesce(cm.date, cm.created) between {{#m_from_date}} and {{#n_to_date}})
 GROUP BY unit.arch_context,
     su.category_1
 order by unit.arch_context, category_1;
