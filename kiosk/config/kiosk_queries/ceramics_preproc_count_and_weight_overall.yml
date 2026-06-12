@@ -5,8 +5,8 @@ meta:
   category: "ceramics"
   show_only_if: "DSD.exists('su_ceramics_preprocessing_entry')"
 variables:
-  m_from_date: [datatype(date), label("on or after (optional)"), "input_default(null)"]
-  n_to_date: [datatype(date), label("before (optional)"), "input_default(null)"]
+  m_from_date: [datatype(date), label("on or after"), "input_default(null)"]
+  n_to_date: [datatype(date), label("before"), "input_default(null)"]
 queries:
   'ceramics_type_and_weight':
     name: '#:How much pottery has been found in each ceramic category?'

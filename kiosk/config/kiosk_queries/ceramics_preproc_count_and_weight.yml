@@ -6,8 +6,8 @@ meta:
   show_only_if: "DSD.exists('su_ceramics_preprocessing_entry')"
 variables:
   locus_id: ["dsd('locus', 'arch_context')"]
-  m_from_date: [datatype(date), label("on or after (optional)"), "input_default(null)"]
-  n_to_date: [datatype(date), label("before (optional)"), "input_default(null)"]
+  m_from_date: [datatype(date), label("on or after"), "input_default(null)"]
+  n_to_date: [datatype(date), label("before"), "input_default(null)"]
 queries:
   'ceramics_type_and_weight_per_locus':
     name: '#:How much pottery has been found per #(/$/glossary/locus:1) in each ceramic category?'
