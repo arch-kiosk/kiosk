@@ -2,6 +2,7 @@ header:
   version: 1
 meta:
   query_type: StructuredKioskQuery
+  category: "Finds"
 variables:
   input_tag: ["dsd(tags, tag)"]
 queries:

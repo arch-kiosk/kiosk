@@ -2,6 +2,7 @@ header:
   version: 1
 meta:
   query_type: StructuredKioskQuery
+  category: "Finds"
 variables:
   input_b_cm_type: ["dsd(collected_material, cm_type)", "input_default(null)"]
   input_c_material_type: ["dsd(collected_material, type)", "input_default(null)"]

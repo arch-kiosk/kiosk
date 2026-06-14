@@ -2,6 +2,7 @@ header:
   version: 1
 meta:
   query_type: StructuredKioskQuery
+  category: "Finds"
 variables:
   a_unit: ["dsd('unit', 'arch_context')", "input_default(null)"]
   b_from_date: [datatype(date), label("after"), "input_default(null)"]

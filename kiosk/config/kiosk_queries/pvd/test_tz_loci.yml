@@ -2,6 +2,7 @@ header:
   version: 1
 meta:
   query_type: StructuredKioskQuery
+  category: "Test"
 variables:
   identifier: ["dsd('unit', 'arch_context')"]
 queries:

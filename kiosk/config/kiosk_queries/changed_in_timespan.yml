@@ -2,6 +2,7 @@ header:
   version: 1
 meta:
   query_type: StructuredKioskQuery
+  category: "Archaeological Entities"
 variables:
   a_from_date: [datatype(date), label("after")]
   b_to_date: [datatype(date), label("before")]

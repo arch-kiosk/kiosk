@@ -2,7 +2,7 @@ header:
   version: 1
 meta:
   query_type: StructuredKioskQuery
-  category: "Archive"
+  category: 'Team and Data Management'
 variables:
   unit_id: ["dsd('unit', 'arch_context')", "input_default(null)"]
   z_excavator: ["dsd('excavator', 'id')", "label('team member')", "input_default(null)"]

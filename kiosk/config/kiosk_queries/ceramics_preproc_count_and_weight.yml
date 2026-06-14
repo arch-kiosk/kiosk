@@ -2,7 +2,7 @@ header:
   version: 1
 meta:
   query_type: StructuredKioskQuery
-  category: "ceramics"
+  category: "Finds"
   show_only_if: "DSD.exists('su_ceramics_preprocessing_entry')"
 variables:
   locus_id: ["dsd('locus', 'arch_context')"]
