@@ -18,7 +18,7 @@ class ApiResultConstant(Schema):
 
 class KioskProjectConstants:
     def __init__(self, add_method: Callable[[List[str], str, str, Union[List, Dict]], Union[List, Dict]] = None):
-        self._add_method = add_method if add_method else self.add_method_api
+        self. _add_method = add_method if add_method else self.add_method_api
 
     @staticmethod
     def add_method_api(path: List[str], key: str, value: str, constants: List) -> List:
