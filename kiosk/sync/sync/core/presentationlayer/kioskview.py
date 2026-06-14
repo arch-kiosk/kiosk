@@ -14,10 +14,9 @@ from kioskconstants import KioskProjectConstants
 from kioskglossary import KioskGlossary
 from presentationlayer.pldloader import PLDLoader
 from presentationlayer.viewpartlist import ViewPartList
+from presentationlayer.viewpartsheet import ViewPartSheet
 from sync_config import SyncConfig
 from uic.uictree import UICTree
-from presentationlayer.viewpart import ViewPart
-from presentationlayer.viewpartsheet import ViewPartSheet
 
 
 class KioskView:

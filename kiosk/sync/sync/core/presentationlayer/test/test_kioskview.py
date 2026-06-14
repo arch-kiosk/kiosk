@@ -1,12 +1,11 @@
 import os
-from io import StringIO, TextIOBase
 
 import pytest
 
 from kioskconstants import KioskProjectConstants
 from presentationlayer.kioskview import KioskView
 from presentationlayer.pldloader import PLDLoader
-from presentationlayer.presentationlayerdefinition import PresentationLayerDefinition, PLDException
+from presentationlayer.presentationlayerdefinition import PresentationLayerDefinition
 from sync_config import SyncConfig
 from test.testhelpers import KioskPyTestHelper
 from uic.uicstream import UICStream, UICKioskFile
