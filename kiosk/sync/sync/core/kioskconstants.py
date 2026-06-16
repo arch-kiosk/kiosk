@@ -1,4 +1,4 @@
-from typing import List, Callable, Iterable, Dict, Union
+from typing import List, Callable, Iterable, Dict, Union, Optional, TypeAlias, Any, Protocol
 
 from marshmallow import Schema, fields
 import kioskstdlib
@@ -16,14 +16,32 @@ class ApiResultConstant(Schema):
     value = fields.Raw()
 
 
+# ApiAddMethod: TypeAlias = Callable[[List[str], str, str, Optional[Any], Optional[str]], Any]
+
+class ApiAddMethod(Protocol):
+    def __call__(
+            self,
+            path: List[str],
+            key: str,
+            value: str,
+            constants: Optional[Any],
+            path_separator: str = "/"
+    ) -> Any:
+        pass
+
+
 class KioskProjectConstants:
-    def __init__(self, add_method: Callable[[List[str], str, str, Union[List, Dict]], Union[List, Dict]] = None):
-        self. _add_method = add_method if add_method else self.add_method_api
+    def __init__(self,
+                 add_method: Optional[ApiAddMethod] = None,
+                 path_separator="/"):
+        self._add_method: ApiAddMethod = add_method if add_method else self.add_method_api
+        self._path_separator = path_separator
 
     @staticmethod
-    def add_method_api(path: List[str], key: str, value: str, constants: List) -> List:
+    def add_method_api(path: List[str], key: str, value: str, constants: Optional[List] = None,
+                       path_separator: str = "/") -> List:
         constant = ApiResultConstant()
-        constant.path = "/".join(path)
+        constant.path = path_separator.join(path)
         constant.key = key
         constant.value = value
         if not constants:
@@ -31,8 +49,18 @@ class KioskProjectConstants:
         constants.append(constant)
         return constants
 
+    def add_method_path_dict(path: List[str], key: str, value: str, constants: Optional[Dict] = None,
+                             path_separator: str = "/") -> Dict:
+        str_path = path_separator.join(path)
+        str_path = (str_path + path_separator if str_path else "") + key
+        if not constants:
+            constants = {}
+        constants[str_path] = value
+        return constants
+
     @staticmethod
-    def add_method_dict(path: List[str], key: str, value: str, constants: Dict) -> Dict:
+    def add_method_dict(path: List[str], key: str, value: str, constants: Optional[Dict] = None,
+                        path_separator: Optional[str] = "/") -> Dict:
         if not constants:
             constants = {}
 
@@ -52,12 +80,13 @@ class KioskProjectConstants:
 
         return constants
 
-    def add_recording_context_aliases(self, config, constants=None):
+    def add_recording_context_aliases(self, config, constants):
         for key in config["file_repository"]["recording_context_aliases"].keys():
             constants = self._add_method(["file_repository", "recording_context_aliases"],
                                          key,
                                          config["file_repository"]["recording_context_aliases"][key],
-                                         constants)
+                                         constants,
+                                         self._path_separator)
 
             # constant = ApiResultConstant()
             # constant.path = "file_repository/recording_context_aliases"
@@ -66,7 +95,7 @@ class KioskProjectConstants:
             # constants.append(constant)
         return constants
 
-    def add_collected_material_type_names(self, constants=None):
+    def add_collected_material_type_names(self, constants):
         # todo: this is not structure agnostic. While we accept that the constants table is an integral part of Kiosk,
         #  collected_material_types for sure is not. For now I just check if the table exists.
         #  But a more general solution here would be to have a hook in order for projects to add
@@ -89,7 +118,7 @@ class KioskProjectConstants:
 
         return constants
 
-    def add_labels(self, constants=None):
+    def add_labels(self, constants):
         cur = KioskSQLDb.execute_return_cursor("select id, value from constants where category=%s", ["labels"])
         r = cur.fetchone()
         while r:
@@ -106,9 +135,9 @@ class KioskProjectConstants:
 
         return constants
 
-    def add_extras(self, constants=None):
+    def add_extras(self, constants: Optional[Union[dict, List]]):
         cur = KioskSQLDb.execute_return_cursor("select id, value from constants where id in (%s,%s)", ["use_lots",
-                                                                                                    "ceramic_module"])
+                                                                                                       "ceramic_module"])
         r = cur.fetchone()
 
         while r:
@@ -126,7 +155,7 @@ class KioskProjectConstants:
         return constants
 
     def get_all_constants(self, cfg):
-        constants = []
+        constants = None
         constants = self.add_recording_context_aliases(cfg, constants)
         constants = self.add_labels(constants)
         constants = self.add_collected_material_type_names(constants)

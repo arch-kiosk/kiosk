@@ -14,6 +14,7 @@ from dsl.kioskdsllupa import KioskDSLLua, KioskDSLLuaResolver, LazyResolverConti
 from dsl.resolvers.dslluakioskconfigresolver import DSLLuaKioskConfigResolver
 from dsl.resolvers.dslluakioskdsdresolver import DSLLuaKioskDSDResolver
 from dsl.resolvers.dslluametaresolver import DSLLuaMetaResolver
+from dsl.resolvers.dslluasettingsresolver import DSLLuaSettingsResolver
 from kioskquery.kioskquery import KioskQuery
 from kioskquery.kioskquerydefinition import KioskQueryDefinition
 from kioskquery.kioskqueryfactory import KioskQueryFactory
@@ -130,7 +131,8 @@ class KioskQueryStore:
         dsl =  KioskDSLLua()
 
         accessibility_resolver = DSLLuaMetaResolver([DSLLuaKioskConfigResolver(kioskglobals.cfg),
-                                                     DSLLuaKioskDSDResolver(Dsd3Singleton.get_dsd3())])
+                                                     DSLLuaKioskDSDResolver(Dsd3Singleton.get_dsd3()),
+                                                     DSLLuaSettingsResolver(kioskglobals.cfg)])
         dsl.on_get = accessibility_resolver
         return dsl
 
