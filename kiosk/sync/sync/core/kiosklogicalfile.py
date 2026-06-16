@@ -233,33 +233,33 @@ class KioskLogicalFile:
 
         file_record: KioskFilesModel = self._record_exists()
         if file_record:
-            if not file_record.image_attributes:
-                logging.debug(f"{self.__class__.__name__}.get_file_attributes: "
-                              f"cannot acquire file attributes for {self._uid}")
-                return {}
+            if file_record.image_attributes:
+                # fixes an old error where NEFs were rotated and so width and height
+                # got confused. NEFs that don't have a "rotate" attribute need new attributes
+                if file_record.image_attributes and "format" in file_record.image_attributes and \
+                        file_record.image_attributes["format"].upper() in ["NEF", "CR2"]:
+                    if "rotate" not in file_record.image_attributes:
+                        file_record.image_attributes = {}
+                        logging.debug(f"{self.__class__.__name__}.get_file_attributes: "
+                                      f"NEF {self._uid} needs new attributes.")
+                # end of that fix
 
-            # fixes an old error where NEFs were rotated and so width and height
-            # got confused. NEFs that don't have a "rotate" attribute need new attributes
-            if file_record.image_attributes and "format" in file_record.image_attributes and \
-                    file_record.image_attributes["format"].upper() in ["NEF", "CR2"]:
-                if "rotate" not in file_record.image_attributes:
+                # Fixes an old error where the file attributes are potentially not from the physical
+                # file but from a representation
+                if not "version" in file_record.image_attributes or \
+                        file_record.image_attributes["version"] < FILE_ATTRIBUTES_VERSION:
+                    logging.debug(f"{self.__class__.__name__}.get_file_attributes: "
+                                  f"File {self._uid} needs new attributes.")
                     file_record.image_attributes = {}
+            else:
+                if force_it:
+                    if self._force_get_file_attributes():
+                        logging.debug(f"{self.__class__.__name__}.get_file_attributes: "
+                                      f"{file_record.image_attributes}")
+                else:
                     logging.debug(f"{self.__class__.__name__}.get_file_attributes: "
-                                  f"NEF {self._uid} needs new attributes.")
-            # end of that fix
-
-            # Fixes an old error where the file attributes are potentially not from the physical
-            # file but from a representation
-            if not "version" in file_record.image_attributes or \
-                    file_record.image_attributes["version"] < FILE_ATTRIBUTES_VERSION:
-                logging.debug(f"{self.__class__.__name__}.get_file_attributes: "
-                              f"File {self._uid} needs new attributes.")
-                file_record.image_attributes = {}
-
-            if not file_record.image_attributes and force_it:
-                if self._force_get_file_attributes():
-                    logging.debug(f"{self.__class__.__name__}.get_file_attributes: "
-                                  f"created file attributes for {self._uid}")
+                                  f"cannot acquire file attributes for {self._uid}")
+                    return {}
 
             return file_record.image_attributes
         else:

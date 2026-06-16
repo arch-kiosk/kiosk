@@ -80,6 +80,22 @@ file_repository:
       requested_manipulations: [ "DROP_EXIF_DATA" ]
       format_request: "NEFTIF"
       dimensions: "2400,2500"
+    "jpgs":
+      label: "test thumbnails"
+      dimensions: 256,256
+      format_request: default
+      extension: jpg
+    "jpgs640X480":
+      label: "test 640x480 thumbnails"
+      dimensions: 640,480
+      format_request: default
+      extension: jpg
+    8K:
+      label: "max 8K pixel"
+      format_request: "default"
+      dimensions: "8000,8000"
+      requested_manipulations: [ "FIX_ROTATION", "DROP_EXIF_DATA"]
+
 
   auto_representations: ['medium', 'small']
   thumbnails: ['small', 'medium']

@@ -148,6 +148,7 @@ class TestKioskLogicalFile(KioskPyTestHelper):
 
     def test_create_representation(self, db_files_initialized, test_file, shared_datadir):
         sync = Synchronization()
+
         file_repos = FileRepository(SyncConfig.get_config())
         file_repos.move_files_to_subdirectories()
         assert sync
@@ -182,6 +183,7 @@ class TestKioskLogicalFile(KioskPyTestHelper):
         representation = KioskRepresentationType("jpgs")
         representation.format_request = {"*": "JPEG"}
         path_and_filename = kiosk_file.get(representation, create=True)
+
         assert path_and_filename
         assert os.path.isfile(str(path_and_filename))
         assert os.path.isdir(os.path.join(shared_datadir, "cache", representation.unique_name))
@@ -541,3 +543,45 @@ class TestKioskLogicalFile(KioskPyTestHelper):
     def test_set_filename(self):
         # todo
         assert False
+
+    def test_create_8K_representation(self, db_files_initialized, shared_datadir):
+        sync = Synchronization()
+        file_repos = FileRepository(SyncConfig.get_config())
+        file_repos.move_files_to_subdirectories()
+        assert sync
+        assert file_repos
+
+        uid = "e41111b0-c2f7-4a1c-8686-1e3292277999"
+
+        KioskSQLDb.execute(f"""
+            INSERT INTO images (description, img_proxy, ref_uid, uid,
+                                created, modified, modified_by, repl_deleted, repl_tag, md5_hash, file_datetime, tags, original_md5,
+                                filename)
+            VALUES (null, '2017-09-07 16:59:00.000000', 'a532fc2a-38f8-4d0a-a58f-83c93aebe584',
+                    %s, '2016-01-07 02:51:34.000000', '2016-01-07 03:02:16.000000', 'lkh',
+                    false, null, null, '2016-01-07 02:51:34.000000', null, null,
+                    '{uid}.jpg');
+        """, [uid])
+
+        test_file = os.path.join(shared_datadir, "E4", uid + ".jpg")
+        assert test_file
+        assert os.path.exists(test_file)
+
+        db_files_initialized.execute("truncate table kiosk_file_cache")
+        db_files_initialized.commit()
+        cache_manager = KioskFileCache(os.path.join(shared_datadir, "cache"),
+                                       representation_repository=sync.type_repository)
+        assert sync.load_plugins(["defaultfilehandling", "heicfilehandling"])
+
+        kiosk_file = KioskLogicalFile(uid,
+                                      cache_manager=cache_manager,
+                                      file_repository=file_repos,
+                                      type_repository=sync.type_repository)
+
+        representation = KioskRepresentationType("8K")
+        representation.format_request = {"*": "JPEG"}
+        path_and_filename = kiosk_file.get(representation, create=True)
+        assert path_and_filename
+        print(path_and_filename)
+        assert KioskFileCacheModel().count(where="uid_file=%s",
+                                           params=[uid]) == 1
