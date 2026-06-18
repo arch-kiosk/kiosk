@@ -4,6 +4,12 @@ config:
     - default_dsd3.yml
     - wc_pottery_dsd3.yml
 
+  contexts:
+    forum_record_images:
+      type: file_search
+      scope:
+        anc_forum_record: {}
+
 anc_forum_record:
   meta:
     flags: ["no_filemaker_recording"]
