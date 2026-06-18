@@ -423,8 +423,11 @@ class KioskContext:
             #     logging.warning(f"KioskContext._get_sql_select: {self.identifier_table} "
             #                             f"has {len(identifier_fields)} identifiers. Only one is currently supported")
             self.identifier_field = identifier_field
-            self.id_uuid_field = self._dsd.get_fields_with_instruction(self.identifier_table,
-                                                                       "replfield_uuid")[0]
+            uuid_field = self._dsd.get_uuid_field(self.identifier_table, primary_fallback=True)
+            if not uuid_field:
+                raise KioskContextError(f"KioskContext._get_sql_select: "
+                                        f"Cannot find a uuid_field for {self.identifier_table}")
+            self.id_uuid_field = uuid_field
 
             self.data_table = path[len(path) - 1]
             self.closest_identifier_table = self._graph.find_closest_identifier(self.data_table)
@@ -433,14 +436,13 @@ class KioskContext:
                                                                                          requested_parameter_values=[
                                                                                              None],
                                                                                          fail_on_many=True).keys())
-            closest_uid_fields = list(self._dsd.get_fields_with_instruction_and_parameter(self.closest_identifier_table,
-                                                                                          "replfield_uuid",
-                                                                                          requested_parameter_values=[
-                                                                                              None],
-                                                                                          fail_on_many=True).keys())
+            closest_uuid_field = self._dsd.get_uuid_field(self.closest_identifier_table, primary_fallback=True)
+
             if identifier_fields:
                 self.closest_identifier_field = identifier_fields[0]
-                self.closest_identifier_uid_field = closest_uid_fields[0]
+                if not closest_uuid_field:
+                    raise KioskContextError(f"Cannot find any closest uid fields for {self.identifier_table}")
+                self.closest_identifier_uid_field = closest_uuid_field
             else:
                 self.closest_identifier_field = ""
                 self.closest_identifier_table = ""
@@ -459,7 +461,7 @@ class KioskContext:
                                                             f"That is not supported by KioskContext, right now.")
             self.data_field = data_fields[0]
             # self._type_info.add_type(self.data_field, self.data_table, field_alias="data")
-            self.data_uuid_field = self._dsd.get_fields_with_instruction(self.data_table, "replfield_uuid")[0]
+            self.data_uuid_field = self._dsd.get_uuid_field(self.data_table, primary_fallback=True)
 
             sql_select = self._get_select_for_path(path)
             sql_from = self._get_from_for_path(path)

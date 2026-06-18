@@ -949,12 +949,16 @@ class DataSetDefinition:
         if len(fields) == 1:
             return next(iter(fields.keys()))
         if primary_fallback:
-            fields = self.get_fields_with_instructions(table, ["datatype","primary"], version)
+            fields = self.get_fields_with_instructions(table, ["datatype","primary"], version, require_all=True)
             if len(fields) == 1:
                 field_name = next(iter(fields.keys()))
-                field_def = fields[field_name]
-                if field_def["datatype"] == "varchar":
-                    return field_name
+                try:
+                    field_def = fields[field_name]
+                    if field_def["datatype"][0].lower() == "uuid":
+                        return field_name
+                except BaseException as e:
+                    logging.error(f"{self.__class__.__name__}.get_uuid_field: Cannot use {field_name} "
+                                  f"as alternative uid because of an exception: {repr(e)}")
 
         return ""
 
