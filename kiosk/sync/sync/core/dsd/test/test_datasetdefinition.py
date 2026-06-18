@@ -322,7 +322,7 @@ class TestDataSetDefinition(KioskPyTestHelper):
     #     with pytest.raises(DeprecationWarning):
     #         dsd.list_externally_bound_fields("images")
 
-    def test_get_fields_with_certain_instructions(self, dsd_images_and_units_and_test):
+    def test_get_fields_with_certain_instructions_or(self, dsd_images_and_units_and_test):
         dsd: DataSetDefinition = dsd_images_and_units_and_test
         assert dsd.append_file(dsd3_dropped_table_file)
 
@@ -358,6 +358,22 @@ class TestDataSetDefinition(KioskPyTestHelper):
         fields = dsd.get_fields_with_instructions("dropped_table", ["default"], version=2)
         assert len(fields) == 1
         assert "default" in fields["modified_by"]
+
+    def test_get_fields_with_certain_instructions_and(self, dsd_images_and_units_and_test):
+        dsd: DataSetDefinition = dsd_images_and_units_and_test
+        assert dsd.append_file(dsd3_dropped_table_file)
+
+        fields = dsd.get_fields_with_instructions("images", ["proxy_for", "file_for"], require_all=True)
+        assert len(fields) == 0
+
+        fields = dsd.get_fields_with_instructions("test_types", ["someotherinstruction", "stringtype"], require_all=True)
+        assert len(fields) == 1
+
+        field = fields["typ6"]
+        assert len(field) == 2
+        assert "someotherinstruction" in field
+        assert "stringtype" in field
+
 
     def test_get_fields_of_type(self, dsd_images_and_units_and_test):
         dsd: DataSetDefinition = dsd_images_and_units_and_test
@@ -574,6 +590,13 @@ class TestDataSetDefinition(KioskPyTestHelper):
         dsd: DataSetDefinition = dsd_images_and_units_and_test
         assert dsd.get_modified_field("images") == "modified"
         assert dsd.get_modified_field("unit") == "modified"
+
+    def test_get_uuid_field(self, dsd_images_and_units_and_test):
+        dsd: DataSetDefinition = dsd_images_and_units_and_test
+        assert dsd.get_uuid_field("images") == "uid"
+        assert not dsd.get_uuid_field("test_uid") == "uid"
+        assert not dsd.get_uuid_field("test_uid", primary_fallback=True) == "uid"
+
 
     def test_list_fields_with_instruction(self, dsd_images_and_units_and_test):
         dsd: DataSetDefinition = dsd_images_and_units_and_test

@@ -57,6 +57,12 @@ test_types:
       typ9: [identifier("error")]
       typ10: [nulltype(null)]
 
+test_uid:
+  structure:
+    1:
+      f1: [stringtype("'a string'")]
+      f2: [numbertype(12.2)]
+      uid: [datatype(varchar), primary()]
 
 migration_catalog:
   meta:

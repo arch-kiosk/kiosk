@@ -763,14 +763,19 @@ class DataSetDefinition:
         self._dsd_data.set([table, KEY_TABLE_STRUCTURE, _version, fieldname], instructions)
         self._del_field_instructions_in_cache(table, fieldname, _version)
 
-    def get_fields_with_instructions(self, table, required_instructions: List = None, version=0) -> dict:
+    def get_fields_with_instructions(self, table, required_instructions: List = None,
+                                     version=0,
+                                     require_all=False) -> dict:
         """ returns a dictionary with all the fields and
         all the instructions and their parameters for a field.
         The dictionary values are a dictionary with the instructions as keys pointing to a list of parameters. 
         
         :param table: a table in the dsd
-        :param required_instructions: if not empty the method returns
+        :param required_instructions: This is by default an OR. if not empty the method returns
                                       only fields that have at least one of the instructions of this list.
+        :param require_all: Optional. Makes required_instructions behave as an AND,
+                                so all the instructions are required.
+
         :param version: the version of table structure in the dsd
         :returns: a dict with the fieldnames as keys pointing to a dictionary if instructions,
                   pointing to a list of parameter values:
@@ -792,13 +797,14 @@ class DataSetDefinition:
             instructions = self.get_field_instructions(table, f, version)
             if instructions:
                 if required_instructions:
-                    for i in required_instructions:
-                        if i.lower() in instructions:
-                            result[f] = instructions
-                            break
+                    # Generator expression to check matches
+                    matches = (i.lower() in instructions for i in required_instructions)
+
+                    # Elegant logical check using any/all
+                    if all(matches) if require_all else any(matches):
+                        result[f] = instructions
                 else:
                     result[f] = instructions
-
         return result
 
     def get_fields_with_instruction(self, table, requested_instruction: str, version=0) -> list:
@@ -929,17 +935,27 @@ class DataSetDefinition:
             return next(iter(fields.keys()))
         return ""
 
-    def get_uuid_field(self, table, version: int = 0) -> str:
+    def get_uuid_field(self, table, version: int = 0, primary_fallback=False) -> str:
         """
-            returns the field with instruction REPLFIELD_UUID from the given table of the DSD.
+            returns the field with instruction REPLFIELD_UUID (or an alternative)
+            from the given table of the DSD.
             :param table: the table
             :param version: optional
+            :param primary_fallback: IF set this returns the Primary() field if it is of datatype UUID
             :returns: the field name or ""
         """
 
         fields = self.get_fields_with_instructions(table, ["replfield_uuid"], version)
         if len(fields) == 1:
             return next(iter(fields.keys()))
+        if primary_fallback:
+            fields = self.get_fields_with_instructions(table, ["datatype","primary"], version)
+            if len(fields) == 1:
+                field_name = next(iter(fields.keys()))
+                field_def = fields[field_name]
+                if field_def["datatype"] == "varchar":
+                    return field_name
+
         return ""
 
     def list_fields_with_additional_type(self, table, fieldtype, version=0):
