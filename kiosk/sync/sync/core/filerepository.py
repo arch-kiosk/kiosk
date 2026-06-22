@@ -389,7 +389,8 @@ class FileRepository:
 
     def delete_file_from_repository(self, uid, clear_referencing_records=False, commit=False,
                                     ts_delete_ww: datetime.datetime=None,
-                                    ts_delete_tz: int=None) -> Union[int,bool]:
+                                    ts_delete_tz: int=None,
+                                    no_history=False) -> Union[int,bool]:
         """
             removes a record and its file from the repository. If there is only a record but no file,
             the file will be removed with a warning.
@@ -405,6 +406,8 @@ class FileRepository:
                                           image should be set to None
         :param ts_delete_ww: timestamp when the file was deleted
         :param ts_delete_tz:  time zone for the _ww ts
+        :param no_history: Optional. default is False.
+                            Set to True if you want to delete the file without adding it to the history folder.
 
         :return: False if an error occurred
                  -1 if the file's record is still referenced by any other table
@@ -448,7 +451,8 @@ class FileRepository:
 
             if rc:
                 rc = False
-                if not ctx_file.delete(commit=False,ts_delete_ww=ts_delete_ww, ts_delete_tz=ts_delete_tz):
+                if not ctx_file.delete(commit=False,ts_delete_ww=ts_delete_ww, ts_delete_tz=ts_delete_tz,
+                                       no_history=no_history):
                     logging.error("delete_file_from_repository: record " + uid + " could not be deleted from images")
                     try:
                         logging.debug("delete_file_from_repository: rollback of KioskSQLDb")

@@ -488,6 +488,21 @@ class KioskContextualFile(KioskLogicalFile):
 
         return False
 
+    def get_md5_hash(self):
+        """
+        returns the md5 hash from the database. Creates it in the database if it is missing.
+        :return: the md5 hash or an empty string in case of an error
+        """
+        if not self._file_record:
+            self._load_from_record()
+        if self._file_record:
+            if not self._file_record.md5_hash:
+                self.ensure_md5_hash()
+                if self._file_record.md5_hash:
+                    return self._file_record.md5_hash
+        return ""
+
+
     def ensure_md5_hash(self, commit: bool = True) -> bool:
         """
         checks if a file has a md5 hash and tries to create one if it is not the case.
