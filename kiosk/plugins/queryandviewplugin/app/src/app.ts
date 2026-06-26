@@ -426,7 +426,7 @@ export class QueryAndViewApp extends KioskApp {
     onCloseQuery(e: CustomEvent) {
         const queryId = e.detail;
         if (queryId === "-all-") {
-            this.queries = []
+            this.queries = [];
         } else {
             const idx = this.queries.findIndex((q) => q.uid === queryId);
             this.queries.splice(idx, 1);
@@ -447,6 +447,7 @@ export class QueryAndViewApp extends KioskApp {
     renderLayout() {
         const VITE_MODE = (import.meta as any).env.VITE_MODE
         return html`
+            <div style="display: none">Q&V plugin version ${__APP_VERSION__}</div>
             <kiosk-query-layouter id="query-layout"
                                   .apiContext="${this.apiContext}"
                                   .assignedPages="${this.queries.map((q) => [q.uid, q.name])}"

@@ -1,4 +1,4 @@
-import { defineConfig, searchForWorkspaceRoot, loadEnv } from "vite";
+import { defineConfig, loadEnv } from "vite";
 import { createHtmlPlugin } from "vite-plugin-html";
 import copy from "rollup-plugin-copy";
 
@@ -6,36 +6,34 @@ import copy from "rollup-plugin-copy";
 export default defineConfig(({ command, mode }) => {
     const env = loadEnv(mode, "env");
     return {
+        define: {
+            __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
+        },
         plugins: [
             createHtmlPlugin({
                 inject: {
                     ...env,
                 },
-
             }),
             copy({
                 targets: [
                     {
-                        src: '../../../static/styles/_constants.sass',
-                        dest: 'src/styles/'
-                    }
+                        src: "../../../static/styles/_constants.sass",
+                        dest: "src/styles/",
+                    },
                 ],
-                hook: 'buildStart'
-            })
+                hook: "buildStart",
+            }),
         ],
-        esbuild:
-            command == "build"
-                ? {
-                      // No console.logs in the distribution
-                      drop: ["console", "debugger"],
-                  }
-                : {},
+        // esbuild: {
+        //     drop: command === "build" ? ["console", "debugger"] : [],
+        // },
         resolve: {
             alias: {
                 // Add alias to resolve the deep static paths
                 "@static": "../../../static",
-                "@styles": "../../../static/styles"
-            }
+                "@styles": "../../../static/styles",
+            },
         },
         build: {
             // commonjsOptions: {
@@ -48,9 +46,15 @@ export default defineConfig(({ command, mode }) => {
                 entry: "src/app.ts",
                 formats: ["es"],
             },
-            rollupOptions: {
+            rolldownOptions: {
                 // "external": (id) => id.match(/kioskuicomponents/gmi)
-                "external": ["@arch-kiosk/kioskuicomponents"]
+                external: ["@arch-kiosk/kioskuicomponents"],
+                compress:
+                    command === "build"
+                        ? {
+                              drop: ["console", "debugger"],
+                          }
+                        : false,
             },
         },
         server: {
