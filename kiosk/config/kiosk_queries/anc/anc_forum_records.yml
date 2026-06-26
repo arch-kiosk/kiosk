@@ -2,7 +2,7 @@ header:
   version: 1
 meta:
   query_type: StructuredKioskQuery
-  category: "Archaeological Entities"
+  category: 'Team and Data Management'
 variables:
   season_param: ["dsd('anc_forum_record', 'season')", "label('season')", "input_default(null)"]
 queries:
