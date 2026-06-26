@@ -11,4 +11,4 @@ config:
   #  project_id: 'u2ers'
   base_path: 'C:\notebook_source\kiosk\server\kiosk\kiosk'
 #  project_id: "anc"
-  project_id: "anc"
+  project_id: "mkap"
