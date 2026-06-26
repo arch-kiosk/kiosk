@@ -50,3 +50,13 @@ anc_forum_record:
       modified: [ datatype(TIMESTAMP), replfield_modified() ]
       modified_by: [ datatype(VARCHAR), replfield_modified_by(), default("''") ]
 
+anc_imported_files:
+  meta:
+    flags: ["no_filemaker_recording","no_fts"]
+  structure:
+    1:
+      forum_ssid: [ primary(), datatype(VARCHAR), not_null()]
+      forum_filename: [ datatype(VARCHAR) ]
+      uid_image: [ datatype(UUID)]
+      md5_hash: [datatype(VARCHAR), no_sync(), no_file_export()]
+      imported_ts: [ datatype(TIMESTAMP)]
