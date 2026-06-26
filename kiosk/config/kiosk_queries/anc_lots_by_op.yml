@@ -3,6 +3,7 @@ header:
 meta:
   query_type: StructuredKioskQuery
   category: "Archaeological Entities"
+  show_only_if: "settings.constants.settings.use_lots == 'yup'"
 variables:
   op_param: ["dsd('unit', 'arch_context')"]
 queries:
