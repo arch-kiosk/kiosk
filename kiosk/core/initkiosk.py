@@ -213,7 +213,9 @@ def inject_menu():
 def inject_global_constants():
     return dict(global_constants=kioskglobals.get_global_constants(),
                 project_id=kioskglobals.cfg.get_project_id(),
-                server_is_read_only=kioskglobals.cfg.server_is_read_only)
+                server_is_read_only=kioskglobals.cfg.server_is_read_only,
+                server_is_in_maintenance=kioskglobals.cfg.server_is_in_maintenance,
+                )
 
 
 def inject_routes():

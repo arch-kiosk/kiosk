@@ -661,6 +661,13 @@ class SyncConfig(Config):
         except BaseException as e:
             return False
 
+    @property
+    def server_is_in_maintenance(self):
+        try:
+            return bool(self.config["server_in_maintenance"])
+        except BaseException as e:
+            return False
+
     def get_agnostic_mode(self) -> bool:
         """
         checks if this kiosk's file repository must run in agnostic mode
