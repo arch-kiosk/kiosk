@@ -1,0 +1,63 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+  category: "Finds"
+variables:
+  input_c_material_type: [ "dsd(collected_material, type)", "input_default(null)" ]
+  input_a_site: [ "dsd(site, id)" ]
+queries:
+  'collected_material_small_finds_per_site_and_material':
+    name: 'List all materials and their small find details (if any) of a certain material type for a site.'
+    description: 'This lists bulk, small finds etc. for a given material and site and includes small find information whenever possible.'
+    type: 'SQL'
+    output_type: 'list'
+    query: "  
+      select cm.arch_context cm_id,
+             REPLACE(cm.cm_type, '_', ' ') cm_type,
+             u.arch_context trench,
+             l.arch_context op,
+             cm.modified_by modified_by,
+             cm.description cm_desc,
+             cm.quantity quantity,
+             cm.weight weight,
+             cm.volume volume,
+             sf.length length,
+             sf.width width,
+             sf.height height,
+             sf.thickness thickness,
+             sf.colour colour,
+             sf.material small_find_material,
+             sf.id_registrar registrar
+             from {{collected_material}} cm
+             inner join {{locus}} l on cm.uid_locus = l.uid
+             inner join {{unit}} u on l.uid_unit = u.uid
+             left outer join {{small_find}} sf on cm.uid = sf.uid_cm
+             where 
+              u.id_site = {{#input_a_site}}
+              and (coalesce({{#input_c_material_type}}, '') = '' or cm.type={{#input_c_material_type}})
+             "
+    column_information:
+      cm_id: DSD('collected_material','arch_context')
+      cm_type: DSD('collected_material','cm_type')
+      trench: DSD('unit','arch_context')
+      op: DSD('locus','arch_context')
+      modified_by: ["DSD('collected_material','modified_by')", "label('modified by')"]
+      cm_desc: ["DSD('collected_material','description')", "label('description')"]
+      quantity: DSD('collected_material','quantity')
+      weight: DSD('collected_material','weight')
+      volume: DSD('collected_material','volume')
+      length: DSD('small_find','length')
+      width: DSD('small_find','width')
+      height: DSD('small_find','height')
+      thickness: DSD('small_find','thickness')
+      colour: DSD('small_find','colour')
+      small_find_material: ["DSD('small_find','material')","label('small find material')"]
+      small_find_description: ["DSD('small_find','description')","label('small find description')"]
+      registrar: DSD('small_find','id_registrar')
+#    charts:
+#      chart1:
+#        type: "pie"
+#        title: "#: % material in #($/constants/labels/label_for_unit_on_start_page) #(/variables/inputs/unit_id) by quantity"
+#        categories: "material"
+#        values: "quantity"
