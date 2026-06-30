@@ -3,7 +3,7 @@ import local_css from "./styles/component-queryselector.sass?inline";
 import { html, nothing, TemplateResult, unsafeCSS } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { handleCommonFetchErrors, handleErrorInApp } from "./lib/applib";
-import { Constant, ApiResultKioskQueryDescription, ApiResultKioskQuery } from "./lib/apitypes";
+import { Constant, ApiResultKioskQueryDescription } from "./lib/apitypes";
 import { FetchException } from "@arch-kiosk/kiosktsapplib"
 import { KioskAppComponent } from "@arch-kiosk/kiosktsapplib"
 import { KioskQueryFactory } from "./kioskqueryfactory";
@@ -139,7 +139,7 @@ export class KioskQuerySelector extends KioskAppComponent {
 
     sortQueries() {
         this.kioskQueries.sort(function (a: ApiResultKioskQueryDescription, b: ApiResultKioskQueryDescription) {
-            let rc = 0
+            let rc
             const a_cat = (a.category??"") === "favourites"?" ":a.category
             const b_cat = (b.category??"") === "favourites"?" ":b.category
             rc = (a_cat && b_cat) ? a_cat.localeCompare(b_cat) : 0;
@@ -192,8 +192,8 @@ export class KioskQuerySelector extends KioskAppComponent {
     }
 
     toggleFavourite(q: ApiResultKioskQueryDescription) {
-        let cookie = Cookies.get(COOKIE_KIOSKQNVQUERYFAVOURITES)
-        let currentFavourites = cookie?JSON.parse(cookie):{}
+        const cookie = Cookies.get(COOKIE_KIOSKQNVQUERYFAVOURITES)
+        const currentFavourites = cookie?JSON.parse(cookie):{}
         if (q.id in currentFavourites)
             delete currentFavourites[q.id]
         else
@@ -209,8 +209,8 @@ export class KioskQuerySelector extends KioskAppComponent {
     }
 
     applyFavourites() {
-        let cookie = Cookies.get(COOKIE_KIOSKQNVQUERYFAVOURITES)
-        let currentFavourites = cookie?JSON.parse(cookie):{}
+        const cookie = Cookies.get(COOKIE_KIOSKQNVQUERYFAVOURITES)
+        const currentFavourites = cookie?JSON.parse(cookie):{}
         const favIds = Object.keys(currentFavourites)
         this.kioskQueries.forEach(q => {
             if (q.id !== "fulltextquery") {
