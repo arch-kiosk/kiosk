@@ -1,0 +1,65 @@
+header:
+  version: 1
+meta:
+  query_type: StructuredKioskQuery
+  category: "Archaeological Entities"
+variables:
+  input_tag: ["dsd(tags, tag)"]
+queries:
+  'loci_by_tag':
+    name: '#:What #(/$/glossary/locus:2) are tagged as x?'
+    description: '#:Lists the #(/$/glossary/locus:2) that were tagged with the selected tag. Includes basic #(/$/glossary/locus:1) information'
+    type: 'CQL'
+    output_type: 'list'
+    query:
+      base:
+        scope:
+          tags:
+            tagging:
+              join: inner("tag", "tag")
+              relates_to:
+                locus:
+                  join: inner("source_uid", "uid")
+        target:
+          field_or_instruction: locus.identifier()
+        additional_fields:
+          tag:
+            field_or_instruction: tags.tag
+            default: null
+          locus_type:
+            field_or_instruction: locus.type
+            substitute: "lookup(locus_types, id, type_name)"
+            default: "?"
+          locus_identifier:
+            field_or_instruction: locus.identifier()
+            default: ""
+          locus_description:
+            field_or_instruction: locus.description
+            default: ""
+          modified:
+            field_or_instruction: locus.modified_ww
+            format: datetime(date)
+            default: null
+          modified_by:
+            field_or_instruction: locus.modified_by
+            default: null
+      query:
+        type: raw
+        distinct: true
+        columns:
+          "locus id":
+            source_field: locus_identifier
+          "locus type":
+            source_field: locus_type
+          "locus description":
+            source_field: locus_description
+          "modified":
+            source_field: modified
+          "by":
+            source_field: modified_by
+        conditions:
+          ?: equals(tag, {{#input_tag}})
+        sort: ["locus_identifier: asc"]
+    column_information:
+        "locus type": ["label('type')"]
+    column_order: ["locus id", "locus type", "modified", "by", "locus description"]

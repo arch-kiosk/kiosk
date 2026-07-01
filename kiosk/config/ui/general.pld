@@ -9,5 +9,6 @@ imports:
   - _cm.pld
   - _cm_su_ceramics.pld
   - _archival_entity.pld
+  - _site_note.pld
 
 

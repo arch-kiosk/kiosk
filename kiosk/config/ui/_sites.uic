@@ -40,3 +40,21 @@ element_type:
 # dsd('site_notes','note') && view-ui && view_type:list
 element_type:
   multiline: true
+  max_characters: 80
+
+# dsd('site_notes','note') && view-ui && view_type:sheet
+layout:
+  min_width: max
+  min_height: max
+element_type:
+  multiline: true
+
+# dsd('site_notes','uid') && view-ui && view_type:list
+layout:
+  max_width: 1
+element_type:
+  visible: true
+  is_identifier: true
+  mask_identifier: "click to view"
+  link_to: "site_notes"
+  text: 'reference'

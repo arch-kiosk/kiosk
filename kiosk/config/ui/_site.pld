@@ -74,14 +74,31 @@ site_notes.list:
     order_records_by: [ "date" ]
     allow_ordering_by: ["date", "id_excavator"]
     order:
+      - uid
       - date
       - id_excavator
       - note
+      - files
   ui_elements:
     note:
       layout:
         min_width: 70%
         max_height: max
+    "files":
+      element_type:
+        name: "textfield"
+        text: "files"
+        value: "#(site_notes/uid)"
+        lookup:
+          lookup_type: "aggregate"
+          record_type: "site_note_photo"
+          key_field: "uid_site_note"
+          aggregation_field: "uid_image"
+          aggregation_method: "count"
+          default_to: "0"
+
+#    uid:
+
 
 #site_note_photos.list:
 #  record_type: site_note_photo
