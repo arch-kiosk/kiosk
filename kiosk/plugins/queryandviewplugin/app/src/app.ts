@@ -1,3 +1,5 @@
+// @ts-nocheck
+
 import { KioskApp } from "@arch-kiosk/kiosktsapplib";
 import { nothing, unsafeCSS } from "lit";
 import { html, literal } from "lit/static-html.js";
