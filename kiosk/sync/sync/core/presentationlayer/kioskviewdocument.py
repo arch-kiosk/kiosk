@@ -1,8 +1,9 @@
 import copy
 import logging
+import uuid
 from pprint import pprint
 import datetime
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Any
 
 import kioskstdlib
 from contextmanagement.kioskscopeselect import KioskScopeSelect
@@ -40,7 +41,7 @@ class KioskViewDocument:
 
             # base_path = kioskstdlib.try_get_dict_entry(self._cfg.kiosk,"ui_classes",None,True) if self._cfg else None
             self._uic_stream = UICStream(UICKioskFile.get_file_stream("kiosk_ui_classes.uic"),
-                                   get_import_stream=UICKioskFile.get_file_stream)
+                                         get_import_stream=UICKioskFile.get_file_stream)
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.__init__: {repr(e)}")
             raise Exception(f"Error initializing KioskViewDocument with {record_type}, {pld_id} and {identifier}: "
@@ -49,8 +50,23 @@ class KioskViewDocument:
     def _initialize_view(self, identifier):
         view = KioskView(self._cfg, self._pld_id, self._uic_stream.tree)
         view.record_type = self._record_type
-        view.identifier_field = self._dsd.get_fields_with_instruction(view.record_type,
-                                                                      "identifier")[0]
+        identifier_fields = self._dsd.get_fields_with_instruction(view.record_type,
+                                                                  "identifier")
+        if identifier_fields:
+            view.identifier_field = identifier_fields[0]
+        else:
+            uid_field = ""
+            try:
+                # checks if this is a valid uuid
+                uuid.UUID(identifier)
+                uid_field = self._dsd.get_uuid_field(view.record_type)
+                view.identifier_field = uid_field
+            except ValueError as e:
+                pass
+            if not uid_field:
+                raise Exception(f"No identifier field in record type {view.record_type} "
+                                f"that matches the identifier {identifier}")
+
         view.identifier = identifier
         try:
             view.identifier_record = KioskSQLDb.get_first_record_from_sql(f"""
@@ -66,7 +82,7 @@ class KioskViewDocument:
         filter_value = None
 
         def _parse_filter(filter_expression):
-            parser=SimpleFunctionParser()
+            parser = SimpleFunctionParser()
             parser.parse(filter_expression)
             if parser.ok and parser.instruction == "exclude":
                 return parser.parameters[0], parser.parameters[1]
@@ -80,15 +96,23 @@ class KioskViewDocument:
             scope_select = KioskScopeSelect()
             scope_select.set_dsd(self._dsd)
             result = dict()
-            selects = scope_select.get_selects(self._record_type, target_types=target_record_types, add_lore=True)
-            for select in selects:
-                if select[0] in record_filter:
-                    filter_field, filter_value = _parse_filter(record_filter[select[0]])
-                    result[select[0]] = KioskSQLDb.get_records(select[1], {"identifier": self._identifier.upper()},
-                                                           add_column_row=True, post_filter=_filter_record)
-                else:
-                    result[select[0]] = KioskSQLDb.get_records(select[1], {"identifier": self._identifier.upper()},
-                                                           add_column_row=True)
+            selects = scope_select.get_selects(self._record_type, target_types=target_record_types,
+                                               add_lore=True, allow_uid_as_key=True)
+            select = ""
+            try:
+                for select in selects:
+                    if select[0] in record_filter:
+                        filter_field, filter_value = _parse_filter(record_filter[select[0]])
+                        result[select[0]] = KioskSQLDb.get_records(select[1], {"identifier": self._identifier.upper()},
+                                                                   add_column_row=True, post_filter=_filter_record)
+                    else:
+                        result[select[0]] = KioskSQLDb.get_records(select[1], {"identifier": self._identifier.upper()},
+                                                                   add_column_row=True, raise_exception=True)
+            except BaseException as e:
+                raise Exception(f"{self.__class__.__name__}._get_data: "
+                              f"Exception when querying data '{select}': {repr(e)}")
+
+
             return result
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}._get_data: {repr(e)}")
@@ -115,7 +139,8 @@ class KioskViewDocument:
                 logging.error(f"{self.__class__.__name__}._get_elements_with_lookup: {repr(e)}")
         return lookups
 
-    def _get_lookup_record_data(self, target_types: List[str], lookups: List[LookupElement]) -> Tuple[Dict[str, List[List[any]]], Dict]:
+    def _get_lookup_record_data(self, target_types: List[str], lookups: List[LookupElement]) -> Tuple[
+        Dict[str, List[List[Any]]], Dict]:
         """
         returns the actually needed records for all the relevant lookup table relations
         :param target_types: the record_types requested by the document's parts
@@ -142,7 +167,7 @@ class KioskViewDocument:
             scope_select.set_dsd(self._dsd)
             result = dict()
             selects = scope_select.get_selects(self._record_type, target_types=target_types,
-                                               add_lore=True, only_lookups=True)
+                                               add_lore=True, only_lookups=True, allow_uid_as_key=True)
             for select in selects:
                 if select[0] in lookup_types:
                     try:
@@ -175,7 +200,6 @@ class KioskViewDocument:
                 f"{self.__class__.__name__}._get_lookup_table_data: when processing {lookup_types}: {repr(e)}")
             raise e
 
-
     def _get_aggregation_select(self, base_select, lookup_element: LookupElement) -> Tuple[str, str]:
         """
         Wraps an aggregation select statement around the base select that connects
@@ -196,7 +220,7 @@ class KioskViewDocument:
         else:
             raise Exception(f"aggregation method {agg_method} unknown for lookup field {lookup_element.element_id}")
 
-    def _get_lookup_aggregate_data(self, lookups: List[LookupElement]) -> Tuple[Dict[str, List[List[any]]], Dict]:
+    def _get_lookup_aggregate_data(self, lookups: List[LookupElement]) -> Tuple[Dict[str, List[List[Any]]], Dict]:
         """
         returns the actually needed records for all the relevant aggregate lookups
         :param lookups: A list of LookupElement objects
@@ -217,10 +241,11 @@ class KioskViewDocument:
             result = dict()
             selects = scope_select.get_selects(self._record_type,
                                                target_types=list(lookup_types),
-                                               add_lore=False, only_lookups=False)
+                                               add_lore=False, only_lookups=False, allow_uid_as_key=True)
             for select in selects:
-                lookup_element = next(iter(filter(lambda x: x.lookup_def["lookup_type"] == "aggregate" and x.lookup_def["record_type"] == select[0],
-                                                  lookups)), None)
+                lookup_element = next(iter(filter(
+                    lambda x: x.lookup_def["lookup_type"] == "aggregate" and x.lookup_def["record_type"] == select[0],
+                    lookups)), None)
                 if lookup_element:
                     select, result_name = self._get_aggregation_select(select[1], lookup_element)
                     try:
@@ -246,7 +271,6 @@ class KioskViewDocument:
         """
         parts = self._get_parts_from_doc()
         lookups = self._get_elements_with_lookup(parts)
-
 
         data, lookup_key_fields = self._get_lookup_record_data(target_types, lookups)
         agg_data, agg_lookup_key_fields = self._get_lookup_aggregate_data(lookups)
@@ -290,7 +314,7 @@ class KioskViewDocument:
             except:
                 pass
             try:
-                #refactor: this is an explicit reference to a field name. Should rather use a dsd instruction or so.
+                # refactor: this is an explicit reference to a field name. Should rather use a dsd instruction or so.
                 file_datetime = image_record["file_datetime"]
             except:
                 pass

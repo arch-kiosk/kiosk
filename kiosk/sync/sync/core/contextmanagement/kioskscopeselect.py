@@ -1,6 +1,7 @@
 from pprint import pprint
 from typing import List
 
+import kioskstdlib
 from dsd.dsd3 import DataSetDefinition, Join
 from dsd.dsdgraph import DsdGraph
 from kiosksqldb import KioskSQLDb
@@ -142,7 +143,11 @@ class KioskScopeSelect:
 
         return result
 
-    def get_selects(self, record_type: str, target_types: list[str], add_lore: bool, only_lookups=False) -> list[
+    def get_selects(self, record_type: str,
+                    target_types: list[str],
+                    add_lore: bool,
+                    only_lookups=False,
+                    allow_uid_as_key=False) -> list[
         tuple[str, str]]:
         """
         returns a list of select statements each of which consumes a PsycoPG2 parameter %(identifier)s.
@@ -166,6 +171,14 @@ class KioskScopeSelect:
                 raise Exception(f"{self.__class__.__name__}.get_selects: auto scoping failed")
 
         key_fields = self._dsd.get_fields_with_instructions(record_type, ["identifier"])
+        if not key_fields:
+            if allow_uid_as_key:
+                uid_field = self._dsd.get_uuid_field(record_type)
+                if not uid_field:
+                    raise Exception(f"{self.__class__.__name__}.get_selects: {record_type} has no uuid field.")
+                key_fields = {uid_field: self._dsd.get_field_instructions(record_type, uid_field)}
+            else:
+                raise Exception(f"{self.__class__.__name__}.get_selects: {record_type} has no key fields.")
 
         paths = self._get_target_paths(record_type, target_types)
 
@@ -214,8 +227,14 @@ class KioskScopeSelect:
             root_table = root_table + "1"
 
         for k in key_fields:
-            where_sql += where_or + (f"UPPER({KioskSQLDb.sql_safe_ident(root_table)}."
-                                     f"{KioskSQLDb.sql_safe_ident(k)})=%(identifier)s")
+            if kioskstdlib.try_get_dict_entry(key_fields[k],
+                                              "datatype", [""],
+                                              null_defaults=True)[0].upper() == "VARCHAR":
+                where_sql += where_or + (f"UPPER({KioskSQLDb.sql_safe_ident(root_table)}."
+                                         f"{KioskSQLDb.sql_safe_ident(k)})=%(identifier)s")
+            else:
+                where_sql += where_or + (f"{KioskSQLDb.sql_safe_ident(root_table)}."
+                                         f"{KioskSQLDb.sql_safe_ident(k)}=%(identifier)s")
             where_or = " or "
         return where_sql
 
