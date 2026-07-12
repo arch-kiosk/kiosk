@@ -502,7 +502,6 @@ class KioskContextualFile(KioskLogicalFile):
                     return self._file_record.md5_hash
         return ""
 
-
     def ensure_md5_hash(self, commit: bool = True) -> bool:
         """
         checks if a file has a md5 hash and tries to create one if it is not the case.
@@ -839,7 +838,7 @@ class KioskContextualFile(KioskLogicalFile):
 
     def _drop_context(self, ctx, cur, use_idc: IdentifierCache = None) -> bool:
         """
-        unassignes an image from a record type
+        unassigns an image from a record type
         :param ctx:
         :param cur:
         returns True or False but might also throw an Exception
@@ -871,16 +870,26 @@ class KioskContextualFile(KioskLogicalFile):
 
         identifier_uuid = context[3]
         identifier_table = context[0]
-        sql, params = self._get_detach_from_context_sql(file_location=file_location,
-                                                        file_location_field=file_location_field,
-                                                        identifier_uuid=identifier_uuid,
-                                                        identifier_table=identifier_table)
+        dsd = Dsd3Singleton().get_dsd3()
+        row_count = -1
+        if dsd.table_has_meta_flag(file_location, KEY_TABLE_FLAG_FILE_LIST):
+            row_count = self._delete_context_relation_sql(file_location=file_location,
+                                                          file_location_field=file_location_field,
+                                                          identifier_uuid=identifier_uuid,
+                                                          identifier_table=identifier_table)
+        if row_count == -1:
+            sql, params = self._get_detach_from_context_sql(file_location=file_location,
+                                                            file_location_field=file_location_field,
+                                                            identifier_uuid=identifier_uuid,
+                                                            identifier_table=identifier_table)
 
-        if not sql:
-            return False
+            if not sql:
+                return False
 
-        cur.execute(sql, params)
-        if cur.rowcount == 1:
+            cur.execute(sql, params)
+            row_count = cur.rowcount
+
+        if row_count == 1:
             try:
                 # todo: This works only for trigger "rtl" currently. In future the trigger needs to
                 #       be set somewhere in the dsd or so.
@@ -914,7 +923,7 @@ class KioskContextualFile(KioskLogicalFile):
         :return: a tuple consisting of the sql and a list of values. In case a DSDJoinError the sql string is empty.
                  other Exceptions are thrown.
         """
-        # let's get the join fields first. If that fails the presumably because
+        # let's get the join fields first. If that fails, it is presumably because
         # the two tables are no directly connected
         try:
             join = self._dsd.get_default_join(identifier_table, file_location)
@@ -945,6 +954,83 @@ class KioskContextualFile(KioskLogicalFile):
         values = [self.modified, self.modified_tz, self.modified_ww,
                   self.modified_by, identifier_uuid, self.uid]
         return sql, values
+
+    def _delete_context_relation_sql(self, file_location: str, file_location_field: str,
+                                     identifier_uuid: str, identifier_table: str):
+        """
+        deletes the record that relates to the file
+        :param file_location: the table where the file ist stored (this is where the record gets deleted)
+        :param file_location_field: the field that holds the file's uuid
+        :param identifier_uuid: the uuid of the record that holds the identifier field
+        :param identifier_table: the table that holds the identifier
+        :return: the number of affected rows, which should be 1 in case of success.
+                    0  means this didn't do anything (an error gets logged)
+                   -1  means that the sql did not affect any rows
+                       presumably because there is an image description that wasn't empty.
+                       (this is not logged as an error)
+        """
+        # let's get the join fields first. If that fails, it is presumably because
+        # the two tables are no directly connected
+        assert file_location
+        assert file_location_field
+        assert identifier_uuid
+
+        try:
+            join = self._dsd.get_default_join(identifier_table, file_location)
+            uid_field = self._dsd.get_uuid_field(file_location)
+            description_field = self._dsd.get_fields_with_instruction(file_location, "describes_file")
+            description_field = description_field[0] if description_field else ""
+        except DSDJoinError as e:
+            logging.error(f"{self.__class__.__name__}._get_detach_from_context_sql: {repr(e)}")
+            logging.error(f"{self.__class__.__name__}._get_detach_from_context_sql: Presumably the table "
+                          f"{identifier_table} and {file_location} are not joined correctly in the dsd.")
+            return "", []
+
+        # modified_field = KioskSQLDb.sql_safe_ident(
+        #     self._dsd.get_fields_with_instruction(file_location, KEY_INSTRUCTION_REPLFIELD_MODIFIED)[0])
+        # modified_ww_field = KioskSQLDb.sql_safe_ident(
+        #     self._dsd.get_fields_with_instruction(file_location, KEY_INSTRUCTION_MODIFIED_WW)[0])
+        # modified_tz_field = KioskSQLDb.sql_safe_ident(
+        #     self._dsd.get_fields_with_instruction(file_location, KEY_INSTRUCTION_MODIFIED_TZ)[0])
+        # modified_by_field = KioskSQLDb.sql_safe_ident(
+        #     self._dsd.get_fields_with_instruction(file_location, KEY_INSTRUCTION_REPLFIELD_MODIFIED_BY)[0])
+
+        sql = (f"insert into repl_deleted_uids(deleted_uid, "
+               f"\"table\", "
+               f"modified, "
+               f"repl_workstation_id,"
+               f"master_deletion_ww, "
+               f"master_deletion_tz) "
+               f"select {uid_field}, %s, %s,%s,%s,%s from ") + f"{KioskSQLDb.sql_safe_ident(file_location)} "
+        sql += f"where {KioskSQLDb.sql_safe_ident(join.related_field)}=%s and " \
+               f"{KioskSQLDb.sql_safe_ident(file_location_field)}=%s"
+        if description_field:
+            sql += f" and trim(both ' ' from coalesce({KioskSQLDb.sql_safe_ident(description_field)},''))=''"
+        # time zone relevant
+        values = [file_location,
+                  self.modified_by,
+                  self.modified,
+                  self.modified_ww,
+                  self.modified_tz,
+                  identifier_uuid,
+                  self.uid]
+        row_count = KioskSQLDb.execute(sql, values)
+        if row_count == 0 and description_field:
+            return -1
+
+        if row_count == 1:
+            sql = f"delete from " + f"{KioskSQLDb.sql_safe_ident(file_location)} "
+            sql += f"where {KioskSQLDb.sql_safe_ident(join.related_field)}=%s and " \
+                   f"{KioskSQLDb.sql_safe_ident(file_location_field)}=%s"
+            # time zone relevant
+            values = [identifier_uuid,
+                      self.uid]
+            row_count = KioskSQLDb.execute(sql, values)
+
+        if row_count != 1:
+            logging.error(f"{self.__class__.__name__}._delete_context_relation_sql: {sql} returned row count {row_count} != 0 ")
+
+        return row_count
 
     def _get_file_location_and_uuid(self, identifier: str, required_record_type: str = "",
                                     use_idc: IdentifierCache = None) -> tuple:

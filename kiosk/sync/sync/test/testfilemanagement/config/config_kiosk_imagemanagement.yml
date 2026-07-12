@@ -4,6 +4,7 @@
   EXPLAIN_TEMPLATE_LOADING: True
 
 config:
+config:
   project_id: 'urap'
   base_path: '%base_path%'
   sync: '%base_path%\sync\sync'
@@ -90,6 +91,11 @@ file_repository:
       dimensions: 640,480
       format_request: default
       extension: jpg
+    "jpgs100X100":
+      label: "test 100x100 thumbnails"
+      dimensions: 100,100
+      format_request: default
+      extension: png
     8K:
       label: "max 8K pixel"
       format_request: "default"

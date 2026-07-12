@@ -7,6 +7,7 @@ from shutil import copyfile
 import pytest
 
 import kioskstdlib
+from dsd.dsd3singleton import Dsd3Singleton
 from filerepository import FileRepository
 from kioskcontextualfile import KioskContextualFile
 from kioskfilecache import KioskFileCache
@@ -32,10 +33,13 @@ from tz.kiosktimezones import KioskTimeZones
 #
 # the data dir itself serves as the file repository (that is why there is new_files
 # if it comes to uploading files to the file repository)
-# shared_datadir is a fixture that makes sure, that all operations take place in a temporary directory.
-# To achieve this, the whole data directory with subdirecories is copied before a test runs. Manipulations
-# take place in that temporary folder. That is why os.path.join(shared_dir, some_file) points to a
-# file and not as one should think os.path.join(r"test/testfilemanagement/data", some_file).
+# shared_datadir is a fixture that makes sure, that all operations take place in a temporary
+# directory.
+# To achieve this, the whole data directory with subdirecories is copied before a test runs.
+# Manipulations take place in that temporary folder.
+# That is why os.path.join(shared_dir, some_file) points to a
+# file and not as one should
+# think os.path.join(r"test/testfilemanagement/data", some_file).
 
 
 class TestKioskContextualFile(KioskPyTestHelper):
@@ -122,30 +126,6 @@ class TestKioskContextualFile(KioskPyTestHelper):
         assert file
         assert file.uid
         assert kioskstdlib.check_uuid(file.uid)
-
-    def test_serial_file_id(self, db_files_initialized, shared_datadir):
-        sync = Synchronization()
-        file_repos = FileRepository(SyncConfig.get_config())
-        assert sync
-        assert file_repos
-        cache_manager = KioskFileCache(os.path.join(shared_datadir, "cache"),
-                                       representation_repository=sync.type_repository)
-
-        # check new file
-        file = KioskContextualFile(None, cache_manager=cache_manager,
-                                   file_repository=file_repos, type_repository=sync.type_repository)
-        assert file
-        assert file.uid
-        assert kioskstdlib.check_uuid(file.uid)
-        assert file.serial_file_id is None
-
-        path_and_filename = os.path.join(shared_datadir, "1EBC7166-050D-45C7-A492-16D81E108A7B.jpg")
-        uid = kioskstdlib.get_uuid_from_filename(path_and_filename)
-        file = KioskContextualFile(uid, cache_manager, file_repos, sync.type_repository)
-        assert file
-        assert file.uid
-        assert kioskstdlib.check_uuid(file.uid)
-        assert file.serial_file_id is not None
 
     def test_tags(self, db_files_initialized, shared_datadir):
         sync = Synchronization()
@@ -347,11 +327,11 @@ class TestKioskContextualFile(KioskPyTestHelper):
         cache_manager = KioskFileCache(os.path.join(shared_datadir, "cache"),
                                        representation_repository=sync.type_repository)
 
-        representation_jpg = KioskRepresentationType("jpgs480x640")
+        representation_jpg = KioskRepresentationType("jpgs640X480")
         representation_jpg.format_request = {"*": "JPEG"}
-        representation_jpg.dimensions = KioskRepresentationTypeDimensions(480, 640)
+        representation_jpg.dimensions = KioskRepresentationTypeDimensions(640, 480)
 
-        representation_png = KioskRepresentationType("jpgs100x100")
+        representation_png = KioskRepresentationType("jpgs100X100")
         representation_png.format_request = {"*": "PNG"}
         representation_png.dimensions = KioskRepresentationTypeDimensions(100, 100)
 
@@ -361,9 +341,11 @@ class TestKioskContextualFile(KioskPyTestHelper):
                                    cache_manager, file_repos, sync.type_repository,
                                    plugin_loader=sync)
         path_and_filename = file.get(representation_jpg, create=True)
+        assert path_and_filename
         assert os.path.isfile(path_and_filename)
 
         path_and_filename = file.get(representation_png, create=True)
+        assert path_and_filename
         assert os.path.isfile(path_and_filename)
 
         assert KioskFileCacheModel().count(where="uid_file=%s and not invalid",
@@ -531,8 +513,9 @@ class TestKioskContextualFile(KioskPyTestHelper):
         assert p1 == 'collected_material_photo'
         assert p4 == '25531aa1-f7b2-4f67-9b08-ba3030889b5b'
 
+        # site cannot be a default image location because it is in the same record as the identifier
         result = file._get_file_location_and_uuid("test_site")
-        assert result[0] == 'site'
+        assert not result
 
     def test__get_insert_context_sql(self, db_files_initialized, urapdb_with_records, shared_datadir,
                                      mock_kiosk_time_zones):
@@ -613,11 +596,6 @@ class TestKioskContextualFile(KioskPyTestHelper):
             assert not file._push_context(("test_site", ""), cur)
         finally:
             cur.close()
-        # cur = KioskSQLDb.get_dict_cursor()
-        # try:
-        #     assert file._push_context(("test_site"), cur)
-        # finally:
-        #     cur.close()
 
     def test_push_contexts(self, db_files_initialized, urapdb_with_records, shared_datadir, mock_kiosk_time_zones):
         sync = Synchronization()
@@ -649,6 +627,178 @@ class TestKioskContextualFile(KioskPyTestHelper):
         assert KioskSQLDb.get_field_value("locus_photo", "uid_image",
                                          "c377be85-fa86-4772-ae30-3c0485ce1504",
                                          "uid_locus") == 'a1fc642f-568b-45e1-a368-d9c452c5df7f'
+
+    def test_detach_contexts(self, db_files_initialized, urapdb_with_records, shared_datadir, mock_kiosk_time_zones):
+        sync = Synchronization()
+        file_repos = FileRepository(SyncConfig.get_config())
+        dsd = Dsd3Singleton.get_dsd3()
+
+        # make sure there is no meta flag "file_list"
+        for t in ["dayplan", "locus_photo"]:
+            assert not dsd.table_has_meta_flag(t, "file_list")
+
+        assert sync and file_repos
+
+        cache_manager = KioskFileCache(os.path.join(shared_datadir, "cache"),
+                                       representation_repository=sync.type_repository)
+
+        assert not KioskSQLDb.get_field_value("dayplan", "uid_image",
+                                             "c377be85-fa86-4772-ae30-3c0485ce1504",
+                                             "uid_unit") == "c109e19c-c73c-cc49-9f58-4ba0a3ad1339"
+
+        # upload a new file without identifier first
+        uid = "c377be85-fa86-4772-ae30-3c0485ce1504"
+        src_path_and_filename = os.path.join(shared_datadir, "new_files", "c377be85-fa86-4772-ae30-3c0485ce1504.jpg")
+        file = KioskContextualFile(uid, cache_manager,
+                                   file_repos, sync.type_repository, plugin_loader=sync, test_mode=True)
+
+        file.contexts.add_context("FA")
+        file.contexts.add_context("CC-001")
+        file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
+        assert file.push_contexts(False)
+
+        assert KioskSQLDb.get_field_value("dayplan", "uid_image",
+                                         "c377be85-fa86-4772-ae30-3c0485ce1504",
+                                         "uid_unit") == "c109e19c-c73c-cc49-9f58-4ba0a3ad1339"
+        uid_dayplan = KioskSQLDb.get_field_value("dayplan", "uid_image",
+                                         "c377be85-fa86-4772-ae30-3c0485ce1504",
+                                         "uid")
+
+        assert KioskSQLDb.get_field_value("locus_photo", "uid_image",
+                                         "c377be85-fa86-4772-ae30-3c0485ce1504",
+                                         "uid_locus") == 'a1fc642f-568b-45e1-a368-d9c452c5df7f'
+        uid_locus_photo = KioskSQLDb.get_field_value("locus_photo", "uid_image",
+                                         "c377be85-fa86-4772-ae30-3c0485ce1504",
+                                         "uid")
+
+        assert KioskSQLDb.get_record_count("dayplan", "uid", "uid=%s", [uid_dayplan]) == 1
+        assert KioskSQLDb.get_record_count("locus_photo", "uid", "uid=%s", [uid_locus_photo]) == 1
+
+        file.contexts.clear_contexts()
+        assert file.push_contexts(False)
+        assert KioskSQLDb.get_record_count("dayplan", "uid", "uid=%s", [uid_dayplan]) == 1
+        assert KioskSQLDb.get_record_count("locus_photo", "uid", "uid=%s", [uid_locus_photo]) == 1
+        assert KioskSQLDb.get_field_value("dayplan", "uid", uid_dayplan, "uid_image") is None
+        assert KioskSQLDb.get_field_value("locus_photo", "uid", uid_locus_photo, "uid_image") is None
+
+    def test_delete_context_relations(self, db_files_initialized, urapdb_with_records, shared_datadir, mock_kiosk_time_zones):
+        sync = Synchronization()
+        file_repos = FileRepository(SyncConfig.get_config())
+        dsd = Dsd3Singleton.get_dsd3()
+
+        # set meta flag "file_list"
+        for t in ["dayplan", "locus_photo"]:
+            dsd._dsd_data.set([t,"meta"], {"flags": ["file_list"]},create_entire_index=True)
+            assert dsd.table_has_meta_flag(t, "file_list")
+
+        assert sync and file_repos
+
+        cache_manager = KioskFileCache(os.path.join(shared_datadir, "cache"),
+                                       representation_repository=sync.type_repository)
+
+        assert not KioskSQLDb.get_field_value("dayplan", "uid_image",
+                                             "c377be85-fa86-4772-ae30-3c0485ce1504",
+                                             "uid_unit") == "c109e19c-c73c-cc49-9f58-4ba0a3ad1339"
+
+        # upload a new file without identifier first
+        uid = "c377be85-fa86-4772-ae30-3c0485ce1504"
+        src_path_and_filename = os.path.join(shared_datadir, "new_files", "c377be85-fa86-4772-ae30-3c0485ce1504.jpg")
+        file = KioskContextualFile(uid, cache_manager,
+                                   file_repos, sync.type_repository, plugin_loader=sync, test_mode=True)
+
+        file.contexts.add_context("FA")
+        file.contexts.add_context("CC-001")
+        file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
+        assert file.push_contexts(False)
+
+        assert KioskSQLDb.get_field_value("dayplan", "uid_image",
+                                         "c377be85-fa86-4772-ae30-3c0485ce1504",
+                                         "uid_unit") == "c109e19c-c73c-cc49-9f58-4ba0a3ad1339"
+        uid_dayplan = KioskSQLDb.get_field_value("dayplan", "uid_image",
+                                         "c377be85-fa86-4772-ae30-3c0485ce1504",
+                                         "uid")
+
+        assert KioskSQLDb.get_field_value("locus_photo", "uid_image",
+                                         "c377be85-fa86-4772-ae30-3c0485ce1504",
+                                         "uid_locus") == 'a1fc642f-568b-45e1-a368-d9c452c5df7f'
+        uid_locus_photo = KioskSQLDb.get_field_value("locus_photo", "uid_image",
+                                         "c377be85-fa86-4772-ae30-3c0485ce1504",
+                                         "uid")
+
+        assert KioskSQLDb.get_record_count("dayplan", "uid", "uid=%s", [uid_dayplan]) == 1
+        assert KioskSQLDb.get_record_count("locus_photo", "uid", "uid=%s", [uid_locus_photo]) == 1
+        assert not KioskSQLDb.get_field_value("dayplan", "uid", uid_dayplan, "image_description", raise_exception=True)
+        assert not KioskSQLDb.get_field_value("locus_photo", "uid", uid_locus_photo, "description", raise_exception=True)
+
+        file.contexts.clear_contexts()
+        assert file.push_contexts(False)
+        assert KioskSQLDb.get_record_count("dayplan", "uid", "uid=%s", [uid_dayplan]) == 0
+        assert KioskSQLDb.get_record_count("locus_photo", "uid", "uid=%s", [uid_locus_photo]) == 0
+        assert KioskSQLDb.get_field_value("repl_deleted_uids", "deleted_uid", uid_dayplan, "table") == "dayplan"
+        assert KioskSQLDb.get_field_value("repl_deleted_uids", "deleted_uid", uid_locus_photo, "table") == "locus_photo"
+
+    def test_detach_context_relations_with_descriptions(self, db_files_initialized, urapdb_with_records, shared_datadir, mock_kiosk_time_zones):
+        sync = Synchronization()
+        file_repos = FileRepository(SyncConfig.get_config())
+        dsd = Dsd3Singleton.get_dsd3()
+
+        # set meta flag "file_list"
+        for t in ["dayplan", "locus_photo"]:
+            dsd._dsd_data.set([t,"meta"], {"flags": ["file_list"]},create_entire_index=True)
+            assert dsd.table_has_meta_flag(t, "file_list")
+
+        assert sync and file_repos
+
+        cache_manager = KioskFileCache(os.path.join(shared_datadir, "cache"),
+                                       representation_repository=sync.type_repository)
+
+        assert not KioskSQLDb.get_field_value("dayplan", "uid_image",
+                                             "c377be85-fa86-4772-ae30-3c0485ce1504",
+                                             "uid_unit") == "c109e19c-c73c-cc49-9f58-4ba0a3ad1339"
+
+        # upload a new file without identifier first
+        uid = "c377be85-fa86-4772-ae30-3c0485ce1504"
+        src_path_and_filename = os.path.join(shared_datadir, "new_files", "c377be85-fa86-4772-ae30-3c0485ce1504.jpg")
+        file = KioskContextualFile(uid, cache_manager,
+                                   file_repos, sync.type_repository, plugin_loader=sync, test_mode=True)
+
+        file.contexts.add_context("FA")
+        file.contexts.add_context("CC-001")
+        file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
+        assert file.push_contexts(False)
+
+        assert KioskSQLDb.get_field_value("dayplan", "uid_image",
+                                         "c377be85-fa86-4772-ae30-3c0485ce1504",
+                                         "uid_unit") == "c109e19c-c73c-cc49-9f58-4ba0a3ad1339"
+        uid_dayplan = KioskSQLDb.get_field_value("dayplan", "uid_image",
+                                         "c377be85-fa86-4772-ae30-3c0485ce1504",
+                                         "uid")
+
+        assert KioskSQLDb.get_field_value("locus_photo", "uid_image",
+                                         "c377be85-fa86-4772-ae30-3c0485ce1504",
+                                         "uid_locus") == 'a1fc642f-568b-45e1-a368-d9c452c5df7f'
+        uid_locus_photo = KioskSQLDb.get_field_value("locus_photo", "uid_image",
+                                         "c377be85-fa86-4772-ae30-3c0485ce1504",
+                                         "uid")
+        assert KioskSQLDb.get_record_count("dayplan", "uid", "uid=%s", [uid_dayplan]) == 1
+        assert KioskSQLDb.get_record_count("locus_photo", "uid", "uid=%s", [uid_locus_photo]) == 1
+
+        # this must keep the records from being deleted:
+        KioskSQLDb.execute("update dayplan set image_description='test description' where uid=%s", [uid_dayplan])
+        KioskSQLDb.execute("update locus_photo set description='locus test description' where uid=%s", [uid_locus_photo])
+
+        assert KioskSQLDb.get_field_value("dayplan", "uid", uid_dayplan, "image_description", raise_exception=True)
+        assert KioskSQLDb.get_field_value("locus_photo", "uid", uid_locus_photo, "description", raise_exception=True)
+        file.contexts.clear_contexts()
+        assert file.push_contexts(False)
+        assert KioskSQLDb.get_record_count("dayplan", "uid", "uid=%s", [uid_dayplan]) == 1
+        assert KioskSQLDb.get_record_count("locus_photo", "uid", "uid=%s", [uid_locus_photo]) == 1
+        assert not KioskSQLDb.get_field_value("repl_deleted_uids", "deleted_uid", uid_dayplan, "table", raise_exception=True)
+        assert not KioskSQLDb.get_field_value("repl_deleted_uids", "deleted_uid", uid_locus_photo, "table", raise_exception=True)
+
+        # while the records stay intact, the image fields must be emptied
+        assert KioskSQLDb.get_field_value("dayplan", "uid", uid_dayplan, "uid_image") is None
+        assert KioskSQLDb.get_field_value("locus_photo", "uid", uid_locus_photo, "uid_image") is None
 
     @pytest.mark.skip
     def test_ensure_md5_hash(self, db_files_initialized, shared_datadir):
