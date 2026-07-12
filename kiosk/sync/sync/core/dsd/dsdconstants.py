@@ -14,6 +14,12 @@ KEY_TABLE_FLAG_SYSTEM_TABLE = "system_table"
 # Such tables only exist for workstations and are migrated and created only in their context
 KEY_TABLE_FLAG_NOT_IN_MASTER = "not_in_master"
 KEY_TABLE_FLAG_EXPORT_DONT_TRUNCATE = "export_dont_truncate"
+
+# introduced with Kiosk 1.7.59
+# in a table marked as "file_list" records are deleted when the assigned image is detached from the record
+# if the flag is missing the file reference is set to null instead.
+KEY_TABLE_FLAG_FILE_LIST = "file_list"
+
 KEY_TABLE_META_IMPORT_FILTER = "import_filter"
 KEY_TABLE_FLAG_SYNC_IGNORE_UNIQUE_KEY_VIOLATION = "sync_ignore_unique_key_violation"
 KEY_INSTRUCTION_IDENTIFIER = "identifier"
