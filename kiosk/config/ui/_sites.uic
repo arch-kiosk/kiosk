@@ -40,7 +40,7 @@ element_type:
 # dsd('site_notes','note') && view-ui && view_type:list
 element_type:
   multiline: true
-  max_characters: 80
+#  max_characters: 80
 
 # dsd('site_notes','note') && view-ui && view_type:sheet
 layout:

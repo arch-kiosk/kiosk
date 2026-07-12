@@ -10,5 +10,5 @@ config:
   # The project_id must be in the kiosk_config file! Some tools rely on that convention!
   #  project_id: 'u2ers'
   base_path: 'C:\notebook_source\kiosk\server\kiosk\kiosk'
-  project_id: "pvd"
+  project_id: "anc"
 #  project_id: "mkap"
