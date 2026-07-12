@@ -841,7 +841,7 @@ class KioskSQLDb(SqlSafeIdentMixin):
         return result
 
     @classmethod
-    def get_field_value(cls, table, wherefield, wherevalue, field, orderby=None):
+    def get_field_value(cls, table, wherefield, wherevalue, field, orderby=None, raise_exception=False):
         rc = None
         try:
             rc = cls.get_first_record(table, wherefield, wherevalue, orderby)
@@ -851,9 +851,11 @@ class KioskSQLDb(SqlSafeIdentMixin):
 
         except Exception as e:
             logging.error("Exception in get_field_value, where_field {}: ".format(field) + repr(e))
+            if raise_exception:
+                raise e
             rc = None
 
-        return (rc)
+        return rc
 
     @classmethod
     def get_field_value_from_sql(cls, field, sql, params=None, exception_on_no_record=False):
