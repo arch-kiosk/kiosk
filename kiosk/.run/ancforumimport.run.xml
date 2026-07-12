@@ -16,7 +16,7 @@
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <option name="RUN_TOOL" value="" />
     <option name="SCRIPT_NAME" value="$PROJECT_DIR$/sync/sync/sync_plugins/buap_ancdb_bridge/ancforumimport/ancforumimport.py" />
-    <option name="PARAMETERS" value="$PROJECT_DIR$ &quot;C:\notebook_source\kiosk\server\kiosk\kiosk\sync\sync\sync_plugins\buap_ancdb_bridge\ancforumimport\data\forum_records.xlsx&quot; --user=lkh --season=12" />
+    <option name="PARAMETERS" value="$PROJECT_DIR$ &quot;C:\notebook_source\kiosk\server\kiosk\kiosk\sync\sync\sync_plugins\buap_ancdb_bridge\ancforumimport\data\ANC0102_1001-END_merged.xlsx&quot; --user=lkh --season=0102" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="false" />
