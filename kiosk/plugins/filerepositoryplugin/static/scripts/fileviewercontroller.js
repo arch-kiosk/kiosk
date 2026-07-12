@@ -156,7 +156,7 @@ class FileViewerController {
                 if (url) {
                     this.loading = !reload;
                     // this is a hack. What actually needs to happen is that
-                    // the Ligtbox throws an beforeOpen event or something else even if
+                    // the Lightbox throws an beforeOpen event or something else even if
                     // the image was already loaded.
                     if (this.loading) console.log("loading");
 
@@ -234,7 +234,7 @@ class FileViewerController {
     }
 
     reloadData() {
-        this._loadImage(this.currentIndex, true);
+        this._loadImage(this.currentIndex, true,true);
     }
 
     reloadFile(newDimensions = null) {
