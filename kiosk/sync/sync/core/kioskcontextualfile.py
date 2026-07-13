@@ -674,7 +674,7 @@ class KioskContextualFile(KioskLogicalFile):
 
     def push_contexts(self,
                       modified_info: Tuple[datetime.datetime, int, datetime.datetime, str],
-                      commit_on_change=False):
+                      commit_on_change=False, idc: IdentifierCache=None):
         """
         pushes the change in contexts to the database.
         :param modified_info: mandatory modified information that will be used to mark the
@@ -685,6 +685,7 @@ class KioskContextualFile(KioskLogicalFile):
                                 modified_ww (ww time)
                                 modified_by (user or sub system)
                               )
+        :param idc: optional IdentifierCache to use in _push_context
 
         :param commit_on_change: if set the method issues commits and rollbacks
         :return: True if successful, False if not
@@ -701,12 +702,12 @@ class KioskContextualFile(KioskLogicalFile):
         #     return True
 
         try:
-            idc = MemoryIdentifierCache(self._dsd)
+            # self.idc = MemoryIdentifierCache(self._dsd)
 
             for ctx in self._contexts.get_added_contexts():
                 changed = True
                 last_identifier = ctx[0]
-                if not self._push_context(ctx, cur, modified_info=modified_info):
+                if not self._push_context(ctx, cur, modified_info=modified_info, use_idc=idc):
                     raise Exception(f"call to _push_context failed with context {last_identifier}")
 
             for ctx in self._contexts.get_dropped_contexts():
