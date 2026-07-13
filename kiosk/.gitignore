@@ -65,3 +65,4 @@ backup.reminder
 
 plugins/**/.idea/
 sync/**/.idea/
+/config/kiosk_config.yml
