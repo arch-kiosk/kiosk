@@ -92,6 +92,12 @@ file_import:
         get_description_from_exif: True
         priority: 15
 
+file_repository:
+  cache: '%file_repository%\cache'
+  auto_representations: [ 'medium', 'small' ]
+  thumbnails: [ 'small', 'medium' ]
+  fullscreen_representation: 'master'
+
 kiosk:
   template_path: '%base_path%\templates'
   static_image_path: '%base_path%\static\assets\images'

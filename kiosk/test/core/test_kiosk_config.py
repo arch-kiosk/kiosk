@@ -80,3 +80,12 @@ class TestSyncConfig(KioskPyTestHelper):
         kiosk_config = self.get_config(config_file=project_config_file)
         transfer_dir = kiosk_config.get_create_transfer_dir()
         assert transfer_dir == os.path.join(kioskstdlib.get_parent_dir(kiosk_config.base_path), "transfer")
+
+    def test_get_recording_context_alias(self):
+        kiosk_config = self.get_config(config_file=base_config_file)
+        assert "file_repository" in kiosk_config.config_dict
+        kiosk_config.file_repository["recording_context_aliases"] = {}
+        assert kiosk_config.get_recording_context_alias("dayplans") == "dayplans"
+        kiosk_config.file_repository["recording_context_aliases"] = {"dayplans": "unit photos"}
+        assert kiosk_config.get_recording_context_alias("dayplans") == "unit photos"
+
