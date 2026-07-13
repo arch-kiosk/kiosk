@@ -532,9 +532,10 @@ class TestKioskContextualFile(KioskPyTestHelper):
         file = KioskContextualFile(uid, cache_manager,
                                    file_repos, sync.type_repository, plugin_loader=sync, test_mode=True)
         file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
-
+        modified_info = (file.modified, file.modified_tz, file.modified_ww,
+                         file.modified_by)
         sql, params = file._get_insert_context_sql("dayplan", "uid_image", "c109e19c-c73c-cc49-9f58-4ba0a3ad1339",
-                                                   "unit")
+                                                   "unit", modified_info=modified_info)
         assert params[0] == 'c377be85-fa86-4772-ae30-3c0485ce1504'
         assert isinstance(params[1], datetime.datetime) # created
         assert isinstance(params[2], datetime.datetime) # modified
@@ -547,8 +548,10 @@ class TestKioskContextualFile(KioskPyTestHelper):
                       'values(%s,%s,%s,%s,%s,%s,%s)'
 
         file.modified_by = "lkh"
+        modified_info = (file.modified, file.modified_tz, file.modified_ww,
+                         file.modified_by)
         sql, params = file._get_insert_context_sql("dayplan", "uid_image", "c109e19c-c73c-cc49-9f58-4ba0a3ad1339",
-                                                   "unit")
+                                                   "unit", modified_info=modified_info)
         assert params[0] == 'c377be85-fa86-4772-ae30-3c0485ce1504'
         assert isinstance(params[1], datetime.datetime) # created
         assert isinstance(params[2], datetime.datetime) # modified
@@ -581,7 +584,8 @@ class TestKioskContextualFile(KioskPyTestHelper):
         cur = KioskSQLDb.get_dict_cursor()
         try:
             file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
-            assert file._push_context(("FA", ""), cur)
+            modified_info = (file.modified, file.modified_tz, file.modified_ww, file.modified_by)
+            assert file._push_context(("FA", ""), cur, modified_info=modified_info)
         finally:
             cur.close()
 
@@ -593,7 +597,9 @@ class TestKioskContextualFile(KioskPyTestHelper):
         try:
             # not allowed because site is its own default file storage in the dsd and
             # it is not allowed to have a default file storage that itself has an identifier.
-            assert not file._push_context(("test_site", ""), cur)
+            modified_info = (file.modified, file.modified_tz, file.modified_ww,
+                             file.modified_by)
+            assert not file._push_context(("test_site", ""), cur, modified_info=modified_info)
         finally:
             cur.close()
 
@@ -618,7 +624,8 @@ class TestKioskContextualFile(KioskPyTestHelper):
         file.contexts.add_context("FA")
         file.contexts.add_context("CC-001")
         file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
-        assert file.push_contexts(False)
+        modified_info = (file.modified, file.modified_tz, file.modified_ww, file.modified_by)
+        assert file.push_contexts(modified_info=modified_info, commit_on_change=False)
 
         assert KioskSQLDb.get_field_value("dayplan", "uid_image",
                                          "c377be85-fa86-4772-ae30-3c0485ce1504",
@@ -655,7 +662,8 @@ class TestKioskContextualFile(KioskPyTestHelper):
         file.contexts.add_context("FA")
         file.contexts.add_context("CC-001")
         file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
-        assert file.push_contexts(False)
+        modified_info = (file.modified, file.modified_tz, file.modified_ww, file.modified_by)
+        assert file.push_contexts(modified_info=modified_info, commit_on_change=False)
 
         assert KioskSQLDb.get_field_value("dayplan", "uid_image",
                                          "c377be85-fa86-4772-ae30-3c0485ce1504",
@@ -675,7 +683,8 @@ class TestKioskContextualFile(KioskPyTestHelper):
         assert KioskSQLDb.get_record_count("locus_photo", "uid", "uid=%s", [uid_locus_photo]) == 1
 
         file.contexts.clear_contexts()
-        assert file.push_contexts(False)
+        modified_info = (file.modified, file.modified_tz, file.modified_ww, file.modified_by)
+        assert file.push_contexts(modified_info=modified_info, commit_on_change=False)
         assert KioskSQLDb.get_record_count("dayplan", "uid", "uid=%s", [uid_dayplan]) == 1
         assert KioskSQLDb.get_record_count("locus_photo", "uid", "uid=%s", [uid_locus_photo]) == 1
         assert KioskSQLDb.get_field_value("dayplan", "uid", uid_dayplan, "uid_image") is None
@@ -709,7 +718,8 @@ class TestKioskContextualFile(KioskPyTestHelper):
         file.contexts.add_context("FA")
         file.contexts.add_context("CC-001")
         file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
-        assert file.push_contexts(False)
+        modified_info = (file.modified, file.modified_tz, file.modified_ww, file.modified_by)
+        assert file.push_contexts(modified_info=modified_info, commit_on_change=False)
 
         assert KioskSQLDb.get_field_value("dayplan", "uid_image",
                                          "c377be85-fa86-4772-ae30-3c0485ce1504",
@@ -731,7 +741,8 @@ class TestKioskContextualFile(KioskPyTestHelper):
         assert not KioskSQLDb.get_field_value("locus_photo", "uid", uid_locus_photo, "description", raise_exception=True)
 
         file.contexts.clear_contexts()
-        assert file.push_contexts(False)
+        modified_info = (file.modified, file.modified_tz, file.modified_ww, file.modified_by)
+        assert file.push_contexts(modified_info=modified_info, commit_on_change=False)
         assert KioskSQLDb.get_record_count("dayplan", "uid", "uid=%s", [uid_dayplan]) == 0
         assert KioskSQLDb.get_record_count("locus_photo", "uid", "uid=%s", [uid_locus_photo]) == 0
         assert KioskSQLDb.get_field_value("repl_deleted_uids", "deleted_uid", uid_dayplan, "table") == "dayplan"
@@ -765,7 +776,8 @@ class TestKioskContextualFile(KioskPyTestHelper):
         file.contexts.add_context("FA")
         file.contexts.add_context("CC-001")
         file.set_modified(*KioskTimeZones.get_modified_components_from_now(27743346))
-        assert file.push_contexts(False)
+        modified_info = (file.modified, file.modified_tz, file.modified_ww, file.modified_by)
+        assert file.push_contexts(modified_info=modified_info, commit_on_change=False)
 
         assert KioskSQLDb.get_field_value("dayplan", "uid_image",
                                          "c377be85-fa86-4772-ae30-3c0485ce1504",
@@ -790,7 +802,8 @@ class TestKioskContextualFile(KioskPyTestHelper):
         assert KioskSQLDb.get_field_value("dayplan", "uid", uid_dayplan, "image_description", raise_exception=True)
         assert KioskSQLDb.get_field_value("locus_photo", "uid", uid_locus_photo, "description", raise_exception=True)
         file.contexts.clear_contexts()
-        assert file.push_contexts(False)
+        modified_info = (file.modified, file.modified_tz, file.modified_ww, file.modified_by)
+        assert file.push_contexts(modified_info=modified_info, commit_on_change=False)
         assert KioskSQLDb.get_record_count("dayplan", "uid", "uid=%s", [uid_dayplan]) == 1
         assert KioskSQLDb.get_record_count("locus_photo", "uid", "uid=%s", [uid_locus_photo]) == 1
         assert not KioskSQLDb.get_field_value("repl_deleted_uids", "deleted_uid", uid_dayplan, "table", raise_exception=True)

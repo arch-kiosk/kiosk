@@ -7,6 +7,8 @@ import time
 import pytest
 
 import kioskstdlib
+from dsd.dsd3singleton import Dsd3Singleton
+from fileidentifiercache import FileIdentifierCache
 from filerepository import FileRepository
 from kioskcontextualfile import KioskContextualFile
 from kioskfilesmodel import KioskFilesModel
@@ -20,7 +22,7 @@ from tz.kiosktimezones import KioskTimeZones
 test_dir = os.path.dirname(os.path.abspath(__file__))
 config_file = os.path.join(test_dir, "config", r"config_kiosk_imagemanagement.yml")
 log_file = os.path.join(test_dir, r"log\test.log")
-from test.mock_timezoneinfo import mock_kiosk_time_zones
+from test.mock_timezoneinfo import mock_kiosk_time_zones, mock_kiosk_time_zones_get_modified_components_from_now
 
 # information about the test data:
 # -----------------------------------------------------------------------------------------
@@ -117,7 +119,7 @@ class TestFileRepository(KioskPyTestHelper):
         assert check_file.description == "a test file"
         assert check_file.get() == candid_file
 
-        jpg_type = KioskRepresentationType("jpegs")
+        jpg_type = KioskRepresentationType("jpgs")
         jpg_type.format_request = {"*": "JPEG"}
         jpg = check_file.get(jpg_type, True)
         assert jpg
@@ -225,9 +227,13 @@ class TestFileRepository(KioskPyTestHelper):
                                                            "where uid='7dbd0fab-1859-4c5b-91b8-de2bc18550d4'")
         assert filename.find("c:\\") == -1
 
-    def test_delete_image(self, db, shared_datadir):
+    def test_delete_image(self, db, shared_datadir, mock_kiosk_time_zones_get_modified_components_from_now):
         sync = Synchronization()
+        dsd = Dsd3Singleton.get_dsd3()
         logging.info(f"Test delete image")
+        fid = FileIdentifierCache(dsd)
+        assert fid.build_file_identifier_cache_from_contexts()
+        KioskSQLDb.commit()
         file_repos = FileRepository(SyncConfig.get_config(),
                                     event_manager=sync.events,
                                     type_repository=sync.type_repository,
@@ -247,9 +253,11 @@ class TestFileRepository(KioskPyTestHelper):
         assert representation
         logging.info(f"representation is {representation}")
         assert os.path.isfile(representation)
-        assert file_repos.delete_file_from_repository(uid, commit=True) == -1
+        rc = file_repos.delete_file_from_repository(uid, commit=True)
+        assert rc[0] == -1
         time.sleep(2)
-        assert file_repos.delete_file_from_repository(uid, clear_referencing_records=True, commit=True) == True
+        rc = file_repos.delete_file_from_repository(uid, clear_referencing_records=True, commit=True)
+        assert rc[0] == True
         time.sleep(2)
         assert not os.path.isfile(path_and_filename)
         assert not os.path.isfile(representation)
