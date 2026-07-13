@@ -276,6 +276,6 @@ INSERT INTO public.dayplan (image_description, uid_image, uid, created, modified
 VALUES ('white striped ware', '4e10c871-1a20-4b03-ba68-07ee857b8e2b', '5aa75571-9b9a-45c5-bc79-ca70945883cb',
         '2019-03-11 20:52:30.000000', '2019-03-11 20:52:30.000000', 'sys', false, null);
 INSERT INTO public.dayplan (image_description, uid_image, uid, created, modified, modified_by, repl_deleted,
-                            repl_tag)
+                            repl_tag, uid_unit)
 VALUES ('white striped ware', '31c70ca0-6cb9-4907-8c22-c158485ed23b', 'a532fc2a-38f8-4d0a-a58f-83c93aebe584', '2019-03-11 20:52:30.000000',
-        '2019-03-11 20:52:30.000000', 'sys', false, null);
+        '2019-03-11 20:52:30.000000', 'sys', false, null, 'c29caa7a-1ee7-f645-9fa4-a7dca04df019');
