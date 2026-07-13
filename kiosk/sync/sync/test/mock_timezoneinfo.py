@@ -1,6 +1,7 @@
 # time zone relevant
 import pytest
 
+import kioskdatetimelib
 from tz.kiosktimezones import KioskTimeZones
 
 
@@ -25,4 +26,17 @@ def mock_kiosk_time_zones(mocker):
                             'Egypt': 88846771,
                             # 'America/New_York': 40079121
                         }[iana_name])
+
+
+    return mocker
+
+@pytest.fixture()
+def mock_kiosk_time_zones_get_modified_components_from_now(mocker):
+    mocker.patch.object(target=KioskTimeZones,
+                        attribute="get_modified_components_from_now",
+                        new=lambda _, tz_index: (kioskdatetimelib.get_utc_now(),
+                                             tz_index,
+                                             kioskdatetimelib.utc_ts_to_timezone_ts(kioskdatetimelib.get_utc_now(),"UTC", replace_ms=True)))
+
+
     return mocker
