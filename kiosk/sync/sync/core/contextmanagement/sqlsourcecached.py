@@ -61,7 +61,8 @@ class SqlSourceCached(SqlSource):
                 sql += self._get_where(condition_field, condition)
 
             c = KioskSQLDb.execute(sql, commit=commit)
-        if c < 1:
+
+        if (c if c else 0) < 1:
             logging.debug(f"{self.__class__.__name__}.build_cache: No records added to {self.cache_table_name}")
             logging.debug(f"{self.__class__.__name__}.build_cache: {sql}")
         else:
