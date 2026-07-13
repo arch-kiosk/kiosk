@@ -401,23 +401,23 @@ def get_utc_now_as_str():
     return get_utc_now(no_tz_info=True, no_ms=True).strftime("%d %b %Y %H:%M:%S")
 
 
-def time_zone_ts_to_utc(utc_datetime: Union[datetime.datetime, str], time_zone: str) -> datetime.datetime:
+def time_zone_ts_to_utc(dt: Union[datetime.datetime, str], time_zone: str) -> datetime.datetime:
     """
     converts a timestamp of a certain time zone to the utc time zone and drops the time zone information
-    :param utc_datetime: either a datetime object or a string in iso8601 format.
+    :param dt: either a datetime object or a string in iso8601 format.
                          No matter if this value has a time zone info itself or not, the "time_zone" parameter
                          will determine the source time zone
     :param time_zone: a IANA time zone string
     :returns: a datetime with local time of the time zone and the time zone information dropped.
     """
-    if not time_zone or not utc_datetime:
+    if not time_zone or not dt:
         raise ValueError("empty parameter in utc_ts_to_time_zone_ts")
 
-    if isinstance(utc_datetime, str):
-        dt = kioskstdlib.str_to_iso8601(utc_datetime)
+    if isinstance(dt, str):
+        dt = kioskstdlib.str_to_iso8601(dt)
     else:
-        if isinstance(utc_datetime, datetime.datetime):
-            dt = utc_datetime
+        if isinstance(dt, datetime.datetime):
+            dt = dt
         else:
             raise ValueError("parameter utc_datetime is not string nor datetime")
 
