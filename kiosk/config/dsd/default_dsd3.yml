@@ -217,6 +217,8 @@ collected_material:
         - add("coord_z")
 
 collected_material_photo:
+  meta:
+    flags: ["file_list"]
   structure:
     2:
       uid_cm: [datatype(UUID), join("collected_material")]
@@ -256,6 +258,8 @@ collected_material_types:
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
 
 dayplan:
+  meta:
+    flags: ["file_list"]
   structure:
     4:
       uid_unit: [datatype(UUID), join("unit")]
@@ -542,6 +546,8 @@ coordinates:
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default("''")]
 
 coordinate_photo:
+  meta:
+    flags: ["file_list"]
   structure:
     1:
       uid_coordinate: [datatype(UUID), join("coordinates")]
@@ -1091,6 +1097,8 @@ locus_othertype:
         - alter("modified_by")
 
 locus_photo:
+  meta:
+    flags: ["file_list"]
   structure:
     2:
       uid_locus: [datatype(UUID), join("locus")]
@@ -2197,6 +2205,8 @@ archival_entity_activity:
       modified_by: [datatype(VARCHAR), replfield_modified_by()]
 
 archival_entity_file:
+  meta:
+    flags: ["file_list"]
   structure:
     1:
       uid_archival_entity: [datatype(UUID), join(archival_entity)]
