@@ -152,7 +152,7 @@ def fetch_repository_file(file_uuid, resolution):
             abort(400)
 
         if file_uuid:
-            files_table=None
+            files_table = None
             if search_params.get("archive"):
                 files_table = get_current_files_table_name(archive=search_params["archive"])
                 print(f"Archive is {search_params['archive']}, files table name is {files_table} ")
@@ -414,11 +414,11 @@ def file_repository_show():
             current_page = int(kiosk_current_page)
             m_file_repository.sorting_option = session["kiosk_fr_sorting"]
             session["fr_active_filter_options"] = options
-            from_file = (current_page-1) * MAX_IMAGES_PER_PAGE
+            from_file = (current_page - 1) * MAX_IMAGES_PER_PAGE
 
             img_list = m_file_repository.query_images(files_table=files_table,
-                                                      from_file = from_file,
-                                                      page_size = MAX_IMAGES_PER_PAGE)
+                                                      from_file=from_file,
+                                                      page_size=MAX_IMAGES_PER_PAGE)
             # if len(img_list) > MAX_IMAGES_PER_PAGE:
             #     img_list = None
             try:
@@ -487,7 +487,8 @@ def filerepository_editpartial(uuid, use_archive):
                                 plugin_loader=current_app
                                 )
 
-    files_table = get_current_files_table_name(archive=None if use_archive else '')  # '' uses NO archive, see get_current_files_table_name
+    files_table = get_current_files_table_name(
+        archive=None if use_archive else '')  # '' uses NO archive, see get_current_files_table_name
     img = m_file_repos.get_image(uuid, files_table=files_table)
     if not img:
         abort(HTTPStatus.BAD_REQUEST, f"Error accessing information for file {uuid}")
@@ -685,7 +686,13 @@ def update_contexts(img: FileRepositoryFile, file_repos: FileRepository, form_da
             current_user.get_active_tz_index())
         ctx.set_modified(utc_ts, tz_index, ww_ts)
         ctx.modified_by = current_user.repl_user_id
-        if not ctx.push_contexts(True):
+        modified_info = (
+            ctx.modified,
+            ctx.modified_tz,
+            ctx.modified_ww,
+            ctx.modified_by
+        )
+        if not ctx.push_contexts(modified_info=modified_info, commit_on_change=True):
             return f"error pushing contexts: {ctx.last_error}"
     return ""
 
@@ -768,8 +775,9 @@ def repository_delete_file(uid, force):
         delete_tz = None
         delete_ww = None
 
-    rc = file_repos.delete_file_from_repository(uid, clear_referencing_records=force, commit=True,
-                                                ts_delete_ww=delete_ww, ts_delete_tz=delete_tz)
+    rc, ref = file_repos.delete_file_from_repository(uid, clear_referencing_records=force, commit=True,
+                                                     ts_delete_ww=delete_ww, ts_delete_tz=delete_tz,
+                                                     current_user_id=current_user.user_id)
     if rc is True or (rc == -1 and force):
         try:
             # todo: This is too coarse. The qc processing should be limited to the
@@ -785,8 +793,7 @@ def repository_delete_file(uid, force):
         return jsonify(result="ok")
     else:
         if rc == -1:
-            reference_tables = ", ".join([x[0] for x in file_repos.get_actual_file_references(uid)])
-            return jsonify(result=f"Sorry, the file is still referenced in the recording system ({reference_tables})."
+            return jsonify(result=f"Sorry, the file is still referenced in the recording system ({ref})."
                                   f"<br><br>So I have to ask again. Do you still want to delete it?",
                            ask_for_force=True)
         else:
@@ -824,17 +831,29 @@ def repository_bulk_delete_files():
         delete_ww = kioskdatetimelib.utc_ts_to_timezone_ts(kioskdatetimelib.get_utc_now(),
                                                            current_user.get_active_time_zone_name(iana=True))
     except Exception as e:
-        logging.warning(f"filerepositorycontroller.repository_bulk_delete_files: failed to get current time and time zone")
+        logging.warning(
+            f"filerepositorycontroller.repository_bulk_delete_files: failed to get current time and time zone")
         delete_tz = None
         delete_ww = None
     try:
         deleted_files = []
         for uid in files:
-            if file_repos.delete_file_from_repository(uid, clear_referencing_records=True, commit=True,
-                                                      ts_delete_ww=delete_ww, ts_delete_tz=delete_tz) == True:
+            rc, ref = file_repos.delete_file_from_repository(uid, clear_referencing_records=True, commit=True,
+                                                             ts_delete_ww=delete_ww,
+                                                             ts_delete_tz=delete_tz,
+                                                             current_user_id=current_user.user_id)
+
+            # noinspection PySimplifyBooleanCheck
+            if rc is True:
                 deleted_files.append(uid)
             else:
-                logging.info(f"filerepositorycontroller.repository_bulk_delete_files: File {uid} was not deleted.")
+                if rc == -1:
+                    logging.info(f"filerepositorycontroller.repository_bulk_delete_files: "
+                                 f"File {uid} was not deleted because it had references.")
+                else:
+                    logging.error(f"filerepositorycontroller.repository_bulk_delete_files: "
+                                  f"File {uid} was not deleted because of an error")
+
         try:
             kiosklib.run_quality_control()
             logging.debug(f"filerepositorycontroller.repository_bulk_delete_files: QC ran.")
@@ -844,7 +863,7 @@ def repository_bulk_delete_files():
         return jsonify(result="ok", deleted_files=deleted_files)
     except BaseException as e:
         logging.error(f"filerepositorycontroller.repository_bulk_delete_files: {repr(e)}")
-        return jsonify(result=f"Sorry, some error prevented the deletion of the file."
+        return jsonify(result=f"Sorry, some error prevented the deletion of at least some of the files."
                               f" Consult the log for details. The error was {repr(e)}")
 
 
@@ -1093,7 +1112,7 @@ def repository_bulk_link_execute():
                         f.contexts.add_context(identifier, context_info["record_type"])
 
                         f.push_contexts(commit_on_change=False, idc=idc,
-                                        modified_info = (utc_ts, tz_index, ww_ts, modified_by))
+                                        modified_info=(utc_ts, tz_index, ww_ts, modified_by))
                         updated[file_uid] = ", ".join([x[0] for x in f.contexts.get_contexts()])
                         logging.debug(f"filerepositorycontroller._repository_bulk_link_execute: "
                                       f"Linked file {file_uid} "
@@ -1482,6 +1501,7 @@ def select_archive_dialog():
             result.success = "False"
             result.message = repr(e)
             return result.jsonify()
+
 
 #  **************************************************************
 #  ****    noarchive
