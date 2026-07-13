@@ -1,8 +1,9 @@
 # import time
 import logging
 import os
-from typing import Union, List
+from typing import Union, List, Tuple
 
+import kioskdatetimelib
 import kioskstdlib
 import datetime
 
@@ -388,9 +389,10 @@ class FileRepository:
         return rc, ctx_file.last_error
 
     def delete_file_from_repository(self, uid, clear_referencing_records=False, commit=False,
-                                    ts_delete_ww: datetime.datetime=None,
-                                    ts_delete_tz: int=None,
-                                    no_history=False) -> Union[int,bool]:
+                                    ts_delete_ww: Union[datetime.datetime, None]=None,
+                                    ts_delete_tz: Union[int, None] = None,
+                                    no_history=False,
+                                    current_user_id: str="sys") -> Tuple[Union[bool,int], Union[str, None]]:
         """
             removes a record and its file from the repository. If there is only a record but no file,
             the file will be removed with a warning.
@@ -408,16 +410,20 @@ class FileRepository:
         :param ts_delete_tz:  time zone for the _ww ts
         :param no_history: Optional. default is False.
                             Set to True if you want to delete the file without adding it to the history folder.
-
-        :return: False if an error occurred
-                 -1 if the file's record is still referenced by any other table
-                 True if file and record are removed.
+        :param current_user_id: optional. the id of the current user. Will be sys otherwise.
+        :return: a tuple with (rc, ref)
+                    rc: False if an error occurred
+                        -1 if the file's record is still referenced by any other table
+                        True if file and record are removed.
+                    ref: if rc == -1, this contains the aliases of the recording types that
+                         the image is related to.
         """
 
-        def clear_image_reference(table, field, _uid):
-            logging.debug(f"{self.__class__.__name__}.clear_image_reference: "
-                          f"Clearing image field {table}.{field}  for image {_uid}")
-            KioskSQLDb.execute("update \"{}\" set \"{}\"=null where \"{}\"=%s".format(table, field, field), [_uid])
+        # old version
+        # def clear_image_reference(table, field, _uid):
+        #     logging.debug(f"{self.__class__.__name__}.clear_image_reference: "
+        #                   f"Clearing image field {table}.{field}  for image {_uid}")
+        #     KioskSQLDb.execute("update \"{}\" set \"{}\"=null where \"{}\"=%s".format(table, field, field), [_uid])
 
         #
         # end clear_image_reference
@@ -425,33 +431,69 @@ class FileRepository:
 
         # start of main method
         rc = True
+        ref = None
         try:
             ctx_file = self.get_contextual_file(uid)
             if not ctx_file:
                 logging.error(f"{self.__class__.__name__}.delete_file_from_repository: File with uid {uid} does not exist.")
                 return False
 
-            ref = self.get_actual_file_references(uid, stop_after_one=False)
+            ref = ",".join(set(self.conf.get_recording_context_alias(x[1]) for x in ctx_file.contexts.get_contexts()))
+            # ref = self.get_actual_file_references(uid, stop_after_one=False)
             if ref:
                 if not clear_referencing_records:
                     logging.error(
                         f"{self.__class__.__name__}.delete_file_from_repository: File with uid {uid} "
                         f"cannot be deleted since it is still referenced by {ref}")
-                    return -1
+                    rc = -1
                 else:
                     try:
-                        for t in ref:
-                            clear_image_reference(t[0], t[1], uid)
-                        logging.debug(
-                            f"{self.__class__.__name__}.delete_file_from_repository: References for file with uid {uid} "
-                            f"deleted")
-                    except Exception as e:
-                        logging.error("Exception in clear_image_reference: " + repr(e))
-                        rc = False
+                        modified_info = None
+                        if ts_delete_tz and ts_delete_ww:
+                            iana_tz = self.kiosk_time_zones.get_iana_time_zone(ts_delete_tz)
+                            if iana_tz:
+                                modified_info = (
+                                    kioskdatetimelib.time_zone_ts_to_utc(ts_delete_ww, iana_tz),
+                                    ts_delete_tz,
+                                    ts_delete_ww,
+                                    current_user_id
+                                )
 
-            if rc:
+                        if not modified_info:
+                            logging.debug(f"{self.__class__.__name__}.delete_file_from_repository: "
+                                          f"Deprecated call without modified info. "
+                                          f"This will work but should be refactored.")
+                            utc_ts, tz_index, ww_ts = self.kiosk_time_zones.get_modified_components_from_now(
+                                ts_delete_tz if ts_delete_tz else None)
+                            modified_info = (utc_ts,
+                                             tz_index,
+                                             ww_ts,
+                                             current_user_id)
+
+                        ctx_file.contexts.clear_contexts()
+                        if not ctx_file.push_contexts(modified_info=modified_info,
+                                                      commit_on_change=False):
+                            logging.error(f"{self.__class__.__name__}.delete_file_from_repository: "
+                                          f"push_contexts failed")
+                            rc = False
+                    except BaseException as e:
+                        logging.error(f"{self.__class__.__name__}.delete_file_from_repository: "
+                                      f"Exception when clearing contexts: {repr(e)}")
+                        rc = False
+                    # try:
+                    #     for t in ref:
+                    #         clear_image_reference(t[0], t[1], uid)
+                    #     logging.debug(
+                    #         f"{self.__class__.__name__}.delete_file_from_repository: References for file with uid {uid} "
+                    #         f"deleted")
+                    # except Exception as e:
+                    #     logging.error("Exception in clear_image_reference: " + repr(e))
+                    #     rc = False
+
+            if rc is True:
                 rc = False
-                if not ctx_file.delete(commit=False,ts_delete_ww=ts_delete_ww, ts_delete_tz=ts_delete_tz,
+                if not ctx_file.delete(commit=False,ts_delete_ww=ts_delete_ww,
+                                       ts_delete_tz=ts_delete_tz,
                                        no_history=no_history):
                     logging.error("delete_file_from_repository: record " + uid + " could not be deleted from images")
                     try:
@@ -471,7 +513,7 @@ class FileRepository:
         except Exception as e:
             logging.error(f"{self.__class__.__name__}.delete_file_from_repository: {repr(e)}")
             rc = False
-        return rc
+        return rc, ref
 
     def get_thumbnail(self, uid, representation_id):
         """
