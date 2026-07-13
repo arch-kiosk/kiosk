@@ -43,7 +43,7 @@ class SimpleQCEngine(QCEngine):
             rules = self._get_rules_for_trigger(trigger_id)
             if rules:
                 for data_context in data_contexts:
-                    logging.debug(f"SimpleQCEngine.trigger_qc: data_context {data_context['arch_context']}")
+                    # logging.debug(f"SimpleQCEngine.trigger_qc: data_context {data_context['arch_context']}")
                     for rule in rules:
                         try:
                             self._execute_rule(trigger_id, rule, data_context)
@@ -194,7 +194,7 @@ class SimpleQCEngine(QCEngine):
                         value = KioskSQLDb.get_field_value_from_sql("value", sql, [record_type_uuid],
                                                                     exception_on_no_record=True)
                         if value is None:
-                            logging.debug(f"{self.__class__.__name__}._get_input_field_value: None value occured in sql"
+                            logging.debug(f"{self.__class__.__name__}._get_input_field_value: None value occurred in sql"
                                           f"{sql}")
                     except KeyError:
                         # a related record was not even there, so the rule can't be checked in the first place
@@ -202,6 +202,10 @@ class SimpleQCEngine(QCEngine):
                     return value
                 else:
                     raise QCError(f"rule can't find a path from table {trigger_record_type} to {input_record_type} ")
+        except QCNoFlag as e:
+            raise e
+        except QCError as e:
+            raise e
         except BaseException as e:
             logging.debug(f"{self.__class__.__name__}._get_input_field_value: {repr(e)}")
             raise e
