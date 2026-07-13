@@ -100,6 +100,11 @@ class FileIdentifierCache:
 
         :param file_uuid: the uuid of a file
         :param primary_only: default is True. returns only the primary context identifiers for a file.
+                             those are the ones where an image has been specifically related to a context
+                             in the recording system. Secondary is when an image appears in the scope but isn't
+                             directly assigned to the scope's context.
+                             So unit FA -> locus FA-001 -> locus_photo is secondary in the scope of FA
+                             but primary in the scope of FA-001
         :return: list of tuples of type (context identifier, record type). No contexts -> empty list.
         """
         query = ContextQuery(self._get_sql_source())
