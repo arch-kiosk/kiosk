@@ -368,7 +368,14 @@ class KioskContextualFile(KioskLogicalFile):
             else:
                 r.update()
             if push_contexts:
-                if not self.push_contexts(commit_on_change=False):
+                modified_info = (
+                    r.modified,
+                    r.modified_tz,
+                    r.modified_ww,
+                    r.modified_by
+                )
+                if not self.push_contexts(modified_info=modified_info,
+                                          commit_on_change=False):
                     if not self._last_error:
                         self._last_error = "Unknown identifier"
                     raise Exception("push_contexts failed.")
@@ -631,6 +638,9 @@ class KioskContextualFile(KioskLogicalFile):
                ts_delete_tz: int = None) -> bool:
         """
         deletes the file and all its representations. Physically and logically!
+
+        ! THIS DOES NOT REMOVE context relations! You must use push_contexts separately.
+
         :param commit: leaves the commit to the caller if False
         :param no_history: if set to True, the file will not be moved to the history directory
         :param ts_delete_ww: timestamp when the file was deleted
@@ -652,6 +662,9 @@ class KioskContextualFile(KioskLogicalFile):
         if not self._fic:
             self._fic = FileIdentifierCache(self._dsd)
         try:
+            # 13.VII.2026 - primary_only = True is necessary because we don't want a relation here that isn't direct.
+            # so we do want unit -> dayplan -> image
+            # but we do not want unit -> locus -> locus_photo -> image
             rc = self._fic.get_contexts_for_file(self._uid)
             return rc
         except BaseException as e:
@@ -659,18 +672,19 @@ class KioskContextualFile(KioskLogicalFile):
                           f"error in FileIdentifierCache.get_contexts_for_file: {repr(e)}")
             raise e
 
-    def push_contexts(self, commit_on_change=False, idc: MemoryIdentifierCache = None,
-                      modified_info: Tuple[datetime.datetime, int, datetime.datetime, str] = None):
+    def push_contexts(self,
+                      modified_info: Tuple[datetime.datetime, int, datetime.datetime, str],
+                      commit_on_change=False):
         """
         pushes the change in contexts to the database.
-        :param modified_info: List with four elements or none
-                                (in which case the values of the image itself will be used):
-                                modified = modified_info[0]
-                                modified_tz = modified_info[1]
-                                modified_ww = modified_info[2]
-                                modified_by = modified_info[3]
-
-
+        :param modified_info: mandatory modified information that will be used to mark the
+                              relations that connect the image (not the file record itself!)
+                              (
+                                modified (UTC)
+                                modified_tz (tz index)
+                                modified_ww (ww time)
+                                modified_by (user or sub system)
+                              )
 
         :param commit_on_change: if set the method issues commits and rollbacks
         :return: True if successful, False if not
@@ -679,6 +693,7 @@ class KioskContextualFile(KioskLogicalFile):
         changed = False
         cur = KioskSQLDb.get_dict_cursor()
         last_identifier = ""
+
 
         # This was added in 07.11.2025 with 92ed1296. It keeps the file repository from dropping contexts (#3659)
         # I just wonder why it was added? The commit message does not reveal any reason, on the contrary.
@@ -696,7 +711,7 @@ class KioskContextualFile(KioskLogicalFile):
 
             for ctx in self._contexts.get_dropped_contexts():
                 changed = True
-                self._drop_context(ctx, cur)
+                self._drop_context(ctx, cur, modified_info=modified_info)
 
             cur.close()
             if commit_on_change and changed:
@@ -722,8 +737,10 @@ class KioskContextualFile(KioskLogicalFile):
 
         return False
 
-    def _push_context(self, ctx: tuple, cur, use_idc: IdentifierCache = None,
-                      modified_info: Tuple[datetime.datetime, int, datetime.datetime, str] = None) -> bool:
+    def _push_context(self, ctx: tuple, cur,
+                      modified_info: Tuple[datetime.datetime, int, datetime.datetime, str],
+                      use_idc: IdentifierCache = None,
+                      ) -> bool:
         """
         adds a file to the context and record type.
         :param ctx: a tuple consisting of the context identifier and file_location.
@@ -731,6 +748,14 @@ class KioskContextualFile(KioskLogicalFile):
                     that specific record type (=table).
                     if not given (set to "") or None the default record type for the identifier will be used
         :param cur: an open dict-cursor
+        :param modified_info: mandatory modified information that will be used to mark the
+                              relations that connect the image (not the file record itself!)
+                              (
+                                modified (UTC)
+                                modified_tz (tz index)
+                                modified_ww (ww time)
+                                modified_by (user or sub system)
+                              )
         :return: True/False, can throw Exceptions
         """
         identifier: str = ctx[0]
@@ -778,13 +803,21 @@ class KioskContextualFile(KioskLogicalFile):
 
     def _get_insert_context_sql(self, file_location: str, file_location_field: str,
                                 identifier_uuid: str, identifier_table: str,
-                                modified_info: Tuple[datetime.datetime, int, datetime.datetime, str] = None):
+                                modified_info: Tuple[datetime.datetime, int, datetime.datetime, str]):
         """
         returns the sql string that inserts a new record into a file location
         :param file_location: the table where the file is stored
         :param file_location_field: the field that holds the file's uuid
         :param identifier_uuid: the uuid of the record that holds the identifier field
         :param identifier_table: the table that holds the identifier
+        :param modified_info: mandatory modified information that will be used to mark the
+                              relations that connect the image (not the file record itself!)
+                              (
+                                modified (UTC)
+                                modified_tz (tz index)
+                                modified_ww (ww time)
+                                modified_by (user or sub system)
+                              )
         :return: a tuple consisting of the sql and a list of values. In case a DSDJoinError the sql string is empty.
                  other Exceptions are thrown.
         """
@@ -820,27 +853,32 @@ class KioskContextualFile(KioskLogicalFile):
                          KioskSQLDb.sql_safe_ident(join.related_field)]) + \
                ")"
         sql += f" values(%s,%s,%s,%s,%s,%s,%s)"
-        # time zone relevant
-        if modified_info:
-            modified = modified_info[0]
-            modified_tz = modified_info[1]
-            modified_ww = modified_info[2]
-            modified_by = modified_info[3]
-        else:
-            modified = self.modified
-            modified_tz = self.modified_tz
-            modified_ww = self.modified_ww
-            modified_by = self.modified_by if self.modified_by else "sys"
+
+        modified = modified_info[0]
+        modified_tz = modified_info[1]
+        modified_ww = modified_info[2]
+        modified_by = modified_info[3] if modified_info[3] else "sys"
 
         values = [self.uid, modified_ww, modified, modified_tz, modified_ww,
-                  modified_by, identifier_uuid]
+                  modified_by if modified_by else "sys", identifier_uuid]
         return sql, values
 
-    def _drop_context(self, ctx, cur, use_idc: IdentifierCache = None) -> bool:
+    def _drop_context(self, ctx, cur,
+                      modified_info: Tuple[datetime.datetime, int, datetime.datetime, str],
+                      use_idc: IdentifierCache = None,) -> bool:
         """
         unassigns an image from a record type
         :param ctx:
         :param cur:
+        :param modified_info: mandatory modified information that will be used to mark the
+                              relations that connect the image (not the file record itself!)
+                              (
+                                modified (UTC)
+                                modified_tz (tz index)
+                                modified_ww (ww time)
+                                modified_by (user or sub system)
+                              )
+
         returns True or False but might also throw an Exception
         """
         identifier: str = ctx[0]
@@ -872,16 +910,21 @@ class KioskContextualFile(KioskLogicalFile):
         identifier_table = context[0]
         dsd = Dsd3Singleton().get_dsd3()
         row_count = -1
+        deleted = False
         if dsd.table_has_meta_flag(file_location, KEY_TABLE_FLAG_FILE_LIST):
             row_count = self._delete_context_relation_sql(file_location=file_location,
                                                           file_location_field=file_location_field,
                                                           identifier_uuid=identifier_uuid,
-                                                          identifier_table=identifier_table)
+                                                          identifier_table=identifier_table,
+                                                          modified_info=modified_info)
+            deleted = row_count == 1
+
         if row_count == -1:
             sql, params = self._get_detach_from_context_sql(file_location=file_location,
                                                             file_location_field=file_location_field,
                                                             identifier_uuid=identifier_uuid,
-                                                            identifier_table=identifier_table)
+                                                            identifier_table=identifier_table,
+                                                            modified_info=modified_info)
 
             if not sql:
                 return False
@@ -900,26 +943,37 @@ class KioskContextualFile(KioskLogicalFile):
                 logging.warning(f"{self.__class__.__name__}._push_context: Exception when running quality control "
                                 f"for identifier {identifier_table}/{identifier_uuid}: {repr(e)}")
             logging.debug(f"{self.__class__.__name__}._drop_context: file {self.uid} "
-                          f"detached from context {identifier}, "
+                          f"{'deleted' if deleted else'detached'} from context {identifier}, "
                           f"record-type {context[0]}, "
-                          f"file_location{file_location}")
+                          f"file_location {file_location}")
             return True
         else:
             logging.error(f"{self.__class__.__name__}._drop_context: file {self.uid} "
-                          f"was NOT detached from context {identifier}, "
+                          f"was NOT detached or deleted from context {identifier}, "
                           f"record-type {context[0]}, "
                           f"file_location{file_location}")
 
         return False
 
-    def _get_detach_from_context_sql(self, file_location: str, file_location_field: str,
-                                     identifier_uuid: str, identifier_table: str):
+    def _get_detach_from_context_sql(self, file_location: str,
+                                     file_location_field: str,
+                                     identifier_uuid: str,
+                                     identifier_table: str,
+                                     modified_info: Tuple[datetime.datetime, int, datetime.datetime, str]):
         """
         returns the sql string that detaches a file from the default file location of an identifier
         :param file_location: the table where the file ist stored
         :param file_location_field: the field that holds the file's uuid
         :param identifier_uuid: the uuid of the record that holds the identifier field
         :param identifier_table: the table that holds the identifier
+        :param modified_info: mandatory modified information that will be used to mark the
+                              relations that connect the image (not the file record itself!)
+                              (
+                                modified (UTC)
+                                modified_tz (tz index)
+                                modified_ww (ww time)
+                                modified_by (user or sub system)
+                              )
         :return: a tuple consisting of the sql and a list of values. In case a DSDJoinError the sql string is empty.
                  other Exceptions are thrown.
         """
@@ -951,18 +1005,28 @@ class KioskContextualFile(KioskLogicalFile):
                f"where {KioskSQLDb.sql_safe_ident(join.related_field)}=%s and " \
                f"{KioskSQLDb.sql_safe_ident(file_location_field)}=%s"
         # time zone relevant
-        values = [self.modified, self.modified_tz, self.modified_ww,
-                  self.modified_by, identifier_uuid, self.uid]
+        values = [modified_info[0], modified_info[1], modified_info[2],
+                  modified_info[3] if modified_info[3] else "sys",
+                  identifier_uuid, self.uid]
         return sql, values
 
     def _delete_context_relation_sql(self, file_location: str, file_location_field: str,
-                                     identifier_uuid: str, identifier_table: str):
+                                     identifier_uuid: str, identifier_table: str,
+                                     modified_info: Tuple[datetime.datetime,int, datetime.datetime, str]):
         """
         deletes the record that relates to the file
         :param file_location: the table where the file ist stored (this is where the record gets deleted)
         :param file_location_field: the field that holds the file's uuid
         :param identifier_uuid: the uuid of the record that holds the identifier field
         :param identifier_table: the table that holds the identifier
+        :param modified_info: mandatory modified information that will be used to mark the
+                              relations that connect the image (not the file record itself!)
+                              (
+                                modified (UTC)
+                                modified_tz (tz index)
+                                modified_ww (ww time)
+                                modified_by (user or sub system)
+                              )
         :return: the number of affected rows, which should be 1 in case of success.
                     0  means this didn't do anything (an error gets logged)
                    -1  means that the sql did not affect any rows
@@ -986,32 +1050,24 @@ class KioskContextualFile(KioskLogicalFile):
                           f"{identifier_table} and {file_location} are not joined correctly in the dsd.")
             return "", []
 
-        # modified_field = KioskSQLDb.sql_safe_ident(
-        #     self._dsd.get_fields_with_instruction(file_location, KEY_INSTRUCTION_REPLFIELD_MODIFIED)[0])
-        # modified_ww_field = KioskSQLDb.sql_safe_ident(
-        #     self._dsd.get_fields_with_instruction(file_location, KEY_INSTRUCTION_MODIFIED_WW)[0])
-        # modified_tz_field = KioskSQLDb.sql_safe_ident(
-        #     self._dsd.get_fields_with_instruction(file_location, KEY_INSTRUCTION_MODIFIED_TZ)[0])
-        # modified_by_field = KioskSQLDb.sql_safe_ident(
-        #     self._dsd.get_fields_with_instruction(file_location, KEY_INSTRUCTION_REPLFIELD_MODIFIED_BY)[0])
-
         sql = (f"insert into repl_deleted_uids(deleted_uid, "
                f"\"table\", "
                f"modified, "
                f"repl_workstation_id,"
                f"master_deletion_ww, "
                f"master_deletion_tz) "
-               f"select {uid_field}, %s, %s,%s,%s,%s from ") + f"{KioskSQLDb.sql_safe_ident(file_location)} "
+               f"select {uid_field}, %s, %s,%s,%s,%s from "
+               f"{KioskSQLDb.sql_safe_ident(file_location)} ")
         sql += f"where {KioskSQLDb.sql_safe_ident(join.related_field)}=%s and " \
                f"{KioskSQLDb.sql_safe_ident(file_location_field)}=%s"
         if description_field:
             sql += f" and trim(both ' ' from coalesce({KioskSQLDb.sql_safe_ident(description_field)},''))=''"
         # time zone relevant
         values = [file_location,
-                  self.modified_by,
-                  self.modified,
-                  self.modified_ww,
-                  self.modified_tz,
+                  modified_info[0],
+                  modified_info[3] if modified_info[3] else "sys",
+                  modified_info[2],
+                  modified_info[1],
                   identifier_uuid,
                   self.uid]
         row_count = KioskSQLDb.execute(sql, values)
