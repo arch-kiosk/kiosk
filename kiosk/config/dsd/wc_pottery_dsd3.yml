@@ -15,6 +15,33 @@ config:
             pottery_images: {}
 pottery:
   structure:
+    4:
+      cm_uid: [datatype(UUID), join("collected_material")]
+      fabric: [datatype(VARCHAR)]
+      warecode: [datatype(VARCHAR)]
+      sherdcount: [datatype(NUMBER)]
+      weight: [datatype(DECIMAL)]
+      pottery_number: [datatype(NUMBER), local_id("arch_context")]
+      type: [datatype(VARCHAR)]
+      vessel_type: [datatype(VARCHAR)]
+      diameter: [datatype(DECIMAL)]
+      prc_preserved: [datatype(DECIMAL)]
+      notes: [datatype(VARCHAR)]
+      pottery_number_prefix: [datatype(VARCHAR)]
+      sortid_this: [datatype(DECIMAL)]
+      sortid_next: [datatype(DECIMAL)]
+      uid_prev: [datatype(UUID)]
+      uid_next: [datatype(UUID)]
+      uid_sketch: [datatype(UUID)]
+      sketch_description: [datatype(VARCHAR)]
+      field4_txt: [datatype(VARCHAR)]
+      field5_txt: [datatype(VARCHAR)]
+      arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
+      arch_context: [datatype(VARCHAR), identifier()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default(null)]
     3:
       cm_uid: [datatype(UUID), join("collected_material")]
       fabric: [datatype(VARCHAR)]
@@ -89,6 +116,10 @@ pottery:
       modified: [datatype(TIMESTAMP), replfield_modified()]
       modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
   migration:
+    4:
+      upgrade:
+        - add("field4_txt")
+        - add("field5_txt")
     3:
       upgrade:
         - alter("modified_by")
