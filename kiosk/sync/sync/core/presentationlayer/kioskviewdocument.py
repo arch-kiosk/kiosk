@@ -72,6 +72,13 @@ class KioskViewDocument:
             view.identifier_record = KioskSQLDb.get_first_record_from_sql(f"""
                 select * from {KioskSQLDb.sql_safe_ident(view.record_type)} 
                 where {KioskSQLDb.sql_safe_ident(view.identifier_field)}=%s""", [view.identifier])
+
+            # this is just to battle case issues with the identifier that can happen on all fronts:
+            if not view.identifier_record:
+                view.identifier_record = KioskSQLDb.get_first_record_from_sql(f"""
+                                select * from {KioskSQLDb.sql_safe_ident(view.record_type)} 
+                                where {KioskSQLDb.sql_safe_ident(view.identifier_field)} ilike %s""", [view.identifier])
+
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}._initialize_view: "
                           f"Error reading data for {view.record_type}/{view.identifier}{repr(e)}")
