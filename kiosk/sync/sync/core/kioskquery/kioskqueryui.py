@@ -84,6 +84,9 @@ class KioskQueryUI:
             ui_elements[variable] = UICFinder(self._uic_tree).get_ui_definition_from_selector(definition + uic_literals)
             if "text" not in ui_elements[variable]["element_type"]:
                 ui_elements[variable]["element_type"]["text"] = text
+            is_optional, _ = kioskstdlib.has_element_that_starts_with("input_default(", definition)
+            if is_optional:
+                ui_elements[variable]["element_type"]["text"] = ui_elements[variable]["element_type"]["text"] + " (optional)"
             ui_elements[variable]["binding"] = {"field_name": variable}
             result["dsd"] = variable_definitions
         return result
