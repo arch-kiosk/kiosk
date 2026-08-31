@@ -52,3 +52,11 @@ element_type:
   style:
     text-align: center
 
+# dsd('unit','type') && query-ui
+element_type:
+  name: "selection"
+  items:
+    lookup_type: "table"
+    topic: "unit"
+    selection: ["type"]
+    key: "type"

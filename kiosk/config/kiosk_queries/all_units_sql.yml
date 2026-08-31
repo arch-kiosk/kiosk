@@ -4,19 +4,22 @@ meta:
   query_type: StructuredKioskQuery
   category: "Archaeological Entities"
 variables:
-  site_id: ["dsd('site', 'arch_context')"]
+  site_id: ["dsd('site', 'arch_context')", "input_default(null)"]
+  unit_type: ["dsd('unit', 'type')", "input_default(null)"]
 queries:
   'sites and units':
-    name: '#:What #(/$/glossary/unit:2) exist per site?'
-    description: '#:Lists all the #(/$/glossary/unit:2) of a site'
+    name: '#:What #(/$/glossary/unit:2) exist?'
+    description: '#:Lists all the #(/$/glossary/unit:2), filtered by site or #(/$/glossary/unit:1) type.'
     type: 'SQL'
     output_type: 'list'
     query: "
       select unit.arch_context unit_id, unit.type {{type}}, unit.method recording_method, unit.id_excavator id_excavator,
-      unit.unit_creation_date opened
+      unit.unit_creation_date opened,
+      unit.purpose description
        from {{site}} site
          inner join {{unit}} unit on site.id = unit.id_site
-      where site.arch_context = {{#site_id}}
+      where (coalesce({{#site_id}}, '') = '' or site.arch_context = {{#site_id}})
+        and (coalesce({{#unit_type}}, '') = '' or unit.type = {{#unit_type}})
       order by site.arch_context, unit.arch_context"
     column_information:
       unit_id: ["DSD('unit','arch_context')","label('#(/$/constants/labels/label_for_unit_on_start_page)')"]
@@ -24,6 +27,7 @@ queries:
       recording_method: DSD('unit','method')
       id_excavator: DSD('unit','id_excavator')
       opened: DSD('unit','unit_creation_date')
+      description: DSD('unit','purpose')
 
 
 
