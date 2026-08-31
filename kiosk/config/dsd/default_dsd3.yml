@@ -1967,8 +1967,8 @@ unit_shop:
 unit_unit_relation:
   structure:
     2:
-      uid_src_unit: [datatype(UUID)]
-      uid_dst_unit: [datatype(UUID)]
+      uid_src_unit: [datatype(UUID), join("unit")]
+      uid_dst_unit: ["datatype(UUID)", "lookup(unit,uid)"]
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]
