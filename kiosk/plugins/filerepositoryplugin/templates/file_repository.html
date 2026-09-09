@@ -12,6 +12,8 @@
     <a href="#" onclick="menuClick('import photos')">Import files</a>
 {% endblock %}
 {% block body %}
+    <kiosk-context-selector>
+    </kiosk-context-selector>
     <kiosk-lightbox data-fullscreen-res="{{ fullscreen_representation_id }}" data-resolutions="{{ resolutions }}">
         <div id="filerepository-data-container" class="filerepository-data-container">
             <div id="open-image-in-new-tab" class="open-in-new-tab">
@@ -274,6 +276,7 @@
             document.uuids = [];
             setFileRepositoryEventHandlers();
             frInitFileViewer(api);
+            frInitContextSelector(api);
             refreshBLazy();
             fetchIdentifiers();
             refreshContext();

@@ -626,7 +626,7 @@ function _executeBulkLink(files, selectedContext) {
 /******************************************************
  Edit File Partial
  *********************************************************/
-function initEFPartial(time_zones) {
+function initEFPartial(time_zones, glossary) {
     // time_zones.getTimeZoneByIndex(1820474).then(tz_info => {
     //   alert(`1820474 is ${tz_info.tz_IANA}`)
     // })
@@ -734,17 +734,29 @@ function efInitFormFields() {
 }
 
 function efAddNewContext() {
-    let newContext = $($("#ef-new-context-controls-template").html());
-    let contextList = $(".ef-context-list");
-    this.parent().before(newContext);
-    let btDropThis = newContext.find(".ef-cancel-new-context");
-    let editField = newContext.find("input");
-    let field_id = "new-context-" + String(contextList.children().length) + "-" + String(Date.now());
-    editField.attr("name", field_id);
-    editField.attr("id", field_id);
-    btDropThis.on("click", efDropThisNewContext.bind(newContext));
-    editField.focus();
-    efMarkRecordDirty();
+    if (document.contextSelector) {
+        let jqContextSelector = $(document.contextSelector)
+        jqContextSelector.off("closeSelection")
+        jqContextSelector.on("closeSelection", (e) => {
+            console.log(e)
+            let newContext = $($("#ef-new-context-controls-template").html());
+            let contextList = $(".ef-context-list");
+            this.parent().before(newContext);
+            let btDropThis = newContext.find(".ef-cancel-new-context");
+            let editField = newContext.find("input");
+            let field_id = "new-context-" + String(contextList.children().length) + "-" + String(Date.now());
+            editField.attr("name", field_id);
+            editField.attr("id", field_id);
+            editField.val(e.originalEvent.detail.identifier)
+            btDropThis.on("click", efDropThisNewContext.bind(newContext));
+            editField.focus();
+            efMarkRecordDirty();
+        })
+        if (window.glossary) {
+            document.contextSelector.recordTypeAliases = window.glossary
+        }
+        document.contextSelector.openDialog()
+    }
 }
 
 function efDropThisNewContext(evt) {
@@ -1336,6 +1348,13 @@ function frInitFileViewer(apiContext) {
     let lb = document.getElementsByTagName("kiosk-lightbox")[0];
     document.fileViewerController = new FileViewerController(apiContext, lb, true);
     console.log("FileViewerController initialized");
+}
+function frInitContextSelector(apiContext) {
+    let lb = document.getElementsByTagName("kiosk-context-selector")[0];
+    lb.apiContext = apiContext
+    document.contextSelector = lb
+    console.log("Context Selector initialized");
+
 }
 
 function onEditImage(evt) {

@@ -215,7 +215,8 @@
             */
 
             function initDialog(time_zones) {
-
+                const glossary = {{ glossary | tojson }}
+                console.log(glossary)
                 bindReturnKeyToButtons("ef-dialog", "ef-ok", ["ef-cancel", "ef-delete", "ef-download", "ef-upload"]);
                 $("#ef-delete").on("click", onEFDialogDelete);
                 $("#ef-cancel").on("click", onEFDialogCancel);
@@ -232,6 +233,7 @@
                 $("#ef-description").bind("keypress", function(e) {
                     if (e.keyCode === 13) e.stopPropagation();
                 });
+                window.glossary = glossary
                 initEFPartial(time_zones);
             }
 

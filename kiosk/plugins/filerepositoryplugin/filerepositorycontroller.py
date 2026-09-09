@@ -30,6 +30,7 @@ from dsd.dsd3singleton import Dsd3Singleton
 from fileidentifiercache import FileIdentifierCache
 from kioskconfig import KioskConfig
 from kioskcontextualfile import KioskContextualFile
+from kioskglossary import KioskGlossary
 from kioskrepresentationtype import KioskRepresentationType, KioskRepresentations
 from kioskresult import KioskResult
 from kiosksqldb import KioskSQLDb
@@ -547,6 +548,10 @@ def filerepository_editpartial(uuid, use_archive):
         except BaseException as e:
             logging.error(f"filerepositorycontroller.filerepository_editdialog: Error determining "
                           f"resolution_open_in_new_tab ({repr(e)})")
+        glossary = {
+            k: (v[0] if isinstance(v, list) and v else v)
+            for k, v in KioskGlossary(cfg).get_all()
+        }
 
         return render_template('editpartial.html',
                                title="edit file" if "modify data" in authorized_to else "view file",
@@ -565,7 +570,8 @@ def filerepository_editpartial(uuid, use_archive):
                                modified_utc=modified_utc if \
                                    kioskglobals.get_development_option("test_time_zone_support") else None,
                                modified_ww=modified_ww,
-                               serial_file_id=serial_file_id
+                               serial_file_id=serial_file_id,
+                               glossary=glossary
                                )
 
 
