@@ -172,20 +172,21 @@
                 </div>
                 <div id="ef-file-info" data-file-type="{{ file_extension }}" data-file-size="{{ file_size }}"
                     {% if resolution_open_in_new_tab %} data-open-in-new-tab="{{ resolution_open_in_new_tab }}"{% endif %}>
-                    <div>file id: <span id="serial_file_id">{{ serial_file_id }}</span> / uuid: <span id="uid">{{ img.get_value('uid') }}</span></div>
+                    <div><span class="ep-file-info-label">file id/uuid</span>
+                        <span id="serial_file_id">{{ serial_file_id }}</span> / <span id="uid">{{ img.get_value('uid') }}</span></div>
 
                     {% if img.get_arch_identifier() %}
-                        <div>identifiers: <span id="uid">{{ img.get_arch_identifier() }}</span></div>
+                        <div><span class="ep-file-info-label">identifiers</span><span id="uid">{{ img.get_arch_identifier() }}</span></div>
                     {% endif %}
-                    <div>created: <span>{{ created_latin }}</span></div>
-                    <div>modified: <span>{{ modified_ww }} {{ modified_tz }}</span></div>
+                    <div><span class="ep-file-info-label">created </span><span>{{ created_latin }}</span></div>
+                    <div><span class="ep-file-info-label">modified </span><span>{{ modified_ww }} {{ modified_tz }}</span></div>
                     {% if modified_utc %}
-                        <div>modified_utc: <span>{{ modified_utc }}</span></div>
+                        <div><span class="ep-file-info-label">modified_utc</span><span>{{ modified_utc }}</span></div>
                     {% endif %}
-                    <div>modified by <span>{{ img.get_value('modified_by') }}</span></div>
-                    <div>file type/size: <span>{{ file_extension }} / {{ file_size }}</span></div>
+                    <div><span class="ep-file-info-label">modified by </span><span>{{ img.get_value('modified_by') }}</span></div>
+                    <div><span class="ep-file-info-label">file type/size</span><span>{{ file_extension }} / {{ file_size }}</span></div>
                     {% if img.get_value('import_filename') %}
-                        <div>original filename: <span>{{ img.get_value('import_filename') }}</span></div>
+                        <div><span class="ep-file-info-label">original filename</span><span>{{ img.get_value('import_filename') }}</span></div>
                     {% endif %}
                 </div>
             </div>

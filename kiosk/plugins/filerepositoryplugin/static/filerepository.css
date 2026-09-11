@@ -1417,9 +1417,8 @@ input:disabled {
 }
 
 #ef-file-info {
-  display: flex;
-  flex-flow: column;
-  max-height: 5em;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   position: relative;
   font-family: var(--standard-text-font), serif;
   font-size: 12px;
@@ -1428,13 +1427,23 @@ input:disabled {
   border-top: 1px solid white;
   padding-top: 1em;
   margin-top: 1em;
-  flex-wrap: wrap;
   padding: 0.5rem;
 }
 @media only screen and (max-width : 700px) {
   #ef-file-info {
     display: none;
   }
+}
+#ef-file-info .ep-file-info-label {
+  font-family: var(--monospace-font), monospace;
+  font-weight: bold;
+  display: block;
+}
+#ef-file-info div {
+  border-right: 1px solid black;
+  padding-right: 5px;
+  margin-right: 1em;
+  padding-bottom: 0.5rem;
 }
 #ef-file-info span {
   user-select: text;
