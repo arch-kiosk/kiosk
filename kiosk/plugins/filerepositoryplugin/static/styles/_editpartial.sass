@@ -17,6 +17,41 @@
 //  [class~="grid"], [class*="grid-"], [class*="grid_"]
 //    margin: 0 -1rem
 
+kiosk-lightbox[layout="vertical"]
+  .open-in-new-tab
+    position: absolute
+    place-items: center
+    top: -50px
+    left: 50%
+    transform: translateX(-50%)
+    //color: var(--col-primary-bg-alert)
+    //background: var(--col-bg-alert)
+    display: none
+    background-color: var(--col-bg-ack)
+    background-color: color-mix(in srgb, var(--col-bg-ack) 80%, transparent)
+    color: var(--col-primary-bg-ack)
+    border-radius: 5px
+    padding: .5rem
+    &:hover
+      background-color: var(--col-bg-ack)
+
+kiosk-lightbox[layout="horizontal"]
+  .open-in-new-tab
+    position: absolute
+    top: 80px
+    right: 0
+    width: 10rem
+    //transform: translateX(-50%)
+    //color: var(--col-primary-bg-alert)
+    //background: var(--col-bg-alert)
+    display: none
+    background-color: var(--col-bg-ack)
+    background-color: color-mix(in srgb, var(--col-bg-ack) 80%, transparent)
+    color: var(--col-primary-bg-ack)
+    border-radius: 5px
+    padding: .5rem
+    &:hover
+      background-color: var(--col-bg-ack-darker)
 
 #ef-file-info
   display: grid
@@ -341,22 +376,6 @@
   width: 80vw
   max-width: 800px
 
-.open-in-new-tab
-  position: absolute
-  place-items: center
-  top: -50px
-  left: 50%
-  transform: translateX(-50%)
-  //color: var(--col-primary-bg-alert)
-  //background: var(--col-bg-alert)
-  display: none
-  background-color: var(--col-bg-ack)
-  background-color: color-mix(in srgb, var(--col-bg-ack) 80%, transparent)
-  color: var(--col-primary-bg-ack)
-  border-radius: 5px
-  padding: .5rem
-  &:hover
-    background-color: var(--col-bg-ack)
 span.fr-click-to-open-tab
   color: var(--col-accent-bg-ack)
   border-bottom: dotted 1px var(--col-accent-bg-ack)
