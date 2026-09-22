@@ -392,9 +392,14 @@ class Housekeeping:
     def housekeeping_clear_file_lists(self, console, parameters: dict):
         logging.info(f"{self.__class__.__name__}.housekeeping_clear_up_file_lists starts")
         if not self.tz_index:
-            raise Exception(f"Cannot run housekeeping_clear_file_lists without a tz_index")
+            logging.info(f"{self.__class__.__name__}.housekeeping_clear_file_lists: "
+                         f"Cannot run housekeeping_clear_file_lists without a tz_index")
+            return
+
         if not self.repl_user_id:
-            raise Exception(f"Cannot run housekeeping_clear_file_lists without a repl_user_id")
+            logging.info(f"{self.__class__.__name__}.housekeeping_clear_file_lists: "
+                         f"Cannot run housekeeping_clear_file_lists without user information")
+            return
 
         if console:
             print(f"{self.__class__.__name__}.housekeeping_clear_up_file_lists starts")
