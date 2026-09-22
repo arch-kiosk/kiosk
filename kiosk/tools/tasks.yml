@@ -9,8 +9,9 @@ possible tasks:
   - "housekeeping_quality_check"
   - "housekeeping_clear_log"
   - "housekeeping_fts"
+  - "housekeeping_clear_file_lists"
 tasks:
-  - "housekeeping_enforce_file_meta_data"
+  - "housekeeping_clear_file_lists"
 options:
   files:
     - 0cd94110-c056-4431-b848-de21a59af9b3

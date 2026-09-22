@@ -17,5 +17,6 @@ class HousekeepingForm(FlaskForm, KioskGeneralFormErrors):
     hk_quality_check = KioskLabeledPrettyCheckboxField(label="run quality control")
     hk_fts = KioskLabeledPrettyCheckboxField(label="re-create full text search index")
     clear_logs = KioskLabeledPrettyCheckboxField(label="Tidy up log files")
+    housekeeping_clear_file_lists = KioskLabeledPrettyCheckboxField(label="sweep empty image containers")
 
 

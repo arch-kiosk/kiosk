@@ -9,6 +9,7 @@ from collections import namedtuple
 from http import HTTPStatus
 from os import path
 from typing import Any
+from warnings import catch_warnings
 
 from flask import Blueprint, request, redirect, render_template, jsonify, \
     url_for, abort, make_response, send_file, __version__
@@ -839,6 +840,8 @@ def housekeeping():
         housekeeping_form.hk_quality_check.data = False
         housekeeping_form.hk_fts.data = False
         housekeeping_form.clear_logs.data = True
+        housekeeping_form.housekeeping_clear_file_lists.data = False
+
 
     return render_template('housekeepingdialog.html',
                            config=kioskglobals.cfg, housekeeping_form=housekeeping_form,
@@ -869,10 +872,17 @@ def start_mcp_housekeeping(params):
             job_data["tasks"].append("housekeeping_fts")
         if params.clear_logs.data:
             job_data["tasks"].append("housekeeping_clear_log")
+        if params.housekeeping_clear_file_lists.data:
+            job_data["tasks"].append("housekeeping_clear_file_lists")
 
         job = MCPJob(kioskglobals.general_store)
         job.set_worker("plugins.administrationplugin.housekeepingworker", "HouseKeepingWorker")
         job.job_data = job_data
+        try:
+            job.user_data = current_user.to_dict()
+        except BaseException as e:
+            logging.warning(f"administrationcontroller.start_mcp_housekeeping: "
+                            f"Exception when accessing current_user: {repr(e)}")
         job.queue()
         job_uid = job.job_id
 

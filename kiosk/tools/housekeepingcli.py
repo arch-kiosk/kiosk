@@ -6,6 +6,7 @@ from time import sleep
 from typing import List, Dict
 
 import yaml
+from numpy import integer
 
 import kioskstdlib
 from contextmanagement.memoryidentifiercache import MemoryIdentifierCache
@@ -22,8 +23,10 @@ import filerepository
 
 import_params = {"--param_file": "p",
                  "--all": "all",
-                 # "-repl_user_id": "u",
-                 # "-tz": "tz",
+                 "--repl_user_id": "u",
+                 "-u": "u",
+                 "--time_zone": "tz",
+                 "-tz": "tz",
                  "-?": "?"
                  }
 options = {}
@@ -34,7 +37,7 @@ def interpret_param(known_param, param):
     new_option = import_params[known_param]
     rc = None
 
-    if new_option in ["p"]:  # , "u", "tz"]:
+    if new_option in ["p", "u", "tz"]:
         param_parts = param.split("=")
         if len(param_parts) == 2:
             param_2 = param_parts[1]
@@ -50,9 +53,11 @@ def usage():
     print("""
     Usage of housekeepingcli.py:
     ===================
-      housekeepingcli --param_file=<path and filename of parameters --all
+      housekeepingcli --param_file=<path and filename of parameters [--all] [--repl_user_id] [--tz] 
       parameters:
         --param_file: path and filename of a YAML file that has specific parameters. You can use --all instead.
+        -u/--repl_user_id: user id as used in the filemaker recording to mark the imported files
+        -tz/--time_zone: the time zone index to use
         --all: If you don't define a task list in the param_file or the param_file does 
                 not exist you can run all tasks with this parameter.
         -?: additional help for the YAML file. 
@@ -141,14 +146,14 @@ def report_progress(prg):
     return True
 
 
-def run_housekeeping(cfg: SyncConfig, tasks: List, import_options: Dict):
+def run_housekeeping(cfg: SyncConfig, tasks: List, import_options: Dict, user_id="", tz_index= None):
     init_dsd(cfg)
     sync = Synchronization()
     file_repos = filerepository.FileRepository(cfg,
                                                sync.events,
                                                sync.type_repository,
                                                sync)
-    housekeeping: Housekeeping = Housekeeping(file_repos, console=False)
+    housekeeping: Housekeeping = Housekeeping(file_repos, console=True, tz_index=tz_index, repl_user_id=user_id)
 
     if "files" in import_options:
         housekeeping.limit_to_files = import_options["files"]
@@ -232,8 +237,33 @@ if __name__ == '__main__':
                           f"The task list has priority. If you really want to run all tasks you have to "
                           f"define an empty task list! Continuing with the task list...")
 
+    time_zones = None
+
+    tz_index = None
+    if "tz" in options:
+        try:
+            tz_index = int(options["tz"])
+        except BaseException as e:
+            pass
+        if not tz_index:
+            logging.error(f'{options["tz"]} is not a valid time zone index. Must be an integer.')
+            usage()
+
+        time_zones = KioskTimeZones()
+        tz_long = time_zones.get_long_time_zone(tz_index)
+        if not tz_long or tz_long == "-":
+            logging.error(f'{options["tz"]} is not a valid time zone')
+            usage()
+
+        print(f"Using time zone {options['tz']}, {tz_long}")
+
+    repl_user_id = ""
+    if "u" in options:
+        repl_user_id = options["u"]
+        print(f"running as user ${repl_user_id}")
+
     import_options = import_params["options"] if "options" in import_params else {}
     print(f"---------------------------------------------------------------------------------")
-    run_housekeeping(cfg, tasks, import_options)
+    run_housekeeping(cfg, tasks, import_options, user_id=repl_user_id, tz_index=tz_index)
     print("Housekeeping done.")
     print(f"---------------------------------------------------------------------------------")

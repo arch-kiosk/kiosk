@@ -422,7 +422,8 @@ def housekeeping(cfg_file: str):
             "housekeeping_check_cache_files",
             "housekeeping_rewrite_image_record",
             "housekeeping_lowercase_filenames",
-            "housekeeping_clear_log"
+            "housekeeping_clear_log",
+            "housekeeping_clear_file_lists"
         ]
         hk.do_housekeeping(housekeeping_tasks=housekeeping_tasks_to_run)
     except BaseException as e:

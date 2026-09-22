@@ -12,10 +12,11 @@
     <option name="IS_MODULE_SDK" value="true" />
     <option name="ADD_CONTENT_ROOTS" value="true" />
     <option name="ADD_SOURCE_ROOTS" value="true" />
+    <option name="DEBUG_JUST_MY_CODE" value="true" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <option name="RUN_TOOL" value="" />
     <option name="SCRIPT_NAME" value="$PROJECT_DIR$/sync/sync/sync_plugins/buap_ancdb_bridge/ancforumimport/anc_import_forum_season.py" />
-    <option name="PARAMETERS" value="$PROJECT_DIR$ C:\notebook_source\kiosk\server\kiosk\kiosk\sync\sync\sync_plugins\buap_ancdb_bridge\ancforumimport\data\ancforumimport_sql_dump_S0203.json --season=0203 --test_run" />
+    <option name="PARAMETERS" value="$PROJECT_DIR$ C:\notebook_source\kiosk\server\kiosk\kiosk\sync\sync\sync_plugins\buap_ancdb_bridge\ancforumimport\data\ancforumimport_sql_dump_SSP00.json --season=sp00 --test_run" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="false" />

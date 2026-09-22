@@ -1685,10 +1685,12 @@ class DataSetDefinition:
 
     def get_file_fields_with_description_fields(self):
         """
-            returns a nested structure with table as the main-key, unveiling a dictionary with file-fields, pointing to
-            their description field.
+            lists all image fields and their description fields for all tables.
+
             A table is only in there if it actually has a file-field with a description. Accordingly, a field is only
             in the dictionary of a table if it actually has a description field.
+            :return returns a nested structure with table as the main-key
+                        pointing to a list of tuples of type (file field, description field)
         """
         result = {}
         fields = self.list_file_fields()

@@ -191,6 +191,10 @@ cm_files.list:
     order_records_by: [">modified"]
     allow_ordering_by: ["modified", "modified_by"]
     order: [uid_photo, modified, modified_by]
+  ui_elements:
+    "uid_photo":
+      element_type:
+        alternate_description: "#(collected_material/description)"
 wc_pottery.list:
   record_type: pottery
   view_type: list

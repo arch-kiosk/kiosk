@@ -4,7 +4,7 @@ import kioskdatetimelib
 import kioskstdlib
 from dsd.dsd3singleton import Dsd3Singleton
 from fts.kioskfulltextsearch import FTS
-from housekeepingtools import housekeepingclearlog
+from housekeepingtools import housekeepingclearlog, housekeepingclearupfilelists
 from kioskcontextualfile import KioskContextualFile
 from qualitycontrol.qualitycontrol import QualityControl
 from kiosksqldb import KioskSQLDb
@@ -19,7 +19,7 @@ import re
 
 class Housekeeping:
 
-    def __init__(self, file_repos: FileRepository, console: bool = False):
+    def __init__(self, file_repos: FileRepository, console: bool = False, repl_user_id: str = "", tz_index=None):
         """
 
             :param console: True prints out status messages to the console.
@@ -30,6 +30,8 @@ class Housekeeping:
         self.progress_handler = None
         self.file_repos = file_repos
         self.counters = {}
+        self.repl_user_id = repl_user_id
+        self.tz_index=tz_index
         self.limit_to_files = []  # list of file uids. If not empty only these files will be processed
         self.housekeeping_file_methods = {
             "housekeeping_check_broken_files": self.housekeeping_check_broken_files,
@@ -45,6 +47,7 @@ class Housekeeping:
         self.housekeeping_standalone_methods = {
             "housekeeping_quality_check": self.housekeeping_quality_check,
             "housekeeping_clear_log": self.housekeeping_clear_log,
+            "housekeeping_clear_file_lists": self.housekeeping_clear_file_lists,
             "housekeeping_fts": self.housekeeping_fts
         }
 
@@ -385,3 +388,20 @@ class Housekeeping:
         logging.info(f"{self.__class__.__name__}.housekeeping_clear_log done")
         if console:
             print(f"{self.__class__.__name__}.housekeeping_clear_log done")
+
+    def housekeeping_clear_file_lists(self, console, parameters: dict):
+        logging.info(f"{self.__class__.__name__}.housekeeping_clear_up_file_lists starts")
+        if not self.tz_index:
+            raise Exception(f"Cannot run housekeeping_clear_file_lists without a tz_index")
+        if not self.repl_user_id:
+            raise Exception(f"Cannot run housekeeping_clear_file_lists without a repl_user_id")
+
+        if console:
+            print(f"{self.__class__.__name__}.housekeeping_clear_up_file_lists starts")
+        dsd = Dsd3Singleton.get_dsd3()
+        sweeper = housekeepingclearupfilelists.FileListSweeper(dsd, self.repl_user_id, self.tz_index)
+        sweeper.in_console = console
+        sweeper.clear_up_file_lists()
+        logging.info(f"{self.__class__.__name__}.housekeeping_clear_up_file_lists done")
+        if console:
+            print(f"{self.__class__.__name__}.housekeeping_clear_up_file_lists done")

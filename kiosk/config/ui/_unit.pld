@@ -162,6 +162,9 @@ unit_files.list:
         lookup:
           lookup_type: "file_attribute"
           attribute_name: "file_datetime"
+    "uid_image":
+      element_type:
+        alternate_description: "#(dayplan/image_description)"
 
 unit_loci.list:
   record_type: locus

@@ -48,6 +48,7 @@ def usage():
         -import_params: path and filename of a YAML file that has specific parameters
                  if given all other parameters will be ignored.
         -repl_user_id: user id as used in the filemaker recording to mark the imported files
+        -tz: the time zone index to use
         -?: additional help for the YAML file. 
         
     """)

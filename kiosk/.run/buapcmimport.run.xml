@@ -12,10 +12,11 @@
     <option name="IS_MODULE_SDK" value="true" />
     <option name="ADD_CONTENT_ROOTS" value="true" />
     <option name="ADD_SOURCE_ROOTS" value="true" />
+    <option name="DEBUG_JUST_MY_CODE" value="true" />
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <option name="RUN_TOOL" value="" />
     <option name="SCRIPT_NAME" value="$PROJECT_DIR$/sync/sync/sync_plugins/buap_ancdb_bridge/buap_import/buapcmimport.py" />
-    <option name="PARAMETERS" value="$PROJECT_DIR$ $PROJECT_DIR$/sync/sync/sync_plugins/buap_ancdb_bridge/buap_import/anc_db.xlsx --user=lkh --erase_former_import" />
+    <option name="PARAMETERS" value="$PROJECT_DIR$ $PROJECT_DIR$/sync/sync/sync_plugins/buap_ancdb_bridge/buap_import/ANC 2018 object database test.xlsx --user=lkh --erase_former_import --type=ANC" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="false" />

@@ -1,3 +1,4 @@
+import pprint
 import time
 
 import kioskstdlib
@@ -5,6 +6,7 @@ from dsd.dsd3singleton import Dsd3Singleton
 from dsd.dsdyamlloader import DSDYamlLoader
 from generalstore.generalstore import GeneralStore
 from housekeeping import Housekeeping
+from kioskuser import KioskUser
 from mcpinterface.mcpjob import MCPJob, MCPJobStatus, Progress
 import logging
 
@@ -12,6 +14,23 @@ from sync_config import SyncConfig
 
 
 class HouseKeepingWorker:
+    def get_kiosk_user(self):
+        """
+        returns a KioskUser object with the user data of the user who started the job.
+        returns None if there is no user data or that user does not exist.
+        """
+        try:
+            user_uuid = self.job.user_data["uuid"]
+            logging.info(f"WorkstationManagerWorker.get_kiosk_user: loading user {user_uuid}")
+            user = KioskUser(user_uuid, check_token=False)
+            user.init_from_dict(self.job.user_data)
+            logging.info(f"WorkstationManagerWorker.get_kiosk_user: user settings are "
+                         f"{pprint.pformat(self.job.user_data)}")
+            return user
+        except BaseException as e:
+            logging.error(f"WorkstationManagerWorker.get_kiosk_user: {repr(e)}")
+            return None
+
     def __init__(self, cfg: SyncConfig, job: MCPJob, gs: GeneralStore):
         self.job: MCPJob = job
         self.gs: GeneralStore = gs
@@ -63,8 +82,11 @@ class HouseKeepingWorker:
                                                        sync)
             # c_files = file_repos.do_housekeeping(progress_handler=report_progress,
             #                                      housekeeping_tasks=self.job.job_data["tasks"])
+            user = self.get_kiosk_user()
+            housekeeping: Housekeeping = Housekeeping(file_repos, False,
+                                                      repl_user_id=user.repl_user_id if user else "",
+                                                      tz_index=user.get_active_tz_index() if user else None)
 
-            housekeeping: Housekeeping = Housekeeping(file_repos, False)
             c_files = housekeeping.do_housekeeping(progress_handler=report_progress,
                                                    housekeeping_tasks=self.job.job_data["tasks"],
                                                    file_tasks_only=False)

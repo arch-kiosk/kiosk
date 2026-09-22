@@ -51964,7 +51964,20 @@ var bq = ".col-bg-body-lighter{background-color:var(--ui-col-bg-body-lighter,var
 		this.styles = v(bq);
 	}
 	constructor() {
-		super(), this.observer = void 0, this.visible = !1, this.loadError = !1, this.uuid_file = "", this.resolution = "", this.description = "", this.fitContent = "contain", this.url = "", this.observerCallback = this.observerCallback.bind(this);
+		super(), this.observer = void 0, this.visible = !1, this.loadError = !1, this.uuid_file = "", this.resolution = "", this.description = "", this.fitContent = "contain", this.url = "", this.observerCallback = (e) => {
+			e.some(({ isIntersecting: e }) => e) && (this.disconnectObserver(), this.visible = !0);
+		}, this.clicked = () => {
+			let e = this.dataset;
+			this.dispatchEvent(new CustomEvent("select-image", {
+				bubbles: !0,
+				composed: !0,
+				detail: {
+					uuid: this.uuid_file,
+					width: e.width ?? "0",
+					height: e.height ?? "0"
+				}
+			}));
+		}, this.observerCallback = this.observerCallback.bind(this);
 	}
 	connectedCallback() {
 		super.connectedCallback(), this.setAttribute("role", "presentation"), this.initIntersectionObserver();
@@ -51972,27 +51985,12 @@ var bq = ".col-bg-body-lighter{background-color:var(--ui-col-bg-body-lighter,var
 	disconnectedCallback() {
 		super.disconnectedCallback(), this.disconnectObserver();
 	}
-	observerCallback(e) {
-		e.some(({ isIntersecting: e }) => e) && (this.disconnectObserver(), this.visible = !0);
-	}
 	initIntersectionObserver() {
 		if (!("IntersectionObserver" in window)) return this.visible = !0;
-		this.observer || (this.observer = new IntersectionObserver(this.observerCallback, { rootMargin: "10px" }), this.observer.observe(this));
+		this.observer || (this.observer = new IntersectionObserver(this.observerCallback.bind(this), { rootMargin: "10px" }), this.observer.observe(this));
 	}
 	disconnectObserver() {
 		this.observer?.disconnect(), delete this.observer, this.observer = void 0;
-	}
-	clicked() {
-		let e = this.dataset;
-		this.dispatchEvent(new CustomEvent("select-image", {
-			bubbles: !0,
-			composed: !0,
-			detail: {
-				uuid: this.uuid_file,
-				width: e.width ?? "0",
-				height: e.height ?? "0"
-			}
-		}));
 	}
 	willUpdate(e) {
 		super.willUpdate(e), (e.has("uuid_file") || e.has("resolution")) && (this.url = ""), !this.url && !this.loadError && this.load_image();
@@ -52019,7 +52017,7 @@ var bq = ".col-bg-body-lighter{background-color:var(--ui-col-bg-body-lighter,var
 		this.resolution && this.uuid_file && this.visible && this.fetch_image();
 	}
 	renderImage() {
-		let e = "";
+		let e;
 		switch (this.fitContent) {
 			case "fit":
 				e = "object-fit: scale-down;max-width:100%";
@@ -52029,40 +52027,56 @@ var bq = ".col-bg-body-lighter{background-color:var(--ui-col-bg-body-lighter,var
 				break;
 			default: e = "object-fit: contain";
 		}
-		return this.visible ? j`
-            <img style="${e}"
-                 @click="${this.clicked}" src="${this.url}"
-                 alt="${this.description}"/>` : M;
+		return this.visible ? j` <img
+          style="${e}"
+          @click="${this.clicked}"
+          src="${this.url}"
+          alt="${this.description}"
+        />` : M;
 	}
 	renderPlaceholder() {
-		return this.visible ? j`
-            <div class="placeholder"><i class="fa fa-hourglass"></i></div>` : M;
+		return this.visible ? j` <div class="placeholder"><i class="fa fa-hourglass"></i></div>` : M;
 	}
 	renderLoadError() {
-		return this.visible ? j`
-                    <div class="file-broken">
-                        <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="100%" height="100%"
-                             viewBox="0 0 512 512">
-                            <path d="M380.993 512c-59.343 0-107.624-48.279-107.624-107.622V276.455c0-9.425 7.641-17.067 17.067-17.067s17.067 7.641 17.067 17.067v127.923c0 40.522 32.968 73.489 73.49 73.489 9.425 0 17.067 7.641 17.067 17.067S390.419 512 380.993 512z" 
-                                  style="fill:var(--col-bg-att-lighter)"/>
-                            <path d="M388.37 432.62c-30.071 0-54.536-24.465-54.536-54.536V230.086c0-9.425 7.641-17.067 17.067-17.067 9.425 0 17.067 7.641 17.067 17.067v147.999c0 11.25 9.152 20.403 20.403 20.403s20.403-9.152 20.403-20.403v-63.243c0-9.425 7.641-17.067 17.067-17.067h43.217c9.425 0 17.067 7.641 17.067 17.067 0 9.425-7.641 17.067-17.067 17.067h-26.151v46.177c-.002 30.069-24.465 54.534-54.537 54.534z"
-                                  style="fill:var(--col-bg-att)"/>
-                            <path d="M131.007 512c-9.425 0-17.067-7.641-17.067-17.067s7.641-17.067 17.067-17.067c40.522 0 73.49-32.967 73.49-73.489V276.455c0-9.425 7.641-17.067 17.067-17.067 9.425 0 17.067 7.641 17.067 17.067v127.923C238.63 463.721 190.35 512 131.007 512z"
-                                  style="fill:var(--col-bg-att-darker)"/>
-                            <path d="M123.63 434.307c-30.071 0-54.536-24.465-54.536-54.536v-46.177H42.943c-9.425 0-17.067-7.641-17.067-17.067 0-9.425 7.641-17.067 17.067-17.067H86.16c9.425 0 17.067 7.641 17.067 17.067v63.243c0 11.25 9.152 20.403 20.403 20.403s20.403-9.152 20.403-20.403V230.085c0-9.425 7.641-17.067 17.067-17.067s17.067 7.641 17.067 17.067v149.686c-.001 30.071-24.466 54.536-54.537 54.536z"
-                                  style="fill:var(--col-bg-att-darker)"/>
-                            <path d="M256 299.824c-37.646 0-73.647-17.92-101.375-50.459-25.857-30.345-40.686-69.456-40.686-107.305C113.94 63.728 177.667 0 256 0s142.06 63.728 142.06 142.06c0 37.849-14.829 76.96-40.686 107.305-27.727 32.539-63.728 50.459-101.374 50.459z"
-                                  style="fill:var(--col-bg-att-lighter)"/>
-                            <path d="M256 0v299.824c37.646 0 73.647-17.92 101.375-50.459 25.857-30.345 40.686-69.456 40.686-107.305C398.06 63.728 334.333 0 256 0z"
-                                  style="fill:var(--col-bg-att-darker)"/>
-                            <circle cx="209.328" cy="226.702" r="22.577" style="fill:#555c5e"/>
-                            <circle cx="302.672" cy="226.702" r="22.577" style="fill:#555c5e"/>
-                        </svg>
-                    </div>` : M;
+		return this.visible ? j` <div class="file-broken">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            xml:space="preserve"
+            width="100%"
+            height="100%"
+            viewBox="0 0 512 512"
+          >
+            <path
+              d="M380.993 512c-59.343 0-107.624-48.279-107.624-107.622V276.455c0-9.425 7.641-17.067 17.067-17.067s17.067 7.641 17.067 17.067v127.923c0 40.522 32.968 73.489 73.49 73.489 9.425 0 17.067 7.641 17.067 17.067S390.419 512 380.993 512z"
+              style="fill:var(--col-bg-att-lighter)"
+            />
+            <path
+              d="M388.37 432.62c-30.071 0-54.536-24.465-54.536-54.536V230.086c0-9.425 7.641-17.067 17.067-17.067 9.425 0 17.067 7.641 17.067 17.067v147.999c0 11.25 9.152 20.403 20.403 20.403s20.403-9.152 20.403-20.403v-63.243c0-9.425 7.641-17.067 17.067-17.067h43.217c9.425 0 17.067 7.641 17.067 17.067 0 9.425-7.641 17.067-17.067 17.067h-26.151v46.177c-.002 30.069-24.465 54.534-54.537 54.534z"
+              style="fill:var(--col-bg-att)"
+            />
+            <path
+              d="M131.007 512c-9.425 0-17.067-7.641-17.067-17.067s7.641-17.067 17.067-17.067c40.522 0 73.49-32.967 73.49-73.489V276.455c0-9.425 7.641-17.067 17.067-17.067 9.425 0 17.067 7.641 17.067 17.067v127.923C238.63 463.721 190.35 512 131.007 512z"
+              style="fill:var(--col-bg-att-darker)"
+            />
+            <path
+              d="M123.63 434.307c-30.071 0-54.536-24.465-54.536-54.536v-46.177H42.943c-9.425 0-17.067-7.641-17.067-17.067 0-9.425 7.641-17.067 17.067-17.067H86.16c9.425 0 17.067 7.641 17.067 17.067v63.243c0 11.25 9.152 20.403 20.403 20.403s20.403-9.152 20.403-20.403V230.085c0-9.425 7.641-17.067 17.067-17.067s17.067 7.641 17.067 17.067v149.686c-.001 30.071-24.466 54.536-54.537 54.536z"
+              style="fill:var(--col-bg-att-darker)"
+            />
+            <path
+              d="M256 299.824c-37.646 0-73.647-17.92-101.375-50.459-25.857-30.345-40.686-69.456-40.686-107.305C113.94 63.728 177.667 0 256 0s142.06 63.728 142.06 142.06c0 37.849-14.829 76.96-40.686 107.305-27.727 32.539-63.728 50.459-101.374 50.459z"
+              style="fill:var(--col-bg-att-lighter)"
+            />
+            <path
+              d="M256 0v299.824c37.646 0 73.647-17.92 101.375-50.459 25.857-30.345 40.686-69.456 40.686-107.305C398.06 63.728 334.333 0 256 0z"
+              style="fill:var(--col-bg-att-darker)"
+            />
+            <circle cx="209.328" cy="226.702" r="22.577" style="fill:#555c5e" />
+            <circle cx="302.672" cy="226.702" r="22.577" style="fill:#555c5e" />
+          </svg>
+        </div>` : M;
 	}
 	render() {
-		return j`
-            ${this.url ? this.renderImage() : this.loadError ? this.renderLoadError() : this.renderPlaceholder()}`;
+		return j` ${this.url ? this.renderImage() : this.loadError ? this.renderLoadError() : this.renderPlaceholder()}`;
 	}
 };
 Q([I()], xq.prototype, "visible", void 0), Q([I()], xq.prototype, "loadError", void 0), Q([F()], xq.prototype, "uuid_file", void 0), Q([F()], xq.prototype, "resolution", void 0), Q([F()], xq.prototype, "description", void 0), Q([F()], xq.prototype, "fitContent", void 0), Q([F()], xq.prototype, "url", void 0), xq = Q([Ge("file-view")], xq);
@@ -52089,15 +52103,13 @@ var Sq = ".col-bg-body-lighter{background-color:var(--ui-col-bg-body-lighter,var
 	}
 	renderElement(e, t) {
 		return j`
-            <div class="text-field-div" style="${this.renderLayoutStyles(e)}">
-                ${t}
-            </div>
-        `;
+      <div class="text-field-div" style="${this.renderLayoutStyles(e)}">${t}</div>
+    `;
 	}
 	getOrderedElements(e) {
 		try {
 			if (e.layout_settings?.order) {
-				let t = [...Object.keys(e.ui_elements)];
+				let t = Object.keys(e.ui_elements);
 				t.sort();
 				let n = [...e.layout_settings.order], r = [];
 				for (let e of n) if (e === "...") r.push("...");
@@ -52108,7 +52120,7 @@ var Sq = ".col-bg-body-lighter{background-color:var(--ui-col-bg-body-lighter,var
 				let i = r.findIndex((e) => e === "...");
 				return i > -1 && r.splice(i, 1, ...t), r;
 			} else {
-				let t = [...Object.keys(e.ui_elements)];
+				let t = Object.keys(e.ui_elements);
 				return t.sort(), t;
 			}
 		} catch (e) {
@@ -52170,19 +52182,24 @@ var Sq = ".col-bg-body-lighter{background-color:var(--ui-col-bg-body-lighter,var
 	renderHeaders(e, t) {
 		let n = e.entry.layout_settings, r = n.allow_ordering_by || [], i = n.allow_ordering_by == null;
 		return console.log(r), j`
-            <thead>
-            <tr>
-            ${t.map((t) => j`
-                <th class="table-header" 
-                    style="${this.getTableHeaderStyle(e.entry.ui_elements[t].layout)}"
-                    data-id="${t}" @click="${i || r.includes(t) ? this.headerClicked.bind(this) : M}">
-                    ${this.renderSortButton(t)}
-                    <span class="table-header-text">${e.haulData(e.entry.ui_elements[t].element_type.text)}</span>
-                </th>
+      <thead>
+        <tr>
+          ${t.map((t) => j`
+              <th
+                class="table-header"
+                style="${this.getTableHeaderStyle(e.entry.ui_elements[t].layout)}"
+                data-id="${t}"
+                @click="${i || r.includes(t) ? this.headerClicked.bind(this) : M}"
+              >
+                ${this.renderSortButton(t)}
+                <span class="table-header-text"
+                  >${e.haulData(e.entry.ui_elements[t].element_type.text)}</span
+                >
+              </th>
             `)}
-            </tr>
-            </thead>
-        `;
+        </tr>
+      </thead>
+    `;
 	}
 	getTableHeaderStyle(e) {
 		let t = "";
@@ -52191,48 +52208,43 @@ var Sq = ".col-bg-body-lighter{background-color:var(--ui-col-bg-body-lighter,var
 	renderLayout(e, t, n, r) {
 		let i = this.getOrderedElements(e.entry), a = [];
 		for (e.resetCursor(), this._initSorting(e); e.next();) a.push(j`
-                <tr id="R${e.getCurrentUID() ? e.getCurrentUID() : M}">
-                    ${i.map((n) => r(n, e.entry.ui_elements[n], t))}
-                </tr>
-            `);
+        <tr id="R${e.getCurrentUID() ? e.getCurrentUID() : M}">
+          ${i.map((n) => r(n, e.entry.ui_elements[n], t))}
+        </tr>
+      `);
 		return j`
-            <table class="${this.cssClass}" style="${n}">
-                ${this.renderHeaders(e, i)}
-                <tbody>
-                    ${a}
-                </tbody>
-            </table>
-        `;
+      <table class="${this.cssClass}" style="${n}">
+        ${this.renderHeaders(e, i)}
+        <tbody>
+          ${a}
+        </tbody>
+      </table>
+    `;
 	}
 	renderElement(e, t) {
-		return j`
-            <td class="text-cell" style="${this.renderLayoutStyles(e)}">
-                ${t}
-            </td>
-        `;
+		return j` <td class="text-cell" style="${this.renderLayoutStyles(e)}">${t}</td> `;
 	}
 }, kq = class extends wq {
 	constructor(...e) {
-		super(...e), this.cssClass = "ui-gallery-layout", this.renderElementLabels = !1, this._sortOrder = [];
+		super(...e), this.cssClass = "ui-gallery-layout", this.renderElementLabels = !1, this._sortOrder = [], this.itemClicked = (e) => {
+			if (e.target instanceof HTMLElement && e.target.tagName === "FILE-VIEW") {
+				e.stopPropagation();
+				let t = e.target.parentElement, n, r;
+				for (; t;) {
+					if (t.classList.contains("gallery-item") && (r = t), t.classList.contains("ui-gallery-layout")) {
+						n = t;
+						break;
+					}
+					t = t.tagName === "ui-component" ? null : t.parentElement;
+				}
+				r && n && (n.querySelectorAll(".gallery-item-selected").forEach((e) => {
+					console.log(e), e.classList.remove("gallery-item-selected");
+				}), r.classList.add("gallery-item-selected"));
+			}
+		};
 	}
 	renderLayoutStyles(e) {
 		return "";
-	}
-	itemClicked(e) {
-		if (e.target instanceof HTMLElement && e.target.tagName === "FILE-VIEW") {
-			e.stopPropagation();
-			let t = e.target.parentElement, n, r;
-			for (; t;) {
-				if (t.classList.contains("gallery-item") && (r = t), t.classList.contains("ui-gallery-layout")) {
-					n = t;
-					break;
-				}
-				t = t.tagName === "ui-component" ? null : t.parentElement;
-			}
-			r && n && (n.querySelectorAll(".gallery-item-selected").forEach((e) => {
-				console.log(e), e.classList.remove("gallery-item-selected");
-			}), r.classList.add("gallery-item-selected"));
-		}
 	}
 	headerClicked(e) {
 		let t = e.currentTarget.dataset.id, n = this._sortOrder.findIndex((e) => e.startsWith(">") ? e.slice(1) === t : e === t), r = !1;
@@ -52242,23 +52254,27 @@ var Sq = ".col-bg-body-lighter{background-color:var(--ui-col-bg-body-lighter,var
 		let i = this._sortOrder.findIndex((e) => e.startsWith(">") ? e.slice(1) === t : e === t);
 		if (i > -1) {
 			let a = this._sortOrder[i], o = i == 0 ? "table-header-icon" : "table-header-icon-secondary";
-			return j`
-                <div class="table-header"
-                    style="${this.getTableHeaderStyle(e.entry.ui_elements[t].layout)}"
-                    data-id="${t}" @click="${n || r.includes(t) ? this.headerClicked.bind(this) : M}">
-                    ${a.startsWith(">") ? j`<span class="${o}"><i></i></span>` : j`<span class="${o}"><i></i></span>`}
-                    <span class="table-header-text">${e.haulData(e.entry.ui_elements[t].element_type.text)}</span>
-                </div>`;
+			return j` <div
+        class="table-header"
+        style="${this.getTableHeaderStyle(e.entry.ui_elements[t].layout)}"
+        data-id="${t}"
+        @click="${n || r.includes(t) ? this.headerClicked.bind(this) : M}"
+      >
+        ${a.startsWith(">") ? j`<span class="${o}"><i></i></span>` : j`<span class="${o}"><i></i></span>`}
+        <span class="table-header-text"
+          >${e.haulData(e.entry.ui_elements[t].element_type.text)}</span
+        >
+      </div>`;
 		}
 		return M;
 	}
 	renderHeaders(e, t) {
 		let n = e.entry.layout_settings, r = n.allow_ordering_by || [], i = n.allow_ordering_by == null;
 		return j`
-            <div class="gallery-headers">
-            ${t.map((t) => this.renderSortButton(e, t, i, r))}
-            </div>
-        `;
+      <div class="gallery-headers">
+        ${t.map((t) => this.renderSortButton(e, t, i, r))}
+      </div>
+    `;
 	}
 	getTableHeaderStyle(e) {
 		let t = "";
@@ -52267,23 +52283,23 @@ var Sq = ".col-bg-body-lighter{background-color:var(--ui-col-bg-body-lighter,var
 	renderLayout(e, t, n, r) {
 		let i = this.getOrderedElements(e.entry), a = [];
 		for (e.resetCursor(), this._initSorting(e); e.next();) a.push(j`
-                <div id="R${e.getCurrentUID() ? e.getCurrentUID() : M}" class="gallery-item " @click="${this.itemClicked}">
-                    ${i.map((n) => r(n, e.entry.ui_elements[n], t))}
-                </div>
-            `);
+        <div
+          id="R${e.getCurrentUID() ? e.getCurrentUID() : M}"
+          class="gallery-item "
+          @click="${this.itemClicked}"
+        >
+          ${i.map((n) => r(n, e.entry.ui_elements[n], t))}
+        </div>
+      `);
 		return j`
-            ${this.renderHeaders(e, i)}
-            <div class="${this.cssClass}" style="${n}">
-                ${a}
-            </div>
-        `;
+      ${this.renderHeaders(e, i)}
+      <div class="${this.cssClass}" style="${n}">${a}</div>
+    `;
 	}
 	renderElement(e, t) {
 		return j`
-            <div class="gallery-sub-item" style="${this.renderLayoutStyles(e)}">
-                ${t}
-            </div>
-        `;
+      <div class="gallery-sub-item" style="${this.renderLayoutStyles(e)}">${t}</div>
+    `;
 	}
 };
 function Aq(e, t) {
@@ -52353,7 +52369,7 @@ var Mq = class {
 	}
 }, Pq = class extends Mq {
 	constructor(e, t, n, r) {
-		super(e, n, r), this._sortOrder = [], this.entry = t;
+		super(e, n, r), this.entry = t;
 	}
 	resetCursor() {
 		super.resetCursor();
@@ -52388,8 +52404,8 @@ var Mq = class {
 		throw `UIElement.render: Call of abstract method for control ${t}`;
 	}
 	static isVisible(e, t) {
-		let n = e.entry.element_type.visible;
-		return n === void 0 && (n = e.layouter.defaultElementVisibility), n === "false" || n == 0 ? !1 : n === "true" || n == 1 ? !0 : n === "." ? !!t : !!this.haulData(e, n);
+		let n = e.entry.element_type.visible ?? e.layouter.defaultElementVisibility;
+		return n === "false" || n == 0 ? !1 : n === "true" || n == 1 ? !0 : n === "." ? !!t : !!this.haulData(e, n);
 	}
 	static isIdentifier(e) {
 		return !!(e.uicomponent.linkIdentifiers && e.entry.element_type.is_identifier);
@@ -52415,9 +52431,10 @@ var Mq = class {
 }, Lq = class extends Iq {
 	static renderLabel(e, t, n) {
 		return e.layouter.renderElementLabels ? j`
-            <label for="${t}">${n || M}
-                ${this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value)}
-            </label>
+          <label for="${t}"
+            >${n || M}
+            ${this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value)}
+          </label>
         ` : this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value);
 	}
 	static render(e, t) {
@@ -52426,29 +52443,51 @@ var Mq = class {
 			if (!this.isVisible(e, n)) return j`${M}`;
 			let i = this.haulData(e, e.entry.element_type.text), a = this.getStyleSetting(e.entry.element_type, "classes", ""), o = this.addStyle("", this.getStyleTextAlign(e.entry.element_type)), s = this.isIdentifier(e);
 			return e.entry.layout?.max_height && (o = this.addStyle(o, `max-height: ${e.entry.layout.max_height === "max" ? "none" : e.entry.layout.max_height + "em"}`)), this.isIdentifier(e) && (a = (a ? " " : "") + "identifier-link"), this.maskIdentifier(e) && (r = this.haulData(e, this.maskIdentifier(e), t)), e.entry.element_type.max_characters && typeof n == "string" && n.length > e.entry.element_type.max_characters && (n = n.slice(0, e.entry.element_type.max_characters).trim().split(" ").slice(0, -1).join(" ") + "...", console.log("value", n)), e.entry.element_type.multiline ? (typeof n == "string" && (n = n.replaceAll("\r\n", "\n"), n = n.replaceAll("\r", "\n")), !e.entry.element_type.enabled || e.entry.element_type.readonly ? e.layouter.renderElement(e.entry.layout, j`
-                        ${this.renderLabel(e, t, i)}
-                        <div style="${o || M}" id=${t} class="multiline-textarea read-only-textarea ${a}">${n || M}</div>
-                    `) : e.layouter.renderElement(e.entry.layout, j`
-                        ${this.renderLabel(e, t, i)}
-                        <textarea id=${t} class="${a}" style="${o || M}" name=${t}
-                                  @change="${e.uicomponent.fieldChanged}">${n || M}</textarea>
-                    `)) : !e.entry.element_type.enabled || e.entry.element_type.readonly ? e.layouter.renderElement(e.entry.layout, j`
-                        ${this.renderLabel(e, t, i)}
-                        <div style="${o || M}" id=${t} 
-                             class="read-only-textarea ${a}"
-                             data-identifier="${s ? n : M}"
-                             @click="${s ? e.uicomponent.gotoIdentifier : M}">
-                            <span>${s ? j`<i class="footsteps"></i>` : M}${s && r ? r || M : j`${n || M}`}
-                            </span>
-                        </div>
-                    `) : e.layouter.renderElement(e.entry.layout, j`
-                        ${this.renderLabel(e, t, i)}
-                        <input id=${t} name=${t} type="text" class="${a}"
-                               style="${o || M}"
-                               value="${n || M}"
-                               @change="${e.uicomponent.fieldChanged}"
-                               ?disabled=${!e.entry.element_type.enabled || e.entry.element_type.readonly}/>
-                    `);
+              ${this.renderLabel(e, t, i)}
+              <div
+                style="${o || M}"
+                id=${t}
+                class="multiline-textarea read-only-textarea ${a}"
+              >
+                ${n || M}
+              </div>
+            `) : e.layouter.renderElement(e.entry.layout, j`
+              ${this.renderLabel(e, t, i)}
+              <textarea
+                id=${t}
+                class="${a}"
+                style="${o || M}"
+                name=${t}
+                @change="${e.uicomponent.fieldChanged}"
+              >
+${n || M}</textarea
+              >
+            `)) : !e.entry.element_type.enabled || e.entry.element_type.readonly ? e.layouter.renderElement(e.entry.layout, j`
+              ${this.renderLabel(e, t, i)}
+              <div
+                style="${o || M}"
+                id=${t}
+                class="read-only-textarea ${a}"
+                data-identifier="${s ? n : M}"
+                @click="${s ? e.uicomponent.gotoIdentifier : M}"
+              >
+                <span
+                  >${s ? j`<i class="footsteps"></i>` : M}${s && r ? r || M : j`${n || M}`}
+                </span>
+              </div>
+            `) : e.layouter.renderElement(e.entry.layout, j`
+              ${this.renderLabel(e, t, i)}
+              <input
+                id=${t}
+                name=${t}
+                type="text"
+                class="${a}"
+                style="${o || M}"
+                value="${n || M}"
+                @change="${e.uicomponent.fieldChanged}"
+                ?disabled=${!e.entry.element_type.enabled || e.entry.element_type.readonly}
+              />
+            `);
 		} catch (t) {
 			throw console.error(`textfield.render: ${t} with context`, e), t;
 		}
@@ -52456,9 +52495,10 @@ var Mq = class {
 }, Rq = class extends Iq {
 	static renderLabel(e, t, n) {
 		return e.layouter.renderElementLabels ? j`
-            <label for="${t}">${n} 
-                ${this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value)}
-            </label>
+          <label for="${t}"
+            >${n}
+            ${this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value)}
+          </label>
         ` : this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value);
 	}
 	static render(e, t) {
@@ -52467,22 +52507,24 @@ var Mq = class {
 			if (!this.isVisible(e, n)) return j`${M}`;
 			let r = this.haulData(e, e.entry.element_type.text), i = this.getStyleSetting(e.entry.element_type, "classes", ""), a = this.addStyle("", this.getStyleTextAlign(e.entry.element_type)), o = lo.fromISO(n), s;
 			return o.isValid && (s = (e.entry.element_type.date_format || "latin") === "latin" ? jq(o, !1) : o.toLocaleString(lo.DATE_SHORT)), e.layouter.renderElement(e.entry.layout, j`
-                ${this.renderLabel(e, t, r)}
-                ${e.entry.element_type.readonly ? j`<input id=${t} name=${t}
+          ${this.renderLabel(e, t, r)}
+          ${e.entry.element_type.readonly ? j`<input id=${t} name=${t}
                                     class="input-right-align ${i}"
                                     style="${a}"
                                     value="${s || M}"
                                     @change="${e.uicomponent.fieldChanged}"
                                     ?disabled=${e.entry.element_type.readonly}>
-                        </input>` : j`
-                            <vaadin-date-picker id=${t} name=${t}
-                                                class="${i || M}"
-                                                style="${a || M}"
-                                                value="${s || M}"
-                                                @change="${e.uicomponent.fieldChanged}"
-                                                ?disabled=${!e.entry.element_type.enabled}>
-                            </vaadin-date-picker>`}
-            `);
+                        </input>` : j` <vaadin-date-picker
+                id=${t}
+                name=${t}
+                class="${i || M}"
+                style="${a || M}"
+                value="${s || M}"
+                @change="${e.uicomponent.fieldChanged}"
+                ?disabled=${!e.entry.element_type.enabled}
+              >
+              </vaadin-date-picker>`}
+        `);
 		} catch (t) {
 			throw console.error(`datefield.render: ${t} with context`, e), t;
 		}
@@ -52490,9 +52532,10 @@ var Mq = class {
 }, zq = class extends Iq {
 	static renderLabel(e, t, n) {
 		return e.layouter.renderElementLabels ? j`
-            <label for="${t}">${n} 
-                ${this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value)}
-            </label>
+          <label for="${t}"
+            >${n}
+            ${this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value)}
+          </label>
         ` : this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value);
 	}
 	static openDateTimePopover(e) {
@@ -52513,17 +52556,23 @@ var Mq = class {
 			l === void 0 && (l = !0);
 			let u;
 			return c.isValid ? (i && (c = c.setZone(i.tz_IANA)), u = (e.entry.element_type.date_format || "latin") === "latin" ? jq(c, l) : l ? c.toLocaleString(lo.DATETIME_SHORT) : c.toLocaleString(lo.DATE_SHORT)) : console.log(`${t} ts is NOT valid and is: ${r}`), e.layouter.renderElement(e.entry.layout, j`
-                ${this.renderLabel(e, t, a)}
-                ${e.entry.element_type.readonly ? j`<div class="date-time-frame">
-                            ${i ? j`<i class="time-zone-marker" @click="${this.openDateTimePopover}">
-                                <div class="date-time-popover" @click="${this.openDateTimePopover}">${i ? i.tz_long : "unspecified time zone"}</div></i>
-                            ` : M}
-                            <input id=${t} name=${t} class="input-right-align ${o}"
-                                    style="${s}"
-                                    value="${u || M}"
-                                    @change="${e.uicomponent.fieldChanged}"
-                                    ?disabled=${e.entry.element_type.readonly}>
-                        </div>` : j`${i ? j`<div class="date-time-frame"><i class="time-zone-marker"></i>` : M}
+          ${this.renderLabel(e, t, a)}
+          ${e.entry.element_type.readonly ? j`<div class="date-time-frame">
+                ${i ? j`<i class="time-zone-marker" @click="${this.openDateTimePopover}">
+                      <div class="date-time-popover" @click="${this.openDateTimePopover}">
+                        ${i ? i.tz_long : "unspecified time zone"}
+                      </div></i
+                    > ` : M}
+                <input
+                  id=${t}
+                  name=${t}
+                  class="input-right-align ${o}"
+                  style="${s}"
+                  value="${u || M}"
+                  @change="${e.uicomponent.fieldChanged}"
+                  ?disabled=${e.entry.element_type.readonly}
+                />
+              </div>` : j`${i ? j`<div class="date-time-frame"><i class="time-zone-marker"></i></div>` : M}
                             <vaadin-date-time-picker
                                     id=${t} name=${t} class="${o}"
                                     style="${s}"
@@ -52531,7 +52580,7 @@ var Mq = class {
                                     @change="${e.uicomponent.fieldChanged}"
                                     ?disabled=${!e.entry.element_type.enabled}>
                             </vaadin-date-time-picker></div`}
-            `);
+        `);
 		} catch (t) {
 			throw console.error(`datetimefield.render: ${t} with context`, e), t;
 		}
@@ -52557,18 +52606,24 @@ var Mq = class {
 		}
 		let o = this.getStyleSetting(e.entry.element_type, "classes", "");
 		return i = o ? i + " " + o : i, e.layouter.renderElement(e.entry.layout, j`
-            <button class="${i}" style="${a}" id=${t} name=${t}
-                    @click="${e.uicomponent.fieldChanged}"">
-            ${r}
-            </button>
-        `);
+        <button
+          class="${i}"
+          style="${a}"
+          id=${t}
+          name=${t}
+          @click="${e.uicomponent.fieldChanged}"
+        >
+          ${r}
+        </button>
+      `);
 	}
 }, Vq = class extends Iq {
 	static renderLabel(e, t, n) {
 		return e.layouter.renderElementLabels && e.entry.element_type.text ? j`
-            <label for="${t}">${n}
-                ${this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value)}
-            </label>
+          <label for="${t}"
+            >${n}
+            ${this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value)}
+          </label>
         ` : M;
 	}
 	static render(e, t) {
@@ -52576,19 +52631,19 @@ var Mq = class {
 		if (!this.isVisible(e, n)) return j`${M}`;
 		let r = this.haulData(e, e.entry.element_type.text), i = this.getStyleSetting(e.entry.element_type, "classes", ""), a = this.addStyle("", this.getStyleTextAlign(e.entry.element_type));
 		return this.addStyle(a, e.uicomponent.getPaddingStyle(e.entry.layout?.padding).replace("padding", "margin")), e.layouter.renderElement(e.entry.layout, j`
-            ${this.renderLabel(e, t, r)}
-            <div class="templateLabel ${i}" id=${t} 
-                 style="${a || M}">
-                ${this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value)}${n || M}
-            </div>
-        `);
+        ${this.renderLabel(e, t, r)}
+        <div class="templateLabel ${i}" id=${t} style="${a || M}">
+          ${this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value)}${n || M}
+        </div>
+      `);
 	}
 }, Hq = class extends Iq {
 	static renderLabel(e, t, n) {
 		return e.layouter.renderElementLabels ? j`
-            <label for="${t}">${n}
-                ${this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value)}
-            </label>
+          <label for="${t}"
+            >${n}
+            ${this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value)}
+          </label>
         ` : this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value);
 	}
 	static renderReadOnly(e, t, n) {
@@ -52596,13 +52651,17 @@ var Mq = class {
 		if (!this.isVisible(e, r)) return j`${M}`;
 		let i = this.getStyleSetting(e.entry.element_type, "classes", ""), a = this.addStyle("", this.getStyleTextAlign(e.entry.element_type));
 		return e.layouter.renderElement(e.entry.layout, j`
-                ${this.renderLabel(e, t, n)}
-                <input id=${t} name=${t} type="text"
-                       class="${i}"
-                       style="${a}"
-                       value="${r || M}"
-                       disabled/>
-            `);
+        ${this.renderLabel(e, t, n)}
+        <input
+          id=${t}
+          name=${t}
+          type="text"
+          class="${i}"
+          style="${a}"
+          value="${r || M}"
+          disabled
+        />
+      `);
 	}
 	static renderWithStaticSelection(e, t, n) {
 		let r = [], i = "", a = e.entry.element_type;
@@ -52615,113 +52674,139 @@ var Mq = class {
 		}
 		let o = this.getStyleSetting(e.entry.element_type, "classes", ""), s = this.addStyle("", this.getStyleTextAlign(e.entry.element_type));
 		return e.layouter.renderElement(e.entry.layout, j`
-                    ${this.renderLabel(e, t, n)}
-                    <vaadin-combo-box id="${t}" name="${t}" .items="${r}"
-                                      .selectedItem="${i || M}"
-                                      class="${o}"
-                                      style="${s}"
-                                      @change="${e.uicomponent.fieldChanged}"
-                                      @keyup="${e.uicomponent.keyupOnElement}">
-                                      ?disabled=${!e.entry.element_type.enabled}
-                    </vaadin-combo-box>
-                `);
+        ${this.renderLabel(e, t, n)}
+        <vaadin-combo-box
+          id="${t}"
+          name="${t}"
+          .items="${r}"
+          .selectedItem="${i || M}"
+          class="${o}"
+          style="${s}"
+          @change="${e.uicomponent.fieldChanged}"
+          @keyup="${e.uicomponent.keyupOnElement}"
+        >
+          ?disabled=${!e.entry.element_type.enabled}
+        </vaadin-combo-box>
+      `);
 	}
 	static renderWithDynamicSelection(e, t, n) {
 		let r = "", i = "", a = t in e.data ? e.data[t] : "";
 		Array.isArray(a) && a.length == 2 && (r = a[0], i = a[1]);
 		let o = this.getStyleSetting(e.entry.element_type, "classes", ""), s = this.addStyle("", this.getStyleTextAlign(e.entry.element_type));
 		return e.layouter.renderElement(e.entry.layout, j`
-                ${this.renderLabel(e, t, n)}
-                <vaadin-combo-box id="${t}" name="${t}"
-                                  .selectedItem="${r || M}"
-                                  class="${o}"
-                                  style="${s}"
-                                  value="${r || M}"
-                                  data-value="${i}"
-                                  @change="${e.uicomponent.fieldChanged}"
-                                  @keyup="${e.uicomponent.keyupOnElement}"
-                                  @filter-changed="${e.uicomponent.comboBoxFilterChanged}"
-                                  ?disabled=${!e.entry.element_type.enabled}>
-                </vaadin-combo-box>
-            `);
+        ${this.renderLabel(e, t, n)}
+        <vaadin-combo-box
+          id="${t}"
+          name="${t}"
+          .selectedItem="${r || M}"
+          class="${o}"
+          style="${s}"
+          value="${r || M}"
+          data-value="${i}"
+          @change="${e.uicomponent.fieldChanged}"
+          @keyup="${e.uicomponent.keyupOnElement}"
+          @filter-changed="${e.uicomponent.comboBoxFilterChanged}"
+          ?disabled=${!e.entry.element_type.enabled}
+        >
+        </vaadin-combo-box>
+      `);
 	}
 	static render(e, t) {
 		try {
 			let n = e.entry.element_type, r = this.haulData(e, e.entry.element_type.text);
-			return e.entry.element_type.readonly ? this.renderReadOnly(e, t, r) : Array.isArray(n.items) ? this.renderWithStaticSelection(e, t, r) : n.items && "topic" in n.items ? this.renderWithDynamicSelection(e, t, r) : j`
-                        <div class="combobox-div" style="${e.layouter.renderLayoutStyles(e.entry.layout)}">
-                            <label for="${t}">${r}${this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value)}</label>
-                            <div>selection field ${t} is missing a list.</div>
-                        </div>`;
+			return e.entry.element_type.readonly ? this.renderReadOnly(e, t, r) : (console.log("asdf"), Array.isArray(n.items) ? this.renderWithStaticSelection(e, t, r) : n.items && "topic" in n.items ? this.renderWithDynamicSelection(e, t, r) : j` <div
+            class="combobox-div"
+            style="${e.layouter.renderLayoutStyles(e.entry.layout)}"
+          >
+            <label for="${t}"
+              >${r}${this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value)}</label
+            >
+            <div>selection field ${t} is missing a list.</div>
+          </div>`);
 		} catch (t) {
 			throw console.error(`combobox.render: ${t} with context`, e), t;
 		}
 	}
 }, Uq = class extends Iq {
 	static isVisible(e, t) {
-		let n = e.entry.element_type.visible;
-		return n === void 0 && (n = e.layouter.defaultElementVisibility), n === "false" || n == 0 ? !1 : n === "true" || n == 1 || n === "." ? !0 : !!this.haulData(e, n);
+		let n = e.entry.element_type.visible ?? e.layouter.defaultElementVisibility;
+		return n === "false" || n == 0 ? !1 : n === "true" || n == 1 || n === "." ? !0 : !!this.haulData(e, n);
 	}
 	static render(e, t) {
 		if (!this.isVisible(e, "")) return j`${M}`;
 		let n = this.getStyleSetting(e.entry.element_type, "classes", "");
 		n = (n ? n + " " : "") + (e.entry.element_type.transparent ? "ui-line-transparent" : "");
 		let r = e.uicomponent.getPaddingStyle(e.entry.element_type.padding).replace("padding", "margin"), i = this.addStyle(r, e.layouter.renderLayoutStyles(e.entry.layout));
-		return e.layouter.renderElement(e.entry.layout, j`
-            <div class="ui-line ${n}" id="${t}" style="${i}">
-            </div>
-        `);
+		return e.layouter.renderElement(e.entry.layout, j` <div class="ui-line ${n}" id="${t}" style="${i}"></div> `);
 	}
 }, Wq = class extends Iq {
 	static renderLabel(e, t, n) {
 		return e.layouter.renderElementLabels ? j`
-            <label for="${t}">${n}
-                ${this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value)}
-            </label>
+          <label for="${t}"
+            >${n}
+            ${this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value)}
+          </label>
         ` : this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value);
 	}
 	static render(e, t) {
 		try {
 			let n = this.haulData(e, e.entry.element_type.value), r = this.haulData(e, e.entry.element_type.text), i = this.haulData(e, `#($/images/descriptions/${n})`), a = "", o = 0, s = 0, c = this.getStyleSetting(e.entry.element_type, "classes", ""), l = this.addStyle("", this.getStyleTextAlign(e.entry.element_type)), u = e.entry.element_type, d = u.file_description || "bottom";
-			return console.log(i), typeof i == "string" ? a = i : (i?.hasOwnProperty("description") && (a = i.description), i?.hasOwnProperty("attributes") && (s = i.attributes?.height ?? 0, o = i.attributes?.width ?? 0)), e.entry.layout?.max_height && (l = this.addStyle(l, `max-height: ${e.entry.layout.max_height === "max" ? "" : e.entry.layout.max_height + "px"}`)), e.entry.layout?.max_width && (l = this.addStyle(l, `max-width: ${e.entry.layout.max_width === "max" ? "" : e.entry.layout.max_width + "px"}`)), e.layouter.renderElement(e.entry.layout, j`
-                ${this.renderLabel(e, t, r)}
-                <div style="${l || M}" class="read-only-image ${c}">
-                    <div class="${u.align_image === "left" || u.fit_content === "scale" ? "image-left-align" : "image-center"}">
-                        ${n ? j`
-                                <file-view 
-                                id="${n}" 
-                                uuid_file="${n}" 
-                                resolution="${u.resolution}" 
-                                description=${a} 
-                                fitcontent="${u.fit_content || "contain"}"
-                                @fetchfile="${e.uicomponent.fetchFile}"
-                                data-width="${o}" data-height="${s}">
-                        </file-view>` : j`
-                            <div class="file-broken">
-                                <svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="100%" height="100%"
-                                     viewBox="0 0 512 512">
-                                    <path d="M380.993 512c-59.343 0-107.624-48.279-107.624-107.622V276.455c0-9.425 7.641-17.067 17.067-17.067s17.067 7.641 17.067 17.067v127.923c0 40.522 32.968 73.489 73.49 73.489 9.425 0 17.067 7.641 17.067 17.067S390.419 512 380.993 512z"
-                                        style="fill:var(--col-bg-att-lighter)"/>
-                                    <path d="M388.37 432.62c-30.071 0-54.536-24.465-54.536-54.536V230.086c0-9.425 7.641-17.067 17.067-17.067 9.425 0 17.067 7.641 17.067 17.067v147.999c0 11.25 9.152 20.403 20.403 20.403s20.403-9.152 20.403-20.403v-63.243c0-9.425 7.641-17.067 17.067-17.067h43.217c9.425 0 17.067 7.641 17.067 17.067 0 9.425-7.641 17.067-17.067 17.067h-26.151v46.177c-.002 30.069-24.465 54.534-54.537 54.534z"
-                                          style="fill:var(--col-bg-att)"/>
-                                    <path d="M131.007 512c-9.425 0-17.067-7.641-17.067-17.067s7.641-17.067 17.067-17.067c40.522 0 73.49-32.967 73.49-73.489V276.455c0-9.425 7.641-17.067 17.067-17.067 9.425 0 17.067 7.641 17.067 17.067v127.923C238.63 463.721 190.35 512 131.007 512z"
-                                          style="fill:var(--col-bg-att-darker)"/>
-                                    <path d="M123.63 434.307c-30.071 0-54.536-24.465-54.536-54.536v-46.177H42.943c-9.425 0-17.067-7.641-17.067-17.067 0-9.425 7.641-17.067 17.067-17.067H86.16c9.425 0 17.067 7.641 17.067 17.067v63.243c0 11.25 9.152 20.403 20.403 20.403s20.403-9.152 20.403-20.403V230.085c0-9.425 7.641-17.067 17.067-17.067s17.067 7.641 17.067 17.067v149.686c-.001 30.071-24.466 54.536-54.537 54.536z"
-                                          style="fill:var(--col-bg-att-darker)"/>
-                                    <path d="M256 299.824c-37.646 0-73.647-17.92-101.375-50.459-25.857-30.345-40.686-69.456-40.686-107.305C113.94 63.728 177.667 0 256 0s142.06 63.728 142.06 142.06c0 37.849-14.829 76.96-40.686 107.305-27.727 32.539-63.728 50.459-101.374 50.459z"
-                                          style="fill:var(--col-bg-att-lighter)"/>
-                                    <path d="M256 0v299.824c37.646 0 73.647-17.92 101.375-50.459 25.857-30.345 40.686-69.456 40.686-107.305C398.06 63.728 334.333 0 256 0z"
-                                          style="fill:var(--col-bg-att-darker)"/>
-                                    <circle cx="209.328" cy="226.702" r="22.577" style="fill:#555c5e"/>
-                                    <circle cx="302.672" cy="226.702" r="22.577" style="fill:#555c5e"/>
-                                </svg>
-                        </div>`}
-                    </div>
-                    ${d === "bottom" && a ? j`
-                            <div class="file-element-description">${a}</div>
-                        ` : M}
-                </div>
-            `);
+			return console.log(i), typeof i == "string" ? a = i : (i?.hasOwnProperty("description") && (a = i.description), i?.hasOwnProperty("attributes") && (s = i.attributes?.height ?? 0, o = i.attributes?.width ?? 0)), (!a || !n) && e.entry.element_type.alternate_description && (a = this.haulData(e, e.entry.element_type.alternate_description)), e.entry.layout?.max_height && (l = this.addStyle(l, `max-height: ${e.entry.layout.max_height === "max" ? "" : e.entry.layout.max_height + "px"}`)), e.entry.layout?.max_width && (l = this.addStyle(l, `max-width: ${e.entry.layout.max_width === "max" ? "" : e.entry.layout.max_width + "px"}`)), e.layouter.renderElement(e.entry.layout, j`
+          ${this.renderLabel(e, t, r)}
+          <div style="${l || M}" class="read-only-image ${c}">
+            <div
+              class="${u.align_image === "left" || u.fit_content === "scale" ? "image-left-align" : "image-center"}"
+            >
+              ${n ? j` <file-view
+                    id="${n}"
+                    uuid_file="${n}"
+                    resolution="${u.resolution}"
+                    description=${a}
+                    fitcontent="${u.fit_content || "contain"}"
+                    @fetchfile="${e.uicomponent.fetchFile}"
+                    data-width="${o}"
+                    data-height="${s}"
+                  >
+                  </file-view>` : j` <div class="file-broken">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      xml:space="preserve"
+                      width="100%"
+                      height="100%"
+                      viewBox="0 0 512 512"
+                    >
+                      <path
+                        d="M380.993 512c-59.343 0-107.624-48.279-107.624-107.622V276.455c0-9.425 7.641-17.067 17.067-17.067s17.067 7.641 17.067 17.067v127.923c0 40.522 32.968 73.489 73.49 73.489 9.425 0 17.067 7.641 17.067 17.067S390.419 512 380.993 512z"
+                        style="fill:var(--col-bg-att-lighter)"
+                      />
+                      <path
+                        d="M388.37 432.62c-30.071 0-54.536-24.465-54.536-54.536V230.086c0-9.425 7.641-17.067 17.067-17.067 9.425 0 17.067 7.641 17.067 17.067v147.999c0 11.25 9.152 20.403 20.403 20.403s20.403-9.152 20.403-20.403v-63.243c0-9.425 7.641-17.067 17.067-17.067h43.217c9.425 0 17.067 7.641 17.067 17.067 0 9.425-7.641 17.067-17.067 17.067h-26.151v46.177c-.002 30.069-24.465 54.534-54.537 54.534z"
+                        style="fill:var(--col-bg-att)"
+                      />
+                      <path
+                        d="M131.007 512c-9.425 0-17.067-7.641-17.067-17.067s7.641-17.067 17.067-17.067c40.522 0 73.49-32.967 73.49-73.489V276.455c0-9.425 7.641-17.067 17.067-17.067 9.425 0 17.067 7.641 17.067 17.067v127.923C238.63 463.721 190.35 512 131.007 512z"
+                        style="fill:var(--col-bg-att-darker)"
+                      />
+                      <path
+                        d="M123.63 434.307c-30.071 0-54.536-24.465-54.536-54.536v-46.177H42.943c-9.425 0-17.067-7.641-17.067-17.067 0-9.425 7.641-17.067 17.067-17.067H86.16c9.425 0 17.067 7.641 17.067 17.067v63.243c0 11.25 9.152 20.403 20.403 20.403s20.403-9.152 20.403-20.403V230.085c0-9.425 7.641-17.067 17.067-17.067s17.067 7.641 17.067 17.067v149.686c-.001 30.071-24.466 54.536-54.537 54.536z"
+                        style="fill:var(--col-bg-att-darker)"
+                      />
+                      <path
+                        d="M256 299.824c-37.646 0-73.647-17.92-101.375-50.459-25.857-30.345-40.686-69.456-40.686-107.305C113.94 63.728 177.667 0 256 0s142.06 63.728 142.06 142.06c0 37.849-14.829 76.96-40.686 107.305-27.727 32.539-63.728 50.459-101.374 50.459z"
+                        style="fill:var(--col-bg-att-lighter)"
+                      />
+                      <path
+                        d="M256 0v299.824c37.646 0 73.647-17.92 101.375-50.459 25.857-30.345 40.686-69.456 40.686-107.305C398.06 63.728 334.333 0 256 0z"
+                        style="fill:var(--col-bg-att-darker)"
+                      />
+                      <circle cx="209.328" cy="226.702" r="22.577" style="fill:#555c5e" />
+                      <circle cx="302.672" cy="226.702" r="22.577" style="fill:#555c5e" />
+                    </svg>
+                  </div>`}
+            </div>
+            ${d === "bottom" && a ? j` <div class="file-element-description">${a}</div> ` : M}
+          </div>
+        `);
 		} catch (t) {
 			throw console.error(`UIElementFile.render: ${t} with context`, e), t;
 		}
@@ -52729,9 +52814,10 @@ var Mq = class {
 }, Gq = class extends Iq {
 	static renderLabel(e, t, n) {
 		return e.layouter.renderElementLabels ? j`
-            <label for="${t}">${n || M}
-                ${this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value)}
-            </label>
+          <label for="${t}"
+            >${n || M}
+            ${this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value)}
+          </label>
         ` : this.devInfo(e, e.entry.element_type.text, e.entry.element_type.value);
 	}
 	static render(e, t) {
@@ -52740,17 +52826,27 @@ var Mq = class {
 			if (!this.isVisible(e, n)) return j`${M}`;
 			let r = this.haulData(e, e.entry.element_type.text), i = this.getStyleSetting(e.entry.element_type, "classes", ""), a = this.addStyle("", this.getStyleTextAlign(e.entry.element_type));
 			return e.entry.layout?.max_height && (a = this.addStyle(a, `max-height: ${e.entry.layout.max_height === "max" ? "none" : e.entry.layout.max_height + "em"}`)), e.entry.element_type.readonly ? e.layouter.renderElement(e.entry.layout, j`
-                    ${this.renderLabel(e, t, r)}
-                    <div style="${a || M}" id=${t} 
-                         class="read-only-textarea ${i}"><span><span>${n ? "YES" : "NO"}</span></span></div>
-                `) : (i = i ? i + " input-checkbox" : "input-checkbox", e.layouter.renderElement(e.entry.layout, j`
-                    ${this.renderLabel(e, t, r)}
-                    <input id=${t} name=${t} type="checkbox" class="${i}"
-                           style="${a || M}"
-                           ?checked="${!!n}"
-                           @change="${e.uicomponent.fieldChanged}"
-                           ?disabled=${!e.entry.element_type.enabled}/>
-                `));
+            ${this.renderLabel(e, t, r)}
+            <div
+              style="${a || M}"
+              id=${t}
+              class="read-only-textarea ${i}"
+            >
+              <span><span>${n ? "YES" : "NO"}</span></span>
+            </div>
+          `) : (i = i ? i + " input-checkbox" : "input-checkbox", e.layouter.renderElement(e.entry.layout, j`
+            ${this.renderLabel(e, t, r)}
+            <input
+              id=${t}
+              name=${t}
+              type="checkbox"
+              class="${i}"
+              style="${a || M}"
+              ?checked="${!!n}"
+              @change="${e.uicomponent.fieldChanged}"
+              ?disabled=${!e.entry.element_type.enabled}
+            />
+          `));
 		} catch (t) {
 			throw console.error(`textfield.render: ${t} with context`, e), t;
 		}
@@ -52764,13 +52860,42 @@ var Mq = class {
 		this.styles = v(Sq);
 	}
 	constructor() {
-		super(), this._messages = {}, this._dsd_to_element_list = {}, this._element_list = {}, this._selection_data = {}, this.uiElementFactory = new Kq(), this.uiSchema = null, this.linkIdentifiers = !0, this.showDevelopmentInfo = !1, this.data = {}, this.lookupProvider = null, this.dataProvider = null, this.timeZoneInfoProvider = null, this.moveToNextRow = null, this.setSortOrder = null, this.fetchFileProvider = null, this._showError = null, this._default = {}, this._messages = {};
+		super(), this._messages = {}, this._dsd_to_element_list = {}, this._element_list = {}, this._selection_data = {}, this.uiElementFactory = new Kq(), this.uiSchema = null, this.linkIdentifiers = !0, this.showDevelopmentInfo = !1, this.data = {}, this.lookupProvider = null, this.dataProvider = null, this.timeZoneInfoProvider = null, this.moveToNextRow = null, this.setSortOrder = null, this.fetchFileProvider = null, this._showError = null, this._default = {}, this.keyupOnElement = (e) => {
+			e.key === "Enter" && this._default?.ENTER ? this.fieldChangedById(this._default?.ENTER) : e.key === "Escape" && this._default?.CANCEL && this.fieldChangedById(this._default?.CANCEL);
+		}, this.fetchFile = (e) => {
+			let t = e.detail;
+			this.fetchFileProvider && this.fetchFileProvider(t);
+		}, this.fieldChanged = (e) => {
+			if ("currentTarget" in e) {
+				let t = e.currentTarget.id;
+				this.fieldChangedById(t);
+			}
+		}, this.comboBoxFilterChanged = (e) => {
+			let t = e.detail.value.toLowerCase(), n = e.currentTarget;
+			if (n) {
+				t === "" && (n.filteredItems = void 0);
+				let e = this._selection_data[n.id];
+				e && (n.filteredItems = Object.keys(e).filter((e) => e.toLowerCase().startsWith(t)));
+			}
+		}, this.onRequestUpdate = () => {
+			console.log("requesting update"), this.requestUpdate();
+		}, this.hideDevelopmentInfo = () => {
+			this.renderRoot.querySelectorAll(".developer-info").forEach((e) => e.style.display = "none");
+		}, this.gotoIdentifier = (e) => {
+			let t = {
+				identifier: e.currentTarget.dataset.identifier,
+				fieldId: e.currentTarget.id
+			}, n = new CustomEvent("goto-identifier", {
+				detail: t,
+				bubbles: !1,
+				composed: !0,
+				cancelable: !1
+			});
+			this.dispatchEvent(n);
+		}, this._messages = {};
 	}
 	willUpdate(e) {
 		e.has("uiSchema") && this.processSchemaDefinition();
-	}
-	keyupOnElement(e) {
-		e.key === "Enter" && this._default?.ENTER ? this.fieldChangedById(this._default?.ENTER) : e.key === "Escape" && this._default?.CANCEL && this.fieldChangedById(this._default?.CANCEL);
 	}
 	firstUpdated(e) {
 		super.firstUpdated(e);
@@ -52849,10 +52974,6 @@ var Mq = class {
 			e[t] = this.get_field_value(n.id, n.element);
 		}), e);
 	}
-	fetchFile(e) {
-		let t = e.detail;
-		this.fetchFileProvider && this.fetchFileProvider(t);
-	}
 	get_field_value(e, t) {
 		let n = this.renderRoot.querySelector(`#${e}`);
 		switch (t.element_type.name.toLowerCase()) {
@@ -52863,7 +52984,7 @@ var Mq = class {
 	}
 	getSelectionValue(e, t, n) {
 		let r = t?.value ? t?.value : "", i;
-		if (this._element_list[e].element_type, Array.isArray(n.items) && n.items.length > 0) if (Array.isArray(n.items[0])) {
+		if (Array.isArray(n.items) && n.items.length > 0) if (Array.isArray(n.items[0])) {
 			for (let e of n.items) if (e[1] === r) {
 				i = e[0];
 				break;
@@ -52884,20 +53005,6 @@ var Mq = class {
 		};
 		this.dispatchEvent(new CustomEvent("dataChanged", t));
 	}
-	fieldChanged(e) {
-		if ("currentTarget" in e) {
-			let t = e.currentTarget.id;
-			this.fieldChangedById(t);
-		}
-	}
-	comboBoxFilterChanged(e) {
-		let t = e.detail.value.toLowerCase(), n = e.currentTarget;
-		if (n) {
-			t === "" && (n.filteredItems = void 0);
-			let e = this._selection_data[n.id];
-			e && (n.filteredItems = Object.keys(e).filter((e) => e.toLowerCase().startsWith(t)));
-		}
-	}
 	getLayoutClass(e, t, n = !1) {
 		let r = t?.type || "sheet";
 		if (n && t && n && (t.readonly = n), t?.orchestration_strategy) if (r === "sheet") switch (t?.orchestration_strategy.toLowerCase()) {
@@ -52912,7 +53019,8 @@ var Mq = class {
 			case "gallery": return new kq(e, t);
 			default: throw `Unknown orchestration strategy ${t.orchestration_strategy}`;
 		}
-		else throw `Unknown layout type ${r}`;
+		else if (r) throw `Unknown layout type ${r}`;
+		else throw "no layout type}";
 		else return new Tq(e, t);
 	}
 	renderUIElement(e, t, n) {
@@ -52921,9 +53029,7 @@ var Mq = class {
 			let r = new Nq(this, t, n, this.data), i = this.uiElementFactory.getUIElementClass(t.element_type.name);
 			return r.entry.element_type.readonly = r.entry.element_type.readonly || n?.layoutSettings?.readonly, i.render(r, e);
 		} catch (n) {
-			return console.error(`Exception in UIComponent.renderUIElement: ${n}`), Wo`
-                ${t.element_type.name} "${e}": ${n}
-            `;
+			return console.error(`Exception in UIComponent.renderUIElement: ${n}`), Wo` ${t.element_type.name} "${e}": ${n} `;
 		}
 	}
 	renderElement(e, t, n) {
@@ -52935,9 +53041,6 @@ var Mq = class {
 	getPaddingStyle(e) {
 		let t = "";
 		return typeof e == "number" ? t = `padding: ${e}px` : typeof e == "string" ? t = `padding: ${e}` : e && (t = `padding: ${e.top} ${e.right} ${e.bottom} ${e.left}`), t;
-	}
-	onRequestUpdate() {
-		console.log("requesting update"), this.requestUpdate();
 	}
 	renderLayoutElement(e, t, n) {
 		let r;
@@ -52951,27 +53054,14 @@ var Mq = class {
 		let a = new Pq(this, t, r, this.data);
 		return r.renderLayout(a, r, i, this.renderElement.bind(this));
 	}
-	hideDevelopmentInfo() {
-		this.renderRoot.querySelectorAll(".developer-info").forEach((e) => e.style.display = "none");
-	}
-	gotoIdentifier(e) {
-		let t = {
-			identifier: e.currentTarget.dataset.identifier,
-			fieldId: e.currentTarget.id
-		}, n = new CustomEvent("goto-identifier", {
-			detail: t,
-			bubbles: !1,
-			composed: !0,
-			cancelable: !1
-		});
-		this.dispatchEvent(n);
-	}
 	render() {
 		let e = [], t;
-		this.showDevelopmentInfo && e.push(Wo`
-                <div class="uicomponent-version" @click="${this.hideDevelopmentInfo}">
-                    ${Wo`${"0.8.0"}`}
-                </div>`);
+		this.showDevelopmentInfo && e.push(Wo` <div
+        class="uicomponent-version"
+        @click="${this.hideDevelopmentInfo}"
+      >
+        ${Wo`${"0.8.3"}`}
+      </div>`);
 		try {
 			t = this.getLayoutClass("root", this.uiSchema?.layout_settings), t.onRequestUpdate = this.onRequestUpdate.bind(this);
 		} catch {
@@ -52985,13 +53075,14 @@ var Mq = class {
 		} catch (e) {
 			this._showError = `An error occurred when rendering this component:\n"${e}"`;
 		}
-		return this._showError && (console.log(this._showError), e.push(Wo`
-                <div style="background-color: var(--col-bg-alert); color: var(--col-primary-bg-alert); padding: .5em; font-family: monospace">
-                    ${this._showError}
-                </div>`)), Wo`${e}`;
+		return this._showError && (console.log(this._showError), e.push(Wo` <div
+        style="background-color: var(--col-bg-alert); color: var(--col-primary-bg-alert); padding: .5em; font-family: monospace"
+      >
+        ${this._showError}
+      </div>`)), Wo`${e}`;
 	}
 };
-Q([F()], qq.prototype, "uiElementFactory", void 0), Q([F()], qq.prototype, "uiSchema", void 0), Q([F()], qq.prototype, "linkIdentifiers", void 0), Q([F()], qq.prototype, "showDevelopmentInfo", void 0), Q([F()], qq.prototype, "data", void 0), Q([F()], qq.prototype, "lookupProvider", void 0), Q([F()], qq.prototype, "dataProvider", void 0), Q([F()], qq.prototype, "timeZoneInfoProvider", void 0), Q([F()], qq.prototype, "moveToNextRow", void 0), Q([F()], qq.prototype, "setSortOrder", void 0), Q([F()], qq.prototype, "fetchFileProvider", void 0), Q([I()], qq.prototype, "_showError", void 0), qq = Q([Ge("ui-component")], qq);
+Q([I()], qq.prototype, "uiElementFactory", void 0), Q([F()], qq.prototype, "uiSchema", void 0), Q([F()], qq.prototype, "linkIdentifiers", void 0), Q([F()], qq.prototype, "showDevelopmentInfo", void 0), Q([F()], qq.prototype, "data", void 0), Q([F()], qq.prototype, "lookupProvider", void 0), Q([F()], qq.prototype, "dataProvider", void 0), Q([F()], qq.prototype, "timeZoneInfoProvider", void 0), Q([F()], qq.prototype, "moveToNextRow", void 0), Q([F()], qq.prototype, "setSortOrder", void 0), Q([F()], qq.prototype, "fetchFileProvider", void 0), Q([I()], qq.prototype, "_showError", void 0), qq = Q([Ge("ui-component")], qq);
 //#endregion
 //#region src/timezoneinfocontext.ts
 var Jq = Ko("timeZoneInfo"), Yq = class extends Vy {
@@ -53970,7 +54061,7 @@ var tJ = class extends Do {
 	}
 	renderLayout() {
 		return Wo`
-            <div style="display: none">Q&V plugin version ${"0.7.7"}</div>
+            <div style="display: none">Q&V plugin version ${"0.7.8"}</div>
             <kiosk-query-layouter id="query-layout"
                                   .apiContext="${this.apiContext}"
                                   .assignedPages="${this.queries.map((e) => [e.uid, e.name])}"

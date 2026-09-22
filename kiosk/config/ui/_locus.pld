@@ -243,6 +243,10 @@ locus_files.list:
     order_records_by: [ ">modified" ]
     allow_ordering_by: [ "modified", "modified_by" ]
     order: [ uid_image, modified, modified_by ]
+  ui_elements:
+    "uid_image":
+      element_type:
+        alternate_description: "#(locus/description)"
 
 locus_relations.list:
   record_type: locus_relations

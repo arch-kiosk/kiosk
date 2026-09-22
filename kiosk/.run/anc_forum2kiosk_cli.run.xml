@@ -16,7 +16,7 @@
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <option name="RUN_TOOL" value="" />
     <option name="SCRIPT_NAME" value="$PROJECT_DIR$/sync/sync/sync_plugins/buap_ancdb_bridge/ancforumimport/anc_forum2kiosk_cli.py" />
-    <option name="PARAMETERS" value="$PROJECT_DIR$ --dev" />
+    <option name="PARAMETERS" value="$PROJECT_DIR$ --dev --step2" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="false" />

@@ -9,6 +9,7 @@ import { css, html, nothing, TemplateResult, unsafeCSS } from "lit";
 import { customElement, property, query, state } from "lit/decorators.js";
 import { AnyDict, ApiResultKioskQuery, Constant, KioskQueryInstance } from "./lib/apitypes";
 
+
 import {
     Dictionary,
     UISchema,
