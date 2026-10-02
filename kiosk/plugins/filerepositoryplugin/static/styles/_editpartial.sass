@@ -204,9 +204,16 @@ kiosk-lightbox[layout="horizontal"]
     color: $col-warning-bg-1
 
 
-#download-menu-contents.dropdown-content
+kiosk-lightbox[layout="vertical"] #download-menu-contents.dropdown-content
   @extend .ef-menu-content
   min-width: 450px
+
+kiosk-lightbox[layout="horizontal"] #download-menu-contents.dropdown-content
+  @extend .ef-menu-content
+  min-width: 450px
+  top: 64px
+  bottom: unset
+  left: -64px
 
 
 #ef-image-information

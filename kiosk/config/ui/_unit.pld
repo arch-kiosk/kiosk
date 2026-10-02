@@ -10,29 +10,29 @@ compilations:
       group_1:
         type: "stacked"
         parts:
-          unit.sheet:
+          exc_unit.sheet:
             text: '#(unit/term_for_unit) #(unit/arch_context)'
             position: 1
 #          involved_as.list:
 #            text: 'team members'
 #            position: 2
-          unit_narrative.list:
+          exc_unit_narrative.list:
             text: 'narratives'
             position: 3
       group_2:
         type: "accordion"
         parts:
-          unit_files.list:
+          exc_unit_files.list:
             text: 'photos & files'
             position: 1
-          unit_loci.list:
+          exc_unit_loci.list:
             text: '#(unit/term_for_locus) list'
             position: 2
-          unit_cm.list:
+          exc_unit_cm.list:
             text: '#(/$/glossary/collected_material:2)'
             position: 3
 
-unit.sheet:
+exc_unit.sheet:
   record_type: unit
   view_type: sheet  # (can be list, sheet or file_list or harris_matrix)
   fields_selection: dsd
@@ -117,16 +117,16 @@ unit.sheet:
 #        min_width: 40%
 #        max_height: max
 #
-unit_narrative.list:
+exc_unit_narrative.list:
   record_type: unit_narrative
-  view_type: list  # (can be list, sheet or file_list or harris_matrix)
+  view_type: list
   max_height: 20em
   max_height_expandable: true
   fields_selection: dsd
   layout_settings:
     type: list
-    orchestration_strategy: table  # (the default for the sheet scenario)
-    order_records_by: [">date", "id_excavator"]
+    orchestration_strategy: table
+    order_records_by: [">date", ">modified", "id_excavator"]
     allow_ordering_by: ["date", "id_excavator"]
     order: [date, id_excavator, narrative]
   ui_elements:
@@ -138,10 +138,10 @@ unit_narrative.list:
         min_width: 20%
     narrative:
       layout:
-        min_width: 70%
+        min_width: 60%
         max_height: max
 
-unit_files.list:
+exc_unit_files.list:
   record_type: dayplan
   view_type: list  # (can be list, sheet or file_list or harris_matrix)
   max_height: auto
@@ -166,7 +166,7 @@ unit_files.list:
       element_type:
         alternate_description: "#(dayplan/image_description)"
 
-unit_loci.list:
+exc_unit_loci.list:
   record_type: locus
   filter_records: "exclude('type', 'hidden')"
   view_type: list
@@ -193,7 +193,7 @@ unit_loci.list:
 #    allow_ordering_by: ["arch_context", "cm_type", "type", "date", "storage"]
 #    order: [arch_context, cm_type, type, date, storage]
 
-unit_cm.list:
+exc_unit_cm.list:
   record_type: collected_material
   view_type: list
   max_height: 20em

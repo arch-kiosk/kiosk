@@ -118,6 +118,36 @@ class KioskProjectConstants:
 
         return constants
 
+    def add_analysis_modules(self, constants):
+        # todo: this is not structure agnostic. While we accept that the constants table is an integral part of Kiosk,
+        #  modules is for sure is not. For now I just check if the table exists.
+        #  But a more general solution here would be to have a hook in order for projects to add
+        #  project-specific data to the constants. Or perhaps this should not be in the constants at all (it actually isn't)?
+
+        if KioskSQLDb.does_table_exist("modules"):
+            cur = KioskSQLDb.execute_return_cursor("select module_name, selectors, module_category from modules")
+            r = cur.fetchone()
+            modules = {}
+            while r:
+                category = r["module_category"]
+                if category not in modules:
+                    modules[category] = {}
+                if "module_name" not in modules[category]:
+                    modules[category][r["module_name"]] = [r["selectors"]]
+                else:
+                    modules[category][r["module_name"]].append(r["selectors"])
+
+                r = cur.fetchone()
+
+            for category, value in modules.items():
+                for module, selectors in value.items():
+                    constants = self._add_method(["constants", "analysis_modules", category],
+                                                 module,
+                                                 ",".join(selectors),
+                                                 constants)
+
+        return constants
+
     def add_labels(self, constants):
         cur = KioskSQLDb.execute_return_cursor("select id, value from constants where category=%s", ["labels"])
         r = cur.fetchone()
@@ -161,5 +191,5 @@ class KioskProjectConstants:
         constants = self.add_collected_material_type_names(constants)
         constants = self.add_glossary(cfg, constants=constants)
         constants = self.add_extras(constants)
-
+        constants = self.add_analysis_modules(constants)
         return constants

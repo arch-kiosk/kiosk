@@ -4,7 +4,12 @@ config:
 compilations:
   cm_compilation_su_ceramics:
     name: collected material view
-    use_this_only_if: '__kiosk.constants.settings.ceramic_module == "su_ceramics_processing"'
+    use_this_only_if: >-
+      (__kiosk.constants.settings.ceramic_module ~= nil and __kiosk.constants.settings.ceramic_module == "su_ceramics_processing")
+      or
+      (__kiosk.constants.analysis_modules ~= nil 
+      and __kiosk.constants.analysis_modules.collected_material ~= nil and 
+      __kiosk.constants.analysis_modules.collected_material["pasu ceramics"] ~= nil)
     record_type: collected_material
     groups:
       group_1:

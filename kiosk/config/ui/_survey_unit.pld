@@ -16,22 +16,22 @@ compilations:
           survey_unit_details.sheet:
             text: ''
             position: 2
-          unit_locus.sheet:
+          survey_unit_locus.sheet:
             text: ''
             position: 3
-          unit_narrative.list:
+          survey_unit_narrative.list:
             text: 'narratives'
             position: 4
       group_2:
         type: "accordion"
         parts:
-          unit_features.list:
+          survey_unit_features.list:
             text: 'features'
             position: 1
-          unit_files.list:
+          survey_unit_files.list:
             text: 'photos & files'
             position: 2
-          unit_cm.list:
+          survey_unit_cm.list:
             text: '#(/$/glossary/collected_material:2)'
             position: 3
 
@@ -148,7 +148,7 @@ survey_unit_details.sheet:
 #        max_height: max
 #
 
-unit_locus.sheet:
+survey_unit_locus.sheet:
   record_type: locus
   view_type: sheet  # (can be list, sheet or file_list or harris_matrix)
   fields_selection: dsd
@@ -249,7 +249,7 @@ unit_locus.sheet:
         visible: True
         transparent: true
 
-unit_narrative.list:
+survey_unit_narrative.list:
   record_type: unit_narrative
   view_type: list  # (can be list, sheet or file_list or harris_matrix)
   max_height: 20em
@@ -260,7 +260,7 @@ unit_narrative.list:
     orchestration_strategy: table  # (the default for the sheet scenario)
     order_records_by: [">date", "id_excavator"]
     allow_ordering_by: ["date", "id_excavator"]
-    order: [date, id_excavator, narrative]
+    order: [modified, date, id_excavator, narrative]
   ui_elements:
     date:
       layout:
@@ -273,7 +273,7 @@ unit_narrative.list:
         min_width: 70%
         max_height: max
 
-unit_files.list:
+survey_unit_files.list:
   record_type: dayplan
   view_type: list  # (can be list, sheet or file_list or harris_matrix)
   max_height: auto
@@ -297,7 +297,7 @@ unit_files.list:
 #
 #
 #
-unit_features.list:
+survey_unit_features.list:
   record_type: unit_unit_relation
   view_type: list
   max_height: 20em
@@ -337,7 +337,7 @@ unit_features.list:
           key_field: "uid"
           display_value: "purpose"
 
-unit_cm.list:
+survey_unit_cm.list:
   record_type: collected_material
   view_type: list
   max_height: 20em

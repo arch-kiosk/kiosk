@@ -25,10 +25,10 @@ compilations:
       group_2:
         type: "accordion"
         parts:
-          unit_files.list:
+          feature_unit_files.list:
             text: 'photos & files'
             position: 1
-          unit_cm.list:
+          feature_unit_cm.list:
             text: '#(/$/glossary/collected_material:2)'
             position: 3
 
@@ -280,7 +280,7 @@ feature_unit_narrative.list:
         min_width: 70%
         max_height: max
 
-unit_files.list:
+feature_unit_files.list:
   record_type: dayplan
   view_type: list  # (can be list, sheet or file_list or harris_matrix)
   max_height: auto
@@ -304,7 +304,7 @@ unit_files.list:
 #
 #
 #
-unit_cm.list:
+feature_unit_cm.list:
   record_type: collected_material
   view_type: list
   max_height: 20em
