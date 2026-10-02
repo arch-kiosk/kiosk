@@ -26,342 +26,351 @@ type OrderedColumn = {
 
 
 export class KioskViewGroupPart {
-    private _part: ApiKioskViewGroupPart
-    private _groupId: string
-    private readonly _document: ApiKioskViewDocumentType
-    private readonly _partId: string
-    private _dataContext: DataContext
-    private _interpreter: InterpreterManager
-    private _partData: ApiKioskViewTable
-    public recordMissing: Boolean = false
+    private _part: ApiKioskViewGroupPart;
+    private _groupId: string;
+    private readonly _document: ApiKioskViewDocumentType;
+    private readonly _partId: string;
+    private _dataContext: DataContext;
+    private _interpreter: InterpreterManager;
+    private _partData: ApiKioskViewTable;
+    public recordMissing: Boolean = false;
     private _UIDFieldIdx: number = -1;
-    private _sort_order: Array<OrderedColumn> = []
+    private _sort_order: Array<OrderedColumn> = [];
     private _cachedElements: AnyDict = {};
-    private _types:{[key: string]: Array<string>} = {}
+    private _types: { [key: string]: Array<string> } = {};
 
     get interpreter() {
-        return this._interpreter
+        return this._interpreter;
     }
     get recordType() {
-        return this.layout.record_type
+        return this.layout.record_type;
     }
 
     static check_part(groupId: string, partId: string, data: ApiKioskViewDocument) {
-        const part = data.compilation.groups[groupId].parts[partId]
-        if (!part.hasOwnProperty("text")) throw `KioskViewDocument part ${partId} has no text attribute`
-        if (!part.hasOwnProperty("position")) throw `KioskViewDocument part ${partId} has no position attribute`
-        let layout = part.layout || partId
-        if (!data.hasOwnProperty(layout)) throw `KioskViewDocument part ${groupId}, ${partId} referring to unknown layout ${layout}`
-        this.check_layout(data, layout)
+        const part = data.compilation.groups[groupId].parts[partId];
+        if (!part.hasOwnProperty("text")) throw `KioskViewDocument part ${partId} has no text attribute`;
+        if (!part.hasOwnProperty("position")) throw `KioskViewDocument part ${partId} has no position attribute`;
+        let layout = part.layout || partId;
+        if (!data.hasOwnProperty(layout))
+            throw `KioskViewDocument part ${groupId}, ${partId} referring to unknown layout ${layout}`;
+        this.check_layout(data, layout);
     }
 
     static check_layout(data: ApiKioskViewDocumentType, layoutId: string) {
-        if (!data.hasOwnProperty(layoutId)) throw `KioskViewDocument layout ${layoutId} does not exist`
-        const layout = (data as ApiKioskViewDocumentLayouts)[layoutId]
+        if (!data.hasOwnProperty(layoutId)) throw `KioskViewDocument layout ${layoutId} does not exist`;
+        const layout = (data as ApiKioskViewDocumentLayouts)[layoutId];
 
         for (const attribute of ["record_type", "view_type", "fields_selection"]) {
             if (!layout.hasOwnProperty(attribute))
-                throw `KioskViewDocument layout ${layoutId} has no ${attribute} attribute`
+                throw `KioskViewDocument layout ${layoutId} has no ${attribute} attribute`;
         }
         if (!layout.hasOwnProperty("layout_settings"))
-            throw `KioskViewDocument layout ${layoutId} has no layout_settings`
+            throw `KioskViewDocument layout ${layoutId} has no layout_settings`;
     }
 
-    constructor(data: ApiKioskViewDocument, groupId: string, partId: string,
-                types:{[key: string]: Array<string>}, dataContext: DataContext=undefined) {
-        KioskViewGroupPart.check_part(groupId, partId, data)
-        this._groupId = groupId
-        this._part = data.compilation.groups[groupId].parts[partId]
-        this._partId = partId
-        this._document = data
-        this._dataContext = dataContext
-        this._partData = undefined
-        this._types = types
-        this._initInterpreter()
+    constructor(
+        data: ApiKioskViewDocument,
+        groupId: string,
+        partId: string,
+        types: { [key: string]: Array<string> },
+        dataContext: DataContext = undefined,
+    ) {
+        KioskViewGroupPart.check_part(groupId, partId, data);
+        this._groupId = groupId;
+        this._part = data.compilation.groups[groupId].parts[partId];
+        this._partId = partId;
+        this._document = data;
+        this._dataContext = dataContext;
+        this._partData = undefined;
+        this._types = types;
+        this._initInterpreter();
     }
 
     _initInterpreter() {
         if (this._dataContext) {
-            this._interpreter = InterpreterFactory(this._dataContext)
+            this._interpreter = InterpreterFactory(this._dataContext);
         }
     }
 
     set dataContext(dataContext: DataContext) {
-        this._dataContext = dataContext
-        this._initInterpreter()
+        this._dataContext = dataContext;
+        this._initInterpreter();
     }
 
     get dataContext() {
-        return this._dataContext
+        return this._dataContext;
     }
 
     get text() {
         if (this._dataContext) {
-            return this._interpreter.interpret(this._part.text)
+            return this._interpreter.interpret(this._part.text);
             // return VariableParser.quicklySubstitute(this._part.text, (key: string) => this._dataContext.get(key) || key)
         } else {
-            return this._part.text
+            return this._part.text;
         }
     }
 
     get position() {
-        return this._part.position
+        return this._part.position;
     }
 
     get opened() {
-        return this._part.opened || false
+        return this._part.opened || false;
     }
 
     toggleOpen() {
-        this._part.opened = !(this._part.opened || false)
+        this._part.opened = !(this._part.opened || false);
     }
 
     get partId() {
-        return this._partId
+        return this._partId;
     }
 
     get cssPartId() {
-        return this._partId.replace(/[^a-zA-Z|0-9|\-|_]/, "-")
+        return this._partId.replace(/[^a-zA-Z|0-9|\-|_]/, "-");
     }
 
-    get layout() : ApiKioskViewLayout {
-        const layoutId = this._part.layout || this._partId
-        if (!this._document.hasOwnProperty(layoutId)) throw `KioskViewDocument part ${this._partId} referring to unknown layout ${layoutId}`
-        return (this._document as ApiKioskViewDocumentLayouts)[layoutId]
+    get layout(): ApiKioskViewLayout {
+        const layoutId = this._part.layout || this._partId;
+        if (!this._document.hasOwnProperty(layoutId))
+            throw `KioskViewDocument part ${this._partId} referring to unknown layout ${layoutId}`;
+        return (this._document as ApiKioskViewDocumentLayouts)[layoutId];
     }
 
     get maxHeight(): string | undefined {
         if (this.layout.view_type === "list") {
-            return (this.layout as ApiKioskViewListLayout).max_height
+            return (this.layout as ApiKioskViewListLayout).max_height;
         }
-        return undefined
+        return undefined;
     }
 
     get expandable(): boolean {
-        const group = (this._document.compilation as ApiKioskViewCompilation).groups[this._groupId]
+        const group = (this._document.compilation as ApiKioskViewCompilation).groups[this._groupId];
 
-
-        if (group.type === "accordion")
-            return true
+        if (group.type === "accordion") return true;
 
         if (this.layout.view_type === "list") {
-            return (this.layout as ApiKioskViewListLayout).max_height_expandable || false
+            return (this.layout as ApiKioskViewListLayout).max_height_expandable || false;
         }
-        return false
+        return false;
     }
 
     getCurrentFileList(viewDocument: KioskViewDocument) {
-        const fileFields = viewDocument.dsd.get_fields_with_instruction(this.recordType, "uid_file")
-        if( fileFields && fileFields.length == 1) {
-            const fileField = fileFields[0]
-            const columns = this._partData[0]
-            const fileColumn = columns.findIndex(e => e === fileField)
-            const imageDataProvider = this.dataContext.getAccessor("images")
+        const fileFields = viewDocument.dsd.get_fields_with_instruction(this.recordType, "uid_file");
+        if (fileFields && fileFields.length == 1) {
+            const fileField = fileFields[0];
+            const columns = this._partData[0];
+            const fileColumn = columns.findIndex((e) => e === fileField);
+            const imageDataProvider = this.dataContext.getAccessor("images");
             if (fileColumn) {
                 const imageList = this._partData
-                    .filter((row,index) => index > 0 && row[fileColumn] )
-                    .map(row => row[fileColumn])
-                const dataContext = this._dataContext
+                    .filter((row, index) => index > 0 && row[fileColumn])
+                    .map((row) => row[fileColumn]);
+                const dataContext = this._dataContext;
                 const imageDescriptions = imageList.map((uuid) => {
                     return {
-                        "uuid": uuid,
-                        "data": dataContext.get(`$/images/descriptions/${uuid}`),
+                        uuid: uuid,
+                        data: dataContext.get(`$/images/descriptions/${uuid}`),
                     };
-                })
+                });
                 return imageDescriptions
-                    .filter(el => el.data && el.data.hasOwnProperty("attributes") && el.data?.attributes?.width > 0 && el.data?.attributes?.height > 0)
-                    .map(el => {
+                    .filter(
+                        (el) =>
+                            el.data &&
+                            el.data.hasOwnProperty("attributes") &&
+                            el.data?.attributes?.width > 0 &&
+                            el.data?.attributes?.height > 0,
+                    )
+                    .map((el) => {
                         return { uuid: el.uuid, width: el.data.attributes?.width, height: el.data.attributes?.height };
-                    })
+                    });
             }
         }
-        return []
+        return [];
     }
 
     private getFieldOrderComparer(sortField: string, dec: boolean, dataType: string): FieldOrderComparer {
-        let orderComparers: {[name: string]: {inc: FieldOrderComparer,
-                                                dec: FieldOrderComparer}} = {};
-        let comparer = ""
-        orderComparers["text"] = ({
+        let orderComparers: { [name: string]: { inc: FieldOrderComparer; dec: FieldOrderComparer } } = {};
+        let comparer = "";
+        orderComparers["text"] = {
             inc: (v1: string, v2: string) => safeLocaleCompare(v1, v2),
-            dec: (v1: string, v2: string) => safeLocaleCompare(v2, v1)})
-        orderComparers["datetime"] = ({
-            inc: (v1: string, v2: string) => compareISODateTime(v1,v2),
-            dec: (v1: string, v2: string) => compareISODateTime(v2,v1)})
+            dec: (v1: string, v2: string) => safeLocaleCompare(v2, v1),
+        };
+        orderComparers["datetime"] = {
+            inc: (v1: string, v2: string) => compareISODateTime(v1, v2),
+            dec: (v1: string, v2: string) => compareISODateTime(v2, v1),
+        };
 
         try {
-            if (["VARCHAR", "TEXT"].includes(dataType))
-                comparer = "text"
-            if (["DATE", "DATETIME", "TIMESTAMP", "TIMESTAMPTZ", "TIME"].includes(dataType))
-                comparer = "datetime"
+            if (["VARCHAR", "TEXT"].includes(dataType)) comparer = "text";
+            if (["DATE", "DATETIME", "TIMESTAMP", "TIMESTAMPTZ", "TIME"].includes(dataType)) comparer = "datetime";
         } catch (e) {
-            console.log(`Unknown sort field ${this.recordType}/${sortField}`)
-            return (() => 0)
+            console.log(`Unknown sort field ${this.recordType}/${sortField}`);
+            return () => 0;
         }
 
-        if (!comparer)
-            return ((x) => 0)
+        if (!comparer) return (x) => 0;
         if (dec) {
-            return orderComparers[comparer].dec
+            return orderComparers[comparer].dec;
         } else {
-            return orderComparers[comparer].inc
+            return orderComparers[comparer].inc;
         }
     }
 
-
     private getImageAttributeComparer(sortField: string, dec: boolean, lookup_settings: AnyDict): FieldOrderComparer {
-        const filesAccessor = this.dataContext.getAccessor("imagedescriptions")
-        let dataType: string
+        const filesAccessor = this.dataContext.getAccessor("imagedescriptions");
+        let dataType: string;
 
-        function fileAttributeCmp(uid1: string, uid2: string) : number {
-            if (!uid1 && !uid2) return 0
-            if (!uid1) return -1
-            if (!uid2) return 1
+        function fileAttributeCmp(uid1: string, uid2: string): number {
+            if (!uid1 && !uid2) return 0;
+            if (!uid1) return -1;
+            if (!uid2) return 1;
 
-            const ts1 = filesAccessor.get("", uid1, DataContext.GET_MODE_DEFAULT)?.file_datetime
-            const ts2 = filesAccessor.get("", uid2, DataContext.GET_MODE_DEFAULT)?.file_datetime
+            const ts1 = filesAccessor.get("", uid1, DataContext.GET_MODE_DEFAULT)?.file_datetime;
+            const ts2 = filesAccessor.get("", uid2, DataContext.GET_MODE_DEFAULT)?.file_datetime;
 
-            return compareISODateTime(ts1,ts2)
+            return compareISODateTime(ts1, ts2);
         }
 
         if (lookup_settings?.attribute_name === "file_datetime") {
-            return dec ? (v1: string, v2: string) => fileAttributeCmp(v2, v1)
-                       : (v1: string, v2: string) => fileAttributeCmp(v1, v2)
+            return dec
+                ? (v1: string, v2: string) => fileAttributeCmp(v2, v1)
+                : (v1: string, v2: string) => fileAttributeCmp(v1, v2);
         } else {
-            console.log(`Attempt to sort field ${sortField} by image attribute ${lookup_settings?.attribute_name} not supported, yet.`)
+            console.log(
+                `Attempt to sort field ${sortField} by image attribute ${lookup_settings?.attribute_name} not supported, yet.`,
+            );
         }
     }
 
     public createSortOrder(viewDocument: KioskViewDocument, order_records_by: string[]) {
-        this._sort_order = []
-        const columns = this._partData[0]
-        if (order_records_by == undefined)
-            return
+        this._sort_order = [];
+        const columns = this._partData[0];
+        if (order_records_by == undefined) return;
 
         order_records_by.forEach((sortInstruction) => {
-            let dec = false
+            let dec = false;
             if (sortInstruction.startsWith(">")) {
-                sortInstruction = sortInstruction.slice(1)
-                dec = true
+                sortInstruction = sortInstruction.slice(1);
+                dec = true;
             }
-            let index = columns.findIndex(x => x === sortInstruction)
+            let index = columns.findIndex((x) => x === sortInstruction);
             if (index > -1) {
-                const dataType = viewDocument.dsd.get_field_data_type(this.recordType, sortInstruction).toUpperCase()
+                const dataType = viewDocument.dsd.get_field_data_type(this.recordType, sortInstruction).toUpperCase();
                 this._sort_order.push({
                     name: sortInstruction,
                     idx: index,
-                    cmp: this.getFieldOrderComparer(sortInstruction, dec, dataType)
-                })
+                    cmp: this.getFieldOrderComparer(sortInstruction, dec, dataType),
+                });
             } else {
-                let element = this.findElement(sortInstruction)
+                let element = this.findElement(sortInstruction);
                 if (element && element?.element_type?.lookup) {
                     if (element.element_type.lookup.lookup_type === "file_attribute") {
-                        let index = columns.findIndex(x => x === "uid_image")
+                        let index = columns.findIndex((x) => x === "uid_image");
                         if (index > -1) {
                             this._sort_order.push({
                                 name: sortInstruction,
                                 idx: index,
-                                cmp: this.getImageAttributeComparer(sortInstruction, dec, element.element_type.lookup)
-                            })
+                                cmp: this.getImageAttributeComparer(sortInstruction, dec, element.element_type.lookup),
+                            });
                         }
                     } else {
-                        console.error(`Lookup column not supported for sorting. Column is ${sortInstruction}.`)
+                        console.error(`Lookup column not supported for sorting. Column is ${sortInstruction}.`);
                     }
                 }
-                console.error(`sort column ${sortInstruction} unknown.`)
+                console.error(`sort column ${sortInstruction} unknown.`);
             }
-        })
+        });
     }
 
     public orderRecords() {
-        if (this._sort_order == undefined || this._sort_order.length == 0)
-            return
+        if (this._sort_order == undefined || this._sort_order.length == 0) return;
+        console.log(`applying sort order for part ${this._partId} to `, this._sort_order);
 
         //remove the column row
-        const columns = this._partData.splice(0,1)[0]
+        const columns = this._partData.splice(0, 1)[0];
 
         this._partData.sort((row1, row2) => {
             for (let orderedColumn of this._sort_order) {
-                const rc = orderedColumn.cmp(row1[orderedColumn.idx], row2[orderedColumn.idx])
-                if (rc != 0)
-                    return rc
+                const rc = orderedColumn.cmp(row1[orderedColumn.idx], row2[orderedColumn.idx]);
+                if (rc != 0) return rc;
             }
-            return 0
-        })
+            return 0;
+        });
         //add the column row back to index 0
-        this._partData.splice(0,0,columns)
+        this._partData.splice(0, 0, columns);
     }
 
     public initDataContextForPart(viewDocument: KioskViewDocument) {
-        let partDataContext: DataContext
-        let recordAccessor: DSDRecordAccessor
-        let record: Array<any>
+        let partDataContext: DataContext;
+        let recordAccessor: DSDRecordAccessor;
+        let record: Array<any>;
 
         // if (this.layout.record_type === "locus_photo") debugger;
-        this._partData = viewDocument.getData()[this.layout.record_type]
+        this._partData = viewDocument.getData()[this.layout.record_type];
         if (!this._partData || this._partData.length < 2) {
             if (!this.layout.hasOwnProperty("on_record_missing") || this.layout.on_record_missing === "hide") {
-                return undefined
+                return undefined;
             } else {
-                record = []
-                this.recordMissing = true
+                record = [];
+                this.recordMissing = true;
             }
         } else {
-            record = this._partData[1]
+            record = this._partData[1];
         }
 
-        this._UIDFieldIdx = this._partData[0].findIndex(x => x === "uid")
+        this._UIDFieldIdx = this._partData[0].findIndex((x) => x === "uid");
         if (this._UIDFieldIdx == -1) {
-            console.log(`part ${this._partId} refers to record type that has no UID field. All record types must have a uid.`)
-            return undefined
+            console.log(
+                `part ${this._partId} refers to record type that has no UID field. All record types must have a uid.`,
+            );
+            return undefined;
         }
 
         // this.createSortOrder(viewDocument)
         // this.orderRecords()
 
-        partDataContext = this.dataContext.clone()
+        partDataContext = this.dataContext.clone();
         recordAccessor = new DSDRecordAccessor(
             this.recordType,
             this.dataContext,
             {
                 fields: this._partData[0],
-                record: record
+                record: record,
             },
-            viewDocument.types[this.recordType])
+            viewDocument.types[this.recordType],
+        );
 
         if (recordAccessor) {
-            console.log(recordAccessor)
-            partDataContext.registerAccessor(recordAccessor)
-            this.dataContext = partDataContext
+            console.log(recordAccessor);
+            partDataContext.registerAccessor(recordAccessor);
+            this.dataContext = partDataContext;
         }
-        return partDataContext
+        return partDataContext;
     }
 
-
     moveToNextRow(lastUID: string) {
-        let index = 0
-        let record: Array<any> = undefined
-        let rowIndex = -1
+        let index = 0;
+        let record: Array<any> = undefined;
+        let rowIndex = -1;
 
-        if (this.recordMissing || !this._partData)
-            return ""
+        if (this.recordMissing || !this._partData) return "";
 
         if (!lastUID) {
-            rowIndex = 0
+            rowIndex = 0;
         } else {
-            rowIndex = parseInt(lastUID)
+            rowIndex = parseInt(lastUID);
             if (Number.isNaN(rowIndex)) {
                 // That's when I would actually have to find the UID. But I am not sure if that is ever necessary
-                rowIndex = -1
+                rowIndex = -1;
             }
         }
-        rowIndex += 1
-        if (rowIndex == 0)
-            return ""
+        rowIndex += 1;
+        if (rowIndex == 0) return "";
 
         if (rowIndex >= this._partData.length) {
-            this.dataContext.deleteAccessorIfExists(this.recordType)
-            return ""
+            this.dataContext.deleteAccessorIfExists(this.recordType);
+            return "";
         }
 
         const recordAccessor = new DSDRecordAccessor(
@@ -369,21 +378,21 @@ export class KioskViewGroupPart {
             this.dataContext,
             {
                 fields: this._partData[0],
-                record: this._partData[rowIndex]
+                record: this._partData[rowIndex],
             },
-            this._types[this.recordType]
-            )
-        this._dataContext.registerAccessor(recordAccessor)
-        return rowIndex.toString()
+            this._types[this.recordType],
+        );
+        this._dataContext.registerAccessor(recordAccessor);
+        return rowIndex.toString();
     }
     public getPartExpansionSettings() {
         let maxHeight: string | undefined;
-        let buttonMode: ("open" | "close" | undefined) = undefined;
+        let buttonMode: "open" | "close" | undefined = undefined;
         if (this.layout.view_type === "list") {
             if (this.maxHeight) {
-                maxHeight = this.maxHeight
+                maxHeight = this.maxHeight;
                 if (this.expandable) {
-                    buttonMode = this.opened ? "close" : "open"
+                    buttonMode = this.opened ? "close" : "open";
                 }
             }
         }
@@ -391,10 +400,10 @@ export class KioskViewGroupPart {
     }
 
     public getGotoIdentifierEvent(dsd: DataSetDefinition, fieldId: string, identifier: string) {
-        const element = this.findElement(fieldId)
-        console.log("getGotoIdentifierEvent", element, identifier)
-        const linksTo: string = element["element_type"]["links_to"]
-        let recordType = linksTo || this.recordType
+        const element = this.findElement(fieldId);
+        console.log("getGotoIdentifierEvent", element, identifier);
+        const linksTo: string = element["element_type"]["links_to"];
+        let recordType = linksTo || this.recordType;
 
         if (linksTo && linksTo !== this.recordType && linksTo !== this._document.compilation.record_type) {
             try {
@@ -410,151 +419,148 @@ export class KioskViewGroupPart {
                         }
                     }
                 }
-            } catch (e){
-                console.log(e)
+            } catch (e) {
+                console.log(e);
             }
         }
 
         if (identifier && recordType) {
-            return new CustomEvent("goto-identifier",
-                {
-                    detail: {
-                        "dsdName": fieldId,
-                        "tableName": recordType,
-                        "identifier": identifier,
-                    },
-                    bubbles: true,
-                    composed: true
-                })
+            return new CustomEvent("goto-identifier", {
+                detail: {
+                    dsdName: fieldId,
+                    tableName: recordType,
+                    identifier: identifier,
+                },
+                bubbles: true,
+                composed: true,
+            });
         } else {
-            console.error(`Can't go to Identifier/RecordType ${identifier}/${recordType} `)
+            console.error(`Can't go to Identifier/RecordType ${identifier}/${recordType} `);
         }
     }
 
     public findElement(elementId: string): AnyDict | undefined {
-        let layout_elements = [this.layout]
+        let layout_elements = [this.layout];
         if (this._cachedElements.hasOwnProperty(elementId)) {
             // console.info(`cache hit: ${elementId}`)
-            return this._cachedElements[elementId]
+            return this._cachedElements[elementId];
         }
         for (const layout of layout_elements) {
             // if (!layout.hasOwnProperty("ui_element"))
             //     continue;
             for (const id of Object.keys(layout.ui_elements)) {
                 if (id === elementId) {
-                    this._cachedElements[elementId] = layout.ui_elements[id]
-                    return layout.ui_elements[id]
+                    this._cachedElements[elementId] = layout.ui_elements[id];
+                    return layout.ui_elements[id];
                 }
-                if (layout.ui_elements[id].hasOwnProperty("element_type") && layout.ui_elements[id]["element_type"].hasOwnProperty("ui_elements")) {
-                    layout_elements.push(layout.ui_elements[id]["element_type"])
+                if (
+                    layout.ui_elements[id].hasOwnProperty("element_type") &&
+                    layout.ui_elements[id]["element_type"].hasOwnProperty("ui_elements")
+                ) {
+                    layout_elements.push(layout.ui_elements[id]["element_type"]);
                 }
             }
         }
-        return undefined
+        return undefined;
     }
 
     private _lookup(value: any, element_id: string, lookup_def: AnyDict) {
-        switch(lookup_def["lookup_type"]) {
+        switch (lookup_def["lookup_type"]) {
             case "record":
-                return this._lookup_record(value, element_id, lookup_def)
+                return this._lookup_record(value, element_id, lookup_def);
             case "dictionary":
-                return this._lookup_in_dictionary(value, element_id, lookup_def)
+                return this._lookup_in_dictionary(value, element_id, lookup_def);
             case "file_attribute":
-                return this._lookup_file_attribute(value, element_id, lookup_def)
+                return this._lookup_file_attribute(value, element_id, lookup_def);
             case "aggregate":
-                return this._lookup_aggregate(value, element_id, lookup_def)
+                return this._lookup_aggregate(value, element_id, lookup_def);
             default:
-                console.error(`kioskviewgrouppart.lookup: Unknown lookup type "${lookup_def["lookup_type"]}" in ui element "${element_id}"`)
+                console.error(
+                    `kioskviewgrouppart.lookup: Unknown lookup type "${lookup_def["lookup_type"]}" in ui element "${element_id}"`,
+                );
         }
-        return value
+        return value;
     }
 
     private _lookup_record(value: any, element_id: string, lookup_def: AnyDict) {
         try {
-            const lookup_record_type = lookup_def["record_type"]
+            const lookup_record_type = lookup_def["record_type"];
             // if (lookup_record_type === "collected_material_photo") debugger;
-            const lookup_data = (this._document as ApiKioskViewDocument)["kioskview.lookup_data"]
-            if (!lookup_data)
-                return value
-            const table_data = lookup_data[lookup_record_type]
-            if (!table_data || table_data.length < 2)
-                return value
-            const valueFieldIdx = table_data[0].findIndex(v => v === lookup_def["display_value"])
-            const keyFieldIdx = table_data[0].findIndex(v => v === lookup_def["key_field"])
+            const lookup_data = (this._document as ApiKioskViewDocument)["kioskview.lookup_data"];
+            if (!lookup_data) return value;
+            const table_data = lookup_data[lookup_record_type];
+            if (!table_data || table_data.length < 2) return value;
+            const valueFieldIdx = table_data[0].findIndex((v) => v === lookup_def["display_value"]);
+            const keyFieldIdx = table_data[0].findIndex((v) => v === lookup_def["key_field"]);
             for (let rowNr = 1; rowNr < table_data.length; rowNr++) {
-                const row = table_data[rowNr]
+                const row = table_data[rowNr];
                 if (rowNr > 0) {
-                    if (row[keyFieldIdx] === value)
-                        return row[valueFieldIdx]
+                    if (row[keyFieldIdx] === value) return row[valueFieldIdx];
                 }
             }
-            return value
+            return value;
         } catch (e) {
-            throw `_lookup_records: ${e}`
+            throw `_lookup_records: ${e}`;
         }
     }
 
     private _lookup_aggregate(value: any, element_id: string, lookup_def: AnyDict) {
         try {
-            const lookup_record_type = lookup_def["record_type"]
-            const lookup_agg_field = lookup_def["aggregation_field"]
-            const lookup_agg_method = lookup_def["aggregation_method"]
-            const lookup_table = `${lookup_record_type}.${lookup_agg_field}.${lookup_agg_method}`
-            const default_to = lookup_def["default_to"]
+            const lookup_record_type = lookup_def["record_type"];
+            const lookup_agg_field = lookup_def["aggregation_field"];
+            const lookup_agg_method = lookup_def["aggregation_method"];
+            const lookup_table = `${lookup_record_type}.${lookup_agg_field}.${lookup_agg_method}`;
+            const default_to = lookup_def["default_to"];
             // if (lookup_record_type === "collected_material_photo") debugger;
-            const lookup_data = (this._document as ApiKioskViewDocument)["kioskview.lookup_data"]
-            if (!lookup_data)
-                return default_to ?? value
-            const table_data = lookup_data[lookup_table]
-            if (!table_data || table_data.length < 2)
-                return default_to ?? value
-            const valueFieldIdx = table_data[0].findIndex(v => v === "c")
-            const keyFieldIdx = table_data[0].findIndex(v => v === lookup_def["key_field"])
+            const lookup_data = (this._document as ApiKioskViewDocument)["kioskview.lookup_data"];
+            if (!lookup_data) return default_to ?? value;
+            const table_data = lookup_data[lookup_table];
+            if (!table_data || table_data.length < 2) return default_to ?? value;
+            const valueFieldIdx = table_data[0].findIndex((v) => v === "c");
+            const keyFieldIdx = table_data[0].findIndex((v) => v === lookup_def["key_field"]);
             for (let rowNr = 1; rowNr < table_data.length; rowNr++) {
-                const row = table_data[rowNr]
+                const row = table_data[rowNr];
                 if (rowNr > 0) {
-                    if (row[keyFieldIdx] === value)
-                        return row[valueFieldIdx] ?? default_to ?? value
+                    if (row[keyFieldIdx] === value) return row[valueFieldIdx] ?? default_to ?? value;
                 }
             }
-            return default_to ?? value
+            return default_to ?? value;
         } catch (e) {
-            throw `_lookup_records: ${e}`
+            throw `_lookup_records: ${e}`;
         }
     }
 
     private _lookup_in_dictionary(value: any, element_id: string, lookup_def: AnyDict) {
-        const dictionary = this.dataContext.getAccessor("dictionary")
-        return dictionary.get(lookup_def.path, value, DataContext.GET_MODE_DEFAULT)
+        const dictionary = this.dataContext.getAccessor("dictionary");
+        return dictionary.get(lookup_def.path, value, DataContext.GET_MODE_DEFAULT);
     }
 
     private _lookup_file_attribute(value: any, element_id: string, lookup_def: AnyDict) {
-        const filesAccessor = this.dataContext.getAccessor("imagedescriptions")
-        const file_record = filesAccessor.get("", value, DataContext.GET_MODE_DEFAULT)
+        const filesAccessor = this.dataContext.getAccessor("imagedescriptions");
+        const file_record = filesAccessor.get("", value, DataContext.GET_MODE_DEFAULT);
         if (file_record.hasOwnProperty(lookup_def["attribute_name"])) {
-            return file_record[lookup_def["attribute_name"]]
+            return file_record[lookup_def["attribute_name"]];
         } else if (file_record["attributes"]?.hasOwnProperty(lookup_def["attribute_name"])) {
-            return file_record["attributes"][lookup_def["attribute_name"]]
+            return file_record["attributes"][lookup_def["attribute_name"]];
         }
-        return undefined
+        return undefined;
     }
 
     public resolveDataRequest(exp: string, elementId: string) {
         // if (exp === "#(dayplan/uid_image)") debugger;
-        const element = this.findElement(elementId)
-        const isIdentifier = element?.element_type?.is_identifier
-        const i_result = this.interpreter.interpret(exp,undefined,undefined,isIdentifier ? "" : " ")
+        const element = this.findElement(elementId);
+        const isIdentifier = element?.element_type?.is_identifier;
+        const i_result = this.interpreter.interpret(exp, undefined, undefined, isIdentifier ? "" : " ");
         try {
             if (i_result) {
-
                 if (element && element["element_type"].hasOwnProperty("lookup")) {
-                    const v = this._lookup(i_result, elementId, element["element_type"]["lookup"])
-                    return v
+                    const v = this._lookup(i_result, elementId, element["element_type"]["lookup"]);
+                    return v;
                 }
             }
-            return i_result
+            return i_result;
         } catch (e) {
-            return `elementId: ${e}`
+            return `elementId: ${e}`;
         }
     }
 }

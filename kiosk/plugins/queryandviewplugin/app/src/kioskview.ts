@@ -494,7 +494,6 @@ export class KioskView  extends KioskAppComponent {
 
                             ui.moveToNextRow = (lastUID: string) => part.moveToNextRow(lastUID)
                             ui.setSortOrder = (sortOrder: string[]) => {
-                                console.log(`settings sort order for part ${part.partId} to `, sortOrder)
                                 part.createSortOrder(this.viewDocument, sortOrder)
                                 part.orderRecords()
                             }
