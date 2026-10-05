@@ -126,7 +126,7 @@ exc_unit_narrative.list:
   layout_settings:
     type: list
     orchestration_strategy: table
-    order_records_by: ["date", "modified", "id_excavator"]
+    order_records_by: ["date", "created", "id_excavator"]
     allow_ordering_by: []
     order: [date, id_excavator, narrative]
   ui_elements:
