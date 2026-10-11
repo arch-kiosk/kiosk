@@ -541,6 +541,7 @@ function getMarkedFiles(fileCallback = null) {
 
 function _bulkDelete() {
     let files = getMarkedFiles();
+    let fileCount = files.length
     changeToolButtonState("fr-bt-bulk-delete", 2);
     kioskAjax("/filerepository/bulkdelete", JSON.stringify({ "files": files }), "POST",
         {
@@ -555,10 +556,24 @@ function _bulkDelete() {
             onSuccess: (data, textStatus, jqXHR) => {
                 changeToolButtonState("fr-bt-bulk-delete", 1);
                 fetchImageCount();
-                if (data.result != "ok") {
+                let deletedFilesCount = data.deleted_files.length
+
+                if (data.result !== "ok") {
                     kioskErrorToast(data.result);
                 } else {
-                    kioskSuccessToast(`${data.deleted_files.length} files have been successfully deleted.`);
+
+                    if (deletedFilesCount === fileCount) {
+                        kioskSuccessToast(`${deletedFilesCount} files have been successfully deleted.`);
+                    } else {
+                        if ( deletedFilesCount === 0 ) {
+                            kioskErrorToast(`None of the files could be deleted because of an error that was logged in the log files. <br><br> 
+                            ⚠️ Note that your files stay marked in the file repository`)
+                        } else {
+                            kioskWarningToast(`${deletedFilesCount} files have been successfully deleted. But 
+                            ${fileCount - deletedFilesCount} files were not deleted because of an error. <br><br> 
+                            ⚠️ Note that those files stay marked in the file repository`)
+                        }
+                    }
                     for (let i = 0; i < data.deleted_files.length; i++) {
                         let el = $("#" + data.deleted_files[i]);
                         sessionStorage.removeItem("filemarked_" + data.deleted_files[i]);

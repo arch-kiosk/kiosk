@@ -711,6 +711,7 @@ class KioskContextualFile(KioskLogicalFile):
                     raise Exception(f"call to _push_context failed with context {last_identifier}")
 
             for ctx in self._contexts.get_dropped_contexts():
+                last_identifier = ctx[0]
                 changed = True
                 self._drop_context(ctx, cur, modified_info=modified_info)
 
@@ -722,7 +723,7 @@ class KioskContextualFile(KioskLogicalFile):
 
             return True
         except BaseException as e:
-            logging.error(f"{self.__class__.__name__}.push_contexts: Exception when pushing {last_identifier}: "
+            logging.error(f"{self.__class__.__name__}.push_contexts: Exception when pushing or dropping {last_identifier}: "
                           f"{repr(e)}.", exc_info=True)
             self._last_error = repr(e)
 
@@ -890,6 +891,7 @@ class KioskContextualFile(KioskLogicalFile):
         else:
             idc = MemoryIdentifierCache(self._dsd)
 
+        logging.debug(f"{self.__class__.__name__}._drop_context: Trying to drop image relations to {identifier} ")
         contexts = idc.get_recording_contexts(identifier)
         context = None
         file_location_field = None
@@ -1040,9 +1042,15 @@ class KioskContextualFile(KioskLogicalFile):
         assert file_location_field
         assert identifier_uuid
 
+
         try:
-            join = self._dsd.get_default_join(identifier_table, file_location)
-            uid_field = self._dsd.get_uuid_field(file_location)
+            if file_location == identifier_table:
+                logging.debug(f"Deleting direct relation between identifier table and image from {identifier_table}")
+                join = None
+            else:
+                join = self._dsd.get_default_join(identifier_table, file_location)
+
+            uid_field = self._dsd.get_uuid_field(file_location, primary_fallback=True)
             description_field = self._dsd.get_fields_with_instruction(file_location, "describes_file")
             description_field = description_field[0] if description_field else ""
         except DSDJoinError as e:
@@ -1050,6 +1058,8 @@ class KioskContextualFile(KioskLogicalFile):
             logging.error(f"{self.__class__.__name__}._get_detach_from_context_sql: Presumably the table "
                           f"{identifier_table} and {file_location} are not joined correctly in the dsd.")
             return "", []
+        if not uid_field:
+            raise Exception(f"dsd error - {file_location} has no field with a uid. Can't delete from that table.")
 
         sql = (f"insert into repl_deleted_uids(deleted_uid, "
                f"\"table\", "
@@ -1059,33 +1069,51 @@ class KioskContextualFile(KioskLogicalFile):
                f"master_deletion_tz) "
                f"select {uid_field}, %s, %s,%s,%s,%s from "
                f"{KioskSQLDb.sql_safe_ident(file_location)} ")
-        sql += f"where {KioskSQLDb.sql_safe_ident(join.related_field)}=%s and " \
-               f"{KioskSQLDb.sql_safe_ident(file_location_field)}=%s"
+        if join:
+            sql += f"where {KioskSQLDb.sql_safe_ident(join.related_field)}=%s and "
+            values = [file_location,
+                      modified_info[0],
+                      modified_info[3] if modified_info[3] else "sys",
+                      modified_info[2],
+                      modified_info[1],
+                      identifier_uuid,
+                      self.uid]
+        else:
+            sql += f"where "
+            values = [file_location,
+                      modified_info[0],
+                      modified_info[3] if modified_info[3] else "sys",
+                      modified_info[2],
+                      modified_info[1],
+                      self.uid]
+
+        sql += f"{KioskSQLDb.sql_safe_ident(file_location_field)}=%s"
         if description_field:
             sql += f" and trim(both ' ' from coalesce({KioskSQLDb.sql_safe_ident(description_field)},''))=''"
         # time zone relevant
-        values = [file_location,
-                  modified_info[0],
-                  modified_info[3] if modified_info[3] else "sys",
-                  modified_info[2],
-                  modified_info[1],
-                  identifier_uuid,
-                  self.uid]
         row_count = KioskSQLDb.execute(sql, values)
         if row_count == 0 and description_field:
             return -1
+        if file_location == identifier_table:
+            if row_count > 1:
+                raise Exception(f"When deleting a direct image relation, more than one record would have been deleted. "
+                                f"That is suspicious, so I am not doing that.")
 
         if row_count == 1:
             sql = f"delete from " + f"{KioskSQLDb.sql_safe_ident(file_location)} "
-            sql += f"where {KioskSQLDb.sql_safe_ident(join.related_field)}=%s and " \
-                   f"{KioskSQLDb.sql_safe_ident(file_location_field)}=%s"
-            # time zone relevant
-            values = [identifier_uuid,
-                      self.uid]
+            if join:
+                sql += f"where {KioskSQLDb.sql_safe_ident(join.related_field)}=%s and "
+                values = [identifier_uuid,
+                          self.uid]
+            else:
+                sql += f"where "
+                values = [self.uid]
+            sql += f"{KioskSQLDb.sql_safe_ident(file_location_field)}=%s"
+
             row_count = KioskSQLDb.execute(sql, values)
 
         if row_count != 1:
-            logging.error(f"{self.__class__.__name__}._delete_context_relation_sql: {sql} returned row count {row_count} != 0 ")
+            logging.error(f"{self.__class__.__name__}._delete_context_relation_sql: {sql} returned row count {row_count} != 1 ")
 
         return row_count
 

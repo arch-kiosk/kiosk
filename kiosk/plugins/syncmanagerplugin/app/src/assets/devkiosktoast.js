@@ -54,6 +54,24 @@ function kioskSuccessToast(message, options = {}) {
 
 }
 
+function kioskWarningToast(message, options = {}) {
+
+    let toast_options = Object.assign(
+        {
+            close: true,
+            position: "center",
+            transitionIn: 'fadeIn',
+            transitionOut: 'fadeOut',
+            timeout: 5000,
+            closeOnClick: false,
+            message: message
+
+        }, options);
+
+    iziToast.warning(toast_options);
+
+}
+
 function kioskDeleteAllToasts() {
     iziToast.destroy();
 }
