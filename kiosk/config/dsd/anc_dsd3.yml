@@ -12,7 +12,7 @@ config:
 
 anc_forum_record:
   meta:
-    flags: ["no_filemaker_recording"]
+    flags: ["no_filemaker_recording", "file_list"]
   structure:
     1:
       forum_ssid: [ datatype(VARCHAR), unique(), not_null(), identifier() ]
@@ -44,8 +44,8 @@ anc_forum_record:
       data_entered_date: [ datatype(VARCHAR) ]
       data_entered_by: [ datatype(VARCHAR) ]
       season: [ datatype(VARCHAR) ]
-      uid_image: [ datatype(UUID), uid_file(), label('photo')]
-      uid: [ datatype(UUID), primary()]
+      uid_image: [ datatype(UUID), uid_file(), label('photo'), file_assigned_to('anc_forum_record')]
+      uid: [ datatype(UUID), primary(), uuid()]
       created: [ datatype(TIMESTAMP), replfield_created() ]
       modified: [ datatype(TIMESTAMP), replfield_modified() ]
       modified_by: [ datatype(VARCHAR), replfield_modified_by(), default("''") ]
