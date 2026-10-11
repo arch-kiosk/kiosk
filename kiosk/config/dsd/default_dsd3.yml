@@ -1338,7 +1338,7 @@ site:
       id: [datatype(VARCHAR), label("name of site")]
       purpose: [datatype(VARCHAR)]
       id_short: [datatype(VARCHAR), local_id("arch_context")]
-      uid_site_map: [datatype(UUID), uid_file(), label("site map")]
+      uid_site_map: [datatype(UUID), uid_file(), label("site map"), file_assigned_to("site")]
       arch_domain: [datatype(VARCHAR), id_domain("arch_context")]
       arch_context: [datatype(VARCHAR), identifier(), label("site")]
       uid: [datatype(UUID), replfield_uuid()]
