@@ -1,9 +1,13 @@
+import logging
+import threading
+
 from flask_restful import Resource
 from marshmallow import Schema, fields
 
 import kioskglobals
 from contextmanagement.memoryidentifiercache import MemoryIdentifierCache
 from kioskglobals import httpauth
+from flask import current_app
 
 
 class ApiResultContextsFullIdentifierInformation(Schema):
@@ -55,4 +59,22 @@ class ApiContextsFull(Resource):
         # ******************************************
         # cfg = get_config()
         cache: MemoryIdentifierCache = kioskglobals.identifier_cache
-        return ApiResultContextsFull().dump({"identifiers": cache.get_recording_contexts_with_structure()}), 200
+        result =  ApiResultContextsFull().dump({"identifiers": cache.get_recording_contexts_with_structure()}), 200
+
+        # Not doing this currently because it exhausts the database pool.
+        # I need a better idea here. see #3134 and #3839. I leave this in here in case I have this bad idea again.
+        # app = current_app._get_current_object()
+
+        # threading.Thread(
+        #     target=self._refresh_cache,
+        #     args=(app,),
+        #     daemon=True
+        # ).start()
+        return result
+
+    def _refresh_cache(self, app):
+        with app.app_context():
+            try:
+                kioskglobals.identifier_cache = MemoryIdentifierCache(kioskglobals.master_view.dsd)
+            except BaseException as e:
+                logging.error(f"{self.__class__.__name__}._refresh_cache: {repr(e)}")
