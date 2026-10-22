@@ -407,7 +407,7 @@ class RecordingWorkstation(Dock):
         logging.info("Forking work station " + self.get_id())
         logging.info("rebuilding file-identifier-cache " + self.get_id())
         fic = FileIdentifierCache(self._get_workstation_dsd())
-        fic.build_file_identifier_cache_from_contexts()
+        fic.build_file_identifier_cache_from_contexts(skip_broken_contexts=True)
 
         self.c_file_registered = 0
         if self.load_workstation_tables():

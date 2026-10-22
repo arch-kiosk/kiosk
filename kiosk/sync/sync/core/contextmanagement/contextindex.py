@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 from .kioskcontext import KioskContext, KioskContextError
 from dsd.dsd3 import DataSetDefinition
@@ -18,7 +19,7 @@ class ContextIndex:
         :param include_primary_record_type: includes the field "primary_record_type" in the result set.
                                             By default, (and for legacy reasons) this is not the case.
         """
-        self._contexts: [KioskContext] = []
+        self._contexts: List[KioskContext] = []
         self._include_primary_record_type = include_primary_record_type
         self._dsd = dsd
         self._name = name
@@ -71,10 +72,12 @@ class ContextIndex:
         context.read_from_dsd()
         self._contexts.append(context)
 
-    def add_context_type(self, context_type: str) -> bool:
+    def add_context_type(self, context_type: str, skip_broken_contexts=False) -> bool:
         """
         adds all context definitions of the given type to the index.
         :param context_type: a valid context type id.
+        :param skip_broken_contexts: Default is False. If not set a context that has an error causes this to fail.
+                                     If True the single context is simply skipped.
         """
         contexts = self._dsd.get_context_names(context_type=context_type)
         if not contexts:
@@ -82,7 +85,15 @@ class ContextIndex:
                           f"does not yield any context definitions.")
             return False
         for context_id in contexts:
-            self.add_dsd_context_definition(context_id)
+            try:
+                self.add_dsd_context_definition(context_id)
+            except BaseException as e:
+                if skip_broken_contexts:
+                    logging.debug(f"{self.__class__.__name__}.add_context_type: "
+                                  f"Skipped context {context_id} because it can't be processed in this situation.")
+                else:
+                    logging.error(f"{self.__class__.__name__}.add_context_type: {repr(e)}")
+                    return False
         return True
 
     def select_all(self, field_or_instruction: str, field_from_record_type: str = "",

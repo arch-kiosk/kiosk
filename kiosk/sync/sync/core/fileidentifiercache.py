@@ -1,4 +1,5 @@
 import logging
+import traceback
 from typing import Union, List
 
 import yaml
@@ -57,10 +58,17 @@ class FileIdentifierCache:
                 self.cache_name = "file_identifier_cache" if context_type == "file_search" else context_type + "_cache"
             self.dsd = dsd
 
-    def build_file_identifier_cache_from_contexts(self, commit=False) -> bool:
+    def build_file_identifier_cache_from_contexts(self, commit=False, skip_broken_contexts=False) -> bool:
+        """
+        Builds a file identifier cache from all contexts with type "file_search" (or whatever the type has been set to).
+        :param commit: Default is false. Set to True if you want to commit the results.
+        :param skip_broken_contexts: Default is False. If not set a context that has an error causes this to fail.
+                                     If True the single context is simply skipped.
+        :return:
+        """
         sp = None if commit else KioskSQLDb.begin_savepoint()
         try:
-            sql_source = self._get_sql_source()
+            sql_source = self._get_sql_source(skip_broken_contexts=skip_broken_contexts)
             if sql_source:
                 sql_source.build_cache(commit=commit)
                 if sp and not commit:
@@ -69,6 +77,10 @@ class FileIdentifierCache:
                 return True
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.build_file_identifier_cache_from_contexts: {repr(e)}. "
+                          f"Rolling back to savepoint.")
+            error_trace = traceback.format_exc()
+            print(error_trace)
+            logging.error(f"{self.__class__.__name__}.build_file_identifier_cache_from_contexts: {error_trace}. "
                           f"Rolling back to savepoint.")
             if commit:
                 try:
@@ -80,12 +92,16 @@ class FileIdentifierCache:
                 KioskSQLDb.rollback_savepoint(sp)
         return False
 
-    def _get_sql_source(self) -> Union[SqlSourceCached, None]:
+    def _get_sql_source(self, skip_broken_contexts=False) -> Union[SqlSourceCached, None]:
         """
+        :param skip_broken_contexts: Default is False. If not set a context that has an error causes this to fail.
+                                     If True the single context is simply skipped.
         :return: SqlSourceCached
         """
         fid = ContextIndex(self.dsd, name=self.cache_name)
-        if fid.add_context_type(self.context_type):
+        if fid.add_context_type(self.context_type, skip_broken_contexts=skip_broken_contexts):
+            # logging.debug(f"{self.__class__.__name__}._get_sql_source: context type {self.context_type} added.")
+
             register_formatters(dsd=self.dsd, context=fid)
             # noinspection PyTypeChecker
             return fid.select_all(field_or_instruction="uid_file()",
