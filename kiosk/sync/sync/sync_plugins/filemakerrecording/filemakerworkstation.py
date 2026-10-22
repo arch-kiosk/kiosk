@@ -1991,8 +1991,6 @@ class FileMakerWorkstation(RecordingWorkstation):
         cur = None
         dsd = self._get_workstation_dsd()
         cfg = SyncConfig.get_config()
-        use_legacy_table_transfer = bool(cfg.filemakerworkstation["use_legacy_table_transfer"]) if cfg.has_key(
-            "filemakerworkstation") else False
 
         # if self.table_deletions is None or not isinstance(self.table_deletions, dict):
         #     use_legacy_table_transfer = True
@@ -2547,8 +2545,14 @@ class FileMakerWorkstation(RecordingWorkstation):
     #         pass
     #     return ok
 
-    def _import_table_from_filemaker_v3(self, cur, fm, dsd: DataSetDefinition, dsd_table_name, dsd_version=0,
-                                        namespace="", tz: KioskTimeZoneInstance = None,
+    def _import_table_from_filemaker_v3(self,
+                                        cur,
+                                        fm,
+                                        dsd: DataSetDefinition,
+                                        dsd_table_name,
+                                        dsd_version=0,
+                                        namespace="",
+                                        tz: KioskTimeZoneInstance = None,
                                         fork_time=None):
         """ transfers the data from a single table of the filemaker-Model
             back to the workstation's shadow table of the master-Model.
@@ -2600,8 +2604,19 @@ class FileMakerWorkstation(RecordingWorkstation):
             # this is being used e.g. to suppress records from the "constant" table in FileMaker.
             # Some of those constants are not supposed to be synchronized
             dsd.get_import_filter(dsd_table_name, "fm12"),
-            self._after_fork_time(dsd, dsd_table_name, fork_time)
         ]
+
+        # This checks if the current table in Kiosk has any records at all. If NOT we assume that this is a new Kiosk
+        # and deactivate the optimization rule that only
+        # imports records that were modified or added after the fork time. Reason: A new template might have had
+        # pre-loaded records that have an older modification date but must come in as the basis.
+        c_records_in_kiosk = KioskSQLDb.get_first_record_from_sql(f"select count(*) c from {dest_table_name}")["c"]
+        if c_records_in_kiosk:
+            where_clauses.append(self._after_fork_time(dsd, dsd_table_name, fork_time))
+        else:
+            logging.debug(f"{self.__class__.__name__}._import_table_from_filemaker_v3: "
+                          f"skipping after_fork_time optimization for table {dsd_table_name} ")
+
 
         import_filter = " and ".join([x for x in where_clauses if x])
 

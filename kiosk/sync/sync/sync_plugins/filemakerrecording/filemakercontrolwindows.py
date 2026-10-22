@@ -1724,11 +1724,11 @@ class FileMakerControlWindows(FileMakerControl):
 
     def process_repldata_transfer_table(self):
         """starts the script import_replication_data in filemaker and returns the resulting constant
-           with the id import_replication_data, which constains the number of records that have been
+           with the id import_replication_data, which contains the number of records that have been
            imported for any given table in the format "tablename:rowcount\ntablename:rowcount ... """
         """asks the filemaker database to unload all the images into the given path."""
         try:
-            rc = self._start_fm_script_and_wait("import_replication_data", 60)
+            rc = self._start_fm_script_and_wait("import_replication_data", 120)
             if rc:
                 import_result = self.get_constant("import_replication_data")
                 return import_result
