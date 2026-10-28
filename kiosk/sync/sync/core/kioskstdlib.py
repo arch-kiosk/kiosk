@@ -1889,3 +1889,12 @@ def ensure_processes_gone(target_names):
             continue
         except BaseException as e:
             logging.error(f"kioskstdlib.ensure_processes_gone: Exception when terminating process {repr(e)}")
+
+
+def remove_illegal_control_codes(value: str) -> str:
+    """
+    removes \x00 (NULL) and \x1b (ESC) from the string
+    :param value: a string
+    :return: the sanitized string
+    """
+    return value.replace("\x00", "").replace("\x1b", "")

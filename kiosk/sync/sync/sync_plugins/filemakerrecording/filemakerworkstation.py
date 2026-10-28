@@ -41,7 +41,6 @@ from contextmanagement.sqlsourcecached import CONTEXT_CACHE_NAMESPACE
 
 FILES_TABLE_NAME = "images"
 
-
 class FileMakerWorkstation(RecordingWorkstation):
     IN_THE_FIELD = "IN_THE_FIELD"
 
@@ -2106,8 +2105,7 @@ class FileMakerWorkstation(RecordingWorkstation):
             raise Exception(f"Active tables for workstation {self._id} cannot be found.")
         return tables
 
-    @staticmethod
-    def _import_table_get_update_field_sql(f: str, data_type: str, value, value_list: List,
+    def _import_table_get_update_field_sql(self, f: str, data_type: str, value, value_list: List,
                                            tz: KioskTimeZoneInstance) -> str:
         """
         returns the sql fragment to update a single field.
@@ -2144,6 +2142,8 @@ class FileMakerWorkstation(RecordingWorkstation):
             value_list.append(tz.user_tz_index)  # THEN %s
         else:
             sql_update = '"' + f + '"=%s'
+            if data_type == "varchar" and self.fix_import_errors:
+                value = kioskstdlib.remove_illegal_control_codes(value)
             value_list.append(value)
 
         return sql_update
@@ -2192,8 +2192,7 @@ class FileMakerWorkstation(RecordingWorkstation):
 
         return sql_update
 
-    @staticmethod
-    def _import_table_get_insert_field_sql(replfield_modified: bool, f: str, data_type: str, value, value_list: List,
+    def _import_table_get_insert_field_sql(self, replfield_modified: bool, f: str, data_type: str, value, value_list: List,
                                            tz: KioskTimeZoneInstance) -> Tuple[str, str]:
         """
 
@@ -2217,6 +2216,9 @@ class FileMakerWorkstation(RecordingWorkstation):
             else:
                 return f"\"{f}\", \"{f}_tz\"", "%s,%s"
         else:
+            if data_type == "varchar" and self.fix_import_errors:
+                value = kioskstdlib.remove_illegal_control_codes(value)
+
             value_list.append(value)
             return f"\"{f}\"", "%s"
 
@@ -2664,7 +2666,12 @@ class FileMakerWorkstation(RecordingWorkstation):
                         logging.error(("FileMakerWorkstation._import_table_from_filemaker_v3: "
                                        '_import_table_from_filemaker_v3: Update or insert caused an exception for record ' +
                                        uid + ' in table ' + dsd_table_name + ': ' + repr(e)))
-                        logging.debug(f"FileMakerWorkstation._import_table_from_filemaker_v3: sql was {cur.query}")
+                        if cur.query:
+                            logging.info(f"FileMakerWorkstation._import_table_from_filemaker_v3: sql was {cur.query}")
+                        else:
+                            logging.info(f"FileMakerWorkstation._import_table_from_filemaker_v3: update sql was {sql_update}, {pprint.pformat(update_values)}")
+                            logging.info(f"FileMakerWorkstation._import_table_from_filemaker_v3: insert sql was {sql_insert}, {pprint.pformat(insert_values)}")
+
                 else:
                     if self.fix_import_errors:
                         logging.warning(("FileMakerWorkstation._import_table_from_filemaker_v3: "
