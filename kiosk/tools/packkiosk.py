@@ -86,7 +86,8 @@ def _harvest_wheels(requirements_txt):
         logging.error(f"\n_install_packages: {cmd} failed: {str(rc)}")
 
     except OSError as e:
-        logging.error(f"\n_install_packages: {repr(e)}")
+        logging.error(f"\n_install_packages failed with Exception: {repr(e)}")
+    return False
 
 
 def upgrade_pip():
@@ -100,8 +101,9 @@ def upgrade_pip():
 def harvest_wheels(requirements_file: str):
     print(f"Harvesting wheels: ", flush=True)
     upgrade_pip()
-    _harvest_wheels(requirements_file)
+    rc = _harvest_wheels(requirements_file)
     print(f"Harvesting wheels finished.", flush=True)
+    return rc
 
 
 def copy_certs(kiosk_dir, dst_dir):
@@ -175,7 +177,10 @@ if __name__ == '__main__':
     KioskBackup.copy_libraries(dst_dir, kiosk_dir=kiosk_dir)
 
     if "wheels" in options:
-        harvest_wheels(requirements_txt)
+        if not harvest_wheels(requirements_txt):
+            logging.error('Harvesting wheels resulted in an error. Aborting.')
+            usage()
+
     if "certs" in options:
         copy_certs(kiosk_dir, dst_dir)
     tz_dir = os.path.join(kiosk_dir, "tools", "tz")

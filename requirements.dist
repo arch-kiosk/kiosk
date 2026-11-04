@@ -17,9 +17,7 @@ Flask-RESTful
 flask-swagger-ui
 Jinja2
 numpy
-jedi
 matplotlib
-nose
 olefile
 pathspec
 parse
@@ -29,17 +27,13 @@ Pillow
 psycopg2
 pyodbc
 pywin32
-pytest-regressions
-python-language-server
 pyzbar
 rawpy
-rope
 redis
 ruamel.yaml
 svgutils
 Wand
 opencv-contrib-python
-yappi
 igraph
 wfastcgi
 python-redis-lock
@@ -59,7 +53,6 @@ charset-normalizer
 PyJWT
 pdfrw2
 netifaces2
-flake8
 lupa
 yappi==del
 webapp-core==del
