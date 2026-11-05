@@ -132,7 +132,7 @@
                                 {{ ef_form.ef_description.label(class="kiosk-dialog-label") }}
                                 {% if "modify data" not in authorized_to or read_only_mode %}
                                     <div
-                                        class="kiosk-dialog-disabled-textfield"> {{ ef_form.ef_description.data }} </div>
+                                        class="kiosk-dialog-disabled-multiline-textfield"> {{ ef_form.ef_description.data }} </div>
                                 {% else %}
                                     {{ ef_form.ef_description(class="kiosk-dialog-textfield") }}
                                 {% endif %}

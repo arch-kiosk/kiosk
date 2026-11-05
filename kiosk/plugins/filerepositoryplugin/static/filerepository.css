@@ -1819,4 +1819,8 @@ span.fr-click-to-open-tab:active {
   color: var(--col-primary-bg-ack);
 }
 
+.ep-disabled-description {
+  height: unset;
+}
+
 /*# sourceMappingURL=filerepository.css.map */

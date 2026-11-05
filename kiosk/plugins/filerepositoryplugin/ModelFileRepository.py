@@ -209,8 +209,9 @@ class FileRepositoryFile:
     def get_file_datetime(self):
         return kioskstdlib.latin_date(self.r["file_datetime"], no_time=True)
 
-    def get_file_modified(self):
-        return kioskstdlib.latin_date(self.r["modified"], no_time=True)
+    def get_file_modified(self, ww=False):
+        return kioskstdlib.latin_date(self.r["modified_ww"], no_time=True) if ww \
+            else kioskstdlib.latin_date(self.r["modified"], no_time=True)
 
     def get_arch_identifier(self, include_indirect_identifiers=False):
         """
