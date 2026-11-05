@@ -472,7 +472,7 @@ class Synchronization(PluginLoader):
             try:
                 # fic = FileIdentifierCache(dsd_workstation_view.dsd)
                 # fic.build_file_identifier_cache_from_contexts()
-                FileIdentifierCache.build_fic_indexes(self.type_repository, dsd_workstation_view.dsd)
+                FileIdentifierCache.build_fic_indexes(self.type_repository, master_dsd)
                 logging.info("rebuilding file-identifier-caches ok.")
             except BaseException as e:
                 logging.warning(
