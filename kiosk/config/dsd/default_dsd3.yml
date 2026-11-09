@@ -1449,7 +1449,7 @@ small_find:
       external_id: [datatype(VARCHAR)]
       material: [datatype(VARCHAR)]
       condition: [datatype(VARCHAR)]
-      description: [datatype(VARCHAR)]
+      description: [datatype(VARCHAR), record_description()]
       length: [datatype(VARCHAR)]
       width: [datatype(VARCHAR)]
       thickness: [datatype(VARCHAR)]
@@ -2294,6 +2294,30 @@ material_analysis_record:
       f14: [datatype(VARCHAR)]
       f15: [datatype(VARCHAR)]
       f16: [datatype(VARCHAR)]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+
+season:
+  structure:
+    1:
+      season_id: [datatype(VARCHAR)]
+      season_start: [datatype(DATE)]
+      season_end: [datatype(DATE)]
+      description:  [datatype(VARCHAR), record_description()]
+      uid: [datatype(UUID), replfield_uuid()]
+      created: [datatype(TIMESTAMP), replfield_created()]
+      modified: [datatype(TIMESTAMP), replfield_modified()]
+      modified_by: [datatype(VARCHAR), replfield_modified_by(), default('Null')]
+
+belongs_to_season:
+  structure:
+    1:
+      uid_season: [datatype(UUID)]
+      activity_type: [datatype(VARCHAR)]
+      related_record_type: [datatype(VARCHAR)]
+      related_record_uid: [datatype(UUID)]
       uid: [datatype(UUID), replfield_uuid()]
       created: [datatype(TIMESTAMP), replfield_created()]
       modified: [datatype(TIMESTAMP), replfield_modified()]

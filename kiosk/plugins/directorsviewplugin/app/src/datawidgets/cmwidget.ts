@@ -70,7 +70,7 @@ class CMWidget extends KioskStoreAppComponent {
     }
 
     get_conditions(us_date: string, identifier: string, member: string): string {
-        let sql = `record_type in ('collected_material', 'collected_material_photo') and modified_date = '${us_date}'`
+        let sql = `record_type in ('collected_material', 'collected_material_photo', 'small_find') and modified_date = '${us_date}'`
         if (identifier || member) {
             if (identifier) sql = sql + ` and identifier = '${identifier}'`
             if (member) sql = sql + ` and modified_by ='${member}'`
@@ -91,76 +91,79 @@ class CMWidget extends KioskStoreAppComponent {
         `
         // console.log(sql)
         const cql = {
-            "cql": {
-                "base": {
-                    "scope": {
-                        "unit": {
-                            "locus": {
-                                "collected_material": {
-                                    "collected_material_photo": {}
+            cql: {
+                base: {
+                    scope: {
+                        unit: {
+                            locus: {
+                                collected_material: {
+                                    collected_material_photo: {},
+                                    small_find: {
+                                        join: "inner(uid, uid_cm)",
+                                    },
                                 },
-                            }
-                        }
+                            },
+                        },
                     },
-                    "target": {
-                        "field_or_instruction": "modified_ww()"
+                    target: {
+                        field_or_instruction: "modified_ww()",
                     },
-                    "additional_fields": {
-                        "modified_date": {
-                            "field_or_instruction": "modified_ww()",
-                            "default": "",
-                            "format": "datetime(date)"
+                    additional_fields: {
+                        modified_date: {
+                            field_or_instruction: "modified_ww()",
+                            default: "",
+                            format: "datetime(date)",
                         },
-                        "modified_by": {
-                            "field_or_instruction": "replfield_modified_by()",
-                            "default": "",
+                        modified_by: {
+                            field_or_instruction: "replfield_modified_by()",
+                            default: "",
                         },
-                        "modified_timestamp": {
-                            "field_or_instruction": "modified_ww()",
-                            "default": "",
+                        modified_timestamp: {
+                            field_or_instruction: "modified_ww()",
+                            default: "",
                         },
-                        "created": {
-                            "field_or_instruction": "collected_material.replfield_created()",
-                            "default": "null",
-                            "format": "datetime(date)"
+                        created: {
+                            field_or_instruction: "collected_material.replfield_created()",
+                            default: "null",
+                            format: "datetime(date)",
                         },
-                        "date": {
-                            "field_or_instruction": "collected_material.date",
-                            "default": "null",
-                            "format": "datetime(date)"
+                        date: {
+                            field_or_instruction: "collected_material.date",
+                            default: "null",
+                            format: "datetime(date)",
                         },
-                        "type": {
-                            "field_or_instruction": "collected_material.type",
-                            "default": "",
-                            "format": "dsd_type(varchar)"
+                        type: {
+                            field_or_instruction: "collected_material.type",
+                            default: "",
+                            format: "dsd_type(varchar)",
                         },
-                        "nolot": {
-                            "field_or_instruction": "collected_material.uid_lot",
-                            "default": "false",
-                            "format": "isempty()"
+                        nolot: {
+                            field_or_instruction: "collected_material.uid_lot",
+                            default: "false",
+                            format: "isempty()",
                         },
-                        "nodescription": {
-                            "field_or_instruction": "collected_material.description",
-                            "default": "true",
-                            "format": "isempty()"
+                        nodescription: {
+                            field_or_instruction: "collected_material.description",
+                            default: "true",
+                            format: "isempty()",
                         },
-                        "cm_type": {
-                            "field_or_instruction": "collected_material.cm_type",
-                            "default": "-",
-                            "format": "dsd_type(varchar)"
-                        }
-                    }
+                        cm_type: {
+                            field_or_instruction: "collected_material.cm_type",
+                            default: "-",
+                            format: "dsd_type(varchar)",
+                        },
+                    },
                 },
-                "meta": {
-                    "version": 0.1,
+                meta: {
+                    version: 0.1,
                     // "comment": "cmwidget"
                 },
-                "query": {
-                    "type": "DirectSqlQuery",
-                    "sql": sql
-                }
-            }
-        }
+                query: {
+                    type: "DirectSqlQuery",
+                    sql: sql,
+                },
+            },
+        };
 
         let searchParams = new URLSearchParams({
             page_size: "-1"
@@ -235,7 +238,7 @@ class CMWidget extends KioskStoreAppComponent {
             if (!r.nodescription) cm.hasDescription = true
             if (!r.nolot) cm.lot = true
             // }
-            if (r.record_type == "collected_material_photo") {
+            if (r.record_type === "collected_material_photo") {
                 cm.photoCount = r.c
             }
         })

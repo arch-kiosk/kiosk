@@ -98,7 +98,11 @@ class NarrativeWidget extends KioskStoreAppComponent {
                                             "join": "inner(uid, uid_unit)"
                                         },
                                         "locus": {
-                                            "collected_material": {}
+                                            "collected_material": {
+                                                "small_find": {
+                                                    "join": "inner(uid, uid_cm)"
+                                                }
+                                            }
                                         }
                                     }
                                 },

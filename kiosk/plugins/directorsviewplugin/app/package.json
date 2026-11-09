@@ -31,7 +31,7 @@
     "build": "vite build --emptyOutDir"
   },
   "dependencies": {
-    "@arch-kiosk/kiosktsapplib": "file:../../../../../../kiosktsapplib",
+    "@arch-kiosk/kiosktsapplib": "^0.3.6",
     "@popperjs/core": "~2.11.8",
     "@vaadin/vaadin-date-picker": "~23.6.1",
     "@vaadin/vaadin-item": "~23.6.1",

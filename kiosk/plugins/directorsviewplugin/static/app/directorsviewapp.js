@@ -26004,7 +26004,11 @@ function print() { __p += __j.call(arguments, '') }
                         join: "inner(uid, uid_unit)"
                       },
                       locus: {
-                        collected_material: {}
+                        collected_material: {
+                          small_find: {
+                            join: "inner(uid, uid_cm)"
+                          }
+                        }
                       }
                     }
                   },
@@ -27441,7 +27445,7 @@ function print() { __p += __j.call(arguments, '') }
       };
     }
     get_conditions(r, e, t) {
-      let o = `record_type in ('collected_material', 'collected_material_photo') and modified_date = '${r}'`;
+      let o = `record_type in ('collected_material', 'collected_material_photo', 'small_find') and modified_date = '${r}'`;
       return (e || t) && (e && (o = o + ` and identifier = '${e}'`), t && (o = o + ` and modified_by ='${t}'`)), o;
     }
     fetch_data() {
@@ -27460,7 +27464,10 @@ function print() { __p += __j.call(arguments, '') }
               unit: {
                 locus: {
                   collected_material: {
-                    collected_material_photo: {}
+                    collected_material_photo: {},
+                    small_find: {
+                      join: "inner(uid, uid_cm)"
+                    }
                   }
                 }
               }
@@ -27549,7 +27556,7 @@ function print() { __p += __j.call(arguments, '') }
       r.forEach((t) => {
         const o = t.primary_identifier;
         let i;
-        o in e ? i = e[o] : (i = new MI(), e[o] = i, this.cm.push(i), i.photoCount = 0, i.lot = !1, i.type = "?", i.hasDescription = !1, i.cm_type = "bulk", i.record_type = "", i.modified = 0, i.cm_creation = "?"), i.identifier = t.primary_identifier, i.unitId = t.identifier, i.record_type = t.record_type, t.modified > i.modified && (i.modified = t.modified), i.modified_by = t.modified_by, t.type && (i.type = t.type), t.cm_type && (i.cm_type = this.cm_types[t.cm_type]), t.date && (i.cm_creation = xr(t.date).toLocaleDateString()), t.created && (i.created = xr(t.created).getTime()), t.nodescription || (i.hasDescription = !0), t.nolot || (i.lot = !0), t.record_type == "collected_material_photo" && (i.photoCount = t.c);
+        o in e ? i = e[o] : (i = new MI(), e[o] = i, this.cm.push(i), i.photoCount = 0, i.lot = !1, i.type = "?", i.hasDescription = !1, i.cm_type = "bulk", i.record_type = "", i.modified = 0, i.cm_creation = "?"), i.identifier = t.primary_identifier, i.unitId = t.identifier, i.record_type = t.record_type, t.modified > i.modified && (i.modified = t.modified), i.modified_by = t.modified_by, t.type && (i.type = t.type), t.cm_type && (i.cm_type = this.cm_types[t.cm_type]), t.date && (i.cm_creation = xr(t.date).toLocaleDateString()), t.created && (i.created = xr(t.created).getTime()), t.nodescription || (i.hasDescription = !0), t.nolot || (i.lot = !0), t.record_type === "collected_material_photo" && (i.photoCount = t.c);
       }), this.cmCount = Object.keys(this.cm).length, this.sort_records(this.sort_by[this.selected_sort]);
     }
     sort_records(r) {
