@@ -8,6 +8,7 @@ from typing import Optional
 # import yappi
 
 import kioskstdlib
+from dsd.dsd3 import Join
 from kiosksqldb import KioskSQLDb
 from synchronization import Synchronization
 from synchronizationplugin import SynchronizationPlugin
@@ -150,7 +151,21 @@ class SimpleQCEngine(QCEngine):
         if trigger_record_type == input_record_type:
             raise QCError("counting the trigger record itself is strange and thus not implemented")
 
-        join = self._graph.get_join(trigger_record_type, input_record_type)
+        try:
+            if "key_field" in rule_input:
+                if rule_input["key_field"] in self._dsd.list_fields(input_record_type):
+                    join = Join(
+                        root_table=trigger_record_type,
+                        related_table=input_record_type,
+                        root_field=self._dsd.get_uuid_field(trigger_record_type),
+                        related_field=rule_input["key_field"])
+                else:
+                    raise QCError(f"key_field {rule_input['key_field']} unknown in record type {input_record_type}.")
+            else:
+                join = self._graph.get_join(trigger_record_type, input_record_type)
+        except:
+            join = None
+
         if join:
             sql_join = join.get_sql()
             sql_group_by = join.get_group_by()

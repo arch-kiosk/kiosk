@@ -11,7 +11,7 @@ possible tasks:
   - "housekeeping_fts"
   - "housekeeping_clear_file_lists"
 tasks:
-  - "housekeeping_clear_file_lists"
+  - "housekeeping_quality_check"
 options:
   files:
     - 0cd94110-c056-4431-b848-de21a59af9b3
