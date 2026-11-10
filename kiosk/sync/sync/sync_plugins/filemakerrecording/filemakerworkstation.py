@@ -1587,7 +1587,6 @@ class FileMakerWorkstation(RecordingWorkstation):
                                 "Database ok, importing data ...")
                 prepare_rc = self._prepare_import_from_filemaker(fm,
                                                                  callback_progress=self.interruptable_callback_progress)
-
                 if not prepare_rc:
                     if self.fix_import_errors:
                         logging.warning(f"{self.__class__.__name__}._import_from_filemaker: "
@@ -1602,8 +1601,7 @@ class FileMakerWorkstation(RecordingWorkstation):
 
                     self.x_state_info[self.XSTATE_IMPORT_ERROR] = self.IMPORT_ERROR_FM_PREPARE
 
-                    rc = self.save()
-                    if not rc:
+                    if not self.save():
                         raise Exception("Saving dock state failed.")
 
                 if prepare_rc or self.fix_import_errors:
@@ -1635,8 +1633,7 @@ class FileMakerWorkstation(RecordingWorkstation):
                                           f"Should this error persist, the only way out might be running the import"
                                           f"in repair mode. Please contact your admin who should consult the Q&A "
                                           f"on how to do that.")
-                            rc = self.save()
-                            if not rc:
+                            if not self.save():
                                 raise Exception("Saving dock state failed.")
 
             else:
