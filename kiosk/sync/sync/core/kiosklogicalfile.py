@@ -362,7 +362,7 @@ class KioskLogicalFile:
                 KioskSQLDb.commit_savepoint(savepoint)
             except BaseException as e:
                 logging.error(f"{self.__class__.__name__}.get_representation(), File {self._uid}: {repr(e)}")
-                logging.error(f"{self.__class__.__name__}.get_representation(): ROLLBACK to savepoint!")
+                logging.debug(f"{self.__class__.__name__}.get_representation(): ROLLBACK to savepoint!")
                 KioskSQLDb.rollback_savepoint(savepoint)
 
         return rc
