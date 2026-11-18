@@ -39,33 +39,34 @@ export class DSDRecordAccessor extends DataContextAccessor {
     }
 
     get(path: string, key: string, getMode: number): any {
-         if (path) {
+        if (path) {
             switch (getMode) {
                 case DataContext.GET_MODE_DEFAULT:
-                    if (path !== this.rootKey)
-                        return undefined;
+                    if (path !== this.rootKey) return undefined;
                     break;
                 case DataContext.GET_MODE_ENDS_WITH:
-                    if (!this.rootKey.endsWith(path))
-                        return undefined;
+                    if (!this.rootKey.endsWith(path)) return undefined;
                     break;
                 case DataContext.GET_MODE_REGEX:
                     // ToDo
                     throw "DSDRecordAccessor.get: Regex not implemented";
                 default:
                     throw `DSDRecordAccessor.get: Unknown getMode in ${path}${key}`;
-
             }
         }
-        const data_type = this._data[key][1]
+        const data_type = this._data[key][1];
         // if (key === "modified") debugger;
         if (data_type === "TIMESTAMPTZ") {
             if (this._data.hasOwnProperty(key + "_ww") && this._data[key + "_ww"][0]) {
                 return this._data[key + "_ww"][0];
             }
-            const tz = this._data.hasOwnProperty(key + "_tz")?this._data[key + "_tz"][0]:"-"
-            return `${this._data[key][0]}${tz?'@'+tz:''}`;
+            const tz = this._data.hasOwnProperty(key + "_tz") ? this._data[key + "_tz"][0] : "-";
+            return `${this._data[key][0]}${tz ? "@" + tz : ""}`;
         }
         return this._data[key][0];
+    }
+
+    getDataType(_path: string, key: string, _getMode: number) {
+        return this._data[key][1];
     }
 }

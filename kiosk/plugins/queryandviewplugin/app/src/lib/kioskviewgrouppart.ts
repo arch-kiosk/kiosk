@@ -12,9 +12,10 @@ import { InterpreterManager } from "@arch-kiosk/kiosktsapplib"
 import { InterpreterFactory } from "./interpreterfactory";
 import { DSDRecordAccessor } from "./dsdrecordaccessor";
 import { KioskViewDocument } from "./kioskviewdocument";
-import { compareISODateTime, safeLocaleCompare } from "./applib";
+import { compareISODateTime, getLatinDate, safeLocaleCompare } from "./applib";
 import { DataSetDefinition } from "@arch-kiosk/kiosktsapplib"
 import { KioskView } from "../kioskview";
+import { DateTime } from "luxon";
 
 type FieldOrderComparer = (v1: any,v2: any) => number
 
@@ -38,6 +39,8 @@ export class KioskViewGroupPart {
     private _sort_order: Array<OrderedColumn> = [];
     private _cachedElements: AnyDict = {};
     private _types: { [key: string]: Array<string> } = {};
+    private _currentSortInstruction: string = "";
+    private _currentSortFieldIdx: number = -1;
 
     get interpreter() {
         return this._interpreter;
@@ -246,8 +249,14 @@ export class KioskViewGroupPart {
     public createSortOrder(viewDocument: KioskViewDocument, order_records_by: string[]) {
         this._sort_order = [];
         const columns = this._partData[0];
-        if (order_records_by == undefined) return;
-
+        if (order_records_by === undefined) return;
+        if (order_records_by.length > 0) {
+            this._currentSortInstruction = order_records_by[0].startsWith(">")
+                ? order_records_by[0].slice(1)
+                : order_records_by[0];
+            this._currentSortFieldIdx = this._partData[0].findIndex((x) => x === this._currentSortInstruction);
+            console.log(`current sort idx is ${this._currentSortFieldIdx}`)
+        }
         order_records_by.forEach((sortInstruction) => {
             let dec = false;
             if (sortInstruction.startsWith(">")) {
@@ -283,8 +292,18 @@ export class KioskViewGroupPart {
         });
     }
 
+    protected getPaginationKey() {
+        const accessor =  this.dataContext.getAccessor(this.recordType)
+        let key = accessor.get(accessor.rootKey, this._currentSortInstruction, DataContext.GET_MODE_DEFAULT);
+        const dataType = accessor.getDataType(accessor.rootKey, this._currentSortInstruction, DataContext.GET_MODE_DEFAULT);
+        if (dataType.toUpperCase() === "TIMESTAMP") {
+            key = getLatinDate(DateTime.fromISO(key), false)
+        }
+        return key
+    }
+
     public orderRecords() {
-        if (this._sort_order == undefined || this._sort_order.length == 0) return;
+        if (this._sort_order === undefined || this._sort_order.length == 0) return;
         console.log(`applying sort order for part ${this._partId} to `, this._sort_order);
 
         //remove the column row
@@ -550,6 +569,13 @@ export class KioskViewGroupPart {
         // if (exp === "#(dayplan/uid_image)") debugger;
         const element = this.findElement(elementId);
         const isIdentifier = element?.element_type?.is_identifier;
+        if (exp.startsWith("#!")) {
+            //that is a symbol of the ui-component
+            if (exp === "#!paginationKey") {
+                console.log(this.getPaginationKey());
+                return this.getPaginationKey();
+            }
+        }
         const i_result = this.interpreter.interpret(exp, undefined, undefined, isIdentifier ? "" : " ");
         try {
             if (i_result) {

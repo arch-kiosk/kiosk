@@ -37,7 +37,7 @@ site.sheet:
 site_unit.list:
   record_type: unit
   view_type: list  # (can be list, sheet or file_list or harris_matrix)
-  max_height: 20em
+  max_height: 40vh
   max_height_expandable: true
   fields_selection: dsd
   layout_settings:
@@ -46,6 +46,8 @@ site_unit.list:
     order_records_by: ["arch_context"]
     allow_ordering_by: ["arch_context", "term_for_unit", "unit_creation_date"]
     order: [arch_context, term_for_unit, unit_creation_date, id_excavator, purpose]
+    pagination: auto
+    max_rows: 30
   ui_elements:
     arch_context:
       layout:
@@ -67,12 +69,16 @@ site_unit.list:
 site_notes.list:
   record_type: site_notes
   view_type: list
+  max_height: 40vh
+  max_height_expandable: true
   fields_selection: dsd
   layout_settings:
     type: list
     orchestration_strategy: table
+    max_rows: 10
     order_records_by: [ "date" ]
     allow_ordering_by: ["date", "id_excavator"]
+    pagination: "auto"
     order:
       - uid
       - date

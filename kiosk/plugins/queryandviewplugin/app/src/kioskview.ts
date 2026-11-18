@@ -494,9 +494,17 @@ export class KioskView  extends KioskAppComponent {
 
                             ui.moveToNextRow = (lastUID: string) => part.moveToNextRow(lastUID)
                             ui.setSortOrder = (sortOrder: string[]) => {
+                                console.log("applying sort order", sortOrder);
                                 part.createSortOrder(this.viewDocument, sortOrder)
                                 part.orderRecords()
                             }
+                            ui.renderPaginationHeader = (rowIndex: number, paginationKeyFrom: string, paginationKeyTo: string)=> {
+                                if (paginationKeyFrom.length + paginationKeyTo.length > 100) {
+                                    return html`${paginationKeyFrom}`
+                                } else
+                                    return html`${paginationKeyFrom}-${paginationKeyTo}`;
+                            }
+
                             //todo: Need to use the proper type UIComponentFileFetchParams from uicomponent  here
                             // @ts-ignore
                             ui.fetchFileProvider = (params: any) => {
@@ -539,19 +547,23 @@ export class KioskView  extends KioskAppComponent {
     selectImage(event: CustomEvent) {
         const partId = (event.currentTarget as HTMLElement)?.getAttribute("part-id")
         if (partId) {
-            const part = this.findPart(partId)
-            const fileList = part.getCurrentFileList(this.viewDocument)
+            const part = this.findPart(partId);
+            const fileList = part.getCurrentFileList(this.viewDocument);
             event.detail["fileList"] = fileList
         }
     }
 
-    renderPart(part: KioskViewGroupPart):TemplateResult {
+    renderPart(part: KioskViewGroupPart, maxHeight: string, buttonMode: "open" | "close"):TemplateResult {
         if (part.recordMissing && part.layout.on_record_missing === "message") {
-         return html`<div class="missing-record-message"><i></i> Sorry, but there is no available data of this type</div>`
+         return html`<div class="missing-record-message"><i></i>Sorry, but there is no available data of this type</div>`
         } else {
-            return html`
-                <ui-component id="ui-${part.cssPartId}" part-id="${part.partId}" 
-                @select-image=${this.selectImage}></ui-component>`
+            return html` <ui-component
+                id="ui-${part.cssPartId}"
+                part-id=${part.partId}
+                class=${part.layout.view_type === "list" ? "ui-component-list" : undefined}
+                style="${buttonMode === "open" ? "max-height:" + maxHeight : nothing}"
+                @select-image=${this.selectImage}
+            ></ui-component>`;
         }
     }
 
@@ -593,10 +605,14 @@ export class KioskView  extends KioskAppComponent {
 
     renderPartBody(part: KioskViewGroupPart) {
         let { maxHeight, buttonMode } = part.getPartExpansionSettings();
-        const htmlPartId = "part-body-" + part.cssPartId
-        return html`<div id="${htmlPartId}" data-max-height="${maxHeight}" 
-                         class="part-body" style="${buttonMode==="open"?'max-height:' + maxHeight:nothing}">
-            ${this.renderPart(part)}
+        const htmlPartId = "part-body-" + part.cssPartId;
+        // return html`<div id="${htmlPartId}" data-max-height="${maxHeight}"
+        //                  class="part-body" style="${buttonMode==="open"?'max-height:' + maxHeight:nothing}">
+        //     ${this.renderPart(part)}
+        //     </div>`
+        return html`<div id="${htmlPartId}" data-max-height="${maxHeight}"
+                         class="part-body">
+            ${this.renderPart(part, maxHeight, buttonMode)}
             </div>`
     }
 
@@ -635,7 +651,7 @@ export class KioskView  extends KioskAppComponent {
             <div id="${htmlPartId}"
                  style="${cssStyle}"
                  class="part-body">
-                ${this.renderPart(part)}
+                ${this.renderPart(part, maxHeight, buttonMode)}
             </div>`
     }
 

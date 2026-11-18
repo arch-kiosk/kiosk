@@ -23,20 +23,20 @@
         "tabWidth": 4
     },
     "scripts": {
-        "dev": "vite --host",
+        "dev": "vite --host --force",
         "test": "vitest",
         "build": "tsc && vite build --emptyOutDir",
         "vite8 build": "tsc --noEmit && vite build --emptyOutDir"
     },
     "dependencies": {
         "@arch-kiosk/kiosktsapplib": "^0.3.3",
-        "@arch-kiosk/kioskuicomponents": "^0.4.1",
-        "@arch-kiosk/uicomponent": "^0.8.3",
+        "@arch-kiosk/kioskuicomponents": "C:\\notebook_source\\kiosk\\packages\\kioskuicomponents",
+        "@arch-kiosk/uicomponent": "file:../../../../../../old_lab/uiwebcomponent",
         "@lit/context": "^1.1.2",
         "@shoelace-style/shoelace": "^2.20.1",
         "@toast-ui/chart": "^4.6.1",
-        "@vaadin/grid": "^24.6.2",
-        "@vaadin/select": "^24.6.2",
+        "@vaadin/grid": "^24.10.10",
+        "@vaadin/select": "^24.10.10",
         "install": "^0.13.0",
         "js-cookie": "^3.0.8",
         "lit": "^3.2.1",

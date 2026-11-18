@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from "vite";
 import { createHtmlPlugin } from "vite-plugin-html";
 import copy from "rollup-plugin-copy";
+import { fileURLToPath, URL } from "node:url";
 
 // noinspection JSUnusedGlobalSymbols
 export default defineConfig(({ command, mode }) => {
@@ -33,7 +34,11 @@ export default defineConfig(({ command, mode }) => {
                 // Add alias to resolve the deep static paths
                 "@static": "../../../static",
                 "@styles": "../../../static/styles",
+                "@polymer/polymer": fileURLToPath(new URL("./node_modules/@polymer/polymer", import.meta.url)),
+                lit: fileURLToPath(new URL("./node_modules/lit", import.meta.url)),
             },
+            preserveSymlinks: false,
+            dedupe: ["@polymer/polymer", "lit", "lit-html", "lit-element", "@lit/reactive-element"],
         },
         build: {
             // commonjsOptions: {

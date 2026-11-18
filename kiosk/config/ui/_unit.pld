@@ -120,15 +120,20 @@ exc_unit.sheet:
 exc_unit_narrative.list:
   record_type: unit_narrative
   view_type: list
-  max_height: 20em
+  max_height: 50vh
   max_height_expandable: true
   fields_selection: dsd
   layout_settings:
     type: list
     orchestration_strategy: table
-    order_records_by: ["date", "created", "id_excavator"]
-    allow_ordering_by: []
-    order: [date, id_excavator, narrative]
+    order_records_by: ["date"]
+    allow_ordering_by: ["date", "created", "id_excavator"]
+    complex_sort_orders:
+      "date": ["date", "created", "id_excavator"]
+      "id_excavator": ["id_excavator", "date", "narrative"]
+    max_rows: 5
+    pagination: "auto"
+    order: ["date", "id_excavator", "narrative"]
   ui_elements:
     date:
       layout:
@@ -180,6 +185,8 @@ exc_unit_loci.list:
     order_records_by: [">arch_context"]
     allow_ordering_by: [arch_context, type, date_defined, date_closed, recorded_by]
     order: [arch_context, type, date_defined, date_closed, recorded_by, description]
+    max-rows: 25
+    pagination: "auto"
 
 #unit_cm.list:
 #  record_type: collected_material
@@ -204,6 +211,8 @@ exc_unit_cm.list:
     order_records_by: [">arch_context"]
     allow_ordering_by: ["arch_context", "cm_type", "type", "date", "storage"]
     order: [arch_context, cm_type, type, date, storage, files]
+    max_rows: 25
+    pagination: "auto"
   ui_elements:
     "files":
       element_type:

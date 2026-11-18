@@ -210,6 +210,7 @@ export class QueryAndViewApp extends KioskApp {
         this.inSelectQueryMode = false;
 
     }
+
     protected executeKioskCallParams() {
         const s = getCookie("kiosk_call_params")
         try {
