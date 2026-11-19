@@ -22,7 +22,8 @@ command_params = {
     "create-files-delta": {
         "--target-catalog": "target-catalog",
         "--source-catalog": "source-catalog",
-        "--delta-file": "delta-file"
+        "--delta-file": "delta-file",
+        "--context-bound": "context-bound"
     },
     "pack-delta": {
         "--delta-file": "delta-file",
@@ -40,10 +41,11 @@ required_params = {
     "cat": ["target-dir"],
     "create-files-delta": ["delta-file"],
     "pack-delta": ["delta-file", "target-dir"],
-    "unpack": ["source-dir"]
+    "unpack": ["source-dir"],
 }
 
-options = {}
+options = {
+}
 command = ""
 
 
@@ -64,11 +66,13 @@ def usage():
                         for the next step  
         create-files-delta --delta-file=<delta file> 
                            --target-catalog=<target catalog file> | --source_catalog=<source catalog file>
+                           [--context-bound]
             finds the difference between two file repositories and stores it in a delta file 
  
             target-catalog: the catalog of the target server. Means that we are transferring from this server TO another  
             source-catalog: the catalog of the source server. Means that we are transferring FROM that source server
             delta-file: path and filename of the resulting delta information
+            --context-bound: (optional) only transfer files that are bound to an identifier. Only valid with target-catalog.
         pack-delta --delta-file=<delta file file> --target-dir=<target directory> [--fake] 
                    [--tolerated-errors=number of tolerated errors]
             packs all files that are listed in the delta file from the current kiosk into zip files 
@@ -107,7 +111,9 @@ def cat():
 def create_files_delta():
     target_catalog = kioskstdlib.try_get_dict_entry(options, "target-catalog", "")
     source_catalog = kioskstdlib.try_get_dict_entry(options, "source-catalog", "")
-    if not transfer_kiosk.create_files_delta(target_catalog, source_catalog):
+    if not transfer_kiosk.create_files_delta(target_catalog,
+                                             source_catalog,
+                                             context_bound="context-bound" in options):
         usage()
     print(f"Saving files delta as {options['delta-file']} ... ", end="")
     transfer_kiosk.delta2file(options["delta-file"])

@@ -3,6 +3,7 @@ import logging
 import datetime
 import os
 import pathlib
+from typing import List, Optional
 from zipfile import ZipFile
 
 import kioskstdlib
@@ -109,7 +110,23 @@ class TransferKiosk:
         self.console_log(f" okay: {count} file records dumped.")
         return True
 
-    def create_files_delta(self, target_catalog=None, source_catalog=None):
+    def create_files_delta(self, target_catalog=None, source_catalog=None,
+                           context_bound=False,
+                           omit_record_types: Optional[List[str]]=None):
+        """
+        Note, that target_catalog and source catalog are mutually exclusive.
+        Note, that when using context_bound that the caller must make sure that the file-identifier cache is up to date.
+
+        :param target_catalog: the path and file name of the target catalog.
+        :param source_catalog: the path and file name of the source catalog
+        :param context_bound: default is false. if set this limits the images to those
+                              that appear in the file-identifier-cache.
+        :param omit_record_types: Only in combination with context_bound: an array
+                                    of record types that do NOT count as context bound.
+                                    That way you can export only images that are bound to
+                                    the rest of the record types.
+        :return:
+        """
         if not (target_catalog or source_catalog):
             logging.error(f"{self.__class__.__name__}.create_files_delta: "
                           f"Called without either a target catalog or a source catalog.")
@@ -130,6 +147,11 @@ class TransferKiosk:
                           f"Source catalog {source_catalog} does not exist")
             return False
 
+        if context_bound and source_catalog:
+            logging.error(f"{self.__class__.__name__}.create_files_delta: "
+                          f"Using a source-catalog with the context_bound option is not supported.")
+            return False
+
         self.console_log(f"Importing {source_catalog if source_catalog else target_catalog} ", end="")
         self._import_json_catalog(source_catalog if source_catalog else target_catalog)
 
@@ -148,10 +170,25 @@ class TransferKiosk:
             self.console_log(f"... okay: {c} records found in catalog.")
             logging.debug(f"{self.__class__.__name__}._import_json_catalog: {c} records in temp table. ")
 
-        files_table_sql = f"(select uid, modified, md5_hash from " \
-                          f"{KioskSQLDb.sql_safe_ident(self.master_view.dsd.files_table)} " \
-                          f"where not coalesce(tags,'') ilike " \
-                          f"{DatabaseDriver.quote_value('VARCHAR', DatabaseDriver.wildcard('BROKEN_FILE'))})"
+        if context_bound:
+            if omit_record_types:
+                sql_omit = f" OR fid_record_type in ({','.join([DatabaseDriver.quote_value('VARCHAR', x) for x in omit_record_types])})"
+            else:
+                sql_omit = ""
+
+            files_table_sql = f"""(select distinct uid, modified, md5_hash from 
+                              {KioskSQLDb.sql_safe_ident(self.master_view.dsd.files_table)} files 
+                              inner join {KioskSQLDb.sql_safe_namespaced_table("context_cache", "file_identifier_cache")} fid 
+                                on files.uid = fid.data::UUID
+                              where not (coalesce(tags,'') ilike {DatabaseDriver.quote_value('VARCHAR', DatabaseDriver.wildcard('BROKEN_FILE'))})
+                                         {sql_omit}
+                                        )
+                                """
+        else:
+            files_table_sql = f"""(select distinct uid, modified, md5_hash from 
+                              {KioskSQLDb.sql_safe_ident(self.master_view.dsd.files_table)} 
+                              where not coalesce(tags,'') ilike 
+                              {DatabaseDriver.quote_value('VARCHAR', DatabaseDriver.wildcard('BROKEN_FILE'))})"""
         if source_catalog:
             self.console_log(f"Creating delta to transfer files from a remote Kiosk to this one ", end="")
             delta = self._process_delta(KioskSQLDb.sql_safe_ident(self.temp_table_name), files_table_sql)
