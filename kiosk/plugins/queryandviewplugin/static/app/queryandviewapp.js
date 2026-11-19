@@ -8631,7 +8631,7 @@ function us(e) {
 	return n;
 }
 function ds(e, t = !0) {
-	let n = `${e.day}.${[
+	let n = [
 		"I",
 		"II",
 		"III",
@@ -8644,8 +8644,12 @@ function ds(e, t = !0) {
 		"X",
 		"XI",
 		"XII"
-	][e.month - 1]}.${e.year}`;
-	return t ? n + " " + e.toLocaleString(lo.TIME_SIMPLE) : n;
+	];
+	if (e && e.isValid) {
+		let r = `${e.day}.${n[e.month - 1]}.${e.year}`;
+		return t ? r + " " + e.toLocaleString(lo.TIME_SIMPLE) : r;
+	}
+	return "?";
 }
 function fs(e) {
 	let t = e + "=", n = decodeURIComponent(document.cookie).split(";");
