@@ -3,7 +3,8 @@ import logging
 import datetime
 import os
 import pathlib
-from typing import List, Optional
+from sys import warnoptions
+from typing import List, Optional, Tuple
 from zipfile import ZipFile
 
 import kioskstdlib
@@ -12,6 +13,7 @@ from dsd.dsd3singleton import Dsd3Singleton
 from dsd.dsdview import DSDView
 from dsd.dsdyamlloader import DSDYamlLoader
 from kioskfilesmodel import KioskFilesModel
+from kioskrepresentationtype import KioskRepresentations, KioskRepresentationType
 from kiosksqldb import KioskSQLDb
 from databasedrivers import DatabaseDriver
 from sync_config import SyncConfig
@@ -112,7 +114,7 @@ class TransferKiosk:
 
     def create_files_delta(self, target_catalog=None, source_catalog=None,
                            context_bound=False,
-                           omit_record_types: Optional[List[str]]=None):
+                           omit_record_types: Optional[List[str]] = None):
         """
         Note, that target_catalog and source catalog are mutually exclusive.
         Note, that when using context_bound that the caller must make sure that the file-identifier cache is up to date.
@@ -253,7 +255,8 @@ class TransferKiosk:
 
         return delta
 
-    def pack_delta(self, target_dir, max_errors=1, max_zip_size=100000000, fake_it=False):
+    def pack_delta(self, target_dir, max_errors=1, max_zip_size=100000000, fake_it=False,
+                   resolution=""):
         c = 0
 
         def dot():
@@ -269,6 +272,15 @@ class TransferKiosk:
                                 f"Progress cancelled by user")
 
         c_error = 0
+
+        representation_type = None
+        if resolution:
+            try:
+                representation_type = KioskRepresentations.instantiate_representation_from_config(resolution)
+            except:
+                logging.error(f"{self.__class__.__name__}.pack_delta: "
+                              f"cannot find a representation type for resolution {resolution}.")
+                return False
 
         try:
             kfm = KioskFilesModel()
@@ -289,7 +301,10 @@ class TransferKiosk:
         try:
             for f in self._delta:
                 dot()
-                filename = file_repos.get_file_repository_filename(f)
+                if representation_type:
+                    filename = self.get_cache_file(f, file_repos, representation_type)
+                else:
+                    filename = file_repos.get_file_repository_filename(f)
                 if filename and os.path.exists(filename):
                     if not zip_file:
                         zip_nr += 1
@@ -324,26 +339,63 @@ class TransferKiosk:
                 else:
                     if not kfm.get_one("uid=%s", [f]) or not kfm.tags or "BROKEN_FILE" not in kfm.tags:
                         c_error += 1
-                        logging.error(f"{self.__class__.__name__}.pack_delta: Delta file '{f} not found'")
+                        logging.error(f"{self.__class__.__name__}.pack_delta: File '{f} not found'")
                         if 0 < max_errors <= c_error:
                             raise Exception("Too many missing files")
+                    else:
+                        raise Exception(f"Can't ascertain "
+                                        f"filename for delta file {f}")
+
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.pack_delta: Exception occurred: {repr(e)}")
         finally:
             if zip_file:
                 zip_file.close()
 
-        self.console_log(f"\nokay")
-        self.console_log(f"\n{c - c_error} files packed, {c_error} files missing.")
+        self.console_log(f"\nDone", flush=True)
+        self.console_log(f"\n{c - c_error} files packed, {c_error} files missing or caused errors.", flush=True)
         return True
 
-    def unpack(self, source_dir, file_repos_path="") -> bool:
+    def extract_only_all_new_files(self, zip_ref: ZipFile, file_repos_path, force) -> Tuple[int, int]:
+        c_existing = 0
         c = 0
+        for member in zip_ref.infolist():
+            if member.is_dir():
+                continue
+            target_path = os.path.normpath(os.path.join(file_repos_path, member.filename))
+            if not os.path.lexists(target_path):
+                zip_ref.extract(member, file_repos_path)
+                c += 1
+            else:
+                c_existing += 1
+                if force:
+                    logging.warning(f"{self.__class__.__name__}.extract_only_all_new_files: "
+                                    f"The file {target_path} existed already in the file repository. "
+                                    f"It gets replaced because of --force.")
+                    c += 1
+                    zip_ref.extract(member, file_repos_path)
+                else:
+                    logging.warning(f"{self.__class__.__name__}.extract_only_all_new_files: "
+                                    f"The file {target_path} exists already in the file repository and will not be replaced "
+                                    f"unless you use --force.")
+        return c, c_existing
+
+    def unpack(self, source_dir, file_repos_path="", force_replace_files=False) -> bool:
+        """
+        unpacks all the zip files straight into the file repository.
+        This will not override existing files unless force_replace_files is True.
+
+        :param source_dir: the folder with the zip files
+        :param file_repos_path: the file repository root
+        :param force_replace_files: set to True to override destination files
+        :return: boolean
+        """
+        c_zips = 0
 
         def dot():
-            nonlocal c
-            c += 1
-            if c % 80 == 0:
+            nonlocal c_zips
+            c_zips += 1
+            if c_zips % 80 == 0:
                 self.console_log(".", flush=True)
             else:
                 self.console_log(".", end="", flush=True)
@@ -361,10 +413,44 @@ class TransferKiosk:
 
         zip_files = kioskstdlib.find_files(source_dir, "kiosk_file_repos*.zip", order_desc=False)
         self.console_log(f"Unpacking zip files from {source_dir} to {file_repos_path}.")
-        for zip_file_path in zip_files:
-            dot()
-            with ZipFile(zip_file_path, 'r') as zip_ref:
-                zip_ref.extractall(file_repos_path)
+        c_existing = 0
+        c_extracted = 0
 
-        self.console_log(f"{c} zip files unpacked to {file_repos_path}.")
+        try:
+            for zip_file_path in zip_files:
+                dot()
+                with ZipFile(zip_file_path, 'r') as zip_ref:
+                    c, cx = self.extract_only_all_new_files(zip_ref, file_repos_path, force=force_replace_files)
+                    c_existing += cx
+                    c_extracted += c
+                    if cx:
+                        logging.info(f"{self.__class__.__name__}.unpack: {cx} files "
+                                     f"from zip {zip_file_path} already existed in the file repository.")
+
+                    # zip_ref.extractall(file_repos_path)
+        except Exception as e:
+            logging.error(f"{self.__class__.__name__}.unpack: Exception during unzipping: {repr(e)}")
+
+        print("\n", flush=True)
+        self.console_log(f"\n{c_zips} zip files unpacked. \n{c_extracted} files extracted to {file_repos_path}. "
+                         f"\n{c_existing} files already existed in the file repository.")
+        if (not force_replace_files):
+            self.console_log("\nUse --force if you want to replace existing files. But think twice!")
+        logging.info(f"{c_zips} zip files unpacked. {c_extracted} files extracted to {file_repos_path}. "
+                     f"{c_existing} files already existed in the file repository.")
+
         return True
+
+    def get_cache_file(self, uuid: str, file_repos: FileRepository, representation_type: KioskRepresentationType):
+        f = file_repos.get_contextual_file(uuid)
+        if f:
+            cache_file = f.get_representation(representation_type, True)
+            if cache_file:
+                return cache_file
+            else:
+                logging.error(f"{self.__class__.__name__}.get_cache_file: "
+                              f"Cannot get resolution {representation_type.label} for file {uuid}")
+        else:
+            logging.error(f"{self.__class__.__name__}.get_cache_file: "
+                          f"Cannot get contextual file {uuid}")
+        return ""
