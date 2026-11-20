@@ -66,10 +66,7 @@ def main():
     out_file = args.file if args.file else "fr_analyze.json"
 
     cfg = SyncConfig.get_config()
-    # dsd = Dsd3Singleton.get_dsd3()
-    # assert dsd.append_file(cfg.dsdfile)
 
-    # Initialize and run the sweeper
     fa = FileRepositoryAnalyzer(
         cfg
     )
