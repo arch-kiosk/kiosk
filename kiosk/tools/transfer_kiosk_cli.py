@@ -29,11 +29,13 @@ command_params = {
         "--delta-file": "delta-file",
         "--target-dir": "target-dir",
         "--fake": "fake",
-        "--tolerated-errors": "tolerated-errors"
+        "--tolerated-errors": "tolerated-errors",
+        "--resolution": "resolution"
     },
     "unpack": {
         "--source-dir": "source-dir",
-        "--file-repository": "file-repository"
+        "--file-repository": "file-repository",
+        "--force": "force"
     }
 }
 
@@ -75,18 +77,24 @@ def usage():
             --context-bound: (optional) only transfer files that are bound to an identifier. Only valid with target-catalog.
         pack-delta --delta-file=<delta file file> --target-dir=<target directory> [--fake] 
                    [--tolerated-errors=number of tolerated errors]
+                   [--resolution=image resolution to use]
             packs all files that are listed in the delta file from the current kiosk into zip files 
  
             delta-file: path and filename of the delta
             target-dir: the directory where the zip files will be stored.
             fake: if present, no actual files will be copied, only fake textfiles will be zipped. For testing purposes.
-            tolerated-errors: acceptable number of missing source files while packing 
-        unpack --source-dir=<dir with zips> [--file-repository=<path to the file repository>]
-            unpacks all the zip files in the source-dir into the file repository. Attention: This does not check again
-            if the files are actually newer! The tool trusts that the zip file is the result of the preceding steps.
+            tolerated-errors: acceptable number of missing source files while packing
+            resolution: optional. Sets an image resolution to use rather than the raw files.  
+            
+        unpack --source-dir=<dir with zips> [--file-repository=<path to the file repository>] [--force]
+            unpacks all the zip files in the source-dir into the file repository. This will not replace files unless
+            you use --force. It never checks if a file is newer. It relies entirely on the result of pack-delta!
             
             source-dir: The directory with the zip file
             file-repository: Optional. The file repository path if you want to extract the files to a different place.
+            force: Default is False. Set this if you want to replace existing files in the file repository.
+                   Be careful. If you used --resolution at some point between the two servers you might end up
+                   replacing a raw file with a lower resolution representation.
     """)
     sys.exit(0)
 
@@ -95,7 +103,7 @@ def interpret_param(known_param, param):
     new_option = global_params[known_param]
 
     if new_option in ["target-dir", "td", "target-catalog", "source-catalog", "delta-file", "source-dir",
-                      "file-repository", "tolerated-errors"]:
+                      "file-repository", "tolerated-errors", "resolution"]:
         rc = split_param(new_option, param)
     else:
         rc = {new_option: None}
@@ -127,14 +135,22 @@ def pack_delta():
         if "tolerated-errors" in options:
             tolerated_errors = int(options["tolerated-errors"])
         else:
-            tolerated_errors = 0
+            tolerated_errors = 1
+
+        if "resolution" in options:
+            resolution = options["resolution"]
+        else:
+            resolution = ""
+
         transfer_kiosk.set_progress_handler(lambda prg: True)
         transfer_kiosk.pack_delta(options['target-dir'], fake_it=True if "fake" in options else False,
-                                  max_errors=tolerated_errors)
+                                  max_errors=tolerated_errors, resolution=resolution)
 
 
 def unpack():
-    transfer_kiosk.unpack(options["source-dir"], options["file-repository"] if "file-repository" in options else "")
+    transfer_kiosk.unpack(options["source-dir"],
+                          options["file-repository"] if "file-repository" in options else "",
+                          force_replace_files="force" in options)
 
 
 def run_command():
