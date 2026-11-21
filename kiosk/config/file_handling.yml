@@ -5,6 +5,24 @@ header:
   max_file_size_kbytes: 30000
 file_handling:
   default:
+    tiny:
+      default:
+        storage:
+          location: internal
+          representation: none
+      NEF_TIF:
+        filter:
+          extensions: NEF, TIF, TIFF, RAW, CR2, DNG, WEBP, HEI, HEIC, WMF
+        storage:
+          location: internal
+          representation: 800x600
+      1024x768:
+        filter:
+          max_scale: 800,600
+          extensions: all
+        storage:
+          location: internal
+          representation: 800x600
     low:
       default:
         storage:

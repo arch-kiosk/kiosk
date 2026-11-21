@@ -128,6 +128,11 @@ file_repository:
       requested_manipulations: [ "DROP_EXIF_DATA" ]
       format_request: "default"
       dimensions: "1024,768"
+    800x600:
+      inherits: "master"
+      requested_manipulations: [ "DROP_EXIF_DATA" ]
+      format_request: "default"
+      dimensions: "800,600"
     RAW2400x2500:
       requested_manipulations: [ "DROP_EXIF_DATA" ]
       format_request: "NEFTIF"
