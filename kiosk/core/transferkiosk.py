@@ -256,7 +256,7 @@ class TransferKiosk:
         return delta
 
     def pack_delta(self, target_dir, max_errors=1, max_zip_size=100000000, fake_it=False,
-                   resolution=""):
+                   resolution="", start_with=0, max_count=0):
         c = 0
 
         def dot():
@@ -301,50 +301,56 @@ class TransferKiosk:
         try:
             for f in self._delta:
                 dot()
-                if representation_type:
-                    filename = self.get_cache_file(f, file_repos, representation_type)
-                else:
-                    filename = file_repos.get_file_repository_filename(f)
-                if filename and os.path.exists(filename):
-                    if not zip_file:
-                        zip_nr += 1
-                        zip_filename = f"kiosk_file_repos_{zip_nr}.zip"
-                        zip_size = 0
-                        zip_file = ZipFile(os.path.join(target_dir, zip_filename), 'w')
-                    if zip_file:
-                        try:
-                            filename_only = pathlib.PurePath(filename).name
-                            fr_path = pathlib.PurePath(filename).parent.name
-                            filename_in_zip = os.path.join(fr_path, filename_only)
-                            if not fake_it:
-                                zip_file.write(filename, arcname=filename_in_zip)
-                                try:
-                                    info = zip_file.getinfo(filename_in_zip.replace("\\", "/"))
-                                    zip_size += info.compress_size
-                                except BaseException as e:
-                                    logging.error(f"{self.__class__.__name__}.pack_delta: "
-                                                  f"Exception reflecting on {filename_in_zip}: {repr(e)}")
-                                    raise Exception("Zip operation failed")
-                            else:
-                                zip_size += int(kioskstdlib.get_file_size(filename) * 0.7)
-
-                            if zip_size > max_zip_size:
-                                zip_file.close()
-                                zip_file = None
-
-                        except BaseException as e:
-                            logging.error(f"{self.__class__.__name__}.pack_delta: Error zipping {filename}: {repr(e)}")
-                            raise Exception("Zip operation failed")
-
-                else:
-                    if not kfm.get_one("uid=%s", [f]) or not kfm.tags or "BROKEN_FILE" not in kfm.tags:
-                        c_error += 1
-                        logging.error(f"{self.__class__.__name__}.pack_delta: File '{f} not found'")
-                        if 0 < max_errors <= c_error:
-                            raise Exception("Too many missing files")
+                if (not start_with) or c >= start_with:
+                    if max_count and c >= start_with + max_count:
+                        logging.info(f"{self.__class__.__name__}.pack_delta: not including file# {c}")
+                        c -= 1
+                        break
+                    if representation_type:
+                        filename = self.get_cache_file(f, file_repos, representation_type)
                     else:
-                        raise Exception(f"Can't ascertain "
-                                        f"filename for delta file {f}")
+                        filename = file_repos.get_file_repository_filename(f)
+                    if filename and os.path.exists(filename):
+                        if not zip_file:
+                            zip_nr += 1
+                            zip_filename = f"kiosk_file_repos_{zip_nr}.zip"
+                            zip_size = 0
+                            zip_file = ZipFile(os.path.join(target_dir, zip_filename), 'w')
+                        if zip_file:
+                            try:
+                                filename_only = pathlib.PurePath(filename).name
+                                fr_path = pathlib.PurePath(filename).parent.name
+                                filename_in_zip = os.path.join(fr_path, filename_only)
+                                if not fake_it:
+                                    zip_file.write(filename, arcname=filename_in_zip)
+                                    try:
+                                        info = zip_file.getinfo(filename_in_zip.replace("\\", "/"))
+                                        zip_size += info.compress_size
+                                    except BaseException as e:
+                                        logging.error(f"{self.__class__.__name__}.pack_delta: "
+                                                      f"Exception reflecting on {filename_in_zip}: {repr(e)}")
+                                        raise Exception("Zip operation failed")
+                                else:
+                                    zip_size += int(kioskstdlib.get_file_size(filename) * 0.7)
+
+                                if zip_size > max_zip_size:
+                                    zip_file.close()
+                                    zip_file = None
+
+                            except BaseException as e:
+                                logging.error(
+                                    f"{self.__class__.__name__}.pack_delta: Error zipping {filename}: {repr(e)}")
+                                raise Exception("Zip operation failed")
+
+                    else:
+                        if not kfm.get_one("uid=%s", [f]) or not kfm.tags or "BROKEN_FILE" not in kfm.tags:
+                            c_error += 1
+                            logging.error(f"{self.__class__.__name__}.pack_delta: File '{f} not found'")
+                            if 0 < max_errors <= c_error:
+                                raise Exception("Too many missing files")
+                        else:
+                            raise Exception(f"Can't ascertain "
+                                            f"filename for delta file {f}")
 
         except BaseException as e:
             logging.error(f"{self.__class__.__name__}.pack_delta: Exception occurred: {repr(e)}")

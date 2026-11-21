@@ -30,6 +30,8 @@ command_params = {
         "--target-dir": "target-dir",
         "--fake": "fake",
         "--tolerated-errors": "tolerated-errors",
+        "--start-with": "start-with",
+        "--max-count": "max-count",
         "--resolution": "resolution"
     },
     "unpack": {
@@ -77,6 +79,8 @@ def usage():
             --context-bound: (optional) only transfer files that are bound to an identifier. Only valid with target-catalog.
         pack-delta --delta-file=<delta file file> --target-dir=<target directory> [--fake] 
                    [--tolerated-errors=number of tolerated errors]
+                   [--start_with=start packing with this image]
+                   [--max_count=pack not more than this number of images]
                    [--resolution=image resolution to use]
             packs all files that are listed in the delta file from the current kiosk into zip files 
  
@@ -84,7 +88,10 @@ def usage():
             target-dir: the directory where the zip files will be stored.
             fake: if present, no actual files will be copied, only fake textfiles will be zipped. For testing purposes.
             tolerated-errors: acceptable number of missing source files while packing
-            resolution: optional. Sets an image resolution to use rather than the raw files.  
+            start_with=x and max_count=y: Optional. And they belong together. 
+                                           Starts with file number x and pack not more than y files. 
+                                           The first file is the number 1.                
+            resolution: experimental. don't use. Uses an image representation rather than the raw files.
             
         unpack --source-dir=<dir with zips> [--file-repository=<path to the file repository>] [--force]
             unpacks all the zip files in the source-dir into the file repository. This will not replace files unless
@@ -103,7 +110,7 @@ def interpret_param(known_param, param):
     new_option = global_params[known_param]
 
     if new_option in ["target-dir", "td", "target-catalog", "source-catalog", "delta-file", "source-dir",
-                      "file-repository", "tolerated-errors", "resolution"]:
+                      "file-repository", "tolerated-errors", "resolution", "start-with", "max-count"]:
         rc = split_param(new_option, param)
     else:
         rc = {new_option: None}
@@ -139,12 +146,30 @@ def pack_delta():
 
         if "resolution" in options:
             resolution = options["resolution"]
+            logging.error("--resolution is banned. Don't use.")
+            usage()
+            return False
         else:
             resolution = ""
 
+        if "start-with" in options or "max-count" in options:
+            if "start-with" not in options or "max-count" not in options:
+                logging.error("--start-with and --max-count belong together. State either or none.")
+                usage()
+                return False
+            start_with = int(options["start-with"])
+            max_count =  int(options["max-count"])
+        else:
+            start_with = 0
+            max_count = 0
+
         transfer_kiosk.set_progress_handler(lambda prg: True)
         transfer_kiosk.pack_delta(options['target-dir'], fake_it=True if "fake" in options else False,
-                                  max_errors=tolerated_errors, resolution=resolution)
+                                  max_errors=tolerated_errors,
+                                  resolution=resolution,
+                                  start_with=start_with,
+                                  max_count=max_count
+                                  )
 
 
 def unpack():

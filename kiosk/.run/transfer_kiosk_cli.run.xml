@@ -16,7 +16,7 @@
     <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
     <option name="RUN_TOOL" value="" />
     <option name="SCRIPT_NAME" value="$PROJECT_DIR$/tools/transfer_kiosk_cli.py" />
-    <option name="PARAMETERS" value="unpack --source-dir=w:\test_transfer --force" />
+    <option name="PARAMETERS" value="pack-delta --delta-file=W:\test_transfer\delta.json --target-dir=w:\test_transfer --start-with=2 --max-count=1" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="false" />
