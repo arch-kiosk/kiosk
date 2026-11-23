@@ -19,9 +19,12 @@ compilations:
           feature_unit_locus.sheet:
             text: ''
             position: 3
+          feature_unit_team.list:
+            text: 'team'
+            position: 4
           feature_unit_narrative.list:
             text: 'narratives'
-            position: 4
+            position: 5
       group_2:
         type: "accordion"
         parts:
@@ -128,36 +131,35 @@ feature_unit_details.sheet:
       layout:
         min_width: max
 
-#involved_as.list:
-#  record_type: involved_as
-#  view_type: list  # (can be list, sheet or file_list or harris_matrix)
+feature_unit_team.list:
+  record_type: involved_as
+  view_type: list  # (can be list, sheet or file_list or harris_matrix)
 #  max_height: 20em
 #  max_height_expandable: true
-#  fields_selection: dsd
-#  layout_settings:
-#    type: list
-#    orchestration_strategy: table  # (the default for the sheet scenario)
-#    order_records_by: [">date", "id_excavator"]
-#    allow_ordering_by: ["date", "id_excavator"]
-#    order: [date, id_excavator, narrative]
-#  ui_elements:
-#    user_id:
-#      layout:
-#        min_width: 15%
-#    role:
-#      layout:
-#        min_width: 15%
-#    involved_from:
-#      layout:
-#        min_width: 15%
-#    involved_to:
-#      layout:
-#        min_width: 15%
-#    notes:
-#      layout:
-#        min_width: 40%
-#        max_height: max
-#
+  fields_selection: dsd
+  layout_settings:
+    type: list
+    orchestration_strategy: table  # (the default for the sheet scenario)
+    order_records_by: [">user_id"]
+    allow_ordering_by: []
+    order: [user_id, role, involved_from, involved_to, notes]
+  ui_elements:
+    user_id:
+      layout:
+        min_width: 15%
+    role:
+      layout:
+        min_width: 15%
+    involved_from:
+      layout:
+        min_width: 15%
+    involved_to:
+      layout:
+        min_width: 15%
+    notes:
+      layout:
+        min_width: 40%
+        max_height: max
 
 feature_unit_locus.sheet:
   record_type: locus
@@ -328,3 +330,4 @@ feature_unit_cm.list:
           aggregation_field: "uid_photo"
           aggregation_method: "count"
           default_to: "0"
+

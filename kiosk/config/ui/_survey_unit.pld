@@ -19,9 +19,22 @@ compilations:
           survey_unit_locus.sheet:
             text: ''
             position: 3
+          survey_unit_team.list:
+            text: 'team'
+            position: 4
           survey_unit_narrative.list:
             text: 'narratives'
-            position: 4
+            position: 5
+      group_3:
+        type: "stacked"
+        parts:
+          survey_unit_transects.header:
+            text: 'transects'
+            position: 1
+          survey_unit_transects.data:
+            text: 'data'
+            position: 2
+
       group_2:
         type: "accordion"
         parts:
@@ -91,7 +104,7 @@ survey_unit_details.sheet:
   record_type: survey_unit
   view_type: sheet  # (can be list, sheet or file_list or harris_matrix)
   fields_selection: dsd
-#  dsd_view: unit.sheet.view
+  #  dsd_view: unit.sheet.view
   layout_settings:
     orchestration_strategy: columns  # (the default for the sheet scenario)
     default_element_visibility: "."
@@ -117,36 +130,36 @@ survey_unit_details.sheet:
 
 
 
-#involved_as.list:
-#  record_type: involved_as
-#  view_type: list  # (can be list, sheet or file_list or harris_matrix)
+survey_unit_team.list:
+  record_type: involved_as
+  view_type: list  # (can be list, sheet or file_list or harris_matrix)
 #  max_height: 20em
 #  max_height_expandable: true
-#  fields_selection: dsd
-#  layout_settings:
-#    type: list
-#    orchestration_strategy: table  # (the default for the sheet scenario)
-#    order_records_by: [">date", "id_excavator"]
-#    allow_ordering_by: ["date", "id_excavator"]
-#    order: [date, id_excavator, narrative]
-#  ui_elements:
-#    user_id:
-#      layout:
-#        min_width: 15%
-#    role:
-#      layout:
-#        min_width: 15%
-#    involved_from:
-#      layout:
-#        min_width: 15%
-#    involved_to:
-#      layout:
-#        min_width: 15%
-#    notes:
-#      layout:
-#        min_width: 40%
-#        max_height: max
-#
+  fields_selection: dsd
+  layout_settings:
+    type: list
+    orchestration_strategy: table  # (the default for the sheet scenario)
+    order_records_by: [">user_id"]
+    allow_ordering_by: []
+    order: [user_id, role, involved_from, involved_to, notes]
+  ui_elements:
+    user_id:
+      layout:
+        min_width: 15%
+    role:
+      layout:
+        min_width: 15%
+    involved_from:
+      layout:
+        min_width: 15%
+    involved_to:
+      layout:
+        min_width: 15%
+    notes:
+      layout:
+        min_width: 40%
+        max_height: max
+
 
 survey_unit_locus.sheet:
   record_type: locus
@@ -202,9 +215,9 @@ survey_unit_locus.sheet:
     arch_context:
       element_type:
         text: "#(unit/term_for_locus)"
-#    type:
-#      element_type:
-#        text: "#(unit/term_for_locus) type"
+    #    type:
+    #      element_type:
+    #        text: "#(unit/term_for_locus) type"
 
     line_1:
       element_type:
@@ -258,9 +271,9 @@ survey_unit_narrative.list:
   layout_settings:
     type: list
     orchestration_strategy: table  # (the default for the sheet scenario)
-    order_records_by: [">date", "id_excavator"]
-    allow_ordering_by: ["date", "id_excavator"]
-    order: [modified, date, id_excavator, narrative]
+    order_records_by: [ ">date", "id_excavator" ]
+    allow_ordering_by: [ "date", "id_excavator" ]
+    order: [ modified, date, id_excavator, narrative ]
   ui_elements:
     date:
       layout:
@@ -281,9 +294,9 @@ survey_unit_files.list:
   layout_settings:
     type: list
     orchestration_strategy: gallery
-    order_records_by: [">modified", "file_datetime"]
-    allow_ordering_by: ["modified", "modified_by", "file_datetime"]
-    order: [uid_image, modified, modified_by, file_datetime]
+    order_records_by: [ ">modified", "file_datetime" ]
+    allow_ordering_by: [ "modified", "modified_by", "file_datetime" ]
+    order: [ uid_image, modified, modified_by, file_datetime ]
 
   ui_elements:
     "file_datetime":
@@ -305,16 +318,16 @@ survey_unit_features.list:
   layout_settings:
     type: list
     orchestration_strategy: table
-    order_records_by: [">uid_dst_unit"]
-    order: [uid_dst_unit,uid_dst_purpose]
+    order_records_by: [ ">uid_dst_unit" ]
+    order: [ uid_dst_unit,uid_dst_type, uid_dst_purpose ]
   ui_elements:
     uid_dst_unit:
       layout:
         min_width: 15%
       element_type:
-#        name: "TextField"
+        #        name: "TextField"
         text: "feature"
-#        value: "#(uid_dst_unit)"
+        #        value: "#(uid_dst_unit)"
         visible: true
         is_identifier: true
         links_to: unit
@@ -324,8 +337,8 @@ survey_unit_features.list:
           key_field: "uid"
           display_value: "arch_context"
     uid_dst_purpose:
-#      layout:
-#        min_width: 15%
+      #      layout:
+      #        min_width: 15%
       element_type:
         name: "TextField"
         text: "description"
@@ -345,9 +358,9 @@ survey_unit_cm.list:
   layout_settings:
     type: list
     orchestration_strategy: table
-    order_records_by: [">arch_context"]
-    allow_ordering_by: ["arch_context", "cm_type", "type", "date", "storage"]
-    order: [arch_context, cm_type, type, date, storage, files]
+    order_records_by: [ ">arch_context" ]
+    allow_ordering_by: [ "arch_context", "cm_type", "type", "date", "storage" ]
+    order: [ arch_context, cm_type, type, date, storage, files ]
   ui_elements:
     "files":
       element_type:
@@ -361,3 +374,125 @@ survey_unit_cm.list:
           aggregation_field: "uid_photo"
           aggregation_method: "count"
           default_to: "0"
+
+survey_unit_transects.header:
+  record_type: survey_unit
+  view_type: list
+  max_height: 20em
+  fields_selection: dsd
+  layout_settings:
+    type: list
+    orchestration_strategy: table
+    order: [ data_field1_name,
+             data_field2_name,
+             data_field3_name,
+             data_field4_name,
+             data_field5_name,
+             data_field6_name,
+             data_field7_name,
+             data_field8_name,
+             data_field9_name,
+             data_field10_name,
+             data_dummy1,
+             data_dummy2
+    ]
+  ui_elements:
+    data_field1_name:
+      element_type:
+        text: "col 1"
+    data_field2_name:
+      element_type:
+        text: "col 2"
+    data_field3_name:
+      element_type:
+        text: "col 3"
+    data_field4_name:
+      element_type:
+        text: "col 4"
+    data_field5_name:
+      element_type:
+        text: "col 5"
+    data_field6_name:
+      element_type:
+        text: "col 6"
+    data_field7_name:
+      element_type:
+        text: "col 7"
+    data_field8_name:
+      element_type:
+        text: "col 8"
+    data_field9_name:
+      element_type:
+        text: "col 9"
+    data_field10_name:
+      element_type:
+        text: "col 10"
+    data_dummy1:
+      element_type:
+        name: "textfield"
+        text: ""
+        value: ""
+        visible: true
+    data_dummy2:
+      element_type:
+        name: "textfield"
+        text: ""
+        value: ""
+        visible: true
+
+survey_unit_transects.data:
+  record_type: survey_unit_data
+  view_type: list
+  max_height: 20em
+  fields_selection: dsd
+  layout_settings:
+    type: list
+    orchestration_strategy: table
+    order: [ data_field1_value,
+             data_field2_value,
+             data_field3_value,
+             data_field4_value,
+             data_field5_value,
+             data_field6_value,
+             data_field7_value,
+             data_field8_value,
+             data_field9_value,
+             data_field10_value,
+             team_member_id,
+             modified
+
+    ]
+    order_records_by: [ ">modified" ]
+
+#    order: [uid_dst_unit,uid_dst_type, uid_dst_purpose]
+  ui_elements:
+    data_field1_value:
+      element_type:
+        text: "col 1"
+    data_field2_value:
+      element_type:
+        text: "col 2"
+    data_field3_value:
+      element_type:
+        text: "col 3"
+    data_field4_value:
+      element_type:
+        text: "col 4"
+    data_field5_value:
+      element_type:
+        text: "col 5"
+    data_field6_value:
+      element_type:
+        text: "col 6"
+    data_field7_value:
+      element_type:
+        text: "col 7"
+    data_field8_value:
+      element_type:
+        text: "col 8"
+    data_field9_value:
+      element_type:
+        text: "col 9"
+    data_field10_value:
+      element_type:
+        text: "col 10"

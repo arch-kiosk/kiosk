@@ -2057,7 +2057,7 @@ involved_as:
   structure:
     1:
       related_record_type: [datatype(VARCHAR)]
-      related_record_uid: [datatype(UUID)]
+      related_record_uid: [datatype(UUID),"join(unit)"]  # terrible hack! See #3474. This needs to be cleaned up when Q&V is more capable.
       user_id: [datatype(VARCHAR)]
       role: [datatype(VARCHAR)]
       involved_from: [datatype(DATE)]
