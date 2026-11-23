@@ -503,13 +503,22 @@ def variables(dock_id: str, base_query: str):
 
         if not rdv_form:
             rdv_form = KioskReportingVariablesForm()
-            rdv_form.zip_output_files.data = False
+            rdv_form.zip_output_files.data = True
+            try:
+                rdv_form.zip_output_files.data = kioskstdlib.try_get_dict_entry(kioskglobals.get_config()["reportingdock"],
+                                                                                "zip_files_by_default",
+                                                                                True)
+            except:
+                pass
 
         if variable_errors and not general_errors:
             general_errors.append("Please check your inputs")
 
         try:
             can_zip = reporting_dock.sync_dock.get_reporting_dock_capabilities()["can_zip"]
+            if not can_zip:
+                rdv_form.zip_output_files.data = False
+
         except BaseException as e:
             logging.error(f"kioskreportingdockcontroller.variables: Exception when checking can_zip status: {repr(e)}")
             can_zip = False
